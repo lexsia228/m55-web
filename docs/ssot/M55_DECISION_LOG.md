@@ -334,6 +334,18 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Existing s1 tokens | remain valid |
 | Commerce / DB / Stripe | unchanged |
 
+### 2026-08-16 — Personalization + narrative/share Production release (PR #120/#121/#122)
+
+**Status:** Production release **GREEN**. Automatic Vercel Production deployment **REUSED** @ `9e40f1a8b334e48fcaa99da8ce82a9de88cf218f`. GitHub deployment `5921961780` @ `2026-08-15T15:38:39Z`. Diagnostics observed @ `2026-08-15T16:28:24.317Z`. Delta-only Production smoke GREEN. No DB/Stripe/env/payment mutation.
+
+| Rule | Value |
+|---|---|
+| Release authority | `9e40f1a8b334e48fcaa99da8ce82a9de88cf218f` |
+| Canonical domain | `https://m-55.jp` |
+| Prior Production SHA | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| Hotfix | **NONE** |
+| Next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+
 ### 2026-08-16 — Personalization + narrative/share main settlement (PR #120 + PR #121)
 
 **Status:** Human-authorized **conditional merge + main settlement**. PR #120 merged to `main` @ `679debfffa18a6811112b4e1b298653f472658a6`. PR #121 retargeted to `main` and merged @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b`. WT-030 / WT-031 **COMPLETED** on main. Production deploy **not** executed in this gate.
@@ -345,3 +357,14 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Public identity | A162 / B44 / C78 / INFORMATION_LOSS 0 |
 | Next gate | Production release/deploy |
 | Production / DB / Stripe / env | unchanged in this settlement |
+
+### 2026-08-16 — Personal Free commercial individuality presentation closure (PR #123 + PR #124)
+
+**Status:** Presentation-layer closure **GREEN** on `main` @ `743d0fd3fd85b267b759a6b4f3f6de757bc79976`. PR #123 merged production free-entry hotfix @ `c5b15e4afb226cfd85316e945601b799c485121d`. PR #124 merged WHY birth+answer+fused, hiddenSpec≠actual, misread realizer, hero coherence, presentation guards. No inference rebuild. Production deployment GitHub @ `743d0fd` · `2026-08-16T06:33:15Z`.
+
+| Rule | Value |
+|---|---|
+| PERSONAL_FREE_COMMERCIAL_INDIVIDUALITY | **CLOSED_GREEN** |
+| Inference / DB / Stripe / env | unchanged |
+| Card C / public share | unchanged — regression GREEN |
+| Next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |

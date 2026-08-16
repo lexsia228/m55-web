@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-14T09:50:00Z** (`git worktree list --porcelain`; PR #117 **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · Production deployment GitHub `5903998364` · last verified origin/main `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · prior snapshots `511b54d` / `286cb105` retained)
+Last verified: **2026-08-16T06:40:00Z** (`git worktree list --porcelain`; Production **GREEN** @ `743d0fd3fd85b267b759a6b4f3f6de757bc79976` · GitHub Production deployment @ `2026-08-16T06:33:15Z` · prior Production `9e40f1a` retained)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -40,7 +40,11 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-16 post-PR-#120-#121) — authoritative, read this first:** PR #120 + PR #121 **MERGED** to `main` @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b`. Personalization (`feat/m55-personalization-resolution-v2`) and narrative/share (`feat/m55-product-narrative-share-v1`) lanes **COMPLETED** on main. WT-030 / WT-031 retained read-only. Production deploy **not executed** in this settlement. **NEXT GATE:** Production release/deploy.
+**CURRENT (2026-08-16 post-PR-#123-#124) — authoritative, read this first:** PR #120–#124 on `main` @ `743d0fd3fd85b267b759a6b4f3f6de757bc79976`. Production **GREEN** — GitHub deployment @ `743d0fd` · `2026-08-16T06:33:15Z` · canonical `https://m-55.jp`. Personal Free commercial individuality presentation **CLOSED_GREEN**. WT-030 / WT-031 retained read-only. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`.
+
+**CURRENT (2026-08-16 post-Production-release) — historical:** PR #120 + PR #121 + PR #122 on `main` @ `9e40f1a8b334e48fcaa99da8ce82a9de88cf218f`. Production release **GREEN** — GitHub deployment `5921961780` @ `2026-08-15T15:38:39Z` · diagnostics SHA `9e40f1a`.
+
+**CURRENT (2026-08-16 post-PR-#120-#121) — historical pre-release:** PR #120 + PR #121 **MERGED** to `main` @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b`. Production deploy **not executed** in that settlement.
 
 **CURRENT (2026-08-15 personalization-resolution-v2) — historical pre-merge:** ACTIVE implementation worktree `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` · branch `feat/m55-personalization-resolution-v2` · merged via PR #120 @ `679debf`.
 
