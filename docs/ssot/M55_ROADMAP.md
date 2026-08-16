@@ -23,7 +23,11 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120 + PR #121 + PR #122 are on main @ `9e40f1a8b334e48fcaa99da8ce82a9de88cf218f`. Personalization resolution v2 and narrative/share delight v2 are **live on Production** (`https://m-55.jp`). Compatibility commerce remains **OFF**. **NEXT:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120–#128 on `main` @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Personalization + narrative/share + Personal Free commercial individuality are **live on Production** (`https://m-55.jp`). Personal Free user-visible quality is **USER_VISIBLE_CLOSED_GREEN**. Compatibility commerce remains **OFF**. **NEXT:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` — not another Personal Free redesign.
+
+## Personal Free user-visible quality (2026-08-16) — USER_VISIBLE_CLOSED_GREEN
+
+PR #123–#128 closed the long-lived Personal Free commercial individuality / user-visible quality lane on `main` @ `de37b1a`. Human **USER_VISIBLE_CLOSED_GREEN** is recorded. This lane is **not active**. Next authorized commercial work is post-release lifecycle / revenue growth (`M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`, MRQ P3 planning) — **not** another Free redesign wave.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 
