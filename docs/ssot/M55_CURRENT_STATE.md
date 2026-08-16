@@ -5,7 +5,39 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`).
+
+## PERSONAL FREE COMMERCIAL INDIVIDUALITY (2026-08-16) — AUTHORITATIVE POST-PR-#123-#124
+
+| Field | Value |
+|---|---|
+| PR #123 | **MERGED** — https://github.com/lexsia228/m55-web/pull/123 · merge commit `c5b15e4afb226cfd85316e945601b799c485121d` |
+| PR #124 | **MERGED** — https://github.com/lexsia228/m55-web/pull/124 · merge commit `743d0fd3fd85b267b759a6b4f3f6de757bc79976` |
+| origin/main (settlement) | `743d0fd3fd85b267b759a6b4f3f6de757bc79976` |
+| Production SHA (GitHub deployment) | `743d0fd3fd85b267b759a6b4f3f6de757bc79976` @ `2026-08-16T06:33:15Z` |
+| PERSONAL_FREE_COMMERCIAL_INDIVIDUALITY | **CLOSED_GREEN** — WHY birth+answer+fused · hiddenSpec≠actual · misread realizer · hero coherence · presentation guards |
+| Inference rebuild | **none** — presentation/selection layer only |
+| Card C / public share | **unchanged** — regression tests GREEN |
+| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (unchanged) |
+
+## PRODUCTION RELEASE — PERSONALIZATION + NARRATIVE SHARE (2026-08-16)
+
+| Field | Value |
+|---|---|
+| Release verdict | **PRODUCTION_RELEASE_GREEN** (superseded as latest Production SHA by PR #124 @ `743d0fd`) |
+| origin/main (release authority) | `9e40f1a8b334e48fcaa99da8ce82a9de88cf218f` |
+| PR #122 | **MERGED** — post-merge SSOT settlement on main |
+| Deployment method | **REUSE** — automatic Vercel Production on `main` merge (no manual redeploy) |
+| Production deployment (GitHub) | `5921961780` @ `2026-08-15T15:38:39Z` |
+| Canonical domain | `https://m-55.jp` |
+| Vercel project | `m55-official/m55-webv2` · `vercel_env=production` · `vercel_branch=main` |
+| Production SHA (diagnostics) | `9e40f1a8b334e48fcaa99da8ce82a9de88cf218f` (historical; current Production `743d0fd`) |
+| Diagnostics observedAt | `2026-08-15T16:28:24.317Z` (`npm run observe:production-diagnostics`) |
+| Prior Production SHA | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| Delta smoke | Personal Free · A/B/C share · Card C OG · image artifact · viewer→Free · Pair Free/public share · Premium LP/bridge — **GREEN** |
+| DB / Stripe / env mutation | **none** |
+| Payment smoke | **NO NEW TRANSACTION** — payment contracts unchanged |
+| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (unchanged) |
 
 ## PERSONALIZATION + NARRATIVE SHARE (2026-08-16) — AUTHORITATIVE POST-PR-#120-#121
 
@@ -13,15 +45,15 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 |---|---|
 | PR #120 | **MERGED** — https://github.com/lexsia228/m55-web/pull/120 · feature head `823d8109fbc36d5d8528cdaa37c009f6f87fa6fd` · merge commit `679debfffa18a6811112b4e1b298653f472658a6` |
 | PR #121 | **MERGED** — https://github.com/lexsia228/m55-web/pull/121 · feature head `9e6aa702465408aeb7f152c06ef91ad6e16adbe5` · merge commit `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
-| origin/main (settlement) | `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
-| Production SHA (diagnostics) | **not reobserved in this settlement** — prior `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| origin/main (settlement) | `743d0fd3fd85b267b759a6b4f3f6de757bc79976` (includes PR #122–#124) |
+| Production SHA (diagnostics) | `743d0fd3fd85b267b759a6b4f3f6de757bc79976` — see PR #123/#124 section |
 | PERSONALIZATION_RESOLUTION | **MERGED GREEN** — CanonicalBirthProfileV2 · DOB×answers fused identity · information-loss closure · V5/V6 polish on main |
 | NARRATIVE_SHARE | **MERGED GREEN** — 私の取扱説明書 · A/B/C share cards · OG A/B/C/Pair · viewer→Free · Free→Premium bridge · Premium narrative close · safe share attribution |
 | Public identity (share) | A162 / B44 / C78 / INFORMATION_LOSS 0 |
 | Delight v2 authority commit | `f04550a1c6cfdf3404b7c2b09ff14a75a8bd4f3c` (contained in main via #121) |
 | WT-030 | **COMPLETED** — retained read-only |
 | WT-031 | **COMPLETED** — retained read-only |
-| NEXT GATE | **Production release/deploy** — Git integration settled; no further product-design review gate |
+| NEXT GATE | **Production release CLOSED GREEN** — next operational gate: `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |
@@ -49,7 +81,7 @@ This section is the current authority after PR #117 merge. Pair display identity
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
 | ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | **Production release/deploy** — PR #120/#121 merged to main @ `7bc2503` |
+| NEXT GATE | **Production release CLOSED GREEN** @ `9e40f1a` — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
 | PERSONALIZATION_RESOLUTION | **MERGED GREEN** — PR #120 @ `679debf` · WT-030 **COMPLETED** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
