@@ -378,7 +378,20 @@ This decision authorizes **only** durable transition recording in the four-file 
 | PERSONAL_FREE_USER_VISIBLE | **USER_VISIBLE_CLOSED_GREEN** |
 | PERSONAL_FREE_ACTIVE_LANE | **false** — lane settled |
 | Locked surfaces | fresh entry · CanonicalBirthProfileV2/fused personalization · WHY 3-layer · hero · manual semantics · misread copy · hiddenSpec distinction · Premium bridge · A/B/C share/Card C · sticky · Production parity — **no reopen absent invalidation** |
-| Next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` — not another Free redesign |
+| Next gate | See **POST-RELEASE GPT HANDOFF** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is CLOSED_GREEN, not next |
+
+### 2026-08-16 — GPT handoff next-gate contradiction closure (docs-only)
+
+**Status:** Ancestor-regression removed. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` reclassified **CLOSED_GREEN** (completed 2026-08-13 @ `1e25d17` — RPC v2 migration + bounded same-transaction repair). Not a Personal Free dependency. No payment/DB/Stripe rerun.
+
+| Rule | Value |
+|---|---|
+| Stale forward ref | PR #125–#129 incorrectly listed recovery as NEXT GATE |
+| TRUE next single action | **M55_POST_RELEASE_LIFECYCLE_TRANSITION** — evidence archive + worktree disposition |
+| Authorized planning | **M55_MRQ_P3_ENTRY_PLANNING** — implementation **not authorized** |
+| Independent lane | PR #119 Compatibility commerce preflight — **OPEN** |
+| Evidence precondition | WT-033 retained until `docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/` disposition |
+| Product reopen | **none** |
 
 ### 2026-08-16 — Misread customer-copy polish chain (PR #126–#128)
 

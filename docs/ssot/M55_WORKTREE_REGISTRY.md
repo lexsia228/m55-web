@@ -40,7 +40,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-16 post-PR-#128 USER_VISIBLE_CLOSED_GREEN) — authoritative, read this first:** PR #120–#128 on `main` @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Production **GREEN** — diagnostics SHA `de37b1a` · canonical `https://m-55.jp`. Personal Free user-visible quality **USER_VISIBLE_CLOSED_GREEN**. Personal Free commercial-quality lane **SETTLED** — **not ACTIVE**. WT-030 / WT-031 retained read-only. WT-033 **COMPLETED_REMOVABLE** after evidence disposition. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` — post-release lifecycle / revenue growth; **not** another Personal Free redesign.
+**CURRENT (2026-08-16 GPT handoff post-PR-#129) — authoritative, read this first:** PR #120–#129 on `main` @ `4e7d920ba5b41e55e37f2ad0e8c7f01eac7d78f2` (docs settlement). Product closure @ `de37b1a`. Production **GREEN** · canonical `https://m-55.jp`. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED** — **not ACTIVE**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is **CLOSED_GREEN** (`1e25d17`, 2026-08-13) — **not** next gate. WT-030 / WT-031 retained read-only. WT-033 **COMPLETED_REMOVABLE** — retain until Human archives `docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`. **NEXT:** **M55_POST_RELEASE_LIFECYCLE_TRANSITION** → **M55_MRQ_P3_ENTRY_PLANNING** (planning only). Independent PR #119 Compatibility commerce open.
+
+**CURRENT (2026-08-16 post-PR-#128 USER_VISIBLE_CLOSED_GREEN) — historical:** PR #120–#128 on `main` @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Production **GREEN** — diagnostics SHA `de37b1a` · canonical `https://m-55.jp`. Personal Free user-visible quality **USER_VISIBLE_CLOSED_GREEN**. Personal Free commercial-quality lane **SETTLED** — **not ACTIVE**. WT-030 / WT-031 retained read-only. WT-033 **COMPLETED_REMOVABLE** after evidence disposition. **NEXT GATE (recorded):** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` — **stale forward ref**; superseded by GPT handoff @ PR #129+.
 
 **CURRENT (2026-08-16 post-PR-#123-#124) — historical:** PR #120–#124 on `main` @ `743d0fd3fd85b267b759a6b4f3f6de757bc79976`. Production **GREEN** — GitHub deployment @ `743d0fd` · `2026-08-16T06:33:15Z` · canonical `https://m-55.jp`. Personal Free commercial individuality presentation **CLOSED_GREEN**. WT-030 / WT-031 retained read-only. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`.
 
@@ -738,7 +740,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | lifecycle | **COMPLETED** |
 | purpose | Pair Free visual signature + privacy-safe entry share; Pair Premium night ownership grammar in source/fixture; Personal Premium 11px label floor |
 | product implementation authorized | **false** — lane closed GREEN |
-| next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| next gate | **CLOSED_GREEN** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` completed @ `1e25d17` (2026-08-13); not active |
 | notes | PR #117 **MERGED**. Four-surface visual identity **CLOSED GREEN**. Pair Premium stays READY_BUT_GATED. Commerce remains OFF. |
 
 ### WT-028 — Free inference quality v2 (PAUSED merge)
@@ -801,9 +803,9 @@ Historical post-merge transition snapshots remain recorded for audit.
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-production-release-v1` |
-| branch | `docs/m55-personal-free-user-visible-closed-green-v1` (settlement delivery) |
-| base | `origin/main` @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d` |
-| lifecycle | **ACTIVE** — docs-only USER_VISIBLE_CLOSED_GREEN settlement; **COMPLETED** after merge |
+| branch | `docs/m55-gpt-handoff-next-gate-fix-v1` (handoff delivery) |
+| base | `origin/main` @ `4e7d920ba5b41e55e37f2ad0e8c7f01eac7d78f2` |
+| lifecycle | **ACTIVE** — docs-only GPT handoff contradiction fix; **COMPLETED** after merge |
 | purpose | SSOT settlement for PR #125–#128 Production / Human closure chain |
 | product implementation authorized | **false** |
 | allowed operations | docs-only SSOT updates · registry reconciliation |

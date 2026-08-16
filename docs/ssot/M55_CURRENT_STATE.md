@@ -5,9 +5,33 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed).
 
-## PERSONAL FREE USER-VISIBLE CLOSED GREEN (2026-08-16) — AUTHORITATIVE
+## POST-RELEASE GPT HANDOFF (2026-08-16) — AUTHORITATIVE
+
+| Field | Value |
+|---|---|
+| origin/main (docs) | `4e7d920ba5b41e55e37f2ad0e8c7f01eac7d78f2` (PR #129) |
+| Product closure SHA | `de37b1a0f6781cf763621b023af6b6c7617b7e5d` (PR #128) |
+| Personal Free lane | **SETTLED** — **USER_VISIBLE_CLOSED_GREEN** — **not ACTIVE** |
+| ACTIVE implementation lane | **none** |
+| NEXT SINGLE ACTION | **M55_POST_RELEASE_LIFECYCLE_TRANSITION** — archive/dispose `docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`; then remove WT-033 / WT-032 per registry; preserve independent PR #119 Compatibility commerce lane |
+| Authorized planning only | **M55_MRQ_P3_ENTRY_PLANNING** (Preview-only first; P3 implementation **not authorized**) |
+| Sales / checkout / 4242 | **not authorized** |
+| Evidence disposition precondition | **WT-033** (`M55_WORKTREE-production-free-entry-quality-hotfix-v1`) retained until Human archives local untracked signoff evidence |
+
+## LIVE LIGHT→FULL UPGRADE RECOVERY (2026-08-13) — CLOSED GREEN (NOT ACTIVE)
+
+| Field | Value |
+|---|---|
+| Gate id | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| Status | **CLOSED_GREEN** — **not** an active or pending next gate |
+| Source authority | `1e25d17d6b4dc3a597d8b40587cc01d1ce5f14dc` — reply-ticket RPC v2 + bounded same-transaction repair runner |
+| Migration | `supabase/migrations/20260813000000_m55_reply_ticket_fulfillment_rpc_v2_upgrade.sql` |
+| One-shot repair confirm | `M55_CONFIRM_ONE_SHOT_LIGHT_TO_FULL_UPGRADE_REPAIR_20260813` |
+| Scope | Production entitlement/wallet recovery for ¥600 Light→Full same-transaction upgrade — **completed** |
+| Personal Free dependency | **none** — independent closed lane |
+| Reopen rule | invalidation only — do not re-list as NEXT GATE |
 
 | Field | Value |
 |---|---|
@@ -25,8 +49,8 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | PERSONAL_FREE_USER_VISIBLE | **USER_VISIBLE_CLOSED_GREEN** |
 | Generic AI benchmark | **not run** in this closure wave |
 | Inference rebuild | **none** — presentation/customer-copy realizer only |
-| LOCKED (no reopen absent invalidation) | Personal Free fresh entry · CanonicalBirthProfileV2 / fused personalization · WHY birth+answer+fused · hero · manual semantics · misread customer copy · hiddenSpec distinction · Premium bridge · A/B/C share / Card C · sticky · Production parity |
-| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` — post-release lifecycle / revenue growth; **not** another Personal Free redesign |
+| LOCKED (no reopen absent invalidation) | Personal Free fresh entry · CanonicalBirthProfileV2 / fused personalization · WHY birth+answer+fused · hero · manual semantics · misread customer copy · hiddenSpec distinction · Premium bridge · A/B/C share / Card C · sticky · Production parity · LIVE upgrade recovery |
+| NEXT GATE | See **POST-RELEASE GPT HANDOFF** — not `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
 
 ## PERSONAL FREE COMMERCIAL INDIVIDUALITY (2026-08-16) — HISTORICAL POST-PR-#123-#124 (SUPERSEDED FOR PRODUCTION SHA / USER_VISIBLE GATE)
 
@@ -39,9 +63,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | PERSONAL_FREE_COMMERCIAL_INDIVIDUALITY | **CLOSED_GREEN** — WHY birth+answer+fused · hiddenSpec≠actual · misread realizer · hero coherence · presentation guards |
 | Inference rebuild | **none** — presentation/selection layer only |
 | Card C / public share | **unchanged** — regression tests GREEN |
-| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (unchanged) |
-
-## PRODUCTION RELEASE — PERSONALIZATION + NARRATIVE SHARE (2026-08-16)
+| NEXT GATE | recorded @ PR #123/#124 settlement — **stale forward ref**; superseded |
 
 | Field | Value |
 |---|---|
@@ -58,9 +80,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Delta smoke | Personal Free · A/B/C share · Card C OG · image artifact · viewer→Free · Pair Free/public share · Premium LP/bridge — **GREEN** |
 | DB / Stripe / env mutation | **none** |
 | Payment smoke | **NO NEW TRANSACTION** — payment contracts unchanged |
-| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (unchanged) |
-
-## PERSONALIZATION + NARRATIVE SHARE (2026-08-16) — AUTHORITATIVE POST-PR-#120-#121
+| NEXT GATE | recorded @ release settlement — **stale forward ref**; superseded |
 
 | Field | Value |
 |---|---|
@@ -74,7 +94,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Delight v2 authority commit | `f04550a1c6cfdf3404b7c2b09ff14a75a8bd4f3c` (contained in main via #121) |
 | WT-030 | **COMPLETED** — retained read-only |
 | WT-031 | **COMPLETED** — retained read-only |
-| NEXT GATE | **Production release CLOSED GREEN** — next operational gate: `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| NEXT GATE | superseded — see **POST-RELEASE GPT HANDOFF** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |
@@ -101,8 +121,8 @@ This section is the current authority after PR #117 merge. Pair display identity
 | FOUR_SURFACE_VISUAL_SYSTEM | **CLOSED_GREEN** |
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
-| ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | **Production release CLOSED GREEN** @ `9e40f1a` — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| ¥600 Light→Full recovery | **CLOSED_GREEN** — see **LIVE LIGHT→FULL UPGRADE RECOVERY** section (not pending) |
+| NEXT GATE | superseded — see **POST-RELEASE GPT HANDOFF** |
 | PERSONALIZATION_RESOLUTION | **MERGED GREEN** — PR #120 @ `679debf` · WT-030 **COMPLETED** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
@@ -453,7 +473,9 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-16 Personal Free USER_VISIBLE CLOSED GREEN):** Personal Free commercial individuality / user-visible quality lane is **SETTLED** on Production @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Human **USER_VISIBLE_CLOSED_GREEN** recorded. **NEXT SINGLE ACTION:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` and post-release revenue/growth lanes — **not** another Personal Free redesign. P3 checkout/4242/sales launch remain **not authorized**.
+**CURRENT (2026-08-16 GPT handoff):** Personal Free **USER_VISIBLE_CLOSED_GREEN** @ `de37b1a`. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is **CLOSED_GREEN** (2026-08-13, `1e25d17`) — **not** the next gate. **NEXT SINGLE ACTION:** **M55_POST_RELEASE_LIFECYCLE_TRANSITION** (evidence archive + worktree disposition), then authorized **M55_MRQ_P3_ENTRY_PLANNING** only. Independent PR #119 Compatibility commerce remains open. P3 checkout/4242/sales launch remain **not authorized**.
+
+**CURRENT (2026-08-16 Personal Free USER_VISIBLE CLOSED GREEN):** Personal Free commercial individuality / user-visible quality lane is **SETTLED** on Production @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Human **USER_VISIBLE_CLOSED_GREEN** recorded. See **POST-RELEASE GPT HANDOFF** for next single action. P3 checkout/4242/sales launch remain **not authorized**.
 
 **CURRENT (2026-08-15 revenue-viral-delight v2):** Public identity remains locked (A162/B44/C78/LOSS0). Customer-visible delight + social object + Premium ownership presentation is in-tree. **NEXT SINGLE ACTION:** Human stacked visual lock. USER_VISIBLE_CLOSED_GREEN is **not** claimed. Production deploy is **not** authorized. P3 checkout/4242/sales launch remain **not authorized**.
 
