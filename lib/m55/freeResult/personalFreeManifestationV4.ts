@@ -747,30 +747,57 @@ function appendUniqueSentence(base: string, extra: string): string {
   return `${base}${sentence}`;
 }
 
+const AXIS_THEME_CHARS: Readonly<Record<ExpressionAxisId, readonly string[]>> = {
+  start: ['動', '試', '始', '手', '進', '着手', '試し', '動か'],
+  decision: ['決', '候補', '締', '期限', '閉', '選', '比べ', '返事'],
+  distance: ['人', '関', '会', '連絡', '距離', '話', '会話', '帰宅', '間合'],
+  change: ['予定', '変', '組み', '直', '変更', '環境', '差分'],
+  recovery: ['休', '疲', '戻', '立て直', '区切り', '休み'],
+};
+
+function cueCoherentWithPrimary(
+  cue: string,
+  primaryAxisId: ExpressionAxisId,
+  primary: ManifestCell,
+): boolean {
+  const themes = AXIS_THEME_CHARS[primaryAxisId];
+  const anchor = `${primary.shortJa}${primary.sceneWhen}${primary.beatJa}`;
+  const cueHits = themes.filter((token) => cue.includes(token));
+  if (cueHits.length === 0) return false;
+  return cueHits.some((token) => anchor.includes(token));
+}
+
 function openingHit(
   primary: ManifestCell,
+  primaryAxisId: ExpressionAxisId,
   modifiers?: PersonalManifestationModifiersV2,
+  secondary?: ManifestCell | null,
 ): string {
   const parts = primary.manifestationJa
     .split('。')
     .map((part) => part.trim())
     .filter((part) => part.length > 0);
   let text = parts[0] ? `${parts[0]}。` : '';
-  const when = completeSentence(primary.sceneWhen);
+  const sceneSecond = secondary
+    ? completeSentence(secondary.sceneWhen)
+    : completeSentence(primary.sceneWhen);
   if (!text) {
-    text = when;
+    text = sceneSecond;
   } else {
-    const whenBody = when.replace(/。$/u, '');
-    if (whenBody && !text.includes(whenBody)) text = `${text}${when}`;
+    const whenBody = sceneSecond.replace(/。$/u, '');
+    if (whenBody && !text.includes(whenBody.slice(0, 12))) text = `${text}${sceneSecond}`;
   }
-  if (modifiers && sentenceCount(text) < 3) {
-    text = appendUniqueSentence(text, LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!);
+  if (modifiers && sentenceCount(text) < 2) {
+    const lunarCue = LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!;
+    if (cueCoherentWithPrimary(lunarCue, primaryAxisId, primary)) {
+      text = appendUniqueSentence(text, lunarCue);
+    }
   }
   const sentences = text
     .split('。')
     .map((part) => part.trim())
     .filter((part) => part.length > 0)
-    .slice(0, 3);
+    .slice(0, 2);
   return sentences.length ? `${sentences.join('。')}。` : text;
 }
 
@@ -823,7 +850,7 @@ function composeSupportReading(
 function composeReading(
   primary: ManifestCell,
   primaryAxisId: ExpressionAxisId,
-  _second: ManifestCell | null,
+  second: ManifestCell | null,
   _secondAxisId: ExpressionAxisId | null,
   _third: ManifestCell | null,
   _thirdAxisId: ExpressionAxisId | null,
@@ -831,7 +858,7 @@ function composeReading(
   answers: ExpressionAxes,
   modifiers?: PersonalManifestationModifiersV2,
 ): string {
-  return openingHit(primary, modifiers);
+  return openingHit(primary, primaryAxisId, modifiers, second);
 }
 
 function sceneFor(primary: ManifestCell, _composed: string): string {

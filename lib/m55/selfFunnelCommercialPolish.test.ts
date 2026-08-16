@@ -90,7 +90,7 @@ describe('Self funnel commercial polish REV1', () => {
     });
     assert.equal(built.ok, true);
     if (!built.ok) return;
-    assert.equal(built.value.conciseWhyJa.length, 2);
+    assert.equal(built.value.conciseWhyJa.length, 3);
     assert.ok(built.value.primarySceneJa.length > 20);
     assert.equal(built.value.premiumLockedHeadingsJa.length, 4);
     const again = buildFreeDepthAnalysisV1({

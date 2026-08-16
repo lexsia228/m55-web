@@ -260,7 +260,8 @@ function premiumContinuation(axes: ExpressionAxes, primarySceneLabelJa: string):
 function premiumOpenQuestion(axes: ExpressionAxes): string {
   const live = STRENGTH[axes.start][axes.decision][0];
   const heavy = LOAD[axes.distance][axes.change][0];
-  return `${live}は流れがつながるのに、${heavy}にその動きが止まります。この差が、距離の整え方と変化の最初の一手のどちらから来るのかは、場面を分けて見ないと決まりません。`;
+  const recovery = RECOVERY_LOAD[axes.recovery].replace(/。$/u, '');
+  return `${live}は続きやすいのに、${heavy}に同じ動きが止まります。${recovery}とき、その差がどこから来るかが見えます。`;
 }
 
 function primarySceneLabel(axes: ExpressionAxes): string {
