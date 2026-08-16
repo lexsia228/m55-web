@@ -106,6 +106,13 @@ function pickHiddenSpec(fused: PersonalFreeFusedInsightSpecV3): {
   return null;
 }
 
+function polishSeenPhrase(phrase: string): string {
+  if (/一人で段取りしている(?:よう|い)?$/.test(phrase) || phrase === '一人で段取りしている人') {
+    return '一人で段取りを整えている人';
+  }
+  return phrase;
+}
+
 function extractSeenPhrase(before: string): string {
   const clause =
     before
@@ -113,12 +120,13 @@ function extractSeenPhrase(before: string): string {
       .map((part) => part.trim())
       .filter((part) => part.length > 0)
       .pop() ?? before.trim();
-  if (clause.endsWith('人')) return clause;
-  if (/しているよう$/.test(clause)) return clause.replace(/しているよう$/, 'している人');
-  if (/ているよう$/.test(clause)) return clause.replace(/ているよう$/, 'ている人');
-  if (/ように$/.test(clause)) return `${clause.replace(/ように$/, 'い')}人`;
-  if (/ている$|いる$|った$|い$|え$/.test(clause)) return `${clause}人`;
-  return clause;
+  let phrase = clause;
+  if (phrase.endsWith('人')) phrase = clause;
+  else if (/しているよう$/.test(phrase)) phrase = phrase.replace(/しているよう$/, 'している人');
+  else if (/ているよう$/.test(phrase)) phrase = phrase.replace(/ているよう$/, 'ている人');
+  else if (/ように$/.test(phrase)) phrase = `${phrase.replace(/ように$/, 'い')}人`;
+  else if (/ている$|いる$|った$|い$|え$/.test(phrase)) phrase = `${phrase}人`;
+  return polishSeenPhrase(phrase);
 }
 
 function cleanActualPhrase(text: string): string {
@@ -131,6 +139,19 @@ function cleanActualPhrase(text: string): string {
     .trim();
 }
 
+/** Desire predicate without nominalizer before が先に立つ → natural 気持ち frame. */
+function normalizeMisreadActualPhrase(text: string): string {
+  const cleaned = cleanActualPhrase(text);
+  return cleaned.replace(
+    /([^。、]+?)したいが先に立つ/g,
+    (match, lead: string) => {
+      const trimmed = lead.trim();
+      if (/気持ち$|感覚$|意識$|考え$/.test(trimmed)) return match;
+      return `${trimmed}したい気持ちが先に立つ`;
+    },
+  );
+}
+
 function parseSocialContrast(text: string): { seenJa: string; actualJa: string } | null {
   const markers = ['に見られても', 'に見えても', 'ように見えても', 'に見られやすいが', 'ように見られやすい'];
   for (const marker of markers) {
@@ -139,7 +160,7 @@ function parseSocialContrast(text: string): { seenJa: string; actualJa: string }
     const before = text.slice(0, idx).trim();
     const after = text.slice(idx + marker.length).replace(/^、/u, '').trim();
     const seenJa = extractSeenPhrase(before);
-    const actualJa = cleanActualPhrase(firstSentenceJa(after));
+    const actualJa = normalizeMisreadActualPhrase(firstSentenceJa(after));
     if (seenJa.length >= 4 && actualJa.length >= 6) {
       return { seenJa, actualJa };
     }

@@ -86,14 +86,16 @@ describe('personal free misread realizer', () => {
     const a = misreadFor('1983-02-28', PRODUCTION_A);
     const b = misreadFor('1992-08-20', PRODUCTION_B);
     assert.doesNotMatch(a, /「[^」]*しているよう」に見えやすい/);
-    assert.match(a, /「一人で段取りしている人」に見えやすい/);
+    assert.match(a, /「一人で段取りを整えている人」に見えやすい/);
     assert.match(b, /「準備している人」に見えやすい/);
   });
 
-  it('preserves semantic payload in production fixture forms', () => {
+  it('nominalizes desire clauses before が先に立つ', () => {
     const a = misreadFor('1983-02-28', PRODUCTION_A);
     const b = misreadFor('1992-08-20', PRODUCTION_B);
-    assert.match(a, /材料を足したいが先に立つ/);
+    assert.doesNotMatch(a, /したいが先に立つ/);
+    assert.match(a, /材料を足したい気持ちが先に立つ/);
+    assert.doesNotMatch(b, /したいが先に立つ/);
     assert.match(b, /「まだ早い」が長く残る/);
   });
 });
