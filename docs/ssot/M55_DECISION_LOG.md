@@ -393,6 +393,18 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Evidence precondition | WT-033 retained until `docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/` disposition |
 | Product reopen | **none** |
 
+### 2026-08-16 — Final thread lifecycle closure (evidence archive + worktree cleanup)
+
+**Status:** `M55_POST_RELEASE_LIFECYCLE_TRANSITION` **COMPLETE**. Human Personal Free signoff evidence archived in-repo (`docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`). Personalization Human acceptance + `eval-6d53a71` evidence archived (`docs/audit/`). Live worktrees reduced to **4** purposeful lanes. WT-032 / WT-033 **REMOVED**. `lib/clerk/m55ClerkShellAppearance.ts` — **DEFERRED_OPTIONAL_POLISH** / **SUPERSEDED_NO_ACTION** (not ported). Generic AI benchmark **not run**.
+
+| Rule | Value |
+|---|---|
+| NEXT SINGLE ACTION | **M55_MRQ_P3_ENTRY_PLANNING** — planning only |
+| ACTIVE implementation | **none** |
+| PR #119 | **OPEN** — independent Compatibility commerce preflight |
+| Clerk shell polish | **DEFERRED_OPTIONAL_POLISH** — not a release dependency |
+| Core* WIP experiment | **SUPERSEDED_NO_ACTION** |
+
 ### 2026-08-16 — Misread customer-copy polish chain (PR #126–#128)
 
 **Status:** Bounded presentation closures on main after PR #124. PR #126 @ `66c6076` (double-period). PR #127 @ `e2ebfe1` (seen/actual realizer). PR #128 @ `de37b1a` (desire nominalizer). No inference/DB/Stripe/env mutation.

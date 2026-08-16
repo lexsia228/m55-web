@@ -1,0 +1,24 @@
+{
+  "pack": "M55_FREE_PERSONALIZATION_VISUAL_AND_AI_BENCHMARK",
+  "evaluationHead": "6d53a71df148ed4c0a1016358bc86830086f8732",
+  "branch": "feat/m55-personalization-resolution-v2",
+  "productSourceEdited": false,
+  "personalVisual": "PATCH_REQUIRED_LEAD_H1_FULL_READING_WALL",
+  "pairVisual": "GREEN",
+  "genericAi": "STOP_GENERIC_AI_EXECUTION_AUTHORIZATION_REQUIRED",
+  "overallVerdict": "STOP_GENERIC_AI_EXECUTION_AUTHORIZATION_REQUIRED",
+  "seed": "0x46524545",
+  "profileCount": 50,
+  "paidRerun": false,
+  "safety": {
+    "productionMutation": false,
+    "dbMutation": false,
+    "stripeMutation": false,
+    "envChange": false,
+    "keyChange": false,
+    "checkout": false,
+    "payment": false,
+    "commerceActivation": false,
+    "realPii": false
+  }
+}
