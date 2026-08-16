@@ -70,17 +70,21 @@ describe('production free entry regression guards', () => {
 
 describe('humanizeFreeResultWhyV1', () => {
   it('rewrites fused stack vocabulary into customer Japanese', () => {
-    const [birth, answer] = buildHumanizedConciseWhyJa({
+    const [birth, answer, fused] = buildHumanizedConciseWhyJa({
       birthBaseJa:
         '生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。',
+      currentExpressionJa:
+        'その場では小さく動いて前に進んだように見えるのに、決めたあとに候補の点検が内側で続きやすい。',
       fusedStackJa:
         '土台の始め方も今回の答えも、全体を揃えてから動く側に重なっています。同じ方向に重なると、慎重に見えるほど、準備が終わっても決めきれていない時間が出やすい。',
+      fusedSceneJa: '近い人と話したあと、一日の終わりに連絡の速さを整え直す。',
       bodyJa: '始め方と決め方、距離の取り方が同じレイヤーでは動かない。',
     });
     assert.match(birth, /生年月日から見ると/);
     assert.doesNotMatch(birth, /土台では/);
     assert.match(answer, /今回の回答では/);
-    assert.doesNotMatch(answer, /側に重なっています/);
+    assert.match(fused, /この二つを合わせると/);
+    assert.doesNotMatch(`${birth}\n${answer}\n${fused}`, /側に重なっています/);
   });
 
   it('depth analysis uses humanized concise why lines', () => {
@@ -91,9 +95,11 @@ describe('humanizeFreeResultWhyV1', () => {
     });
     assert.equal(built.ok, true);
     if (!built.ok) return;
-    const [why1, why2] = built.value.conciseWhyJa;
-    assert.doesNotMatch(`${why1}\n${why2}`, /土台の始め方|側に重なっています|候補を比べてから閉じる側/);
+    const [why1, why2, why3] = built.value.conciseWhyJa;
+    assert.doesNotMatch(`${why1}\n${why2}\n${why3}`, /土台の始め方|側に重なっています|候補を比べてから閉じる側/);
     assert.match(why1, /生年月日から見ると/);
+    assert.match(why2, /今回の回答では/);
+    assert.match(why3, /この二つを合わせると/);
   });
 });
 

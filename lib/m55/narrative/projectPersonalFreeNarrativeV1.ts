@@ -60,10 +60,17 @@ export function projectPersonalFreeNarrativeV1(
     completeness: 'short',
   });
   const contrast = seenVsActualFromFused(fused);
-  const hidden =
-    firstSentenceJa(fused.manifestation.supportingObservationJa) ||
-    firstSentenceJa(fused.behavioralPrediction);
-  const hiddenBody = compactSentencesJa(fused.body, 2);
+  const hiddenPick =
+    manual.hiddenSpecJa.trim().length > 0
+      ? {
+          text: manual.hiddenSpecJa,
+          provenanceIds: manual.hiddenSpecProvenanceIds,
+        }
+      : null;
+  const hidden = hiddenPick?.text ?? '';
+  const hiddenBody = hiddenPick
+    ? firstSentenceJa(fused.body)
+    : compactSentencesJa(fused.body, 2);
 
   const shareCandidates: ShareCandidateV1[] = [
     {
@@ -82,14 +89,18 @@ export function projectPersonalFreeNarrativeV1(
       ctaJa: 'これ、私っぽい？\nあなたはどう出る？',
       provenanceIds: [fused.interactionId, fused.manifestation.patternId],
     },
-    {
-      variant: 'hidden_spec',
-      labelJa: '自分でも知らなかった仕様',
-      headlineJa: '自分でも知らなかった仕様',
-      bodyJa: `${hidden}\n${hiddenBody}`,
-      ctaJa: 'あなたの場合は？',
-      provenanceIds: [fused.manifestation.patternId, fused.interactionId],
-    },
+    ...(hiddenPick
+      ? [
+          {
+            variant: 'hidden_spec' as const,
+            labelJa: '自分でも知らなかった仕様',
+            headlineJa: '自分でも知らなかった仕様',
+            bodyJa: `${hidden}\n${hiddenBody}`,
+            ctaJa: 'あなたの場合は？',
+            provenanceIds: [...hiddenPick.provenanceIds],
+          },
+        ]
+      : []),
   ];
 
   return {

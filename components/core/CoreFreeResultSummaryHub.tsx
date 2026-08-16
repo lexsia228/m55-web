@@ -30,9 +30,9 @@ const LAYERS = [
  * Concise free-result reading — fused hit first, then provenance.
  */
 export default function CoreFreeResultSummaryHub({ depth }: Props) {
+  const whyLines = depth.conciseWhyJa.filter((line) => line.trim().length > 0);
   const bodies = {
     scene: depth.primarySceneJa,
-    why: depth.conciseWhyJa[0] ?? depth.headlineJa,
     birth: depth.birthBaseJa,
     current: depth.currentExpressionJa,
   };
@@ -53,7 +53,9 @@ export default function CoreFreeResultSummaryHub({ depth }: Props) {
       <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">
         <li className={styles.freeDepthReasonItem}>
           <span className={styles.freeDepthBlockTitle}>{LAYERS[1].label}</span>
-          <p className={styles.freeDepthBlockBody}>{bodies.why}</p>
+          {whyLines.map((line) => (
+            <p key={line} className={styles.freeDepthBlockBody}>{line}</p>
+          ))}
         </li>
       </ol>
       <details className={styles.freeDepthMore}>

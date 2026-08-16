@@ -15,6 +15,10 @@ import type { PersonalFreeFusedInsightSpecV3 } from '../freeResult/personalFreeF
 import type { ManualSlotV1, ManualSpecV1 } from './m55NarrativeSpecV1';
 import { firstSentenceJa } from './narrativeSafetyV1';
 import { humanizePrivatePresentationJa } from './humanizePrivatePresentationV1';
+import {
+  assertCustomerCopyJa,
+  normalizeCustomerCopyJa,
+} from '../freeResult/humanizeFreeResultWhyV1';
 
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
   try: '小さく一つ動かしてから、様子を見る。',
@@ -58,7 +62,86 @@ function slot(
   bodyJa: string,
   provenanceIds: readonly string[],
 ): ManualSlotV1 {
-  return { id, labelJa, bodyJa: humanizePrivatePresentationJa(bodyJa), provenanceIds };
+  const humanized = humanizePrivatePresentationJa(bodyJa);
+  assertCustomerCopyJa(humanized);
+  return { id, labelJa, bodyJa: humanized, provenanceIds };
+}
+
+function pickHiddenSpec(fused: PersonalFreeFusedInsightSpecV3): {
+  text: string;
+  provenanceIds: readonly string[];
+} | null {
+  const actualNorm = normalizeCustomerCopyJa(firstSentenceJa(fused.manifestation.shortJa));
+  const candidates: readonly { text: string; provenanceIds: readonly string[] }[] = [
+    {
+      text: fused.manifestation.supportingObservationJa,
+      provenanceIds: [fused.manifestation.patternId, 'supportingObservationJa'],
+    },
+    {
+      text: fused.behavioralPrediction,
+      provenanceIds: [fused.manifestation.patternId, 'behavioralPrediction'],
+    },
+    {
+      text: fused.body,
+      provenanceIds: [fused.interactionId, fused.hingeAxisId],
+    },
+    {
+      text: fused.fusedStackJa,
+      provenanceIds: [fused.interactionId, fused.hingeAxisId, 'fusedStackJa'],
+    },
+  ];
+
+  for (const candidate of candidates) {
+    const sentence = firstSentenceJa(candidate.text);
+    const norm = normalizeCustomerCopyJa(sentence);
+    if (
+      sentence.trim().length >= 8 &&
+      norm !== actualNorm &&
+      !actualNorm.includes(norm.slice(0, 10)) &&
+      !norm.includes(actualNorm.slice(0, 10))
+    ) {
+      return { text: sentence, provenanceIds: candidate.provenanceIds };
+    }
+  }
+  return null;
+}
+
+function extractSeenPhrase(before: string): string {
+  const clause =
+    before
+      .split(/[。、]/)
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0)
+      .pop() ?? before.trim();
+  if (clause.endsWith('人')) return clause;
+  if (/ように$/.test(clause)) return `${clause.replace(/ように$/, 'い')}人`;
+  if (/ている$|いる$|った$|い$|え$/.test(clause)) return `${clause}人`;
+  return clause;
+}
+
+function cleanActualPhrase(text: string): string {
+  return text
+    .replace(/^実際に/u, '')
+    .replace(/^、/u, '')
+    .replace(/^自分の中では/u, '')
+    .replace(/^本人の中では/u, '')
+    .trim();
+}
+
+function parseSocialContrast(text: string): { seenJa: string; actualJa: string } | null {
+  const markers = ['に見られても', 'に見えても', 'ように見えても', 'に見られやすいが', 'ように見られやすい'];
+  for (const marker of markers) {
+    const idx = text.indexOf(marker);
+    if (idx < 8) continue;
+    const before = text.slice(0, idx).trim();
+    const after = text.slice(idx + marker.length).replace(/^、/u, '').trim();
+    const seenJa = extractSeenPhrase(before);
+    const actualJa = cleanActualPhrase(firstSentenceJa(after));
+    if (seenJa.length >= 4 && actualJa.length >= 6) {
+      return { seenJa, actualJa };
+    }
+  }
+  return null;
 }
 
 function pickShortSlots(
@@ -96,7 +179,7 @@ function pickShortSlots(
       slot(
         'misread',
         '誤解されやすいところ',
-        `人からは「${misreadBody}」に見えやすい一方で、実際は${misreadActual}`,
+        `人からは「${misreadBody}」に見えやすい一方で、本人の中では${misreadActual}。`,
         [hingeId, fused.hingeAxisId, manifestId],
       ),
     );
@@ -159,14 +242,12 @@ export function buildPersonalManualV1(input: {
     input.completeness === 'complete'
       ? completeSlots(input.axes, input.fused)
       : pickShortSlots(input.axes, input.fused);
+  const hidden = pickHiddenSpec(input.fused);
   return {
     titleJa: '私の取扱説明書',
     slots,
-    hiddenSpecJa: firstSentenceJa(input.fused.manifestation.shortJa),
-    hiddenSpecProvenanceIds: [
-      input.fused.manifestation.patternId,
-      input.fused.interactionId,
-    ],
+    hiddenSpecJa: hidden?.text ?? '',
+    hiddenSpecProvenanceIds: hidden?.provenanceIds ?? [],
     completeness: input.completeness,
   };
 }
@@ -175,20 +256,17 @@ export function seenVsActualFromFused(fused: PersonalFreeFusedInsightSpecV3): {
   seenJa: string;
   actualJa: string;
 } {
-  const source = `${fused.fusedStackJa}${fused.body}`;
-  const markers = ['に見られても', 'に見えても', 'ように見えて', 'に見えて', 'に見られ'];
-  for (const marker of markers) {
-    const at = source.indexOf(marker);
-    if (at < 8) continue;
-    const before = source.slice(Math.max(0, at - 24), at).replace(/^[^、。]*[、。]/, '');
-    const after = firstSentenceJa(source.slice(at + marker.length));
-    if (before.trim().length >= 4 && after.trim().length >= 4) {
-      return {
-        seenJa: `${before.trim()}${marker.startsWith('に見') ? '人' : ''}`.replace(/人人$/, '人'),
-        actualJa: after,
-      };
-    }
+  const sources = [
+    fused.currentExpressionJa,
+    fused.fusedStackJa,
+    fused.manifestation.supportingObservationJa,
+    fused.manifestation.manifestationJa,
+  ];
+  for (const source of sources) {
+    const parsed = parseSocialContrast(source);
+    if (parsed) return parsed;
   }
+
   return {
     seenJa: firstSentenceJa(fused.currentExpressionJa),
     actualJa: firstSentenceJa(fused.manifestation.shortJa),

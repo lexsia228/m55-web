@@ -23,7 +23,10 @@ import {
 } from './buildFreeFiveViewCompositionV1';
 import { resolveCanonicalBirthProfileV2 } from '../individualization/canonicalBirthProfileV2';
 import { buildPersonalFreeFusedInsightSpecV3 } from './personalFreeFusedInsightSpecV3';
-import { buildHumanizedConciseWhyJa } from './humanizeFreeResultWhyV1';
+import {
+  assertCustomerCopyJa,
+  buildHumanizedConciseWhyJa,
+} from './humanizeFreeResultWhyV1';
 
 export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v4' as const;
 
@@ -40,7 +43,7 @@ export type FreeDepthAnalysisV1 = {
     changeJa: string;
   };
   /** Concise free-result surface (≈35–45% shorter than full blocks). */
-  conciseWhyJa: readonly [string, string];
+  conciseWhyJa: readonly [string, string, string];
   birthBaseJa: string;
   currentExpressionJa: string;
   trustCueJa: string;
@@ -540,7 +543,9 @@ export function buildFreeDepthAnalysisV1(
   ];
   const conciseWhyJa = buildHumanizedConciseWhyJa({
     birthBaseJa: insight.birthBaseJa,
+    currentExpressionJa: insight.currentExpressionJa,
     fusedStackJa: insight.fusedStackJa,
+    fusedSceneJa: insight.behavioralPrediction,
     bodyJa: insight.body,
   });
   const supportingObservation = insight.manifestation.supportingObservationJa.trim();
@@ -602,6 +607,17 @@ export function buildFreeDepthAnalysisV1(
 
   try {
     assertNoInternalLeak(publicText);
+    for (const line of analysis.conciseWhyJa) {
+      assertCustomerCopyJa(line);
+    }
+    for (const slot of [
+      analysis.manifestationJa,
+      analysis.primarySceneJa,
+      analysis.secondarySceneJa,
+      analysis.premiumOpenQuestionJa,
+    ]) {
+      assertCustomerCopyJa(slot);
+    }
   } catch {
     return { ok: false, code: 'selector_resolution_failed' };
   }
