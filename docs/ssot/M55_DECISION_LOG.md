@@ -395,14 +395,14 @@ This decision authorizes **only** durable transition recording in the four-file 
 
 ### 2026-08-16 — Final thread lifecycle closure (evidence archive + worktree cleanup)
 
-**Status:** `M55_POST_RELEASE_LIFECYCLE_TRANSITION` **COMPLETE**. Human Personal Free signoff evidence archived in-repo (`docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`). Personalization Human acceptance + `eval-6d53a71` evidence archived (`docs/audit/`). Live worktrees reduced to **4** purposeful lanes. WT-032 / WT-033 **REMOVED**. `lib/clerk/m55ClerkShellAppearance.ts` — **DEFERRED_OPTIONAL_POLISH** / **SUPERSEDED_NO_ACTION** (not ported). Generic AI benchmark **not run**.
+**Status:** `M55_POST_RELEASE_LIFECYCLE_TRANSITION` **COMPLETE** via PR #131 **MERGED** @ `3657ba17c4d727baeaa003e9f661f27c9a930436`. Human Personal Free signoff evidence archived in-repo (`docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`). Personalization Human acceptance + `eval-6d53a71` evidence archived (`docs/audit/`). Live worktrees reduced to **5** purposeful lanes, including the primary Git root. WT-032 / WT-033 **REMOVED**. `lib/clerk/m55ClerkShellAppearance.ts` — **SUPERSEDED_NO_ACTION** (not ported; exact stranded local copy removed after hash inventory). Generic AI benchmark **not run**.
 
 | Rule | Value |
 |---|---|
 | NEXT SINGLE ACTION | **M55_MRQ_P3_ENTRY_PLANNING** — planning only |
 | ACTIVE implementation | **none** |
 | PR #119 | **OPEN** — independent Compatibility commerce preflight |
-| Clerk shell polish | **DEFERRED_OPTIONAL_POLISH** — not a release dependency |
+| Clerk shell polish | **SUPERSEDED_NO_ACTION** — not a release dependency; stranded local copy removed after hash inventory |
 | Core* WIP experiment | **SUPERSEDED_NO_ACTION** |
 
 ### 2026-08-16 — Misread customer-copy polish chain (PR #126–#128)

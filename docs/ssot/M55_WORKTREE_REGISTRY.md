@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-16T10:00:33Z** (`git worktree list --porcelain`; Production **GREEN** @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d` · diagnostics observedAt `2026-08-16T10:00:33.245Z` · prior Production `743d0fd` / `e2ebfe1` retained)
+Last verified: **2026-08-16T12:09:45Z** (`git worktree list --porcelain`; `origin/main` and Production **GREEN** @ `3657ba17c4d727baeaa003e9f661f27c9a930436` · diagnostics observedAt `2026-08-16T12:09:45.874Z` · Product Authority SHA `de37b1a0f6781cf763621b023af6b6c7617b7e5d` retained because the post-product delta is docs/evidence/governance only)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,6 +9,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
+- **Absolute-audit baseline remote main / Production observation (2026-08-16):** `3657ba17c4d727baeaa003e9f661f27c9a930436` — PR #131 **MERGED**; Production diagnostics SHA matched at `2026-08-16T12:09:45.874Z`; `de37b1a..3657ba1` is docs/evidence/governance only. PR #132 is docs-only audit settlement and does not redefine Product closure; its final merge identity is GitHub gate-time authority.
 - **Historical verified baseline:** `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main
 - **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
 - **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; historical bootstrap-era recorded remote; **not** current live remote main
@@ -40,7 +41,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-16 final lifecycle closure) — authoritative, read this first:** PR #120–#130 on `main` @ `2c8584200f3cf6defc27b364c9d890c004a1e58a`. Product closure @ `de37b1a`. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED**. Lifecycle transition **COMPLETE** — Human signoff + personalization eval evidence archived in-repo. **ACTIVE implementation lane: none.** **NEXT:** **M55_MRQ_P3_ENTRY_PLANNING** (planning only). PR #119 Compatibility commerce **OPEN**. Live worktrees: **5** — see **FINAL LIVE WORKTREES** below. WT-032 / WT-033 **REMOVED**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` remains **CLOSED_GREEN** — do not reopen.
+**CURRENT (2026-08-16 absolute machine closure) — authoritative, read this first:** PR #120–#131 on `main` @ `3657ba17c4d727baeaa003e9f661f27c9a930436`. PR #131 lifecycle settlement is **MERGED**. Product closure @ `de37b1a`; the post-product delta is docs/evidence/governance only. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED**. Lifecycle transition **COMPLETE** — Human signoff + personalization eval evidence archived in-repo. **ACTIVE implementation lane: none.** **NEXT:** **M55_MRQ_P3_ENTRY_PLANNING** (planning only). PR #119 Compatibility commerce **OPEN**. Live worktrees: **5** — see **FINAL LIVE WORKTREES** below. WT-032 / WT-033 **REMOVED**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` remains **CLOSED_GREEN** — do not reopen.
 
 **CURRENT (2026-08-16 GPT handoff post-PR-#129) — historical:** PR #120–#129 on `main` @ `4e7d920ba5b41e55e37f2ad0e8c7f01eac7d78f2` (docs settlement). Product closure @ `de37b1a`. Production **GREEN** · canonical `https://m-55.jp`. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED** — **not ACTIVE**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is **CLOSED_GREEN** (`1e25d17`, 2026-08-13) — **not** next gate. WT-030 / WT-031 retained read-only. WT-033 **COMPLETED_REMOVABLE** — retain until Human archives `docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`. **NEXT:** **M55_POST_RELEASE_LIFECYCLE_TRANSITION** → **M55_MRQ_P3_ENTRY_PLANNING** (planning only). Independent PR #119 Compatibility commerce open.
 
