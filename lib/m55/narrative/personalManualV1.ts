@@ -179,7 +179,7 @@ function pickShortSlots(
       slot(
         'misread',
         '誤解されやすいところ',
-        `人からは「${misreadBody}」に見えやすい一方で、本人の中では${misreadActual}。`,
+        `人からは「${misreadBody}」に見えやすい一方で、本人の中では${misreadActual.replace(/。$/u, '')}。`,
         [hingeId, fused.hingeAxisId, manifestId],
       ),
     );
