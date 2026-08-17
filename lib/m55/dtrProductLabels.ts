@@ -10,7 +10,7 @@ export const LABEL_PRODUCT_JP = 'プレミアムレポート';
 export const LABEL_PRODUCT_EN = 'Entry Report';
 
 /** Processing eyebrow + /dtr/core document title (tier-neutral). */
-export const LABEL_SAVED_REPORT_METADATA_JP = '4章のプレミアムレポート';
+export const LABEL_SAVED_REPORT_METADATA_JP = 'M55 プレミアムレポート';
 
 /** My owned surfaces — tier-neutral saved report name. */
 export const LABEL_SAVED_REPORT_MY_JP = 'プレミアムレポート';
@@ -57,7 +57,7 @@ export const MY_SAVED_REPORT_OWNED_NOTE_P1 =
   'プレミアムレポートは、購入時までに入力された情報をもとに作成・保存されています。';
 export const MY_SAVED_REPORT_OWNED_NOTE_P2 =
   'ここでプロフィールを更新しても、購入済みのプレミアムレポートの内容は自動では変わりません。';
-export const MY_SAVED_REPORT_VALUE_TITLE = '4章のプレミアムレポート';
+export const MY_SAVED_REPORT_VALUE_TITLE = 'プレミアムレポート';
 export const MY_SAVED_REPORT_VALUE_BODY = '購入時の内容をそのまま読み返せます。';
 export const MY_SAVED_REPORT_CTA_PLAN_LABEL = 'プレミアムレポートのプランを見る';
 export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';

@@ -100,13 +100,13 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
     assert.equal(CONSULT_ENTRY_SURFACES.includes('M55 プレミアムレポート フル'), false);
   });
 
-  it('processing eyebrow and core metadata use 4章のプレミアムレポート', () => {
-    assert.equal(LABEL_SAVED_REPORT_METADATA_JP, '4章のプレミアムレポート');
-    const processing = readRepo('app/dtr/processing/page.tsx');
+  it('processing eyebrow and core metadata use M55 プレミアムレポート', () => {
+    assert.equal(LABEL_SAVED_REPORT_METADATA_JP, 'M55 プレミアムレポート');
+    const processingShell = readRepo('app/dtr/processing/DtrProcessingShell.tsx');
     const corePage = readRepo('app/dtr/core/page.tsx');
-    assert.match(processing, /LABEL_SAVED_REPORT_METADATA_JP/);
-    assert.equal(processing.includes('LABEL_PRODUCT_JP'), false);
+    assert.match(processingShell, /LABEL_SAVED_REPORT_METADATA_JP/);
     assert.match(corePage, /LABEL_SAVED_REPORT_METADATA_JP/);
+    assert.equal(corePage.includes('LABEL_PRODUCT_JP'), false);
   });
 
   it('removes legacy ¥500 sales UI from consult entry surfaces', () => {
@@ -130,10 +130,10 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
     assert.equal(PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa.includes('/'), false);
   });
 
-  it('does not modify Paid LP or PurchaseButton', () => {
+  it('keeps the paid LP tier source and PurchaseButton checkout path', () => {
     const lp = readRepo('app/dtr/lp/page.tsx');
     const purchaseBtn = readRepo('components/PurchaseButton.tsx');
-    assert.match(lp, /LpPricingTiers|DTR_CORE_FULL_V1/);
+    assert.match(lp, /PLAN_COMPARISON/);
     assert.match(purchaseBtn, /api\/purchase\/checkout/);
   });
 });

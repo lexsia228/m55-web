@@ -9,14 +9,16 @@ import RuntimeStateIdentitySync from "../components/shell/RuntimeStateIdentitySy
 
 export const metadata: Metadata = {
   title: "M55",
-  description: "M55 digital content service.",
+  description:
+    "M55は、生年月日と今の回答から、自分の傾向を言葉にするセルフリーディングサービスです。",
   icons: {
     icon: "/icons/m55-core-logo.png",
     apple: "/icons/m55-core-logo.png",
   },
   openGraph: {
     title: "M55",
-    description: "M55 digital content service.",
+    description:
+      "M55は、生年月日と今の回答から、自分の傾向を言葉にするセルフリーディングサービスです。",
     images: [{ url: "/icons/m55-core-logo.png", alt: "M55" }],
   },
 };

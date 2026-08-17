@@ -906,7 +906,7 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     productKey: DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
     priceYen: 600,
     priceLabelJa: '¥600（税込）',
-    planNameJa: '後からFULL化',
+    planNameJa: '後からフルに切り替える',
     headlineJa: 'ライト購入後、追加読み解きを合計5件まで使えるようにする',
     descriptionJa:
       'ライト購入者向け。追加読み解き枠を合計5件まで増やします。追加1件売りではありません。',
@@ -936,7 +936,7 @@ export const PAID_DTR_CONSULT_REPLY = {
   totalCapPerReport: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
   /** Primary upgrade price (SSOT). UI 未移行フィールドは legacy* を参照中。 */
   upgradeToFullPriceYen: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen,
-  upgradeToFullPriceLabelJa: '後からFULL化 ¥600',
+  upgradeToFullPriceLabelJa: 'フルに切り替え ¥600',
   upgradeToFullDescriptionJa: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.descriptionJa,
   oneThemeConsultPhraseJa: 'いまの1テーマだけ整理する追加読み解き',
   /**
@@ -1007,7 +1007,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   usageAdditionalPurchasableLabelJa: 'あと購入できる',
   walletLoadingJa: '残数確認中です。しばらくお待ちください。',
   savedReportLinkNoteJa:
-    'このプレミアムレポートに紐づいて、4章の内容を深掘りできます。',
+    'このプレミアムレポートに紐づいて、内容を深掘りできます。',
   limitReachedReadOnlyJa:
     '追加読み解きの利用回数の上限に達しました。これまでの追加読み解きは引き続き確認できます。',
   cannotPurchaseReportInfoJa:
@@ -1244,7 +1244,7 @@ export const PAID_DTR_LP = {
   about: {
     sectionTitleJa: 'M55とは',
     oneSentenceJa:
-      'M55は、生年月日を10資質レーンへ分けるだけではありません。\n旧暦月・季節位置・日帯などの暦信号を重ねて、\n自分の動き方・疲れ方・戻し方まで見えるプレミアムレポートに整えます。',
+      '生年月日から見える基調と、今回の回答に表れた傾向を重ねて、\nいまの自分に出やすい動きや、無理が重なりやすい場面を読み解きます。',
     principleJa:
       '本人に代わって答えを決めるのではなく、\n現実的な見方と、次に確かめることを示します。\n未来予測や吉凶の断定ではありません。',
   },
@@ -1260,7 +1260,7 @@ export const PAID_DTR_LP = {
   informationLayers: {
     sectionTitleJa: 'レポート本体と、追加読み解きの違い',
     savedReportJa:
-      'プレミアムレポートでは、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を整理します。\n本文は生成AIでその都度書き換えるものではなく、M55の固定ルールで組み立てられ、\n同じ入力なら同じプレミアムレポートに戻れます。',
+      '生年月日から見える基調と、今回の回答に表れた傾向を重ね、\nなぜその動きが続きやすいのか、どんな場面で強みや負担として出やすいのか、\n自分をどう扱うと整いやすいのかまで読み解きます。',
     consultReplyJa:
       '追加読み解きでは、そのプレミアムレポートに、\n今回入力した一つの読み解きテーマを重ねます。\n\nプレミアムレポートの内容をもとに、いま気になっている1テーマだけを整理します。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
@@ -1277,28 +1277,11 @@ export const PAID_DTR_LP = {
   },
   chapters: {
     sectionTitleJa: 'プレミアムレポートで読む流れ',
-    items: [
-      {
-        roman: 'Ⅰ',
-        titleJa: '輪郭を見る',
-        introJa: 'まず、自分に出やすい傾向をつかみます。',
-      },
-      {
-        roman: 'Ⅱ',
-        titleJa: '構造を読む',
-        introJa: '考え方や動き方が、どのようにつながっているかを見ます。',
-      },
-      {
-        roman: 'Ⅲ',
-        titleJa: '無理を知る',
-        introJa: '負担が重なりやすい場面と、無理の出方を確かめます。',
-      },
-      {
-        roman: 'Ⅳ',
-        titleJa: '楽に扱う',
-        introJa: '自分を変えすぎず、日常で扱いやすくする方法を整理します。',
-      },
-    ] as const,
+    items: PAID_DTR_DRAWER_CHAPTER_ENTRIES.map((entry) => ({
+      roman: entry.pillLabelJa,
+      titleJa: entry.labelJa,
+      introJa: entry.sublabelJa,
+    })),
   },
   consultReply: {
     sectionTitleJa: '追加読み解きとは',
@@ -1350,7 +1333,7 @@ export const PAID_DTR_LP = {
       'お支払い完了後は生成画面を経てプレミアムレポートを開けます。プランに応じて追加読み解きが利用できます。',
     legalLinksNavAriaLabelJa: '購入に関する案内',
     paragraphsJa: [
-      'プレミアムレポートは、購入時点の生年月日・プロフィールにもとづく固定ルールの読み物です。未来予測や吉凶の断定ではありません。',
+      'プレミアムレポートは、購入時点の生年月日・プロフィールにもとづく読み物です。未来予測や吉凶の断定ではありません。',
       '同じ入力内容なら、同じプレミアムレポートに戻れます。',
       '追加読み解きのみ、プレミアムレポートの内容をもとに1テーマを整理する形で、その都度組み立てます。会話を続ける形式ではありません。',
       '価格はすべて税込です。',
