@@ -21,6 +21,21 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
+## Human Final Commercial Acceptance blocking override (2026-08-17) — AUTHORITATIVE
+
+2026-08-17 Human Final Commercial Acceptance Audit **temporarily blocks SELL** before normal roadmap continuation.
+
+| Item | Value |
+|---|---|
+| Bounded correction | **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** |
+| M55_PERSONAL_SALES_LAUNCH | **HOLD** |
+| This is **NOT** | Personal Free redesign · new MRQ architecture · Compatibility activation · P3 reorder |
+| Closure path | authority micro-patch → GPT exact diff review → separate docs **COMMIT** authorization → docs commit → separate **PUSH/PR** authorization → push + PR → natural CI + Vercel Preview → Safari STP Preview acceptance for **(1)** owned `/dtr/core` **(2)** Pair result/share → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → required final Production acceptance → **SALES_LAUNCH reassessment** → then return to normal roadmap sequence |
+| Formal Codex CLI | **not available on PATH** in this gate — independent same-worktree product diff review completed; not a mandatory product blocker unless later Human authority explicitly requires formal Codex CLI rerun |
+| Vercel Preview for this branch | **not yet exists** — do not claim Preview before push + PR |
+| MRQ fixed order below | **unchanged** — do not reorder P0–P7 |
+| After correction closes | **M55_MRQ_P3_ENTRY_PLANNING** — normal roadmap continuation |
+
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
 PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120–#132 are **MERGED** on audit-baseline `main` @ `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea`; Product closure remains `de37b1a0f6781cf763621b023af6b6c7617b7e5d` because the later delta is docs/evidence/governance only. Personalization + narrative/share + Personal Free commercial individuality are **live on Production** (`https://m-55.jp`). Personal Free user-visible quality is **USER_VISIBLE_CLOSED_GREEN**. Compatibility commerce remains **OFF**. `M55_POST_RELEASE_LIFECYCLE_TRANSITION` and absolute residual-debt disposition are **COMPLETE**. PR #30 and PR #75 are **CLOSED** unmerged as superseded; PR #119 is the sole intended open product/preflight PR. **NEXT:** authorized **M55_MRQ_P3_ENTRY_PLANNING** (planning only) — **not** another Personal Free redesign; **not** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (CLOSED_GREEN @ `1e25d17`).

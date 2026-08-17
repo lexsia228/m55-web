@@ -427,3 +427,40 @@ This decision authorizes **only** durable transition recording in the four-file 
 | WT-009 Build Week | Clean after PR #75 closure; normally removed; remote branch retained |
 | Final live worktrees | `M55_CANONICAL` = **PRIMARY_REPO_ROOT**; `M55_WORKTREE-mrq-p1c-draft-persistence-v1` = **MAIN_CONTROL**; `M55_WORKTREE-mrq-p3-sales-safety-v1` = **PENDING_INTEGRATION** |
 | NEXT SINGLE ACTION | **M55_MRQ_P3_ENTRY_PLANNING** — planning only; P3 implementation/checkout/4242/real purchase/sales launch remain unauthorized |
+
+### 2026-08-17 — Human Final Commercial Acceptance Audit (pre-SELL correction)
+
+**Status:** Human-authorized bounded correction lane **M55_COMMERCIAL_ACCEPTANCE_CORRECTION**. Supersedes earlier Personal **SALES_LAUNCH GO** for current sell authorization. **M55_PERSONAL_SALES_LAUNCH = HOLD**. Production audited SHA `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8`. Local implementation commit `3059ffca1280b21c614711ebba961d072f4a595f` on `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `fix/m55-commercial-acceptance-revenue-v1`. **PUSH/PR/merge not authorized.**
+
+| Decision | Value |
+|---|---|
+| Supersedes | Earlier Personal **SALES_LAUNCH GO** — replaced by later Human-visible commercial acceptance audit |
+| Current sell state | **M55_PERSONAL_SALES_LAUNCH = HOLD** |
+| Bounded scope | `/dtr` shelf Light/Full contradiction · LP promise vs owned-reader identity · repeated generic paid closing · Japanese metadata / mobile Home / フル terminology · paid LP engine wording · owned DOB prominence · Free sticky CTA · Pair Safari date **only if** normal reproduction proves defect |
+| Explicit prohibitions | no payment · no Stripe · no DB · no Compatibility activation · no Personal Free reopening |
+| Authorization chronology | **LOCAL_IMPLEMENTATION_AUTHORIZED** → exact diff review → **COMMIT_AUTHORIZED** → commit `3059ffca…` → **PUSH/PR still not authorized** |
+| Codex governance STOP | Valid fail-closed result caused by stale Tier-E durable authority — **not** a product-diff rejection |
+| Personal Free | **CLOSED GREEN** — do not reopen absent actual invalidation |
+| Compatibility | independent · PR #119 **OPEN** · commerce **OFF** |
+| After close | **M55_MRQ_P3_ENTRY_PLANNING** remains normal roadmap continuation |
+
+### 2026-08-17 — Authority reconciliation exact-review correction (micro-patch REV1)
+
+**Status:** Human-authorized **docs/governance-only** micro-patch correcting stale Tier-E facts found by GPT exact review of `/tmp/M55_COMMERCIAL_ACCEPTANCE_AUTHORITY_RECONCILIATION.diff`. **Product source unchanged.** **M55_PERSONAL_SALES_LAUNCH = HOLD**. **PUSH/PR/merge not authorized.**
+
+| Decision | Value |
+|---|---|
+| First reconciliation artifact SHA | `b23645bcb21bb2975f8aa21b51721d946a406002b15e22a4e8dc3c82fc02c3de` |
+| GPT exact review | **RED/HOLD** on first reconciliation artifact |
+| Defect 1 | WT-034 false **clean** state while four expected Tier-E docs were uncommitted |
+| Defect 2 | stale blocking tail (Codex → Safari → push/PR) after independent product diff review + local Safari closeout |
+| Defect 3 | stale **MAIN_CONTROL** recommendation for worktree at `aadb6e57…` vs current `origin/main` `078d9dd3…` |
+| Defect 4 | missing post-review closeout facts (product MUST_FIX **0**, local Safari PASS set, Preview-deferred gaps) |
+| Product source | commit `3059ffca1280b21c614711ebba961d072f4a595f` unchanged · independently reviewed · MUST_FIX_BEFORE_SELL **0** · post-review source **NO_OP** |
+| Local Safari STP | DTR shelf · DTR LP · Free sticky · public share viewer · signed-out auth · Premium 6Q purchase-prep = **PASS** · Pair date real defect reproduced = **NO** |
+| Remaining acceptance evidence gaps | **OWNED_DTR_CORE** · **PAIR_RESULT_SHARE** = **DEFER_TO_VERCEL_PREVIEW_ACCEPTANCE** — not known source defects |
+| Formal Codex CLI | **not on PATH** — do not claim formal Codex CLI completed; not a mandatory product blocker unless later Human authority requires |
+| Personal Free | **CLOSED GREEN** — do not reopen absent actual invalidation |
+| Compatibility | independent · PR #119 **OPEN** · commerce **OFF** |
+| Sales | **M55_PERSONAL_SALES_LAUNCH = HOLD** |
+| Authorization chronology | authority micro-patch → GPT exact diff review → separate docs **COMMIT** authorization → docs commit → separate **PUSH/PR** authorization → push + PR → CI + Vercel Preview → Safari STP Preview acceptance → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → final Production acceptance → SALES_LAUNCH reassessment |
