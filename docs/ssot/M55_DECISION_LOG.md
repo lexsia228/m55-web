@@ -464,3 +464,24 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Compatibility | independent · PR #119 **OPEN** · commerce **OFF** |
 | Sales | **M55_PERSONAL_SALES_LAUNCH = HOLD** |
 | Authorization chronology | authority micro-patch → GPT exact diff review → separate docs **COMMIT** authorization → docs commit → separate **PUSH/PR** authorization → push + PR → CI + Vercel Preview → Safari STP Preview acceptance → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → final Production acceptance → SALES_LAUNCH reassessment |
+
+### 2026-08-18 — Post-push Tier-E authority reconciliation and Premium proof review resume
+
+**Status:** Human-authorized exact four-file Tier-E reconciliation completed through PATCH-3. The resumed read-only Premium evidence review is **GREEN**. Product source additional delta is **NO_OP**. **M55_PERSONAL_SALES_LAUNCH = HOLD**. No commit, push, merge, provider, or Production mutation is authorized.
+
+| Decision | Value |
+|---|---|
+| Prior Codex independent evidence review | **HOLD** — stopped only because WT-034 Tier-E registry still recorded `3059ffca…`; evidence semantics were **NOT_ASSESSED** |
+| Re-capture disposition from prior review | **NO requirement identified** |
+| Reconciliation authority | Human authorized exactly `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, and `M55_DECISION_LOG.md` |
+| Current branch identity | `fix/m55-commercial-acceptance-revenue-v1` · local and remote HEAD `2124e4fc2b104db9157d54ea85f0d765b8836e38` · base/origin main `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8` |
+| PR / Preview | PR #135 **OPEN** · Vercel Preview `dpl_DZJMr5GG1PTz8QXqPeuR1oBUGqwJ` **READY** for `2124e4fc…` · non-production |
+| Subsequent resumed Codex review | **COMPLETED GREEN** — evidence semantics GREEN · toolchain provenance GREEN · `node_modules` symlink provenance `MATCH_CURRENT_LOCKFILE` and does not invalidate evidence · record authenticity / tracked scope / focused validation / review artifact identity GREEN |
+| Premium proof | Canonical local refresh exists; source digest `35f813744af2dce5c8437a5554b5f8e813f44ff972ba305e1e1c318027323a86`; all 47 governed tracked evidence files independently validated GREEN; re-capture **NO** |
+| Remote audit failure | **VALID_PROOF_INVALIDATION** caused by committed records bound to the previous source digest; no product defect established |
+| Product source | additional delta **NO_OP** |
+| Proposed bounded follow-up commit | One atomic mixed-scope commit containing 47 independently GREEN Premium governed evidence files + 4 Tier-E authority docs = **51 tracked paths** |
+| Next Git write | Requires separate Human **COMMIT** authorization; no commit is authorized by this entry |
+| Remaining user-visible gaps | **OWNED_DTR_CORE** and **PAIR_RESULT_SHARE** Preview acceptance; evidence gaps, not known source defects |
+| Authorization boundary | no evidence recapture · no stage/commit/push/PR update/merge · no provider/Production mutation · Compatibility commerce remains OFF |
+| Sales | **M55_PERSONAL_SALES_LAUNCH = HOLD** |

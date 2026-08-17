@@ -30,9 +30,9 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 | Bounded correction | **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** |
 | M55_PERSONAL_SALES_LAUNCH | **HOLD** |
 | This is **NOT** | Personal Free redesign · new MRQ architecture · Compatibility activation · P3 reorder |
-| Closure path | authority micro-patch → GPT exact diff review → separate docs **COMMIT** authorization → docs commit → separate **PUSH/PR** authorization → push + PR → natural CI + Vercel Preview → Safari STP Preview acceptance for **(1)** owned `/dtr/core` **(2)** Pair result/share → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → required final Production acceptance → **SALES_LAUNCH reassessment** → then return to normal roadmap sequence |
+| Closure path | Tier-E PATCH3 exact review → separate bounded follow-up **COMMIT** authorization → one bounded follow-up commit containing the reviewed 51 tracked paths (47 Premium governed evidence + 4 Tier-E authority docs) → separate **PUSH** authorization → push / PR #135 head update → CI re-evaluation → Vercel Preview for the resulting head → Safari STP Preview acceptance for **OWNED_DTR_CORE** and **PAIR_RESULT_SHARE** → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → final Production acceptance → **SALES_LAUNCH reassessment** → then return to normal roadmap sequence |
 | Formal Codex CLI | **not available on PATH** in this gate — independent same-worktree product diff review completed; not a mandatory product blocker unless later Human authority explicitly requires formal Codex CLI rerun |
-| Vercel Preview for this branch | **not yet exists** — do not claim Preview before push + PR |
+| Current Vercel Preview | **READY** for `2124e4fc2b104db9157d54ea85f0d765b8836e38` (`dpl_DZJMr5GG1PTz8QXqPeuR1oBUGqwJ`, Preview/non-production); usable as runtime evidence, but final Preview acceptance is not claimed until Human/Safari evidence exists |
 | MRQ fixed order below | **unchanged** — do not reorder P0–P7 |
 | After correction closes | **M55_MRQ_P3_ENTRY_PLANNING** — normal roadmap continuation |
 
