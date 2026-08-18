@@ -58,6 +58,10 @@ export const M55_FUNNEL_EVENTS = {
   additionalReadingThemeSelected: 'm55_additional_reading_theme_selected',
   additionalReadingReviewView: 'm55_additional_reading_review_view',
   additionalReadingSendIntent: 'm55_additional_reading_send_intent',
+  lightToFullUpgradeIntent: 'm55_light_to_full_upgrade_intent',
+  lightToFullUpgradeCheckoutRedirect: 'm55_light_to_full_upgrade_checkout_redirect',
+  postPaymentReady: 'm55_post_payment_ready',
+  postPaymentStuck: 'm55_post_payment_stuck',
   compatibilityInputView: 'm55_compatibility_input_view',
   compatibilityFreeResultView: 'm55_compatibility_free_result_view',
   compatibilityActionView: 'm55_compatibility_action_view',
@@ -233,4 +237,53 @@ export function trackFunnelActionOnce(
 export function resetFunnelImpressionDedupeForTests(): void {
   firedImpressions.clear();
   firedActions.clear();
+}
+
+export type ReportSnapshotReadyPayload = {
+  ready?: boolean;
+  hasOwnership?: boolean;
+  hasPurchaseSnapshot?: boolean;
+  showPurchaseCta?: boolean;
+};
+
+export function shouldEmitPostPaymentReady(snapshot: ReportSnapshotReadyPayload): boolean {
+  return (
+    snapshot.ready === true &&
+    snapshot.hasOwnership === true &&
+    snapshot.hasPurchaseSnapshot === true
+  );
+}
+
+export function shouldRedirectOwnedRepurchase(
+  snapshot: ReportSnapshotReadyPayload,
+  isOwnedRecovery: boolean,
+): boolean {
+  return (
+    isOwnedRecovery &&
+    snapshot.hasOwnership === true &&
+    snapshot.hasPurchaseSnapshot !== true &&
+    snapshot.showPurchaseCta === true
+  );
+}
+
+export function shouldEmitPostPaymentStuck(polls: number, maxPolls: number): boolean {
+  return polls >= maxPolls;
+}
+
+/** One terminal post-payment outcome per component instance (ready OR stuck, not both). */
+export function emitPostPaymentTerminalOutcomeOnce(
+  outcome: 'ready' | 'stuck',
+  deps: {
+    trackFunnelAction: typeof trackFunnelAction;
+    emitted: { current: 'ready' | 'stuck' | null };
+  },
+): void {
+  if (deps.emitted.current !== null) return;
+  deps.emitted.current = outcome;
+  deps.trackFunnelAction(
+    outcome === 'ready'
+      ? M55_FUNNEL_EVENTS.postPaymentReady
+      : M55_FUNNEL_EVENTS.postPaymentStuck,
+    'dtr_paid_plan',
+  );
 }
