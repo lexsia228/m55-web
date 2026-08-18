@@ -22,8 +22,10 @@ export const metadata = { title: `${LABEL_SAVED_REPORT_METADATA_JP} | M55` };
 export default async function DtrCorePage() {
   const { userId } = await auth();
 
-  // Anonymous → LP (fail-closed)
-  if (!userId) redirect("/dtr/lp");
+  // Anonymous → sign-in with deep return to owned report route
+  if (!userId) {
+    redirect(`/sign-in?redirect_url=${encodeURIComponent("/dtr/core")}`);
+  }
 
   // Layer1 ownership check (M55_ENTITLEMENT_KEY_NORMALIZATION + BINDING_ROLLOUT Step 5)
   const ownership = await resolveEntryReportOwnership(userId);
