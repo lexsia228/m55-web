@@ -21,20 +21,42 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
-## Human Final Commercial Acceptance blocking override (2026-08-17) — AUTHORITATIVE
+## Human Final Commercial Acceptance blocking override (2026-08-17) — CLOSED / HISTORICAL
 
-2026-08-17 Human Final Commercial Acceptance Audit **temporarily blocks SELL** before normal roadmap continuation.
+2026-08-17 Human Final Commercial Acceptance Audit **temporarily blocked SELL** before the bounded correction closed.
 
 | Item | Value |
 |---|---|
-| Bounded correction | **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** |
-| M55_PERSONAL_SALES_LAUNCH | **HOLD** |
-| This is **NOT** | Personal Free redesign · new MRQ architecture · Compatibility activation · P3 reorder |
-| Closure path | Tier-E PATCH3 exact review → separate bounded follow-up **COMMIT** authorization → one bounded follow-up commit containing the reviewed 51 tracked paths (47 Premium governed evidence + 4 Tier-E authority docs) → separate **PUSH** authorization → push / PR #135 head update → CI re-evaluation → Vercel Preview for the resulting head → Safari STP Preview acceptance for **OWNED_DTR_CORE** and **PAIR_RESULT_SHARE** → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → final Production acceptance → **SALES_LAUNCH reassessment** → then return to normal roadmap sequence |
-| Formal Codex CLI | **not available on PATH** in this gate — independent same-worktree product diff review completed; not a mandatory product blocker unless later Human authority explicitly requires formal Codex CLI rerun |
-| Current Vercel Preview | **READY** for `2124e4fc2b104db9157d54ea85f0d765b8836e38` (`dpl_DZJMr5GG1PTz8QXqPeuR1oBUGqwJ`, Preview/non-production); usable as runtime evidence, but final Preview acceptance is not claimed until Human/Safari evidence exists |
+| Bounded correction | **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** — **CLOSED** |
+| Prior hold state | **M55_PERSONAL_SALES_LAUNCH = HOLD** (historical fact of this gate) |
+| Closure outcome | PR #135 **MERGED** @ `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` · Preview Human commercial acceptance **GREEN** · Production public-surface acceptance **GREEN** |
+| Current sell authority | **M55_PERSONAL_SALES_LAUNCH = SELL** — durably recorded by the 2026-08-18 post-SELL control-plane reconciliation |
+| This was **NOT** | Personal Free redesign · new MRQ architecture · Compatibility activation · P3 reorder |
 | MRQ fixed order below | **unchanged** — do not reorder P0–P7 |
-| After correction closes | **M55_MRQ_P3_ENTRY_PLANNING** — normal roadmap continuation |
+
+## Post-SELL commercial-growth operating overlay (2026-08-18) — PLANNING / SEQUENCING ONLY
+
+**G0–G5 is a Human-authorized cross-cutting post-SELL operating overlay.** Human Sales Launch = **SELL** is durably recorded. This overlay adds a **post-SELL monitoring/improvement loop** for monitoring, audit, and planning. It does **not** mark any frozen roadmap lane complete; it does **not** silently renumber or redefine the fixed product sequence below.
+
+| Gate | Status | Scope |
+|---|---|---|
+| **G0 CONTROL-PLANE FRESHNESS** | **ACTIVE** in current docs-only gate | Tier-E authority reconciliation only |
+| **G1 REVENUE OUTCOME OBSERVABILITY** | planned · **not implementation-authorized** | reuse existing privacy-safe analytics; close material conversion/revenue outcome blind spots before inventing another analytics stack |
+| **G2 PUBLIC TERMINOLOGY LONG-TAIL** | planned | audit residual public terminology outside previously reviewed primary surfaces; do not reopen already-GREEN primary product work |
+| **G3 REVISIT / RETENTION LOOP** | planned | reuse existing Today / Weekly / My / Premium / additional-reading assets; no new engine by default |
+| **G4 ORGANIC DISCOVERY** | planned | metadata / sitemap / robots / index freshness / share discovery; only after exact repo/runtime mapping |
+| **G5 METRIC-DRIVEN TRUE DELTAS** | planned | prioritize actual funnel/revisit/upgrade/share leakage from observed data |
+
+Explicit retainers:
+
+- Pair Premium **NOT** automatically activated
+- subscription **NOT** automatically introduced
+- no new recurring billing before repetition value is demonstrated
+- existing assets first · delta-only validation
+- Closed GREEN stays closed unless invalidated
+- competitor claims/copy are **not** copy sources
+
+This overlay does **not** authorize G1+ source implementation. Monitoring/audit/planning may run cross-cutting under this overlay, but any future G1+ **source** implementation still requires separate Human authority. When such implementation is authorized, that explicit later Human authority controls the bounded delta — agents must **not** infer implementation authority merely from this overlay. Normal MRQ continuation remains subordinate to the fixed order below; **M55_MRQ_P3_ENTRY_PLANNING** facts are preserved.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
