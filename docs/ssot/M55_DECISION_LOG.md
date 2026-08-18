@@ -503,3 +503,21 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Historical preservation | prior dated "sales launch not authorized" / **HOLD** entries remain historical facts of their original gates; not silently altered |
 | Next Git write | Requires separate Human **COMMIT** authorization after GPT exact-diff review; no commit is authorized by this entry |
 | Product source delta | **NO_OP** |
+
+### 2026-08-18 — PR #137 G1 revenue outcome observability merge
+
+**Status:** PR #137 **MERGED** on `origin/main` @ `773dd67222ba1fe81824c10be6457a33e715650f`. G1 Revenue Outcome Observability source implementation is **CLOSED GREEN**. CI **GREEN**. Exact merged source delta **4 files**. **No provider/Production/DB/Stripe/Clerk mutation** is implied by this merge milestone entry.
+
+| Decision | Value |
+|---|---|
+| PR #137 feature head | `74bbbc1b92a00fc3b5425889d94cf45e02847964` |
+| PR #137 merge commit / current `origin/main` | `773dd67222ba1fe81824c10be6457a33e715650f` |
+| G1 status | **CLOSED GREEN** — **DO NOT REOPEN** absent actual invalidation |
+| Merged paths | `lib/m55/privacySafeFunnelAnalytics.ts` · `components/dtr/LightToFullUpgradeButton.tsx` · `components/dtr/DtrProcessingClient.tsx` · `lib/m55/g1RevenueOutcomeObservability.test.ts` |
+| NEXT SINGLE ACTION | **G2 PUBLIC TERMINOLOGY LONG-TAIL** — planning/audit only |
+| G2 source implementation | **NOT AUTHORIZED** |
+| M55_PERSONAL_SALES_LAUNCH | **SELL** (unchanged) |
+| Personal Free | **CLOSED GREEN** |
+| Compatibility | PR #119 **OPEN** · commerce **OFF** |
+| Pair Premium / subscription | not automatically activated · not introduced |
+| Tier-E follow-up | documented post-merge reconciliation on WT-037 · commit not authorized by this entry alone |
