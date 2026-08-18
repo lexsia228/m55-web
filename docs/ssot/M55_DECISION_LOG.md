@@ -485,3 +485,21 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Remaining user-visible gaps | **OWNED_DTR_CORE** and **PAIR_RESULT_SHARE** Preview acceptance; evidence gaps, not known source defects |
 | Authorization boundary | no evidence recapture · no stage/commit/push/PR update/merge · no provider/Production mutation · Compatibility commerce remains OFF |
 | Sales | **M55_PERSONAL_SALES_LAUNCH = HOLD** |
+
+### 2026-08-18 — Post-SELL commercial-growth control-plane reconciliation
+
+**Status:** Human-authorized **M55_COMMERCIAL_GROWTH_CONTROL_PLANE_RECONCILIATION** · **LOCAL_IMPLEMENTATION_AUTHORIZED** · docs-only Tier-E reconciliation on reused `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `chore/m55-commercial-growth-control-plane-v1` from `origin/main` @ `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c`. **Product source unchanged.** **No commit, push, PR, merge, provider, or Production mutation is authorized.**
+
+| Decision | Value |
+|---|---|
+| M55_PERSONAL_SALES_LAUNCH | **SELL** |
+| Transition baseline | PR #135 correction **CLOSED** · merge SHA / Production / `origin/main` aligned @ `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` |
+| Authorized write scope | exactly `M55_CURRENT_STATE.md` · `M55_WORKTREE_REGISTRY.md` · `M55_ROADMAP.md` · `M55_DECISION_LOG.md` |
+| Human operating objective | proactively detect commercial, monetization, retention, acquisition, quality, visual/copy, and competitive-product gaps before Human manually reports them |
+| Operating constraints | monitoring/audit before implementation · route → asset → owner → local/remote delta → CLOSED GREEN/runtime proof · **REUSE** before **TRUE_DELTA** · screenshots are runtime evidence, not feature discovery · no reopening CLOSED GREEN without actual invalidation · no copying competitor claims/copy · no subscription-first strategy · no provider/DB/payment mutation from this decision · future writes still require their own applicable authority level |
+| Post-SELL overlay | G0 control-plane freshness **ACTIVE** (this gate); G1–G5 **planned only** — see `M55_ROADMAP.md`; G1+ implementation **not authorized** |
+| Personal Free | **CLOSED GREEN** — do not reopen absent actual invalidation |
+| Compatibility | independent · PR #119 **OPEN** · commerce **OFF** |
+| Historical preservation | prior dated "sales launch not authorized" / **HOLD** entries remain historical facts of their original gates; not silently altered |
+| Next Git write | Requires separate Human **COMMIT** authorization after GPT exact-diff review; no commit is authorized by this entry |
+| Product source delta | **NO_OP** |

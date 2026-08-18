@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-18 PRE-FOLLOW-UP-COMMIT OBSERVED SNAPSHOT** (`git worktree list --porcelain`; mutable `origin/main` snapshot **`078d9dd3dbd463f91fe8319e4e6a8b48beee05f8`** · WT-034 / remote feature **`2124e4fc2b104db9157d54ea85f0d765b8836e38`** · PR #135 OPEN · Preview READY; last Human-audited Production SHA / Commercial Acceptance audit Production baseline remains **`078d9dd3dbd463f91fe8319e4e6a8b48beee05f8`**, not freshly reobserved)
+Last verified: **2026-08-18 POST-SELL CONTROL-PLANE RECONCILIATION** (`git worktree list --porcelain`; mutable `origin/main` **`a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c`** · Production diagnostics **`a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c`** · PR #135 **MERGED** · WT-034 correction **CLOSED** · WT-035 active docs-only gate on reused worktree)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,7 +9,8 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **PRE-FOLLOW-UP-COMMIT observed snapshot (2026-08-18):** origin/main `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8`; Human Final Commercial Acceptance audit Production baseline / last Human-audited Production SHA is also `078d9dd3…` (**not** a fresh Production observation in this reconciliation); bounded correction local HEAD and remote feature are `2124e4fc…`, **ahead 2 / behind 0**, with PR #135 OPEN. Local HEAD may advance only through the documented separately authorized bounded follow-up commit; remote feature remains `2124e4fc…` until a separately authorized push.
+- **Current live remote main / Production (2026-08-18 post-PR-#135):** `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` — PR #135 **MERGED**; Production diagnostics `vercel_env=production` · `vercel_branch=main` · `vercel_git_sha=a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c`; Human Sales Launch authority **SELL**
+- **PRE-FOLLOW-UP-COMMIT observed snapshot (2026-08-18; historical):** origin/main `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8`; bounded correction local HEAD and remote feature were `2124e4fc…`, PR #135 OPEN — superseded by merge @ `a6ddfd7…`
 - **Absolute residual-cleanup baseline remote main / Production observation (2026-08-16):** `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea` — PR #132 **MERGED**; Production diagnostics SHA matched at `2026-08-16T14:26:28.841Z`; `de37b1a..9d7eb06` is docs/evidence/governance only. This residual cleanup is lifecycle/docs-only and does not redefine Product closure.
 - **Historical verified baseline:** `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main
 - **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
@@ -42,7 +43,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-18 post-Codex-review finalization) — authoritative, read this first:** Last Human-audited Production SHA / Commercial Acceptance audit Production baseline `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8` (fresh mutable Git observation matches; Production not freshly reobserved). **M55_PERSONAL_SALES_LAUNCH = HOLD**. Human-authorized bounded lane **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** on `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `fix/m55-commercial-acceptance-revenue-v1`. **PRE-FOLLOW-UP-COMMIT OBSERVED SNAPSHOT:** local HEAD and remote PR head `2124e4fc2b104db9157d54ea85f0d765b8836e38` · PR #135 **OPEN** · Preview `dpl_DZJMr5GG1PTz8QXqPeuR1oBUGqwJ` **READY** for that SHA · tracked dirty **51** (47 Premium governed evidence files + 4 Tier-E authority docs) · ordinary untracked **1** (`node_modules`, local proof toolchain only; not evidence / tracked / staged / gitignored) · index empty · out-of-scope tracked dirty **0** · **MERGE NOT AUTHORIZED**. Independent Codex evidence review, evidence semantics, and toolchain provenance are **GREEN**; symlink does not invalidate evidence; re-capture **NO**. A proposed one-commit follow-up contains exactly the reviewed 51 tracked paths but requires separate Human **COMMIT** authorization. Local HEAD may then advance from parent `2124e4fc…`; this documented transition is not unexplained registry drift solely because HEAD/cleanliness advances after commit. Remote feature remains `2124e4fc…` until separate PUSH authorization. Personal Free **CLOSED GREEN** · **DO NOT REOPEN** absent invalidation. Compatibility independent · PR #119 **OPEN** · commerce **OFF**. Product source reviewed · MUST_FIX_BEFORE_SELL **0** · post-review source **NO_OP**. Remaining acceptance evidence gaps only: **OWNED_DTR_CORE** + **PAIR_RESULT_SHARE** → **DEFER_TO_VERCEL_PREVIEW_ACCEPTANCE**. **NEXT after close:** **M55_MRQ_P3_ENTRY_PLANNING** (normal roadmap continuation). Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
+**CURRENT (2026-08-18 post-SELL control-plane reconciliation) — authoritative, read this first:** `origin/main` and Production diagnostics **`a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c`**. PR #135 **MERGED** @ that SHA. **M55_PERSONAL_SALES_LAUNCH = SELL**. Commercial Acceptance correction **CLOSED**. Human-authorized docs-only lane **M55_COMMERCIAL_GROWTH_CONTROL_PLANE_RECONCILIATION** on reused `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `chore/m55-commercial-growth-control-plane-v1` · HEAD **`a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c`**. **Observed working snapshot:** tracked dirty **4** (exactly the four Tier-E docs in this gate, unstaged) · ordinary untracked **1** (`node_modules`, local proof toolchain symlink only; not evidence / tracked / staged / gitignored) · **index empty** · out-of-scope tracked dirty **0** · **commit / push / PR / merge not authorized**. Personal Free **CLOSED GREEN** · **DO NOT REOPEN** absent invalidation. Compatibility independent · PR #119 **OPEN** · commerce **OFF**. Product source delta in this gate **NO_OP**. Post-SELL operating overlay G0 active; G1+ planned only — see `M55_ROADMAP.md`. Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
+
+**CURRENT (2026-08-18 post-Codex-review finalization) — historical:** Last Human-audited Production SHA / Commercial Acceptance audit Production baseline `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8`. **M55_PERSONAL_SALES_LAUNCH = HOLD**. Bounded lane **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** · branch `fix/m55-commercial-acceptance-revenue-v1` · PRE-FOLLOW-UP-COMMIT observed HEAD `2124e4fc…` · PR #135 **OPEN** · tracked dirty **51** · merge not authorized — superseded by PR #135 merge and post-SELL reconciliation above.
 
 **CURRENT (2026-08-16 absolute residual-debt closure) — historical:** PR #120–#132 on `main` @ audit baseline `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea`. Product closure @ `de37b1a`; the post-product delta is docs/evidence/governance only. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED**. Lifecycle transition **COMPLETE** — Human signoff + personalization eval evidence archived in-repo; four superseded stashes dropped; obsolete local-only retention refs retired; PR #30 and PR #75 closed unmerged with remote branches retained. **ACTIVE implementation lane: none.** **NEXT:** **M55_MRQ_P3_ENTRY_PLANNING** (planning only). PR #119 Compatibility commerce is the sole intended open product/preflight PR. Live worktrees: **3** at that gate — superseded by 2026-08-17 live count **4**. WT-001 / WT-009 / WT-032 / WT-033 **REMOVED**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` remains **CLOSED_GREEN** — do not reopen.
 
@@ -827,38 +830,52 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-### WT-034 — Commercial acceptance correction (PR_OPEN / PREVIEW_READY)
+### WT-034 — Commercial acceptance correction (CLOSED)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` |
-| branch | `fix/m55-commercial-acceptance-revenue-v1` |
-| PRE-FOLLOW-UP-COMMIT observed local HEAD | `2124e4fc2b104db9157d54ea85f0d765b8836e38` |
-| base origin/main | `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8` |
-| PRE-FOLLOW-UP-COMMIT observed upstream / remote feature | `origin/fix/m55-commercial-acceptance-revenue-v1` @ `2124e4fc2b104db9157d54ea85f0d765b8836e38`; remains there until separate PUSH authorization |
-| divergence | ahead **2** / behind **0** vs `origin/main` |
-| PRE-FOLLOW-UP-COMMIT observed cleanliness | **TRACKED DIRTY 51** — 47 Premium governed evidence files under `e2e/screenshots/premium-experience-ssot/` and `lib/m55/commercialUx/premiumExperience/evidence-execution-records/` + 4 Tier-E authority docs; **ORDINARY UNTRACKED 1** — `node_modules`, ordinary untracked symlink for the local proof toolchain only, not evidence / tracked / staged / gitignored; provenance **MATCH_CURRENT_LOCKFILE** and does not invalidate evidence; **INDEX empty**; **OUT-OF-SCOPE TRACKED DIRTY 0**. Operational status is mutable and must be freshly rechecked before Git writes. |
-| lifecycle | **PR_OPEN / PREVIEW_READY / MERGE_NOT_AUTHORIZED** |
-| authority | Human Commercial Acceptance Correction — push/PR gate complete · PR #135 OPEN · Preview READY for `2124e4fc…` · independent Codex evidence review **GREEN** · follow-up COMMIT authorization **not granted** |
+| prior branch | `fix/m55-commercial-acceptance-revenue-v1` |
+| feature head | `eeaf2f4c474b154453008f50d139479c8948e65c` |
+| merge commit / origin/main | `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` |
+| PR #135 | **MERGED** @ `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` |
+| Preview acceptance | **OWNED_DTR_CORE** · **PAIR_RESULT_SHARE** — **GREEN** |
+| Production acceptance (public affected surfaces) | `/dtr` · `/dtr/lp` — **GREEN** @ `a6ddfd7…` |
+| lifecycle | **CLOSED** — bounded pre-SELL correction complete |
 | purpose | Bounded pre-SELL correction: DTR shelf Light/Full · LP↔reader identity · paid closing · metadata/フル · LP engine wording · owned DOB · Free sticky CTA |
-| related lane | **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** |
-| prohibited operations | push · PR · merge · Production mutation · payment · Stripe · DB · Compatibility activation · Personal Free reopening |
-| proposed atomic follow-up commit boundary | One mixed-scope commit containing exactly 47 independently GREEN Premium governed evidence files + 4 Tier-E authority docs = **51 tracked paths**; separate Human COMMIT authorization required |
-| documented follow-up commit transition | A separately Human-authorized bounded follow-up commit may advance local HEAD from parent `2124e4fc…` while containing exactly the reviewed 51 tracked paths. That expected transition must not be classified as unexplained registry drift solely because local HEAD/cleanliness advances after commit. Do not invent the future SHA. Remote feature remains `2124e4fc…` until separately authorized push. |
-| exit condition | Tier-E PATCH3 exact review → separate bounded follow-up COMMIT authorization → one bounded follow-up commit → separate PUSH authorization → push / PR #135 head update → CI re-evaluation → resulting-head Vercel Preview → Safari STP Preview acceptance (**OWNED_DTR_CORE** · **PAIR_RESULT_SHARE**) → Human Preview commercial acceptance → separate MERGE authorization → merge → Production SHA verification → final Production acceptance → SALES_LAUNCH reassessment |
+| exit condition | **met** — merge + Production SHA verification + final Production acceptance + SALES_LAUNCH reassessment → **SELL** recorded 2026-08-18 |
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-17) — AUTHORITATIVE
+### WT-035 — Commercial growth control-plane reconciliation (DOCS_ONLY / ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` (reused from WT-034) |
+| branch | `chore/m55-commercial-growth-control-plane-v1` |
+| HEAD / base origin/main | `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` |
+| divergence | **0 / 0** vs `origin/main` |
+| observed cleanliness | **TRACKED DIRTY 4** — exactly `M55_CURRENT_STATE.md` · `M55_WORKTREE_REGISTRY.md` · `M55_ROADMAP.md` · `M55_DECISION_LOG.md` (unstaged Tier-E reconciliation); **ORDINARY UNTRACKED 1** — `node_modules` symlink · **INDEX empty** · **OUT-OF-SCOPE TRACKED DIRTY 0** |
+| lifecycle | **DOCS_ONLY / ACTIVE** — commit not authorized |
+| authority | Human **M55_COMMERCIAL_GROWTH_CONTROL_PLANE_RECONCILIATION** · **LOCAL_IMPLEMENTATION_AUTHORIZED** · docs-only |
+| purpose | Reconcile stale Tier-E authority after PR #135 merge, Production deployment, Human Sales Launch **SELL**, and post-SELL monitoring/improvement loop entry |
+| prohibited operations | product/runtime source · stage · commit · push · PR · merge · Production mutation · payment · Stripe · DB · Compatibility activation · Personal Free reopening · npm install |
+| exit condition | GPT exact-diff review → separate docs **COMMIT** authorization (if granted) → docs commit → separate **PUSH/PR** authorization (if granted) |
+
+---
+
+## FINAL LIVE WORKTREES (2026-08-18) — AUTHORITATIVE
 
 Live count from `git worktree list --porcelain`: **4**
 
 | Path | Branch | HEAD | Registry id | Lifecycle | Why it remains | Exit condition |
 |---|---|---|---|---|---|---|
 | `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `6d53a71df148ed4c0a1016358bc86830086f8732` | primary git root | **PRIMARY_REPO_ROOT** | Primary repository `.git` root; clean; not an ACTIVE implementation lane | keep |
-| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `fix/m55-commercial-acceptance-revenue-v1` | PRE-FOLLOW-UP-COMMIT observed `2124e4fc2b104db9157d54ea85f0d765b8836e38` | WT-034 | **PR_OPEN / PREVIEW_READY** | Codex evidence review GREEN; proposed 51-path atomic follow-up commit requires separate Human COMMIT authorization; merge not authorized | Bounded follow-up commit authorization/delivery, resulting-head Preview acceptance, and separate Human merge authorization |
-| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; **not** a recommended current control checkout. HEAD `aadb6e57…` is PR #133 merge ancestor of current `origin/main` `078d9dd3…`. Current Git authority is freshly verified `origin/main`. | replace only by explicit control-checkout synchronization transition |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-commercial-growth-control-plane-v1` | `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` | WT-035 (WT-034 **CLOSED**) | **DOCS_ONLY / ACTIVE** | Post-SELL Tier-E control-plane reconciliation; 4 unstaged Tier-E docs; commit not authorized | GPT exact-diff review → separate docs COMMIT authorization (if granted) |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; **not** a recommended current control checkout. HEAD `aadb6e57…` is ancestor of current `origin/main` `a6ddfd7…`. | replace only by explicit control-checkout synchronization transition |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `769084dd82da25f7cc0f4656f3cdeeff879209c2` | WT-027 | **PENDING_INTEGRATION** | PR #119 **OPEN** — Compatibility commerce preflight | PR #119 merge/close + separate commerce gate |
+
+## FINAL LIVE WORKTREES (2026-08-17) — HISTORICAL
 
 ## FINAL LIVE WORKTREES (2026-08-16 absolute residual-debt cleanup) — HISTORICAL
 
