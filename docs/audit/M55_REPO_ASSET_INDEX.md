@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-08-17T21:38:59.879163+00:00
+Generated: 2026-08-18T21:36:35.705948+00:00
 Total records: 700
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
@@ -19,9 +19,9 @@ Total records: 700
 - [ssot] `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` (1831 bytes)
 - [ssot] `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (10481 bytes)
 - [ssot] `docs/ssot/M55_COPY_AND_CLAIMS.md` (2471 bytes)
-- [ssot] `docs/ssot/M55_CURRENT_STATE.md` (60835 bytes)
+- [ssot] `docs/ssot/M55_CURRENT_STATE.md` (77406 bytes)
 - [ssot] `docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md` (4728 bytes)
-- [ssot] `docs/ssot/M55_DECISION_LOG.md` (26264 bytes)
+- [ssot] `docs/ssot/M55_DECISION_LOG.md` (36538 bytes)
 - [ssot] `docs/ssot/M55_DEPRECATION_MAP_20260330.md` (6382 bytes)
 - [ssot] `docs/ssot/M55_DIVINATION_RESULT_PARITY_P0_CLOSEOUT_2026-05-26.md` (8508 bytes)
 - [ssot] `docs/ssot/M55_DTR_BASE_PREVIEW_GREEN_CHECKPOINT_2026-05-12.md` (3141 bytes)
@@ -608,7 +608,7 @@ Total records: 700
 - [ssot] `docs/ssot/M55_REPLY_WALLET_UNSAFE_ARCHIVE_SQL_REJECTION_v1.md` (5889 bytes)
 - [ssot] `docs/ssot/M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md` (30133 bytes)
 - [ssot] `docs/ssot/M55_REPRODUCIBILITY_APPENDIX_v1.md` (5018 bytes)
-- [ssot] `docs/ssot/M55_ROADMAP.md` (12808 bytes)
+- [ssot] `docs/ssot/M55_ROADMAP.md` (16989 bytes)
 - [ssot] `docs/ssot/M55_SELF_FUNNEL_CONTRACT.md` (4516 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md` (9366 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md` (2698 bytes)
@@ -624,7 +624,7 @@ Total records: 700
 - [ssot] `docs/ssot/M55_WEB_PAGE_MAPPING_AND_REUSE_MATRIX_v1_2026-03-07.md` (1319 bytes)
 - [ssot] `docs/ssot/M55_WEB_UI_ARCHITECTURE_SSOT_v1_2026-03-07.md` (1134 bytes)
 - [ssot] `docs/ssot/M55_WEB_VISUAL_AND_COMPONENT_CONTRACT_SSOT_v1_2026-03-07.md` (1438 bytes)
-- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (76800 bytes)
+- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (87409 bytes)
 - [ssot] `docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md` (3159 bytes)
 - [ssot] `docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md` (3410 bytes)
 - [ssot] `docs/ssot/PRICING_WALLET_SEPARATION__EXTRACT_v1_DESKTOP_PACK_2026-02-01.md` (2813 bytes)
