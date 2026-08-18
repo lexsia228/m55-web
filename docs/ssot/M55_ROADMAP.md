@@ -40,9 +40,9 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 | Gate | Status | Scope |
 |---|---|---|
-| **G0 CONTROL-PLANE FRESHNESS** | **ACTIVE** in current docs-only gate | Tier-E authority reconciliation only |
-| **G1 REVENUE OUTCOME OBSERVABILITY** | planned · **not implementation-authorized** | reuse existing privacy-safe analytics; close material conversion/revenue outcome blind spots before inventing another analytics stack |
-| **G2 PUBLIC TERMINOLOGY LONG-TAIL** | planned | audit residual public terminology outside previously reviewed primary surfaces; do not reopen already-GREEN primary product work |
+| **G0 CONTROL-PLANE FRESHNESS** | **CLOSED** — historical control-plane docs reconciled on `main` | Tier-E authority reconciliation only; superseded by PR #137 post-merge current state |
+| **G1 REVENUE OUTCOME OBSERVABILITY** | **CLOSED GREEN** — PR #137 **MERGED** @ `773dd67222ba1fe81824c10be6457a33e715650f` · feature `74bbbc1b92a00fc3b5425889d94cf45e02847964` | privacy-safe Light→Full upgrade + post-payment ready/stuck observability; **DO NOT REOPEN** absent actual invalidation |
+| **G2 PUBLIC TERMINOLOGY LONG-TAIL** | **NEXT PLANNING/AUDIT** · **not implementation-authorized** | audit residual public terminology outside previously reviewed primary surfaces; do not reopen already-GREEN primary product work |
 | **G3 REVISIT / RETENTION LOOP** | planned | reuse existing Today / Weekly / My / Premium / additional-reading assets; no new engine by default |
 | **G4 ORGANIC DISCOVERY** | planned | metadata / sitemap / robots / index freshness / share discovery; only after exact repo/runtime mapping |
 | **G5 METRIC-DRIVEN TRUE DELTAS** | planned | prioritize actual funnel/revisit/upgrade/share leakage from observed data |
@@ -56,7 +56,7 @@ Explicit retainers:
 - Closed GREEN stays closed unless invalidated
 - competitor claims/copy are **not** copy sources
 
-This overlay does **not** authorize G1+ source implementation. Monitoring/audit/planning may run cross-cutting under this overlay, but any future G1+ **source** implementation still requires separate Human authority. When such implementation is authorized, that explicit later Human authority controls the bounded delta — agents must **not** infer implementation authority merely from this overlay. Normal MRQ continuation remains subordinate to the fixed order below; **M55_MRQ_P3_ENTRY_PLANNING** facts are preserved.
+This overlay does **not** authorize G2+ source implementation. G1 is **CLOSED GREEN** on `main` via PR #137 and must not be re-audited or re-implemented absent actual invalidation. **G2 PUBLIC TERMINOLOGY LONG-TAIL** is the **NEXT PLANNING/AUDIT** gate only. Monitoring/audit/planning may run cross-cutting under this overlay, but any future G2+ **source** implementation still requires separate Human authority. When such implementation is authorized, that explicit later Human authority controls the bounded delta — agents must **not** infer implementation authority merely from this overlay. Normal MRQ continuation remains subordinate to the fixed order below; **M55_MRQ_P3_ENTRY_PLANNING** facts are preserved.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
