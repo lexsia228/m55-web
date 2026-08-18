@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-18 G3-02 ACTIVE-LANE TIER-E RECONCILIATION** (`git worktree list --porcelain`; mutable `origin/main` **`39f7f3dd654cbd684c7e60830276de2b6c3df5c2`** · PR #141 **OPEN** @ `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` · G3-02 **IN_PROGRESS** · WT-040 **ACTIVE** · WT-039 **CLOSED**)
+Last verified: **2026-08-19 PR #141 POST-MERGE TIER-E RECONCILIATION** (`git worktree list --porcelain`; mutable `origin/main` **`4edcf631c5bccfba18f16db8767d20f83bc104f0`** · PR #141 **MERGED** @ `4edcf631c5bccfba18f16db8767d20f83bc104f0` · feature head `522124257780d9e1a2af8dd895e428314a5a6dc5` · G3-02 **CLOSED GREEN** · WT-040 **CLOSED** · WT-041 **ACTIVE** docs-only gate)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,7 +9,8 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **Current live remote main (2026-08-18 G3-02):** `39f7f3dd654cbd684c7e60830276de2b6c3df5c2` — PR #141 **OPEN** · G3-02 owned-report deep-return feature @ `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` · Human Sales Launch authority **SELL**
+- **Current live remote main (2026-08-19 post-PR-#141):** `4edcf631c5bccfba18f16db8767d20f83bc104f0` — PR #141 **MERGED** · G3-02 owned-report deep-return **CLOSED GREEN** · feature head `522124257780d9e1a2af8dd895e428314a5a6dc5` · Human Sales Launch authority **SELL**
+- **Previous live remote main (2026-08-18 G3-02 pre-merge; historical):** `39f7f3dd654cbd684c7e60830276de2b6c3df5c2` — PR #141 feature branch era · superseded by PR #141 merge @ `4edcf631…`
 - **Previous live remote main (2026-08-18 post-PR-#139; historical):** `183328ade4cbbaf69975bdf33883bdad3caf19ad` — PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · superseded by current `origin/main` @ `39f7f3d…`
 - **Previous live remote main (2026-08-18 post-PR-#137; historical):** `773dd67222ba1fe81824c10be6457a33e715650f` — PR #137 **MERGED** · G1 Revenue Outcome Observability **CLOSED GREEN** · superseded by PR #138/#139 merges
 - **Production / PR #135 merge baseline (2026-08-18; historical):** `a6ddfd72603c6dc14b7c57df6ab44db2ec604d0c` — PR #135 **MERGED**; Production diagnostics observed @ that SHA during Commercial Acceptance closure — **not** current live remote main
@@ -45,7 +46,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-18 G3-02 active lane) — authoritative, read this first:** `origin/main` **`39f7f3dd654cbd684c7e60830276de2b6c3df5c2`**. PR #141 **OPEN** @ feature head `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` · CI **RED** (Premium proof source-snapshot invalidation). G3-02 owned-report signed-out deep-return **IN_PROGRESS** · committed and pushed · **not merged** · **USER_VISIBLE_CLOSED_GREEN = NO**. G2 **CLOSED GREEN** (PR #139) · G1 **CLOSED GREEN** (PR #137) · **DO NOT REOPEN** absent actual invalidation. **M55_PERSONAL_SALES_LAUNCH = SELL**. **NEXT SINGLE ACTION:** PR #141 Premium proof authenticity recovery diagnostic / governed recapture. G3-01 **NOT AUTHORIZED** in PR #141 · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED. Human-authorized active lane **M55_G3_02_OWNED_REPORT_DEEP_RETURN** on `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `feat/m55-g3-owned-report-deep-return-v1` · HEAD **`283400a7a10b6ba2111d116d0b52f047b9e4b0f3`** · divergence vs `origin/main` **0 / 1**. Personal Free **CLOSED GREEN** · Compatibility PR #119 **OPEN** · commerce **OFF**. Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
+**CURRENT (2026-08-19 PR #141 post-merge Tier-E reconciliation) — authoritative, read this first:** `origin/main` **`4edcf631c5bccfba18f16db8767d20f83bc104f0`**. PR #141 **MERGED** @ `4edcf631c5bccfba18f16db8767d20f83bc104f0` · feature head `522124257780d9e1a2af8dd895e428314a5a6dc5` · G3-02 **CLOSED GREEN** · **USER_VISIBLE_CLOSED_GREEN = YES**. Human Preview owner/non-owner runtime **GREEN** · proof + CI + Human visual **GREEN** · Production deployment **READY** @ merge SHA · Production signed-out deep-return preflight **GREEN**. G2 **CLOSED GREEN** (PR #139) · G1 **CLOSED GREEN** (PR #137) · **DO NOT REOPEN** absent actual invalidation. **M55_PERSONAL_SALES_LAUNCH = SELL**. **NEXT SINGLE ACTION:** **M55_JAPANESE_SEMANTIC_QUALITY_AUDIT** — READ-ONLY / INVENTORY-FIRST. G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED. Human-authorized active governance lane **M55_PR141_POST_MERGE_TIER_E_RECONCILIATION** on `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `chore/m55-pr141-post-merge-tier-e-reconciliation` · base `4edcf631c5bccfba18f16db8767d20f83bc104f0`. Personal Free **CLOSED GREEN** · Compatibility PR #119 **OPEN** · commerce **OFF**. Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
+
+**CURRENT (2026-08-18 G3-02 active lane) — historical:** `origin/main` **`39f7f3dd654cbd684c7e60830276de2b6c3df5c2`**. PR #141 **OPEN** @ feature head `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` · CI **RED** — superseded by PR #141 merge + WT-041 docs gate.
 
 **CURRENT (2026-08-18 PR #139 post-merge Tier-E reconciliation) — historical:** `origin/main` **`183328ade4cbbaf69975bdf33883bdad3caf19ad`**. PR #139 **MERGED** · WT-039 docs gate — superseded by G3-02 active lane + WT-040.
 
@@ -923,41 +926,59 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-### WT-040 — G3-02 owned report deep return (ACTIVE)
+### WT-040 — G3-02 owned report deep return (CLOSED_GREEN)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` (reused from WT-039) |
 | branch | `feat/m55-g3-owned-report-deep-return-v1` |
 | base origin/main | `39f7f3dd654cbd684c7e60830276de2b6c3df5c2` |
-| feature commit / HEAD | `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` |
-| PR #141 | **OPEN** · CI **RED** — Premium proof source-snapshot invalidation |
-| divergence vs origin/main | **0 / 1** |
+| feature head | `522124257780d9e1a2af8dd895e428314a5a6dc5` |
+| merge commit / origin/main | `4edcf631c5bccfba18f16db8767d20f83bc104f0` |
+| PR #141 | **MERGED** |
 | exact source delta | **2 files** — `app/dtr/core/page.tsx` · `lib/m55/dtrCoreOwnedReportDeepReturn.test.ts` |
-| lifecycle | **ACTIVE** — implementation committed and pushed · **not merged** |
-| USER_VISIBLE_CLOSED_GREEN | **NO** |
-| G3-01 in PR #141 | **NOT AUTHORIZED** |
-| G3-03 | **HOLD_RUNTIME_PROOF** |
-| G3-04 Today/Weekly exposure | **REJECT_EXPOSURE** — COPY_SAFETY_GATE_REQUIRED |
+| lifecycle | **CLOSED_GREEN** — **DO NOT REOPEN** absent actual invalidation |
+| USER_VISIBLE_CLOSED_GREEN | **YES** |
+| Human Preview owner runtime | **GREEN** — `OWNER_FINAL_PATH=/dtr/core` · `OWNER_REPORT_VISIBLE=YES` |
+| Human Preview non-owner runtime | **GREEN** — `NON_OWNER_FINAL_PATH=/dtr/lp` · `NON_OWNER_REPORT_VISIBLE=NO` |
+| proof recapture / authenticity | **GREEN** |
+| PR-head CI | **GREEN** |
+| Production post-merge deployment | **READY** @ merge SHA |
+| Production signed-out deep-return preflight | **GREEN** |
 | purpose | Signed-out `/dtr/core` → sign-in with safe return to `/dtr/core`; ownership gate after auth unchanged |
-| proof recovery | **not complete** |
-| merge / deploy / provider mutation | **not authorized** |
-| exit condition | PR #141 proof recovery → CI GREEN → separate merge authorization |
+| provider mutation | **none** |
+| exit condition | **met** — PR #141 merged · Human visual GREEN · proof + CI GREEN · Production preflight GREEN |
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-18 G3-02) — AUTHORITATIVE
+### WT-041 — PR #141 post-merge Tier-E reconciliation (ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` (reused from WT-040) |
+| branch | `chore/m55-pr141-post-merge-tier-e-reconciliation` |
+| base origin/main | `4edcf631c5bccfba18f16db8767d20f83bc104f0` |
+| lifecycle | **ACTIVE** — docs-only post-merge Tier-E reconciliation |
+| purpose | Docs-only settlement after PR #141 merge — `M55_CURRENT_STATE.md` · `M55_WORKTREE_REGISTRY.md` · `M55_ROADMAP.md` only |
+| related lane / PR | PR #141 **MERGED** @ `4edcf631c5bccfba18f16db8767d20f83bc104f0`; G3-02 **CLOSED GREEN** |
+| product implementation authorized | **false** — docs-only |
+| NEXT SINGLE ACTION after settlement | **M55_JAPANESE_SEMANTIC_QUALITY_AUDIT** — READ-ONLY / INVENTORY-FIRST |
+| exit condition | docs-only PR merged to `main` |
+
+---
+
+## FINAL LIVE WORKTREES (2026-08-19 PR #141 post-merge) — AUTHORITATIVE
 
 Live count from `git worktree list --porcelain`: **4**
 
 | Path | Branch | HEAD | Registry id | Lifecycle | Why it remains | Exit condition |
 |---|---|---|---|---|---|---|
 | `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `6d53a71df148ed4c0a1016358bc86830086f8732` | primary git root | **PRIMARY_REPO_ROOT** | Primary repository `.git` root; clean; not an ACTIVE implementation lane | keep |
-| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `feat/m55-g3-owned-report-deep-return-v1` | `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` | WT-040 (WT-039 **CLOSED**) | **ACTIVE** | G3-02 owned-report deep-return · PR #141 **OPEN** | PR #141 proof recovery → CI GREEN → separate merge authorization |
-| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; **not** a recommended current control checkout. HEAD `aadb6e57…` is ancestor of current `origin/main` `39f7f3d…`. | replace only by explicit control-checkout synchronization transition |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr141-post-merge-tier-e-reconciliation` | gate-time operational authority | WT-041 (WT-040 **CLOSED**) | **ACTIVE** | PR #141 post-merge Tier-E docs-only reconciliation | docs-only PR merge to `main` |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; **not** a recommended current control checkout. HEAD `aadb6e57…` is ancestor of current `origin/main` `4edcf631…`. | replace only by explicit control-checkout synchronization transition |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `769084dd82da25f7cc0f4656f3cdeeff879209c2` | WT-027 | **PENDING_INTEGRATION** | PR #119 **OPEN** — Compatibility commerce preflight | PR #119 merge/close + separate commerce gate |
 
-## FINAL LIVE WORKTREES (2026-08-18 PR #139) — HISTORICAL
+## FINAL LIVE WORKTREES (2026-08-18 G3-02) — HISTORICAL
 
 ## FINAL LIVE WORKTREES (2026-08-16 absolute residual-debt cleanup) — HISTORICAL
 

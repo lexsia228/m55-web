@@ -5,49 +5,59 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three); **updated 2026-08-17** (Human Final Commercial Acceptance Audit · bounded pre-SELL correction lane · local commit on WT-034 · durable authority reconciliation); **updated 2026-08-17** (authority reconciliation exact-review correction micro-patch REV1); **updated 2026-08-18** (PATCH-3 post-Codex-review finalization · evidence review CLOSED GREEN · commit authorization not yet granted); **updated 2026-08-18** (PR #135 **MERGED** · Production/main aligned @ `a6ddfd7…` · Human Preview + Production visual acceptance **GREEN** · post-SELL commercial-growth control-plane reconciliation); **updated 2026-08-18** (PR #137 **MERGED** · G1 Revenue Outcome Observability **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (G3-02 owned-report signed-out deep-return · PR #141 **OPEN** · Tier-E active-lane reconciliation).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three); **updated 2026-08-17** (Human Final Commercial Acceptance Audit · bounded pre-SELL correction lane · local commit on WT-034 · durable authority reconciliation); **updated 2026-08-17** (authority reconciliation exact-review correction micro-patch REV1); **updated 2026-08-18** (PATCH-3 post-Codex-review finalization · evidence review CLOSED GREEN · commit authorization not yet granted); **updated 2026-08-18** (PR #135 **MERGED** · Production/main aligned @ `a6ddfd7…` · Human Preview + Production visual acceptance **GREEN** · post-SELL commercial-growth control-plane reconciliation); **updated 2026-08-18** (PR #137 **MERGED** · G1 Revenue Outcome Observability **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (G3-02 owned-report signed-out deep-return · PR #141 **OPEN** · Tier-E active-lane reconciliation); **updated 2026-08-19** (PR #141 **MERGED** · G3-02 **CLOSED GREEN** · post-merge Tier-E reconciliation).
 
-## G3-02 OWNED REPORT DEEP RETURN (2026-08-18) — AUTHORITATIVE CURRENT
+## G3-02 OWNED REPORT DEEP RETURN (2026-08-19) — AUTHORITATIVE CURRENT
 
 | Field | Value |
 |---|---|
 | M55_PERSONAL_SALES_LAUNCH | **SELL** |
-| origin/main | `39f7f3dd654cbd684c7e60830276de2b6c3df5c2` |
-| PR #141 | **OPEN** · CI **RED** — Premium proof source-snapshot invalidation (not established as product defect) |
-| PR #141 feature head | `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` |
-| G3-02 Owned Report Signed-Out Deep Return | **IN_PROGRESS** — implementation committed and pushed · **not merged** · **USER_VISIBLE_CLOSED_GREEN = NO** |
-| G3-02 feature commit | `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` |
+| origin/main | `4edcf631c5bccfba18f16db8767d20f83bc104f0` |
+| PR #141 | **MERGED** |
+| PR #141 feature head | `522124257780d9e1a2af8dd895e428314a5a6dc5` |
+| merge commit | `4edcf631c5bccfba18f16db8767d20f83bc104f0` |
+| G3-02 Owned Report Signed-Out Deep Return | **CLOSED GREEN** · **USER_VISIBLE_CLOSED_GREEN = YES** |
 | G3-02 exact source delta | **2 files** — `app/dtr/core/page.tsx` · `lib/m55/dtrCoreOwnedReportDeepReturn.test.ts` |
-| G3-01 | **NOT AUTHORIZED** in PR #141 |
+| Focused behavior | anonymous `/dtr/core` → sign-in with fixed `redirect_url=/dtr/core` → existing ownership gate unchanged |
+| Human Preview owner runtime | **GREEN** — `OWNER_FINAL_PATH=/dtr/core` · `OWNER_REPORT_VISIBLE=YES` |
+| Human Preview non-owner runtime | **GREEN** — `NON_OWNER_FINAL_PATH=/dtr/lp` · `NON_OWNER_REPORT_VISIBLE=NO` |
+| Human visual approval | **GREEN** |
+| proof recapture / authenticity | **GREEN** |
+| PR-head CI | **GREEN** |
+| Production post-merge deployment | **READY** @ merge SHA `4edcf631c5bccfba18f16db8767d20f83bc104f0` |
+| Production signed-out deep-return preflight | **GREEN** — signed-out `/dtr/core` reaches `/sign-in?redirect_url=%2Fdtr%2Fcore` |
+| Production purchase / user mutation | **not required** — no provider mutation performed |
+| G3-01 | **NOT AUTHORIZED** |
 | G3-03 | **HOLD_RUNTIME_PROOF** |
 | G3-04 Today/Weekly exposure | **REJECT_EXPOSURE** — COPY_SAFETY_GATE_REQUIRED |
 | G2 Public Terminology Long-Tail | **CLOSED GREEN** — PR #139 · **DO NOT REOPEN** absent actual invalidation |
 | G1 Revenue Outcome Observability | **CLOSED GREEN** — PR #137 · **DO NOT REOPEN** absent actual invalidation |
-| NEXT SINGLE ACTION | PR #141 Premium proof authenticity recovery diagnostic / governed recapture |
+| NEXT SINGLE ACTION | **M55_JAPANESE_SEMANTIC_QUALITY_AUDIT** — READ-ONLY / INVENTORY-FIRST |
 | Personal Free | **CLOSED GREEN** / **DO NOT REOPEN** absent actual invalidation |
 | Compatibility | independent · PR #119 **OPEN** · commerce **OFF** · do not activate |
 | Pair Premium | **NOT** automatically activated |
 | subscription | **NOT** introduced |
-| ACTIVE local implementation lane | **M55_G3_02_OWNED_REPORT_DEEP_RETURN** |
+| ACTIVE local governance lane | **M55_PR141_POST_MERGE_TIER_E_RECONCILIATION** |
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` |
-| branch | `feat/m55-g3-owned-report-deep-return-v1` |
-| base origin/main | `39f7f3dd654cbd684c7e60830276de2b6c3df5c2` |
-| HEAD | `283400a7a10b6ba2111d116d0b52f047b9e4b0f3` |
-| divergence vs origin/main | **0 / 1** — one outgoing commit on feature branch |
-| proof recovery | **not complete** |
-| merge / deploy / provider / Production / DB / Stripe / Clerk / env mutation | **not authorized** |
+| branch | `chore/m55-pr141-post-merge-tier-e-reconciliation` |
+| base origin/main | `4edcf631c5bccfba18f16db8767d20f83bc104f0` |
 
-### G3-02 implementation facts (2026-08-18) — durable, not CLOSED GREEN
+### Latest Human directive — Japanese semantic quality (2026-08-19)
+
+Public Japanese copy must be audited for grammar **and** semantic comprehensibility, including contextless labels such as 「実際は」 observed in the purchased report summary. This audit is **READ-ONLY / INVENTORY-FIRST**. **No fixes are authorized yet.** The audit must not silently change product claims, Premium terminology, price, entitlement, funnel order, or CLOSED GREEN behavior.
+
+### G3-02 closure facts (2026-08-19) — durable
 
 | Area | Fact |
 |---|---|
 | Lane | **M55 G3-02 OWNED REPORT SIGNED-OUT DEEP RETURN** |
 | Behavior delta | anonymous `/dtr/core` → sign-in with `redirect_url=/dtr/core`; ownership gate after auth unchanged |
 | Reuse pattern | matches `app/dtr/processing/page.tsx` signed-out redirect pattern |
-| G3-02 closure | **not claimed** — USER_VISIBLE_CLOSED_GREEN **NO** |
-| G3-01 in PR #141 | **not authorized** |
+| G3-02 closure | **CLOSED GREEN** — USER_VISIBLE_CLOSED_GREEN **YES** |
+| G3-01 | **not authorized** |
 | G3-03 | **HOLD_RUNTIME_PROOF** |
 | G3-04 exposure | **rejected** pending separate copy-safety gate |
+| Re-audit / re-implement G3-02 | **NO** absent actual invalidation |
 
 ## PR #139 POST-MERGE TIER-E RECONCILIATION (2026-08-18) — HISTORICAL OPERATIONAL SNAPSHOT
 
@@ -677,7 +687,7 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-18 G3-02):** G3-02 owned-report signed-out deep-return **IN_PROGRESS** on PR #141 **OPEN** @ `283400a…` · CI **RED** (Premium proof source-snapshot invalidation) · **USER_VISIBLE_CLOSED_GREEN = NO**. G2 **CLOSED GREEN** @ PR #139 · G1 **CLOSED GREEN** @ PR #137 · **DO NOT REOPEN**. Personal Free **CLOSED GREEN** · **DO NOT REOPEN**. **NEXT SINGLE ACTION:** PR #141 Premium proof authenticity recovery diagnostic / governed recapture. G3-01 **NOT AUTHORIZED** in PR #141 · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. Pair Premium **NOT** automatically activated · subscription **NOT** introduced · Compatibility commerce remains **OFF** · PR #119 **OPEN** · merge / deploy / provider mutation **not authorized**.
+**CURRENT (2026-08-19 G3-02 post-merge):** G3-02 owned-report signed-out deep-return **CLOSED GREEN** via PR #141 **MERGED** @ `4edcf631…` · feature head `5221242…` · **USER_VISIBLE_CLOSED_GREEN = YES**. Human Preview owner/non-owner runtime **GREEN** · proof + CI + Human visual **GREEN** · Production deployment **READY** @ merge SHA · Production signed-out deep-return preflight **GREEN**. G2 **CLOSED GREEN** @ PR #139 · G1 **CLOSED GREEN** @ PR #137 · **DO NOT REOPEN**. Personal Free **CLOSED GREEN** · **DO NOT REOPEN**. **NEXT SINGLE ACTION:** **M55_JAPANESE_SEMANTIC_QUALITY_AUDIT** — READ-ONLY / INVENTORY-FIRST (seed defect: 「実際は」 in purchased report summary). **No Japanese fixes authorized yet.** G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. Pair Premium **NOT** automatically activated · subscription **NOT** introduced · Compatibility commerce remains **OFF** · PR #119 **OPEN**.
 
 **CURRENT (2026-08-18 PR #139 post-merge):** G2 Public Terminology Long-Tail **CLOSED GREEN** @ `183328a…` — **superseded** by G3-02 active lane above.
 
