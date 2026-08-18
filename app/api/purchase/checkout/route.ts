@@ -17,11 +17,14 @@ import { resolveDtrCoreCheckoutSnapshotGate } from '../../../../lib/m55/dtrCheck
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import {
+  DTR_CORE_FULL_V1,
+  DTR_CORE_LIGHT_V1,
   DTR_CORE_STATIC_V1,
   isDtrCoreLightToFullUpgradeProduct,
   isDtrCoreSavedReportOneTimeProduct,
   resolveOneTimeStripePriceId,
 } from '../../../../lib/oneTimeCheckout';
+import { STRIPE_CHECKOUT_PUBLIC_COPY } from '../../../../lib/m55/stripeCheckoutPublicCopy';
 import { validateDtrCheckoutProfile } from '../../../../lib/m55/compositeStem/checkoutProfileGate';
 import { INPUT_VERSION_V1, ENGINE_VERSION_V2 } from '../../../../lib/m55/compositeStem/constants';
 import { runM55CompositeStemPipeline } from '../../../../lib/m55/compositeStem/pipeline';
@@ -46,6 +49,16 @@ import {
 import type { BirthProfile } from '../../../../lib/soul/profile';
 
 const CHECKOUT_PUBLIC_CODE = 'checkout_unavailable' as const;
+
+function resolveSavedReportPaymentIntentDescriptionJa(productId: string): string | null {
+  if (productId === DTR_CORE_FULL_V1) {
+    return STRIPE_CHECKOUT_PUBLIC_COPY.full.publicNameJa;
+  }
+  if (productId === DTR_CORE_LIGHT_V1 || productId === DTR_CORE_STATIC_V1) {
+    return STRIPE_CHECKOUT_PUBLIC_COPY.light.publicNameJa;
+  }
+  return null;
+}
 
 function publicCheckoutError(status: number, code: string = CHECKOUT_PUBLIC_CODE) {
   return NextResponse.json({ code, error: CHECKOUT_PUBLIC_CODE }, { status });
@@ -586,6 +599,12 @@ export async function POST(req: NextRequest) {
     checkoutSessionGeneration,
   );
 
+  const paymentIntentDescription = resolveSavedReportPaymentIntentDescriptionJa(productId);
+  if (!paymentIntentDescription) {
+    console.error('[checkout] payment intent description unresolved', { productId });
+    return publicCheckoutError(500);
+  }
+
   try {
     const session = await stripe.checkout.sessions.create(
       {
@@ -602,7 +621,7 @@ export async function POST(req: NextRequest) {
         metadata,
         locale: 'ja',
         payment_intent_data: {
-          description: 'Reflect Report',
+          description: paymentIntentDescription,
         },
         phone_number_collection: { enabled: false },
         ...(customerEmail ? { customer_email: customerEmail } : {}),
