@@ -15,7 +15,11 @@ import {
   SHELF_HINT_OWNED_READY,
   SHELF_OVERLINE,
 } from '../../lib/m55/dtrProductLabels';
-import { PAID_DTR_LP, PAID_DTR_SHELF_CONSULT_META } from '../../lib/m55/paidDtrProductCopy';
+import {
+  PAID_DTR_LP,
+  PAID_DTR_SAVED_REPORT_PRICING,
+  PAID_DTR_SHELF_CONSULT_META,
+} from '../../lib/m55/paidDtrProductCopy';
 import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
@@ -181,8 +185,14 @@ function EntryReportCard({
                 <span className={styles.cardMetaValue}>{PAID_DTR_SHELF_CONSULT_META.valueJa}</span>
               </div>
               <div className={styles.cardMetaItem}>
-                <span className={styles.cardMetaLabel}>買い切り</span>
-                <span className={styles.cardMetaValue}>1,000円</span>
+                <span className={styles.cardMetaLabel}>プラン</span>
+                <span className={styles.cardMetaValue}>
+                  {PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa.replace(/^M55 プレミアムレポート /, '')}{' '}
+                  {PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}
+                  {' / '}
+                  {PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa.replace(/^M55 プレミアムレポート /, '')}{' '}
+                  {PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}
+                </span>
               </div>
             </>
           )}

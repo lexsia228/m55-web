@@ -196,14 +196,14 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     }
   });
 
-  it('includes formal four chapters and saved-plan CTA targets', () => {
+  it('includes reader-aligned four chapters and saved-plan CTA targets', () => {
     const blob = combinedPublicCopy();
     const labels = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch) => ch.labelJa);
     assert.deepEqual(labels, [
-      'Ⅰ 輪郭を見る',
-      'Ⅱ 構造を読む',
-      'Ⅲ 無理を知る',
-      'Ⅳ 楽に扱う',
+      'Ⅰ 自分の形を知る',
+      'Ⅱ 仕事・これからの進め方',
+      'Ⅲ 恋人・近い人との向き合い方',
+      'Ⅳ お金・生活・疲れの整え方',
     ]);
     assert.match(blob, /プレミアムレポートを見る/);
     assert.match(blob, /\/dtr\/lp/);
@@ -227,7 +227,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
       assert.equal(copy.includes(term), false, `must not include: ${term}`);
       assert.equal(homePanel.includes(term), false, `home must not include: ${term}`);
     }
-    assert.match(copy, /必要になったらFULL化/);
+    assert.match(copy, /必要になったらフルに切り替え/);
     assert.match(copy, /追加読み解き1件/);
     assert.match(copy, /追加読み解き合計5件/);
   });

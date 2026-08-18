@@ -53,7 +53,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     lightSavedReportJa: 'プレミアムレポート',
     lightConsultReplyJa: '追加読み解き1件',
     upgradeNoteJa:
-      'ライト購入後でも、必要になったらFULL化できます。\nプレミアムレポートを読んだあと、もう少し深く整理したくなった場合に選べます。',
+      'ライト購入後でも、必要になったらフルに切り替えられます。\nプレミアムレポートを読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   /**
    * Home (lower, below the frozen poster hero) — SSOT for eleven always-rendered

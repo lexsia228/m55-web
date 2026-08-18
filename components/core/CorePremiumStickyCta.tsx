@@ -67,7 +67,8 @@ export default function CorePremiumStickyCta({ visible }: Props) {
       document.querySelector('footer');
 
     const share = document.getElementById('core-share');
-    const targets = [bridge, footer, share].filter(Boolean) as Element[];
+    const pairCrossSell = document.querySelector('[data-testid="m55-core-pair-cross-sell"]');
+    const targets = [bridge, footer, share, pairCrossSell].filter(Boolean) as Element[];
     if (targets.length === 0) {
       setDocked(true);
       return;

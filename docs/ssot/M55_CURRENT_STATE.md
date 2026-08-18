@@ -5,9 +5,63 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three); **updated 2026-08-17** (Human Final Commercial Acceptance Audit · bounded pre-SELL correction lane · local commit on WT-034 · durable authority reconciliation); **updated 2026-08-17** (authority reconciliation exact-review correction micro-patch REV1); **updated 2026-08-18** (PATCH-3 post-Codex-review finalization · evidence review CLOSED GREEN · commit authorization not yet granted).
 
-## ABSOLUTE RESIDUAL-DEBT CLOSURE (2026-08-16) — AUTHORITATIVE
+## COMMERCIAL ACCEPTANCE CORRECTION (2026-08-18 POST-PUSH) — AUTHORITATIVE CURRENT
+
+| Field | Value |
+|---|---|
+| M55_PERSONAL_SALES_LAUNCH | **HOLD** |
+| FINAL HUMAN AUDIT | **HOLD_SELL_DTR_SHELF_SINGLE_1000_VS_LIGHT_FULL** |
+| Fresh mutable Git observation (`origin/main`) | `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8` |
+| Last Human-audited Production SHA / Commercial Acceptance audit Production baseline | `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8` — **not** a fresh Production observation in this micro-patch |
+| Human-authorized active bounded lane | **M55_COMMERCIAL_ACCEPTANCE_CORRECTION** |
+| worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` |
+| PRE-FOLLOW-UP-COMMIT observed local HEAD / active branch | `fix/m55-commercial-acceptance-revenue-v1` @ `2124e4fc2b104db9157d54ea85f0d765b8836e38` |
+| local implementation commit | `3059ffca1280b21c614711ebba961d072f4a595f` |
+| base / origin/main | `078d9dd3dbd463f91fe8319e4e6a8b48beee05f8` |
+| PRE-FOLLOW-UP-COMMIT observed remote PR head | `origin/fix/m55-commercial-acceptance-revenue-v1` @ `2124e4fc2b104db9157d54ea85f0d765b8836e38` · PR #135 lifecycle snapshot `OPEN`; remains at this SHA until a separately authorized push |
+| state | **PUSH_PR_GATE_COMPLETE** · **PREVIEW_READY** · **MERGE_NOT_AUTHORIZED** |
+| PRE-FOLLOW-UP-COMMIT observed working snapshot | **TRACKED DIRTY 51** — 47 Premium governed evidence files + 4 Tier-E authority docs · **ORDINARY UNTRACKED 1** — `node_modules` ordinary untracked symlink for the local proof toolchain only; not evidence, not tracked, not staged, not gitignored · **INDEX empty** · **OUT-OF-SCOPE TRACKED DIRTY 0** |
+| Personal Free | **CLOSED GREEN** / **DO NOT REOPEN** absent actual invalidation |
+| Compatibility | independent · PR #119 **OPEN** · commerce **OFF** |
+| Current blocking tail | Tier-E PATCH3 exact review → separate bounded follow-up **COMMIT** authorization → one bounded follow-up commit → separate **PUSH** authorization → push / PR #135 head update → CI re-evaluation → resulting-head Vercel Preview → Safari STP Preview acceptance for **OWNED_DTR_CORE** and **PAIR_RESULT_SHARE** → Human Preview commercial acceptance → separate **MERGE** authorization → merge → Production SHA verification → final Production acceptance → **SALES_LAUNCH reassessment** → normal roadmap continuation |
+| Formal Codex CLI | **not available on PATH** in this gate — prior governance STOP resolved by independent same-worktree product diff review; **not** a mandatory product blocker unless later Human authority explicitly requires formal Codex CLI rerun |
+| Vercel Preview for current HEAD | **READY** — `dpl_DZJMr5GG1PTz8QXqPeuR1oBUGqwJ` · Preview/non-production · `githubCommitSha=2124e4fc…` · this is not a fresh Production observation and is not final Human/Safari Preview acceptance |
+| Roadmap continuation after close | **M55_MRQ_P3_ENTRY_PLANNING** remains the normal roadmap continuation **AFTER** this Human-triggered pre-SELL correction closes |
+
+### Post-review closeout facts (2026-08-17) — durable, not historical rewrite
+
+| Area | Fact |
+|---|---|
+| Product source commit | `3059ffca1280b21c614711ebba961d072f4a595f` |
+| Product diff review | independently reviewed actual 12-file diff vs `078d9dd3…` |
+| Product MUST_FIX_BEFORE_SELL | **0** |
+| Additional product source after review | **NO_OP** |
+| Local Safari STP — PASS | DTR shelf · DTR LP · Free result sticky · public share viewer · signed-out auth · Premium 6Q purchase-prep |
+| Local Safari STP — Pair date real defect reproduced | **NO** |
+| Remaining acceptance evidence gaps (**not** known source defects) | **OWNED_DTR_CORE** = **DEFER_TO_VERCEL_PREVIEW_ACCEPTANCE** · **PAIR_RESULT_SHARE** = **DEFER_TO_VERCEL_PREVIEW_ACCEPTANCE** |
+| Sales | **M55_PERSONAL_SALES_LAUNCH = HOLD** until Preview acceptance + separate Human authorization chain completes |
+
+### Premium proof refresh and CI invalidation (2026-08-18)
+
+| Area | Fact |
+|---|---|
+| Remote PR audit failure | **VALID_PROOF_INVALIDATION** — committed Premium proof records were bound to the previous source digest; no product defect was established by that failure |
+| Canonical local refresh | Executed once; **do not re-capture** during independent review |
+| Source snapshot | digest `35f813744af2dce5c8437a5554b5f8e813f44ff972ba305e1e1c318027323a86` · 70 files |
+| Run results | run-1 and run-2 each **19 PASS / 0 failed / 0 skipped / 0 interrupted** · 42 PNG · 5 PDF · 47 capture records |
+| Focused proof validation | `verify:m55-premium-proof-records` PASS · `verify:m55-premium-experience` PASS · `git diff --check` PASS before this reconciliation |
+| Current governed evidence delta | 47 tracked uncommitted files under the two Premium evidence roots only |
+| Independent Codex evidence review | **GREEN** — evidence semantics GREEN · toolchain provenance GREEN · `node_modules` symlink does not invalidate evidence · re-capture **NO** |
+| Commit readiness | **EVIDENCE REVIEW CLOSED GREEN / COMMIT AUTHORIZATION NOT YET GRANTED** |
+| Proposed bounded follow-up commit | One atomic mixed-scope commit containing exactly 47 independently GREEN Premium governed evidence files + 4 Tier-E authority docs = **51 tracked paths**; separate Human COMMIT authorization remains required |
+| Documented expected commit transition | A separately Human-authorized bounded follow-up commit may advance local HEAD from parent `2124e4fc…` while containing exactly the reviewed 51 tracked paths; that expected transition is documented and is not unexplained registry drift solely because local HEAD/cleanliness advances after commit; remote feature stays `2124e4fc…` until separate PUSH authorization |
+| Execution-boundary exception | `node_modules` ordinary untracked symlink · local proof toolchain only · not evidence / tracked / staged / gitignored · provenance **MATCH_CURRENT_LOCKFILE** · does not invalidate evidence |
+| Prior stopped Codex review | **HOLD** only because WT-034 Tier-E registry still recorded `3059ffca…`; evidence semantics were not assessed and no re-capture requirement was identified in that stopped pass |
+| Resumed Codex review | **CLOSED GREEN** — 47 governed evidence files independently validated · evidence semantics GREEN · toolchain provenance GREEN · re-capture NO · source additional delta NO_OP |
+
+## ABSOLUTE RESIDUAL-DEBT CLOSURE (2026-08-16) — HISTORICAL OPERATIONAL SNAPSHOT
 
 | Field | Value |
 |---|---|

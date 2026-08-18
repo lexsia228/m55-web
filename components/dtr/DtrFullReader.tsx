@@ -48,8 +48,6 @@ import {
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
   PAID_DTR_CHAPTER_BRIDGE_COPY,
   PAID_DTR_CHAPTER_OPENING_COPY,
-  PAID_DTR_DEEP_READING_SECTION_TITLE_JA,
-  PAID_DTR_DEEP_READING_TAKEAWAYS,
   PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA,
   PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA,
   PAID_DTR_CHAPTER_DRAWER_INTRO,
@@ -794,24 +792,6 @@ function ChapterConsultNextAction({
   );
 }
 
-function ChapterDeepReadingTakeaways({ partId }: { partId: PaidDtrReportPartId }) {
-  const copy = PAID_DTR_DEEP_READING_TAKEAWAYS[partId];
-  return (
-    <VisualRole role="takeaway">
-    <div className={styles.chapterTakeawayBlock} aria-label={`${PAID_DTR_DEEP_READING_SECTION_TITLE_JA}の要点`}>
-      <p className={styles.chapterTakeawayLead}>{copy.closedLeadJa}</p>
-      <ul className={styles.chapterTakeawayList}>
-        {copy.itemsJa.map((item) => (
-          <li key={item} className={styles.chapterTakeawayItem}>
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-    </VisualRole>
-  );
-}
-
 /* ─────────────────────────────────────────────────────────────────────────────
    A. Premium hero — two-column feel: left copy stack + right type image (absolute).
    v0-inspired: brand line, badge row, Blueprint h1, inset type card, dense meta grid.
@@ -880,17 +860,17 @@ function PremiumHero({
               <span className={styles.heroBlueprintName}>{blueprintName}</span>
             </h1>
 
-            <div className={styles.heroFirstRecord} aria-label="生年月日（購入時プロフィール）">
-              <span className={styles.heroFirstRecordLabel}>購入時プロフィール</span>
-              <span className={styles.heroFirstRecordDate}>{formatBirthDateFirstRecordLine(birthDate)}</span>
-            </div>
-
             <div className={styles.heroTypeCard}>
               <div className={styles.heroTypeCardRow}>
                 <span className={styles.heroTypeCardLabel}>資質 /</span>
                 <span className={styles.heroTypeCardType}>{stem.publicTitle}</span>
               </div>
               <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
+            </div>
+
+            <div className={styles.heroFirstRecord} aria-label="生年月日（購入時プロフィール）">
+              <span className={styles.heroFirstRecordLabel}>購入時プロフィール</span>
+              <span className={styles.heroFirstRecordDate}>{formatBirthDateFirstRecordLine(birthDate)}</span>
             </div>
           </div>
         </div>
@@ -3193,8 +3173,6 @@ function DtrFullReaderCore({
               </div>
             </section>
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
-              <ChapterDeepReadingTakeaways partId="1" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 <PaidModuleShell
                   n={1}
@@ -3271,8 +3249,6 @@ function DtrFullReaderCore({
               ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
-              <ChapterDeepReadingTakeaways partId="2" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s4_strengths') && sec('s5_friction') ? (
                   <PaidModuleShell
@@ -3339,8 +3315,6 @@ function DtrFullReaderCore({
               ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
-              <ChapterDeepReadingTakeaways partId="3" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s3_essence') && sec('s6_relation') && sec('s7_work') ? (
                   <PaidModuleShell
@@ -3428,10 +3402,6 @@ function DtrFullReaderCore({
                   </section>
                 </VisualRole>
               ) : null}
-            </div>
-            <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
-              <ChapterDeepReadingTakeaways partId="4" />
             </div>
             <ChapterConsultNextAction
               partId="4"

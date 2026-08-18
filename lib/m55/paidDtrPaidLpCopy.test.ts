@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
   PAID_DTR_CHAPTERS,
+  PAID_DTR_CHAPTER_DRAWER_INTRO,
+  PAID_DTR_DRAWER_CHAPTER_ENTRIES,
   PAID_DTR_LP,
   PAID_DTR_SAVED_REPORT_PRICING,
   collectPaidDtrLpCopyStrings,
@@ -73,7 +75,14 @@ const OWNED_STATE_STRINGS = [
 ] as const;
 
 const testDir = dirname(fileURLToPath(import.meta.url));
-const lpPageSource = readFileSync(join(testDir, '../../app/dtr/lp/page.tsx'), 'utf8');
+const repoRoot = join(testDir, '../..');
+
+function readRepo(rel: string): string {
+  return readFileSync(join(repoRoot, rel), 'utf8');
+}
+
+const lpPageSource = readRepo('app/dtr/lp/page.tsx');
+const dtrShelfPanelSource = readRepo('components/dtr/DtrShelfPanel.tsx');
 
 describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   it('exposes LP copy version', () => {
@@ -153,12 +162,38 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.ok(blob.includes(PAID_DTR_LP.purchaseNotes.sectionTitleJa));
   });
 
-  it('uses formal 4 chapter titles aligned with PAID_DTR_CHAPTERS', () => {
+  it('uses reader-aligned chapter titles from PAID_DTR_DRAWER_CHAPTER_ENTRIES', () => {
     assert.equal(PAID_DTR_LP.chapters.items.length, 4);
     assert.deepEqual(
       PAID_DTR_LP.chapters.items.map((c) => c.titleJa),
-      PAID_DTR_CHAPTERS.map((c) => c.title)
+      PAID_DTR_DRAWER_CHAPTER_ENTRIES.map((entry) => entry.labelJa),
     );
+    assert.deepEqual(
+      PAID_DTR_LP.chapters.items.map((c) => c.introJa),
+      PAID_DTR_DRAWER_CHAPTER_ENTRIES.map((entry) => entry.sublabelJa),
+    );
+    assert.notDeepEqual(
+      PAID_DTR_LP.chapters.items.map((c) => c.titleJa),
+      PAID_DTR_CHAPTERS.map((c) => c.title),
+    );
+  });
+
+  it('aligns LP chapters with owned-reader drawer intro authority', () => {
+    const partIds = ['1', '2', '3', '4'] as const;
+    for (let i = 0; i < PAID_DTR_DRAWER_CHAPTER_ENTRIES.length; i++) {
+      const entry = PAID_DTR_DRAWER_CHAPTER_ENTRIES[i]!;
+      const partId = partIds[i]!;
+      const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partId];
+      assert.equal(entry.labelJa, intro.hubLabelJa);
+      assert.equal(entry.sublabelJa, intro.hubSublabelJa);
+    }
+  });
+
+  it('DtrShelfPanel presents two-plan ladder from pricing SSOT', () => {
+    assert.match(dtrShelfPanelSource, /PAID_DTR_SAVED_REPORT_PRICING\.light/);
+    assert.match(dtrShelfPanelSource, /PAID_DTR_SAVED_REPORT_PRICING\.full/);
+    assert.equal(dtrShelfPanelSource.includes('買い切り'), false);
+    assert.equal(dtrShelfPanelSource.includes('1,000円'), false);
   });
 
   it('orders tiers FULL before light in copy structure', () => {
@@ -257,13 +292,23 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     }
   });
 
-  it('states calendar rhythm and deterministic saved-report product truth', () => {
+  it('keeps production mechanism terms out of public LP copy', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assert.match(blob, /10資質レーン/);
-    assert.match(blob, /暦リズム/);
-    assert.match(blob, /固定ルール/);
-    assert.match(blob, /生成AIでその都度書き換えるものではなく/);
-    assert.match(blob, /追加読み解きのみ/);
+    for (const term of [
+      '10資質レーン',
+      '10資質',
+      '旧暦',
+      '季節位置',
+      '日帯',
+      '暦信号',
+      '生成AI',
+      '固定ルール',
+      'レーン',
+    ] as const) {
+      assert.equal(blob.includes(term), false, `engine term in LP copy: ${term}`);
+    }
+    assert.match(PAID_DTR_LP.about.oneSentenceJa, /生年月日から見える基調/);
+    assert.match(PAID_DTR_LP.informationLayers.savedReportJa, /なぜその動きが続きやすいのか/);
     for (const term of [
       '完全オリジナル',
       '数千通り',
