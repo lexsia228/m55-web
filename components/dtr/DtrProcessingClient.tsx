@@ -5,17 +5,27 @@
  */
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
+import {
+  emitPostPaymentTerminalOutcomeOnce,
+  shouldEmitPostPaymentReady,
+  shouldEmitPostPaymentStuck,
+  shouldRedirectOwnedRepurchase,
+  trackFunnelAction,
+  type ReportSnapshotReadyPayload,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from '../../app/dtr/processing/processing.module.css';
 import PaidDtrAnalysisLoading from './PaidDtrAnalysisLoading';
 
 const POLL_MS = 2500;
-const MAX_POLLS = 120;
+export const DTR_PROCESSING_MAX_POLLS = 120;
+const MAX_POLLS = DTR_PROCESSING_MAX_POLLS;
 const EARLY_REVEAL_MS = 8000;
 
-const CORE_READY = '/dtr/core?post_purchase=1';
+export const DTR_PROCESSING_CORE_READY = '/dtr/core?post_purchase=1';
+const CORE_READY = DTR_PROCESSING_CORE_READY;
 /** Client-safe mirror of lib/m55/dtrShelfAccess DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH (no server barrel import). */
 const HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp?repurchase=1';
 
@@ -40,6 +50,7 @@ export function DtrProcessingClient({
   const [showAnimation, setShowAnimation] = useState(true);
   const [processingComplete, setProcessingComplete] = useState(false);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
+  const terminalOutcomeEmittedRef = useRef<'ready' | 'stuck' | null>(null);
 
   const profile = useMemo(() => {
     if (!isLoaded || !userId) return null;
@@ -78,23 +89,17 @@ export function DtrProcessingClient({
       try {
         const r = await fetch('/api/dtr/report-snapshot-ready', { cache: 'no-store', credentials: 'include' });
         if (r.ok) {
-          const d = (await r.json()) as {
-            ready?: boolean;
-            hasOwnership?: boolean;
-            hasPurchaseSnapshot?: boolean;
-            showPurchaseCta?: boolean;
-          };
-          if (d.ready === true && d.hasOwnership === true && d.hasPurchaseSnapshot === true) {
+          const d = (await r.json()) as ReportSnapshotReadyPayload;
+          if (shouldEmitPostPaymentReady(d)) {
+            emitPostPaymentTerminalOutcomeOnce('ready', {
+              trackFunnelAction,
+              emitted: terminalOutcomeEmittedRef,
+            });
             setProcessingComplete(true);
             setPendingNav(CORE_READY);
             return;
           }
-          if (
-            isOwnedRecovery &&
-            d.hasOwnership === true &&
-            d.hasPurchaseSnapshot !== true &&
-            d.showPurchaseCta === true
-          ) {
+          if (shouldRedirectOwnedRepurchase(d, isOwnedRecovery)) {
             setProcessingComplete(true);
             setPendingNav(HIDDEN_ONLY_REPURCHASE_LP_PATH);
             return;
@@ -104,7 +109,11 @@ export function DtrProcessingClient({
         /* retry */
       }
       if (cancelled) return;
-      if (polls >= MAX_POLLS) {
+      if (shouldEmitPostPaymentStuck(polls, MAX_POLLS)) {
+        emitPostPaymentTerminalOutcomeOnce('stuck', {
+          trackFunnelAction,
+          emitted: terminalOutcomeEmittedRef,
+        });
         setShowAnimation(false);
         setStuck(true);
         return;
