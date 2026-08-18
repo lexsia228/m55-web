@@ -33,6 +33,7 @@ import {
 } from './dtrProductLabels';
 import { displayLabelForDtrRightKey } from './myEntitlementLabels';
 import { DTR_PRODUCT_CATALOG } from './dtrProductCatalog';
+import { LABEL_FORMAT_SAVED } from './dtrProductLabels';
 import {
   PAID_DTR_MY_PAGE_CONSULT,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
@@ -159,6 +160,15 @@ describe('myConsultCheckoutPublicCopy — My public catalog (PATCH-1)', () => {
     assert.equal(catalog.includes('500円'), false);
     assert.equal(catalog.includes('¥500'), false);
     assert.equal(catalog.includes('additional_reply_ticket'), false);
+  });
+
+  it('keeps entry_report subtitle on the canonical saved label without duplicate レポート', () => {
+    const entryReport = DTR_PRODUCT_CATALOG.find((slot) => slot.id === 'entry_report');
+    assert.ok(entryReport);
+    assert.equal(entryReport!.subtitle, LABEL_FORMAT_SAVED);
+    assert.equal(entryReport!.subtitle, 'プレミアムレポート');
+    assert.doesNotMatch(entryReport!.subtitle, /プレミアムレポートレポート/);
+    assert.doesNotMatch(entryReport!.subtitle, /レポートレポート/);
   });
 });
 
