@@ -5,14 +5,51 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three); **updated 2026-08-17** (Human Final Commercial Acceptance Audit · bounded pre-SELL correction lane · local commit on WT-034 · durable authority reconciliation); **updated 2026-08-17** (authority reconciliation exact-review correction micro-patch REV1); **updated 2026-08-18** (PATCH-3 post-Codex-review finalization · evidence review CLOSED GREEN · commit authorization not yet granted); **updated 2026-08-18** (PR #135 **MERGED** · Production/main aligned @ `a6ddfd7…` · Human Preview + Production visual acceptance **GREEN** · post-SELL commercial-growth control-plane reconciliation); **updated 2026-08-18** (PR #137 **MERGED** · G1 Revenue Outcome Observability **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (G3-02 owned-report signed-out deep-return · PR #141 **OPEN** · Tier-E active-lane reconciliation); **updated 2026-08-19** (PR #141 **MERGED** · G3-02 **CLOSED GREEN** · post-merge Tier-E reconciliation); **updated 2026-08-19** (Safari TP 27.0 MERGE_HOLD @ `339e7b296171077ddbc9357daeb6372deadb83a6` · P1 visual closure on PR #144 · USER_VISIBLE_CLOSED_GREEN **HOLD**).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three); **updated 2026-08-17** (Human Final Commercial Acceptance Audit · bounded pre-SELL correction lane · local commit on WT-034 · durable authority reconciliation); **updated 2026-08-17** (authority reconciliation exact-review correction micro-patch REV1); **updated 2026-08-18** (PATCH-3 post-Codex-review finalization · evidence review CLOSED GREEN · commit authorization not yet granted); **updated 2026-08-18** (PR #135 **MERGED** · Production/main aligned @ `a6ddfd7…` · Human Preview + Production visual acceptance **GREEN** · post-SELL commercial-growth control-plane reconciliation); **updated 2026-08-18** (PR #137 **MERGED** · G1 Revenue Outcome Observability **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (G3-02 owned-report signed-out deep-return · PR #141 **OPEN** · Tier-E active-lane reconciliation); **updated 2026-08-19** (PR #141 **MERGED** · G3-02 **CLOSED GREEN** · post-merge Tier-E reconciliation); **updated 2026-08-19** (Safari TP 27.0 MERGE_HOLD @ `339e7b296171077ddbc9357daeb6372deadb83a6` · P1 visual closure on PR #144 · USER_VISIBLE_CLOSED_GREEN **HOLD**); **updated 2026-08-19** (PR #144 **MERGED** · commercial quality consolidation **CLOSED GREEN** · Production `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** · post-merge Tier-E settlement).
 
-## M55 COMMERCIAL QUALITY CONSOLIDATION (2026-08-19) — AUTHORITATIVE CURRENT
+## PR #144 POST-MERGE TIER-E SETTLEMENT (2026-08-19) — AUTHORITATIVE CURRENT
 
 | Field | Value |
 |---|---|
 | M55_PERSONAL_SALES_LAUNCH | **SELL** |
-| origin/main | `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
+| origin/main | `ecc3e37b43414e2a56941377c35235b965047aff` |
+| PR #144 | **MERGED** |
+| PR #144 feature head | `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` |
+| merge commit / current origin/main | `ecc3e37b43414e2a56941377c35235b965047aff` |
+| Production deployment | `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** |
+| PR-head CI | **GREEN** |
+| Safari Technology Preview | **27.0** representative commercial visual review completed; Human-found P1 defects were corrected before merge |
+| Commercial quality consolidation | **CLOSED GREEN** |
+| USER_VISIBLE_CLOSED_GREEN | **YES** for the PR #144 commercial-quality consolidation scope |
+| WT-042 | **CLOSED / MERGED** — physical worktree path **retained** (not deleted) |
+| WT-043 | **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE** — docs vehicle for PR #145; **not** the durable product lane; physical directory may remain; **no** follow-up docs-only PR is required merely to close WT-043; once PR #145 merges, WT-043 is operationally **CLOSED** even if the directory remains |
+| G1 Revenue Outcome Observability | **CLOSED GREEN** — PR #137 · **DO NOT REOPEN** absent actual invalidation |
+| G2 Public Terminology Long-Tail | **CLOSED GREEN** — PR #139 · **DO NOT REOPEN** absent actual invalidation |
+| G3-02 Owned Report Signed-Out Deep Return | **CLOSED GREEN** — PR #141 · **USER_VISIBLE_CLOSED_GREEN = YES** · **DO NOT REOPEN** absent actual invalidation |
+| Personal Free | **CLOSED GREEN** / **DO NOT REOPEN** absent actual invalidation |
+| G3 overall | **not complete** |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-03 | **HOLD_RUNTIME_PROOF** |
+| G3-04 Today/Weekly exposure | **REJECT_EXPOSURE** — COPY_SAFETY_GATE_REQUIRED |
+| Pair Premium | **NOT** activated |
+| subscription | **NOT** introduced |
+| Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription | **UNCHANGED** |
+| Compatibility | independent · PR #119 **OPEN** · commerce **OFF** · do not activate |
+| ACTIVE lane | **G3 REVISIT / RETENTION LOOP** |
+| Current phase | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
+| NEXT SINGLE ACTION | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — G3 remains ACTIVE and overall incomplete; remaining sub-items stay blocked (G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**). G4 ORGANIC DISCOVERY remains **planned** (mapping-first; not started). No additional G3 source implementation. No Personal Free redesign. |
+| PR #145 | **OPEN** docs-only self-closing settlement — **do not invent a merge SHA**; after merge, this table remains the durable target (G3 hold). **No** further docs-only settlement PR is required merely to close this gate |
+| worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` — physical path **retained**; not an ACTIVE product implementation lane |
+| branch | `chore/m55-pr144-post-merge-tier-e-settlement` — settlement delivery branch for PR #145 only |
+| base origin/main | `ecc3e37b43414e2a56941377c35235b965047aff` |
+| Product source implementation | **not authorized** |
+
+## M55 COMMERCIAL QUALITY CONSOLIDATION (2026-08-19) — HISTORICAL OPERATIONAL SNAPSHOT
+
+| Field | Value |
+|---|---|
+| M55_PERSONAL_SALES_LAUNCH | **SELL** |
+| origin/main (at gate) | `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
 | PR #142 | **MERGED** @ `32f22da527033a0ca094bb717ab2e160c7006d5e` |
 | PR #143 | **MERGED** |
 | PR #143 feature head | `156dd18ea17952b8398e2e2b608abc3f1b605226` |
@@ -25,17 +62,18 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | G3-01 | **NOT AUTHORIZED** |
 | G3-03 | **HOLD_RUNTIME_PROOF** |
 | G3-04 Today/Weekly exposure | **REJECT_EXPOSURE** — COPY_SAFETY_GATE_REQUIRED |
-| Production post-merge deployment | **READY** @ current `origin/main` `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
+| Production post-merge deployment (at gate) | **READY** @ then-current `origin/main` `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
 | Pair Premium | **NOT** activated |
 | subscription | **NOT** introduced |
 | Compatibility | independent · PR #119 **OPEN** · commerce **OFF** · do not activate |
-| ACTIVE lane | **M55_COMMERCIAL_QUALITY_CONSOLIDATION** |
-| Current phase | **CONTROL_PLANE_GATE_CLOSED_LOCAL** |
-| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW** |
+| ACTIVE lane (at gate) | **M55_COMMERCIAL_QUALITY_CONSOLIDATION** |
+| Current phase (at gate) | **CONTROL_PLANE_GATE_CLOSED_LOCAL** |
+| NEXT SINGLE ACTION (at gate) | **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW** |
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` |
 | branch | `feat/m55-commercial-quality-consolidation-v1` |
 | base origin/main | `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
-| Product source implementation | **authorized** — CQ-001–CQ-006 P1 meaning-integrity wave; no price/provider/DB/Stripe/Clerk/Pair/subscription change |
+| Product source implementation | **authorized** at that gate — CQ-001–CQ-006 P1 meaning-integrity wave; no price/provider/DB/Stripe/Clerk/Pair/subscription change |
+| Superseded by | PR #144 **MERGED** @ `ecc3e37b43414e2a56941377c35235b965047aff` · this post-merge Tier-E settlement |
 
 ### Human operating decision — commercial quality consolidation (2026-08-19)
 
@@ -722,7 +760,9 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-19 commercial quality consolidation):** `origin/main` **`22b00a6bfc9190f713633e694d90d4dbfa2c8a56`**. PR #144 **OPEN** on `feat/m55-commercial-quality-consolidation-v1`. Control-plane remaining failures closed locally: `/core` first-visit identity is empty (not intake); public footer navy restored to Commit B `rgba(11,26,43,0.82)`. USER_VISIBLE_CLOSED_GREEN remains **HOLD** pending ChatGPT/Human PR review. G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN**. **ACTIVE lane:** **M55_COMMERCIAL_QUALITY_CONSOLIDATION** · phase **CONTROL_PLANE_GATE_CLOSED_LOCAL**. **NEXT SINGLE ACTION:** **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW**. G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility commerce **OFF** · PR #119 **OPEN**. Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription **unchanged**.
+**CURRENT (2026-08-19 PR #144 post-merge):** `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`**. PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86`. Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY**. PR-head CI **GREEN**. Safari TP 27.0 representative commercial visual review completed; Human-found P1 defects were corrected before merge. Commercial quality consolidation **CLOSED GREEN**. **USER_VISIBLE_CLOSED_GREEN = YES** for the PR #144 commercial-quality consolidation scope. WT-042 **CLOSED / MERGED** (physical worktree retained). WT-043 **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE**. G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN**. **G3 overall not complete** — G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. **ACTIVE lane:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — remaining G3 sub-items stay blocked; G4 ORGANIC DISCOVERY remains planned (mapping-first; not started); no additional G3 source implementation; no Personal Free redesign; **no** follow-up docs-only settlement PR after PR #145. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility commerce **OFF** · PR #119 **OPEN**. Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription **unchanged**.
+
+**CURRENT (2026-08-19 commercial quality consolidation):** PR #144 **OPEN** / USER_VISIBLE_CLOSED_GREEN **HOLD** / **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW** — **superseded** by PR #144 merge + this post-merge settlement.
 
 **CURRENT (2026-08-19 G3-02 post-merge):** G3-02 owned-report signed-out deep-return **CLOSED GREEN** via PR #141 **MERGED** @ `4edcf631…` — **superseded** by commercial quality consolidation lane above.
 
