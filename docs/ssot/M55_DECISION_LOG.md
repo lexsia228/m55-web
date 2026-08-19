@@ -559,3 +559,18 @@ This decision authorizes **only** durable transition recording in the four-file 
 | CQ-006 | Discovery metadata / robots / sitemap |
 | Price / Stripe / DB / Clerk / AI provider / Pair / subscription | **unchanged** |
 | NEXT SINGLE ACTION | **PR CI + Preview commercial-quality review** |
+
+### 2026-08-19 — Human Preview RED/HOLD → Free experience visual quality (same PR #144)
+
+**Status:** Human Preview found user-visible commercial-quality defects. Same-branch correction on WT-042 / PR #144. Final commercial-quality Human review remains **HOLD** until Preview re-review.
+
+| Finding | Record |
+|---|---|
+| DOB input regression | native calendar restored to segmented year/month/day (prior `CoreFreeSegmentedDobFields` / `segmentedDobInputV1`) |
+| Header/footer product-nav duplication | footer no longer repeats 10の資質 / プレミアムレポート; utility legal/support + method link only |
+| Free result hero visual quality insufficient | image-led editorial hero using authoritative trait artwork |
+| Share surface lacked share-worthy visual | public-safe trait art on share card + option previews |
+| Desktop persistent CTA obstruction | sticky Premium CTA desktop-disabled; inline bridge remains |
+| Question audit | five frozen questions **LEFT** — wording/scoring-axis ownership aligned; no scoring change |
+| Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **unchanged** |
+| USER_VISIBLE_CLOSED_GREEN | **HOLD** pending ChatGPT/Human Preview re-review |

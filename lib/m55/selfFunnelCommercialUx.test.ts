@@ -26,7 +26,7 @@ describe('Self funnel commercial UX redesign', () => {
       essence.slice(essence.indexOf('shouldShowHero')),
       /CoreHeroSection/,
     );
-    assert.match(lead, /freeResultLeadTitle/);
+    assert.match(lead, /freeResultHeroTitle/);
     assert.match(lead, /outcomeJa/);
     assert.match(lead, /typeLabelJa/);
     assert.match(lead, /supportingTraitJa/);

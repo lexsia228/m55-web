@@ -7,22 +7,32 @@ import styles from './NarrativeShare.module.css';
 export default function PublicShareCardPreview({
   spec,
   premiumMark = false,
+  imagePath,
 }: {
   spec: PublicShareSpecV1;
   premiumMark?: boolean;
+  imagePath?: string;
 }) {
   const display = parsePublicCardDisplayV1(spec);
   const variant = spec.variant;
+  const art = imagePath?.trim() ?? '';
 
   return (
     <article
-      className={styles.card}
+      className={`${styles.card} ${art ? styles.cardWithArt : ''}`}
       data-testid="m55-narrative-share-card"
       data-share-card="true"
       data-card-variant={variant}
       data-share-path={spec.sharePath}
+      data-share-art={art ? 'true' : 'false'}
       aria-label={`M55の共有カード：${spec.headline}`}
     >
+      {art ? (
+        <div className={styles.cardArt} aria-hidden>
+          <img className={styles.cardArtImage} src={art} alt="" decoding="async" />
+          <div className={styles.cardArtVeil} />
+        </div>
+      ) : null}
       <p className={styles.brand}>M55</p>
       <h3 className={styles.headline}>{spec.headline}</h3>
 
@@ -40,14 +50,14 @@ export default function PublicShareCardPreview({
       {variant === 'seen_vs_actual' && display.seenJa && display.actualJa ? (
         <div className={styles.mirror}>
           <div className={styles.mirrorPane} data-side="seen">
-            <p className={styles.mirrorLabel}>人から見える私</p>
+            <p className={styles.mirrorLabel}>外から見えやすい動き</p>
             <p className={styles.mirrorBody}>「{display.seenJa}」</p>
           </div>
           <p className={styles.mirrorVs} aria-hidden>
             vs
           </p>
           <div className={styles.mirrorPane} data-side="actual">
-            <p className={styles.mirrorLabel}>実際の私</p>
+            <p className={styles.mirrorLabel}>自分に出やすい傾向</p>
             <p className={styles.mirrorBody}>「{display.actualJa}」</p>
           </div>
         </div>

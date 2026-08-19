@@ -161,8 +161,8 @@ test.describe('Self funnel growth share E2E', () => {
     // Fresh recipient must start their own funnel — no fabricated result.
     await expect(rPage.getByTestId('m55-core-start-intake')).toBeVisible({ timeout: 15_000 });
     await expect(rPage.getByTestId('m55-core-essence')).toHaveCount(0);
-    await rPage.getByTestId('m55-core-start-intake').click();
-    await expect(rPage.getByTestId('m55-core-birth-intake-layer')).toBeVisible();
+    await expect(rPage.getByTestId('m55-free-segmented-dob')).toBeVisible();
+    await expect(rPage.getByTestId('m55-core-birth-intake-layer')).toHaveCount(0);
     await recipient.close();
   });
 

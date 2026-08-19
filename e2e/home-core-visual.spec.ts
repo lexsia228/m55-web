@@ -1,4 +1,4 @@
-import { test, expect, type BrowserContext } from '@playwright/test';
+import { fillM55SegmentedDob } from './_helpers/fillM55SegmentedDob';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -74,7 +74,7 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await page.getByTestId('m55-home-open-birth-intake').click();
     await expect(page.getByTestId('m55-home-birth-intake-layer')).toBeVisible();
     await page.getByPlaceholder('表示名').fill('試験');
-    await page.locator('input[type="date"]').fill('1990-05-15');
+    await fillM55SegmentedDob(page, '1990-05-15');
     await page.getByTestId('m55-birth-intake-start').click();
     await expect(page.getByTestId('m55-core-analysis-loading')).toBeVisible({ timeout: 5000 });
     await page.screenshot({ path: path.join(OUT, '04-analyzing-overlay.png'), fullPage: true });

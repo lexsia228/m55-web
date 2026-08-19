@@ -149,11 +149,10 @@ describe('guest free journey source guards', () => {
     assert.doesNotMatch(src, /もう一度答える/);
   });
 
-  it('CoreLockedState opens shared intake and keeps home link', () => {
-    const src = read('components/core/CoreLockedState.tsx');
-    assert.match(src, /5つの問い/);
-    assert.match(src, /無料で見てみる|T\.freeStart/);
-    assert.match(src, /onStartIntake/);
+  it('Core locked path is inline segmented intake with home link', () => {
+    const src = read('components/core/CoreFreeProfileIntakeSection.tsx');
+    assert.match(src, /CoreFreeSegmentedDobFields/);
+    assert.match(src, /m55-core-locked-home-link/);
     assert.doesNotMatch(src, /今の関心/);
   });
 
@@ -184,7 +183,7 @@ describe('free self-understanding semantics copy', () => {
       read('components/core/CoreFreeJourneyStepper.tsx'),
       read('components/core/CoreFreeQuestionnaireLayer.tsx'),
       read('components/core/CoreFiveViewResultSection.tsx'),
-      read('components/core/CoreLockedState.tsx'),
+      read('components/core/CoreFreeProfileIntakeSection.tsx'),
       read('lib/m55/freeResult/guestFreeJourneyCopyV1.ts'),
     ].join('\n');
     assert.match(flowSources, /5つの問い/);

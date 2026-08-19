@@ -13,8 +13,7 @@ type Props = {
 };
 
 /**
- * RESULT first viewport — outcome-first, no exact DOB, compact visual.
- * Replaces frozen poster hero on the free→Premium path (does not edit CoreHeroSection).
+ * RESULT first viewport — image-led editorial hero with readable trait lockup.
  */
 export default function CoreFreeResultLeadSection({
   outcomeJa,
@@ -28,29 +27,34 @@ export default function CoreFreeResultLeadSection({
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeResultLead}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeResultHero}`}
       aria-labelledby="core-free-result-lead-title"
       data-testid="m55-free-result-lead"
       id="core-lead"
     >
-      <div className={styles.freeResultLeadGrid}>
-        <div className={styles.freeResultLeadCopy}>
-          <span className={styles.tierAOverline}>個人無料読み解き</span>
-          <h1 id="core-free-result-lead-title" className={styles.freeResultLeadTitle}>
-            {outcome}
-          </h1>
-          {typeLabel ? (
-            <p className={styles.freeResultLeadIdentity}>
-              <span className={styles.freeResultLeadIdentityKind}>資質</span>
-              <span className={styles.freeResultLeadIdentityName}>{typeLabel}</span>
-            </p>
-          ) : null}
-          {trait ? <p className={styles.freeResultLeadSupport}>{trait}</p> : null}
-          <p className={styles.freeResultLeadPrivacy}>{PRIVACY_SAFE_FOUNDATION_JA}</p>
-        </div>
-        <div className={styles.freeResultLeadVisual} aria-hidden>
-          <img className={styles.freeResultLeadImage} src={imagePath} alt="" decoding="async" />
-        </div>
+      <div className={styles.freeResultHeroArt} aria-hidden>
+        <img
+          className={styles.freeResultHeroImage}
+          src={imagePath}
+          alt=""
+          decoding="async"
+          data-testid="m55-free-result-trait-image"
+        />
+        <div className={styles.freeResultHeroArtVeil} />
+      </div>
+      <div className={styles.freeResultHeroLockup}>
+        <span className={styles.tierAOverline}>個人無料読み解き</span>
+        {typeLabel ? (
+          <p className={styles.freeResultHeroTraitBadge}>
+            <span className={styles.freeResultLeadIdentityKind}>資質</span>
+            <span className={styles.freeResultHeroTraitName}>{typeLabel}</span>
+          </p>
+        ) : null}
+        <h1 id="core-free-result-lead-title" className={styles.freeResultHeroTitle}>
+          {outcome}
+        </h1>
+        {trait ? <p className={styles.freeResultHeroSupport}>{trait}</p> : null}
+        <p className={styles.freeResultLeadPrivacy}>{PRIVACY_SAFE_FOUNDATION_JA}</p>
       </div>
     </section>
   );

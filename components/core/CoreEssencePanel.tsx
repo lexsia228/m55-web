@@ -70,7 +70,7 @@ import CoreFreeRevealTransition from './CoreFreeRevealTransition';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
 import CorePremiumStickyCta from './CorePremiumStickyCta';
 import CoreExperienceStyles from './CoreExperience.module.css';
-import CoreLockedState from './CoreLockedState';
+import CoreFreeProfileIntakeSection from './CoreFreeProfileIntakeSection';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import { buildPrivacySafeShareCardV1 } from '../../lib/m55/freeResult/privacySafeShareCardV1';
 import {
@@ -94,7 +94,6 @@ export default function CoreEssencePanel() {
   const [profileEpoch, setProfileEpoch] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>('QUESTIONNAIRE');
-  const [intakeOpen, setIntakeOpen] = useState(false);
   const [profileEditOpen, setProfileEditOpen] = useState(false);
   const [questionnaireFlowKey, setQuestionnaireFlowKey] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -264,12 +263,9 @@ export default function CoreEssencePanel() {
 
   if (sealed.kind === 'locked') {
     return (
-      <>
-        <CoreLockedState onStartIntake={() => setIntakeOpen(true)} />
-        <BirthProfileIntakeLayer
-          open={intakeOpen}
+      <div className={CoreExperienceStyles.page}>
+        <CoreFreeProfileIntakeSection
           ownerId={ownerId}
-          onClose={() => setIntakeOpen(false)}
           onSaved={() => {
             setProfileEpoch((n) => n + 1);
             setUxPhase('QUESTIONNAIRE');
@@ -277,9 +273,8 @@ export default function CoreEssencePanel() {
             setDraftAnswers({});
             setCommittedAnswers({});
           }}
-          dataTestId="m55-core-birth-intake-layer"
         />
-      </>
+      </div>
     );
   }
 

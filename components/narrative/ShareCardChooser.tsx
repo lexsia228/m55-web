@@ -13,6 +13,7 @@ import {
   trackFunnelActionOnce,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import { resolvePublicStemDisplay } from '../../lib/m55/publicStemDisplay';
 import PublicShareCardPreview from './PublicShareCardPreview';
 import NarrativeShareActions from './NarrativeShareActions';
 import styles from './NarrativeShare.module.css';
@@ -59,6 +60,8 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
   ) as Record<(typeof VARIANTS)[number], ReturnType<typeof projectPersonalPublicShareV1>>;
   const recommended = recommendPublicShareVariant({ answerAxes, birthAxes });
   const spec = selected ? specs[selected] : null;
+  const traitVisual = resolvePublicStemDisplay(stemLaneIndex);
+  const traitImagePath = traitVisual?.imagePath ?? '';
 
   return (
     <section
@@ -100,6 +103,11 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
               }}
             >
               <span className={styles.optionLabel}>{ROLE_HINT[variant]}</span>
+              {traitImagePath ? (
+                <span className={styles.optionArt} aria-hidden>
+                  <img src={traitImagePath} alt="" decoding="async" />
+                </span>
+              ) : null}
               <span className={styles.optionTitle}>{candidate.labelJa}</span>
               {isRecommended ? (
                 <span className={styles.optionHint} data-testid="m55-share-card-recommended">
@@ -113,7 +121,7 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
       {spec ? (
         <div className={styles.preview} data-testid="m55-share-preview">
           <p className={styles.optionLabel}>共有される内容</p>
-          <PublicShareCardPreview spec={spec} />
+          <PublicShareCardPreview spec={spec} imagePath={traitImagePath} />
           <p className={styles.chooserLead} data-testid="m55-share-preview-text">
             {spec.shareTextJa}
           </p>

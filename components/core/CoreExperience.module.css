@@ -11,6 +11,7 @@
   line-height: 1.75;
   max-width: min(56rem, calc(100vw - 2 * var(--core-page-pad-x)));
   margin: 0 auto;
+  min-height: min(72vh, 42rem);
   padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x)
     calc(72px + var(--m55-sticky-cta-height) + env(safe-area-inset-bottom, 0px));
   background: #f9f7f5;
@@ -3409,6 +3410,11 @@
   gap: 0.85rem 1.5rem;
   align-items: start;
   max-width: 44rem;
+  width: 100%;
+}
+
+.freeProfileIntakeShell {
+  min-height: min(62vh, 36rem);
 }
 
 .freeGuidedVisualCol {
@@ -3433,11 +3439,32 @@
   color: rgba(55, 48, 82, 0.62);
 }
 
-.freeGuidedPrivacy {
-  margin: 0.35rem 0 0;
+.freeProfileNickLabel,
+.freeProfileDobLabel {
+  display: block;
+  margin: 0.85rem 0 0.35rem;
   font-size: 0.82rem;
-  line-height: 1.55;
-  color: rgba(55, 48, 82, 0.68);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: rgba(55, 48, 82, 0.78);
+}
+
+.freeProfileNickInput {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  background: rgba(255, 252, 247, 0.96);
+  font: inherit;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.freeProfileNickInput:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.72);
+  outline-offset: 2px;
 }
 
 .freeContinuousProgress {
@@ -3847,19 +3874,19 @@
 
 @media (min-width: 900px) {
   .freeGuidedShell {
-    grid-template-columns: minmax(8.5rem, 12rem) minmax(0, 1fr);
-    gap: 0.85rem 1.5rem;
-    max-width: 52rem;
+    grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr);
+    gap: 1.1rem 2.25rem;
+    max-width: 64rem;
     min-height: 0;
     align-items: start;
   }
 
   .freeClueVisualSvg {
-    width: 9rem;
+    width: 11rem;
   }
 
   .freeGuidedFormCol {
-    max-width: 34rem;
+    max-width: 38rem;
   }
 }
 
@@ -4354,9 +4381,82 @@
 }
 
 /* ── Free result commercial lead (RESULT first viewport; not poster hero) ── */
-.freeResultLead {
+.freeResultLead,
+.freeResultHero {
   margin-top: 0.35rem;
   margin-bottom: 0.35rem;
+}
+
+.freeResultHero {
+  overflow: hidden;
+  padding: 0;
+}
+
+.freeResultHeroArt {
+  position: relative;
+  width: 100%;
+  min-height: 14rem;
+  max-height: 22rem;
+  overflow: hidden;
+  background: rgba(28, 24, 48, 0.12);
+}
+
+.freeResultHeroImage {
+  display: block;
+  width: 100%;
+  height: 22rem;
+  max-height: 48vw;
+  min-height: 14rem;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.freeResultHeroArtVeil {
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background: linear-gradient(180deg, transparent, rgba(249, 247, 245, 0.96));
+  pointer-events: none;
+}
+
+.freeResultHeroLockup {
+  position: relative;
+  z-index: 1;
+  padding: 0.85rem 1.1rem 1.25rem;
+}
+
+.freeResultHeroTraitBadge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.65rem;
+  margin: 0.35rem 0 0.45rem;
+}
+
+.freeResultHeroTraitName {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(1.35rem, 4.4vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+}
+
+.freeResultHeroTitle {
+  margin: 0.15rem 0 0.65rem;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(1.18rem, 4.4vw, 1.62rem);
+  line-height: 1.48;
+  letter-spacing: 0.01em;
+  color: #1a1a1a;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.freeResultHeroSupport {
+  margin: 0 0 0.65rem;
+  font-size: clamp(0.92rem, 2.8vw, 1.05rem);
+  line-height: 1.55;
+  color: rgba(50, 46, 58, 0.8);
 }
 
 .freeResultLeadGrid {
@@ -4679,6 +4779,39 @@
 }
 
 @media (min-width: 900px) {
+  .page {
+    max-width: min(72rem, calc(100vw - 2 * var(--core-page-pad-x)));
+  }
+
+  .freeResultHero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+    align-items: stretch;
+    max-width: 72rem;
+  }
+
+  .freeResultHeroArt {
+    min-height: 28rem;
+    max-height: none;
+  }
+
+  .freeResultHeroImage {
+    height: 100%;
+    max-height: none;
+    min-height: 28rem;
+  }
+
+  .freeResultHeroArtVeil {
+    display: none;
+  }
+
+  .freeResultHeroLockup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.75rem 1.85rem 1.9rem;
+  }
+
   .freeResultLeadGrid {
     grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
     gap: 1.35rem;
@@ -4991,6 +5124,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+}
+
+@media (min-width: 1024px) {
+  .premiumStickyBar {
+    display: none !important;
+  }
 }
 
 .premiumStickyBar {

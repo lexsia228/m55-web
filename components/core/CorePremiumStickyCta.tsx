@@ -40,26 +40,40 @@ function clearStickyHeightCss() {
   document.documentElement.removeAttribute('data-m55-sticky-cta');
 }
 
+function useDesktopViewport(): boolean {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const sync = () => setDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+  return desktop;
+}
+
 /**
- * Persistent Premium CTA after free result — hides when in-page bridge or footer is in view.
- * Height is measured (ResizeObserver); no single magic pixel reserve.
+ * Mobile-only sticky Premium CTA after free result.
+ * Desktop uses inline bridge only — no fixed bar over content.
  */
 export default function CorePremiumStickyCta({ visible }: Props) {
+  const isDesktop = useDesktopViewport();
   const href = `${TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref}#m55-paid-questionnaire`;
   const barRef = useRef<HTMLDivElement>(null);
   const [docked, setDocked] = useState(true);
+  const stickyEnabled = visible && !isDesktop;
 
   useEffect(() => {
-    if (!visible) return;
+    if (!stickyEnabled) return;
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.premiumCtaViewed,
       'core_paid_bridge',
       'core-premium-sticky-view',
     );
-  }, [visible]);
+  }, [stickyEnabled]);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!stickyEnabled) return;
 
     const bridge = document.getElementById('core-paid');
     const footer =
@@ -88,10 +102,10 @@ export default function CorePremiumStickyCta({ visible }: Props) {
 
     for (const el of targets) observer.observe(el);
     return () => observer.disconnect();
-  }, [visible]);
+  }, [stickyEnabled]);
 
   useLayoutEffect(() => {
-    if (!visible || !docked) {
+    if (!stickyEnabled || !docked) {
       clearStickyHeightCss();
       return;
     }
@@ -114,15 +128,16 @@ export default function CorePremiumStickyCta({ visible }: Props) {
       window.removeEventListener('resize', measure);
       clearStickyHeightCss();
     };
-  }, [visible, docked]);
+  }, [stickyEnabled, docked]);
 
-  if (!visible || !docked) return null;
+  if (!stickyEnabled || !docked) return null;
 
   return (
     <div
       ref={barRef}
       className={styles.premiumStickyBar}
       data-testid="m55-premium-sticky-cta"
+      data-m55-desktop-disabled={isDesktop ? 'true' : 'false'}
       data-m55-print-hide
       role="region"
       aria-label={T.premiumProduct}

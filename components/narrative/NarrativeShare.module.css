@@ -74,6 +74,52 @@
   background:
     radial-gradient(120% 90% at 100% 0%, rgba(107, 95, 168, 0.18), transparent 50%),
     linear-gradient(160deg, rgba(255, 250, 241, 0.96), rgba(238, 232, 246, 0.92));
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+
+.cardWithArt {
+  padding-top: 0;
+}
+
+.cardArt {
+  position: relative;
+  margin: 0 -1.2rem 0.15rem;
+  height: 42%;
+  min-height: 8.5rem;
+  overflow: hidden;
+}
+
+.cardArtImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.cardArtVeil {
+  position: absolute;
+  inset: auto 0 0;
+  height: 48%;
+  background: linear-gradient(180deg, transparent, rgba(255, 250, 241, 0.94));
+  pointer-events: none;
+}
+
+.optionArt {
+  display: block;
+  margin: 0.35rem 0 0.5rem;
+  height: 4.5rem;
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+
+.optionArt img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
 }
 
 .card[data-card-variant='manual'] {

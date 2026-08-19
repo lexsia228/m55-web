@@ -3,6 +3,7 @@
  * Each scenario uses an isolated browser context with cleared storage.
  */
 import { test, expect, type Browser, type BrowserContext, type Page } from '@playwright/test';
+import { fillM55SegmentedDob } from './_helpers/fillM55SegmentedDob';
 
 const COMPLETE_ANSWERS = {
   'free.start_style': 'free.start_style.map_first',
@@ -126,7 +127,7 @@ test.describe('Self funnel runtime E2E matrix', () => {
     await page.getByPlaceholder('表示名').fill('試験');
     // DOB required — cannot skip
     await expect(page.getByTestId('m55-birth-intake-start')).toBeDisabled();
-    await page.locator('input[type="date"]').fill('1983-02-28');
+    await fillM55SegmentedDob(page, '1983-02-28');
     await page.getByTestId('m55-birth-intake-start').click();
     await page.waitForURL('**/core', { timeout: 15_000 });
     await expect(page.getByTestId('m55-free-questionnaire')).toBeVisible({ timeout: 15_000 });
@@ -148,11 +149,9 @@ test.describe('Self funnel runtime E2E matrix', () => {
     const page = await context.newPage();
     await page.goto('/core');
     await expect(page.getByTestId('m55-core-locked')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByTestId('m55-core-start-intake')).toBeVisible();
+    await expect(page.getByTestId('m55-free-segmented-dob')).toBeVisible();
     await expect(page.getByText('基本情報 完了')).toHaveCount(0);
     await expect(page.getByTestId('m55-free-questionnaire')).toHaveCount(0);
-    await page.getByTestId('m55-core-start-intake').click();
-    await expect(page.getByTestId('m55-core-birth-intake-layer')).toBeVisible();
     await context.close();
   });
 
