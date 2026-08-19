@@ -11,6 +11,7 @@ import type {
   RecoveryTendency,
   StartTendency,
 } from '../individualization/types';
+import { PERSONAL_MANUAL_MANIFESTATION_LABEL_JA } from './personalManualV1';
 
 export const PUBLIC_IDENTITY_FP_VERSION = 'public_identity_fp_v1' as const;
 
@@ -123,7 +124,7 @@ export function selectPublicManualSlotPlan(input: {
     });
     addSlot(slots, used, {
       kind: 'fused_actual',
-      labelJa: '自分の中では',
+      labelJa: PERSONAL_MANUAL_MANIFESTATION_LABEL_JA,
       semanticId: `actual:${fusedKey}`,
     });
   }

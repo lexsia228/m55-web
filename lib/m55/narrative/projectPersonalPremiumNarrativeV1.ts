@@ -13,7 +13,10 @@ import {
   type ShareCandidateV1,
 } from './m55NarrativeSpecV1';
 import { compactSentencesJa, firstSentenceJa, stripNicknameJa } from './narrativeSafetyV1';
-import { buildPersonalManualV1 } from './personalManualV1';
+import {
+  buildPersonalManualV1,
+  PERSONAL_MANUAL_IDENTITY_FOUNDATION_LABEL_JA,
+} from './personalManualV1';
 
 function sectionBody(payload: DtrPayload, id: string): string {
   return payload.fullSections.find((section) => section.id === id)?.body ?? '';
@@ -70,7 +73,7 @@ export function projectPersonalPremiumNarrativeV1(input: {
     s1
       ? {
           id: 'actual' as const,
-          labelJa: '土台',
+          labelJa: PERSONAL_MANUAL_IDENTITY_FOUNDATION_LABEL_JA,
           bodyJa: firstSentenceJa(s1),
           provenanceIds: ['s1_identity'],
         }

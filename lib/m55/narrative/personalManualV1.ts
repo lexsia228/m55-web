@@ -20,6 +20,12 @@ import {
   normalizeCustomerCopyJa,
 } from '../freeResult/humanizeFreeResultWhyV1';
 
+/** Standalone heading for `manifestation.shortJa` — fused observable tendency (not seen-vs-actual contrast). */
+export const PERSONAL_MANUAL_MANIFESTATION_LABEL_JA = '自分に出やすい傾向' as const;
+
+/** Standalone heading for paid s1_identity fallback — birth-based basic character and movement. */
+export const PERSONAL_MANUAL_IDENTITY_FOUNDATION_LABEL_JA = '自分の基本的な傾向' as const;
+
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
   try: '小さく一つ動かしてから、様子を見る。',
   map: '全体の段取りが見えてから動き出す。',
@@ -187,7 +193,12 @@ function pickShortSlots(
 
   const actual = firstSentenceJa(fused.manifestation.shortJa);
   if (actual) {
-    ranked.push(slot('actual', '自分の中では', actual, [manifestId, 'personal_free_manifestation_v4']));
+    ranked.push(
+      slot('actual', PERSONAL_MANUAL_MANIFESTATION_LABEL_JA, actual, [
+        manifestId,
+        'personal_free_manifestation_v4',
+      ]),
+    );
   }
 
   const seenActual = seenVsActualFromFused(fused);
