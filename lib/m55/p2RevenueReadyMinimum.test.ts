@@ -30,12 +30,13 @@ describe('P2 revenue-ready — LP continuity and canonical purchase path', () =>
     assert.doesNotMatch(continuity, /fallback|dummy|mock|lorem/i);
   });
 
-  it('removes direct PurchaseButton checkout from lower LP tier comparison', () => {
+  it('routes purchase intent to the canonical plan decision block', () => {
     const lp = read('app/dtr/lp/page.tsx');
     assert.doesNotMatch(lp, /PurchaseButton/);
-    assert.match(lp, /navigateToPrepCtaJa/);
-    assert.match(lp, /#m55-paid-questionnaire/);
-    assert.match(lp, /m55-lp-tier-\$\{tierKey\}-navigate-prep/);
+    assert.match(lp, /compareSectionId/);
+    assert.match(lp, /PlanAnchorLink/);
+    assert.match(lp, /m55-paid-questionnaire/);
+    assert.doesNotMatch(lp, /m55-lp-tier-\$\{tierKey\}-navigate-prep/);
   });
 
   it('keeps canonical checkout only inside DtrPaidPurchasePrep', () => {

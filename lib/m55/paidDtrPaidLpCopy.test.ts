@@ -8,6 +8,8 @@ import {
   PAID_DTR_CHAPTER_DRAWER_INTRO,
   PAID_DTR_DRAWER_CHAPTER_ENTRIES,
   PAID_DTR_LP,
+  PAID_DTR_LP_GOVERNED_HASH_ANCHORS,
+  PAID_DTR_LP_METADATA_TITLE_JA,
   PAID_DTR_SAVED_REPORT_PRICING,
   collectPaidDtrLpCopyStrings,
 } from './paidDtrProductCopy';
@@ -86,7 +88,7 @@ const dtrShelfPanelSource = readRepo('components/dtr/DtrShelfPanel.tsx');
 
 describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   it('exposes LP copy version', () => {
-    assert.equal(PAID_DTR_LP.version, 'm55-paid-lp-final-copy-v2');
+    assert.equal(PAID_DTR_LP.version, 'm55-paid-lp-final-copy-v3');
   });
 
   it('wires product keys to pricing SSOT', () => {
@@ -203,8 +205,8 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
   });
 
-  it('has exactly 4 FAQ items', () => {
-    assert.equal(PAID_DTR_LP.faq.items.length, 4);
+  it('has exactly 1 FAQ item (non-duplicative)', () => {
+    assert.equal(PAID_DTR_LP.faq.items.length, 1);
   });
 
   it('keeps internal structural vocabulary out of public LP copy', () => {
@@ -220,21 +222,21 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
       assert.equal(hero.includes(term), false, `hero must not lead with mechanism term: ${term}`);
     }
     assert.match(PAID_DTR_LP.hero.bodyJa, /力が出やすい条件/);
-    assert.match(PAID_DTR_LP.hero.bodyJa, /戻りやすい整え方/);
+    assert.match(PAID_DTR_LP.hero.bodyJa, /日常での扱い方/);
   });
 
   it('orders value sections before the purchase funnel on the LP page', () => {
     const heroIndex = lpPageSource.indexOf('id="dtr-lp-hero"');
     const savedIndex = lpPageSource.indexOf('id="dtr-lp-saved"');
     const funnelIndex = lpPageSource.indexOf('id="m55-paid-questionnaire"');
-    const aboutIndex = lpPageSource.indexOf('id="dtr-lp-about"');
+    const trustIndex = lpPageSource.indexOf('id="dtr-lp-trust"');
     const faqIndex = lpPageSource.indexOf('id="dtr-lp-faq"');
 
     for (const [label, index] of [
       ['hero', heroIndex],
       ['saved', savedIndex],
       ['funnel', funnelIndex],
-      ['about', aboutIndex],
+      ['trust', trustIndex],
       ['faq', faqIndex],
     ] as const) {
       assert.notEqual(index, -1, `missing LP section: ${label}`);
@@ -242,16 +244,35 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
     assert.ok(heroIndex < savedIndex, 'hero must precede プレミアムレポートとは');
     assert.ok(savedIndex < funnelIndex, 'value sections must precede the purchase funnel');
-    assert.ok(funnelIndex < aboutIndex, 'trust/method sections must follow plan choice');
-    assert.ok(aboutIndex < faqIndex, 'FAQ must remain last before the final CTA');
+    assert.ok(funnelIndex < trustIndex, 'trust/method sections must follow plan choice');
+    assert.ok(trustIndex < faqIndex, 'FAQ must be the final section');
+    assert.equal(lpPageSource.includes('id="dtr-lp-layers"'), false);
+    assert.equal(lpPageSource.includes('id="dtr-lp-final"'), false);
+    assert.equal(lpPageSource.includes('id="dtr-lp-authority"'), false);
+    assert.equal(lpPageSource.includes('id="dtr-lp-about"'), false);
   });
 
-  it('defines hero compare anchor and CTA labels', () => {
-    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'ライトとフルを比べる');
-    assert.equal(PAID_DTR_LP.hero.compareSectionId, 'dtr-lp-tiers');
-    assert.match(PAID_DTR_LP.hero.subheadlineJa, /自分を少し離れて見つめ直す/);
-    assert.match(lpPageSource, /本質を見つめ直す \| M55/);
+  it('resolves every governed LP hash anchor to a DOM section id', () => {
+    for (const anchor of PAID_DTR_LP_GOVERNED_HASH_ANCHORS) {
+      assert.match(
+        lpPageSource,
+        new RegExp(`id="${anchor}"`),
+        `missing anchor target: #${anchor}`,
+      );
+    }
+    assert.equal(PAID_DTR_LP.hero.compareSectionId, PAID_DTR_LP_GOVERNED_HASH_ANCHORS[0]);
+    const anchorId = PAID_DTR_LP.hero.compareSectionId;
+    assert.match(lpPageSource, new RegExp(`id="${anchorId}"`), `broken hash href: #${anchorId}`);
+  });
+
+  it('defines hero plan anchor and CTA labels', () => {
+    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'プラン選択へ進む');
+    assert.equal(PAID_DTR_LP.hero.compareSectionId, 'm55-paid-questionnaire');
+    assert.match(PAID_DTR_LP.hero.subheadlineJa, /生年月日と6問の回答/);
+    assert.match(lpPageSource, /PAID_DTR_LP_METADATA_TITLE_JA/);
+    assert.doesNotMatch(lpPageSource, /本質を見つめ直す \| M55 プレミアムレポート/);
     assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
+    assert.equal(PAID_DTR_LP.metadata.titleJa, PAID_DTR_LP_METADATA_TITLE_JA);
     assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, 'フルを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, 'ライトを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み返し方に合わせて選べます');
@@ -261,7 +282,12 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, 'プレミアムレポート');
     assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, 'プレミアムレポート');
     assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でフルに切り替え/);
-    assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プランをもう一度確認する');
+    assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プラン選択へ進む');
+  });
+
+  it('renders one additional-reading explanation on the LP page', () => {
+    assert.equal((lpPageSource.match(/id="dtr-lp-consult"/g) ?? []).length, 1);
+    assert.equal(lpPageSource.includes('dtr-lp-layers'), false);
   });
 
   it('does not expose forbidden legacy or optimization terms in LP copy', () => {

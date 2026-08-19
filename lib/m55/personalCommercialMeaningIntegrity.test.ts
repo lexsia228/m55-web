@@ -22,7 +22,7 @@ import {
 } from './narrative/buildPremiumPurchasedSemanticProjectionV1';
 import { projectPersonalPremiumNarrativeV1 } from './narrative/projectPersonalPremiumNarrativeV1';
 import { projectPremiumPublicShareV1, PREMIUM_SHARE_IDENTITY_PERSISTENCE } from './narrative/projectPublicShareV1';
-import { collectPaidDtrLpCopyStrings, PAID_DTR_LP } from './paidDtrProductCopy';
+import { collectPaidDtrLpCopyStrings, PAID_DTR_LP, PAID_DTR_LP_METADATA_TITLE_JA } from './paidDtrProductCopy';
 import { PLAN_COMPARISON } from './commercialUx/planComparison';
 import { runDtrEngine } from './dtrEngine';
 import { buildPersonalManualV1 } from './narrative/personalManualV1';
@@ -361,13 +361,20 @@ describe('CQ-004 LP decision consolidation', () => {
     assert.equal(PLAN_COMPARISON.lightThenUpgradeTotalJpy, 1600);
   });
 
-  it('LP has one canonical plan decision block and no 最終導線', () => {
+  it('LP has one canonical plan decision block and no duplicate closing CTA section', () => {
     const lpSrc = readRepoFile('app/dtr/lp/page.tsx');
     assert.doesNotMatch(lpSrc, /function TierCard/);
     assert.equal((lpSrc.match(/<DtrPaidPurchasePrep/g) ?? []).length, 1);
+    assert.doesNotMatch(lpSrc, /id="dtr-lp-final"/);
+    assert.doesNotMatch(lpSrc, /id="dtr-lp-layers"/);
     const copyBlob = collectPaidDtrLpCopyStrings().join('\n');
     assert.doesNotMatch(copyBlob, /最終導線/);
-    assert.equal(PAID_DTR_LP.cta.sectionTitleJa, 'はじめる');
+  });
+
+  it('governed LP hash anchors resolve on the LP page', () => {
+    const lpSrc = readRepoFile('app/dtr/lp/page.tsx');
+    assert.match(lpSrc, new RegExp(`id="${PAID_DTR_LP.hero.compareSectionId}"`));
+    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'プラン選択へ進む');
   });
 });
 
@@ -384,9 +391,12 @@ describe('CQ-006 discovery metadata', () => {
     assert.match(sitemap, /\/dtr\/lp/);
   });
 
-  it('LP metadata describes premium product', () => {
+  it('LP metadata uses canonical product title', () => {
     const lp = readRepoFile('app/dtr/lp/page.tsx');
+    assert.match(lp, /PAID_DTR_LP_METADATA_TITLE_JA/);
     assert.match(lp, /プレミアムレポート/);
     assert.match(lp, /canonical/);
+    assert.doesNotMatch(lp, /本質を見つめ直す \| M55 プレミアムレポート/);
+    assert.equal(PAID_DTR_LP_METADATA_TITLE_JA, 'M55 プレミアムレポート | M55');
   });
 });

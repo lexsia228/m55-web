@@ -8,7 +8,7 @@ import {
   resolveDtrShelfAccess,
   type DtrLpCtaMode,
 } from "../../../lib/m55/dtrShelfAccess";
-import { PAID_DTR_LP } from "../../../lib/m55/paidDtrProductCopy";
+import { PAID_DTR_LP, PAID_DTR_LP_METADATA_TITLE_JA } from "../../../lib/m55/paidDtrProductCopy";
 import { PLAN_COMPARISON } from "../../../lib/m55/commercialUx/planComparison";
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
@@ -17,7 +17,7 @@ import DtrLpPremiumContinuityIntro from "../../../components/dtr/DtrLpPremiumCon
 import styles from "./lp.module.css";
 
 export const metadata: Metadata = {
-  title: "本質を見つめ直す | M55 プレミアムレポート",
+  title: PAID_DTR_LP_METADATA_TITLE_JA,
   description:
     "M55 プレミアムレポートは、生年月日と6問の回答から自分の出方を一つの流れで読み返せるデジタルレポートです。ライト ¥1,000・フル ¥1,480の買い切り。追加読み解き付き。",
   alternates: {
@@ -56,7 +56,7 @@ function ArrowRightIcon() {
   );
 }
 
-function CompareAnchorLink({ label }: { label: string }) {
+function PlanAnchorLink({ label }: { label: string }) {
   return (
     <a
       href={`#${PAID_DTR_LP.hero.compareSectionId}`}
@@ -91,7 +91,7 @@ function HeroPriceChips() {
 
 function FinalCtaBlock({ lpCtaMode }: { lpCtaMode: DtrLpCtaMode }) {
   if (lpCtaMode === "purchase" || lpCtaMode === "signin") {
-    return <CompareAnchorLink label={PAID_DTR_LP.cta.finalCompareLabelJa} />;
+    return <PlanAnchorLink label={PAID_DTR_LP.cta.finalCompareLabelJa} />;
   }
   if (lpCtaMode === "open") {
     return (
@@ -201,7 +201,7 @@ export default async function DtrLpPage({
             {!hidePriceAndTrust ? (
               <>
                 <HeroPriceChips />
-                <CompareAnchorLink label={PAID_DTR_LP.hero.ctaLabelJa} />
+                <PlanAnchorLink label={PAID_DTR_LP.hero.ctaLabelJa} />
               </>
             ) : (
               <FinalCtaBlock lpCtaMode={lpCtaMode} />
@@ -280,20 +280,13 @@ export default async function DtrLpPage({
           </section>
         )}
 
-        {/* 8. M55とは */}
-        <section aria-labelledby="dtr-lp-about" className={styles.lpSectionPreTier}>
-          <h2 id="dtr-lp-about" className={styles.lpH2}>
+        {/* 8. 読み解きの考え方（M55とは + 材料） */}
+        <section aria-labelledby="dtr-lp-trust" className={styles.lpSectionPreTier}>
+          <h2 id="dtr-lp-trust" className={styles.lpH2}>
             {PAID_DTR_LP.about.sectionTitleJa}
           </h2>
           <p className={styles.lpBody}>{PAID_DTR_LP.about.oneSentenceJa}</p>
           <p className={styles.lpBodyTight}>{PAID_DTR_LP.about.principleJa}</p>
-        </section>
-
-        {/* 11. 読み解きの材料 */}
-        <section aria-labelledby="dtr-lp-authority" className={styles.lpSectionPreTier}>
-          <h2 id="dtr-lp-authority" className={styles.lpH2}>
-            {PAID_DTR_LP.authorityNote.sectionTitleJa}
-          </h2>
           <p className={styles.lpSavedHeadline}>{PAID_DTR_LP.authorityNote.headlineJa}</p>
           {PAID_DTR_LP.authorityNote.bodyParagraphsJa.map((para, i) => (
             <p key={para} className={i === 0 ? styles.lpBody : styles.lpBodyTight}>
@@ -302,16 +295,7 @@ export default async function DtrLpPage({
           ))}
         </section>
 
-        {/* 12. レポート本体と追加読み解きの違い */}
-        <section aria-labelledby="dtr-lp-layers" className={styles.lpSectionPreTier}>
-          <h2 id="dtr-lp-layers" className={styles.lpH2}>
-            {PAID_DTR_LP.informationLayers.sectionTitleJa}
-          </h2>
-          <p className={styles.lpBody}>{PAID_DTR_LP.informationLayers.savedReportJa}</p>
-          <p className={styles.lpBodyTight}>{PAID_DTR_LP.informationLayers.consultReplyJa}</p>
-        </section>
-
-        {/* 13. 購入前の確認 */}
+        {/* 9. 購入前の確認 */}
         {!hidePriceAndTrust && (
           <section aria-labelledby="dtr-lp-purchase-notes" className={styles.lpSection}>
             <h2 id="dtr-lp-purchase-notes" className={styles.lpH2}>
@@ -325,7 +309,7 @@ export default async function DtrLpPage({
           </section>
         )}
 
-        {/* 14. FAQ */}
+        {/* 10. FAQ */}
         <section aria-labelledby="dtr-lp-faq" className={styles.lpSection}>
           <h2 id="dtr-lp-faq" className={styles.lpH2}>
             {PAID_DTR_LP.faq.sectionTitleJa}
@@ -337,19 +321,6 @@ export default async function DtrLpPage({
                 <p className={styles.lpFaqAnswer}>{item.answerJa}</p>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* 15. はじめる */}
-        <section aria-labelledby="dtr-lp-final" className={styles.lpSection}>
-          <h2 id="dtr-lp-final" className={styles.lpH2}>
-            {PAID_DTR_LP.cta.sectionTitleJa}
-          </h2>
-          {lpCtaMode !== "purchase" && lpCtaMode !== "signin" && (
-            <p className={styles.lpBody}>{OWNED.statusLeadJa}</p>
-          )}
-          <div className={styles.lpFinalCtaWrap}>
-            <FinalCtaBlock lpCtaMode={lpCtaMode} />
           </div>
         </section>
       </div>
