@@ -521,3 +521,26 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Compatibility | PR #119 **OPEN** · commerce **OFF** |
 | Pair Premium / subscription | not automatically activated · not introduced |
 | Tier-E follow-up | documented post-merge reconciliation on WT-037 · commit not authorized by this entry alone |
+
+### 2026-08-19 — Commercial quality consolidation (Tier-E + Human operating directive)
+
+**Status:** Human-authorized **M55_COMMERCIAL_QUALITY_CONSOLIDATION** · docs-only Tier-E reconciliation on `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `feat/m55-commercial-quality-consolidation-v1` from `origin/main` @ `22b00a6bfc9190f713633e694d90d4dbfa2c8a56`. PR #142 **MERGED** @ `32f22da527033a0ca094bb717ab2e160c7006d5e` (docs settlement closing WT-041). PR #143 **MERGED** · feature head `156dd18ea17952b8398e2e2b608abc3f1b605226` · Wave A copy clarity **MERGED**. **Product source unchanged** by this Tier-E commit. **No push, PR, merge, provider, or Production mutation** beyond already-merged `main`.
+
+| Decision | Value |
+|---|---|
+| origin/main | `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
+| Production deployment | **READY** @ current main |
+| Wave A accepted labels | **自分に出やすい傾向** · **自分の基本的な傾向** · **レポートの読み方** |
+| G1 / G2 / G3-02 / Personal Free | **CLOSED GREEN** — **DO NOT REOPEN** absent actual invalidation |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-03 | **HOLD_RUNTIME_PROOF** |
+| G3-04 | **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED |
+| Pair Premium / subscription | **NOT** activated · **NOT** introduced |
+| ACTIVE lane | **M55_COMMERCIAL_QUALITY_CONSOLIDATION** |
+| Current phase | **READ_ONLY_REPO_WIDE_AUDIT** |
+| NEXT SINGLE ACTION | **M55_COMMERCIAL_QUALITY_CONSOLIDATION_AUDIT** |
+| Human operating model | commercial quality = **one cross-cutting product/funnel program** · do **not** split Japanese/copy/LP/reader/SEO into micro-gates · audit **Free → Premium → purchase → paid value → revisit** as one journey · Human **not** required to inspect every page · Human review reserved for representative user-visible surfaces and genuine product/price/claim decisions |
+| Authorized write scope (this gate) | exactly `M55_CURRENT_STATE.md` · `M55_WORKTREE_REGISTRY.md` · `M55_ROADMAP.md` · `M55_DECISION_LOG.md` |
+| Product source implementation | **not authorized** by this Tier-E commit |
+| M55_PERSONAL_SALES_LAUNCH | **SELL** (unchanged) |
+| Compatibility | PR #119 **OPEN** · commerce **OFF** |
