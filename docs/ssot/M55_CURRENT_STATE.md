@@ -22,6 +22,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Commercial quality consolidation | **CLOSED GREEN** |
 | USER_VISIBLE_CLOSED_GREEN | **YES** for the PR #144 commercial-quality consolidation scope |
 | WT-042 | **CLOSED / MERGED** — physical worktree path **retained** (not deleted) |
+| WT-043 | **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE** — docs vehicle for PR #145; **not** the durable product lane; physical directory may remain; **no** follow-up docs-only PR is required merely to close WT-043; once PR #145 merges, WT-043 is operationally **CLOSED** even if the directory remains |
 | G1 Revenue Outcome Observability | **CLOSED GREEN** — PR #137 · **DO NOT REOPEN** absent actual invalidation |
 | G2 Public Terminology Long-Tail | **CLOSED GREEN** — PR #139 · **DO NOT REOPEN** absent actual invalidation |
 | G3-02 Owned Report Signed-Out Deep Return | **CLOSED GREEN** — PR #141 · **USER_VISIBLE_CLOSED_GREEN = YES** · **DO NOT REOPEN** absent actual invalidation |
@@ -34,13 +35,14 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | subscription | **NOT** introduced |
 | Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription | **UNCHANGED** |
 | Compatibility | independent · PR #119 **OPEN** · commerce **OFF** · do not activate |
-| ACTIVE lane | **M55_PR144_POST_MERGE_TIER_E_SETTLEMENT** |
-| Current phase | **DOCS_ONLY_POST_MERGE_SETTLEMENT** |
+| ACTIVE lane | **G3 REVISIT / RETENTION LOOP** |
+| Current phase | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
 | NEXT SINGLE ACTION | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — G3 remains ACTIVE and overall incomplete; remaining sub-items stay blocked (G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**). G4 ORGANIC DISCOVERY remains **planned** (mapping-first; not started). No additional G3 source implementation. No Personal Free redesign. |
-| worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` |
-| branch | `chore/m55-pr144-post-merge-tier-e-settlement` |
+| PR #145 | **OPEN** docs-only self-closing settlement — **do not invent a merge SHA**; after merge, this table remains the durable target (G3 hold). **No** further docs-only settlement PR is required merely to close this gate |
+| worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` — physical path **retained**; not an ACTIVE product implementation lane |
+| branch | `chore/m55-pr144-post-merge-tier-e-settlement` — settlement delivery branch for PR #145 only |
 | base origin/main | `ecc3e37b43414e2a56941377c35235b965047aff` |
-| Product source implementation | **not authorized** — this settlement is docs-only |
+| Product source implementation | **not authorized** |
 
 ## M55 COMMERCIAL QUALITY CONSOLIDATION (2026-08-19) — HISTORICAL OPERATIONAL SNAPSHOT
 
@@ -758,7 +760,7 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-19 PR #144 post-merge):** `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`**. PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86`. Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY**. PR-head CI **GREEN**. Safari TP 27.0 representative commercial visual review completed; Human-found P1 defects were corrected before merge. Commercial quality consolidation **CLOSED GREEN**. **USER_VISIBLE_CLOSED_GREEN = YES** for the PR #144 commercial-quality consolidation scope. WT-042 **CLOSED / MERGED** (physical worktree retained). G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN**. **G3 overall not complete** — G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. **ACTIVE lane:** **M55_PR144_POST_MERGE_TIER_E_SETTLEMENT** · phase **DOCS_ONLY_POST_MERGE_SETTLEMENT**. **NEXT SINGLE ACTION:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — remaining G3 sub-items stay blocked; G4 ORGANIC DISCOVERY remains planned (mapping-first; not started); no additional G3 source implementation; no Personal Free redesign. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility commerce **OFF** · PR #119 **OPEN**. Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription **unchanged**.
+**CURRENT (2026-08-19 PR #144 post-merge):** `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`**. PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86`. Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY**. PR-head CI **GREEN**. Safari TP 27.0 representative commercial visual review completed; Human-found P1 defects were corrected before merge. Commercial quality consolidation **CLOSED GREEN**. **USER_VISIBLE_CLOSED_GREEN = YES** for the PR #144 commercial-quality consolidation scope. WT-042 **CLOSED / MERGED** (physical worktree retained). WT-043 **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE**. G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN**. **G3 overall not complete** — G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. **ACTIVE lane:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — remaining G3 sub-items stay blocked; G4 ORGANIC DISCOVERY remains planned (mapping-first; not started); no additional G3 source implementation; no Personal Free redesign; **no** follow-up docs-only settlement PR after PR #145. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility commerce **OFF** · PR #119 **OPEN**. Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription **unchanged**.
 
 **CURRENT (2026-08-19 commercial quality consolidation):** PR #144 **OPEN** / USER_VISIBLE_CLOSED_GREEN **HOLD** / **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW** — **superseded** by PR #144 merge + this post-merge settlement.
 
