@@ -1,27 +1,25 @@
 .footer {
   flex-shrink: 0;
   background: #f3ede2;
-  border-top: 1px solid rgba(11, 26, 43, 0.08);
-  padding-top: 10px;
-  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  margin-top: 6px;
+  border-top: 1px solid rgba(11, 26, 43, 0.06);
+  padding-top: 8px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  margin-top: 4px;
   font-size: 11px;
-  color: rgba(60, 60, 60, 0.62);
+  color: rgba(11, 26, 43, 0.82);
   text-align: center;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .row {
   max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 0 clamp(20px, 3vw, 32px);
+  padding: 0 clamp(16px, 2.5vw, 28px);
   box-sizing: border-box;
 }
 
-.groups {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.utilityNav {
+  display: block;
 }
 
 .linkRow {
@@ -29,18 +27,18 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 6px 12px;
+  gap: 4px 10px;
 }
 
 .link {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 36px;
   padding: 0 2px;
-  color: rgba(11, 26, 43, 0.82);
+  color: rgba(11, 26, 43, 0.68);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 11px;
+  font-weight: 500;
+  font-size: 10px;
 }
 
 .link:focus-visible {
@@ -55,46 +53,36 @@
 
 .copy {
   display: block;
-  margin-top: 8px;
-  font-size: 11px;
-  /* Commit B: AA contrast on warm ivory #f3ede2 (was rgba(60,60,60,0.52) ≈ 2.69). */
+  margin-top: 6px;
+  font-size: 10px;
   color: rgba(11, 26, 43, 0.82);
   letter-spacing: 0.03em;
 }
 
 @media (min-width: 768px) {
   .row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    gap: 8px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 16px;
     text-align: left;
-  }
-
-  .groups {
-    gap: 6px;
   }
 
   .linkRow {
     justify-content: flex-start;
-    flex-wrap: nowrap;
-    gap: 0 14px;
-  }
-
-  .groups nav:last-child .linkRow {
-    flex-wrap: wrap;
-    row-gap: 4px;
+    gap: 0 12px;
   }
 
   .copy {
     margin-top: 0;
     text-align: right;
-    justify-self: end;
+    margin-left: auto;
   }
 }
 
 @media (max-width: 767px) {
   .linkRow {
-    gap: 4px 10px;
+    gap: 2px 8px;
   }
 }

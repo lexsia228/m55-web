@@ -11,6 +11,7 @@
   line-height: 1.75;
   max-width: min(56rem, calc(100vw - 2 * var(--core-page-pad-x)));
   margin: 0 auto;
+  min-height: min(72vh, 42rem);
   padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x)
     calc(72px + var(--m55-sticky-cta-height) + env(safe-area-inset-bottom, 0px));
   background: #f9f7f5;
@@ -2997,7 +2998,7 @@
   flex-direction: column;
   gap: 0;
   /* Keep in-page #core-paid jumps below the sticky shell header. */
-  scroll-margin-top: calc(12px + env(safe-area-inset-top, 0px));
+  scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
   /* Clear measured sticky Premium bar when present. */
   scroll-margin-bottom: calc(12px + var(--m55-sticky-cta-height, 0px));
 }
@@ -3409,6 +3410,11 @@
   gap: 0.85rem 1.5rem;
   align-items: start;
   max-width: 44rem;
+  width: 100%;
+}
+
+.freeProfileIntakeShell {
+  min-height: min(62vh, 36rem);
 }
 
 .freeGuidedVisualCol {
@@ -3433,11 +3439,32 @@
   color: rgba(55, 48, 82, 0.62);
 }
 
-.freeGuidedPrivacy {
-  margin: 0.35rem 0 0;
+.freeProfileNickLabel,
+.freeProfileDobLabel {
+  display: block;
+  margin: 0.85rem 0 0.35rem;
   font-size: 0.82rem;
-  line-height: 1.55;
-  color: rgba(55, 48, 82, 0.68);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: rgba(55, 48, 82, 0.78);
+}
+
+.freeProfileNickInput {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  background: rgba(255, 252, 247, 0.96);
+  font: inherit;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.freeProfileNickInput:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.72);
+  outline-offset: 2px;
 }
 
 .freeContinuousProgress {
@@ -3657,16 +3684,12 @@
   text-align: center;
 }
 
-.freeSegmentedDobInputYear:focus,
-.freeSegmentedDobInputMonth:focus,
-.freeSegmentedDobInputDay:focus,
 .freeSegmentedDobInputYear:focus-visible,
 .freeSegmentedDobInputMonth:focus-visible,
 .freeSegmentedDobInputDay:focus-visible {
-  outline: 2px solid rgba(107, 95, 168, 0.72);
-  outline-offset: 2px;
-  border-color: rgba(107, 95, 168, 0.62);
-  box-shadow: none;
+  outline: none;
+  border-color: rgba(107, 95, 168, 0.72);
+  box-shadow: 0 0 0 3px rgba(107, 95, 168, 0.42);
 }
 
 .freeSegmentedDobInputYear {
@@ -3847,19 +3870,19 @@
 
 @media (min-width: 900px) {
   .freeGuidedShell {
-    grid-template-columns: minmax(8.5rem, 12rem) minmax(0, 1fr);
-    gap: 0.85rem 1.5rem;
-    max-width: 52rem;
+    grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr);
+    gap: 1.1rem 2.25rem;
+    max-width: 64rem;
     min-height: 0;
     align-items: start;
   }
 
   .freeClueVisualSvg {
-    width: 9rem;
+    width: 11rem;
   }
 
   .freeGuidedFormCol {
-    max-width: 34rem;
+    max-width: 38rem;
   }
 }
 
@@ -3963,8 +3986,8 @@
 }
 
 .freeQuestionnaireChoice:focus-visible {
-  outline: 2px solid rgba(107, 95, 168, 0.72);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(107, 95, 168, 0.42);
 }
 
 .freeQuestionnaireChoiceSelected {
@@ -4005,8 +4028,8 @@
 
 .freeQuestionnairePrimaryBtn:focus-visible,
 .freeQuestionnaireSecondaryBtn:focus-visible {
-  outline: 2px solid rgba(107, 95, 168, 0.72);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(107, 95, 168, 0.42);
 }
 
 .freeQuestionnaireSecondaryBtn {
@@ -4137,11 +4160,6 @@
   .freeResultSummaryGrid {
     grid-template-columns: 1fr;
   }
-
-  .freeJourneyStepperList {
-    grid-template-columns: 1fr;
-    gap: 0.45rem;
-  }
 }
 
 /* ── guest-first journey + result hub ── */
@@ -4158,14 +4176,31 @@
   border: 0;
 }
 
+.freeJourneyTaskShell {
+  min-height: calc(100dvh - 5.75rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.coreShareAnchor {
+  scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
+}
+
 .freeJourneyStepper {
   margin: 0 0 1rem;
+}
+
+.freeJourneyStepperLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .freeJourneyStepperList {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -4174,12 +4209,14 @@
 .freeJourneyStepperItem {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.65rem;
+  gap: 0.32rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.4rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(107, 95, 168, 0.14);
   background: rgba(255, 255, 255, 0.55);
-  font-size: 0.82rem;
+  font-size: clamp(0.68rem, 2.8vw, 0.82rem);
   color: rgba(55, 48, 82, 0.72);
 }
 
@@ -4354,9 +4391,95 @@
 }
 
 /* ── Free result commercial lead (RESULT first viewport; not poster hero) ── */
-.freeResultLead {
+.freeResultLead,
+.freeResultHero {
   margin-top: 0.35rem;
   margin-bottom: 0.35rem;
+}
+
+.freeResultHero {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+@media (max-width: 899px) {
+  .freeResultHeroLockup {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 1.05rem 1.1rem 1.3rem;
+  }
+}
+
+.freeResultHeroArt {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  min-height: min(68dvh, 26rem);
+  max-height: none;
+  overflow: hidden;
+  background: rgba(28, 24, 48, 0.12);
+}
+
+.freeResultHeroImage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.freeResultHeroArtVeil {
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background: linear-gradient(180deg, transparent, rgba(249, 247, 245, 0.96));
+  pointer-events: none;
+}
+
+.freeResultHeroLockup {
+  position: relative;
+  z-index: 1;
+  padding: 0.85rem 1.1rem 1.25rem;
+}
+
+.freeResultHeroTraitBadge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.65rem;
+  margin: 0.35rem 0 0.45rem;
+}
+
+.freeResultHeroTraitName {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(1.35rem, 4.4vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+}
+
+.freeResultHeroTitle {
+  margin: 0.15rem 0 0.65rem;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(1.18rem, 4.4vw, 1.62rem);
+  line-height: 1.48;
+  letter-spacing: 0.01em;
+  color: #1a1a1a;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.freeResultHeroSupport {
+  margin: 0 0 0.65rem;
+  font-size: clamp(0.92rem, 2.8vw, 1.05rem);
+  line-height: 1.55;
+  color: rgba(50, 46, 58, 0.8);
 }
 
 .freeResultLeadGrid {
@@ -4679,6 +4802,42 @@
 }
 
 @media (min-width: 900px) {
+  .page {
+    max-width: min(72rem, calc(100vw - 2 * var(--core-page-pad-x)));
+  }
+
+  .freeResultHero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+    align-items: stretch;
+    max-width: 72rem;
+  }
+
+  .freeResultHeroArt {
+    min-height: 28rem;
+    max-height: none;
+    aspect-ratio: auto;
+  }
+
+  .freeResultHeroImage {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    max-height: none;
+    min-height: 28rem;
+  }
+
+  .freeResultHeroArtVeil {
+    display: none;
+  }
+
+  .freeResultHeroLockup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.75rem 1.85rem 1.9rem;
+  }
+
   .freeResultLeadGrid {
     grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
     gap: 1.35rem;
@@ -4991,6 +5150,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+}
+
+@media (min-width: 1024px) {
+  .premiumStickyBar {
+    display: none !important;
+  }
 }
 
 .premiumStickyBar {

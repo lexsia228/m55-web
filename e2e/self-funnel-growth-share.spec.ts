@@ -161,8 +161,8 @@ test.describe('Self funnel growth share E2E', () => {
     // Fresh recipient must start their own funnel — no fabricated result.
     await expect(rPage.getByTestId('m55-core-start-intake')).toBeVisible({ timeout: 15_000 });
     await expect(rPage.getByTestId('m55-core-essence')).toHaveCount(0);
-    await rPage.getByTestId('m55-core-start-intake').click();
-    await expect(rPage.getByTestId('m55-core-birth-intake-layer')).toBeVisible();
+    await expect(rPage.getByTestId('m55-free-segmented-dob')).toBeVisible();
+    await expect(rPage.getByTestId('m55-core-birth-intake-layer')).toHaveCount(0);
     await recipient.close();
   });
 
@@ -180,7 +180,7 @@ test.describe('Self funnel growth share E2E', () => {
     await context.close();
   });
 
-  test('E. mobile Premium sticky CTA href is /dtr/lp [ENV_DEPENDENT_EXISTING_NAV_TEST_RESIDUAL]', async ({
+  test('E. mobile Free result has no overlay Premium bar; inline bridge remains', async ({
     browser,
   }) => {
     const context = await cleanContext(browser);
@@ -188,10 +188,8 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await openResult(page);
-    const sticky = page.getByTestId('m55-premium-sticky-cta');
-    await expect(sticky).toBeVisible();
-    const link = page.getByTestId('m55-premium-sticky-link');
-    await expect(link).toHaveAttribute('href', /\/dtr\/lp/);
+    await expect(page.getByTestId('m55-premium-sticky-cta')).toHaveCount(0);
+    await expect(page.getByTestId('m55-paid-bridge-primary')).toHaveAttribute('href', /\/dtr\/lp/);
     await context.close();
   });
 
@@ -319,14 +317,14 @@ test.describe('Self funnel growth share E2E', () => {
     await context.close();
   });
 
-  test('desktop share + sticky remain available', async ({ browser }) => {
+  test('desktop share remains available without overlay Premium bar', async ({ browser }) => {
     const context = await cleanContext(browser);
     await seedResultReady(context);
     const page = await context.newPage();
     await page.setViewportSize({ width: 1280, height: 800 });
     await openResult(page);
     await expect(page.getByTestId('m55-free-result-share')).toBeVisible();
-    await expect(page.getByTestId('m55-premium-sticky-cta')).toBeVisible();
+    await expect(page.getByTestId('m55-premium-sticky-cta')).toHaveCount(0);
     await context.close();
   });
 
@@ -343,7 +341,7 @@ test.describe('Self funnel growth share E2E', () => {
     await context.close();
   });
 
-  test('sticky CTA clears lead heading; hides near Premium bridge; desktop header nav', async ({
+  test('desktop header nav remains; overlay Premium bar is absent', async ({
     browser,
   }) => {
     const context = await cleanContext(browser);
@@ -358,18 +356,6 @@ test.describe('Self funnel growth share E2E', () => {
     await expect(desktopNav.getByText('プレミアムレポート')).toBeVisible();
     await expect(page.getByRole('button', { name: 'メニュー' })).toHaveCount(0);
 
-    await expect(page.getByTestId('m55-premium-sticky-cta')).toBeVisible();
-    const leadOverlap = await page.evaluate(() => {
-      const stickyEl = document.querySelector('[data-testid="m55-premium-sticky-cta"]');
-      const lead = document.querySelector('#core-free-result-lead-title');
-      if (!stickyEl || !lead) return true;
-      const a = stickyEl.getBoundingClientRect();
-      const b = lead.getBoundingClientRect();
-      return !(a.bottom <= b.top || a.top >= b.bottom || a.right <= b.left || a.left >= b.right);
-    });
-    expect(leadOverlap).toBe(false);
-
-    await page.locator('#core-paid').scrollIntoViewIfNeeded();
     await expect(page.getByTestId('m55-premium-sticky-cta')).toHaveCount(0);
     await context.close();
   });
@@ -397,7 +383,7 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await openResult(page);
-    await expect(page.getByTestId('m55-premium-sticky-link')).toHaveText('プレミアムの読み解きへ進む');
+    await expect(page.getByTestId('m55-paid-bridge-primary')).toHaveText('プレミアムの読み解きへ進む');
     await expect(page.getByText('回答から見えた理由')).toBeVisible();
     await expect(page.getByText('6問に答えて4章を作る')).toHaveCount(0);
     await context.close();

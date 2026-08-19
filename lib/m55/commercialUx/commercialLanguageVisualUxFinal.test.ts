@@ -50,11 +50,9 @@ describe('commercial language visual UX final — CTA contract', () => {
     assert.doesNotMatch(T.premiumBridgeCta, /4章を作る|4章で/);
     assert.doesNotMatch(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, /4章/);
 
-    const sticky = read('components/core/CorePremiumStickyCta.tsx');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
-    assert.match(sticky, /STATIC_FREE_TO_PAID_BRIDGE\.primaryCtaJa/);
     assert.match(bridge, /primaryCtaJa/);
-    assert.doesNotMatch(sticky + bridge + T.premiumBridgeCta, /6問に答えて4章を作る/);
+    assert.doesNotMatch(bridge + T.premiumBridgeCta, /6問に答えて4章を作る/);
   });
 
   it('paid completion copy confirms answers without promising a finished report', () => {
@@ -124,12 +122,10 @@ describe('commercial language visual UX final — mobile header', () => {
 });
 
 describe('commercial language visual UX final — sticky + premium continuity', () => {
-  it('measures sticky height and provides paid context strip', () => {
+  it('sticky overlay is retired; paid context strip remains', () => {
     const sticky = read('components/core/CorePremiumStickyCta.tsx');
-    assert.match(sticky, /ResizeObserver/);
-    assert.match(sticky, /--m55-sticky-cta-height/);
-    assert.match(sticky, /--m55-float-rail-offset/);
-    assert.match(sticky, /IntersectionObserver/);
+    assert.match(sticky, /return null/);
+    assert.match(sticky, /CORE_INLINE_PREMIUM_BRIDGE_HREF|viewSavedPlansHref/);
 
     const strip = read('components/dtr/DtrPaidResultContextStrip.tsx');
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');

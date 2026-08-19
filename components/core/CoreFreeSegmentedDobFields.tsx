@@ -13,12 +13,14 @@ type Props = {
   initialIsoDate?: string;
   onValidSubmit: (birthDateIso: string) => void;
   submitLabelJa?: string;
+  submitTestId?: string;
 };
 
 export default function CoreFreeSegmentedDobFields({
   initialIsoDate = '',
   onValidSubmit,
   submitLabelJa = '無料結果づくりを始める',
+  submitTestId,
 }: Props) {
   const initial = partsFromIsoDate(initialIsoDate) ?? { year: '', month: '', day: '' };
   const [year, setYear] = useState(initial.year);
@@ -152,7 +154,7 @@ export default function CoreFreeSegmentedDobFields({
         </p>
       ) : null}
 
-      <button type="submit" className={styles.freeIntroPrimaryBtn}>
+      <button type="submit" className={styles.freeIntroPrimaryBtn} data-testid={submitTestId}>
         {submitLabelJa}
       </button>
     </form>

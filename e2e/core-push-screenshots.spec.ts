@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { fillM55SegmentedDob } from './_helpers/fillM55SegmentedDob';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -14,7 +14,7 @@ async function openCoreViaHomeFlow(page: Page, nickname: string) {
   await page.getByTestId('m55-home-open-birth-intake').click();
   await expect(page.getByTestId('m55-home-birth-intake-layer')).toBeVisible();
   await page.getByPlaceholder('表示名').fill(nickname);
-  await page.locator('input[type="date"]').fill('1983-02-28');
+  await fillM55SegmentedDob(page, '1983-02-28');
   await page.getByRole('button', { name: '保存して開く' }).click();
   await page.waitForURL('**/core', { timeout: 15_000 });
   await expect(page.getByTestId('m55-core-locked')).toHaveCount(0);

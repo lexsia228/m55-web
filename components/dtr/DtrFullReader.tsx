@@ -72,6 +72,7 @@ import {
 import ConsultRoom from './ConsultRoom';
 import SavedSnapshotNotice from './SavedSnapshotNotice';
 import PremiumNarrativeClose from '../narrative/PremiumNarrativeClose';
+import type { PremiumPurchasedSemanticProjectionV1 } from '../../lib/m55/narrative/buildPremiumPurchasedSemanticProjectionV1';
 import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
 import { PREMIUM_DEV_FIXTURE_READY_PROP } from '../../lib/m55/commercialUx/premiumExperience/premiumExperienceMountContract';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
@@ -410,6 +411,8 @@ type Props = {
     envelope: DtrEnvelope;
     profile: { nickname: string; birthDate: string };
   };
+  /** Typed semantic projection from frozen purchase input (share / manual / close). */
+  premiumProjection?: PremiumPurchasedSemanticProjectionV1 | null;
   /** Dev-only (/dev/dtr-drawer-preview): inject consult UI without /api/room/core. */
   consultDevPreviewRoomData?: ConsultRoomPreviewRoomData;
   /** Server read-only wallet snapshot for saved-report info (display only). */
@@ -2991,6 +2994,7 @@ function DtrFullReaderCore({
   expiresAt,
   displayedEnvelopeReadMode,
   purchasedSnapshot,
+  premiumProjection = null,
   consultDevPreviewRoomData,
   consultWalletSnapshot = null,
   devPreviewFixtureReady = false,
@@ -3479,7 +3483,9 @@ function DtrFullReaderCore({
           payload={payload}
           nickname={view.nickname}
           stemLaneIndex={stemIdx}
-          birthDate={view.birthDate}
+          projection={premiumProjection}
+          consultWalletSnapshot={footerWalletSnapshot}
+          onOpenConsult={() => selectPanel('consult')}
         />
         <ReportFooterMetaCard
           aiConsultIncluded={aiConsultIncluded}

@@ -42,16 +42,20 @@ function deriveCanonicalObservableStateId(pathname: string): string | null {
     if (has('[data-testid="m55-free-questionnaire"]')) {
       return 'ecp:free.core.questions:free_questions';
     }
-    // Intake is the birth/DOB layer — not the locked-card start CTA alone.
+    // Overlay-only edit/intake layers. Do not treat generic segmented DOB as
+    // intake — it also lives on the first-visit empty profile card.
     if (
-      has('[data-testid="m55-free-dob-step"]') ||
-      has('[data-testid="m55-free-segmented-dob"]') ||
       has('[data-testid="m55-core-birth-intake-layer"]') ||
+      has('[data-testid="m55-core-profile-edit-layer"]') ||
       has('[data-testid="m55-birth-intake-start"]')
     ) {
       return 'ecp:free.core.intake:intake';
     }
-    if (has('[data-testid="m55-core-locked"]')) {
+    if (
+      has('[data-testid="m55-core-profile-intake"]') ||
+      has('[data-testid="m55-core-prerequisite-headline"]') ||
+      has('[data-testid="m55-core-locked"]')
+    ) {
       return 'ecp:free.core.empty:empty';
     }
   }

@@ -33,20 +33,21 @@ describe('Self funnel commercial polish REV1', () => {
     assert.equal(resolveInitialUxPhase(true), 'QUESTIONNAIRE');
     assert.equal(resolveInitialUxPhase(false), 'INTRO');
     const panel = read('components/core/CoreEssencePanel.tsx');
-    assert.match(panel, /resolveInitialUxPhase\(true\)/);
+    const hydration = read('lib/m55/selfFunnel/coreEssenceHydration.ts');
+    assert.match(hydration, /resolveInitialUxPhase\(true\)/);
     assert.doesNotMatch(panel, /CoreFreeIntroSection/);
     assert.match(panel, /BirthProfileIntakeLayer/);
   });
 
-  it('direct /core offers intake without dead-end', () => {
-    const locked = read('components/core/CoreLockedState.tsx');
-    assert.match(locked, /T\.freeStart|無料で見てみる/);
-    assert.match(locked, /m55-core-start-intake/);
-    assert.match(locked, /homeLinkJa|ホームへ戻る/);
-    assert.match(locked, /onStartIntake/);
+  it('direct /core offers inline segmented intake without dead-end', () => {
+    const intake = read('components/core/CoreFreeProfileIntakeSection.tsx');
+    assert.match(intake, /CoreFreeSegmentedDobFields/);
+    assert.match(intake, /m55-core-locked/);
+    assert.match(intake, /homeLinkJa|ホームへ戻る/);
     const panel = read('components/core/CoreEssencePanel.tsx');
-    assert.match(panel, /onStartIntake=\{\(\) => setIntakeOpen\(true\)\}/);
-    assert.match(panel, /m55-core-birth-intake-layer/);
+    assert.match(panel, /CoreFreeProfileIntakeSection/);
+    assert.doesNotMatch(panel, /onStartIntake=\{\(\) => setIntakeOpen\(true\)\}/);
+    assert.doesNotMatch(panel, /m55-core-birth-intake-layer/);
   });
 
   it('questionnaire shows 1/5 progress without duplicate DOB step', () => {

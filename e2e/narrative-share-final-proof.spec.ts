@@ -190,9 +190,9 @@ test.describe('Narrative share current-head final proof', () => {
     expect(saved.byteLength).toBeGreaterThan(4000);
 
     await page.getByTestId('m55-free-result-lead').scrollIntoViewIfNeeded();
-    await expect(page.getByTestId('m55-premium-sticky-link')).toBeVisible();
-    await page.getByTestId('m55-premium-sticky-link').screenshot({
-      path: join(OUT, 'personal-sticky-after-share-390.png'),
+    await expect(page.getByTestId('m55-premium-sticky-cta')).toHaveCount(0);
+    await page.getByTestId('m55-paid-bridge-primary').screenshot({
+      path: join(OUT, 'personal-bridge-after-share-390.png'),
       animations: 'disabled',
     });
 

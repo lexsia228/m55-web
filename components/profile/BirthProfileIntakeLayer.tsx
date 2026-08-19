@@ -1,10 +1,17 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ClipboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { ProfileRepository, type BirthProfile } from '../../lib/soul/profile';
 import { GUEST_PROFILE_INTAKE_COPY_V1 } from '../../lib/m55/freeResult/guestFreeJourneyCopyV1';
+import {
+  parseFlexibleDobInput,
+  partsFromIsoDate,
+  validateSegmentedDob,
+  type SegmentedDobParts,
+} from '../../lib/m55/freeResult/segmentedDobInputV1';
 import styles from './BirthProfileIntakeLayer.module.css';
+import dobStyles from '../core/CoreExperience.module.css';
 
 type Props = {
   open: boolean;
@@ -15,6 +22,143 @@ type Props = {
   /** E2E など用（例: m55-home-birth-intake-layer / m55-core-birth-intake-layer） */
   dataTestId?: string;
 };
+
+function SegmentedDobFieldsInline({
+  birthDate,
+  onBirthDateChange,
+}: {
+  birthDate: string;
+  onBirthDateChange: (iso: string) => void;
+}) {
+  const initial = partsFromIsoDate(birthDate) ?? { year: '', month: '', day: '' };
+  const [year, setYear] = useState(initial.year);
+  const [month, setMonth] = useState(initial.month);
+  const [day, setDay] = useState(initial.day);
+  const [errorJa, setErrorJa] = useState<string | null>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+  const monthRef = useRef<HTMLInputElement>(null);
+  const dayRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const parts = partsFromIsoDate(birthDate);
+    if (!parts) return;
+    setYear(parts.year);
+    setMonth(parts.month);
+    setDay(parts.day);
+  }, [birthDate]);
+
+  function applyParts(parts: SegmentedDobParts) {
+    setYear(parts.year);
+    setMonth(parts.month);
+    setDay(parts.day);
+  }
+
+  function syncValidDate(parts: SegmentedDobParts) {
+    const result = validateSegmentedDob(parts);
+    if (result.ok) {
+      setErrorJa(null);
+      applyParts(result.parts);
+      onBirthDateChange(result.birthDate);
+    } else {
+      onBirthDateChange('');
+    }
+  }
+
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    const text = event.clipboardData.getData('text');
+    const parts = parseFlexibleDobInput(text);
+    if (!parts) return;
+    event.preventDefault();
+    applyParts(parts);
+    syncValidDate(parts);
+    dayRef.current?.focus();
+  }
+
+  return (
+    <div
+      className={dobStyles.freeSegmentedDobRow}
+      onPaste={handlePaste}
+      data-testid="m55-free-segmented-dob"
+    >
+      <label className={dobStyles.freeSegmentedDobField}>
+        <span className={dobStyles.visuallyHidden}>年</span>
+        <input
+          ref={yearRef}
+          className={dobStyles.freeSegmentedDobInputYear}
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="bday-year"
+          maxLength={4}
+          placeholder="YYYY"
+          value={year}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+            setYear(digits);
+            setErrorJa(null);
+            if (digits.length === 4) monthRef.current?.focus();
+            syncValidDate({ year: digits, month, day });
+          }}
+          aria-label="年"
+        />
+        <span className={dobStyles.freeSegmentedDobUnit} aria-hidden>
+          年
+        </span>
+      </label>
+      <label className={dobStyles.freeSegmentedDobField}>
+        <span className={dobStyles.visuallyHidden}>月</span>
+        <input
+          ref={monthRef}
+          className={dobStyles.freeSegmentedDobInputMonth}
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="bday-month"
+          maxLength={2}
+          placeholder="MM"
+          value={month}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
+            setMonth(digits);
+            setErrorJa(null);
+            if (digits.length === 2) dayRef.current?.focus();
+            syncValidDate({ year, month: digits, day });
+          }}
+          aria-label="月"
+        />
+        <span className={dobStyles.freeSegmentedDobUnit} aria-hidden>
+          月
+        </span>
+      </label>
+      <label className={dobStyles.freeSegmentedDobField}>
+        <span className={dobStyles.visuallyHidden}>日</span>
+        <input
+          ref={dayRef}
+          className={dobStyles.freeSegmentedDobInputDay}
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="bday-day"
+          maxLength={2}
+          placeholder="DD"
+          value={day}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
+            setDay(digits);
+            setErrorJa(null);
+            syncValidDate({ year, month, day: digits });
+          }}
+          aria-label="日"
+        />
+        <span className={dobStyles.freeSegmentedDobUnit} aria-hidden>
+          日
+        </span>
+      </label>
+      {errorJa ? (
+        <p className={dobStyles.freeSegmentedDobError} role="alert">
+          {errorJa}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 /**
  * ニックネーム＋生年月日の保存モーダル。Home・/core で同一 UI を共有する。
@@ -28,13 +172,12 @@ export default function BirthProfileIntakeLayer({
   dataTestId = 'm55-birth-profile-intake-layer',
 }: Props) {
   const id = useId();
-  const birthId = `${id}-birth`;
   const nickId = `${id}-nick`;
-  const birthRef = useRef<HTMLInputElement>(null);
   const nickRef = useRef<HTMLInputElement>(null);
   const [birthDate, setBirthDate] = useState('');
   const [nickname, setNickname] = useState('');
   const [portalReady, setPortalReady] = useState(false);
+  const [dobError, setDobError] = useState<string | null>(null);
 
   useEffect(() => {
     setPortalReady(true);
@@ -70,6 +213,7 @@ export default function BirthProfileIntakeLayer({
     if (!open) {
       setBirthDate('');
       setNickname('');
+      setDobError(null);
       return;
     }
     const existing = ProfileRepository.get(ownerId);
@@ -85,27 +229,19 @@ export default function BirthProfileIntakeLayer({
   const handleSave = () => {
     const nick = nickname.trim();
     const bday = birthDate.trim();
-    if (!nick || !bday) return;
+    if (!nick) return;
+    const validated = validateSegmentedDob(partsFromIsoDate(bday) ?? { year: '', month: '', day: '' });
+    if (!validated.ok) {
+      setDobError(validated.errorJa);
+      return;
+    }
+    setDobError(null);
 
-    const profile: BirthProfile = { nickname: nick, birthDate: bday };
+    const profile: BirthProfile = { nickname: nick, birthDate: validated.birthDate };
     ProfileRepository.save(ownerId, profile);
     window.dispatchEvent(new Event('m55:profile_updated'));
     onSaved();
     onClose();
-  };
-
-  const rowActivateBirth = () => {
-    const el = birthRef.current;
-    if (!el) return;
-    if (typeof el.showPicker === 'function') {
-      try {
-        el.showPicker();
-        return;
-      } catch {
-        /* fall through */
-      }
-    }
-    el.focus();
   };
 
   const canSave = nickname.trim().length > 0 && birthDate.trim().length > 0;
@@ -154,27 +290,13 @@ export default function BirthProfileIntakeLayer({
         </div>
 
         <div className={`${styles.fieldBlock} ${styles.fieldGap}`}>
-          <label
-            htmlFor={birthId}
-            className={styles.fieldRow}
-            onClick={(e) => {
-              if (e.target === birthRef.current) return;
-              rowActivateBirth();
-            }}
-          >
-            <span className={styles.fieldLabel}>生年月日</span>
-            <input
-              ref={birthRef}
-              id={birthId}
-              type="date"
-              name="bday"
-              autoComplete="bday"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className={styles.dateInput}
-              max={new Date().toISOString().slice(0, 10)}
-            />
-          </label>
+          <span className={styles.fieldLabel}>生年月日</span>
+          <SegmentedDobFieldsInline birthDate={birthDate} onBirthDateChange={setBirthDate} />
+          {dobError ? (
+            <p className={dobStyles.freeSegmentedDobError} role="alert">
+              {dobError}
+            </p>
+          ) : null}
         </div>
 
         <div className={styles.actions}>

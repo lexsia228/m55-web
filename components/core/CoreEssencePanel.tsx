@@ -70,7 +70,7 @@ import CoreFreeRevealTransition from './CoreFreeRevealTransition';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
 import CorePremiumStickyCta from './CorePremiumStickyCta';
 import CoreExperienceStyles from './CoreExperience.module.css';
-import CoreLockedState from './CoreLockedState';
+import CoreFreeProfileIntakeSection from './CoreFreeProfileIntakeSection';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import { buildPrivacySafeShareCardV1 } from '../../lib/m55/freeResult/privacySafeShareCardV1';
 import {
@@ -94,7 +94,6 @@ export default function CoreEssencePanel() {
   const [profileEpoch, setProfileEpoch] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>('QUESTIONNAIRE');
-  const [intakeOpen, setIntakeOpen] = useState(false);
   const [profileEditOpen, setProfileEditOpen] = useState(false);
   const [questionnaireFlowKey, setQuestionnaireFlowKey] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -264,12 +263,9 @@ export default function CoreEssencePanel() {
 
   if (sealed.kind === 'locked') {
     return (
-      <>
-        <CoreLockedState onStartIntake={() => setIntakeOpen(true)} />
-        <BirthProfileIntakeLayer
-          open={intakeOpen}
+      <div className={CoreExperienceStyles.page}>
+        <CoreFreeProfileIntakeSection
           ownerId={ownerId}
-          onClose={() => setIntakeOpen(false)}
           onSaved={() => {
             setProfileEpoch((n) => n + 1);
             setUxPhase('QUESTIONNAIRE');
@@ -277,9 +273,8 @@ export default function CoreEssencePanel() {
             setDraftAnswers({});
             setCommittedAnswers({});
           }}
-          dataTestId="m55-core-birth-intake-layer"
         />
-      </>
+      </div>
     );
   }
 
@@ -461,12 +456,14 @@ export default function CoreEssencePanel() {
 
       {uxPhase === 'RESULT' ? (
         <CoreFreeJourneyStepper currentStep="result" />
-      ) : shouldShowQuestionnaire(uxPhase) ? (
-        <CoreFreeJourneyStepper currentStep="questions" />
       ) : null}
 
       {shouldShowQuestionnaire(uxPhase) ? (
-        <>
+        <div
+          className={CoreExperienceStyles.freeJourneyTaskShell}
+          data-testid="m55-free-journey-task"
+        >
+          <CoreFreeJourneyStepper currentStep="questions" />
           <CoreFreeQuestionnaireLayer
             key={questionnaireFlowKey}
             answers={draftAnswers}
@@ -496,7 +493,7 @@ export default function CoreEssencePanel() {
               </button>
             </div>
           ) : null}
-        </>
+        </div>
       ) : null}
 
       {shouldShowReanswerFinalize(uxPhase) ? (
@@ -606,7 +603,6 @@ export default function CoreEssencePanel() {
                   <div className={CoreExperienceStyles.freeResultRevealItem}>
                     <CoreFreeResultScenesSection
                       depth={depthAnalysis}
-                      smallActionJa={composition.synthesis.smallActionJa}
                       onRequestReanswer={handleRequestReanswer}
                     />
                   </div>
@@ -675,7 +671,7 @@ export default function CoreEssencePanel() {
               ) : null}
 
               {freeNarrativeContext && sealed.kind === 'ready' ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`}>
                   <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
                     <ShareCardChooser
                       input={{
@@ -687,7 +683,7 @@ export default function CoreEssencePanel() {
                   </div>
                 </div>
               ) : shareCard ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
+                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`} id="core-share">
                   <CoreFreeResultShareCTA card={shareCard} />
                 </div>
               ) : null}

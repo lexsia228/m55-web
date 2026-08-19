@@ -1,4 +1,4 @@
-import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
+import { fillM55SegmentedDob } from './_helpers/fillM55SegmentedDob';
 
 type StoredCoreSnapshot = {
   coreType: string;
@@ -70,7 +70,7 @@ test.describe('core storage roundtrip deterministic', () => {
     await page.getByTestId('m55-home-open-birth-intake').click();
     await expect(page.getByTestId('m55-home-birth-intake-layer')).toBeVisible();
     await page.getByPlaceholder('表示名').fill('監査1983');
-    await page.locator('input[type="date"]').fill('1983-02-28');
+    await fillM55SegmentedDob(page, '1983-02-28');
     await page.getByRole('button', { name: '保存して開く' }).click();
     await page.waitForURL('**/core', { timeout: 15_000 });
     await expect(page.getByTestId('m55-core-locked')).toHaveCount(0);

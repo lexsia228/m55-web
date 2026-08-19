@@ -1,13 +1,13 @@
 /**
  * Deterministic paid saved-report chapter bodies from individualization selectors-v1.
  * Uses paidChapterEmphasisIds as composition authority (not chapterBias).
+ * Production path — never uses test/fake chapter body generator.
  */
 import type { IndividualizationDraft } from '../individualization/types';
 import type { PaidChapterEmphasisIdV1 } from '../individualization/individualizationSelectorTypesV1';
 import type { ChapterMaterialPack } from '../dtrPaidChapterMaterialPack';
 import type { PaidDtrGeneratedChapterBodies } from '../dtrEngine';
 import { PAID_CHAPTER_EMPHASIS_COPY_V1 } from './paidChapterEmphasisCopyV1';
-import { buildFakeSectionBody } from '../dtrPaidChapterBodyGen';
 
 function emphasisParagraphs(
   ids: readonly PaidChapterEmphasisIdV1[],
@@ -60,6 +60,36 @@ function themeParagraph(draft: IndividualizationDraft): string {
   return `\n\nいまの読みの入口は、「${label}」に近いところです。`;
 }
 
+function chapterDomainBody(
+  materialPack: ChapterMaterialPack,
+  sectionId: 's1_identity' | 's2_composition' | 's3_essence' | 's4_strengths',
+): string {
+  const seed = materialPack.seedBodies[sectionId];
+  if (!seed?.trim()) return '';
+
+  const domainNotes: string[] = [seed];
+
+  if (sectionId === 's1_identity' && materialPack.identityDesignViz.blueprint.core) {
+    domainNotes.push(`\n\n${materialPack.identityDesignViz.blueprint.core}`);
+  }
+  if (sectionId === 's2_composition' && materialPack.compositionStructureViz.patternCaption) {
+    domainNotes.push(`\n\n${materialPack.compositionStructureViz.patternCaption}`);
+  }
+  if (sectionId === 's3_essence') {
+    if (materialPack.essenceRhythmNote) {
+      domainNotes.push(`\n\n${materialPack.essenceRhythmNote}`);
+    }
+    if (materialPack.essenceStabilityViz.stabilize) {
+      domainNotes.push(`\n\n${materialPack.essenceStabilityViz.stabilize}`);
+    }
+  }
+  if (sectionId === 's4_strengths' && materialPack.handlingHint) {
+    domainNotes.push(`\n\n${materialPack.handlingHint}`);
+  }
+
+  return domainNotes.join('');
+}
+
 /**
  * Build four chapter bodies (Light/FULL identical for same input).
  */
@@ -73,10 +103,10 @@ export function buildPaidSavedReportChapterBodiesV1(params: {
   }
   const emphasis = selectors.paidChapterEmphasisIds;
 
-  const baseS1 = buildFakeSectionBody(params.materialPack, 's1_identity');
-  const baseS2 = buildFakeSectionBody(params.materialPack, 's2_composition');
-  const baseS3 = buildFakeSectionBody(params.materialPack, 's3_essence');
-  const baseS4 = buildFakeSectionBody(params.materialPack, 's4_strengths');
+  const baseS1 = chapterDomainBody(params.materialPack, 's1_identity');
+  const baseS2 = chapterDomainBody(params.materialPack, 's2_composition');
+  const baseS3 = chapterDomainBody(params.materialPack, 's3_essence');
+  const baseS4 = chapterDomainBody(params.materialPack, 's4_strengths');
 
   const bridge = alignDivergeParagraph(params.draft) + themeParagraph(params.draft);
 

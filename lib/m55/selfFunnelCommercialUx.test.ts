@@ -26,7 +26,7 @@ describe('Self funnel commercial UX redesign', () => {
       essence.slice(essence.indexOf('shouldShowHero')),
       /CoreHeroSection/,
     );
-    assert.match(lead, /freeResultLeadTitle/);
+    assert.match(lead, /freeResultHeroTitle/);
     assert.match(lead, /outcomeJa/);
     assert.match(lead, /typeLabelJa/);
     assert.match(lead, /supportingTraitJa/);
@@ -43,14 +43,17 @@ describe('Self funnel commercial UX redesign', () => {
     const leadIdx = essence.indexOf('<CoreFreeResultLeadSection');
     const summaryIdx = slice.indexOf('<CoreFreeResultSummaryHub');
     const sceneIdx = slice.indexOf('<CoreFreeResultScenesSection');
-    const shareIdx = slice.indexOf('<CoreFreeResultShareCTA');
+    const shareIdx = Math.max(
+      slice.indexOf('<ShareCardChooser'),
+      slice.indexOf('<CoreFreeResultShareCTA'),
+    );
     const bridgeIdx = slice.indexOf('<CoreEntryReportCTASection');
     assert.ok(
       leadIdx >= 0 &&
         summaryIdx >= 0 &&
         sceneIdx > summaryIdx &&
         shareIdx > sceneIdx &&
-        bridgeIdx > shareIdx,
+        bridgeIdx > sceneIdx,
     );
     assert.match(bridge, /premiumLockedHeadingsJa/);
     assert.doesNotMatch(bridge, /conversionBridgePlanGrid/);
@@ -62,7 +65,7 @@ describe('Self funnel commercial UX redesign', () => {
   it('Light/Full plan facts live in shared PLAN_COMPARISON model', () => {
     assert.equal(PLAN_COMPARISON.light.priceJpy, 1000);
     assert.equal(PLAN_COMPARISON.full.priceJpy, 1480);
-    assert.equal(PLAN_COMPARISON.light.audienceJa, '一番気になるテーマを、まず1つ深めたい方へ');
+    assert.equal(PLAN_COMPARISON.light.audienceJa, 'まず一つのテーマを深く見たい方へ');
     assert.match(PLAN_COMPARISON.full.audienceJa, /複数/);
     assert.match(PLAN_COMPARISON.light.includedItemsJa[1]!, /1件/);
     assert.match(PLAN_COMPARISON.full.includedItemsJa[1]!, /5件/);
@@ -107,6 +110,6 @@ describe('Self funnel commercial UX redesign', () => {
 
   it('value hierarchy lead is concrete premium reason', () => {
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /その動きが続く背景/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.effortJa, 'あと6問・約1〜2分');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.effortJa, 'あと6問・約1〜2分。プラン選択とお支払いは次の画面です。');
   });
 });

@@ -35,10 +35,10 @@ describe('guided discovery input experience', () => {
     assert.doesNotMatch(visual, /answerId|map_first|try_first|radar|zodiac|パーセント/);
   });
 
-  it('profile intake uses shared modal copy (single DOB entry)', () => {
+  it('profile intake uses segmented DOB (no native calendar)', () => {
     const intake = read('components/profile/BirthProfileIntakeLayer.tsx');
     assert.match(intake, /GUEST_PROFILE_INTAKE_COPY_V1/);
-    assert.match(intake, /type="date"/);
+    assert.doesNotMatch(intake, /type="date"/);
     assert.match(intake, /ニックネーム/);
     assert.doesNotMatch(intake, /5つの問いを始める/);
   });

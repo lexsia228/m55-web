@@ -216,11 +216,11 @@ test.describe('commercial quality control plane', () => {
     );
     const registrationIds = executableTargets.map((t) => t.runtimeStateId);
     expect(aliasCounts.executable).toBe(77);
-    expect(aliasCounts.canonical).toBe(46);
-    expect(aliasCounts.alias).toBe(31);
+    expect(aliasCounts.canonical).toBe(45);
+    expect(aliasCounts.alias).toBe(32);
     expect(aliasCounts.mapping).toBe(77);
     expect(aliasCounts.canonical + aliasCounts.alias).toBe(77);
-    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(14);
+    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(15);
     expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(17);
     const projections = countProjectionAliases(registrationIds);
     expect(projections.projectionRegistrations).toBe(17);
@@ -231,13 +231,60 @@ test.describe('commercial quality control plane', () => {
     expect(renamed.parityFailures.length).toBeGreaterThan(0);
     expect(renamed.disallowedExports).toContain('sneakyAlternateCanonicalResolver');
     expect(renamed.divergentExports).toContain('sneakyAlternateCanonicalResolver');
-    expect(countUniqueObservableSignatures(executableContracts)).toBe(46);
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(45);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
       [],
     );
     expect(M55_AUTH_GATE_FIXTURE_REGISTRY.length).toBe(13);
     expect(() => authGateFixtureById('auth_gate.DOES_NOT_EXIST')).toThrow(/unknown auth-gate fixture/);
+  });
+
+  test('1b. isolated core empty and visual-prerequisite registration smoke', async ({
+    browser,
+  }) => {
+    test.setTimeout(180_000);
+    const want = new Set(['m55:ecp.free.core.empty', 'm55:visual.core-prerequisite']);
+    const targets = listExecutableSmokeTargets().filter((t) => want.has(t.surfaceId));
+    expect(targets.map((t) => t.surfaceId).sort()).toEqual([...want].sort());
+    const expectedOrigin = new URL(BASE_URL).origin;
+    const results: { surfaceId: string; ok: boolean; detail: string }[] = [];
+
+    for (const target of targets) {
+      const setup = m55SetupById(target.setupId);
+      if (!setup || typeof setup.execute !== 'function') {
+        results.push({ surfaceId: target.surfaceId, ok: false, detail: 'SETUP_UNKNOWN_ID' });
+        continue;
+      }
+      const isolated = await browser.newContext();
+      const active = await isolated.newPage();
+      try {
+        await active.setViewportSize({ width: 390, height: 844 });
+        const ctx = { page: active, baseURL: BASE_URL, label: LABEL };
+        const entry = resolveSmokeManifestEntry(target);
+        const executed = await setup.execute(ctx, entry);
+        expect(executed.applied).toBe(true);
+        expect(String(executed.evidence.observedCanonicalStateId)).toBe('ecp:free.core.empty:empty');
+        await expect(active.getByTestId('m55-core-profile-intake')).toBeVisible();
+        const measured = await measureCommercialSurface(active, entry, planFor(entry), {
+          expectedOrigin,
+          includeAccessibility: false,
+        });
+        expect(measured.observedCanonicalStateId).toBe('ecp:free.core.empty:empty');
+        expect(checkLayoutInvariants(measured, entry).map((f) => f.code)).toEqual([]);
+        results.push({ surfaceId: target.surfaceId, ok: true, detail: 'empty-intake' });
+      } catch (error) {
+        results.push({
+          surfaceId: target.surfaceId,
+          ok: false,
+          detail: error instanceof Error ? error.message : String(error),
+        });
+      } finally {
+        await isolated.close();
+      }
+    }
+
+    expect(results.filter((r) => !r.ok), JSON.stringify(results, null, 2)).toEqual([]);
   });
 
   test('2. mandatory all-registration Chromium smoke for every executable target', async ({
@@ -822,15 +869,21 @@ test.describe('commercial quality control plane', () => {
       contentStressProfiles: ['short_text'],
     });
     const allFailures = run.results.flatMap((r) => r.failures);
+    const unresolvedA11y = allFailures.filter(
+      (failure) =>
+        !isDeferredAccessibilityFinding(
+          failure.diagnostics.axeRuleId,
+          failure.diagnostics.targets,
+          entry.route,
+        ),
+    );
     expect(
-      allFailures.filter(
-        (failure) =>
-          !isDeferredAccessibilityFinding(
-            failure.diagnostics.axeRuleId,
-            failure.diagnostics.targets,
-            entry.route,
-          ),
-      ).map((f) => f.code),
+      unresolvedA11y.map((f) => ({
+        code: f.code,
+        axeRuleId: f.diagnostics.axeRuleId,
+        targets: f.diagnostics.targets,
+        message: f.message,
+      })),
     ).toEqual([]);
 
     // Commit B closed both temporary contrast deferrals — matcher must stay fail-closed.

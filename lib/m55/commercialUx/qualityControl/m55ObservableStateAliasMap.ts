@@ -43,7 +43,13 @@ export const M55_OBSERVABLE_STATE_ALIASES: Readonly<
   },
   'visual:core-prerequisite': {
     canonicalObservableStateId: 'ecp:free.core.empty:empty',
-    justification: 'visual core-prerequisite is the locked /core empty presentation',
+    justification:
+      'visual core-prerequisite is the first-visit /core nickname+DOB empty presentation',
+  },
+  'ecp:free.core.intake:intake': {
+    canonicalObservableStateId: 'ecp:free.core.empty:empty',
+    justification:
+      'first-visit /core is the inline nickname+segmented-DOB card; no separate locked gate remains',
   },
   'visual:core-free-result': {
     canonicalObservableStateId: 'ecp:free.core.answer_review:answer_review',

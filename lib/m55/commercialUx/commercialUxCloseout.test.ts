@@ -21,14 +21,12 @@ function read(rel: string): string {
 }
 
 describe('commercial UX closeout — sticky CTA overlap contract', () => {
-  it('sticky CTA uses fixed dock, page padding reserve, and hides near bridge/footer', () => {
+  it('retired overlay: sticky Premium bar does not render over Free result', () => {
     const sticky = read('components/core/CorePremiumStickyCta.tsx');
     const css = read('components/core/CoreExperience.module.css');
-    assert.match(sticky, /IntersectionObserver/);
-    assert.match(sticky, /data-m55-sticky-cta/);
-    assert.match(sticky, /core-paid/);
-    assert.match(css, /--m55-sticky-cta-height/);
-    assert.match(css, /data-m55-sticky-cta='1'/);
+    assert.match(sticky, /return null/);
+    assert.match(sticky, /viewSavedPlansHref/);
+    assert.doesNotMatch(sticky, /m55-premium-sticky-cta/);
     assert.match(css, /\.premiumStickyBar\s*\{[^}]*position:\s*fixed/s);
   });
 

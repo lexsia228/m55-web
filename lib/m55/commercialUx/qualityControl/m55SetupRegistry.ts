@@ -481,29 +481,15 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         ...plain,
         navigatePath: '/core',
-        readySelector: '[data-testid="m55-core-locked"]',
-        stateMarkerSelector: '[data-testid="m55-core-locked"]',
+        readySelector: '[data-testid="m55-core-profile-intake"]',
+        stateMarkerSelector: '[data-testid="m55-core-profile-intake"]',
       };
     case 'free.core.intake':
       return {
         ...plain,
         navigatePath: '/core',
-        readySelector:
-          '[data-testid="m55-core-birth-intake-layer"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
-        stateMarkerSelector:
-          '[data-testid="m55-core-birth-intake-layer"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
-        setupFn: async (page, baseURL) => {
-          await gotoLocal(page, baseURL, '/core');
-          const start = page.locator('[data-testid="m55-core-start-intake"]');
-          await start.first().waitFor({ state: 'visible', timeout: 20_000 });
-          await start.first().click();
-          await page
-            .locator(
-              '[data-testid="m55-core-birth-intake-layer"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
-            )
-            .first()
-            .waitFor({ state: 'attached', timeout: 20_000 });
-        },
+        readySelector: '[data-testid="m55-core-profile-intake"]',
+        stateMarkerSelector: '[data-testid="m55-core-profile-intake"]',
       };
     case 'free.core.questions':
       return {

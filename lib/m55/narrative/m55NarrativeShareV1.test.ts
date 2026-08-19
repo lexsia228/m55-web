@@ -35,6 +35,9 @@ import {
 import { customerLanguageBanned } from '../freeResult/personalFreeManifestationV4';
 import { M55_FUNNEL_EVENTS, assertPrivacySafeFunnelPayload, buildPrivacySafeFunnelPayload } from '../privacySafeFunnelAnalytics';
 import type { DtrPayload } from '../dtrEngine';
+import { buildPurchaseInputSnapshotV1 } from '../paidResult/purchaseInputSnapshotV1';
+import { buildPremiumPurchasedSemanticProjectionV1 } from './buildPremiumPurchasedSemanticProjectionV1';
+import { DTR_CORE_LIGHT_V1 } from '../../oneTimeCheckout';
 
 function personalContext(fixture: (typeof PERSONAL_V5_FIXTURES)[number]) {
   const built = buildPersonalFreeNarrativeShareContextV1(fixture);
@@ -192,9 +195,40 @@ describe('personal premium takeaway share', () => {
       aiConsultIncluded: true,
       version: 'v1',
     };
+    const purchaseBuilt = buildPurchaseInputSnapshotV1({
+      userId: 'user_narrative_premium_test',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: { nickname: 'T', birthDate: '1990-03-12', birthTimeUnknown: true, country: 'JP' },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.map_first',
+        'free.decision_style': 'free.decision_style.sort_first',
+        'free.recovery_style': 'free.recovery_style.pause_short',
+        'free.distance_style': 'free.distance_style.close_careful',
+        'free.change_style': 'free.change_style.observe_first',
+        'free.primary_theme': 'free.primary_theme.work',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.priority',
+        'paid.decision_friction': 'paid.decision_friction.too_many',
+        'paid.relation_focus': 'paid.relation_focus.words',
+        'paid.fatigue_signal': 'paid.fatigue_signal.after_push',
+        'paid.recovery_sequence': 'paid.recovery_sequence.pause_first',
+        'paid.restart_condition': 'paid.restart_condition.overview_first',
+      },
+      stemLaneIndex: 1,
+    });
+    assert.equal(purchaseBuilt.ok, true);
+    if (!purchaseBuilt.ok) return;
+    const projection = buildPremiumPurchasedSemanticProjectionV1({
+      purchaseInput: purchaseBuilt.value,
+      stemLaneIndex: 1,
+    });
+    assert.equal(projection.ok, true);
+    if (!projection.ok) return;
     const narrative = projectPersonalPremiumNarrativeV1({
       payload,
       stemLaneIndex: 1,
+      projection: projection.value,
     });
     assert.ok(narrative.takeaway?.text);
     assert.ok(narrative.manualSpec.slots.length >= 4);

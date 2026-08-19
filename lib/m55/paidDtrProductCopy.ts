@@ -1229,17 +1229,30 @@ export const PAID_DTR_PRICING_AUTHORITY_NOTE_JA =
 
 /** Collect all user-facing Japanese strings for static checks (tests, lint helpers). */
 /** Paid LP surface copy — Human-approved M55_PAID_LP_FINAL_COPY_SSOT_v1 (display-only). */
-export const PAID_DTR_LP_COPY_VERSION = 'm55-paid-lp-final-copy-v2' as const;
+export const PAID_DTR_LP_COPY_VERSION = 'm55-paid-lp-final-copy-v3' as const;
+
+/** Canonical browser title for /dtr/lp (product page, not poetic tagline). */
+export const PAID_DTR_LP_METADATA_TITLE_JA = 'M55 プレミアムレポート | M55' as const;
+
+export const PAID_DTR_LP_PLAN_DECISION_SECTION_ID = 'm55-paid-questionnaire' as const;
+
+/** In-page hash targets referenced by governed LP CTAs (hero / owned recovery). */
+export const PAID_DTR_LP_GOVERNED_HASH_ANCHORS = [
+  PAID_DTR_LP_PLAN_DECISION_SECTION_ID,
+] as const;
 
 export const PAID_DTR_LP = {
   version: PAID_DTR_LP_COPY_VERSION,
+  metadata: {
+    titleJa: PAID_DTR_LP_METADATA_TITLE_JA,
+  },
   hero: {
-    subheadlineJa: '迷ったときに、自分を少し離れて見つめ直すための一冊を、手元に。',
-    headlineJa: '生年月日から、\n自分の動き方と戻し方を読み返す。',
+    subheadlineJa: '生年月日と6問の回答から、自分の出方を一つの流れで読み返せるデジタルレポートです。',
+    headlineJa: 'M55 プレミアムレポート',
     bodyJa:
-      '自分に出やすい傾向、力が出やすい条件、\n無理が重なり始める流れ、戻りやすい整え方までを、\n一つの流れで読み返せる形にします。\n\n読んだあとに気になったことは、\n追加読み解きでもう一段整理できます。',
-    ctaLabelJa: 'ライトとフルを比べる',
-    compareSectionId: 'dtr-lp-tiers',
+      '自分に出やすい傾向、力が出やすい条件、\n無理の出方、日常での扱い方までを、\n一つの流れで読み返せます。\n\n購入後は同じ内容を開き直せます。\n気になったテーマは、追加読み解きで整理できます。',
+    ctaLabelJa: 'プラン選択へ進む',
+    compareSectionId: PAID_DTR_LP_PLAN_DECISION_SECTION_ID,
   },
   about: {
     sectionTitleJa: 'M55とは',
@@ -1273,7 +1286,7 @@ export const PAID_DTR_LP = {
   freeComparison: {
     sectionTitleJa: '無料ページとプレミアムレポートの違い',
     bodyJa:
-      '無料ページは、いま出やすい輪郭に短く触れる入口です。\nプレミアムレポートでは、比較的変わりにくい自分の出方まで、\n一つの流れで整理します。\nプレミアムレポートには、選んだプランに応じた追加読み解きが含まれます。\n違いはレポート本体ではなく、追加読み解きの件数です。',
+      '無料ページは、いま出やすい傾向の入口です。\nプレミアムレポートでは、比較的変わりにくい自分の出方まで、一つの流れで整理します。',
   },
   chapters: {
     sectionTitleJa: 'プレミアムレポートで読む流れ',
@@ -1330,17 +1343,12 @@ export const PAID_DTR_LP = {
   purchaseNotes: {
     sectionTitleJa: '購入前の確認',
     checkoutFutureJa:
-      'お支払い完了後は生成画面を経てプレミアムレポートを開けます。プランに応じて追加読み解きが利用できます。',
+      'お支払い完了後は生成画面を経てプレミアムレポートを開けます。',
     legalLinksNavAriaLabelJa: '購入に関する案内',
     paragraphsJa: [
       'プレミアムレポートは、購入時点の生年月日・プロフィールにもとづく読み物です。未来予測や吉凶の断定ではありません。',
       '同じ入力内容なら、同じプレミアムレポートに戻れます。',
-      '追加読み解きのみ、プレミアムレポートの内容をもとに1テーマを整理する形で、その都度組み立てます。会話を続ける形式ではありません。',
-      '価格はすべて税込です。',
-      'ライトとフルのプレミアムレポートは、同じプレミアムレポートです。',
-      '違いは、追加読み解きの件数です。',
-      'ライトは1件、フルは合計5件です。',
-      '購入前に、いま必要な追加読み解きの件数をご確認ください。',
+      '価格はすべて税込です。ライト購入後のフル切り替えは ¥600（税込）です。',
     ] as const,
     legalLinks: [
       { labelJa: 'サポート', href: '/support' },
@@ -1354,30 +1362,15 @@ export const PAID_DTR_LP = {
     sectionTitleJa: 'FAQ',
     items: [
       {
-        questionJa: 'ライトとフルで、プレミアムレポートの内容は違いますか？',
-        answerJa:
-          'プレミアムレポートの内容は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、フル（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、フルは追加読み解きで複数回深めたい方向けです。',
-      },
-      {
-        questionJa: '追加読み解きとは何ですか？',
-        answerJa:
-          'プレミアムレポートに紐づく、一つの読み解きテーマを整理する追加読み解きです。\nプレミアムレポートの内容をもとに、いま気になっている1テーマだけを整理します。\n件数内で利用でき、会話を続ける形式ではありません。',
-      },
-      {
         questionJa: 'ライト購入後にフルへ切り替えられますか？',
         answerJa:
-          'はい。必要になったら、あとからフルに切り替えられます。\n切り替えると、追加読み解きの利用上限が合計5件になります。\nまずライトで試してから、必要に応じて広げられます。',
-      },
-      {
-        questionJa: '無料ページとの違いは何ですか？',
-        answerJa:
-          '無料ページは、いま出やすい輪郭に短く触れる入口です。\nプレミアムレポートでは、比較的変わりにくい自分の出方まで、\n一つの流れで整理します。\nプレミアムレポートには、選んだプランに応じた追加読み解きが含まれます。\n違いはレポート本体ではなく、追加読み解きの件数です。',
+          'はい。必要になったら、あとからフルに切り替えられます（¥600・税込）。\n切り替えると、追加読み解きの利用上限が合計5件になります。',
       },
     ] as const,
   },
   cta: {
-    sectionTitleJa: '最終導線',
-    finalCompareLabelJa: 'プランをもう一度確認する',
+    sectionTitleJa: 'はじめる',
+    finalCompareLabelJa: 'プラン選択へ進む',
   },
   operational: {
     ownedState: {

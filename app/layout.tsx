@@ -8,6 +8,7 @@ import { ScrollToTopButton } from "../components/common/ScrollToTopButton";
 import RuntimeStateIdentitySync from "../components/shell/RuntimeStateIdentitySync";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://m-55.jp"),
   title: "M55",
   description:
     "M55は、生年月日と今の回答から、自分の傾向を言葉にするセルフリーディングサービスです。",

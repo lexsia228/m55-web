@@ -5,7 +5,6 @@ import styles from './CoreExperience.module.css';
 
 type Props = {
   depth: FreeDepthAnalysisV1;
-  smallActionJa?: string;
   onRequestReanswer: () => void;
 };
 
@@ -13,7 +12,7 @@ type Props = {
  * Conviction block — two life scenes, then the conditions that help and the
  * conditions that wear the same tendency down. Deeper reading stays in Premium.
  */
-export default function CoreFreeResultScenesSection({ depth, smallActionJa, onRequestReanswer }: Props) {
+export default function CoreFreeResultScenesSection({ depth, onRequestReanswer }: Props) {
   return (
     <section
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeFiveViewSection}`}
@@ -60,16 +59,6 @@ export default function CoreFreeResultScenesSection({ depth, smallActionJa, onRe
         </article>
       </div>
       </details>
-
-      {smallActionJa ? (
-        <article
-          className={styles.freeOnceAction}
-          data-testid="m55-free-once-action"
-        >
-          <h3 className={styles.freeDepthBlockTitle}>次に一度だけ試すこと</h3>
-          <p className={styles.freeDepthBlockBody}>{smallActionJa}</p>
-        </article>
-      ) : null}
 
       <p className={styles.freeDepthOpenQuestion} data-testid="m55-free-depth-open-question">
         {depth.premiumOpenQuestionJa}

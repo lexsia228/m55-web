@@ -133,19 +133,19 @@ describe('free result ordering + single share card', () => {
     assert.equal((essence.match(/<CoreFreeResultShareCTA/g) ?? []).length, 1);
     const slice = essence.slice(essence.indexOf('shouldShowResultSections(uxPhase) && composition'));
     const sceneIdx = slice.indexOf('CoreFreeResultScenesSection');
-    const shareIdx = slice.indexOf('CoreFreeResultShareCTA');
+    const chooserIdx = slice.indexOf('<ShareCardChooser');
     const bridgeIdx = slice.indexOf('CoreEntryReportCTASection');
     const stickyIdx = slice.indexOf('CorePremiumStickyCta');
-    assert.ok(sceneIdx >= 0 && shareIdx > sceneIdx && bridgeIdx > shareIdx && stickyIdx > bridgeIdx);
+    assert.ok(sceneIdx >= 0 && chooserIdx > sceneIdx && stickyIdx > chooserIdx && stickyIdx > bridgeIdx && bridgeIdx > sceneIdx);
   });
 
   it('share copy emits copied event only after clipboard success', () => {
-    const src = read('components/core/CoreFreeResultShareCTA.tsx');
+    const src = read('components/core/useCoreShareActions.ts');
     const copyBlock = src.slice(src.indexOf('async function handleCopyLink'));
     const emitIdx = copyBlock.indexOf('shareLinkCopied');
     const writeIdx = copyBlock.indexOf('clipboard.writeText');
     assert.ok(writeIdx >= 0 && emitIdx > writeIdx);
-    assert.match(src, /shareFallbackText/);
+    assert.match(src, /fallbackText/);
   });
 });
 

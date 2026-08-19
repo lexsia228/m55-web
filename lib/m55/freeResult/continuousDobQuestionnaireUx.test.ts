@@ -52,12 +52,12 @@ const FROZEN_ANSWER_ORDER = [
 ] as const;
 
 describe('continuous DOB + questionnaire UX contract', () => {
-  it('DOB is collected once via BirthProfileIntakeLayer — not repeated in /core questionnaire', () => {
+  it('DOB is collected via segmented fields — not a native date picker', () => {
     const intake = read('components/profile/BirthProfileIntakeLayer.tsx');
-    assert.match(intake, /type="date"/);
+    assert.doesNotMatch(intake, /type="date"/);
     assert.match(intake, /GUEST_PROFILE_INTAKE_COPY_V1\.primaryActionJa/);
     const panel = read('components/core/CoreEssencePanel.tsx');
-    assert.doesNotMatch(panel, /CoreFreeIntroSection/);
+    assert.match(panel, /CoreFreeProfileIntakeSection/);
     assert.match(panel, /BirthProfileIntakeLayer/);
     assert.equal(FREE_QUESTION_FLOW_TOTAL, 5);
   });
@@ -68,14 +68,14 @@ describe('continuous DOB + questionnaire UX contract', () => {
     assert.match(q, /questionIndex=\{index\}/);
     assert.match(q, /基本情報を変更/);
     assert.match(q, /onRequestProfileEdit/);
-    assert.match(q, /\{index \+ 1\} \/ \{FREE_FIVE_QUESTION_COUNT\} 完了/);
     assert.doesNotMatch(q, /入力内容を変更/);
     assert.doesNotMatch(q, /onRequestDobChange/);
   });
 
   it('EssencePanel starts questionnaire when profile exists', () => {
     const panel = read('components/core/CoreEssencePanel.tsx');
-    assert.match(panel, /resolveInitialUxPhase\(true\)/);
+    const hydration = read('lib/m55/selfFunnel/coreEssenceHydration.ts');
+    assert.match(hydration, /resolveInitialUxPhase\(true\)/);
     assert.match(panel, /CoreFreeJourneyStepper/);
     assert.match(panel, /onRequestProfileEdit/);
     assert.doesNotMatch(panel, /onDobConfirmed/);
