@@ -138,7 +138,8 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
     caseId: 'core-prerequisite',
     route: '/core',
     setup: 'none',
-    readySelector: '[data-testid="m55-core-locked"]',
+    // Empty /core is the inline profile intake (segmented DOB), not CoreLockedState.
+    readySelector: '[data-testid="m55-core-profile-intake"]',
     protectedTargets: [
       { selector: '[data-testid="m55-core-prerequisite-headline"]', role: 'heading', findingIds: ['P1-9'] },
       { selector: '[data-testid="m55-core-start-intake"]', role: 'cta', findingIds: ['P1-9', 'P1-10'] },

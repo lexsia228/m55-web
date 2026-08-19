@@ -39,6 +39,8 @@ describe('free experience visual quality — DOB / questions / footer / hero / s
     assert.doesNotMatch(modal, /type="date"/);
     assert.match(modal, /m55-free-segmented-dob/);
     assert.match(modal, /validateSegmentedDob/);
+    assert.match(intake, /m55-core-prerequisite-headline/);
+    assert.match(intake, /submitTestId="m55-core-start-intake"/);
     assert.match(intake, /type="text"/);
   });
 

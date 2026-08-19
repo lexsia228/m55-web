@@ -53,7 +53,11 @@ export default function CoreFreeProfileIntakeSection({ ownerId, onSaved }: Props
       </div>
       <div className={styles.freeGuidedFormCol} data-testid="m55-core-locked">
         <p className={styles.freeGuidedSupportLabel}>はじめに</p>
-        <h1 id="core-free-profile-intake-title" className={styles.freeContinuousQuestionTitle}>
+        <h1
+          id="core-free-profile-intake-title"
+          className={styles.freeContinuousQuestionTitle}
+          data-testid="m55-core-prerequisite-headline"
+        >
           {GUEST_PROFILE_INTAKE_COPY_V1.titleJa}
         </h1>
         <p className={styles.sectionLead}>{GUEST_PROFILE_INTAKE_COPY_V1.leadJa}</p>

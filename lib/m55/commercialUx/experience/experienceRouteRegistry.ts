@@ -260,7 +260,7 @@ export const M55_EXPERIENCE_ROUTE_REGISTRY: readonly ExperienceRouteEntry[] = [
     privacy: 'guest_session',
     productTruth: 'none',
     migration: 'ecp_v2_active',
-    ownerFiles: ['app/core/page.tsx', 'components/core/CoreLockedState.tsx'],
+    ownerFiles: ['app/core/page.tsx', 'components/core/CoreFreeProfileIntakeSection.tsx'],
   },
   {
     id: 'free.core.intake',
