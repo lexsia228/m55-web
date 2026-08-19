@@ -30,7 +30,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | subscription | **NOT** introduced |
 | Compatibility | independent · PR #119 **OPEN** · commerce **OFF** · do not activate |
 | ACTIVE lane | **M55_COMMERCIAL_QUALITY_CONSOLIDATION** |
-| Current phase | **SAFARI_TP_P1_VISUAL_CLOSURE_IMPLEMENTED** |
+| Current phase | **CONTROL_PLANE_GATE_CLOSED_LOCAL** |
 | NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW** |
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` |
 | branch | `feat/m55-commercial-quality-consolidation-v1` |
@@ -722,7 +722,7 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-19 commercial quality consolidation):** `origin/main` **`22b00a6bfc9190f713633e694d90d4dbfa2c8a56`**. PR #144 **OPEN** on `feat/m55-commercial-quality-consolidation-v1`. Safari TP 27.0 audit @ `339e7b296171077ddbc9357daeb6372deadb83a6` returned **MERGE_HOLD**; P1 visual closure implemented on the same branch. USER_VISIBLE_CLOSED_GREEN remains **HOLD**. G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN**. **ACTIVE lane:** **M55_COMMERCIAL_QUALITY_CONSOLIDATION** · phase **SAFARI_TP_P1_VISUAL_CLOSURE_IMPLEMENTED**. **NEXT SINGLE ACTION:** **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW**. G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility commerce **OFF** · PR #119 **OPEN**. Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription **unchanged**.
+**CURRENT (2026-08-19 commercial quality consolidation):** `origin/main` **`22b00a6bfc9190f713633e694d90d4dbfa2c8a56`**. PR #144 **OPEN** on `feat/m55-commercial-quality-consolidation-v1`. Control-plane remaining failures closed locally: `/core` first-visit identity is empty (not intake); public footer navy restored to Commit B `rgba(11,26,43,0.82)`. USER_VISIBLE_CLOSED_GREEN remains **HOLD** pending ChatGPT/Human PR review. G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN**. **ACTIVE lane:** **M55_COMMERCIAL_QUALITY_CONSOLIDATION** · phase **CONTROL_PLANE_GATE_CLOSED_LOCAL**. **NEXT SINGLE ACTION:** **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW**. G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility commerce **OFF** · PR #119 **OPEN**. Price / Stripe / DB / Clerk / AI provider / Pair / Today-Weekly / subscription **unchanged**.
 
 **CURRENT (2026-08-19 G3-02 post-merge):** G3-02 owned-report signed-out deep-return **CLOSED GREEN** via PR #141 **MERGED** @ `4edcf631…` — **superseded** by commercial quality consolidation lane above.
 

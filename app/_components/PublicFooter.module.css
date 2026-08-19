@@ -6,7 +6,7 @@
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   margin-top: 4px;
   font-size: 11px;
-  color: rgba(60, 60, 60, 0.55);
+  color: rgba(11, 26, 43, 0.82);
   text-align: center;
   line-height: 1.45;
 }
@@ -55,7 +55,7 @@
   display: block;
   margin-top: 6px;
   font-size: 10px;
-  color: rgba(11, 26, 43, 0.55);
+  color: rgba(11, 26, 43, 0.82);
   letter-spacing: 0.03em;
 }
 
