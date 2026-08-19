@@ -40,7 +40,7 @@ export default function PublicShareCardPreview({
         <dl className={styles.specSheet}>
           {display.rows.map((row) => (
             <div key={row.label} className={styles.specRow}>
-              <dt className={styles.specLabel}>{row.label}</dt>
+              <dt className={styles.specLabel}>{row.label}：</dt>
               <dd className={styles.specValue}>{row.body}</dd>
             </div>
           ))}

@@ -32,7 +32,7 @@ export default function CoreFreeResultLeadSection({
       data-testid="m55-free-result-lead"
       id="core-lead"
     >
-      <div className={styles.freeResultHeroArt} aria-hidden>
+      <div className={styles.freeResultHeroArt} aria-hidden data-testid="m55-free-result-hero-art">
         <img
           className={styles.freeResultHeroImage}
           src={imagePath}

@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og';
-import { resolveSharedEntryFromToken } from '../../../lib/m55/freeResult/privacySafeShareCardV1';
+import { CANONICAL_PRODUCTION_ORIGIN, resolveSharedEntryFromToken } from '../../../lib/m55/freeResult/privacySafeShareCardV1';
 import { resolveTraitIdentity } from '../../../lib/m55/commercialUx/traitIdentityCatalog';
 import { resolvePublicShareSpecFromToken } from '../../../lib/m55/narrative/projectPublicShareV1';
 import { parsePublicCardDisplayV1, posterHeroLinesJa } from '../../../lib/m55/narrative/publicCardDisplayV1';
+import { resolvePublicShareArtworkFromToken } from '../../../lib/m55/narrative/resolvePublicShareArtworkV1';
 
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
@@ -24,6 +25,8 @@ const SHELL = {
 
 export default async function Image({ params }: Props) {
   const { token } = await params;
+  const artPath = resolvePublicShareArtworkFromToken(token);
+  const artUrl = artPath ? `${CANONICAL_PRODUCTION_ORIGIN}${artPath}` : null;
   const narrative = resolvePublicShareSpecFromToken(token);
   if (narrative) {
     const display = parsePublicCardDisplayV1(narrative);
@@ -41,97 +44,89 @@ export default async function Image({ params }: Props) {
 
     return new ImageResponse(
       (
-        <div style={{ ...SHELL, background: bg, color: ink }}>
+        <div style={{ ...SHELL, flexDirection: 'row', padding: 0, background: bg, color: ink }}>
+          {artUrl ? (
+            <img
+              src={artUrl}
+              width={520}
+              height={630}
+              alt=""
+              style={{ width: 520, height: 630, objectFit: 'cover' }}
+            />
+          ) : null}
           <div
             style={{
               display: 'flex',
+              flexDirection: 'column',
               justifyContent: 'space-between',
-              fontSize: 28,
-              letterSpacing: '0.22em',
-              fontWeight: 700,
+              padding: '56px 48px',
+              flex: 1,
+              height: '100%',
             }}
           >
-            M55
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, flex: 1, justifyContent: 'center' }}>
-            <div style={{ display: 'flex', fontSize: 36, fontWeight: 700, lineHeight: 1.2 }}>
-              {narrative.headline}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 28,
+                letterSpacing: '0.22em',
+                fontWeight: 700,
+              }}
+            >
+              M55
             </div>
-            {isPoster
-              ? posterHeroLinesJa(display.heroJa).map((line) => (
-                  <div
-                    key={line}
-                    style={{ display: 'flex', fontSize: 40, fontWeight: 700, lineHeight: 1.35, maxWidth: 1040 }}
-                  >
-                    {line}
-                  </div>
-                ))
-              : null}
-            {isPoster && display.supportJa ? (
-              <div style={{ display: 'flex', fontSize: 26, lineHeight: 1.4, opacity: 0.88 }}>
-                {display.supportJa}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18, flex: 1, justifyContent: 'center' }}>
+              <div style={{ display: 'flex', fontSize: 32, fontWeight: 700, lineHeight: 1.2 }}>
+                {narrative.headline}
               </div>
-            ) : null}
-            {isMirror && display.seenJa && display.actualJa ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                    padding: '18px 22px',
-                    background: 'rgba(255,255,255,0.62)',
-                    borderRadius: 20,
-                  }}
-                >
-                  <div style={{ display: 'flex', fontSize: 22, opacity: 0.72 }}>人から見える私</div>
-                  <div style={{ display: 'flex', fontSize: 30, fontWeight: 700, lineHeight: 1.4 }}>
+              {isPoster
+                ? posterHeroLinesJa(display.heroJa).map((line) => (
+                    <div
+                      key={line}
+                      style={{ display: 'flex', fontSize: 34, fontWeight: 700, lineHeight: 1.35, maxWidth: 600 }}
+                    >
+                      {line}
+                    </div>
+                  ))
+                : null}
+              {isPoster && display.supportJa ? (
+                <div style={{ display: 'flex', fontSize: 24, lineHeight: 1.4, opacity: 0.88 }}>
+                  {display.supportJa}
+                </div>
+              ) : null}
+              {isMirror && display.seenJa && display.actualJa ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', fontSize: 26, fontWeight: 700, lineHeight: 1.4 }}>
                     「{display.seenJa}」
                   </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center', fontSize: 22, letterSpacing: '0.18em' }}>
-                  vs
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                    padding: '18px 22px',
-                    background: 'rgba(78,68,128,0.12)',
-                    borderRadius: 20,
-                  }}
-                >
-                  <div style={{ display: 'flex', fontSize: 22, opacity: 0.72 }}>実際の私</div>
-                  <div style={{ display: 'flex', fontSize: 30, fontWeight: 700, lineHeight: 1.4 }}>
+                  <div style={{ display: 'flex', fontSize: 22 }}>vs</div>
+                  <div style={{ display: 'flex', fontSize: 26, fontWeight: 700, lineHeight: 1.4 }}>
                     「{display.actualJa}」
                   </div>
                 </div>
-              </div>
-            ) : null}
-            {narrative.variant === 'manual' && display.rows.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {display.rows.slice(0, 4).map((row) => (
-                  <div key={row.label} style={{ display: 'flex', fontSize: 26, lineHeight: 1.35 }}>
-                    {row.label}　{row.body}
-                  </div>
-                ))}
-              </div>
-            ) : null}
-            {isPair ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 28, lineHeight: 1.4 }}>
-                {display.sideAJa ? (
-                  <div style={{ display: 'flex' }}>一方　{display.sideAJa}</div>
-                ) : (
-                  <div style={{ display: 'flex' }}>{display.entryJa}</div>
-                )}
-                {display.sideBJa ? <div style={{ display: 'flex' }}>もう一方　{display.sideBJa}</div> : null}
-                {display.returnJa ? <div style={{ display: 'flex' }}>戻り　{display.returnJa}</div> : null}
-              </div>
-            ) : null}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 26, color: muted }}>
-            <span>{display.cta || 'あなたはどう出る？'}</span>
+              ) : null}
+              {narrative.variant === 'manual' && display.rows.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {display.rows.slice(0, 4).map((row) => (
+                    <div key={row.label} style={{ display: 'flex', fontSize: 22, lineHeight: 1.35 }}>
+                      {row.label}　{row.body}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {isPair ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 24, lineHeight: 1.4 }}>
+                  {display.sideAJa ? <div style={{ display: 'flex' }}>一方　{display.sideAJa}</div> : (
+                    <div style={{ display: 'flex' }}>{display.entryJa}</div>
+                  )}
+                  {display.sideBJa ? <div style={{ display: 'flex' }}>もう一方　{display.sideBJa}</div> : null}
+                  {display.returnJa ? <div style={{ display: 'flex' }}>戻り　{display.returnJa}</div> : null}
+                </div>
+              ) : null}
+            </div>
+            <div style={{ display: 'flex', fontSize: 22, color: muted }}>
+              <span>{display.cta || 'あなたはどう出る？'}</span>
+            </div>
           </div>
         </div>
       ),
@@ -150,16 +145,38 @@ export default async function Image({ params }: Props) {
       <div
         style={{
           ...SHELL,
+          flexDirection: 'row',
+          padding: 0,
           background: 'linear-gradient(145deg, #1c1630 0%, #3d3560 48%, #6b5fa8 100%)',
           color: '#fffaf1',
         }}
       >
-        <div style={{ fontSize: 36, letterSpacing: '0.22em', fontWeight: 700 }}>M55</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.15 }}>{trait}</div>
-          <div style={{ fontSize: 34, lineHeight: 1.45, opacity: 0.92, maxWidth: 900 }}>{phrase}</div>
+        {artUrl ? (
+          <img
+            src={artUrl}
+            width={520}
+            height={630}
+            alt=""
+            style={{ width: 520, height: 630, objectFit: 'cover' }}
+          />
+        ) : null}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '56px 48px',
+            flex: 1,
+            height: '100%',
+          }}
+        >
+          <div style={{ fontSize: 36, letterSpacing: '0.22em', fontWeight: 700 }}>M55</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.15 }}>{trait}</div>
+            <div style={{ fontSize: 28, lineHeight: 1.45, opacity: 0.92, maxWidth: 560 }}>{phrase}</div>
+          </div>
+          <div style={{ fontSize: 26, opacity: 0.9 }}>{invite}</div>
         </div>
-        <div style={{ fontSize: 30, opacity: 0.9 }}>{invite}</div>
       </div>
     ),
     size,

@@ -58,7 +58,8 @@ describe('free experience visual quality — DOB / questions / footer / hero / s
       ['free.start_style', 'free.decision_style', 'free.recovery_style', 'free.distance_style', 'free.change_style'],
     );
     for (const question of FREE_FIVE_QUESTIONS_COPY_V1) {
-      const map = AXIS_OWNERSHIP[question.questionId];
+      const map = AXIS_OWNERSHIP[question.questionId as keyof typeof AXIS_OWNERSHIP];
+      assert.ok(map, `missing axis ownership for ${question.questionId}`);
       assert.equal(question.choices.length, 3);
       const labels = question.choices.map((c) => c.labelJa);
       assert.equal(new Set(labels).size, 3, `overlapping labels on ${question.questionId}`);
@@ -82,30 +83,76 @@ describe('free experience visual quality — DOB / questions / footer / hero / s
     assert.doesNotMatch(footer, /href: '\/dtr\/lp'/);
   });
 
-  it('result hero uses authoritative trait image as primary visual', () => {
+  it('result hero uses substantial mobile art and keeps desktop two-column', () => {
     const hero = read('components/core/CoreFreeResultLeadSection.tsx');
+    const css = read('components/core/CoreExperience.module.css');
     assert.match(hero, /freeResultHero/);
     assert.match(hero, /m55-free-result-trait-image/);
     assert.match(hero, /imagePath/);
     assert.doesNotMatch(hero, /freeResultLeadGrid/);
+    assert.match(css, /aspect-ratio:\s*3\s*\/\s*4/);
+    assert.match(css, /min-height:\s*min\(68dvh,\s*26rem\)/);
+    assert.doesNotMatch(css, /max-height:\s*48vw/);
+    assert.match(css, /@media \(min-width: 900px\)[\s\S]*grid-template-columns: minmax\(0, 1\.15fr\) minmax\(0, 0\.95fr\)/);
   });
 
   it('share preview uses public-safe trait artwork and no private inputs', () => {
     const chooser = read('components/narrative/ShareCardChooser.tsx');
     const preview = read('components/narrative/PublicShareCardPreview.tsx');
+    const shareCss = read('components/narrative/NarrativeShare.module.css');
     assert.match(chooser, /resolvePublicStemDisplay/);
     assert.match(chooser, /imagePath=\{traitImagePath\}/);
     assert.match(preview, /cardArtImage/);
     assert.match(preview, /自分に出やすい傾向/);
     assert.doesNotMatch(preview, /birthDate|nickname/);
+    assert.match(shareCss, /\.optionArt \{[\s\S]*aspect-ratio:\s*4\s*\/\s*5/);
+    assert.doesNotMatch(shareCss, /\.optionArt \{[\s\S]*height:\s*4\.5rem/);
   });
 
-  it('desktop sticky Premium CTA is disabled so it cannot cover content', () => {
+  it('no fixed Premium CTA overlays Free-result content', () => {
     const sticky = read('components/core/CorePremiumStickyCta.tsx');
+    const essence = read('components/core/CoreEssencePanel.tsx');
+    assert.match(sticky, /return null/);
+    assert.match(sticky, /CORE_INLINE_PREMIUM_BRIDGE_HREF|viewSavedPlansHref/);
+    assert.doesNotMatch(sticky, /premiumStickyBar/);
+    assert.doesNotMatch(sticky, /m55-premium-sticky-cta/);
+    assert.match(essence, /CorePremiumStickyCta/);
+  });
+
+  it('390 journey stepper stays three columns and task shell excludes footer', () => {
+    const stepper = read('components/core/CoreFreeJourneyStepper.tsx');
     const css = read('components/core/CoreExperience.module.css');
-    assert.match(sticky, /min-width: 1024px/);
-    assert.match(sticky, /stickyEnabled = visible && !isDesktop/);
-    assert.match(css, /@media \(min-width: 1024px\)/);
-    assert.match(css, /display: none !important;/);
+    const essence = read('components/core/CoreEssencePanel.tsx');
+    assert.doesNotMatch(stepper, /useStepperColumns|repeat\(\$\{columns\}/);
+    assert.match(css, /freeJourneyStepperList \{[\s\S]*repeat\(3, minmax\(0, 1fr\)\)/);
+    assert.doesNotMatch(css, /freeJourneyStepperList \{\s*grid-template-columns: 1fr/);
+    assert.match(essence, /m55-free-journey-task/);
+    assert.match(css, /freeJourneyTaskShell \{[\s\S]*min-height: calc\(100dvh - 5\.75rem\)/);
+  });
+
+  it('core-share uses governed sticky-header scroll offset', () => {
+    const css = read('components/core/CoreExperience.module.css');
+    const shareCss = read('components/narrative/NarrativeShare.module.css');
+    assert.match(css, /\.coreShareAnchor \{[\s\S]*scroll-margin-top: calc\(4\.75rem/);
+    assert.match(shareCss, /\.chooser \{[\s\S]*scroll-margin-top: calc\(4\.75rem/);
+  });
+
+  it('focus-visible rings exist for DOB, questionnaire, and share chooser', () => {
+    const css = read('components/core/CoreExperience.module.css');
+    const shareCss = read('components/narrative/NarrativeShare.module.css');
+    assert.match(css, /freeSegmentedDobInputYear:focus-visible/);
+    assert.match(css, /freeQuestionnaireChoice:focus-visible/);
+    assert.match(css, /freeQuestionnairePrimaryBtn:focus-visible/);
+    assert.match(shareCss, /\.option:focus-visible/);
+    assert.match(css, /box-shadow: 0 0 0 3px rgba\(107, 95, 168/);
+  });
+
+  it('ten-views overview shows all ten identities without ranking copy', () => {
+    const page = read('components/pages/M55TenViews.tsx');
+    assert.match(page, /m55-ten-views-system-overview/);
+    assert.match(page, /順位ではありません/);
+    assert.equal((page.match(/overview-\$\{card\.persona\}/g) ?? []).length, 1);
+    assert.match(page, /viewCards\.map/);
+    assert.doesNotMatch(page, /systemOverview[\s\S]*おすすめ|人気|最適/);
   });
 });

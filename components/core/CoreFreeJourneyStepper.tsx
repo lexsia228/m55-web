@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import type { FreeJourneyStep } from '../../lib/m55/freeResult/coreFreeRevealUxState';
 import styles from './CoreExperience.module.css';
 
@@ -15,25 +14,8 @@ const STEPS: readonly { id: FreeJourneyStep; labelJa: string }[] = [
   { id: 'result', labelJa: '無料結果' },
 ];
 
-function useStepperColumns(): number {
-  const [columns, setColumns] = useState(2);
-
-  useEffect(() => {
-    const sync = () => {
-      const w = window.innerWidth;
-      setColumns(w >= 900 ? 3 : 2);
-    };
-    sync();
-    window.addEventListener('resize', sync);
-    return () => window.removeEventListener('resize', sync);
-  }, []);
-
-  return columns;
-}
-
 export default function CoreFreeJourneyStepper({ currentStep, questionLabel }: Props) {
   const currentIndex = STEPS.findIndex((s) => s.id === currentStep);
-  const columns = useStepperColumns();
 
   return (
     <nav
@@ -42,10 +24,7 @@ export default function CoreFreeJourneyStepper({ currentStep, questionLabel }: P
       data-testid="m55-free-journey-stepper"
       data-m55-print-hide
     >
-      <ol
-        className={styles.freeJourneyStepperList}
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-      >
+      <ol className={styles.freeJourneyStepperList}>
         {STEPS.map((step, index) => {
           const completed = index < currentIndex;
           const current = step.id === currentStep;
@@ -57,7 +36,6 @@ export default function CoreFreeJourneyStepper({ currentStep, questionLabel }: P
                 completed ? ` ${styles.freeJourneyStepperItemDone}` : ''
               }${current ? ` ${styles.freeJourneyStepperItemCurrent}` : ''}`}
               aria-current={current ? 'step' : undefined}
-              style={{ minHeight: '2.75rem' }}
             >
               <span className={styles.freeJourneyStepperMarker} aria-hidden>
                 {completed ? '✓' : index + 1}

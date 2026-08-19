@@ -79,6 +79,21 @@ export default function M55TenViews() {
           下の呼び名（例：プレジデント）は、覚えやすさのためのラベルで、実際の肩書きを指すものではありません。
           資質は「性格」という一言より、自分の中にある素材に近い捉え方です。各タイプは独立した観点として並んでいます。
         </p>
+        <section
+          className={styles.systemOverview}
+          data-testid="m55-ten-views-system-overview"
+          aria-label="10通りの資質の一覧"
+        >
+          <p className={styles.systemOverviewLead}>10通りの資質は、ひとつの視覚語彙です。順位ではありません。</p>
+          <ul className={styles.systemOverviewGrid}>
+            {viewCards.map((card) => (
+              <li key={`overview-${card.persona}`} className={styles.systemOverviewItem}>
+                <img src={card.imageSrc} alt="" decoding="async" />
+                <span>{card.persona}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
         <div className={styles.introCtaRow}>
           <Link href="/how-m55-works" className={styles.introSecondaryCta}>
             M55の見方を見る

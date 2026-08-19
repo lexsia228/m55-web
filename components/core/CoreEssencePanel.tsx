@@ -456,12 +456,14 @@ export default function CoreEssencePanel() {
 
       {uxPhase === 'RESULT' ? (
         <CoreFreeJourneyStepper currentStep="result" />
-      ) : shouldShowQuestionnaire(uxPhase) ? (
-        <CoreFreeJourneyStepper currentStep="questions" />
       ) : null}
 
       {shouldShowQuestionnaire(uxPhase) ? (
-        <>
+        <div
+          className={CoreExperienceStyles.freeJourneyTaskShell}
+          data-testid="m55-free-journey-task"
+        >
+          <CoreFreeJourneyStepper currentStep="questions" />
           <CoreFreeQuestionnaireLayer
             key={questionnaireFlowKey}
             answers={draftAnswers}
@@ -491,7 +493,7 @@ export default function CoreEssencePanel() {
               </button>
             </div>
           ) : null}
-        </>
+        </div>
       ) : null}
 
       {shouldShowReanswerFinalize(uxPhase) ? (
@@ -669,7 +671,7 @@ export default function CoreEssencePanel() {
               ) : null}
 
               {freeNarrativeContext && sealed.kind === 'ready' ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`}>
                   <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
                     <ShareCardChooser
                       input={{
@@ -681,7 +683,7 @@ export default function CoreEssencePanel() {
                   </div>
                 </div>
               ) : shareCard ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
+                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`} id="core-share">
                   <CoreFreeResultShareCTA card={shareCard} />
                 </div>
               ) : null}

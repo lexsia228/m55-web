@@ -574,3 +574,21 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Question audit | five frozen questions **LEFT** — wording/scoring-axis ownership aligned; no scoring change |
 | Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **unchanged** |
 | USER_VISIBLE_CLOSED_GREEN | **HOLD** pending ChatGPT/Human Preview re-review |
+
+### 2026-08-19 — Safari TP MERGE_HOLD → P1 visual closure (same PR #144)
+
+**Status:** Safari Technology Preview 27.0 final commercial visual audit at HEAD `339e7b296171077ddbc9357daeb6372deadb83a6` returned **MERGE_HOLD**. Same-branch source correction on WT-042 / PR #144. **Do not mark USER_VISIBLE_CLOSED_GREEN** until post-fix Safari TP evidence is Human-accepted.
+
+| P1 | Correction |
+|---|---|
+| Mobile/tablet result identity crop | Free-result hero uses poster `aspect-ratio: 3/4` below 900px; desktop two-column preserved |
+| Mobile fixed Premium obstruction | `CorePremiumStickyCta` renders null; inline `#core-paid` bridge remains |
+| Questionnaire footer in task scroller | `m55-free-journey-task` min-height shell pushes utility footer below the Q1–Q5 task |
+| 390 step wrap 2+1 | Journey stepper forced to 3 columns; JS 2-column override removed |
+| Share chooser thin crop | Chooser tiles use `aspect-ratio: 4/5` artwork |
+| Public `/r` poster gap | Legacy s1-* poster + narrative `resolvePublicShareArtworkFromToken`; OG aligned |
+| `#core-share` undershoot | `scroll-margin-top: calc(4.75rem + env(safe-area-inset-top))` |
+| 10資質 system underexpressed | Compact ten-image overview above long-form cards; not a ranking |
+| Safari focus quiet | `:focus-visible` box-shadow ring on DOB, questionnaire, share chooser |
+| Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **unchanged** |
+| USER_VISIBLE_CLOSED_GREEN | **HOLD** pending post-fix Safari TP + ChatGPT/Human review |

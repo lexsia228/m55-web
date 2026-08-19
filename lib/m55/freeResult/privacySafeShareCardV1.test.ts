@@ -137,11 +137,13 @@ describe('growth share source guards', () => {
     assert.match(SHARE_UI_COPY_V1.destinationLabelJa, /M55/);
   });
 
-  it('sticky Premium CTA routes to paid questions, not checkout', () => {
+  it('inline Premium bridge routes to paid questions, not checkout', () => {
     const sticky = read('components/core/CorePremiumStickyCta.tsx');
+    const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     assert.match(sticky, /viewSavedPlansHref/);
-    assert.match(sticky, /premiumCtaClicked/);
+    assert.match(bridge, /viewSavedPlansHref|m55-paid-questionnaire/);
     assert.doesNotMatch(sticky, /\/api\/purchase\/checkout|checkoutStarted/);
+    assert.doesNotMatch(bridge, /\/api\/purchase\/checkout/);
   });
 
   it('OG page uses privacy-safe trait metadata and generated OG route', () => {

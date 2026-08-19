@@ -975,11 +975,11 @@ Historical post-merge transition snapshots remain recorded for audit.
 | base origin/main | `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` |
 | lifecycle | **ACTIVE** — Free experience visual quality implemented on PR #144 |
 | purpose | **M55_COMMERCIAL_QUALITY_CONSOLIDATION** — meaning integrity + Free visual quality |
-| current phase | **FREE_EXPERIENCE_VISUAL_QUALITY_IMPLEMENTED** |
+| current phase | **SAFARI_TP_P1_VISUAL_CLOSURE_IMPLEMENTED** |
 | related lane / PR | PR #144 **OPEN** · `feat/m55-commercial-quality-consolidation-v1` |
-| product implementation authorized | **true** — Free DOB/footer/hero/share/sticky visual quality (no price/provider/DB/Stripe/Clerk/Pair/subscription change) |
+| product implementation authorized | **true** — Safari TP P1 visual closure on PR #144 (no price/provider/DB/Stripe/Clerk/Pair/subscription change) |
 | NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW** |
-| Human Preview findings | DOB native calendar regression · header/footer product-nav duplication · Free result hero weak · share not visual · desktop sticky CTA overlap · commercial-quality review **HOLD** until corrected |
+| Human Preview findings | Safari TP 27.0 **MERGE_HOLD** @ `339e7b296171077ddbc9357daeb6372deadb83a6` — P1 visual closure implemented; **USER_VISIBLE_CLOSED_GREEN HOLD** until post-fix STP/Human review |
 | exit condition | PR merge after Human Preview commercial-quality review |
 
 ---
@@ -991,7 +991,7 @@ Live count from `git worktree list --porcelain`: **4**
 | Path | Branch | HEAD | Registry id | Lifecycle | Why it remains | Exit condition |
 |---|---|---|---|---|---|---|
 | `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `6d53a71df148ed4c0a1016358bc86830086f8732` | primary git root | **PRIMARY_REPO_ROOT** | Primary repository `.git` root; clean; not an ACTIVE implementation lane | keep |
-| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `feat/m55-commercial-quality-consolidation-v1` | gate-time operational authority | WT-042 (WT-041 **CLOSED**) | **ACTIVE** | Free experience visual quality implemented (PR #144) | WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `feat/m55-commercial-quality-consolidation-v1` | gate-time operational authority | WT-042 (WT-041 **CLOSED**) | **ACTIVE** | Safari TP P1 visual closure on PR #144 | WAIT_FOR_CHATGPT_FINAL_PR144_REVIEW |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; **not** a recommended current control checkout. HEAD `aadb6e57…` is ancestor of current `origin/main` `22b00a6…`. | replace only by explicit control-checkout synchronization transition |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `769084dd82da25f7cc0f4656f3cdeeff879209c2` | WT-027 | **PENDING_INTEGRATION** | PR #119 **OPEN** — Compatibility commerce preflight | PR #119 merge/close + separate commerce gate |
 

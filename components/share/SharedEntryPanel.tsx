@@ -11,6 +11,7 @@ import {
   trackFunnelActionOnce,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import { resolvePublicShareArtworkFromToken } from '../../lib/m55/narrative/resolvePublicShareArtworkV1';
 import PublicShareCardPreview from '../narrative/PublicShareCardPreview';
 import styles from './SharedEntry.module.css';
 
@@ -73,17 +74,20 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
   }, [card, narrative]);
 
   if (narrative) {
+    const art = resolvePublicShareArtworkFromToken(narrative.token) ?? undefined;
     return (
       <div
         className={`${styles.shell} m55-exp-reading`}
         data-testid="m55-shared-entry"
         data-m55-experience-surface="SHARED_SOCIAL_ENTRY"
+        data-m55-share-art={art ? 'true' : 'false'}
       >
         <p className={styles.brand}>M55</p>
         <p className={styles.overline}>{NARRATIVE_LANDING.overlineJa}</p>
         <PublicShareCardPreview
           spec={narrative}
           premiumMark={narrative.surface === 'personal_premium'}
+          imagePath={art}
         />
         <p className={styles.privacy}>{NARRATIVE_LANDING.privacyNoteJa}</p>
         <SharedEntryCta
@@ -105,16 +109,24 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
   }
 
   return (
-    <div className={`${styles.shell} m55-exp-reading`} data-testid="m55-shared-entry" data-m55-experience-surface="SHARED_SOCIAL_ENTRY">
-      <p className={styles.overline}>{copy.overlineJa}</p>
-      <h1 className={styles.title} data-testid="m55-shared-entry-trait">
-        {card.traitNameJa}
-      </h1>
-      <p className={styles.phrase}>{card.traitPhraseJa}</p>
-      <p className={styles.body}>{card.safeStatementJa}</p>
-      <div className={styles.mark} aria-hidden>
-        <img src={card.imagePath} alt="" width={120} height={120} decoding="async" />
-      </div>
+    <div
+      className={`${styles.shell} m55-exp-reading`}
+      data-testid="m55-shared-entry"
+      data-m55-experience-surface="SHARED_SOCIAL_ENTRY"
+      data-m55-share-art="true"
+    >
+      <article className={styles.poster} aria-label={`M55の共有：${card.traitNameJa}`}>
+        <div className={styles.posterArt} aria-hidden>
+          <img src={card.imagePath} alt="" decoding="async" data-testid="m55-shared-entry-art" />
+        </div>
+        <p className={styles.brand}>M55</p>
+        <p className={styles.overline}>{copy.overlineJa}</p>
+        <h1 className={styles.title} data-testid="m55-shared-entry-trait">
+          {card.traitNameJa}
+        </h1>
+        <p className={styles.phrase}>{card.traitPhraseJa}</p>
+        <p className={styles.body}>{card.safeStatementJa}</p>
+      </article>
       <p className={styles.privacy}>{copy.privacyNoteJa}</p>
       <SharedEntryCta
         copyLabel={NARRATIVE_LANDING.ctaJa}
