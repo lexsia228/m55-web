@@ -770,7 +770,7 @@ export const PAID_DTR_IDENTITY_LAYER_LABELS_JA = {
 /** /dtr/core reader intro — panel 01 (pre-W1 copy, display-only). */
 export const PAID_DTR_INTRO_PANEL_01 = {
   stepLabel: '01',
-  overlineJa: '本質を見つめ直す',
+  overlineJa: 'レポートの読み方',
   leadLinesJa: [
     '自分を無理に変えなくていい。',
     '「自分の形」から、いま気になっていることを読み直すための土台です。',

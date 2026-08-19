@@ -13,7 +13,10 @@ import {
   type ShareCandidateV1,
 } from './m55NarrativeSpecV1';
 import { compactSentencesJa, firstSentenceJa, stripNicknameJa } from './narrativeSafetyV1';
-import { buildPersonalManualV1 } from './personalManualV1';
+import {
+  buildPersonalManualV1,
+  PERSONAL_MANUAL_IDENTITY_FOUNDATION_LABEL_JA,
+} from './personalManualV1';
 
 function sectionBody(payload: DtrPayload, id: string): string {
   return payload.fullSections.find((section) => section.id === id)?.body ?? '';
@@ -70,7 +73,7 @@ export function projectPersonalPremiumNarrativeV1(input: {
     s1
       ? {
           id: 'actual' as const,
-          labelJa: '実際は',
+          labelJa: PERSONAL_MANUAL_IDENTITY_FOUNDATION_LABEL_JA,
           bodyJa: firstSentenceJa(s1),
           provenanceIds: ['s1_identity'],
         }
@@ -94,7 +97,7 @@ export function projectPersonalPremiumNarrativeV1(input: {
     s5
       ? {
           id: 'misread' as const,
-          labelJa: '誤解されやすい点',
+          labelJa: '誤解されやすいところ',
           bodyJa: firstSentenceJa(s5),
           provenanceIds: ['s5_friction'],
         }
