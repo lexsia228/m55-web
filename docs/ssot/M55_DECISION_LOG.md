@@ -592,3 +592,19 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Safari focus quiet | `:focus-visible` box-shadow ring on DOB, questionnaire, share chooser |
 | Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **unchanged** |
 | USER_VISIBLE_CLOSED_GREEN | **HOLD** pending post-fix Safari TP + ChatGPT/Human review |
+
+### 2026-08-19 — G3-03 Personal Free cross-device restore PATCH-1 (WT-044)
+
+**Status:** Human-authorized **G3-03** implementation on `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` · branch `feat/m55-g3-runtime-proof-v1` · base `origin/main` @ `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`. PATCH-1 binds server `freeAnswerSet` restore to matching draft profile identity (trimmed nickname + YYYY-MM-DD birthDate) and makes `POST /api/dtr/draft` `extra_json` merge identity-aware. **G3-03 is NOT CLOSED GREEN** until Preview runtime proof is accepted.
+
+| Decision | Value |
+|---|---|
+| G3-03 defect classification | **B. REAL_RUNTIME_DEFECT** |
+| G3-03 status | **IMPLEMENTATION_IN_PROGRESS** — **NOT CLOSED GREEN** |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-04 | **REJECT_EXPOSURE** |
+| G4 / G5 | candidate-only |
+| Personal Free redesign | **NO** |
+| Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **UNCHANGED** |
+| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH1_REVIEW** after Preview runtime proof |
+| PR | **NOT OPENED** |

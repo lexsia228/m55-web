@@ -3,6 +3,10 @@ import {
   isCompleteFreeAnswerSet,
 } from '../freeResult/ensureFreeAnswerSetCompleteV1';
 import {
+  draftProfileIdentitiesMatch,
+  normalizeDraftProfileIdentity,
+} from './draftProfileIdentity';
+import {
   buildFreeResultFingerprint,
   emptyPersistedFunnel,
   isValidBasicInfo,
@@ -14,12 +18,15 @@ export type ApplyServerDraftFreeAnswerSetInput = {
   extraJson: unknown;
   persisted: SelfFunnelPersistedV1;
   basic: SelfFunnelBasicInfo | null;
+  /** Server draft nickname + birthDate that own extraJson.freeAnswerSet. */
+  serverDraft: { nickname?: string | null; birthDate?: string | null } | null;
 };
 
 export type ApplyServerDraftFreeAnswerSetResult = {
   applied: boolean;
   reason:
     | 'no_basic'
+    | 'identity_mismatch'
     | 'missing_set'
     | 'incomplete_set'
     | 'local_complete'
@@ -71,6 +78,12 @@ export function applyServerDraftFreeAnswerSet(
     isCompleteFreeAnswerSet(input.persisted.committedFreeAnswers)
   ) {
     return { applied: false, reason: 'local_complete', next: persisted };
+  }
+
+  const serverIdentity = normalizeDraftProfileIdentity(input.serverDraft);
+  const basicIdentity = normalizeDraftProfileIdentity(input.basic);
+  if (!draftProfileIdentitiesMatch(serverIdentity, basicIdentity)) {
+    return { applied: false, reason: 'identity_mismatch', next: persisted };
   }
 
   return {

@@ -1014,6 +1014,27 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
+### WT-044 — G3-03 Personal Free cross-device restore (ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` |
+| branch | `feat/m55-g3-runtime-proof-v1` |
+| base origin/main | `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` |
+| lastVerifiedAt | `2026-08-19` |
+| lifecycle | **ACTIVE** |
+| purpose | G3-03 signed-in Personal Free answer/result restore from server draft; PATCH-1 adds profile identity binding |
+| Human authorization | **G3-03** |
+| G3-03 defect classification | **B. REAL_RUNTIME_DEFECT** |
+| G3-03 status | **NOT CLOSED GREEN** — Preview runtime proof pending |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-04 | **REJECT_EXPOSURE** |
+| product implementation authorized | **true** — bounded G3-03 restore only; no Personal Free redesign; no price/provider/Pair/subscription change |
+| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH1_REVIEW** after Preview runtime proof |
+| prohibited operations | G3-01 implementation · G3-04 exposure · G4/G5 source · Personal Free redesign · price/Stripe/DB/Clerk/provider/Pair/subscription change |
+
+---
+
 ## FINAL LIVE WORKTREES (2026-08-19 PR #144 post-merge) — AUTHORITATIVE
 
 Live count from `git worktree list --porcelain`: **4**

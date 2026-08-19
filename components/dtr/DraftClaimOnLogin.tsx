@@ -78,6 +78,9 @@ export function DraftClaimOnLogin() {
             extraJson: draft?.extraJson ?? null,
             persisted: readPersistedFunnel(),
             basic,
+            serverDraft: draft
+              ? { nickname: draft.nickname, birthDate: draft.birthDate }
+              : null,
           });
           if (outcome.applied) {
             writePersistedFunnel(outcome.next);
