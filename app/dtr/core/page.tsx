@@ -13,6 +13,10 @@ import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import CorePairReadingCrossSell from "../../../components/core/CorePairReadingCrossSell";
 import { readConsultWalletDisplaySnapshot } from "../../../lib/m55/reply/consultWalletDisplaySnapshot";
+import {
+  buildPremiumPurchasedSemanticProjectionV1,
+  readPurchaseInputFromDraftSnapshot,
+} from "../../../lib/m55/narrative/buildPremiumPurchasedSemanticProjectionV1";
 import styles from "./core.module.css";
 
 import { LABEL_SAVED_REPORT_METADATA_JP } from "../../../lib/m55/dtrProductLabels";
@@ -56,6 +60,18 @@ export default async function DtrCorePage() {
         ? await readConsultWalletDisplaySnapshot(userId, ownership.reportInstanceId)
         : null;
 
+    const purchaseInput = readPurchaseInputFromDraftSnapshot(snap.draft_snapshot);
+    const premiumProjection =
+      purchaseInput && read.envelope.auditMeta.stemLaneIndex != null
+        ? (() => {
+            const built = buildPremiumPurchasedSemanticProjectionV1({
+              purchaseInput,
+              stemLaneIndex: read.envelope.auditMeta.stemLaneIndex,
+            });
+            return built.ok ? built.value : null;
+          })()
+        : null;
+
     return (
       <main className={styles.page}>
         <DtrFullReader
@@ -68,6 +84,7 @@ export default async function DtrCorePage() {
             envelope: read.envelope,
             profile: read.profile,
           }}
+          premiumProjection={premiumProjection}
         />
         <div className={styles.upgradeAssist}>
           <CorePairReadingCrossSell tone="night" />

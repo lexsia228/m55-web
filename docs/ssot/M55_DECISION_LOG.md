@@ -544,3 +544,18 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Product source implementation | **not authorized** by this Tier-E commit |
 | M55_PERSONAL_SALES_LAUNCH | **SELL** (unchanged) |
 | Compatibility | PR #119 **OPEN** · commerce **OFF** |
+
+### 2026-08-19 — Personal commercial meaning integrity V1 implemented (WT-042)
+
+**Status:** Implementation wave **PERSONAL_COMMERCIAL_MEANING_INTEGRITY_V1_IMPLEMENTED** on branch `feat/m55-commercial-quality-consolidation-v1` atop pre-implementation commit `8300ccce9efc6dec885863ae005ed32343b09dfd`.
+
+| Decision | Value |
+|---|---|
+| CQ-001 | P0 fake/test fulfillment removed from customer path |
+| CQ-002 | Typed premium semantic projection (manual / takeaway / share) |
+| CQ-003 | Free/Paid boundary restored (`freeResultIncludesActionSuggestions=false`) |
+| CQ-004 | LP one canonical plan decision block |
+| CQ-005 | Post-purchase next action consolidated |
+| CQ-006 | Discovery metadata / robots / sitemap |
+| Price / Stripe / DB / Clerk / AI provider / Pair / subscription | **unchanged** |
+| NEXT SINGLE ACTION | **PR CI + Preview commercial-quality review** |

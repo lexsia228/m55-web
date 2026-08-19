@@ -606,7 +606,6 @@ export default function CoreEssencePanel() {
                   <div className={CoreExperienceStyles.freeResultRevealItem}>
                     <CoreFreeResultScenesSection
                       depth={depthAnalysis}
-                      smallActionJa={composition.synthesis.smallActionJa}
                       onRequestReanswer={handleRequestReanswer}
                     />
                   </div>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { PublicShell } from "../../_components/PublicShell";
@@ -15,7 +16,26 @@ import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
 import DtrLpPremiumContinuityIntro from "../../../components/dtr/DtrLpPremiumContinuityIntro";
 import styles from "./lp.module.css";
 
-export const metadata = { title: "本質を見つめ直す | M55" };
+export const metadata: Metadata = {
+  title: "本質を見つめ直す | M55 プレミアムレポート",
+  description:
+    "M55 プレミアムレポートは、生年月日と6問の回答から自分の出方を一つの流れで読み返せるデジタルレポートです。ライト ¥1,000・フル ¥1,480の買い切り。追加読み解き付き。",
+  alternates: {
+    canonical: "/dtr/lp",
+  },
+  openGraph: {
+    title: "M55 プレミアムレポート",
+    description:
+      "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解きで一テーマずつ深められます。",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "M55 プレミアムレポート",
+    description:
+      "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解き付き。",
+  },
+};
 
 const OWNED = PAID_DTR_LP.operational.ownedState;
 const PLAN = PLAN_COMPARISON;
@@ -109,49 +129,6 @@ function FinalCtaBlock({ lpCtaMode }: { lpCtaMode: DtrLpCtaMode }) {
           <ArrowRightIcon />
         </span>
       </button>
-    </div>
-  );
-}
-
-function TierCard({
-  tierKey,
-  variant,
-}: {
-  tierKey: "full" | "light";
-  variant: "full" | "light";
-}) {
-  const tier = tierKey === "full" ? PLAN.full : PLAN.light;
-  const cardClass = variant === "full" ? styles.lpTierCardFull : styles.lpTierCardLight;
-  const ctaClass =
-    variant === "full" ? "m55-lp-cta-btn" : "m55-lp-cta-btn m55-lp-cta-btn--muted-primary";
-
-  return (
-    <div className={cardClass}>
-      {variant === "full" ? (
-        <span className={styles.lpTierRecommendBadge}>{PLAN.fullRecommendBadgeJa}</span>
-      ) : null}
-      <div className={styles.lpTierHeader}>
-        <span className={styles.lpTierPlanName}>{tier.publicName}</span>
-        <span className={styles.lpTierPrice}>{tier.priceLabelJa}</span>
-      </div>
-      <div className={styles.lpTierMeta}>
-        <div>{PLAN.oneTimeLabelJa}</div>
-        <div>{PLAN.includedHeadingJa}</div>
-        {tier.includedItemsJa.map((item) => (
-          <div key={item}>{item}</div>
-        ))}
-      </div>
-      <p className={styles.lpTierBody}>{tier.audienceJa}</p>
-      <a
-        href="#m55-paid-questionnaire"
-        className={ctaClass}
-        data-testid={`m55-lp-tier-${tierKey}-navigate-prep`}
-      >
-        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 12 }}>
-          <span>{PAID_DTR_LP.tiers.navigateToPrepCtaJa}</span>
-          <ArrowRightIcon />
-        </span>
-      </a>
     </div>
   );
 }
@@ -274,25 +251,7 @@ export default async function DtrLpPage({
           <p className={styles.lpBody}>{PAID_DTR_LP.consultReply.bodyJa}</p>
         </section>
 
-        {/* 6. FULL／ライト比較 */}
-        {!hidePriceAndTrust && (
-          <section
-            id="dtr-lp-tiers"
-            aria-labelledby="dtr-lp-tiers-marketing"
-            className={styles.lpSection}
-          >
-            <h2 id="dtr-lp-tiers-marketing" className={styles.lpH2}>
-              {PAID_DTR_LP.tiers.sectionTitleJa}
-            </h2>
-            <p className={styles.lpBody}>{PLAN.upgradeNoteJa}</p>
-            <div className={styles.lpTierStack}>
-              <TierCard tierKey="light" variant="light" />
-              <TierCard tierKey="full" variant="full" />
-            </div>
-          </section>
-        )}
-
-        {/* 7. プラン選択・6問・お支払い */}
+        {/* 6. プラン選択・6問・お支払い */}
         {!hidePriceAndTrust && (
           <section
             id="m55-paid-questionnaire"
@@ -300,14 +259,15 @@ export default async function DtrLpPage({
             className={`${styles.lpSection} ${styles.lpQuestionnaireAnchor}`}
           >
             <h2 id="dtr-lp-funnel-heading" className={styles.lpH2}>
-              {PAID_DTR_LP.tiers.sectionTitleJa}
+              プラン選択・お支払い
             </h2>
+            <p className={styles.lpBody}>{PLAN.upgradeNoteJa}</p>
             <DtrLpPremiumContinuityIntro />
             <DtrPaidPurchasePrep />
           </section>
         )}
 
-        {/* 8. 購入済みライトのFULL化導線 */}
+        {/* 7. 購入済みライトのFULL化導線 */}
         {showLightUpgradeCta && tier?.reportInstanceId && (
           <section aria-labelledby="dtr-lp-owned-upgrade" className={styles.lpSection}>
             <h2 id="dtr-lp-owned-upgrade" className={styles.lpH2}>
@@ -320,21 +280,7 @@ export default async function DtrLpPage({
           </section>
         )}
 
-        {/* 9. ライトからFULL化 */}
-        {!hidePriceAndTrust && (
-          <section aria-labelledby="dtr-lp-upgrade" className={styles.lpSection}>
-            <h2 id="dtr-lp-upgrade" className={styles.lpH2}>
-              {PAID_DTR_LP.upgrade.sectionTitleJa}
-            </h2>
-            {PAID_DTR_LP.upgrade.paragraphsJa.map((para, i) => (
-              <p key={i} className={i === 0 ? styles.lpBody : styles.lpBodyTight}>
-                {para}
-              </p>
-            ))}
-          </section>
-        )}
-
-        {/* 10. M55とは */}
+        {/* 8. M55とは */}
         <section aria-labelledby="dtr-lp-about" className={styles.lpSectionPreTier}>
           <h2 id="dtr-lp-about" className={styles.lpH2}>
             {PAID_DTR_LP.about.sectionTitleJa}
@@ -394,7 +340,7 @@ export default async function DtrLpPage({
           </div>
         </section>
 
-        {/* 15. 最終導線 */}
+        {/* 15. はじめる */}
         <section aria-labelledby="dtr-lp-final" className={styles.lpSection}>
           <h2 id="dtr-lp-final" className={styles.lpH2}>
             {PAID_DTR_LP.cta.sectionTitleJa}

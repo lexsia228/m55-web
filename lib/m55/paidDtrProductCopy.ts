@@ -1376,7 +1376,7 @@ export const PAID_DTR_LP = {
     ] as const,
   },
   cta: {
-    sectionTitleJa: '最終導線',
+    sectionTitleJa: 'はじめる',
     finalCompareLabelJa: 'プランをもう一度確認する',
   },
   operational: {

@@ -3,64 +3,57 @@
 import { useMemo } from 'react';
 import type { DtrPayload } from '../../lib/m55/dtrEngine';
 import { projectPersonalPremiumNarrativeV1 } from '../../lib/m55/narrative/projectPersonalPremiumNarrativeV1';
+import type { PremiumPurchasedSemanticProjectionV1 } from '../../lib/m55/narrative/buildPremiumPurchasedSemanticProjectionV1';
 import { PREMIUM_SHARE_IDENTITY_PERSISTENCE, projectPremiumPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
-import { buildPersonalFreeNarrativeShareContextV1 } from '../../lib/m55/narrative/projectPersonalFreeNarrativeV1';
+import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
+import { isConsultWalletDisplaySnapshotUsable } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import PublicShareCardPreview from './PublicShareCardPreview';
 import NarrativeShareActions from './NarrativeShareActions';
 import PersonalFreeManualBlock from './PersonalFreeManualBlock';
 import styles from './NarrativeShare.module.css';
 
-function readSessionFreeAnswers(): Record<string, string> | null {
-  if (typeof sessionStorage === 'undefined') return null;
-  try {
-    const raw = sessionStorage.getItem('m55_free_answers_v1');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const entries = Object.entries(parsed).filter(
-      (entry): entry is [string, string] => typeof entry[1] === 'string',
-    );
-    return entries.length >= 5 ? Object.fromEntries(entries) : null;
-  } catch {
-    return null;
-  }
-}
-
 export default function PremiumNarrativeClose({
   payload,
   nickname,
   stemLaneIndex,
-  birthDate,
+  projection,
+  consultWalletSnapshot,
+  onOpenConsult,
 }: {
   payload: DtrPayload;
   nickname?: string;
   stemLaneIndex: number;
-  birthDate?: string;
+  projection?: PremiumPurchasedSemanticProjectionV1 | null;
+  consultWalletSnapshot?: ConsultWalletDisplaySnapshot | null;
+  onOpenConsult?: () => void;
 }) {
   const narrative = useMemo(
-    () => projectPersonalPremiumNarrativeV1({ payload, nickname, stemLaneIndex }),
-    [payload, nickname, stemLaneIndex],
+    () =>
+      projectPersonalPremiumNarrativeV1({
+        payload,
+        nickname,
+        stemLaneIndex,
+        projection: projection ?? undefined,
+      }),
+    [payload, nickname, projection, stemLaneIndex],
   );
   const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
   const spec = useMemo(() => {
-    const answers = readSessionFreeAnswers();
-    if (birthDate && answers) {
-      const ctx = buildPersonalFreeNarrativeShareContextV1({
-        birthDate,
-        stemLaneIndex,
-        freeAnswerSet: answers,
+    if (projection) {
+      return projectPremiumPublicShareV1({
+        stemLaneIndex: projection.stemLaneIndex,
+        answerAxes: projection.axes,
+        birthAxes: projection.birthAxes,
+        hingeAxisId: projection.hingeAxisId,
+        origin,
       });
-      if (ctx.ok) {
-        return projectPremiumPublicShareV1({
-          stemLaneIndex: ctx.value.stemLaneIndex,
-          answerAxes: ctx.value.answerAxes,
-          birthAxes: ctx.value.birthAxes,
-          hingeAxisId: ctx.value.hingeAxisId,
-          origin,
-        });
-      }
     }
     return projectPremiumPublicShareV1({ stemLaneIndex, origin });
-  }, [birthDate, origin, stemLaneIndex]);
+  }, [origin, projection, stemLaneIndex]);
+
+  const walletUsable = isConsultWalletDisplaySnapshotUsable(consultWalletSnapshot);
+  const hasAdditionalReading = walletUsable && consultWalletSnapshot.availableCount > 0;
+  const nextAction = narrative.actions[0]?.text ?? null;
 
   return (
     <section
@@ -73,15 +66,18 @@ export default function PremiumNarrativeClose({
         読みのまとめ
       </h2>
       <PersonalFreeManualBlock manual={narrative.manualSpec} titleId="premium-complete-manual" />
-      {narrative.actions.length > 0 ? (
-        <ul className={styles.slotList}>
-          {narrative.actions.map((action) => (
-            <li key={action.text} className={styles.slot}>
-              <span className={styles.slotLabel}>一度だけ試すこと</span>
-              <p className={styles.slotBody}>{action.text}</p>
-            </li>
-          ))}
-        </ul>
+      {nextAction ? (
+        <div className={styles.slot} data-testid="m55-premium-next-action">
+          <span className={styles.slotLabel}>次の一歩</span>
+          <p className={styles.slotBody}>{nextAction}</p>
+          {hasAdditionalReading && onOpenConsult ? (
+            <button type="button" className={styles.shareBtn} onClick={onOpenConsult}>
+              追加読み解きを使う
+            </button>
+          ) : (
+            <p className={styles.mark}>読み返すときは、上の章から開き直せます。</p>
+          )}
+        </div>
       ) : null}
       <h3 className={styles.headline}>今のあなたへ残しておく一文</h3>
       <p className={styles.body} data-testid="m55-premium-takeaway">
