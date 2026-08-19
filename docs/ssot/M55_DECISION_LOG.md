@@ -606,5 +606,6 @@ This decision authorizes **only** durable transition recording in the four-file 
 | G4 / G5 | candidate-only |
 | Personal Free redesign | **NO** |
 | Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **UNCHANGED** |
-| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH1_REVIEW** after Preview runtime proof |
+| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH2_REVIEW** after Preview runtime proof |
+| PATCH-2 | draft POST ownership = Clerk `auth()` only; body `clerkUserId` removed from client payload |
 | PR | **NOT OPENED** |

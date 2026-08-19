@@ -17,7 +17,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` (WT-044) |
 | branch | `feat/m55-g3-runtime-proof-v1` |
 | base origin/main | `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` |
-| implementation scope | signed-in Personal Free `extraJson.freeAnswerSet` restore on `/core` when server draft identity matches local profile; identity-aware `extra_json` merge on `POST /api/dtr/draft` |
+| implementation scope | signed-in Personal Free `extraJson.freeAnswerSet` restore on `/core` when server draft identity matches local profile; identity-aware `extra_json` merge on `POST /api/dtr/draft`; PATCH-2 draft POST ownership via Clerk `auth()` only (no body `clerkUserId`) |
 | G3-01 | **NOT AUTHORIZED** |
 | G3-04 Today/Weekly exposure | **REJECT_EXPOSURE** |
 | G4 / G5 | candidate-only |
@@ -25,8 +25,8 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Price / Stripe / DB schema / Clerk / provider / Pair / Today-Weekly / subscription | **UNCHANGED** |
 | G3-02 / Personal Free / Premium bridge / deep return / share privacy / segmented DOB | **DO NOT REOPEN** absent actual invalidation |
 | ACTIVE lane | **G3 REVISIT / RETENTION LOOP** |
-| Current phase | **G3-03_RUNTIME_PROOF_PATCH1** |
-| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH1_REVIEW** after Preview runtime proof |
+| Current phase | **G3-03_RUNTIME_PROOF_PATCH2** |
+| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH2_REVIEW** after Preview runtime proof |
 | PR | **NOT OPENED** |
 
 ## PR #144 POST-MERGE TIER-E SETTLEMENT (2026-08-19) — HISTORICAL (superseded for ACTIVE implementation by G3-03 PATCH-1 above)

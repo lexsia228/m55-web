@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { mergeDraftExtraJson } from '../../../../lib/m55/selfFunnel/mergeDraftExtraJson';
 import { normalizeDraftProfileIdentity } from '../../../../lib/m55/selfFunnel/draftProfileIdentity';
+import { resolveDtrDraftPostAuthority } from '../../../../lib/m55/selfFunnel/resolveDtrDraftPostAuthority';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,6 @@ export async function POST(req: NextRequest) {
     nickname?: string;
     birthDate?: string;
     extraJson?: Record<string, unknown>;
-    clerkUserId?: string | null;
   };
   try {
     body = await req.json();
@@ -47,7 +47,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'nickname and birthDate required' }, { status: 400 });
   }
 
-  const userId = clerkFromAuth ?? (typeof body.clerkUserId === 'string' ? body.clerkUserId : null);
+  const { userId } = resolveDtrDraftPostAuthority({
+    clerkAuthUserId: clerkFromAuth,
+  });
 
   const jar = await cookies();
   const fromCookie = jar.get(COOKIE_NAME)?.value ?? null;

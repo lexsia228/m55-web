@@ -23,6 +23,7 @@ type FetchOutcome =
 
 let fetchQueue: FetchOutcome[] = [];
 let fetchCalls = 0;
+let lastFetchBody: Record<string, unknown> | null = null;
 
 function installBrowserGlobals(): void {
   Object.defineProperty(globalThis, 'window', {
@@ -32,8 +33,13 @@ function installBrowserGlobals(): void {
   });
 
   Object.defineProperty(globalThis, 'fetch', {
-    value: async () => {
+    value: async (_url: string, init?: RequestInit) => {
       fetchCalls += 1;
+      if (init?.body && typeof init.body === 'string') {
+        lastFetchBody = JSON.parse(init.body) as Record<string, unknown>;
+      } else {
+        lastFetchBody = null;
+      }
       const next = fetchQueue.shift();
       if (!next) {
         throw new Error('fetch called without queued outcome');
@@ -67,12 +73,22 @@ describe('dtrDraftClientSync', () => {
   beforeEach(() => {
     fetchQueue = [];
     fetchCalls = 0;
+    lastFetchBody = null;
     resetDtrDraftSyncStateForTest();
     installBrowserGlobals();
   });
 
   afterEach(() => {
     resetDtrDraftSyncStateForTest();
+  });
+
+  it('does not send clerkUserId in the POST body', async () => {
+    queueFetch({ kind: 'ok' });
+    queueDtrDraftSync(LOGGED_IN_USER, PROFILE);
+    await sleep(0);
+    assert.ok(lastFetchBody);
+    assert.equal('clerkUserId' in lastFetchBody!, false);
+    assert.equal(lastFetchBody!.nickname, PROFILE.nickname);
   });
 
   it('transitions logged-in sync through saving to saved on success', async () => {

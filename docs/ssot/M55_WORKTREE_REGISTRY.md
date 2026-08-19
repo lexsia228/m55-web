@@ -1030,7 +1030,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | G3-01 | **NOT AUTHORIZED** |
 | G3-04 | **REJECT_EXPOSURE** |
 | product implementation authorized | **true** — bounded G3-03 restore only; no Personal Free redesign; no price/provider/Pair/subscription change |
-| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH1_REVIEW** after Preview runtime proof |
+| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH2_REVIEW** after Preview runtime proof |
 | prohibited operations | G3-01 implementation · G3-04 exposure · G4/G5 source · Personal Free redesign · price/Stripe/DB/Clerk/provider/Pair/subscription change |
 
 ---
