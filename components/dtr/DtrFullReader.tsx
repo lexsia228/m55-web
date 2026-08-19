@@ -484,7 +484,10 @@ function PremiumIntroValueBand({
   }
 
   return (
-    <div className={styles.premiumIntroValueBand} aria-label="本質を見つめ直すための説明">
+    <div
+      className={styles.premiumIntroValueBand}
+      aria-label={`${PAID_DTR_INTRO_PANEL_01.overlineJa}の説明`}
+    >
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           {PAID_DTR_INTRO_PANEL_01.stepLabel}

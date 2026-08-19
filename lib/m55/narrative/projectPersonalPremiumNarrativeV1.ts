@@ -70,7 +70,7 @@ export function projectPersonalPremiumNarrativeV1(input: {
     s1
       ? {
           id: 'actual' as const,
-          labelJa: '実際は',
+          labelJa: '土台',
           bodyJa: firstSentenceJa(s1),
           provenanceIds: ['s1_identity'],
         }
@@ -94,7 +94,7 @@ export function projectPersonalPremiumNarrativeV1(input: {
     s5
       ? {
           id: 'misread' as const,
-          labelJa: '誤解されやすい点',
+          labelJa: '誤解されやすいところ',
           bodyJa: firstSentenceJa(s5),
           provenanceIds: ['s5_friction'],
         }

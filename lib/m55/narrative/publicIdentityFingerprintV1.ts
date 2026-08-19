@@ -123,7 +123,7 @@ export function selectPublicManualSlotPlan(input: {
     });
     addSlot(slots, used, {
       kind: 'fused_actual',
-      labelJa: '実際は',
+      labelJa: '自分の中では',
       semanticId: `actual:${fusedKey}`,
     });
   }

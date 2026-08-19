@@ -303,7 +303,7 @@ describe('selected-card X and public collision', () => {
       spec.shareTextJa,
       /小さく一つ動かしてから、様子を見る。候補を並べてから閉じる/,
     );
-    assert.match(spec.body, /誤解されやすいところ|実際は/);
+    assert.match(spec.body, /誤解されやすいところ|自分の中では/);
     assert.match(spec.shareTextJa, /相談している|一人になったあと|決めているように見られ/);
     if (ctx.birthAxes.start !== ctx.answerAxes.start) {
       assert.equal(

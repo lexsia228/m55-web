@@ -115,7 +115,7 @@ test.describe('Self funnel growth share E2E', () => {
     await expect(page.getByTestId('m55-share-preview-text')).toContainText('私の取扱説明書');
     const manualBody = await page.getByTestId('m55-narrative-share-card').innerText();
     expect((manualBody.match(/：/g) ?? []).length).toBeGreaterThanOrEqual(4);
-    expect(manualBody).toMatch(/誤解されやすいところ|実際は|始め方|決め方/);
+    expect(manualBody).toMatch(/誤解されやすいところ|自分の中では|始め方|決め方/);
     expect(manualBody).toMatch(/生年月日から見える基調と、今回の回答の重なりから/);
     await expect(page.getByTestId('m55-share-x')).toBeVisible();
     await expect(page.getByTestId('m55-share-preview-url')).toHaveAttribute(

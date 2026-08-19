@@ -187,7 +187,7 @@ function pickShortSlots(
 
   const actual = firstSentenceJa(fused.manifestation.shortJa);
   if (actual) {
-    ranked.push(slot('actual', '実際は', actual, [manifestId, 'personal_free_manifestation_v4']));
+    ranked.push(slot('actual', '自分の中では', actual, [manifestId, 'personal_free_manifestation_v4']));
   }
 
   const seenActual = seenVsActualFromFused(fused);
