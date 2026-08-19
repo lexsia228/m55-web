@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { mergeDraftExtraJson } from '../../../../lib/m55/selfFunnel/mergeDraftExtraJson';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingUserDraft, error: selectErr } = await db
       .from('dtr_guest_drafts')
-      .select('id')
+      .select('id, extra_json')
       .eq('user_id', userId)
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -84,10 +85,22 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json({ error: 'draft_save_failed' }, { status: 500 });
     }
+    let existingExtra: Record<string, unknown> = {};
     if (existingUserDraft?.id) {
       draftId = existingUserDraft.id as string;
+      if (existingUserDraft.extra_json && typeof existingUserDraft.extra_json === 'object') {
+        existingExtra = existingUserDraft.extra_json as Record<string, unknown>;
+      }
     } else if (fromCookie && isUuid(fromCookie)) {
       draftId = fromCookie;
+      const { data: cookieDraft } = await db
+        .from('dtr_guest_drafts')
+        .select('extra_json')
+        .eq('id', draftId)
+        .maybeSingle();
+      if (cookieDraft?.extra_json && typeof cookieDraft.extra_json === 'object') {
+        existingExtra = cookieDraft.extra_json as Record<string, unknown>;
+      }
     } else {
       draftId = crypto.randomUUID();
     }
@@ -98,7 +111,7 @@ export async function POST(req: NextRequest) {
         id: draftId,
         nickname,
         birth_date: birthRaw,
-        extra_json: body.extraJson ?? {},
+        extra_json: mergeDraftExtraJson(existingExtra, body.extraJson ?? {}),
         user_id: userId,
         linked_at: now,
         updated_at: now,

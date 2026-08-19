@@ -8,10 +8,26 @@ import {
   promoteGuestProfileToClerkUser,
 } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
+import { applyServerDraftFreeAnswerSet } from '../../lib/m55/selfFunnel/applyServerDraftFreeAnswerSet';
+import {
+  readPersistedFunnel,
+  writePersistedFunnel,
+} from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import { isValidBasicInfo } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
+
+type DraftMeResponse = {
+  draft?: {
+    nickname?: string;
+    birthDate?: string;
+    extraJson?: Record<string, unknown>;
+  } | null;
+};
 
 /**
  * Post-login: device-local guest keys → Clerk user (OAuth 直後も同一ブラウザなら復元),
  * then cookie draft claim → DB draft /me で不足分を補完。
+ * G3-03: complete extraJson.freeAnswerSet restores Personal Free result
+ * when the device-local funnel snapshot is empty/incomplete.
  */
 export function DraftClaimOnLogin() {
   const { userId, isLoaded } = useAuth();
@@ -39,18 +55,33 @@ export function DraftClaimOnLogin() {
     void (async () => {
       try {
         await fetch('/api/dtr/draft/claim', { method: 'POST', credentials: 'include' });
-        if (hasCompleteCanonicalProfile(userId)) {
+        const meRes = await fetch('/api/dtr/draft/me', { credentials: 'include', cache: 'no-store' });
+        if (!meRes.ok) {
           window.dispatchEvent(new Event('m55:profile_updated'));
           return;
         }
-        const meRes = await fetch('/api/dtr/draft/me', { credentials: 'include', cache: 'no-store' });
-        if (!meRes.ok) return;
-        const body = (await meRes.json()) as { draft?: { nickname: string; birthDate: string } | null };
-        if (body.draft?.birthDate && body.draft.nickname?.trim()) {
+        const body = (await meRes.json()) as DraftMeResponse;
+        const draft = body.draft;
+        if (
+          draft?.birthDate &&
+          draft.nickname?.trim() &&
+          !hasCompleteCanonicalProfile(userId)
+        ) {
           ProfileRepository.save(userId, {
-            nickname: body.draft.nickname.trim(),
-            birthDate: body.draft.birthDate.slice(0, 10),
+            nickname: draft.nickname.trim(),
+            birthDate: draft.birthDate.slice(0, 10),
           });
+        }
+        const basic = ProfileRepository.get(userId);
+        if (isValidBasicInfo(basic)) {
+          const outcome = applyServerDraftFreeAnswerSet({
+            extraJson: draft?.extraJson ?? null,
+            persisted: readPersistedFunnel(),
+            basic,
+          });
+          if (outcome.applied) {
+            writePersistedFunnel(outcome.next);
+          }
         }
         window.dispatchEvent(new Event('m55:profile_updated'));
       } catch {
