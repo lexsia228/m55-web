@@ -68,11 +68,6 @@ const REQUIRED_PLACEMENTS = [
     ownerFile: 'components/dtr/DtrMethodReportNote.tsx',
   },
   {
-    id: 'pricing',
-    testId: 'm55-method-trust-link',
-    ownerFile: 'components/pages/M55MethodTrustLink.tsx',
-  },
-  {
     id: 'checkout_prep',
     testId: 'm55-method-checkout-trust-link',
     ownerFile: 'components/pages/M55MethodTrustLink.tsx',
@@ -368,7 +363,6 @@ function checkPlacements() {
     ['components/dtr/DtrPaidPurchasePrep.tsx', 'DtrMethodDifference'],
     ['components/dtr/DtrPaidPurchasePrep.tsx', 'M55MethodTrustLink'],
     ['components/dtr/DtrFullReader.tsx', 'DtrMethodReportNote'],
-    ['app/pricing/page.tsx', 'M55MethodTrustLink'],
     ['app/how-m55-works/page.tsx', 'M55MethodSections'],
   ];
   for (const [file, component] of mounts) {
@@ -400,13 +394,37 @@ function checkRouteConsumption() {
   }
   const src = read(ROUTE_CONSUMPTION);
   const testSrc = read(ROUTE_CONSUMPTION_TEST);
-  const placementMatches = src.match(/id:\s*'(home|core_free_result|dtr_lp|purchased_report|pricing|checkout_prep|footer_nav)'/g) || [];
-  REPORT.routeConsumptionPlacements = placementMatches.length;
-  if (REPORT.routeConsumptionPlacements < 7) {
-    fail('route_consumption.count', 'route-consumption authority must declare 7 placements');
+  const requiredIds = [
+    'home',
+    'core_free_result',
+    'dtr_lp',
+    'purchased_report',
+    'checkout_prep',
+    'footer_nav',
+  ];
+  const block = src.match(
+    /export const M55_METHOD_ROUTE_CONSUMPTION[\s\S]*?=\s*\[([\s\S]*?)\]\s*as const/,
+  );
+  if (!block) {
+    fail('route_consumption.missing', 'M55_METHOD_ROUTE_CONSUMPTION array not found');
+    return;
   }
-  if (!src.includes("id: 'pricing'") || !src.includes("id: 'checkout_prep'")) {
-    fail('route_consumption.split', 'pricing and checkout_prep must be separate registry entries');
+  const declaredIds = [...block[1].matchAll(/id:\s*'([^']+)'/g)].map((m) => m[1]);
+  REPORT.routeConsumptionPlacements = declaredIds.length;
+  if (declaredIds.join(',') !== requiredIds.join(',')) {
+    fail(
+      'route_consumption.count',
+      `route-consumption authority must declare exactly these placements: ${requiredIds.join(', ')} (got: ${declaredIds.join(', ') || 'none'})`,
+    );
+  }
+  if (declaredIds.includes('pricing')) {
+    fail(
+      'route_consumption.retired_pricing',
+      'retired pricing must not remain a method placement',
+    );
+  }
+  if (!declaredIds.includes('checkout_prep')) {
+    fail('route_consumption.checkout', 'checkout_prep placement is required');
   }
   const fixtureIds = [
     'duplicate_placement',
