@@ -65,9 +65,9 @@ describe('storefrontAuthorityImportAlignment — wiring and role separation', ()
   });
 
   it('wires pricing through PAID_DTR_PRICING_AUTHORITY_NOTE_JA', () => {
-    const page = readRepoFile(PRICING_PAGE);
-    assert.match(page, /PAID_DTR_PRICING_AUTHORITY_NOTE_JA/);
     assertAuthorityVocabularyPresent(PAID_DTR_PRICING_AUTHORITY_NOTE_JA);
+    const page = readRepoFile(PRICING_PAGE);
+    assert.match(page, /permanentRedirect\s*\(\s*['"]\/dtr\/lp['"]\s*\)/);
   });
 
   it('keeps pricing lightweight and separate from LP authorityNote paragraphs', () => {
@@ -87,6 +87,7 @@ describe('storefrontAuthorityImportAlignment — wiring and role separation', ()
     }
 
     const pricingPage = readRepoFile(PRICING_PAGE);
+    assert.match(pricingPage, /permanentRedirect/);
     assert.equal(pricingPage.includes('M55が見ているもの'), false);
   });
 

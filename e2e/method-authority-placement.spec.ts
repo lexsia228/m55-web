@@ -207,15 +207,9 @@ test.describe('M55 method placements', () => {
     await context.close();
   });
 
-  test('pricing carries a trust link only, and the footer link is canonical', async ({ page }) => {
+  test('footer method link remains canonical after /pricing retirement', async ({ page }) => {
     await prepareCleanCapturePage(page);
-    await page.goto('/pricing', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await expect(page.getByTestId('m55-method-trust-link')).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId('m55-method-steps')).toHaveCount(0);
-    await expect(page.getByTestId('m55-method-pricing-link')).toHaveAttribute(
-      'href',
-      M55_METHOD_CANONICAL_ROUTE,
-    );
+    await page.goto('/dtr/lp', { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.getByTestId('m55-method-footer-link')).toHaveAttribute(
       'href',
       M55_METHOD_CANONICAL_ROUTE,

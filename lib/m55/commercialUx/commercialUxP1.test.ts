@@ -61,11 +61,11 @@ describe('planComparison', () => {
     assert.match(plan.fullRecommendReasonJa, /複数/);
   });
 
-  it('bridge, pricing, prep, and /dtr/lp consume shared model', () => {
+  it('bridge, prep, and /dtr/lp consume shared model; /pricing redirects', () => {
     const pricing = read('app/pricing/page.tsx');
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     const lp = read('app/dtr/lp/page.tsx');
-    assert.match(pricing, /PLAN_COMPARISON/);
+    assert.match(pricing, /permanentRedirect\s*\(\s*['"]\/dtr\/lp['"]\s*\)/);
     assert.match(prep, /PLAN_COMPARISON/);
     assert.match(lp, /PLAN_COMPARISON/);
     assert.equal(PLAN_COMPARISON.light.priceJpy, 1000);

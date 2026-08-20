@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicShell } from '../_components/PublicShell';
 import {
@@ -8,9 +9,26 @@ import { M55_COMMERCIAL_TERMINOLOGY } from '../../lib/m55/commercialUx/terminolo
 import M55MethodSections from '../../components/pages/M55MethodSections';
 import styles from './how-it-works.module.css';
 
-export const metadata = {
-  title: `${M55_METHOD_PUBLIC_NAME} | M55`,
-  description: M55_METHOD_CANONICAL_COPY.explanationJa.replace(/\n/g, ''),
+const title = `${M55_METHOD_PUBLIC_NAME} | M55`;
+const description = M55_METHOD_CANONICAL_COPY.explanationJa.replace(/\n/g, '');
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: '/how-m55-works',
+  },
+  openGraph: {
+    title,
+    description,
+    url: '/how-m55-works',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 };
 
 /**

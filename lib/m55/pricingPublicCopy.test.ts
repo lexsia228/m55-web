@@ -31,14 +31,16 @@ describe('pricingPublicCopy — analysis authority lightweight note', () => {
     assertStrictStorefrontVocabularySafe(PAID_DTR_PRICING_AUTHORITY_NOTE_JA);
   });
 
-  it('wires pricing page to SSOT constant and preserves /dtr/lp link', () => {
+  it('retires /pricing as permanent redirect to /dtr/lp; authority note SSOT remains', () => {
     const page = readRepoFile(PRICING_PAGE_PATH);
-    assert.match(page, /PAID_DTR_PRICING_AUTHORITY_NOTE_JA/);
-    assert.match(page, /href="\/dtr\/lp"/);
-    assert.match(page, /プレミアムレポートのプランを見る/);
+    assert.match(page, /permanentRedirect\s*\(\s*['"]\/dtr\/lp['"]\s*\)/);
+    assertAuthorityVocabularyPresent(
+      PAID_DTR_PRICING_AUTHORITY_NOTE_JA,
+      REQUIRED_AUTHORITY_TERMS,
+    );
   });
 
-  it('pricing page does not add checkout or productKey wiring', () => {
+  it('pricing redirect page does not add checkout or productKey wiring', () => {
     const page = readRepoFile(PRICING_PAGE_PATH).toLowerCase();
     assert.equal(page.includes('productkey'), false);
     assert.equal(page.includes('stripe'), false);
@@ -46,7 +48,7 @@ describe('pricingPublicCopy — analysis authority lightweight note', () => {
     assert.equal(page.includes('onetimecheckout'), false);
   });
 
-  it('pricing page source avoids forbidden public terms', () => {
+  it('pricing redirect page source avoids forbidden public terms', () => {
     assertStrictStorefrontVocabularySafe(readRepoFile(PRICING_PAGE_PATH));
   });
 });

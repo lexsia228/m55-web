@@ -155,11 +155,11 @@ describe('commercial presentation polish — plan cards', () => {
     assert.deepEqual(plan.light.includedItemsJa, ['プレミアムレポート', '追加読み解き 1件']);
   });
 
-  it('all commercial surfaces consume PLAN_COMPARISON', () => {
+  it('Premium surfaces consume PLAN_COMPARISON; /pricing redirects', () => {
     const pricing = read('app/pricing/page.tsx');
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     const lp = read('app/dtr/lp/page.tsx');
-    assert.match(pricing, /PLAN_COMPARISON/);
+    assert.match(pricing, /permanentRedirect\s*\(\s*['"]\/dtr\/lp['"]\s*\)/);
     assert.match(prep, /PLAN_COMPARISON/);
     assert.match(lp, /PLAN_COMPARISON/);
     assert.doesNotMatch(lp, /PAID_DTR_LP\.tiers\.light/);

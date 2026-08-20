@@ -23,7 +23,10 @@ import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient
 import { LABEL_FORMAT_SAVED } from '../../../lib/m55/dtrProductLabels';
 import { DtrProcessingFallback, DtrProcessingShell } from './DtrProcessingShell';
 
-export const metadata = { title: 'レポート準備中 | M55' };
+export const metadata = {
+  title: 'レポート準備中 | M55',
+  robots: { index: false, follow: false },
+};
 
 export const dynamic = 'force-dynamic';
 

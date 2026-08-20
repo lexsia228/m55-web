@@ -27,6 +27,7 @@ export const metadata: Metadata = {
     title: "M55 プレミアムレポート",
     description:
       "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解きで一テーマずつ深められます。",
+    url: "/dtr/lp",
     type: "website",
   },
   twitter: {

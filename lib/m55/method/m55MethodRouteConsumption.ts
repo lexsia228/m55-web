@@ -2,9 +2,9 @@
  * Typed route-consumption authority for M55 method placements.
  *
  * Each placement is a single registry entry with a route/state, owner, copy key,
- * required DOM order, link target and runtime evidence requirement. Pricing and
- * checkout preparation are separate entries — they must not be collapsed into
- * one unproven registry item.
+ * required DOM order, link target and runtime evidence requirement. Checkout
+ * preparation remains a distinct /dtr/lp entry. The retired /pricing public
+ * surface is not a method placement.
  *
  * Negative fixtures below prove the verifier rejects the ten review-blocker
  * defect classes directly.
@@ -24,7 +24,6 @@ export type MethodRouteConsumptionId =
   | 'core_free_result'
   | 'dtr_lp'
   | 'purchased_report'
-  | 'pricing'
   | 'checkout_prep'
   | 'footer_nav';
 
@@ -115,19 +114,6 @@ export const M55_METHOD_ROUTE_CONSUMPTION: readonly MethodRouteConsumptionPlacem
     },
     linkTarget: M55_METHOD_CANONICAL_ROUTE,
     linkTestId: null,
-    runtimeEvidenceRequired: true,
-  },
-  {
-    id: 'pricing',
-    route: '/pricing',
-    runtimeState: null,
-    ownerFile: 'components/pages/M55MethodTrustLink.tsx',
-    ownerComponent: 'M55MethodTrustLink',
-    canonicalCopyKeys: ['publicName', 'boundaryJa', 'routeLinkLabel'],
-    testId: 'm55-method-trust-link',
-    relativeOrder: {},
-    linkTarget: M55_METHOD_CANONICAL_ROUTE,
-    linkTestId: 'm55-method-pricing-link',
     runtimeEvidenceRequired: true,
   },
   {

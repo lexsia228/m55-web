@@ -262,7 +262,7 @@ describe('M55 method authority — claim detector', () => {
 });
 
 describe('M55 method authority — route consumption contract', () => {
-  it('declares the seven required placements with pricing and checkout separated', () => {
+  it('declares the six required placements with checkout prep on Premium LP', () => {
     assert.deepEqual(
       M55_METHOD_PLACEMENTS.map((p) => p.id),
       [
@@ -270,7 +270,6 @@ describe('M55 method authority — route consumption contract', () => {
         'core_free_result',
         'dtr_lp',
         'purchased_report',
-        'pricing',
         'checkout_prep',
         'footer_nav',
       ],
@@ -294,7 +293,6 @@ describe('M55 method authority — route consumption contract', () => {
       ['components/dtr/DtrPaidPurchasePrep.tsx', 'DtrMethodDifference'],
       ['components/dtr/DtrPaidPurchasePrep.tsx', 'M55MethodTrustLink'],
       ['components/dtr/DtrFullReader.tsx', 'DtrMethodReportNote'],
-      ['app/pricing/page.tsx', 'M55MethodTrustLink'],
       ['app/how-m55-works/page.tsx', 'M55MethodSections'],
     ];
     for (const [file, component] of mounts) {
@@ -340,10 +338,8 @@ describe('M55 method authority — route consumption contract', () => {
     assert.doesNotMatch(note, /birthDate|dob|answerSet|nickname/);
   });
 
-  it('keeps the pricing and checkout placements to a link only', () => {
-    const pricing = methodPlacementById('pricing');
+  it('keeps the checkout placement to a link only', () => {
     const checkout = methodPlacementById('checkout_prep');
-    assert.equal(pricing?.density, 'link_only');
     assert.equal(checkout?.density, 'link_only');
     const source = read('components/pages/M55MethodTrustLink.tsx');
     assert.ok(!source.includes('MethodStepList'), 'trust link must not carry dense method copy');

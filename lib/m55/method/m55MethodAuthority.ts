@@ -443,7 +443,6 @@ export type MethodPlacementId =
   | 'core_free_result'
   | 'dtr_lp'
   | 'purchased_report'
-  | 'pricing'
   | 'checkout_prep'
   | 'footer_nav';
 
@@ -503,15 +502,6 @@ export const M55_METHOD_PLACEMENTS: readonly MethodPlacement[] = [
     positionJa: '購入済みレポート本文の冒頭',
     linksToCanonicalRoute: true,
     density: 'compact',
-  },
-  {
-    id: 'pricing',
-    route: '/pricing',
-    ownerFile: 'components/pages/M55MethodTrustLink.tsx',
-    testId: 'm55-method-trust-link',
-    positionJa: '価格表の近く',
-    linksToCanonicalRoute: true,
-    density: 'link_only',
   },
   {
     id: 'checkout_prep',

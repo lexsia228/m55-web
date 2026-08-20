@@ -1075,16 +1075,41 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-19 PR #144 post-merge) — AUTHORITATIVE
+### WT-046 — G4 Organic Discovery mapping-first (ACTIVE / READ-ONLY PRODUCT MAPPING)
 
-Live count from `git worktree list --porcelain`: **4**
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` |
+| branch | `feat/m55-g4-organic-discovery-v1` |
+| base origin/main | `00def3a596655dedceceb85764724ef6070a0c91` |
+| HEAD | `00def3a596655dedceceb85764724ef6070a0c91` |
+| lastVerifiedAt | `2026-08-20` |
+| lifecycle | **ACTIVE** |
+| operational state | **G4_ORGANIC_DISCOVERY_MAPPING_FIRST** |
+| purpose | Exact repository/runtime mapping of metadata, sitemap, robots, index freshness, share discovery and qualified Free→Premium discovery continuity |
+| G3 REVISIT / RETENTION LOOP | **CLOSED GREEN — DO NOT REOPEN** |
+| product/source implementation authorized | **false** — mapping-first only |
+| allowed operations | read-only product/source/runtime inspection; local Tier-E registry reconciliation for this gate only |
+| prohibited operations | product/source/test implementation · commit · push · PR · deploy · Today/Weekly exposure · Personal Free redesign · price/Stripe/DB/Clerk/provider/Pair/subscription change |
+| NEXT SINGLE ACTION | **G4 ORGANIC DISCOVERY MAPPING-FIRST** |
+
+---
+
+## FINAL LIVE WORKTREES (2026-08-20 G4 mapping-first) — AUTHORITATIVE
+
+Current `origin/main`: **`00def3a596655dedceceb85764724ef6070a0c91`**
+
+Live count from `git worktree list --porcelain`: **7**
 
 | Path | Branch | HEAD | Registry id | Lifecycle | Why it remains | Exit condition |
 |---|---|---|---|---|---|---|
-| `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `6d53a71df148ed4c0a1016358bc86830086f8732` | primary git root | **PRIMARY_REPO_ROOT** | Primary repository `.git` root; clean; not an ACTIVE implementation lane | keep |
-| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | gate-time operational authority | WT-043 (WT-042 **CLOSED / MERGED**) | **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE** | PR #145 docs vehicle; **not** the durable product lane; physical path may remain | PR #145 merge closes WT-043 operationally; **no** follow-up settlement PR |
-| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; **not** a recommended current control checkout. HEAD `aadb6e57…` is ancestor of current `origin/main` `ecc3e37b…`. | replace only by explicit control-checkout synchronization transition |
-| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `769084dd82da25f7cc0f4656f3cdeeff879209c2` | WT-027 | **PENDING_INTEGRATION** | PR #119 **OPEN** — Compatibility commerce preflight | PR #119 merge/close + separate commerce gate |
+| `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `6d53a71df148ed4c0a1016358bc86830086f8732` | primary git root | **PRIMARY_REPO_ROOT / RETAINED** | Primary repository `.git` root; HEAD is an ancestor of current `origin/main`; not an ACTIVE lane | keep |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `abfb32bd0ba669f09e1ec7d5c73d06177df0af26` | WT-043 (WT-042 **CLOSED / MERGED**) | **CLOSED / RETAINED** | PR #145 merged via `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`; physical path retained | separate retirement authorization |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `4f895aee9ea10431fcc754d18ac965380cda3600` | WT-045 | **CLOSED GREEN / RETAINED** | G3-04 merged via PR #147 @ `00def3a596655dedceceb85764724ef6070a0c91`; physical path retained | separate retirement authorization |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `1402859d0070f17fd560a83e60ed342892d3e03e` | WT-044 | **CLOSED GREEN / RETAINED** | G3-03 merged via PR #146 @ `d33e9d3dc685e733826348b128faa9184a3b0072`; physical path retained | separate retirement authorization |
+| `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` | `feat/m55-g4-organic-discovery-v1` | `00def3a596655dedceceb85764724ef6070a0c91` | WT-046 | **ACTIVE — G4 ORGANIC DISCOVERY MAPPING-FIRST** | Current authorized read-only G4 mapping lane; equals current `origin/main` | `WAIT_FOR_CHATGPT_G4_MAPPING_REVIEW`; source implementation requires later Human gate |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; HEAD is an ancestor of current `origin/main` and is not a recommended current control checkout | replace only by explicit control-checkout synchronization transition |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `769084dd82da25f7cc0f4656f3cdeeff879209c2` | WT-027 | **PENDING_INTEGRATION** | Compatibility commerce preflight branch is not an ancestor of current `origin/main`; commerce remains OFF | PR #119 merge/close + separate commerce gate |
 
 ## FINAL LIVE WORKTREES (2026-08-19 commercial quality consolidation) — HISTORICAL
 
