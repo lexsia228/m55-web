@@ -373,7 +373,6 @@ export const VISUAL_CASE_TO_ECP_ROUTE: Readonly<Record<string, string>> = {
   'core-free-result': 'free.core.result',
   'premium-questionnaire': 'premium.lp.questions',
   'premium-plans': 'premium.lp.plans',
-  pricing: 'public.pricing',
 };
 
 function visualCaseToSurface(visualCase: CommercialVisualCase): SurfaceManifestEntry {

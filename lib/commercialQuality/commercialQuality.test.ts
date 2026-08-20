@@ -1133,12 +1133,12 @@ test('excluding projection aliases from the canonical resolver fails parity', as
 
   const ids = listExecutableSmokeTargets().map((t) => t.runtimeStateId);
   const counts = recomputeCanonicalAliasCounts(ids);
-  assert.equal(counts.executable, 77);
-  assert.equal(counts.canonical, 43);
-  assert.equal(counts.alias, 34);
-  assert.equal(counts.canonical + counts.alias, 77);
+  assert.equal(counts.executable, 75);
+  assert.equal(counts.canonical, 42);
+  assert.equal(counts.alias, 33);
+  assert.equal(counts.canonical + counts.alias, 75);
   assert.deepEqual(reconcileResolverParity(ids, canonicalObservableStateIdFor), []);
-  assert.equal(countProjectionAliases(ids).projectionAliases, 17);
+  assert.equal(countProjectionAliases(ids).projectionAliases, 15);
   assert.ok(
     probeExcludedProjectionResolverNegative(ids).length > 0,
     'excluded-projection candidate must fail authoritative parity',
