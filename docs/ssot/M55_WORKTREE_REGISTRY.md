@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-20 G3-03 CLOSED GREEN self-closing PR** (`git worktree list --porcelain`; branch `feat/m55-g3-runtime-proof-v1` · implementation head **`ec663849ad0ba755e0e8a002d10d8540e3a94e21`** · base `origin/main` **`9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`** · Preview `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** · WT-044 **CLOSES_WITH_THIS_PR_MERGE**)
+Last verified: **2026-08-20 G3-04 CLOSED GREEN self-closing PR** (`git worktree list --porcelain`; branch `feat/m55-g3-04-copy-safety-v1` · implementation head **`03ae78dbd91d63ffc411d389dfd9e276525155f2`** · base `origin/main` **`d33e9d3dc685e733826348b128faa9184a3b0072`** · Preview `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** · WT-045 **CLOSES_WITH_THIS_PR_MERGE**)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -48,7 +48,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-20 G3-03 CLOSED GREEN self-closing PR) — authoritative, read this first:** branch `feat/m55-g3-runtime-proof-v1` · implementation head **`ec663849ad0ba755e0e8a002d10d8540e3a94e21`** · base `origin/main` **`9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`**. G3-03 **CLOSED GREEN** on merge of this PR. WT-044 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** @ implementation head. Runtime proof **GREEN** (matched identity restore · mismatched identity fail-closed · Safari TP representative). G3-01 **NOT AUTHORIZED** · G3-04 **REJECT_EXPOSURE**. G4/G5 **planned / not started**. Durable **ACTIVE lane after merge:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION after merge:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION**. **No** follow-up docs-only settlement PR required.
+**CURRENT (2026-08-20 G3-04 CLOSED GREEN self-closing PR) — authoritative, read this first:** branch `feat/m55-g3-04-copy-safety-v1` · implementation head **`03ae78dbd91d63ffc411d389dfd9e276525155f2`** · base `origin/main` **`d33e9d3dc685e733826348b128faa9184a3b0072`**. **G3 REVISIT / RETENTION LOOP CLOSED GREEN** on merge of this PR. WT-045 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** @ implementation head. G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** · G3-03 **CLOSED GREEN** · G3-04 **CLOSED / KEEP_REJECTED**. G4/G5 **planned / not started** · G4 source **NOT YET AUTHORIZED**. Durable **ACTIVE lane after merge:** **G4 ORGANIC DISCOVERY**. **Current phase / NEXT SINGLE ACTION after merge:** **G4 ORGANIC DISCOVERY MAPPING-FIRST**. **No** follow-up docs-only settlement PR required.
+
+**CURRENT (2026-08-20 G3-03 CLOSED GREEN self-closing PR) — historical:** branch `feat/m55-g3-runtime-proof-v1` · implementation head **`ec663849ad0ba755e0e8a002d10d8540e3a94e21`** · base `origin/main` **`9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`**. G3-03 **CLOSED GREEN** on merge of this PR. WT-044 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** @ implementation head. Runtime proof **GREEN** (matched identity restore · mismatched identity fail-closed · Safari TP representative). G3-01 **NOT AUTHORIZED** · G3-04 **REJECT_EXPOSURE**. G4/G5 **planned / not started**. Durable **ACTIVE lane after merge:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION after merge:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION**. **No** follow-up docs-only settlement PR required.
 
 **CURRENT (2026-08-19 PR #144 post-merge Tier-E settlement) — historical:** `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`**. PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · merge commit `ecc3e37b43414e2a56941377c35235b965047aff`. Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY**. PR-head CI **GREEN**. Safari TP 27.0 representative commercial visual review completed; Human-found P1 defects were corrected before merge. Commercial quality consolidation **CLOSED GREEN**. **USER_VISIBLE_CLOSED_GREEN = YES** for the PR #144 commercial-quality consolidation scope. WT-042 **CLOSED / MERGED** — physical worktree path **retained** (not deleted). WT-043 **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE** — PR #145 docs vehicle; **not** the durable product lane; physical directory may remain; **no** follow-up docs-only PR is required merely to close WT-043; once PR #145 merges, WT-043 is operationally **CLOSED** even if the directory remains. **Do not invent a PR #145 merge SHA.** G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN** · Personal Free **CLOSED GREEN** · **DO NOT REOPEN** absent actual invalidation. **M55_PERSONAL_SALES_LAUNCH = SELL**. **G3 overall not complete** — G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED. Durable **ACTIVE lane:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — remaining G3 sub-items stay blocked; G4 ORGANIC DISCOVERY remains planned (mapping-first; not started); no additional G3 source implementation; no Personal Free redesign. Settlement checkout path `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `chore/m55-pr144-post-merge-tier-e-settlement` · base `ecc3e37b43414e2a56941377c35235b965047aff` is **not** an ACTIVE product implementation lane. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility PR #119 **OPEN** · commerce **OFF**. **No product source implementation** authorized. Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
 
@@ -1041,6 +1043,35 @@ Historical post-merge transition snapshots remain recorded for audit.
 | NEXT SINGLE ACTION after merge | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
 | follow-up docs-only PR | **not required** |
 | prohibited operations | G3-01 implementation · G3-04 exposure · G4/G5 source · Personal Free redesign · price/Stripe/DB/Clerk config/provider/Pair/subscription change |
+
+---
+
+### WT-045 — G3-04 Today/Weekly KEEP_REJECTED de-exposure (CLOSES_WITH_THIS_PR_MERGE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` (**retained** — not deleted) |
+| branch | `feat/m55-g3-04-copy-safety-v1` |
+| base origin/main | `d33e9d3dc685e733826348b128faa9184a3b0072` |
+| implementation head | `03ae78dbd91d63ffc411d389dfd9e276525155f2` |
+| lastVerifiedAt | `2026-08-20` |
+| lifecycle | **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on G3-04 PR merge |
+| purpose | G3-04 KEEP_REJECTED bounded de-exposure — remove public Today/Weekly promotion · temporary `/today` + `/weekly` redirect to `/core` · legacy engines retained |
+| Human authorization | **G3-04** copy-safety mapping · **KEEP_REJECTED** |
+| G3 REVISIT / RETENTION LOOP | **CLOSED GREEN** |
+| G3-01 | **CLOSED GREEN / NO CODE DELTA** |
+| G3-02 | **CLOSED GREEN** |
+| G3-03 | **CLOSED GREEN** |
+| G3-04 | **CLOSED / KEEP_REJECTED** |
+| Preview deployment | `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** |
+| runtime proof | Home Today/Weekly absent · `/today` → `/core` · `/weekly` → `/core` · Safari TP representative **GREEN** |
+| product implementation authorized | **false** after merge — lane closes with PR |
+| Durable ACTIVE lane after merge | **G4 ORGANIC DISCOVERY** |
+| Current phase after merge | **G4 ORGANIC DISCOVERY MAPPING-FIRST** |
+| NEXT SINGLE ACTION after merge | **G4 ORGANIC DISCOVERY MAPPING-FIRST** |
+| G4 source implementation | **NOT YET AUTHORIZED** |
+| follow-up docs-only PR | **not required** |
+| prohibited operations | G4 source implementation without later Human gate · Today/Weekly replacement engine · Personal Free redesign · price/Stripe/DB/Clerk config/provider/Pair/subscription change |
 
 ---
 

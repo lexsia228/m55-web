@@ -593,7 +593,33 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **unchanged** |
 | USER_VISIBLE_CLOSED_GREEN | **HOLD** pending post-fix Safari TP + ChatGPT/Human review |
 
-### 2026-08-20 — G3-03 Personal Free cross-device restore CLOSED GREEN (WT-044)
+### 2026-08-20 — G3-04 Today/Weekly KEEP_REJECTED de-exposure · G3 REVISIT / RETENTION LOOP CLOSED GREEN (WT-045)
+
+**Status:** Human-authorized **G3-04** bounded de-exposure on `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` · branch `feat/m55-g3-04-copy-safety-v1` · implementation head `03ae78dbd91d63ffc411d389dfd9e276525155f2` · base `origin/main` @ `d33e9d3dc685e733826348b128faa9184a3b0072`. **G3 REVISIT / RETENTION LOOP = CLOSED GREEN** — self-closing on this PR merge. WT-045 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree **retained**.
+
+| Decision | Value |
+|---|---|
+| G3 REVISIT / RETENTION LOOP | **CLOSED GREEN** |
+| G3-01 | **CLOSED GREEN / NO CODE DELTA** — signed-in paid-owner revisit / purchased-value continuity; reopen dominates repurchase |
+| G3-02 | **CLOSED GREEN** |
+| G3-03 | **CLOSED GREEN** |
+| G3-04 | **CLOSED / KEEP_REJECTED** |
+| G3-04 closure basis | copy-safety/product mapping completed · fortune risk **HIGH** · false freshness risk **HIGH** · legacy engines lack honest differentiated revisit value · Weekly cadence mislabeled vs daily JDN · Human **KEEP_REJECTED** · Home/public legacy exposure removed · `/today` + `/weekly` temporary redirect to `/core` · no replacement engine |
+| Preview deployment | `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** |
+| WT-045 | **CLOSES_WITH_THIS_PR_MERGE** |
+| G1 / G2 / Personal Free / PR #144 commercial quality | **CLOSED GREEN** — **DO NOT REOPEN** absent actual invalidation |
+| G4 / G5 | **planned / not started** |
+| G4 source implementation | **NOT YET AUTHORIZED** |
+| Today/Weekly | **NOT EXPOSED** · engines retained internal · routes redirect |
+| Pair Premium | **NOT LIVE** |
+| subscription | **absent** |
+| Price / Stripe / DB / Clerk / provider / Pair / subscription | **UNCHANGED** |
+| Durable ACTIVE lane after merge | **G4 ORGANIC DISCOVERY** |
+| Current phase after merge | **G4 ORGANIC DISCOVERY MAPPING-FIRST** |
+| NEXT SINGLE ACTION after merge | **G4 ORGANIC DISCOVERY MAPPING-FIRST** |
+| follow-up docs-only PR | **not required** |
+
+### 2026-08-20 — G3-03 Personal Free cross-device restore CLOSED GREEN (WT-044) — historical
 
 **Status:** Human-authorized **G3-03** implementation on `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` · branch `feat/m55-g3-runtime-proof-v1` · implementation head `ec663849ad0ba755e0e8a002d10d8540e3a94e21` · base `origin/main` @ `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`. **G3-03 = CLOSED GREEN** — self-closing on this PR merge. WT-044 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree **retained**.
 
