@@ -7,7 +7,17 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/dtr/lp", "/dtr", "/support", "/legal/"],
+        allow: [
+          "/",
+          "/home",
+          "/core",
+          "/dtr/lp",
+          "/how-m55-works",
+          "/ten-views",
+          "/synastry",
+          "/support",
+          "/legal/",
+        ],
         disallow: [
           "/dtr/core",
           "/my",

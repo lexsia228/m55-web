@@ -6,7 +6,7 @@
  * Enforces:
  * - ownership boundary (repository-independent engine imports no M55 authority)
  * - manifest schema v1 registration for every imported governed identity
- * - 51 ECP entries / 12 Premium states / 14 Premium captures / 7 visual cases
+ * - 51 ECP entries / 12 Premium states / 14 Premium captures / 6 visual cases
  * - candidate-only approval pack (never a canonical promotion)
  * - locked @axe-core/playwright dependency and CI wiring
  */
@@ -248,13 +248,13 @@ function checkRegistration() {
   REPORT.registrationFailures = report.failures.length;
   REPORT.consolidationPoints = consolidationPoints;
 
-  if (setupCounts.total !== 91) {
-    fail('registration.setup', `setup registry total must be 91 (received ${setupCounts.total})`);
+  if (setupCounts.total !== 89) {
+    fail('registration.setup', `setup registry total must be 89 (received ${setupCounts.total})`);
   }
-  if (setupCounts.executable !== 77) {
+  if (setupCounts.executable !== 75) {
     fail(
       'registration.setup',
-      `setup registry executable count must be 77 (received ${setupCounts.executable})`,
+      `setup registry executable count must be 75 (received ${setupCounts.executable})`,
     );
   }
   if (setupCounts.nonRuntime !== 14) {
@@ -304,8 +304,8 @@ function checkRegistration() {
   if (report.expectedCounts.premiumCaptures !== 14) {
     fail('registration.coverage', `expected 14 Premium captures, authority reports ${report.expectedCounts.premiumCaptures}`);
   }
-  if (report.expectedCounts.commercialVisualCases !== 7) {
-    fail('registration.coverage', `expected 7 commercial visual cases, authority reports ${report.expectedCounts.commercialVisualCases}`);
+  if (report.expectedCounts.commercialVisualCases !== 6) {
+    fail('registration.coverage', `expected 6 commercial visual cases, authority reports ${report.expectedCounts.commercialVisualCases}`);
   }
   for (const failure of report.failures) {
     fail('registration.failure', `${failure.code}: ${failure.message}`);
@@ -663,40 +663,40 @@ function checkStateIdentityUniqueness() {
     REPORT.canonicalObservableStateCount = report.canonical;
     REPORT.registrationAliasCount = report.alias;
     REPORT.fixedAuthGateFixtureCount = report.authFixtures;
-    if (report.executable !== 77) {
-      fail('state_identity.executable', `expected 77 executable contracts, got ${report.executable}`);
+    if (report.executable !== 75) {
+      fail('state_identity.executable', `expected 75 executable contracts, got ${report.executable}`);
     }
-    if (report.canonical !== 43) {
+    if (report.canonical !== 42) {
       fail(
         'state_identity.canonical',
-        `expected 43 canonical observable states (recomputed), got ${report.canonical}`,
+        `expected 42 canonical observable states (recomputed), got ${report.canonical}`,
       );
     }
-    if (report.alias !== 34) {
+    if (report.alias !== 33) {
       fail(
         'state_identity.alias',
-        `expected 34 registration aliases (recomputed), got alias=${report.alias}`,
+        `expected 33 registration aliases (recomputed), got alias=${report.alias}`,
       );
     }
-    if (report.canonical + report.alias !== 77) {
+    if (report.canonical + report.alias !== 75) {
       fail(
         'state_identity.arithmetic',
-        `canonical+alias must equal 77, got ${report.canonical}+${report.alias}`,
+        `canonical+alias must equal 75, got ${report.canonical}+${report.alias}`,
       );
     }
-    if (report.mapping !== 77) {
-      fail('state_identity.mapping', `expected 77 registration mappings, got ${report.mapping}`);
+    if (report.mapping !== 75) {
+      fail('state_identity.mapping', `expected 75 registration mappings, got ${report.mapping}`);
     }
-    if (report.uniqueSignatures !== 43) {
+    if (report.uniqueSignatures !== 42) {
       fail(
         'state_identity.unique',
-        `expected 43 unique canonical observable signatures, got ${report.uniqueSignatures}`,
+        `expected 42 unique canonical observable signatures, got ${report.uniqueSignatures}`,
       );
     }
-    if (report.projectionAliases !== 17 || report.projectionRegistrations !== 17) {
+    if (report.projectionAliases !== 15 || report.projectionRegistrations !== 15) {
       fail(
         'state_identity.projections',
-        `expected 17 projection aliases counted in arithmetic, got registrations=${report.projectionRegistrations} aliases=${report.projectionAliases}`,
+        `expected 15 projection aliases counted in arithmetic, got registrations=${report.projectionRegistrations} aliases=${report.projectionAliases}`,
       );
     }
     if (report.excludedProjectionAliasFailures < 1) {
@@ -733,10 +733,10 @@ function checkStateIdentityUniqueness() {
         `divergent exported string resolvers: ${(report.divergentExports ?? []).join(',')}`,
       );
     }
-    if (report.dualAliasTable !== 17) {
+    if (report.dualAliasTable !== 18) {
       fail(
         'state_identity.dual_table',
-        `expected dual-alias metadata table size 17, got ${report.dualAliasTable}`,
+        `expected dual-alias metadata table size 18, got ${report.dualAliasTable}`,
       );
     }
     if (report.collisions !== 0) {

@@ -10,7 +10,7 @@ import {
 } from './m55MethodRouteConsumption';
 
 describe('M55 method route-consumption authority', () => {
-  it('registers seven placements with pricing and checkout separated', () => {
+  it('registers six placements with checkout prep on Premium LP', () => {
     assert.deepEqual(
       M55_METHOD_ROUTE_CONSUMPTION.map((p) => p.id),
       [
@@ -18,7 +18,6 @@ describe('M55 method route-consumption authority', () => {
         'core_free_result',
         'dtr_lp',
         'purchased_report',
-        'pricing',
         'checkout_prep',
         'footer_nav',
       ],
@@ -26,15 +25,16 @@ describe('M55 method route-consumption authority', () => {
     assert.ok(M55_METHOD_ROUTE_CONSUMPTION.every((p) => p.runtimeEvidenceRequired));
   });
 
-  it('keeps pricing and checkout as distinct registry entries', () => {
-    const pricing = M55_METHOD_ROUTE_CONSUMPTION.find((p) => p.id === 'pricing');
+  it('keeps checkout prep as a distinct /dtr/lp registry entry', () => {
     const checkout = M55_METHOD_ROUTE_CONSUMPTION.find((p) => p.id === 'checkout_prep');
-    assert.ok(pricing);
     assert.ok(checkout);
-    assert.notEqual(pricing!.testId, checkout!.testId);
-    assert.equal(pricing!.route, '/pricing');
     assert.equal(checkout!.route, '/dtr/lp');
     assert.equal(checkout!.runtimeState, 'checkout');
+    assert.equal(checkout!.testId, 'm55-method-checkout-trust-link');
+    assert.equal(
+      M55_METHOD_ROUTE_CONSUMPTION.some((p) => p.route === '/pricing'),
+      false,
+    );
   });
 
   it('requires purchased-report runtime evidence', () => {

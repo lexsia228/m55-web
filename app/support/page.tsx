@@ -21,6 +21,9 @@ import {
 
 export const metadata = {
   title: "サポート | M55",
+  alternates: {
+    canonical: "/support",
+  },
 };
 
 export default function SupportPage() {

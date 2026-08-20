@@ -267,20 +267,6 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
     mobileCoVisibleGroups: [],
     findingIds: ['P1-3'],
   },
-  {
-    caseId: 'pricing',
-    route: '/pricing',
-    setup: 'none',
-    readySelector: '[data-testid="m55-pricing-plan-light"]',
-    protectedTargets: [
-      { selector: '[data-testid="m55-pricing-headline"]', role: 'heading', findingIds: ['P0-3'] },
-      { selector: '[data-testid="m55-pricing-plan-light"]', role: 'copy', findingIds: ['P1-7'], contrastExempt: true },
-      { selector: '[data-testid="m55-pricing-plan-full"]', role: 'copy', findingIds: ['P1-7'], contrastExempt: true },
-    ],
-    overlaySelectors: [PUBLIC_FIXED_HEADER_SELECTOR, '[data-testid="m55-scroll-to-top"]'],
-    mobileCoVisibleGroups: [],
-    findingIds: ['P0-3'],
-  },
 ];
 
 export function commercialVisualCaseById(caseId: string): CommercialVisualCase | undefined {

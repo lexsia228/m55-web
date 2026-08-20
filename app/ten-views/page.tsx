@@ -1,10 +1,31 @@
+import type { Metadata } from 'next';
+import { M55_PUBLIC_SHARE_IMAGE, M55_PUBLIC_SHARE_IMAGE_PATH } from '../../lib/m55/g4PublicShareImage';
 import M55TenViews from '../../components/pages/M55TenViews';
 import { PublicShell } from '../_components/PublicShell';
 
-export const metadata = {
-  title: '人生を再構築するための10通りの資質 | M55',
-  description:
-    'M55の10通りの資質は、自己観測のためのラベルです。役職や順位ではなく、輪郭を静かに読み解く入口です。',
+const title = '人生を再構築するための10通りの資質 | M55';
+const description =
+  'M55の10通りの資質は、自己観測のためのラベルです。役職や順位ではなく、輪郭を静かに読み解く入口です。';
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: '/ten-views',
+  },
+  openGraph: {
+    title,
+    description,
+    url: '/ten-views',
+    type: 'website',
+    images: [M55_PUBLIC_SHARE_IMAGE],
+  },
+  twitter: {
+    card: 'summary',
+    title,
+    description,
+    images: [M55_PUBLIC_SHARE_IMAGE_PATH],
+  },
 };
 
 export default function TenViewsPage() {

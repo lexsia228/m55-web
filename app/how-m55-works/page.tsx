@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicShell } from '../_components/PublicShell';
+import { M55_PUBLIC_SHARE_IMAGE, M55_PUBLIC_SHARE_IMAGE_PATH } from '../../lib/m55/g4PublicShareImage';
 import {
   M55_METHOD_CANONICAL_COPY,
   M55_METHOD_PUBLIC_NAME,
@@ -8,9 +10,28 @@ import { M55_COMMERCIAL_TERMINOLOGY } from '../../lib/m55/commercialUx/terminolo
 import M55MethodSections from '../../components/pages/M55MethodSections';
 import styles from './how-it-works.module.css';
 
-export const metadata = {
-  title: `${M55_METHOD_PUBLIC_NAME} | M55`,
-  description: M55_METHOD_CANONICAL_COPY.explanationJa.replace(/\n/g, ''),
+const title = `${M55_METHOD_PUBLIC_NAME} | M55`;
+const description = M55_METHOD_CANONICAL_COPY.explanationJa.replace(/\n/g, '');
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: '/how-m55-works',
+  },
+  openGraph: {
+    title,
+    description,
+    url: '/how-m55-works',
+    type: 'website',
+    images: [M55_PUBLIC_SHARE_IMAGE],
+  },
+  twitter: {
+    card: 'summary',
+    title,
+    description,
+    images: [M55_PUBLIC_SHARE_IMAGE_PATH],
+  },
 };
 
 /**

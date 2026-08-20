@@ -13,14 +13,14 @@ export const metadata: Metadata = {
   description:
     "M55は、生年月日と今の回答から、自分の傾向を言葉にするセルフリーディングサービスです。",
   icons: {
-    icon: "/icons/m55-core-logo.png",
-    apple: "/icons/m55-core-logo.png",
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-512.png",
   },
   openGraph: {
     title: "M55",
     description:
       "M55は、生年月日と今の回答から、自分の傾向を言葉にするセルフリーディングサービスです。",
-    images: [{ url: "/icons/m55-core-logo.png", alt: "M55" }],
+    images: [{ url: "/icons/icon-512.png", alt: "M55" }],
   },
 };
 
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       signUpUrl="/sign-up"
       appearance={{
         layout: {
-          logoImageUrl: "/icons/m55-core-logo.png",
+          logoImageUrl: "/icons/icon-512.png",
         },
       }}
     >

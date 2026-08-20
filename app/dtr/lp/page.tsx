@@ -8,6 +8,7 @@ import {
   resolveDtrShelfAccess,
   type DtrLpCtaMode,
 } from "../../../lib/m55/dtrShelfAccess";
+import { M55_PUBLIC_SHARE_IMAGE, M55_PUBLIC_SHARE_IMAGE_PATH } from "../../../lib/m55/g4PublicShareImage";
 import { PAID_DTR_LP, PAID_DTR_LP_METADATA_TITLE_JA } from "../../../lib/m55/paidDtrProductCopy";
 import { PLAN_COMPARISON } from "../../../lib/m55/commercialUx/planComparison";
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
@@ -27,13 +28,16 @@ export const metadata: Metadata = {
     title: "M55 プレミアムレポート",
     description:
       "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解きで一テーマずつ深められます。",
+    url: "/dtr/lp",
     type: "website",
+    images: [M55_PUBLIC_SHARE_IMAGE],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "M55 プレミアムレポート",
     description:
       "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解き付き。",
+    images: [M55_PUBLIC_SHARE_IMAGE_PATH],
   },
 };
 

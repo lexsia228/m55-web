@@ -22,9 +22,9 @@ export default function M55MethodSections() {
       aria-labelledby="m55-method-canonical-title"
     >
       <p className={styles.rootEyebrow}>{M55_METHOD_PUBLIC_NAME}</p>
-      <h2 id="m55-method-canonical-title" className={styles.rootTitle}>
+      <h1 id="m55-method-canonical-title" className={styles.rootTitle}>
         {Copy.homeHeadingJa}
-      </h2>
+      </h1>
       <p className={styles.rootLead}>{Copy.explanationJa}</p>
 
       <ol className={styles.sectionList}>

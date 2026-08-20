@@ -120,9 +120,12 @@ of another person's feelings. `M55_UNSUPPORTED_AUTHORITY_PHRASES` and
 | Free result composition | `/core` | after the result explanation, before the Premium bridge | compact |
 | Free vs Premium difference | `/dtr/lp` | before plan selection | difference |
 | Purchased report composition | purchased report | at the start of the report body | compact |
-| Pricing | `/pricing` | near the price table | link only |
 | Checkout preparation | `/dtr/lp` (checkout state) | before the purchase CTA | link only |
 | Footer / nav | all public routes | one canonical link | link only |
+
+`/pricing` is retired as a duplicate public decision surface and permanently
+redirects to `/dtr/lp`; it is not a method placement. Checkout preparation
+remains a distinct `/dtr/lp` runtime-state placement.
 
 `/how-m55-works` is the only detailed method page. Creating a second method route
 is a violation, not an addition.

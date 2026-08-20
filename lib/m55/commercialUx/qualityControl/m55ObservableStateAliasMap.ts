@@ -45,6 +45,12 @@ export const M55_OBSERVABLE_STATE_ALIASES: Readonly<
     justification: 'root redirects to the same HOME hero presentation',
     redirectLandingRoute: '/home',
   },
+  'ecp:public.pricing:default': {
+    canonicalObservableStateId: 'ecp:premium.lp.need_free:need_free',
+    justification:
+      '/pricing permanently redirects to Premium discovery LP; fresh isolated session lands on the need-free presentation (same as direct /dtr/lp without Free result)',
+    redirectLandingRoute: '/dtr/lp',
+  },
   'ecp:legacy.today:default': {
     canonicalObservableStateId: 'ecp:free.core.empty:empty',
     justification: '/today redirects to the same first-visit /core empty presentation',
@@ -126,14 +132,12 @@ export const M55_OBSERVABLE_STATE_PROJECTIONS: Readonly<Record<string, string>> 
   'method:core_free_result:RESULT': 'ecp:free.core.answer_review:answer_review',
   'method:dtr_lp:plans': 'ecp:premium.lp.plans:plan_selection',
   'method:purchased_report:purchased_report_body': 'ecp:purchased.reader:default',
-  'method:pricing:default': 'ecp:public.pricing:default',
   'method:checkout_prep:checkout': 'ecp:premium.lp.checkout:payment_preparation',
   'method:footer_nav:default': 'ecp:public.how_m55_works:default',
   'ecp:legacy.reply:default': 'ecp:premium.lp.need_free:need_free',
   'premium:premium.share.card': 'ecp:dev.premium_share_preview:default',
   'premium:purchased.report.body': 'ecp:purchased.reader:default',
   'premium:purchased.saved_reopen': 'ecp:purchased.reader:default',
-  'visual:pricing': 'ecp:public.pricing:default',
   // Free RESULT page sections share one rendered presentation after establishCoreResult.
   'ecp:free.core.result:result': 'ecp:free.core.answer_review:answer_review',
   'ecp:free.core.save:save': 'ecp:free.core.answer_review:answer_review',

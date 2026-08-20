@@ -165,11 +165,11 @@ test.afterAll(() => {
 test.describe('commercial quality control plane', () => {
   test('1. setup registry — executable vs non-runtime; no fallback mocks', () => {
     const counts = countAuthorityRegistrations();
-    expect(counts.total).toBe(91);
-    expect(counts.executable).toBe(77);
+    expect(counts.total).toBe(89);
+    expect(counts.executable).toBe(75);
     expect(counts.nonRuntime).toBe(14);
-    expect(M55_SETUP_REGISTRY.setups.length).toBe(91);
-    expect(listExecutableSmokeTargets().length).toBe(77);
+    expect(M55_SETUP_REGISTRY.setups.length).toBe(89);
+    expect(listExecutableSmokeTargets().length).toBe(75);
     expect(listNonRuntimeReferenceTargets().length).toBe(14);
 
     const report = verifyM55CommercialQualityRegistration();
@@ -188,7 +188,6 @@ test.describe('commercial quality control plane', () => {
       'core_free_result',
       'dtr_lp',
       'purchased_report',
-      'pricing',
       'checkout_prep',
       'footer_nav',
     ]) {
@@ -205,9 +204,9 @@ test.describe('commercial quality control plane', () => {
     expect(probeAdapterNegative('setup_wrong_route').some((f) => f.code === 'SETUP_ROUTE_MISMATCH')).toBe(true);
     expect(probeAdapterNegative('setup_wrong_runtime_state').some((f) => f.code === 'SETUP_STATE_MISMATCH')).toBe(true);
     expect(countGenericStateMarkers()).toBe(0);
-    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(77);
+    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(75);
     const ownership = countContractsByOwnership();
-    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(77);
+    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(75);
     const executableTargets = listExecutableSmokeTargets();
     const executableContracts = executableTargets.map((t) =>
       stateDomContractForEntry(resolveSmokeManifestEntry(t)),
@@ -216,23 +215,23 @@ test.describe('commercial quality control plane', () => {
       executableTargets.map((t) => t.runtimeStateId),
     );
     const registrationIds = executableTargets.map((t) => t.runtimeStateId);
-    expect(aliasCounts.executable).toBe(77);
-    expect(aliasCounts.canonical).toBe(43);
-    expect(aliasCounts.alias).toBe(34);
-    expect(aliasCounts.mapping).toBe(77);
-    expect(aliasCounts.canonical + aliasCounts.alias).toBe(77);
-    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(17);
-    expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(17);
+    expect(aliasCounts.executable).toBe(75);
+    expect(aliasCounts.canonical).toBe(42);
+    expect(aliasCounts.alias).toBe(33);
+    expect(aliasCounts.mapping).toBe(75);
+    expect(aliasCounts.canonical + aliasCounts.alias).toBe(75);
+    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(18);
+    expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(15);
     const projections = countProjectionAliases(registrationIds);
-    expect(projections.projectionRegistrations).toBe(17);
-    expect(projections.projectionAliases).toBe(17);
+    expect(projections.projectionRegistrations).toBe(15);
+    expect(projections.projectionAliases).toBe(15);
     expect(reconcileResolverParity(registrationIds, canonicalObservableStateIdFor)).toEqual([]);
     expect(probeExcludedProjectionResolverNegative(registrationIds).length).toBeGreaterThan(0);
     const renamed = probeRenamedDivergentResolverNegative(registrationIds);
     expect(renamed.parityFailures.length).toBeGreaterThan(0);
     expect(renamed.disallowedExports).toContain('sneakyAlternateCanonicalResolver');
     expect(renamed.divergentExports).toContain('sneakyAlternateCanonicalResolver');
-    expect(countUniqueObservableSignatures(executableContracts)).toBe(43);
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(42);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
       [],
@@ -293,7 +292,7 @@ test.describe('commercial quality control plane', () => {
   }) => {
     test.setTimeout(1_800_000);
     const targets = listExecutableSmokeTargets();
-    expect(targets.length).toBe(77);
+    expect(targets.length).toBe(75);
 
     const results: { surfaceId: string; ok: boolean; detail: string }[] = [];
     let protectedSelectorAssertionCount = 0;
@@ -443,17 +442,17 @@ test.describe('commercial quality control plane', () => {
 
     const failed = results.filter((r) => !r.ok);
     expect(failed, JSON.stringify(failed, null, 2)).toEqual([]);
-    expect(results.filter((r) => r.ok).length).toBe(77);
-    expect(productionMeasurementCount).toBe(77);
-    expect(fullInvariantAssertionCount).toBe(77);
+    expect(results.filter((r) => r.ok).length).toBe(75);
+    expect(productionMeasurementCount).toBe(75);
+    expect(fullInvariantAssertionCount).toBe(75);
     expect(fullInvariantFailures).toEqual([]);
-    expect(protectedSelectorAssertionCount).toBeGreaterThan(77);
+    expect(protectedSelectorAssertionCount).toBeGreaterThan(75);
     expect(missingProtectedSelectorFailures).toBe(0);
     expect(emptyProtectedSelectorFailures).toBe(0);
     expect(runnerWrittenStateMarkerCount).toBe(0);
     expect(externalRedirectStateAcceptanceCount).toBe(0);
-    expect(methodResolvedHrefs.length).toBe(7);
-    expect(Object.keys(perSurfaceProtected).length).toBe(77);
+    expect(methodResolvedHrefs.length).toBe(6);
+    expect(Object.keys(perSurfaceProtected).length).toBe(75);
   });
 
   test('3. geometry + governed stress + unsupported stress rejection', async ({ page }) => {
@@ -484,7 +483,7 @@ test.describe('commercial quality control plane', () => {
 
     let teardownRestorationFailures = 0;
     for (const profile of ALL_PROFILES) {
-      const targetSelector = 'main h2';
+      const targetSelector = 'main h1';
       const stressEntry = selfTestEntry({
         contentStressProfiles: [profile, 'short_text'],
         protectedElements: [
@@ -509,7 +508,7 @@ test.describe('commercial quality control plane', () => {
         profile,
       );
       expect(applied.applied).toBe(true);
-      expect(String(applied.evidence.selector ?? '')).toContain('h2');
+      expect(String(applied.evidence.selector ?? '')).toContain('h1');
 
       const afterIdentity = (await target.evaluate((el) => el.textContent ?? '')).trim();
       if (profile === 'empty') {

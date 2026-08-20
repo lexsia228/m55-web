@@ -714,6 +714,14 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         authGate: true,
       };
     }
+    case 'public.pricing':
+      // Retired /pricing permanently redirects into Premium discovery LP (need_free when Free result absent).
+      return {
+        ...plain,
+        navigatePath: '/pricing',
+        readySelector: '[data-testid="m55-dtr-need-free"]',
+        stateMarkerSelector: '[data-testid="m55-dtr-need-free"]',
+      };
     case 'legacy.reply':
       // Public legacy /reply permanently redirects into DTR LP (need_free gate).
       return {
@@ -1089,15 +1097,6 @@ function methodPlacementPlan(placementId: string): NavigatePlan {
         authenticationMode: 'purchased_private',
         hasDeterministicAuthFixture: true,
         setupFn: establishPurchasedReport,
-      };
-    case 'pricing':
-      return {
-        fixtureId: null,
-        navigatePath: '/pricing',
-        readySelector: '[data-testid="m55-method-trust-link"]',
-        stateMarkerSelector: '[data-testid="m55-method-trust-link"]',
-        authenticationMode: 'unauthenticated',
-        hasDeterministicAuthFixture: false,
       };
     case 'checkout_prep':
       return {
