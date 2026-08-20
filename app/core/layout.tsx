@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { M55_PUBLIC_SHARE_IMAGE, M55_PUBLIC_SHARE_IMAGE_PATH } from '../../lib/m55/g4PublicShareImage';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 
 const title = '無料で自分の傾向を見る | M55';
@@ -15,11 +16,13 @@ export const metadata: Metadata = {
     description,
     url: '/core',
     type: 'website',
+    images: [M55_PUBLIC_SHARE_IMAGE],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title,
     description,
+    images: [M55_PUBLIC_SHARE_IMAGE_PATH],
   },
 };
 

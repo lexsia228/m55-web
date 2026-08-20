@@ -19,10 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "/legal/",
         ],
         disallow: [
-          "/dtr$",
           "/dtr/core",
-          "/dtr/processing",
-          "/purchase/success",
           "/my",
           "/sign-in",
           "/sign-up",

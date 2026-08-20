@@ -69,28 +69,24 @@ describe('G4 organic discovery — sitemap', () => {
 describe('G4 organic discovery — robots and noindex', () => {
   it('preserves operational crawler boundaries', () => {
     const robots = read('app/robots.ts');
-    for (const path of [
-      '/dtr/core',
-      '/dtr/processing',
-      '/purchase/success',
-      '/my',
-      '/sign-in',
-      '/sign-up',
-      '/r/',
-      '/prototype/',
-      '/dev/',
-      '/api/',
-    ]) {
+    for (const path of ['/dtr/core', '/my', '/sign-in', '/sign-up', '/r/', '/prototype/', '/dev/', '/api/']) {
       assert.match(robots, new RegExp(path.replace(/\//g, '\\/')));
     }
-    assert.match(robots, /\/dtr\$/);
     assert.match(robots, /\/dtr\/lp/);
   });
 
-  it('/dtr, /dtr/processing, /purchase/success are noindex', () => {
+  it('/dtr, /dtr/processing, /purchase/success are crawlable noindex surfaces', () => {
+    const robots = read('app/robots.ts');
+    assert.doesNotMatch(robots, /\/dtr\$/);
+    assert.doesNotMatch(robots, /\/dtr\/processing/);
+    assert.doesNotMatch(robots, /\/purchase\/success/);
     assert.match(read('app/dtr/page.tsx'), /robots:\s*\{\s*index:\s*false/);
     assert.match(read('app/dtr/processing/page.tsx'), /robots:\s*\{\s*index:\s*false/);
     assert.match(read('app/purchase/success/layout.tsx'), /robots:\s*\{\s*index:\s*false/);
+  });
+
+  it('/dtr/core remains robots-disallowed', () => {
+    assert.match(read('app/robots.ts'), /\/dtr\/core/);
   });
 });
 
@@ -130,6 +126,41 @@ describe('G4 organic discovery — metadata identities and canonicals', () => {
     assert.match(lp, /PAID_DTR_LP_METADATA_TITLE_JA/);
     assert.match(lp, /canonical:\s*["']\/dtr\/lp["']/);
     assert.match(lp, /プレミアムレポート/);
+  });
+});
+
+describe('G4 organic discovery — share images', () => {
+  const DISCOVERY_OG_OWNERS: readonly [string, string][] = [
+    ['app/home/layout.tsx', '/home'],
+    ['app/core/layout.tsx', '/core'],
+    ['app/dtr/lp/page.tsx', '/dtr/lp'],
+    ['app/how-m55-works/page.tsx', '/how-m55-works'],
+    ['app/ten-views/page.tsx', '/ten-views'],
+    ['app/synastry/page.tsx', '/synastry'],
+  ];
+
+  it('every route-specific OpenGraph owner explicitly owns a valid share image', () => {
+    for (const [file] of DISCOVERY_OG_OWNERS) {
+      const src = read(file);
+      assert.match(src, /openGraph:/);
+      assert.match(src, /M55_PUBLIC_SHARE_IMAGE/);
+      assert.match(src, /images:\s*\[M55_PUBLIC_SHARE_IMAGE\]/);
+    }
+  });
+
+  it('Twitter metadata owns the same share image for discovery routes', () => {
+    for (const [file] of DISCOVERY_OG_OWNERS) {
+      const src = read(file);
+      assert.match(src, /twitter:/);
+      assert.match(src, /images:\s*\[M55_PUBLIC_SHARE_IMAGE_PATH\]/);
+      assert.match(src, /card:\s*['"]summary['"]/);
+    }
+  });
+
+  it('referenced share image exists on disk', () => {
+    const share = read('lib/m55/g4PublicShareImage.ts');
+    assert.match(share, /\/icons\/icon-512\.png/);
+    assert.equal(exists('public/icons/icon-512.png'), true);
   });
 });
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicShell } from '../_components/PublicShell';
+import { M55_PUBLIC_SHARE_IMAGE, M55_PUBLIC_SHARE_IMAGE_PATH } from '../../lib/m55/g4PublicShareImage';
 import {
   M55_METHOD_CANONICAL_COPY,
   M55_METHOD_PUBLIC_NAME,
@@ -23,11 +24,13 @@ export const metadata: Metadata = {
     description,
     url: '/how-m55-works',
     type: 'website',
+    images: [M55_PUBLIC_SHARE_IMAGE],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title,
     description,
+    images: [M55_PUBLIC_SHARE_IMAGE_PATH],
   },
 };
 

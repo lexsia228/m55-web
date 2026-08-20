@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { M55_PUBLIC_SHARE_IMAGE, M55_PUBLIC_SHARE_IMAGE_PATH } from '../../lib/m55/g4PublicShareImage';
 import M55TenViews from '../../components/pages/M55TenViews';
 import { PublicShell } from '../_components/PublicShell';
 
@@ -17,11 +18,13 @@ export const metadata: Metadata = {
     description,
     url: '/ten-views',
     type: 'website',
+    images: [M55_PUBLIC_SHARE_IMAGE],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title,
     description,
+    images: [M55_PUBLIC_SHARE_IMAGE_PATH],
   },
 };
 
