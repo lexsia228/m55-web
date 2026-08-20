@@ -98,7 +98,16 @@ async function resolveCheckoutSessionReuse(
     }
     return { kind: 'unusable' };
   } catch (e) {
-    console.warn('[checkout] session reuse retrieve failed', e);
+    console.warn(
+      '[checkout]',
+      JSON.stringify({
+        lane: 'personal_premium',
+        event: 'session_reuse_retrieve',
+        status: 'retrieve_failed',
+        failure_reason: e instanceof Error ? e.name : 'unknown',
+        session_id_present: true,
+      }),
+    );
     return { kind: 'retrieve_failed' };
   }
 }
@@ -128,7 +137,15 @@ async function getResumeCheckoutSessionIdForDtr(userId: string): Promise<string 
     const cs = (otf as { checkout_session_id?: string } | null)?.checkout_session_id;
     if (typeof cs === 'string' && cs.trim().length > 0) return cs.trim();
   } catch (e) {
-    console.error('[checkout] getResumeCheckoutSessionIdForDtr failed', e);
+    console.error(
+      '[checkout]',
+      JSON.stringify({
+        lane: 'personal_premium',
+        event: 'resume_session_lookup',
+        status: 'failed',
+        failure_reason: e instanceof Error ? e.name : 'unknown',
+      }),
+    );
   }
   return null;
 }
@@ -197,7 +214,15 @@ async function logCheckout409(
       })
     );
   } catch (e) {
-    console.error('[checkout] logCheckout409 failed', e);
+    console.error(
+      '[checkout]',
+      JSON.stringify({
+        lane: 'personal_premium',
+        event: 'log_checkout_409',
+        status: 'failed',
+        failure_reason: e instanceof Error ? e.name : 'unknown',
+      }),
+    );
   }
 }
 
@@ -685,7 +710,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url });
   } catch (e) {
-    console.error('[checkout] stripe session create failed', e);
+    console.error(
+      '[checkout]',
+      JSON.stringify({
+        lane: 'personal_premium',
+        event: 'stripe_session_create',
+        status: 'failed',
+        failure_reason: e instanceof Error ? e.name : 'unknown',
+      }),
+    );
     return publicCheckoutError(500);
   }
 }

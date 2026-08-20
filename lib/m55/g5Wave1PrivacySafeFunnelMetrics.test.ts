@@ -15,6 +15,7 @@ import {
   markFreeResultPremiumLpEntry,
   M55_FREE_RESULT_LP_ENTRY_KEY,
 } from './analytics/freeResultPremiumLpEntry';
+import { planPremiumLpViewedEmit } from './analytics/planPremiumLpViewedEmit';
 import { planClassFromDtrCoreProductId } from './analytics/planClassFromProductId';
 import {
   assertPrivacySafeFunnelPayload,
@@ -178,7 +179,11 @@ describe('G5 Wave 1 — Free→LP attribution', () => {
       const lpAnalytics = read('components/dtr/DtrPremiumLpViewAnalytics.tsx');
       assert.match(lpAnalytics, /premiumLpViewed/);
       assert.match(lpAnalytics, /consumeFreeResultPremiumLpEntry/);
-      assert.match(lpAnalytics, /entrySource:\s*'free_result'/);
+      assert.match(lpAnalytics, /planPremiumLpViewedEmit/);
+      assert.match(lpAnalytics, /trackFunnelAction/);
+      assert.doesNotMatch(lpAnalytics, /trackFunnelImpressionOnce/);
+      assert.doesNotMatch(lpAnalytics, /dtr-premium-lp-viewed/);
+      assert.match(lpAnalytics, /emittedRef/);
       const lpPage = read('app/dtr/lp/page.tsx');
       assert.match(lpPage, /DtrPremiumLpViewAnalytics/);
     } finally {
@@ -187,6 +192,80 @@ describe('G5 Wave 1 — Free→LP attribution', () => {
         value: original,
       });
     }
+  });
+
+  it('D-E) LP analytics uses per-mount local dedupe, not global fixed impression key', () => {
+    const lpAnalytics = read('components/dtr/DtrPremiumLpViewAnalytics.tsx');
+    assert.doesNotMatch(lpAnalytics, /trackFunnelImpressionOnce/);
+    assert.doesNotMatch(lpAnalytics, /dtr-premium-lp-viewed/);
+    assert.match(lpAnalytics, /useRef\(false\)/);
+    assert.match(lpAnalytics, /trackFunnelAction\(\s*M55_FUNNEL_EVENTS\.premiumLpViewed/);
+  });
+
+  it('F) direct LP then later Free→LP both emit; second is not suppressed', () => {
+    const emits: Array<{ extras?: { entrySource?: string } }> = [];
+
+    // Mount 1: direct LP
+    let emittedMount1 = false;
+    const plan1a = planPremiumLpViewedEmit({
+      alreadyEmittedThisMount: emittedMount1,
+      consumeFreeMarker: () => false,
+    });
+    assert.equal(plan1a.shouldEmit, true);
+    if (plan1a.shouldEmit) {
+      emittedMount1 = true;
+      emits.push({ extras: plan1a.extras });
+    }
+    // Strict Mode remount of SAME mount must not emit again
+    const plan1b = planPremiumLpViewedEmit({
+      alreadyEmittedThisMount: emittedMount1,
+      consumeFreeMarker: () => {
+        throw new Error('must not consume on suppressed remount');
+      },
+    });
+    assert.equal(plan1b.shouldEmit, false);
+
+    // Mount 2: Free CTA set marker, then LP again
+    let freeMarker = true;
+    let emittedMount2 = false;
+    const plan2 = planPremiumLpViewedEmit({
+      alreadyEmittedThisMount: emittedMount2,
+      consumeFreeMarker: () => {
+        const v = freeMarker;
+        freeMarker = false;
+        return v;
+      },
+    });
+    assert.equal(plan2.shouldEmit, true);
+    if (plan2.shouldEmit) {
+      emittedMount2 = true;
+      emits.push({ extras: plan2.extras });
+    }
+
+    assert.equal(emits.length, 2);
+    assert.equal(emits[0]?.extras?.entrySource, undefined);
+    assert.equal(emits[1]?.extras?.entrySource, 'free_result');
+    assert.equal(freeMarker, false);
+  });
+
+  it('G) Strict-Mode-style duplicate effect for SAME mount does not double emit', () => {
+    let consumed = 0;
+    let emitted = false;
+    const run = () =>
+      planPremiumLpViewedEmit({
+        alreadyEmittedThisMount: emitted,
+        consumeFreeMarker: () => {
+          consumed += 1;
+          return false;
+        },
+      });
+
+    const first = run();
+    assert.equal(first.shouldEmit, true);
+    emitted = true;
+    const second = run();
+    assert.equal(second.shouldEmit, false);
+    assert.equal(consumed, 1);
   });
 });
 
@@ -259,6 +338,34 @@ describe('G5 Wave 1 — report open canonicality + log privacy + G1-G4 unchanged
     const webhook = read('app/api/stripe/webhook/route.ts');
     const checkout = read('app/api/purchase/checkout/route.ts');
     const fulfill = read('lib/m55/dtrCoreCheckoutFulfillment.ts');
+
+    // A) one-time / webhook console paths must not interpolate raw id variables
+    const webhookConsoleBlocks = webhook.match(/console\.(?:error|warn|info)\([\s\S]*?\n\s*\)/g) ?? [];
+    assert.ok(webhookConsoleBlocks.length > 0);
+    for (const block of webhookConsoleBlocks) {
+      assert.doesNotMatch(block, /,\s*event\.id\b/);
+      assert.doesNotMatch(block, /,\s*session\.id\b/);
+      assert.doesNotMatch(block, /,\s*paymentIntentId\b/);
+      assert.doesNotMatch(block, /,\s*userId\b/);
+      assert.doesNotMatch(block, /event_id:\s*event\.id/);
+      assert.doesNotMatch(block, /Boolean\(paymentIntentId\)/);
+      assert.doesNotMatch(block, /Boolean\(userId\)/);
+    }
+
+    // B) stripe_events_insert failure is coarse-only
+    const insertFailIdx = webhook.indexOf("failure_reason: 'stripe_events_insert'");
+    assert.ok(insertFailIdx > 0);
+    const insertFailSlice = webhook.slice(insertFailIdx - 200, insertFailIdx + 350);
+    assert.match(insertFailSlice, /event_id_present:\s*true/);
+    assert.doesNotMatch(insertFailSlice, /event\.id/);
+    assert.doesNotMatch(insertFailSlice, /insertErr\b/);
+
+    // C) checkout session reuse retrieve does not log raw caught error
+    assert.match(checkout, /session_reuse_retrieve/);
+    assert.match(checkout, /status:\s*'retrieve_failed'/);
+    assert.doesNotMatch(checkout, /session reuse retrieve failed',\s*e\)/);
+    assert.doesNotMatch(checkout, /getResumeCheckoutSessionIdForDtr failed',\s*e\)/);
+    assert.doesNotMatch(checkout, /stripe session create failed',\s*e\)/);
 
     const oneTimeLogs = webhook
       .split('\n')

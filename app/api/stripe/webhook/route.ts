@@ -63,7 +63,14 @@ export async function POST(req: NextRequest) {
     const stripe = getStripe();
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (e) {
-    console.error('[webhook] signature verification failed:', e);
+    console.error(
+      '[webhook]',
+      JSON.stringify({
+        lane: 'signature',
+        status: 'failed',
+        failure_reason: e instanceof Error ? e.name : 'unknown',
+      }),
+    );
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
@@ -132,7 +139,7 @@ export async function POST(req: NextRequest) {
       console.warn(
         '[webhook] legacy_invoice_paid_ignored',
         JSON.stringify({
-          event_id: event.id,
+          event_id_present: true,
           event_type: event.type,
           lane: 'legacy_invoice_paid_ignored',
         })
@@ -189,7 +196,21 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json({ received: true }, { status: 200 });
     }
-    console.error('[webhook] event_id=', event.id, 'event_type=', eventType, 'failure=stripe_events_insert', insertErr);
+    const stripeEventsInsertErrorCode =
+      insertErr && typeof insertErr === 'object' && 'code' in insertErr
+        ? String((insertErr as { code?: unknown }).code ?? 'unknown')
+        : 'unknown';
+    console.error(
+      '[webhook]',
+      JSON.stringify({
+        lane: 'stripe_events',
+        event_type: eventType,
+        status: 'failed',
+        failure_reason: 'stripe_events_insert',
+        event_id_present: true,
+        error_code: stripeEventsInsertErrorCode,
+      }),
+    );
     if (ONE_TIME_KEY_EVENTS.has(event.type ?? '')) {
       const diagIdemFail = consumePendingReplyTicketDiagnosticSummary();
       if (diagIdemFail) {
@@ -311,7 +332,7 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
     console.warn(
       '[webhook] legacy_subscription_checkout_ignored',
       JSON.stringify({
-        event_id: event.id,
+        event_id_present: true,
         event_type: event.type,
         lane: 'legacy_subscription_checkout_ignored',
       })
@@ -411,7 +432,14 @@ async function insertFailedFulfillment(
       user_ref_hash: userRefHash,
     });
   } catch (e) {
-    console.error('[webhook] failed_fulfillments insert failed', e);
+    console.error(
+      '[webhook]',
+      JSON.stringify({
+        lane: 'failed_fulfillments',
+        status: 'failed',
+        failure_reason: e instanceof Error ? e.name : 'unknown',
+      }),
+    );
   }
 }
 
@@ -452,7 +480,15 @@ async function handleCheckoutCompletedOneTime(
       revalidatePath('/dtr/lp');
       revalidatePath('/purchase/success');
     } catch (e) {
-      console.error('[webhook] revalidatePath failed (non-fatal)', e);
+      console.error(
+        '[webhook]',
+        JSON.stringify({
+          lane: 'one_time',
+          event: 'revalidatePath',
+          status: 'failed_non_fatal',
+          failure_reason: e instanceof Error ? e.name : 'unknown',
+        }),
+      );
     }
     console.info(
       '[webhook] lane=one_time',
@@ -597,7 +633,7 @@ async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any
         event_type: 'charge.refunded',
         status: 'failed',
         failure_reason: 'revoke_failed',
-        payment_intent_id_present: Boolean(paymentIntentId),
+        payment_intent_id_present: true,
         event_id_present: true,
       }),
     );
