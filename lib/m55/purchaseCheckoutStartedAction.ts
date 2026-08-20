@@ -11,8 +11,10 @@ import type { BirthProfile } from '../soul/profile';
 import {
   M55_FUNNEL_EVENTS,
   type M55FunnelEventName,
+  type M55FunnelPayloadExtras,
   type M55FunnelSurface,
 } from './privacySafeFunnelAnalytics';
+import { planClassFromDtrCoreProductId } from './analytics/planClassFromProductId';
 
 export type PurchaseCheckoutPayload = {
   productId: string;
@@ -47,7 +49,11 @@ export type PurchaseCheckoutAttemptOutcome =
 
 export type PurchaseCheckoutStartedDeps = {
   fetchCheckout: (payload: PurchaseCheckoutPayload) => Promise<PurchaseCheckoutResponse>;
-  trackFunnelAction: (event: M55FunnelEventName, surface: M55FunnelSurface) => void;
+  trackFunnelAction: (
+    event: M55FunnelEventName,
+    surface: M55FunnelSurface,
+    extras?: M55FunnelPayloadExtras,
+  ) => void;
   navigateHref: (url: string) => void;
   navigateReplace: (url: string) => void;
   isProfileGatedProduct: (productId: string) => boolean;
@@ -271,7 +277,14 @@ export async function runPurchaseCheckoutAttempt(args: {
       return { kind: 'error', message: PURCHASE_CHECKOUT_PUBLIC_ERRORS.checkout_unavailable };
     }
 
-    deps.trackFunnelAction(M55_FUNNEL_EVENTS.checkoutStarted, SURFACE);
+    deps.trackFunnelAction(
+      M55_FUNNEL_EVENTS.checkoutStarted,
+      SURFACE,
+      (() => {
+        const planClass = planClassFromDtrCoreProductId(productId);
+        return planClass ? { planClass } : undefined;
+      })(),
+    );
     deps.navigateHref(checkoutUrl);
     return { kind: 'navigated' };
   } catch (e) {

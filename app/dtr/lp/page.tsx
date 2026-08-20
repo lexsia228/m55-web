@@ -15,6 +15,7 @@ import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTi
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
 import DtrLpPremiumContinuityIntro from "../../../components/dtr/DtrLpPremiumContinuityIntro";
+import DtrPremiumLpViewAnalytics from "../../../components/dtr/DtrPremiumLpViewAnalytics";
 import styles from "./lp.module.css";
 
 export const metadata: Metadata = {
@@ -177,6 +178,7 @@ export default async function DtrLpPage({
 
   return (
     <PublicShell>
+      <DtrPremiumLpViewAnalytics />
       <div className={styles.lpRoot}>
         <p className={styles.lpBreadcrumb}>
           <Link href="/" style={{ color: "#6b5fa8", textDecoration: "none" }}>

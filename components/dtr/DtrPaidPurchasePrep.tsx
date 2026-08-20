@@ -101,10 +101,12 @@ export default function DtrPaidPurchasePrep() {
 
   useEffect(() => {
     if (gate !== 'plans') return;
+    // Canonical Wave 1 decision visibility. Legacy m55_paid_plan_view constant
+    // remains defined for compatibility; do not dual-emit that alias here.
     trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.paidPlanView,
+      M55_FUNNEL_EVENTS.premiumPlanDecisionViewed,
       'dtr_paid_plan',
-      'dtr-paid-plan-view',
+      'dtr-premium-plan-decision-viewed',
     );
   }, [gate]);
 
@@ -331,8 +333,9 @@ export default function DtrPaidPurchasePrep() {
             className={styles.commercialPrimaryBtn}
             onClick={() => {
               setSelectedPlan('light');
-              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
-              trackFunnelAction(M55_FUNNEL_EVENTS.paidPlanSelected, 'dtr_paid_plan');
+              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan', {
+                planClass: 'light',
+              });
               setGate('checkout');
             }}
           >
@@ -363,8 +366,9 @@ export default function DtrPaidPurchasePrep() {
             className={styles.commercialPrimaryBtn}
             onClick={() => {
               setSelectedPlan('full');
-              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
-              trackFunnelAction(M55_FUNNEL_EVENTS.paidPlanSelected, 'dtr_paid_plan');
+              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan', {
+                planClass: 'full',
+              });
               setGate('checkout');
             }}
           >

@@ -188,9 +188,9 @@ async function logCheckout409(
       '[checkout] 409',
       JSON.stringify({
         code,
-        userId,
+        user_id_present: true,
         hasPurchaseSnapshot,
-        resumeCheckoutSessionId,
+        resume_checkout_session_id_present: !!resumeCheckoutSessionId,
         whyOwned,
         hasEntitlementRightsRow: !!rightRow,
         hasActiveEntitlementsRow: !!entRow,
@@ -273,7 +273,7 @@ export async function POST(req: NextRequest) {
         JSON.stringify({
           event: 'dtr_purchase_path',
           path: 'purchased_resume_already_purchased_visible_snapshot',
-          userId,
+          user_id_present: true,
           note: 'SSOT: visible dtr_report_snapshots row → 409 already_purchased',
         })
       );
@@ -299,8 +299,8 @@ export async function POST(req: NextRequest) {
               event: 'dtr_purchase_path',
               path: 'fresh_purchase_stripe_session_create',
               subreason: 'stale_resume_missing_profile_metadata',
-              userId,
-              resumeCheckoutSessionId,
+              user_id_present: true,
+              resume_checkout_session_id_present: true,
               note: 'DTR_ALLOW_STALE_SESSION_NEW_CHECKOUT=1 → new Stripe Checkout',
             })
           );
@@ -316,8 +316,9 @@ export async function POST(req: NextRequest) {
               JSON.stringify({
                 event: 'dtr_purchase_path',
                 path: 'purchased_resume_fulfillment_pending',
-                userId,
-                resumeCheckoutSessionId: vr.sessionId,
+                user_id_present: true,
+                resume_checkout_session_id_present: true,
+                session_id_present: !!vr.sessionId,
                 note: 'owned + no snapshot + valid paid session in DB → 409 resume processing',
               })
             );
@@ -332,12 +333,18 @@ export async function POST(req: NextRequest) {
           }
           console.warn(
             '[checkout] DTR owned without snapshot; resume session id failed Stripe verify',
-            JSON.stringify({ userId, resumeCheckoutSessionId })
+            JSON.stringify({
+              user_id_present: true,
+              resume_checkout_session_id_present: true,
+            })
           );
         } else {
           console.warn(
             '[checkout] DTR owned without snapshot; no resume checkout session id in DB',
-            JSON.stringify({ userId })
+            JSON.stringify({
+              user_id_present: true,
+              resume_checkout_session_id_present: false,
+            })
           );
         }
         console.info(
@@ -345,8 +352,8 @@ export async function POST(req: NextRequest) {
           JSON.stringify({
             event: 'dtr_purchase_path',
             path: 'purchased_resume_fulfillment_pending',
-            userId,
-            resumeCheckoutSessionId: null,
+            user_id_present: true,
+            resume_checkout_session_id_present: false,
             note: 'owned + no snapshot + no resume id or verify failed → 409',
           })
         );
@@ -361,7 +368,7 @@ export async function POST(req: NextRequest) {
         JSON.stringify({
           event: 'dtr_purchase_path',
           path: 'repurchase_lane_hidden_only',
-          userId,
+          user_id_present: true,
           note: 'owned + hidden-only snapshot(s) → allow new Stripe Checkout (no fulfillment_pending 409)',
         })
       );
@@ -434,7 +441,7 @@ export async function POST(req: NextRequest) {
           event: 'dtr_checkout_blocked',
           code: gate.code,
           reason: gate.reason,
-          userId,
+          user_id_present: true,
         }),
       );
       return NextResponse.json(
@@ -510,7 +517,10 @@ export async function POST(req: NextRequest) {
       extraJson,
     });
     if (!upserted.ok) {
-      console.error('[checkout] draft_save_failed', { userId, productId });
+      console.error('[checkout] draft_save_failed', {
+        user_id_present: true,
+        productId,
+      });
       return publicCheckoutError(500);
     }
     purchaseContextId = upserted.draftId;
@@ -532,7 +542,7 @@ export async function POST(req: NextRequest) {
         event: 'dtr_purchase_path',
         productId,
         path: dtrRepurchaseLane ? 'repurchase_lane_stripe_session_create' : 'fresh_purchase_stripe_session_create',
-        userId,
+        user_id_present: true,
         repurchaseLane: dtrRepurchaseLane,
         note: dtrRepurchaseLane
           ? 'hidden-only snapshot → new Stripe Checkout for repurchase'
@@ -573,18 +583,20 @@ export async function POST(req: NextRequest) {
           '[checkout]',
           JSON.stringify({
             event: reuse.kind === 'open' ? 'stripe_checkout_session_reused' : 'stripe_checkout_session_paid_resume',
-            sessionId: pendingMeta.pendingCheckoutSessionId,
+            session_id_present: true,
             productId,
-            userId,
+            user_id_present: true,
+            dedupe: reuse.kind === 'open' ? 'session_reused_open' : 'session_paid_resume',
           }),
         );
         return NextResponse.json({ url: reuse.url });
       }
       if (reuse.kind === 'retrieve_failed') {
         console.warn('[checkout] pending session retrieve failed — blocking new session', {
-          userId,
+          user_id_present: true,
           productId,
-          sessionId: pendingMeta.pendingCheckoutSessionId,
+          session_id_present: true,
+          dedupe: 'retrieve_failed_block_new',
         });
         return NextResponse.json({ code: 'fulfillment_pending' as const }, { status: 409 });
       }
@@ -631,7 +643,9 @@ export async function POST(req: NextRequest) {
 
     const url = session.url;
     if (!url) {
-      console.error('[checkout] Stripe session URL not created', { sessionId: session.id });
+      console.error('[checkout] Stripe session URL not created', {
+        session_id_present: !!session.id,
+      });
       return publicCheckoutError(500);
     }
 
@@ -651,8 +665,8 @@ export async function POST(req: NextRequest) {
       });
       if (!persistPending.ok) {
         console.warn('[checkout] pending session persist failed', {
-          userId,
-          sessionId: session.id,
+          user_id_present: true,
+          session_id_present: !!session.id,
           reason: persistPending.reason,
         });
       }
@@ -662,10 +676,10 @@ export async function POST(req: NextRequest) {
       '[checkout]',
       JSON.stringify({
         event: 'stripe_checkout_session_created',
-        sessionId: session.id,
+        session_id_present: !!session.id,
         hasPurchaseContext: !!metadata.purchaseContextId,
         hasOpaqueUserRef: !!metadata.opaqueUserRef,
-        idempotencyKey,
+        idempotency_key_present: !!idempotencyKey,
       }),
     );
 

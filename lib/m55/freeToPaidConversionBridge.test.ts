@@ -144,6 +144,7 @@ describe('privacy-safe funnel analytics', () => {
     assert.equal(M55_FUNNEL_EVENTS.selfEntryStarted, 'self_entry_started');
     assert.equal(M55_FUNNEL_EVENTS.freeResultViewed, 'free_result_viewed');
     assert.equal(M55_FUNNEL_EVENTS.premiumBridgeViewed, 'premium_bridge_viewed');
+    assert.equal(M55_FUNNEL_EVENTS.premiumBridgeVisible, 'premium_bridge_visible');
     assert.equal(M55_FUNNEL_EVENTS.premiumPlanSelected, 'premium_plan_selected');
     assert.equal(M55_FUNNEL_EVENTS.checkoutStarted, 'checkout_started');
     const essence = read('components/core/CoreEssencePanel.tsx');
@@ -151,7 +152,8 @@ describe('privacy-safe funnel analytics', () => {
     assert.match(essence, /selfEntryStarted/);
     assert.match(essence, /freeResultViewed/);
     assert.doesNotMatch(essence, /M55_FUNNEL_EVENTS\.freeResultView\b/);
-    assert.match(bridge, /premiumBridgeViewed/);
+    assert.match(bridge, /premiumBridgeVisible/);
+    assert.doesNotMatch(bridge, /premiumBridgeViewed/);
     assert.doesNotMatch(bridge, /M55_FUNNEL_EVENTS\.paidBridgeView\b/);
     assert.match(bridge, /premiumCtaClicked/);
     assert.doesNotMatch(bridge, /M55_FUNNEL_EVENTS\.paidBridgePrimaryClick\b/);
@@ -163,7 +165,7 @@ describe('privacy-safe funnel analytics', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(q, /paidQuestionnaireStart/);
     assert.match(q, /paidQuestionnaireComplete/);
-    assert.match(prep, /paidPlanView/);
+    assert.match(prep, /premiumPlanDecisionViewed/);
     assert.match(prep, /premiumPlanSelected/);
     assert.doesNotMatch(q + prep, /focusThemeLabelJa/);
     assert.doesNotMatch(q + prep, /m55_paid_bridge/);

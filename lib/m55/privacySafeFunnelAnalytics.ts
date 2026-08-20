@@ -26,10 +26,24 @@ export const M55_FUNNEL_EVENTS = {
   shareImageSaved: 'share_image_saved',
   premiumCtaViewed: 'premium_cta_viewed',
   premiumCtaClicked: 'premium_cta_clicked',
+  /**
+   * Legacy mount-based bridge name — retained for external compatibility only.
+   * Live bridge emits premiumBridgeVisible on viewport entry instead.
+   */
   premiumBridgeViewed: 'premium_bridge_viewed',
+  /** True Premium bridge visibility — CTA block enters viewport (once). */
+  premiumBridgeVisible: 'premium_bridge_visible',
+  /** Successful /dtr/lp client render; optional entrySource=free_result. */
+  premiumLpViewed: 'premium_lp_viewed',
+  /** Light/Full decision surface becomes visible/usable (once). */
+  premiumPlanDecisionViewed: 'premium_plan_decision_viewed',
   premiumPlanSelected: 'premium_plan_selected',
   authRequiredShown: 'auth_required_shown',
   checkoutStarted: 'checkout_started',
+  /** Server: first authoritative paid fulfillment insert. */
+  purchaseSucceeded: 'purchase_succeeded',
+  /** Server: first successful visible Premium snapshot persistence. */
+  premiumValueDelivered: 'premium_value_delivered',
   premiumReportOpened: 'premium_report_opened',
   resultRerunStarted: 'result_rerun_started',
   additionalThemeStarted: 'additional_theme_started',
@@ -37,7 +51,7 @@ export const M55_FUNNEL_EVENTS = {
   /**
    * Legacy wire names retained for external consumer compatibility.
    * Canonical Self-funnel semantics (prefer these at new emit sites):
-   * freeResultViewed / premiumBridgeViewed / premiumPlanSelected.
+   * freeResultViewed / premiumBridgeVisible / premiumPlanSelected.
    * Do not dual-emit a legacy alias alongside its canonical twin for one action.
    */
   freeResultView: 'm55_free_result_view',
@@ -46,11 +60,14 @@ export const M55_FUNNEL_EVENTS = {
   paidBridgeContinueFreeClick: 'm55_paid_bridge_continue_free_click',
   paidQuestionnaireStart: 'm55_paid_questionnaire_start',
   paidQuestionnaireComplete: 'm55_paid_questionnaire_complete',
+  /** @deprecated Prefer premiumPlanDecisionViewed for Wave 1 decision visibility. */
   paidPlanView: 'm55_paid_plan_view',
+  /** @deprecated Prefer premiumPlanSelected only — do not dual-emit. */
   paidPlanSelected: 'plan_selected',
   paidQuestionsStarted: 'paid_questions_started',
   paidQuestionsCompleted: 'paid_questions_completed',
   mySavedReportView: 'm55_my_saved_report_view',
+  /** @deprecated Prefer premiumReportOpened only — do not dual-emit. */
   savedReportOpen: 'm55_saved_report_open',
   additionalReadingEntryView: 'm55_additional_reading_entry_view',
   additionalReadingStartClick: 'm55_additional_reading_start_click',
@@ -94,6 +111,7 @@ export type M55FunnelSurface =
   | 'core_paid_bridge'
   | 'core_share'
   | 'shared_entry'
+  | 'dtr_premium_lp'
   | 'dtr_paid_questionnaire'
   | 'dtr_paid_plan'
   | 'my_saved_report'
@@ -102,11 +120,14 @@ export type M55FunnelSurface =
   | 'compatibility_guest'
   | 'compatibility_paid_report'
   | 'compatibility_purchase'
-  | 'compatibility_saved_report';
+  | 'compatibility_saved_report'
+  | 'server_fulfillment'
+  | 'server_snapshot_delivery';
 
 export type M55ShareVariantEnum = 'manual' | 'mirror' | 'hidden_spec' | 'pair';
 export type M55ShareChannelEnum = 'x' | 'native' | 'image' | 'copy';
-export type M55EntrySourceEnum = 'shared_result';
+export type M55EntrySourceEnum = 'shared_result' | 'free_result';
+export type M55PlanClassEnum = 'light' | 'full';
 
 /** Allowlisted payload keys only. */
 export type M55FunnelPayload = {
@@ -116,6 +137,7 @@ export type M55FunnelPayload = {
   shareVariant?: M55ShareVariantEnum;
   shareChannel?: M55ShareChannelEnum;
   entrySource?: M55EntrySourceEnum;
+  planClass?: M55PlanClassEnum;
 };
 
 const ALLOWED_KEYS = new Set([
@@ -125,14 +147,16 @@ const ALLOWED_KEYS = new Set([
   'shareVariant',
   'shareChannel',
   'entrySource',
+  'planClass',
 ] as const);
 
 const SHARE_VARIANT_VALUES = new Set(['manual', 'mirror', 'hidden_spec', 'pair']);
 const SHARE_CHANNEL_VALUES = new Set(['x', 'native', 'image', 'copy']);
-const ENTRY_SOURCE_VALUES = new Set(['shared_result']);
+const ENTRY_SOURCE_VALUES = new Set(['shared_result', 'free_result']);
+const PLAN_CLASS_VALUES = new Set(['light', 'full']);
 
 const FORBIDDEN_KEY_PATTERN =
-  /dob|birth|hash|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question|axis|topic|status|temperature|action|mapping|resultText/i;
+  /dob|birth|hash|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question|axis|topic|status|temperature|action|mapping|resultText|session_id|sessionId|payment_intent|paymentIntent|customer|checkout_id|checkoutId|stripe|price_id|priceId|product_id|productId/i;
 
 const firedImpressions = new Set<string>();
 const firedActions = new Set<string>();
@@ -176,11 +200,14 @@ export function assertPrivacySafeFunnelPayload(payload: Record<string, unknown>)
   if (payload.entrySource !== undefined && !ENTRY_SOURCE_VALUES.has(String(payload.entrySource))) {
     throw new Error('invalid entrySource');
   }
+  if (payload.planClass !== undefined && !PLAN_CLASS_VALUES.has(String(payload.planClass))) {
+    throw new Error('invalid planClass');
+  }
 }
 
 export type M55FunnelPayloadExtras = Pick<
   M55FunnelPayload,
-  'shareVariant' | 'shareChannel' | 'entrySource'
+  'shareVariant' | 'shareChannel' | 'entrySource' | 'planClass'
 >;
 
 function emit(

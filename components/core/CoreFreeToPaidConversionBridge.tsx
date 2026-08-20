@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { FreeDepthAnalysisV1 } from '../../lib/m55/freeResult/buildFreeDepthAnalysisV1';
+import { markFreeResultPremiumLpEntry } from '../../lib/m55/analytics/freeResultPremiumLpEntry';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -26,18 +27,37 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
   const copy = STATIC_FREE_TO_PAID_BRIDGE;
   const href = `${TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref}#m55-paid-questionnaire`;
   const lockedHeadings = depth.premiumLockedHeadingsJa.slice(0, 2);
+  const ctaBlockRef = useRef<HTMLDivElement | null>(null);
+  const visibleEmittedRef = useRef(false);
 
   useEffect(() => {
-    trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.premiumBridgeViewed,
-      'core_paid_bridge',
-      'core-premium-bridge-viewed',
+    const target = ctaBlockRef.current;
+    if (!target || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (visibleEmittedRef.current) return;
+        const hit = entries.some((e) => e.isIntersecting && e.intersectionRatio > 0);
+        if (!hit) return;
+        visibleEmittedRef.current = true;
+        trackFunnelImpressionOnce(
+          M55_FUNNEL_EVENTS.premiumBridgeVisible,
+          'core_paid_bridge',
+          'core-premium-bridge-visible',
+        );
+        observer.disconnect();
+      },
+      { threshold: 0.25 },
     );
+
+    observer.observe(target);
+    return () => observer.disconnect();
   }, []);
 
   function handlePrimaryClick() {
     // Canonical CTA click. Legacy paidBridgePrimaryClick remains defined for
     // external consumers; do not dual-emit the alias on this same action.
+    markFreeResultPremiumLpEntry();
     trackFunnelAction(M55_FUNNEL_EVENTS.premiumCtaClicked, 'core_paid_bridge');
   }
 
@@ -115,7 +135,11 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
         <p className={styles.conversionBridgeEffort}>{copy.effortJa}</p>
 
         <div className={styles.conversionBridgeActions} data-m55-print-hide>
-          <div className={styles.conversionBridgeCtaBlock}>
+          <div
+            ref={ctaBlockRef}
+            className={styles.conversionBridgeCtaBlock}
+            data-testid="m55-premium-bridge-cta-block"
+          >
             <Link
               href={href}
               className={styles.conversionBridgePrimary}

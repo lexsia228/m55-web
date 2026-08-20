@@ -293,7 +293,16 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
 
   if (!userId) {
     await insertFailedFulfillment(db, event.id, session.id, 'missing_client_reference_id', null, null);
-    console.error('[webhook] lane=checkout event_id=', event.id, 'checkout_session_id=', session.id, 'failure=missing_client_reference_id');
+    console.error(
+      '[webhook] lane=checkout',
+      JSON.stringify({
+        event_type: 'checkout.session.completed',
+        status: 'failed',
+        failure_reason: 'missing_client_reference_id',
+        checkout_session_id_present: true,
+        event_id_present: true,
+      }),
+    );
     notifyM55OpsFireAndForget(m55OpsEventMissingClientReferenceId());
     return NextResponse.json({ received: true }, { status: 200 });
   }
@@ -361,7 +370,17 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
       { productId },
       hashUserIdForLedgerLog(userId)
     );
-    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=product_mismatch product_id=', productId);
+    console.error(
+      '[webhook] lane=one_time',
+      JSON.stringify({
+        event_type: 'checkout.session.completed',
+        status: 'failed',
+        failure_reason: 'product_mismatch',
+        product_id_present: Boolean(productId),
+        checkout_session_id_present: true,
+        event_id_present: true,
+      }),
+    );
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
@@ -435,7 +454,17 @@ async function handleCheckoutCompletedOneTime(
     } catch (e) {
       console.error('[webhook] revalidatePath failed (non-fatal)', e);
     }
-    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'user_id=', userId, 'status=fulfilled');
+    console.info(
+      '[webhook] lane=one_time',
+      JSON.stringify({
+        event_type: 'checkout.session.completed',
+        status: 'fulfilled',
+        fulfillment_newly_created: result.fulfillmentNewlyCreated,
+        checkout_session_id_present: true,
+        event_id_present: true,
+        user_id_present: true,
+      }),
+    );
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
@@ -448,15 +477,17 @@ async function handleCheckoutCompletedOneTime(
       { payment_status: result.detail ?? null },
       hashUserIdForLedgerLog(userId)
     );
-    console.error(
-      '[webhook] lane=one_time event_id=',
-      event.id,
-      'checkout_session_id=',
-      session.id,
-      'user_id=',
-      userId,
-      'skipped=payment_status_not_paid',
-      result.detail
+    console.info(
+      '[webhook] lane=one_time',
+      JSON.stringify({
+        event_type: 'checkout.session.completed',
+        status: 'skipped',
+        failure_reason: 'payment_status_not_paid',
+        payment_status_detail_present: Boolean(result.detail),
+        checkout_session_id_present: true,
+        event_id_present: true,
+        user_id_present: true,
+      }),
     );
     return NextResponse.json({ received: true }, { status: 200 });
   }
@@ -480,7 +511,16 @@ async function handleCheckoutCompletedOneTime(
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
-  console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=', result);
+  console.error(
+    '[webhook] lane=one_time',
+    JSON.stringify({
+      event_type: 'checkout.session.completed',
+      status: 'failed',
+      failure_reason: result.reason,
+      checkout_session_id_present: true,
+      event_id_present: true,
+    }),
+  );
   await insertFailedFulfillment(
     db,
     event.id,
@@ -529,7 +569,17 @@ async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any
       if (delErr) throw delErr;
     }
 
-    console.error('[webhook] lane=one_time event_type=charge.refunded event_id=', event.id, 'payment_intent_id=', paymentIntentId, 'user_id=', userId, 'refund_type=full', 'status=revoked');
+    console.info(
+      '[webhook] lane=one_time',
+      JSON.stringify({
+        event_type: 'charge.refunded',
+        status: 'revoked',
+        refund_type: 'full',
+        payment_intent_id_present: true,
+        event_id_present: true,
+        user_id_present: true,
+      }),
+    );
   } catch (e) {
     if (checkoutSessionId) {
       await insertFailedFulfillment(
@@ -541,7 +591,16 @@ async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any
         hashUserIdForLedgerLog(userId)
       );
     }
-    console.error('[webhook] lane=one_time event_type=charge.refunded event_id=', event.id, 'payment_intent_id=', paymentIntentId, 'failure=', e);
+    console.error(
+      '[webhook] lane=one_time',
+      JSON.stringify({
+        event_type: 'charge.refunded',
+        status: 'failed',
+        failure_reason: 'revoke_failed',
+        payment_intent_id_present: Boolean(paymentIntentId),
+        event_id_present: true,
+      }),
+    );
     return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
   }
 

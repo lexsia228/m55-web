@@ -220,7 +220,7 @@ export async function getDtrReportSnapshot(
 }
 
 export type UpsertDtrReportSnapshotAtFulfillmentResult =
-  | { ok: true; snapshotId: string }
+  | { ok: true; snapshotId: string; firstDelivery: boolean }
   | { ok: false; reason: string };
 
 /**
@@ -244,7 +244,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
 }): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
   const existingVisible = await getVisibleDtrReportSnapshot(params.userId, params.productId);
   if (existingVisible) {
-    return { ok: true, snapshotId: existingVisible.reportInstanceId };
+    return { ok: true, snapshotId: existingVisible.reportInstanceId, firstDelivery: false };
   }
 
   const hiddenOnlyPrior = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
@@ -338,7 +338,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
     if (error) {
       if (error.code === '23505') {
         const reread = await getVisibleDtrReportSnapshot(params.userId, params.productId);
-        if (reread) return { ok: true, snapshotId: reread.reportInstanceId };
+        if (reread) return { ok: true, snapshotId: reread.reportInstanceId, firstDelivery: false };
       }
       const e = error as { code?: string; message?: string; details?: string; hint?: string };
       const reason = [e.code, e.message, e.details, e.hint].filter(Boolean).join(' | ');
@@ -363,7 +363,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
     // JSON.stringify(envelope) must not be used for naturalness analysis.
     // Section-level hooks will be designed in that future gate.
 
-    return { ok: true, snapshotId };
+    return { ok: true, snapshotId, firstDelivery: true };
   } catch (e) {
     return { ok: false, reason: String(e) };
   }

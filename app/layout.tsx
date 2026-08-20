@@ -1,8 +1,8 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { jaJP } from "@clerk/localizations";
+import M55PrivacySafeAnalytics from "../components/analytics/M55PrivacySafeAnalytics";
 import { DraftClaimOnLogin } from "../components/dtr/DraftClaimOnLogin";
 import { ScrollToTopButton } from "../components/common/ScrollToTopButton";
 import RuntimeStateIdentitySync from "../components/shell/RuntimeStateIdentitySync";
@@ -60,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RuntimeStateIdentitySync />
           <ScrollToTopButton />
           {children}
-          <Analytics />
+          <M55PrivacySafeAnalytics />
         </body>
       </html>
     </ClerkProvider>

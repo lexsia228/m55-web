@@ -178,7 +178,8 @@ describe('privacy-safe post-purchase analytics', () => {
     const my = readRepo('components/my/MyPanel.tsx');
     const reader = readRepo('components/dtr/DtrFullReader.tsx');
     assert.match(my, /additionalReadingStartClick/);
-    assert.match(reader, /savedReportOpen/);
+    assert.match(reader, /premiumReportOpened/);
+    assert.doesNotMatch(reader, /M55_FUNNEL_EVENTS\.savedReportOpen/);
     assert.match(reader, /additionalReadingEntryView/);
     assert.doesNotMatch(my + reader, /ticketConsumption|additionalReadingSend/);
   });

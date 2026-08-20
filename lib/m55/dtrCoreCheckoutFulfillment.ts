@@ -20,6 +20,9 @@ import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
 import { resolveCheckoutPurchaseContextOwner } from './paidResult/resolveCheckoutOwnerUserId';
 import { verifyDtrCheckoutPurchaseFromStripe } from './paidResult/verifyDtrCheckoutPurchase';
 import { notifyM55OpsFireAndForget, m55OpsEventSnapshotSkip } from './ops/m55OpsNotify';
+import { planClassFromDtrCoreProductId } from './analytics/planClassFromProductId';
+import { trackServerFunnelAction } from './analytics/trackServerFunnelAction';
+import { M55_FUNNEL_EVENTS } from './privacySafeFunnelAnalytics';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
 
@@ -33,7 +36,7 @@ const DTR_CORE_PRODUCTS_WITH_ENTITLEMENT_GRANT: ReadonlySet<string> = new Set([
 ]);
 
 export type FulfillFromCheckoutSessionResult =
-  | { ok: true }
+  | { ok: true; fulfillmentNewlyCreated: boolean }
   | {
       ok: false;
       reason:
@@ -124,6 +127,8 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
   try {
     const db = getSupabaseAdmin() as any;
 
+    let fulfillmentNewlyCreated = false;
+
     const { data: existingFulfillment } = await db
       .from('one_time_fulfillments')
       .select('checkout_session_id')
@@ -141,10 +146,13 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
       });
       if (insertFulfillmentErr) {
         if (insertFulfillmentErr.code === '23505') {
-          // concurrent insert — continue to upserts
+          // concurrent insert — already fulfilled by another path
+          fulfillmentNewlyCreated = false;
         } else {
           return { ok: false, reason: 'db_error', detail: String(insertFulfillmentErr.message ?? insertFulfillmentErr) };
         }
+      } else {
+        fulfillmentNewlyCreated = true;
       }
     }
 
@@ -177,12 +185,25 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         JSON.stringify({
           where: 'fulfillDtrCoreFromCheckoutSessionId',
           trigger: 'stripe_checkout_session_paid',
-          userId: ownerUserId,
-          rightKey: DTR_CORE_RIGHT_KEY,
-          productId,
-          checkoutSessionId,
+          lane: 'personal_premium',
+          product_class: planClassFromDtrCoreProductId(productId) ?? 'other',
+          right_key_present: true,
+          checkout_session_id_present: Boolean(checkoutSessionId),
+          user_id_present: Boolean(ownerUserId),
+          fulfillment_newly_created: fulfillmentNewlyCreated,
         })
       );
+
+      if (fulfillmentNewlyCreated) {
+        const planClass = planClassFromDtrCoreProductId(productId);
+        if (planClass) {
+          await trackServerFunnelAction(
+            M55_FUNNEL_EVENTS.purchaseSucceeded,
+            'server_fulfillment',
+            { planClass },
+          );
+        }
+      }
 
       await grantInitialIncludedReplyIfNeeded(db, ownerUserId);
 
@@ -214,8 +235,9 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
           '[fulfillDtrCore] dtr_report_snapshots skipped',
           JSON.stringify({
             reason: snap.reason,
-            checkoutSessionId,
-            userId: ownerUserId,
+            lane: 'personal_premium',
+            checkout_session_id_present: Boolean(checkoutSessionId),
+            user_id_present: Boolean(ownerUserId),
             hint:
               snap.reason.includes('PGRST205') || /schema cache|not find/i.test(snap.reason)
                 ? 'PostgREST: run migration 20260421000000 or NOTIFY pgrst reload; ensure 20260420000000 applied'
@@ -226,6 +248,16 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         );
         notifyM55OpsFireAndForget(m55OpsEventSnapshotSkip(snap.reason));
       } else {
+        if (snap.firstDelivery) {
+          const planClass = planClassFromDtrCoreProductId(productId);
+          if (planClass) {
+            await trackServerFunnelAction(
+              M55_FUNNEL_EVENTS.premiumValueDelivered,
+              'server_snapshot_delivery',
+              { planClass },
+            );
+          }
+        }
         // SSOT G4: link active wallet to new visible snapshot (first purchase or repurchase after hide).
         // Repurchase: wallet may still reference hidden report_instance_id — relink without second included grant.
         const { data: linkRows, error: linkErr } = await db
@@ -256,7 +288,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
       }
     }
 
-    return { ok: true };
+    return { ok: true, fulfillmentNewlyCreated };
   } catch (e) {
     return { ok: false, reason: 'db_error', detail: String(e) };
   }

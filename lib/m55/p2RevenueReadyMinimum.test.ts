@@ -77,7 +77,7 @@ describe('P2 revenue-ready — LP continuity and canonical purchase path', () =>
 
   it('preserves funnel analytics wiring on prep surfaces', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
-    assert.match(prep, /M55_FUNNEL_EVENTS\.paidPlanView/);
+    assert.match(prep, /M55_FUNNEL_EVENTS\.premiumPlanDecisionViewed/);
     assert.match(prep, /M55_FUNNEL_EVENTS\.premiumPlanSelected/);
     assert.match(prep, /trackFunnelImpressionOnce/);
     assert.match(prep, /trackFunnelAction/);
