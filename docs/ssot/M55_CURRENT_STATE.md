@@ -17,7 +17,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | G3-02 | **CLOSED GREEN** — owned-report signed-out deep return (PR #141) · **DO NOT REOPEN** absent actual invalidation |
 | G3-03 | **CLOSED GREEN** — Personal Free cross-device restore (WT-044) · **DO NOT REOPEN** absent actual invalidation |
 | G3-04 | **CLOSED / KEEP_REJECTED** |
-| G3-04 closure basis | Today/Weekly copy-safety/product mapping completed · fortune risk **HIGH** · false freshness risk **HIGH** · legacy engines do not provide honest differentiated revisit value · Weekly cadence mislabeled relative to daily JDN rotation · Human product decision = **KEEP_REJECTED** · remaining Home/public legacy exposure removed · `/today` + `/weekly` temporary redirect to `/core` · no replacement engine introduced |
+| G3-04 closure basis | Today/Weekly copy-safety/product mapping completed · fortune risk **HIGH** · false freshness risk **HIGH** · legacy engines do not provide honest differentiated revisit value · Weekly cadence mislabeled relative to daily JDN rotation · Human product decision = **KEEP_REJECTED** · active Home was already de-exposed; remaining direct legacy route exposure removed · `/today` + `/weekly` temporary redirect to `/core` · no replacement engine introduced |
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` (WT-045 — physical path **retained**) |
 | branch | `feat/m55-g3-04-copy-safety-v1` |
 | implementation head | `03ae78dbd91d63ffc411d389dfd9e276525155f2` |

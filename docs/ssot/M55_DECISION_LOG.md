@@ -604,7 +604,7 @@ This decision authorizes **only** durable transition recording in the four-file 
 | G3-02 | **CLOSED GREEN** |
 | G3-03 | **CLOSED GREEN** |
 | G3-04 | **CLOSED / KEEP_REJECTED** |
-| G3-04 closure basis | copy-safety/product mapping completed · fortune risk **HIGH** · false freshness risk **HIGH** · legacy engines lack honest differentiated revisit value · Weekly cadence mislabeled vs daily JDN · Human **KEEP_REJECTED** · Home/public legacy exposure removed · `/today` + `/weekly` temporary redirect to `/core` · no replacement engine |
+| G3-04 closure basis | copy-safety/product mapping completed · fortune risk **HIGH** · false freshness risk **HIGH** · legacy engines lack honest differentiated revisit value · Weekly cadence mislabeled vs daily JDN · Human **KEEP_REJECTED** · active Home was already de-exposed; remaining direct legacy route exposure removed · `/today` + `/weekly` temporary redirect to `/core` · no replacement engine |
 | Preview deployment | `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** |
 | WT-045 | **CLOSES_WITH_THIS_PR_MERGE** |
 | G1 / G2 / Personal Free / PR #144 commercial quality | **CLOSED GREEN** — **DO NOT REOPEN** absent actual invalidation |
