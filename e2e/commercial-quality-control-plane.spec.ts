@@ -72,6 +72,7 @@ import { establishLocalAuthGateFixture } from '../lib/m55/commercialUx/qualityCo
 import {
   recomputeCanonicalAliasCounts,
   canonicalObservableStateIdFor,
+  measurementRouteFor,
   countProjectionAliases,
   probeExcludedProjectionResolverNegative,
   probeRenamedDivergentResolverNegative,
@@ -216,11 +217,11 @@ test.describe('commercial quality control plane', () => {
     );
     const registrationIds = executableTargets.map((t) => t.runtimeStateId);
     expect(aliasCounts.executable).toBe(77);
-    expect(aliasCounts.canonical).toBe(45);
-    expect(aliasCounts.alias).toBe(32);
+    expect(aliasCounts.canonical).toBe(43);
+    expect(aliasCounts.alias).toBe(34);
     expect(aliasCounts.mapping).toBe(77);
     expect(aliasCounts.canonical + aliasCounts.alias).toBe(77);
-    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(15);
+    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(17);
     expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(17);
     const projections = countProjectionAliases(registrationIds);
     expect(projections.projectionRegistrations).toBe(17);
@@ -231,7 +232,7 @@ test.describe('commercial quality control plane', () => {
     expect(renamed.parityFailures.length).toBeGreaterThan(0);
     expect(renamed.disallowedExports).toContain('sneakyAlternateCanonicalResolver');
     expect(renamed.divergentExports).toContain('sneakyAlternateCanonicalResolver');
-    expect(countUniqueObservableSignatures(executableContracts)).toBe(45);
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(43);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
       [],
@@ -378,13 +379,14 @@ test.describe('commercial quality control plane', () => {
         perSurfaceProtected[target.surfaceId] = evidence.protectedAssertionCount;
 
         const observedPath = new URL(active.url()).pathname;
-        // Intentional fixture/redirect landings (root→/home, legacy reply→LP,
-        // purchased preview path) are measured at the observed executable path.
+        const landingRoute = measurementRouteFor(entry.runtimeStateId, entry.route);
+        // Intentional fixture/redirect landings (root→/home, legacy Today/Weekly→/core,
+        // legacy reply→LP, purchased preview path) are measured at the observed executable path.
         const measureEntry: SurfaceManifestEntry =
           executed.evidence.fixturePath ||
           entry.routeIsPattern ||
           (observedPath !== entry.route &&
-            (target.surfaceId.endsWith('.root_redirect') ||
+            (observedPath === landingRoute ||
               Boolean(setup.fixtureId) ||
               entry.route === '/'))
             ? {

@@ -748,15 +748,15 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         ...plain,
         navigatePath: '/today',
-        readySelector: '[data-m55-pathname="/today"]',
-        stateMarkerSelector: '[data-m55-pathname="/today"]',
+        readySelector: '[data-m55-pathname="/core"]',
+        stateMarkerSelector: '[data-m55-pathname="/core"]',
       };
     case 'legacy.weekly':
       return {
         ...plain,
         navigatePath: '/weekly',
-        readySelector: '[data-m55-pathname="/weekly"]',
-        stateMarkerSelector: '[data-m55-pathname="/weekly"]',
+        readySelector: '[data-m55-pathname="/core"]',
+        stateMarkerSelector: '[data-m55-pathname="/core"]',
       };
     case 'legacy.synastry.confirm':
       // Local route is not a stable purchased confirm page (404 without session).

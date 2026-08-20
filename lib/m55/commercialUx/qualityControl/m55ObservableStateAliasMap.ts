@@ -25,17 +25,35 @@ export type CanonicalAliasCounts = {
   mapping: number;
 };
 
+export type ObservableStateAliasEntry = {
+  canonicalObservableStateId: string;
+  justification: string;
+  /** When the registration navigates elsewhere before rendering the canonical state. */
+  redirectLandingRoute?: string;
+};
+
 /**
  * Dual-registration aliases (same rendered presentation, distinct registration IDs).
  * Intro/prerequisite setups land on the paid questionnaire presentation after
  * establishCoreResult, so they alias six_questions (not a separate intro DOM).
  */
 export const M55_OBSERVABLE_STATE_ALIASES: Readonly<
-  Record<string, { canonicalObservableStateId: string; justification: string }>
+  Record<string, ObservableStateAliasEntry>
 > = {
   'ecp:public.root_redirect:default': {
     canonicalObservableStateId: 'ecp:public.home:default',
     justification: 'root redirects to the same HOME hero presentation',
+    redirectLandingRoute: '/home',
+  },
+  'ecp:legacy.today:default': {
+    canonicalObservableStateId: 'ecp:free.core.empty:empty',
+    justification: '/today redirects to the same first-visit /core empty presentation',
+    redirectLandingRoute: '/core',
+  },
+  'ecp:legacy.weekly:default': {
+    canonicalObservableStateId: 'ecp:free.core.empty:empty',
+    justification: '/weekly redirects to the same first-visit /core empty presentation',
+    redirectLandingRoute: '/core',
   },
   'visual:home': {
     canonicalObservableStateId: 'ecp:public.home:default',
@@ -138,6 +156,17 @@ export function canonicalObservableStateIdFor(
   return registrationRuntimeStateId;
 }
 
+/** Executable landing route after intentional redirect aliases (else registration route). */
+export function measurementRouteFor(
+  registrationRuntimeStateId: string,
+  registrationRoute: string,
+): string {
+  return (
+    M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId]?.redirectLandingRoute ??
+    registrationRoute
+  );
+}
+
 function justificationFor(registrationRuntimeStateId: string, role: ObservableStateRole): string {
   const alias = M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId];
   if (alias) return alias.justification;
@@ -207,6 +236,7 @@ export type ResolverParityFailure = {
 /** Allowed function exports from this module (non-resolver helpers + authority). */
 export const ALLOWED_ALIAS_MAP_FUNCTION_EXPORTS = [
   'canonicalObservableStateIdFor',
+  'measurementRouteFor',
   'buildRegistrationCanonicalMappings',
   'recomputeCanonicalAliasCounts',
   'countProjectionAliases',
