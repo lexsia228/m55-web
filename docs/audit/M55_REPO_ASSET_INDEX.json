@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-19T21:39:08.305724+00:00",
+  "generated_at_utc": "2026-08-20T21:41:49.240895+00:00",
   "count": 700,
   "records": [
     {
@@ -85,7 +85,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 86065
+      "bytes": 93869
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -95,7 +95,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 42389
+      "bytes": 47476
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -240,7 +240,7 @@
     {
       "path": "docs/ssot/M55_METHOD_AND_AUTHORITY_SSOT_v1.md",
       "category": "ssot",
-      "bytes": 7122
+      "bytes": 7269
     },
     {
       "path": "docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md",
@@ -3030,7 +3030,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 18450
+      "bytes": 17799
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3110,7 +3110,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 95013
+      "bytes": 103975
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
