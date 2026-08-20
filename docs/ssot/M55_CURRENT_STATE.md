@@ -26,9 +26,9 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` (WT-046 — physical path **retained**) |
 | branch | `feat/m55-g4-organic-discovery-v1` |
 | base origin/main | `00def3a596655dedceceb85764724ef6070a0c91` |
-| implementation head | `77a9a7e86aee33f7f3c1af79927ea4c9840d4450` |
-| Preview deployment | `https://m55-webv2-1a7uo0lh0-m55-official.vercel.app` **READY** @ implementation head |
-| Preview proof | `/` → `/home` 308 · `/pricing` → `/dtr/lp` 308 · curated sitemap/robots · discovery metadata/canonicals · icon/manifest assets 200 · `/how-m55-works` single h1 |
+| implementation head | `a715fd6ec7f07ee792794fd870a0f0815f7a8109` |
+| Preview deployment | `https://m55-webv2-3n0t7cyc4-m55-official.vercel.app` **READY** @ implementation head |
+| Preview proof | `/` → `/home` 308 · `/pricing` → `/dtr/lp` 308 · curated sitemap/robots · discovery metadata/canonicals · OG/Twitter share image `https://m-55.jp/icons/icon-512.png` · `/dtr` `/dtr/processing` `/purchase/success` crawlable noindex · `/how-m55-works` single h1 |
 | WT-046 | **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree **not deleted** |
 | G1 / G2 / G3 / PR #144 commercial quality | **CLOSED GREEN** · **DO NOT REOPEN** absent actual invalidation |
 | G5 METRICS / FUNNEL LEAKAGE | **planned** — mapping-first · **NOT AUTHORIZED** for source implementation |

@@ -1082,14 +1082,14 @@ Historical post-merge transition snapshots remain recorded for audit.
 | path | `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` |
 | branch | `feat/m55-g4-organic-discovery-v1` |
 | base origin/main | `00def3a596655dedceceb85764724ef6070a0c91` |
-| HEAD | `77a9a7e86aee33f7f3c1af79927ea4c9840d4450` |
+| HEAD | `a715fd6ec7f07ee792794fd870a0f0815f7a8109` |
 | lastVerifiedAt | `2026-08-20` |
 | lifecycle | **CLOSED GREEN / CLOSES_WITH_THIS_PR_MERGE** |
 | operational state | **G4_ORGANIC_DISCOVERY_CLOSED_GREEN** |
 | purpose | G4 Wave 1+2 authority/indexability + qualified landing identity |
 | G4 ORGANIC DISCOVERY | **CLOSED GREEN** |
 | G4 mapping | **completed** |
-| Preview deployment | `https://m55-webv2-1a7uo0lh0-m55-official.vercel.app` **READY** @ implementation head |
+| Preview deployment | `https://m55-webv2-3n0t7cyc4-m55-official.vercel.app` **READY** @ implementation head |
 | WT-046 | **CLOSES_WITH_THIS_PR_MERGE** — physical path **retained** |
 | Durable ACTIVE lane after merge | **G5 METRICS / FUNNEL LEAKAGE** |
 | NEXT SINGLE ACTION after merge | **G5 METRICS / FUNNEL LEAKAGE MAPPING-FIRST** |
@@ -1130,7 +1130,7 @@ Live count from `git worktree list --porcelain`: **7**
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `abfb32bd0ba669f09e1ec7d5c73d06177df0af26` | WT-043 (WT-042 **CLOSED / MERGED**) | **CLOSED / RETAINED** | PR #145 merged via `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`; physical path retained | separate retirement authorization |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `4f895aee9ea10431fcc754d18ac965380cda3600` | WT-045 | **CLOSED GREEN / RETAINED** | G3-04 merged via PR #147 @ `00def3a596655dedceceb85764724ef6070a0c91`; physical path retained | separate retirement authorization |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `1402859d0070f17fd560a83e60ed342892d3e03e` | WT-044 | **CLOSED GREEN / RETAINED** | G3-03 merged via PR #146 @ `d33e9d3dc685e733826348b128faa9184a3b0072`; physical path retained | separate retirement authorization |
-| `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` | `feat/m55-g4-organic-discovery-v1` | `77a9a7e86aee33f7f3c1af79927ea4c9840d4450` | WT-046 | **CLOSED GREEN / RETAINED** | G4 Wave 1+2 merged pending PR @ `77a9a7e86aee33f7f3c1af79927ea4c9840d4450`; physical path retained | separate retirement authorization |
+| `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` | `feat/m55-g4-organic-discovery-v1` | `a715fd6ec7f07ee792794fd870a0f0815f7a8109` | WT-046 | **CLOSED GREEN / RETAINED** | G4 Wave 1+2 merged pending PR @ `a715fd6ec7f07ee792794fd870a0f0815f7a8109`; physical path retained | separate retirement authorization |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `aadb6e57a411a6cb03581487f68482dd44788f1e` | WT-024 (control) | **STALE_MAIN_CONTROL_SNAPSHOT** | Physically exists; HEAD is an ancestor of current `origin/main` and is not a recommended current control checkout | replace only by explicit control-checkout synchronization transition |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `769084dd82da25f7cc0f4656f3cdeeff879209c2` | WT-027 | **PENDING_INTEGRATION** | Compatibility commerce preflight branch is not an ancestor of current `origin/main`; commerce remains OFF | PR #119 merge/close + separate commerce gate |
 
