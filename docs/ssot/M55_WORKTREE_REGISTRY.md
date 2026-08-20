@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-19 PR #144 POST-MERGE TIER-E SETTLEMENT** (`git worktree list --porcelain`; mutable `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`** · PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · Production `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** · WT-042 **CLOSED / MERGED** · WT-043 **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE**)
+Last verified: **2026-08-20 G3-03 CLOSED GREEN self-closing PR** (`git worktree list --porcelain`; branch `feat/m55-g3-runtime-proof-v1` · implementation head **`ec663849ad0ba755e0e8a002d10d8540e3a94e21`** · base `origin/main` **`9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`** · Preview `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** · WT-044 **CLOSES_WITH_THIS_PR_MERGE**)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,7 +9,8 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **Current live remote main (2026-08-19 post-PR-#144):** `ecc3e37b43414e2a56941377c35235b965047aff` — PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · commercial quality consolidation **CLOSED GREEN** · Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** · Human Sales Launch authority **SELL**
+- **Current live remote main (2026-08-19 post-PR-#145):** `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` — PR #145 **MERGED** · self-closing PR #144 Tier-E / docs/control-plane settlement only · Production deployment `dpl_7xHKu8cQ1rtARxmSS8JyozA3VNC5` **READY** · Human Sales Launch authority **SELL** (inherited from PR #144 closure)
+- **Previous live remote main (2026-08-19 post-PR-#144; historical):** `ecc3e37b43414e2a56941377c35235b965047aff` — PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · commercial quality consolidation **CLOSED GREEN** · Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** · superseded by PR #145 merge @ `9ca5b57…` — **not** current live remote main
 - **Previous live remote main (2026-08-19 post-PR-#142/#143; historical):** `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` — PR #142 **MERGED** @ `32f22da527033a0ca094bb717ab2e160c7006d5e` · PR #143 **MERGED** · feature head `156dd18ea17952b8398e2e2b608abc3f1b605226` · Wave A copy clarity **MERGED** · superseded by PR #144 merge @ `ecc3e37b…`
 - **Previous live remote main (2026-08-19 post-PR-#141; historical):** `4edcf631c5bccfba18f16db8767d20f83bc104f0` — PR #141 **MERGED** · G3-02 **CLOSED GREEN** · superseded by PR #142/#143 merges @ `22b00a6…`
 - **Previous live remote main (2026-08-18 post-PR-#139; historical):** `183328ade4cbbaf69975bdf33883bdad3caf19ad` — PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · superseded by current `origin/main` @ `39f7f3d…`
@@ -47,7 +48,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-19 PR #144 post-merge Tier-E settlement) — authoritative, read this first:** `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`**. PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · merge commit `ecc3e37b43414e2a56941377c35235b965047aff`. Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY**. PR-head CI **GREEN**. Safari TP 27.0 representative commercial visual review completed; Human-found P1 defects were corrected before merge. Commercial quality consolidation **CLOSED GREEN**. **USER_VISIBLE_CLOSED_GREEN = YES** for the PR #144 commercial-quality consolidation scope. WT-042 **CLOSED / MERGED** — physical worktree path **retained** (not deleted). WT-043 **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE** — PR #145 docs vehicle; **not** the durable product lane; physical directory may remain; **no** follow-up docs-only PR is required merely to close WT-043; once PR #145 merges, WT-043 is operationally **CLOSED** even if the directory remains. **Do not invent a PR #145 merge SHA.** G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN** · Personal Free **CLOSED GREEN** · **DO NOT REOPEN** absent actual invalidation. **M55_PERSONAL_SALES_LAUNCH = SELL**. **G3 overall not complete** — G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED. Durable **ACTIVE lane:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — remaining G3 sub-items stay blocked; G4 ORGANIC DISCOVERY remains planned (mapping-first; not started); no additional G3 source implementation; no Personal Free redesign. Settlement checkout path `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `chore/m55-pr144-post-merge-tier-e-settlement` · base `ecc3e37b43414e2a56941377c35235b965047aff` is **not** an ACTIVE product implementation lane. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility PR #119 **OPEN** · commerce **OFF**. **No product source implementation** authorized. Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
+**CURRENT (2026-08-20 G3-03 CLOSED GREEN self-closing PR) — authoritative, read this first:** branch `feat/m55-g3-runtime-proof-v1` · implementation head **`ec663849ad0ba755e0e8a002d10d8540e3a94e21`** · base `origin/main` **`9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`**. G3-03 **CLOSED GREEN** on merge of this PR. WT-044 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** @ implementation head. Runtime proof **GREEN** (matched identity restore · mismatched identity fail-closed · Safari TP representative). G3-01 **NOT AUTHORIZED** · G3-04 **REJECT_EXPOSURE**. G4/G5 **planned / not started**. Durable **ACTIVE lane after merge:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION after merge:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION**. **No** follow-up docs-only settlement PR required.
+
+**CURRENT (2026-08-19 PR #144 post-merge Tier-E settlement) — historical:** `origin/main` **`ecc3e37b43414e2a56941377c35235b965047aff`**. PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · merge commit `ecc3e37b43414e2a56941377c35235b965047aff`. Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY**. PR-head CI **GREEN**. Safari TP 27.0 representative commercial visual review completed; Human-found P1 defects were corrected before merge. Commercial quality consolidation **CLOSED GREEN**. **USER_VISIBLE_CLOSED_GREEN = YES** for the PR #144 commercial-quality consolidation scope. WT-042 **CLOSED / MERGED** — physical worktree path **retained** (not deleted). WT-043 **SETTLEMENT_ONLY / CLOSES_WITH_PR145_MERGE** — PR #145 docs vehicle; **not** the durable product lane; physical directory may remain; **no** follow-up docs-only PR is required merely to close WT-043; once PR #145 merges, WT-043 is operationally **CLOSED** even if the directory remains. **Do not invent a PR #145 merge SHA.** G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN** · Personal Free **CLOSED GREEN** · **DO NOT REOPEN** absent actual invalidation. **M55_PERSONAL_SALES_LAUNCH = SELL**. **G3 overall not complete** — G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED. Durable **ACTIVE lane:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** — remaining G3 sub-items stay blocked; G4 ORGANIC DISCOVERY remains planned (mapping-first; not started); no additional G3 source implementation; no Personal Free redesign. Settlement checkout path `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` · branch `chore/m55-pr144-post-merge-tier-e-settlement` · base `ecc3e37b43414e2a56941377c35235b965047aff` is **not** an ACTIVE product implementation lane. Pair Premium **NOT** activated · subscription **NOT** introduced · Compatibility PR #119 **OPEN** · commerce **OFF**. **No product source implementation** authorized. Live worktrees: **4** — see **FINAL LIVE WORKTREES** below.
 
 **CURRENT (2026-08-19 commercial quality consolidation Tier-E reconciliation) — historical:** `origin/main` **`22b00a6bfc9190f713633e694d90d4dbfa2c8a56`**. PR #142 **MERGED** @ `32f22da527033a0ca094bb717ab2e160c7006d5e` · PR #143 **MERGED** · feature head `156dd18ea17952b8398e2e2b608abc3f1b605226` · Wave A copy clarity **MERGED** · accepted labels **自分に出やすい傾向** · **自分の基本的な傾向** · **レポートの読み方**. G1 **CLOSED GREEN** · G2 **CLOSED GREEN** · G3-02 **CLOSED GREEN** · Personal Free **CLOSED GREEN**. Production deployment **READY** @ then-current main. **M55_PERSONAL_SALES_LAUNCH = SELL**. **ACTIVE lane (at gate):** **M55_COMMERCIAL_QUALITY_CONSOLIDATION** · phase **READ_ONLY_REPO_WIDE_AUDIT**. **NEXT SINGLE ACTION (at gate):** **M55_COMMERCIAL_QUALITY_CONSOLIDATION_AUDIT**. G3-01 **NOT AUTHORIZED** · G3-03 **HOLD_RUNTIME_PROOF** · G3-04 **REJECT_EXPOSURE**. Superseded by PR #144 merge @ `ecc3e37b…` + this post-merge settlement.
 
@@ -1011,6 +1014,33 @@ Historical post-merge transition snapshots remain recorded for audit.
 | prohibited operations | application source / CSS/UI / tests / evidence recapture / DB / Stripe / Clerk / provider / checkout / Pair / Today-Weekly / subscription · follow-up docs-only PR merely to close WT-043 |
 | removal eligibility | physical worktree **may remain**; directory presence does **not** keep the lane ACTIVE |
 | notes | Once PR #145 merges, WT-043 is operationally **CLOSED** even if the directory remains. **No** follow-up docs-only PR is required merely to close WT-043. Durable ACTIVE lane is **G3 REVISIT / RETENTION LOOP**. |
+
+---
+
+### WT-044 — G3-03 Personal Free cross-device restore (CLOSES_WITH_THIS_PR_MERGE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` (**retained** — not deleted) |
+| branch | `feat/m55-g3-runtime-proof-v1` |
+| base origin/main | `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` |
+| implementation head | `ec663849ad0ba755e0e8a002d10d8540e3a94e21` |
+| lastVerifiedAt | `2026-08-20` |
+| lifecycle | **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on G3-03 PR merge |
+| purpose | G3-03 signed-in Personal Free cross-device restore from server draft with identity binding + Clerk-auth-only draft ownership |
+| Human authorization | **G3-03** |
+| G3-03 | **CLOSED GREEN** |
+| G3-03 defect classification | **B. REAL_RUNTIME_DEFECT** |
+| Preview deployment | `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** |
+| runtime proof | matched identity **GREEN** · mismatched identity **GREEN** · Safari TP representative **GREEN** |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-04 | **REJECT_EXPOSURE** |
+| product implementation authorized | **false** after merge — lane closes with PR |
+| Durable ACTIVE lane after merge | **G3 REVISIT / RETENTION LOOP** |
+| Current phase after merge | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
+| NEXT SINGLE ACTION after merge | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
+| follow-up docs-only PR | **not required** |
+| prohibited operations | G3-01 implementation · G3-04 exposure · G4/G5 source · Personal Free redesign · price/Stripe/DB/Clerk config/provider/Pair/subscription change |
 
 ---
 

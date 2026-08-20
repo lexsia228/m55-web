@@ -73,7 +73,6 @@ async function performDraftSync(userId: string | null, profile: DtrDraftSyncPayl
         nickname: profile.nickname,
         birthDate: profile.birthDate,
         extraJson: profile.extraJson,
-        clerkUserId: userId ?? null,
       }),
     });
 

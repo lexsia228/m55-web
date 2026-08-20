@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { mergeDraftExtraJson } from '../../../../lib/m55/selfFunnel/mergeDraftExtraJson';
+import { normalizeDraftProfileIdentity } from '../../../../lib/m55/selfFunnel/draftProfileIdentity';
+import { resolveDtrDraftPostAuthority } from '../../../../lib/m55/selfFunnel/resolveDtrDraftPostAuthority';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +34,6 @@ export async function POST(req: NextRequest) {
     nickname?: string;
     birthDate?: string;
     extraJson?: Record<string, unknown>;
-    clerkUserId?: string | null;
   };
   try {
     body = await req.json();
@@ -45,7 +47,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'nickname and birthDate required' }, { status: 400 });
   }
 
-  const userId = clerkFromAuth ?? (typeof body.clerkUserId === 'string' ? body.clerkUserId : null);
+  const { userId } = resolveDtrDraftPostAuthority({
+    clerkAuthUserId: clerkFromAuth,
+  });
 
   const jar = await cookies();
   const fromCookie = jar.get(COOKIE_NAME)?.value ?? null;
@@ -71,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingUserDraft, error: selectErr } = await db
       .from('dtr_guest_drafts')
-      .select('id')
+      .select('id, nickname, birth_date, extra_json')
       .eq('user_id', userId)
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -84,10 +88,32 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json({ error: 'draft_save_failed' }, { status: 500 });
     }
+    let existingExtra: Record<string, unknown> = {};
+    let existingNickname: string | null = null;
+    let existingBirthDate: string | null = null;
     if (existingUserDraft?.id) {
       draftId = existingUserDraft.id as string;
+      existingNickname =
+        typeof existingUserDraft.nickname === 'string' ? existingUserDraft.nickname : null;
+      existingBirthDate =
+        typeof existingUserDraft.birth_date === 'string' ? existingUserDraft.birth_date : null;
+      if (existingUserDraft.extra_json && typeof existingUserDraft.extra_json === 'object') {
+        existingExtra = existingUserDraft.extra_json as Record<string, unknown>;
+      }
     } else if (fromCookie && isUuid(fromCookie)) {
       draftId = fromCookie;
+      const { data: cookieDraft } = await db
+        .from('dtr_guest_drafts')
+        .select('nickname, birth_date, extra_json')
+        .eq('id', draftId)
+        .maybeSingle();
+      existingNickname =
+        typeof cookieDraft?.nickname === 'string' ? cookieDraft.nickname : null;
+      existingBirthDate =
+        typeof cookieDraft?.birth_date === 'string' ? cookieDraft.birth_date : null;
+      if (cookieDraft?.extra_json && typeof cookieDraft.extra_json === 'object') {
+        existingExtra = cookieDraft.extra_json as Record<string, unknown>;
+      }
     } else {
       draftId = crypto.randomUUID();
     }
@@ -98,7 +124,16 @@ export async function POST(req: NextRequest) {
         id: draftId,
         nickname,
         birth_date: birthRaw,
-        extra_json: body.extraJson ?? {},
+        extra_json: mergeDraftExtraJson(existingExtra, body.extraJson ?? {}, {
+          existingIdentity: normalizeDraftProfileIdentity({
+            nickname: existingNickname,
+            birthDate: existingBirthDate,
+          }),
+          incomingIdentity: normalizeDraftProfileIdentity({
+            nickname,
+            birthDate: birthRaw,
+          }),
+        }),
         user_id: userId,
         linked_at: now,
         updated_at: now,

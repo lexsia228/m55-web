@@ -592,3 +592,44 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Safari focus quiet | `:focus-visible` box-shadow ring on DOB, questionnaire, share chooser |
 | Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **unchanged** |
 | USER_VISIBLE_CLOSED_GREEN | **HOLD** pending post-fix Safari TP + ChatGPT/Human review |
+
+### 2026-08-20 — G3-03 Personal Free cross-device restore CLOSED GREEN (WT-044)
+
+**Status:** Human-authorized **G3-03** implementation on `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` · branch `feat/m55-g3-runtime-proof-v1` · implementation head `ec663849ad0ba755e0e8a002d10d8540e3a94e21` · base `origin/main` @ `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`. **G3-03 = CLOSED GREEN** — self-closing on this PR merge. WT-044 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree **retained**.
+
+| Decision | Value |
+|---|---|
+| G3-03 | **CLOSED GREEN** |
+| G3-03 defect classification | **B. REAL_RUNTIME_DEFECT** |
+| G3-03 closure basis | exact runtime defect confirmed · matching-identity restore only · mismatched/incomplete never fabricates RESULT · same-identity `extra_json` preservation · changed identity drops stale answers · Clerk `auth()`-only draft ownership · Preview matched/mismatched **GREEN** · Safari TP representative **GREEN** |
+| Preview deployment | `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** |
+| WT-044 | **CLOSES_WITH_THIS_PR_MERGE** |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-04 | **REJECT_EXPOSURE** / COPY_SAFETY_GATE_REQUIRED |
+| G4 / G5 | **planned / not started** |
+| Personal Free redesign | **NO** |
+| Pair Premium | **NOT LIVE** |
+| Today/Weekly | **NOT EXPOSED** |
+| subscription | **absent** |
+| Durable ACTIVE lane after merge | **G3 REVISIT / RETENTION LOOP** |
+| Current phase after merge | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
+| NEXT SINGLE ACTION after merge | **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION** |
+| follow-up docs-only PR | **not required** |
+| PR | G3-03 implementation PR (open; not merged) |
+
+### 2026-08-19 — G3-03 Personal Free cross-device restore PATCH-1 (WT-044) — historical
+
+**Status:** Human-authorized **G3-03** implementation on `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` · branch `feat/m55-g3-runtime-proof-v1` · base `origin/main` @ `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`. PATCH-1 binds server `freeAnswerSet` restore to matching draft profile identity (trimmed nickname + YYYY-MM-DD birthDate) and makes `POST /api/dtr/draft` `extra_json` merge identity-aware. **G3-03 is NOT CLOSED GREEN** until Preview runtime proof is accepted.
+
+| Decision | Value |
+|---|---|
+| G3-03 defect classification | **B. REAL_RUNTIME_DEFECT** |
+| G3-03 status | **IMPLEMENTATION_IN_PROGRESS** — **NOT CLOSED GREEN** |
+| G3-01 | **NOT AUTHORIZED** |
+| G3-04 | **REJECT_EXPOSURE** |
+| G4 / G5 | candidate-only |
+| Personal Free redesign | **NO** |
+| Price / Stripe / DB / Clerk / provider / Pair / Today-Weekly / subscription | **UNCHANGED** |
+| NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH2_REVIEW** after Preview runtime proof |
+| PATCH-2 | draft POST ownership = Clerk `auth()` only; body `clerkUserId` removed from client payload |
+| PR | **NOT OPENED** |
