@@ -106,9 +106,10 @@ Every AI session boot must read, in order:
 5. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md` (this file)
 6. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
 7. Fresh Git / remote facts (`pwd`, branch, HEAD, `git status`, registry drift)
-8. Current lane + **NEXT SINGLE ACTION** from `M55_CURRENT_STATE.md`
-9. CLOSED GREEN gates (do not re-audit)
-10. Invalidating dependencies for any proposed rerun
-11. Execute only the authorized **NEXT SINGLE ACTION**
+8. **`npm run m55:context`** — fresh runtime authority for volatile facts
+9. Current lane + **NEXT SINGLE ACTION** from `M55_CURRENT_STATE.md`
+10. CLOSED GREEN gates (do not re-audit)
+11. Invalidating dependencies for any proposed rerun
+12. Execute only the authorized **NEXT SINGLE ACTION**
 
-Verification: `npm run verify:m55-control-tower`
+Verification: `npm run m55:context` · `npm run verify:m55-control-tower`

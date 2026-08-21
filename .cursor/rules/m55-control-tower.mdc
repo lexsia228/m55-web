@@ -12,10 +12,11 @@ Before analysis or mutation, complete the boot sequence in `AGENTS.md` § Contro
 - `docs/ssot/M55_CURRENT_STATE.md` (lane + **NEXT SINGLE ACTION**)
 - `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
 - `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
-- fresh Git facts + registry drift check
+- **`npm run m55:context`** (fresh Git runtime; dynamic facts override chat memory)
+- fresh Git facts + registry drift check (durable ownership only)
 
 **Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN` — missing evidence in this chat does **not** authorize rerunning high-cost tests (real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, real consult consumption).
 
-Search repo SSOT and prior evidence first. Rerun only when an **invalidating dependency** changed and is documented.
+Search repo SSOT and prior evidence first. Rerun only when an **invalidating dependency** changed and is documented. Before proposing rerun: ledger search → invalidating dependency compare → else **RERUN_PROHIBITED** (new chat ≠ invalidation). Do not replay completed development gates listed in CURRENT_STATE completed sub-gates.
 
-Run `npm run verify:m55-control-tower` when touching control-tower SSOT or boot references.
+Run `npm run m55:context` at session boot. Run `npm run verify:m55-control-tower` when touching control-tower SSOT or boot references.

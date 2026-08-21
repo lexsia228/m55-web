@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * M55 Control Tower verifier — COMMIT-A self-contained bootstrap + evidence invariants.
+ * M55 Control Tower verifier — bootstrap + evidence + semantic dedup invariants.
  * Does not execute COMMIT-B product-capability tests or require future B-only files.
  * Does not access network, secrets, Stripe, Clerk, or Supabase.
  */
@@ -8,6 +8,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  SEMANTIC_AUTHORITY_SECTION,
+  validateSemanticAuthority,
+} from './m55-control-tower-semantic.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FAILURES = [];
@@ -33,6 +37,8 @@ const REQUIRED_CONTROL_TOWER_FILES = [
   'docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md',
   'docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md',
   'lib/m55/contracts/m55CommercialFunnelContract.ts',
+  'scripts/m55-control-tower-context.mjs',
+  'scripts/m55-control-tower-semantic.mjs',
 ];
 
 const OPERATIONS_MAP_SECTIONS = ['## GitHub', '## Vercel', '## Clerk', '## Supabase', '## Stripe'];
@@ -56,12 +62,22 @@ function checkRequiredFiles() {
   }
 }
 
+function checkPackageContextScript() {
+  const pkg = read('package.json');
+  if (!/"m55:context"\s*:\s*"node scripts\/m55-control-tower-context\.mjs"/.test(pkg)) {
+    fail('package.json missing m55:context script');
+  }
+}
+
 function checkOperationsMapSections() {
   const rel = 'docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md';
   if (!exists(rel)) return;
   const src = read(rel);
   for (const heading of OPERATIONS_MAP_SECTIONS) {
     if (!src.includes(heading)) fail(`operations map missing section: ${heading}`);
+  }
+  if (!src.includes('npm run m55:context')) {
+    fail('operations map boot cross-reference missing m55:context');
   }
   if (/sk_live_|whsec_|pk_live_[A-Za-z0-9+/=]{10,}/.test(src)) {
     fail('operations map must not contain secret-like values');
@@ -78,6 +94,9 @@ function checkHighCostLedger() {
   if (!src.includes(GATE_LOCAL_RULE)) {
     fail('high-cost ledger missing GATE_LOCAL_UNPROVEN rule');
   }
+  if (!src.includes('REAL_PAYMENT_RERUN_PROHIBITED')) {
+    fail('high-cost ledger missing REAL_PAYMENT_RERUN_PROHIBITED policy');
+  }
 }
 
 function checkAgentsBootReferences() {
@@ -90,6 +109,18 @@ function checkAgentsBootReferences() {
   for (const ref of BOOT_REFERENCE_PATHS) {
     if (!src.includes(ref)) fail(`AGENTS.md boot sequence missing reference: ${ref}`);
   }
+  if (!src.includes('npm run m55:context')) {
+    fail('AGENTS.md boot sequence missing npm run m55:context');
+  }
+  if (!src.includes('Duplicate-gate precheck')) {
+    fail('AGENTS.md missing duplicate-gate precheck section');
+  }
+  if (!src.includes('RERUN_PROHIBITED')) {
+    fail('AGENTS.md duplicate-gate precheck missing RERUN_PROHIBITED rule');
+  }
+  if (!src.includes('COMPLETED_GATE_REPLAY_PROHIBITED') && !src.includes('do not replay')) {
+    fail('AGENTS.md missing completed development-gate replay prohibition');
+  }
   if (!src.includes('verify:m55-control-tower')) {
     fail('AGENTS.md verification section missing verify:m55-control-tower');
   }
@@ -98,19 +129,36 @@ function checkAgentsBootReferences() {
   }
 }
 
-function checkCurrentStateActiveLane() {
-  const rel = 'docs/ssot/M55_CURRENT_STATE.md';
-  if (!exists(rel)) return;
-  const src = read(rel);
-  if (!/## PAIR LANE ENTRANCE/m.test(src) && !/\(CURRENT\)/m.test(src)) {
-    fail('M55_CURRENT_STATE.md missing identifiable current lane section');
+function checkSemanticAuthority() {
+  const currentSrc = read('docs/ssot/M55_CURRENT_STATE.md');
+  const roadmapSrc = read('docs/ssot/M55_ROADMAP.md');
+  const registrySrc = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
+
+  if (!currentSrc.includes(SEMANTIC_AUTHORITY_SECTION)) {
+    fail('M55_CURRENT_STATE.md missing semantic execution authority section');
   }
-  if (!/NEXT SINGLE ACTION/m.test(src)) {
-    fail('M55_CURRENT_STATE.md missing NEXT SINGLE ACTION');
+  if (!currentSrc.includes('Completed sub-gates (CLOSED — do not replay)')) {
+    fail('M55_CURRENT_STATE.md missing completed sub-gates section');
+  }
+
+  const { errors } = validateSemanticAuthority(currentSrc, { checkRoadmap: roadmapSrc });
+  for (const message of errors) fail(message);
+
+  const wt048Start = registrySrc.indexOf('### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (ACTIVE)');
+  if (wt048Start === -1) {
+    fail('M55_WORKTREE_REGISTRY.md missing WT-048 section');
+  } else {
+    const wt048End = registrySrc.indexOf('\n---', wt048Start);
+    const wt048 = wt048End === -1 ? registrySrc.slice(wt048Start) : registrySrc.slice(wt048Start, wt048End);
+    if (/\|\s*NEXT SINGLE ACTION\s*\|/.test(wt048)) {
+      fail('WT-048 must not maintain its own NEXT SINGLE ACTION table row');
+    }
+    if (!wt048.includes('semantic execution authority')) {
+      fail('WT-048 must reference semantic execution authority owner');
+    }
   }
 }
 
-/** Already-committed machine contract only — not COMMIT-B fixture or cross-layer tests. */
 function checkCommercialSkuOwnersInContract() {
   const contract = read('lib/m55/contracts/m55CommercialFunnelContract.ts');
   if (!/selfPremiumLight:[\s\S]*additionalThemes:\s*1/m.test(contract)) {
@@ -134,14 +182,21 @@ function checkCursorBootstrapRule() {
   if (!/alwaysApply:\s*true/.test(src)) fail('m55-control-tower.mdc must set alwaysApply: true');
   if (!src.includes('AGENTS.md')) fail('m55-control-tower.mdc must point to AGENTS.md');
   if (!src.includes(GATE_LOCAL_RULE)) fail('m55-control-tower.mdc missing GATE_LOCAL_UNPROVEN rule');
+  if (!src.includes('npm run m55:context')) {
+    fail('m55-control-tower.mdc must require npm run m55:context at boot');
+  }
+  if (!src.includes('RERUN_PROHIBITED')) {
+    fail('m55-control-tower.mdc missing duplicate-gate RERUN_PROHIBITED rule');
+  }
 }
 
 function main() {
   checkRequiredFiles();
+  checkPackageContextScript();
   checkOperationsMapSections();
   checkHighCostLedger();
   checkAgentsBootReferences();
-  checkCurrentStateActiveLane();
+  checkSemanticAuthority();
   checkCommercialSkuOwnersInContract();
   checkCursorBootstrapRule();
 

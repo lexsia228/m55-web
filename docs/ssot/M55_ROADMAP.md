@@ -7,7 +7,7 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 
 1. Commercial Funnel SSOT ← **complete**
 2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share **PR #81 MERGED** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` 2026-08-01 — commercial + technical closure complete)
-3. 二人向け無料→有料 — **ACTIVE PAIR LANE**; entrance bounded quality gate Wave 0 is active; Pair implementation not started; Pair Premium not activated
+3. 二人向け無料→有料 — **ACTIVE PAIR LANE (macro)**; Wave 0 mapping closed locally; Phase-B readability work dirty uncommitted; Pair implementation not started on merged runtime; Pair Premium not activated
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
@@ -58,26 +58,26 @@ Explicit retainers:
 
 G1 and G2 are **CLOSED GREEN** on `main` via PR #137 and PR #139 respectively and must not be re-audited or re-implemented absent actual invalidation. **G3 REVISIT / RETENTION LOOP** is **CLOSED GREEN** — G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** (PR #141) · G3-03 **CLOSED GREEN** (WT-044) · G3-04 **CLOSED / KEEP_REJECTED** (WT-045) — **DO NOT REOPEN** absent actual invalidation. **G4 ORGANIC DISCOVERY** is **CLOSED GREEN** via WT-046 / `feat/m55-g4-organic-discovery-v1` @ `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957`, merged in PR #148 @ `0f62ff7c575eb65730862092ff80d7168469ae95`; **DO NOT REOPEN** absent actual invalidation. **G5 Wave 1** is **CLOSED GREEN** via PR #149 @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; **G5 Wave 2 = DEFER UNTIL REAL TRAFFIC DATA** and no further G5 source work is required now. Commercial quality consolidation remains **CLOSED GREEN** via PR #144 except for the specifically invalidated Live paid DTR readability surface.
 
-## Pair lane entrance — Wave 0 Live paid DTR readability (CURRENT)
+## Pair lane entrance — Wave 0 Live paid DTR readability (MACRO STAGE)
 
-Wave 0 is a **bounded quality gate inside the Pair lane**, not an independent roadmap lane. Human actual invalidation reopens only the currently Live paid DTR readability surface; it does not trigger a sitewide commercial-quality re-audit and does not revoke unrelated CLOSED GREEN decisions.
+Wave 0 is a **bounded quality gate inside the Pair lane**, not an independent roadmap lane. Steps 1–9 below include mapping and local Phase-B readability work that is **already closed locally**; they are **not** the current executable gate.
 
 Fixed Pair entrance order:
 
 1. G5 Wave 1 **CLOSED GREEN**
 2. PAIR LANE
 3. Wave 0 Live paid DTR readability
-4. Fresh read-only source/computed-style mapping
-5. exact defect proof
-6. shared token/style owner minimal fix
-7. automated contrast/readability regression
-8. mobile + desktop representative check
-9. Human representative visual approval
+4. Fresh read-only source/computed-style mapping — **CLOSED GREEN locally**
+5. exact defect proof — **CLOSED GREEN locally**
+6. shared token/style owner minimal fix — **LOCAL ACCEPTED** (dirty Phase-B)
+7. automated contrast/readability regression — **LOCAL ACCEPTED**
+8. mobile + desktop representative check — **LOCAL ACCEPTED**
+9. Human representative visual approval — **USER_VISIBLE_CLOSED_GREEN** (ledger)
 10. Pair free→paid mapping-first
 11. minimal Pair implementation
 12. Pair Premium activation decision
 
-**Current phase / NEXT SINGLE ACTION:** `CATEGORY-1-M55-PAIR-WAVE0-LIVE-PAID-DTR-READABILITY-READ-ONLY-MAPPING`. Pair implementation is **not started**. Pair Premium is **NOT ACTIVATED**.
+**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_CURRENT_STATE.md` § **PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)**. Pair implementation is **not started** on merged runtime. Pair Premium is **NOT ACTIVATED**.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
