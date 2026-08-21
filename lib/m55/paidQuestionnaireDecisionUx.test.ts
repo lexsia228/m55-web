@@ -131,8 +131,16 @@ describe('paid questionnaire decision UX — analytics', () => {
     );
 
     resetFunnelImpressionDedupeForTests();
-    trackFunnelImpressionOnce(M55_FUNNEL_EVENTS.paidPlanView, 'dtr_paid_plan', 'dedupe-test');
-    trackFunnelImpressionOnce(M55_FUNNEL_EVENTS.paidPlanView, 'dtr_paid_plan', 'dedupe-test');
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.premiumPlanDecisionViewed,
+      'dtr_paid_plan',
+      'dedupe-test',
+    );
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.premiumPlanDecisionViewed,
+      'dtr_paid_plan',
+      'dedupe-test',
+    );
     assert.ok(true);
   });
 
@@ -141,6 +149,6 @@ describe('paid questionnaire decision UX — analytics', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(q, /trackFunnelAction\(\s*M55_FUNNEL_EVENTS\.paidQuestionnaireStart/);
     assert.match(q, /trackFunnelImpressionOnce\(\s*M55_FUNNEL_EVENTS\.paidQuestionnaireComplete/);
-    assert.match(prep, /trackFunnelImpressionOnce\(\s*M55_FUNNEL_EVENTS\.paidPlanView/);
+    assert.match(prep, /trackFunnelImpressionOnce\(\s*M55_FUNNEL_EVENTS\.premiumPlanDecisionViewed/);
   });
 });

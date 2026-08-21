@@ -3067,18 +3067,14 @@ function DtrFullReaderCore({
 
   useEffect(() => {
     if (view.kind !== 'ready') return;
-    trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.savedReportOpen,
-      'dtr_saved_report',
-      'dtr-saved-report-open',
-    );
+    // Canonical Wave 1 value-open. Legacy m55_saved_report_open constant remains
+    // defined for compatibility; do not dual-emit that alias on this open action.
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.premiumReportOpened,
       'dtr_saved_report',
       'dtr-premium-report-opened',
     );
   }, [view.kind]);
-
   useEffect(() => {
     if (view.kind !== 'ready') return;
     if (fixtureMode && initialOpenPanel) {

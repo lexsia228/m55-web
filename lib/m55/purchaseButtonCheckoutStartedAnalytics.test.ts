@@ -20,6 +20,7 @@ import {
   type PurchaseCheckoutResponse,
   type PurchaseCheckoutStartedDeps,
 } from './purchaseCheckoutStartedAction';
+import { DTR_CORE_LIGHT_V1 } from '../oneTimeCheckout';
 
 const ROOT = join(import.meta.dirname, '../..');
 
@@ -32,7 +33,7 @@ const VALID_PROFILE: BirthProfile = {
   birthDate: '1990-01-15',
 };
 
-type TrackCall = { event: string; surface: string };
+type TrackCall = { event: string; surface: string; extras?: Record<string, unknown> };
 type NavCall = { mode: 'href' | 'replace'; url: string };
 
 function createHarness(options?: {
@@ -60,8 +61,8 @@ function createHarness(options?: {
       if (options?.response) return options.response;
       return defaultResponse();
     },
-    trackFunnelAction: (event, surface) => {
-      tracks.push({ event, surface });
+    trackFunnelAction: (event, surface, extras) => {
+      tracks.push({ event, surface, extras });
     },
     navigateHref: (url) => {
       navigations.push({ mode: 'href', url });
@@ -74,7 +75,7 @@ function createHarness(options?: {
     isValidCheckoutProduct: () => options?.validProduct !== false,
   };
 
-  async function attempt(productId = 'DTR_CORE_LIGHT_V1') {
+  async function attempt(productId = DTR_CORE_LIGHT_V1) {
     return runPurchaseCheckoutAttempt({
       productId,
       profile: VALID_PROFILE,
@@ -120,9 +121,9 @@ describe('checkout_started — behavioral control flow', () => {
       };
     };
     const originalTrack = deps.trackFunnelAction;
-    deps.trackFunnelAction = (event, surface) => {
+    deps.trackFunnelAction = (event, surface, extras) => {
       order.push(`track:${event}`);
-      originalTrack(event, surface);
+      originalTrack(event, surface, extras);
     };
     const originalHref = deps.navigateHref;
     deps.navigateHref = (url) => {
@@ -133,12 +134,13 @@ describe('checkout_started — behavioral control flow', () => {
     const outcome = await attempt();
     assert.equal(outcome.kind, 'navigated');
     assert.equal(posts.length, 1);
-    assert.equal(posts[0]?.productId, 'DTR_CORE_LIGHT_V1');
+    assert.equal(posts[0]?.productId, DTR_CORE_LIGHT_V1);
     assert.deepEqual(posts[0]?.freeAnswerSet, { q1: 'a' });
     assert.deepEqual(posts[0]?.paidAnswerSet, { q2: 'b' });
     assert.equal(tracks.length, 1);
     assert.equal(tracks[0]?.event, M55_FUNNEL_EVENTS.checkoutStarted);
     assert.equal(tracks[0]?.surface, 'dtr_paid_plan');
+    assert.equal(tracks[0]?.extras?.planClass, 'light');
     assert.equal(navigations.length, 1);
     assert.deepEqual(navigations[0], {
       mode: 'href',
@@ -202,7 +204,7 @@ describe('checkout_started — behavioral control flow', () => {
       return jsonResponse(200, { url: 'https://checkout.example/retry' });
     };
     const second = await runPurchaseCheckoutAttempt({
-      productId: 'DTR_CORE_LIGHT_V1',
+      productId: DTR_CORE_LIGHT_V1,
       profile: VALID_PROFILE,
       submitLock: harness.submitLock,
       loading: false,
@@ -247,14 +249,14 @@ describe('checkout_started — behavioral control flow', () => {
     });
 
     const firstPromise = runPurchaseCheckoutAttempt({
-      productId: 'DTR_CORE_LIGHT_V1',
+      productId: DTR_CORE_LIGHT_V1,
       profile: VALID_PROFILE,
       submitLock,
       loading: false,
       deps,
     });
     const second = await runPurchaseCheckoutAttempt({
-      productId: 'DTR_CORE_LIGHT_V1',
+      productId: DTR_CORE_LIGHT_V1,
       profile: VALID_PROFILE,
       submitLock,
       loading: false,
@@ -287,7 +289,7 @@ describe('checkout_started — behavioral control flow', () => {
     assert.equal(submitLock.current, false);
 
     const second = await runPurchaseCheckoutAttempt({
-      productId: 'DTR_CORE_LIGHT_V1',
+      productId: DTR_CORE_LIGHT_V1,
       profile: VALID_PROFILE,
       submitLock,
       loading: false,
