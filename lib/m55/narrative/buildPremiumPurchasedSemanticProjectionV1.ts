@@ -9,6 +9,7 @@ import { buildPersonalFreeFusedInsightSpecV3, type PersonalFreeFusedInsightSpecV
 import { resolveFreeAxes } from '../freeResult/buildFreeFiveViewCompositionV1';
 import type { PurchaseInputSnapshotV1 } from '../paidResult/purchaseInputSnapshotV1';
 import { readPurchaseInputSnapshotV1 } from '../paidResult/purchaseInputSnapshotV1';
+import type { PaidChapterEmphasisIdV1 } from '../individualization/individualizationSelectorTypesV1';
 import {
   PAID_DTR_DEEP_READING_TAKEAWAYS,
   type PaidDtrReportPartId,
@@ -26,6 +27,11 @@ export type PremiumPurchasedSemanticProjectionV1 = {
   takeawayJa: string;
   nextActionJa: string | null;
   hiddenSpec: PremiumManualHiddenSpec | null;
+  paidSemanticConsequenceIds: Readonly<{
+    chapter2: readonly PaidChapterEmphasisIdV1[];
+    chapter3: readonly PaidChapterEmphasisIdV1[];
+    chapter4: readonly PaidChapterEmphasisIdV1[];
+  }>;
 };
 
 const THEME_TO_TAKEAWAY_PART: Readonly<Record<ReplyThemeId, PaidDtrReportPartId>> = {
@@ -38,6 +44,19 @@ const THEME_TO_TAKEAWAY_PART: Readonly<Record<ReplyThemeId, PaidDtrReportPartId>
 
 function takeawayPartForTheme(theme: ReplyThemeId | undefined): PaidDtrReportPartId {
   return theme ? THEME_TO_TAKEAWAY_PART[theme] : '1';
+}
+
+function isPaidSemanticConsequenceId(
+  id: PaidChapterEmphasisIdV1,
+): boolean {
+  return (
+    id.startsWith('paid_ch2__work_focus_') ||
+    id.startsWith('paid_ch2__decision_friction_') ||
+    id.startsWith('paid_ch3__relation_focus_') ||
+    id.startsWith('paid_ch4__fatigue_signal_') ||
+    id.startsWith('paid_ch4__recovery_sequence_') ||
+    id.startsWith('paid_ch4__restart_condition_')
+  );
 }
 
 export function readPurchaseInputFromDraftSnapshot(
@@ -91,6 +110,18 @@ export function buildPremiumPurchasedSemanticProjectionV1(input: {
   const nextActionJa = firstSentenceJa(
     PAID_DTR_DEEP_READING_TAKEAWAYS[takeawayPart].itemsJa[1] ?? '',
   );
+  const selectedPaidChapterIds = fingerprint.selectors?.paidChapterEmphasisIds;
+  const paidSemanticConsequenceIds = {
+    chapter2: (selectedPaidChapterIds?.chapter2 ?? []).filter(
+      isPaidSemanticConsequenceId,
+    ),
+    chapter3: (selectedPaidChapterIds?.chapter3 ?? []).filter(
+      isPaidSemanticConsequenceId,
+    ),
+    chapter4: (selectedPaidChapterIds?.chapter4 ?? []).filter(
+      isPaidSemanticConsequenceId,
+    ),
+  };
 
   return {
     ok: true,
@@ -103,6 +134,7 @@ export function buildPremiumPurchasedSemanticProjectionV1(input: {
       takeawayJa,
       nextActionJa: nextActionJa.length >= 4 ? nextActionJa : null,
       hiddenSpec,
+      paidSemanticConsequenceIds,
     },
   };
 }

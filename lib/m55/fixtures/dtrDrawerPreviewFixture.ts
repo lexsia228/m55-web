@@ -23,8 +23,6 @@ const PREVIEW_PROFILE = {
   timezone: 'Asia/Tokyo',
 } as const;
 
-const built = buildV2FulfillmentSnapshotFromFields({ ...PREVIEW_PROFILE });
-
 const PREVIEW_FREE_ANSWERS = {
   'free.start_style': 'free.start_style.map_first',
   'free.decision_style': 'free.decision_style.sort_first',
@@ -43,8 +41,10 @@ const PREVIEW_PAID_ANSWERS = {
   'paid.restart_condition': 'paid.restart_condition.overview_first',
 } as const;
 
-function buildDeterministicPreviewProjection() {
-  const stemLaneIndex = built.envelope_json.auditMeta.stemLaneIndex;
+const previewFoundation = buildV2FulfillmentSnapshotFromFields({ ...PREVIEW_PROFILE });
+
+function buildDeterministicPreviewPurchaseInput() {
+  const stemLaneIndex = previewFoundation.envelope_json.auditMeta.stemLaneIndex;
   const purchaseInput = buildPurchaseInputSnapshotV1({
     userId: 'user_dtr_drawer_preview',
     productId: DTR_CORE_LIGHT_V1,
@@ -57,8 +57,19 @@ function buildDeterministicPreviewProjection() {
   if (!purchaseInput.ok) {
     throw new Error(`dtr_drawer_preview_purchase_input:${purchaseInput.code}`);
   }
+  return purchaseInput.value;
+}
+
+const previewPurchaseInput = buildDeterministicPreviewPurchaseInput();
+const built = buildV2FulfillmentSnapshotFromFields(
+  { ...PREVIEW_PROFILE },
+  { purchaseInput: previewPurchaseInput },
+);
+
+function buildDeterministicPreviewProjection() {
+  const stemLaneIndex = built.envelope_json.auditMeta.stemLaneIndex;
   const projection = buildPremiumPurchasedSemanticProjectionV1({
-    purchaseInput: purchaseInput.value,
+    purchaseInput: previewPurchaseInput,
     stemLaneIndex,
   });
   if (!projection.ok) {

@@ -124,6 +124,7 @@ export type ResolveIndividualizationSelectorsInputV1 = {
   replyAffinity: ReplyAffinity;
   paidDepth: PaidDepth | null;
   freePick: AlignDivergeItem | null;
+  paidAnswerSet?: Readonly<Record<string, string>> | null;
 };
 
 export type ResolveIndividualizationSelectorsResultV1 =
@@ -698,7 +699,7 @@ function applyChapterBiasBoost(
   }
 }
 
-function resolvePaidChapterEmphasis(
+function resolveGenericPaidChapterEmphasis(
   input: ResolveIndividualizationSelectorsInputV1,
   strainIds: readonly StrainSelectorIdV1[],
 ): IndividualizationSelectorBundleV1['paidChapterEmphasisIds'] {
@@ -763,6 +764,107 @@ function resolvePaidChapterEmphasis(
   }
 
   return result as IndividualizationSelectorBundleV1['paidChapterEmphasisIds'];
+}
+
+const CURRENT_PAID_QUESTION_IDS = [
+  'paid.work_focus',
+  'paid.decision_friction',
+  'paid.relation_focus',
+  'paid.fatigue_signal',
+  'paid.recovery_sequence',
+  'paid.restart_condition',
+] as const;
+
+const WORK_FOCUS_SELECTOR_BY_ANSWER: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+  'paid.work_focus.priority': 'paid_ch2__work_focus_priority',
+  'paid.work_focus.pace': 'paid_ch2__work_focus_pace',
+  'paid.work_focus.boundary': 'paid_ch2__work_focus_boundary',
+};
+
+const DECISION_FRICTION_SELECTOR_BY_ANSWER: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+  'paid.decision_friction.too_many': 'paid_ch2__decision_friction_too_many',
+  'paid.decision_friction.unclear_end': 'paid_ch2__decision_friction_unclear_end',
+  'paid.decision_friction.fear_mistake': 'paid_ch2__decision_friction_fear_mistake',
+};
+
+const RELATION_FOCUS_SELECTOR_BY_ANSWER: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+  'paid.relation_focus.words': 'paid_ch3__relation_focus_words',
+  'paid.relation_focus.timing': 'paid_ch3__relation_focus_timing',
+  'paid.relation_focus.recovery': 'paid_ch3__relation_focus_recovery',
+};
+
+const FATIGUE_SIGNAL_SELECTOR_BY_ANSWER: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+  'paid.fatigue_signal.after_push': 'paid_ch4__fatigue_signal_after_push',
+  'paid.fatigue_signal.before_start': 'paid_ch4__fatigue_signal_before_start',
+  'paid.fatigue_signal.long_stretch': 'paid_ch4__fatigue_signal_long_stretch',
+};
+
+const RECOVERY_SEQUENCE_SELECTOR_BY_ANSWER: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+  'paid.recovery_sequence.pause_first': 'paid_ch4__recovery_sequence_pause_first',
+  'paid.recovery_sequence.small_start': 'paid_ch4__recovery_sequence_small_start',
+  'paid.recovery_sequence.sort_materials': 'paid_ch4__recovery_sequence_sort_materials',
+};
+
+const RESTART_CONDITION_SELECTOR_BY_ANSWER: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+  'paid.restart_condition.overview_first': 'paid_ch4__restart_condition_overview_first',
+  'paid.restart_condition.shrink_scope': 'paid_ch4__restart_condition_shrink_scope',
+  'paid.restart_condition.trusted_support': 'paid_ch4__restart_condition_trusted_support',
+};
+
+type CurrentPaidConsequenceSelectors = Readonly<{
+  work: PaidChapterEmphasisIdV1;
+  decision: PaidChapterEmphasisIdV1;
+  relation: PaidChapterEmphasisIdV1;
+  fatigue: PaidChapterEmphasisIdV1;
+  recovery: PaidChapterEmphasisIdV1;
+  restart: PaidChapterEmphasisIdV1;
+}>;
+
+function resolveCurrentPaidConsequenceSelectors(
+  paidAnswerSet: Readonly<Record<string, string>> | null | undefined,
+): CurrentPaidConsequenceSelectors | null {
+  if (!paidAnswerSet) return null;
+  const isCurrentPaidSet = CURRENT_PAID_QUESTION_IDS.some(
+    (questionId) => paidAnswerSet[questionId] !== undefined,
+  );
+  if (!isCurrentPaidSet) return null;
+
+  const work = WORK_FOCUS_SELECTOR_BY_ANSWER[paidAnswerSet['paid.work_focus'] ?? ''];
+  const decision = DECISION_FRICTION_SELECTOR_BY_ANSWER[
+    paidAnswerSet['paid.decision_friction'] ?? ''
+  ];
+  const relation = RELATION_FOCUS_SELECTOR_BY_ANSWER[
+    paidAnswerSet['paid.relation_focus'] ?? ''
+  ];
+  const fatigue = FATIGUE_SIGNAL_SELECTOR_BY_ANSWER[
+    paidAnswerSet['paid.fatigue_signal'] ?? ''
+  ];
+  const recovery = RECOVERY_SEQUENCE_SELECTOR_BY_ANSWER[
+    paidAnswerSet['paid.recovery_sequence'] ?? ''
+  ];
+  const restart = RESTART_CONDITION_SELECTOR_BY_ANSWER[
+    paidAnswerSet['paid.restart_condition'] ?? ''
+  ];
+  if (!work || !decision || !relation || !fatigue || !recovery || !restart) {
+    throw new Error('invalid current paid answer set');
+  }
+  return { work, decision, relation, fatigue, recovery, restart };
+}
+
+function resolvePaidChapterEmphasis(
+  input: ResolveIndividualizationSelectorsInputV1,
+  strainIds: readonly StrainSelectorIdV1[],
+): IndividualizationSelectorBundleV1['paidChapterEmphasisIds'] {
+  const generic = resolveGenericPaidChapterEmphasis(input, strainIds);
+  const exact = resolveCurrentPaidConsequenceSelectors(input.paidAnswerSet);
+  if (!exact) return generic;
+
+  return {
+    chapter1: generic.chapter1,
+    chapter2: [exact.work, exact.decision, ...generic.chapter2.slice(0, 1)],
+    chapter3: [exact.relation, ...generic.chapter3.slice(0, 2)],
+    chapter4: [exact.fatigue, exact.recovery, exact.restart],
+  };
 }
 
 function freeExpressionWorkBoost(

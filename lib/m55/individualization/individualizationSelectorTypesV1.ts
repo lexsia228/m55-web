@@ -66,7 +66,25 @@ export type PaidChapterEmphasisIdV1 =
   | 'paid_ch4__recovery_pace'
   | 'paid_ch4__change_life_load'
   | 'paid_ch4__distance_boundary'
-  | 'paid_ch4__strain_life_context';
+  | 'paid_ch4__strain_life_context'
+  | 'paid_ch2__work_focus_priority'
+  | 'paid_ch2__work_focus_pace'
+  | 'paid_ch2__work_focus_boundary'
+  | 'paid_ch2__decision_friction_too_many'
+  | 'paid_ch2__decision_friction_unclear_end'
+  | 'paid_ch2__decision_friction_fear_mistake'
+  | 'paid_ch3__relation_focus_words'
+  | 'paid_ch3__relation_focus_timing'
+  | 'paid_ch3__relation_focus_recovery'
+  | 'paid_ch4__fatigue_signal_after_push'
+  | 'paid_ch4__fatigue_signal_before_start'
+  | 'paid_ch4__fatigue_signal_long_stretch'
+  | 'paid_ch4__recovery_sequence_pause_first'
+  | 'paid_ch4__recovery_sequence_small_start'
+  | 'paid_ch4__recovery_sequence_sort_materials'
+  | 'paid_ch4__restart_condition_overview_first'
+  | 'paid_ch4__restart_condition_shrink_scope'
+  | 'paid_ch4__restart_condition_trusted_support';
 
 export type RootEvidenceLineageV1 =
   | 'DOB_BASELINE_ROOT'

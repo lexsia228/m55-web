@@ -83,6 +83,24 @@ const EXPECTED_PAID_EMPHASIS_IDS = [
   'paid_ch4__change_life_load',
   'paid_ch4__distance_boundary',
   'paid_ch4__strain_life_context',
+  'paid_ch2__work_focus_priority',
+  'paid_ch2__work_focus_pace',
+  'paid_ch2__work_focus_boundary',
+  'paid_ch2__decision_friction_too_many',
+  'paid_ch2__decision_friction_unclear_end',
+  'paid_ch2__decision_friction_fear_mistake',
+  'paid_ch3__relation_focus_words',
+  'paid_ch3__relation_focus_timing',
+  'paid_ch3__relation_focus_recovery',
+  'paid_ch4__fatigue_signal_after_push',
+  'paid_ch4__fatigue_signal_before_start',
+  'paid_ch4__fatigue_signal_long_stretch',
+  'paid_ch4__recovery_sequence_pause_first',
+  'paid_ch4__recovery_sequence_small_start',
+  'paid_ch4__recovery_sequence_sort_materials',
+  'paid_ch4__restart_condition_overview_first',
+  'paid_ch4__restart_condition_shrink_scope',
+  'paid_ch4__restart_condition_trusted_support',
 ] as const;
 
 const FORBIDDEN_FIELD_NAMES = [
@@ -142,15 +160,15 @@ describe('selectors-v1 catalog', () => {
     assert.equal(STRAIN_SELECTOR_CATALOG_V1.length, 5);
     assert.equal(RECOVERY_SELECTOR_CATALOG_V1.length, 5);
     assert.equal(FREE_BLOCK_SELECTOR_CATALOG_V1.length, 33);
-    assert.equal(PAID_CHAPTER_EMPHASIS_CATALOG_V1.length, 13);
-    assert.equal(collectIds().length, 56);
+    assert.equal(PAID_CHAPTER_EMPHASIS_CATALOG_V1.length, 31);
+    assert.equal(collectIds().length, 74);
   });
 
   it('all catalog IDs are unique with zero cross-category collisions', () => {
     const ids = collectIds();
     const unique = new Set(ids);
     assert.equal(unique.size, ids.length);
-    assert.equal(unique.size, 56);
+    assert.equal(unique.size, 74);
   });
 
   it('canonical ordering matches plan-fixed ID order', () => {
@@ -228,11 +246,11 @@ describe('selectors-v1 catalog', () => {
     );
   });
 
-  it('paid chapter ownership is 3/3/3/4 with zero cross-chapter exact ID duplicates', () => {
+  it('paid chapter ownership is 3/9/6/13 with zero cross-chapter exact ID duplicates', () => {
     assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.I.length, 3);
-    assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.II.length, 3);
-    assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.III.length, 3);
-    assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.IV.length, 4);
+    assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.II.length, 9);
+    assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.III.length, 6);
+    assert.equal(PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1.IV.length, 13);
     const paidIds = PAID_CHAPTER_EMPHASIS_CATALOG_V1.map((entry) => entry.id);
     assert.equal(new Set(paidIds).size, paidIds.length);
   });

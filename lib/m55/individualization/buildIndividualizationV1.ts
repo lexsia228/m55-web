@@ -171,6 +171,7 @@ export function buildIndividualizationDraftSnapshotV1(
     replyAffinity: fingerprint.replyAffinity,
     paidDepth: fingerprint.paidDepth,
     freePick,
+    paidAnswerSet: input.paidAnswerSet,
   });
   if (!resolved.ok) return mapResolverFailure(resolved.error);
 
