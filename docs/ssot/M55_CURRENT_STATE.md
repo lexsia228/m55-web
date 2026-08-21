@@ -33,21 +33,23 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | worktree | `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` (WT-048) |
 | branch | `feat/m55-pair-funnel-v1` |
 | intended upstream model | `origin/feat/m55-pair-funnel-v1` |
-| Local preserved product work | **none** — Phase-B atomic COMMIT B lands locally in this commit; excluded screenshot PNGs remain unstaged |
-| Current control-plane blocker | **none** — Phase-B product **COMMITTED locally**; feature push proof is next |
-| CURRENT EXECUTION GATE | **PHASE-B-FEATURE-PUSH-AND-REMOTE-COLD-START-PROOF** |
-| NEXT SINGLE ACTION | **PHASE-B-FEATURE-PUSH-AND-REMOTE-COLD-START-PROOF** |
+| Local preserved product work | **none** — Phase-B product on remote feature; excluded screenshot PNGs remain unstaged locally |
+| Current control-plane blocker | **none** — remote diff review **CLOSED GREEN**; bounded PR creation is next |
+| CURRENT EXECUTION GATE | **PHASE-B-PR-CREATE-AND-CI-OBSERVATION** |
+| NEXT SINGLE ACTION | **PHASE-B-PR-CREATE-AND-CI-OBSERVATION** |
 | prohibited expansion | replay completed Wave 0 mapping · sitewide commercial-quality re-audit · Pair implementation · Pair Premium activation · price/Stripe/DB/Clerk/provider/env change · high-cost reruns without invalidation |
 
 ### Completed sub-gates (CLOSED — do not replay)
 
 - `CATEGORY-1-M55-PAIR-WAVE0-LIVE-PAID-DTR-READABILITY-READ-ONLY-MAPPING` — **CLOSED GREEN**
-- Phase-B paid DTR readability implementation — **CLOSED GREEN** (atomic COMMIT B · local only · not pushed/merged)
+- Phase-B paid DTR readability implementation — **CLOSED GREEN** (atomic COMMIT B · on remote feature · not merged to main)
 - Midnight Luminous TOC / visual bounded patch — **USER_VISIBLE_CLOSED_GREEN** (`M55_HIGH_COST_EVIDENCE_LEDGER.md`)
 - Additional Reading hub default regression — **CLOSED GREEN** (fix in COMMIT B)
 - SKU capability regression prevention — **CLOSED GREEN** (`SKU_CAPABILITY_REGRESSION_PREVENTION_GREEN` · invariant test + fixture default in COMMIT B)
 - Phase-B precommit review — **CLOSED GREEN** (`PHASE_B_PRECOMMIT_GREEN` · `PHASE_B_COMMIT_B_PATH_ACCOUNTING_GREEN`)
-- Phase-B atomic COMMIT B — **CLOSED GREEN** (paid DTR readability · hub/summary · SKU CI wiring · local commit)
+- Phase-B atomic COMMIT B — **CLOSED GREEN** (paid DTR readability · hub/summary · SKU CI wiring · remote feature)
+- Phase-B remote durability / cold-start proof — **CLOSED GREEN** (`PHASE_B_REMOTE_DURABILITY_GREEN`)
+- Phase-B PR preparation / remote diff review — **CLOSED GREEN** (`PHASE_B_PR_PREPARATION_GREEN`)
 - Control Tower context-as-code COMMIT A — **PUSHED** (live SHA via `m55:context` only)
 - Control Tower self-refreshing hardening — **CLOSED GREEN** (Context-as-Code foundation · remote durability / cold-start operability · dynamic-vs-static separation · semantic NEXT-action single ownership · completed-gate replay guard · high-cost rerun guard preserved · `npm run m55:context`)
 - Control Tower operational proof — **CLOSED GREEN** (`CONTROL_TOWER_OPERATIONAL_GREEN`)
