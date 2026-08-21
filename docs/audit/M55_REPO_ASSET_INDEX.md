@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-08-20T21:41:49.243781+00:00
+Generated: 2026-08-21T21:36:30.237802+00:00
 Total records: 700
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
@@ -666,8 +666,8 @@ Total records: 700
 - [audit] `docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md` (1974 bytes)
 - [audit] `docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md` (10134 bytes)
 - [audit] `docs/audit/M55_REFINED_EXECUTION_ROADMAP_2026-03-07.md` (5608 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (110758 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (74351 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (110759 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (74352 bytes)
 - [audit] `docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md` (9663 bytes)
 - [audit] `docs/audit/M55_TEAM_CHECKPOINT_2026-03-07_CURRENT_POSITION.md` (3726 bytes)
 - [audit] `docs/audit/M55_THREAD_ASSET_SUMMARY_2026-03-06.md` (1323 bytes)
