@@ -7,7 +7,7 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 
 1. Commercial Funnel SSOT ← **complete**
 2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share **PR #81 MERGED** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` 2026-08-01 — commercial + technical closure complete)
-3. 二人向け無料→有料 — **next planned lane; implementation not yet authorized; no work started**
+3. 二人向け無料→有料 — **ACTIVE PAIR LANE**; entrance bounded quality gate Wave 0 is active; Pair implementation not started; Pair Premium not activated
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
@@ -44,8 +44,8 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 | **G1 REVENUE OUTCOME OBSERVABILITY** | **CLOSED GREEN** — PR #137 **MERGED** @ `773dd67222ba1fe81824c10be6457a33e715650f` · feature `74bbbc1b92a00fc3b5425889d94cf45e02847964` | privacy-safe Light→Full upgrade + post-payment ready/stuck observability; **DO NOT REOPEN** absent actual invalidation |
 | **G2 PUBLIC TERMINOLOGY LONG-TAIL** | **CLOSED GREEN** — PR #139 **MERGED** @ `183328ade4cbbaf69975bdf33883bdad3caf19ad` · feature `29594616347963c34a0edb99a8f93db56b47c582` · exact delta **4 files** | Stripe PaymentIntent canonical public names · DTR catalog subtitle dedupe; **DO NOT REOPEN** absent actual invalidation |
 | **G3 REVISIT / RETENTION LOOP** | **CLOSED GREEN** — G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** (PR #141) · G3-03 **CLOSED GREEN** (WT-044) · G3-04 **CLOSED / KEEP_REJECTED** (WT-045 / `feat/m55-g3-04-copy-safety-v1` @ `03ae78dbd91d63ffc411d389dfd9e276525155f2`) · PR #144 commercial-quality consolidation **USER_VISIBLE_CLOSED_GREEN = YES** | **DO NOT REOPEN** absent actual invalidation · Today/Weekly **NOT EXPOSED** · legacy routes redirect to `/core` · no replacement engine · **G3 overall CLOSED GREEN** |
-| **G4 ORGANIC DISCOVERY** | **CLOSED GREEN** — WT-046 / `feat/m55-g4-organic-discovery-v1` @ `a715fd6ec7f07ee792794fd870a0f0815f7a8109` · Wave 1+2 authority/indexability + qualified landing identity · canonical entry `/home` · `/pricing` retired → `/dtr/lp` · JSON-LD deferred | **DO NOT REOPEN** absent actual invalidation |
-| **G5 METRICS / FUNNEL LEAKAGE** | planned | prioritize actual funnel/revisit/upgrade/share leakage from observed data; mapping-first only |
+| **G4 ORGANIC DISCOVERY** | **CLOSED GREEN** — WT-046 / `feat/m55-g4-organic-discovery-v1` @ `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957`; PR #148 **MERGED** @ `0f62ff7c575eb65730862092ff80d7168469ae95` · Wave 1+2 authority/indexability + qualified landing identity · canonical entry `/home` · `/pricing` retired → `/dtr/lp` · JSON-LD deferred | **DO NOT REOPEN** absent actual invalidation |
+| **G5 METRICS / FUNNEL LEAKAGE** | **Wave 1 CLOSED GREEN** — PR #149 **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; feature `144686ca83b05179f9f159e2040802845f2e65a0` | privacy-safe core funnel metrics; **Wave 2 DEFER UNTIL REAL TRAFFIC DATA**; no further G5 source work required now |
 
 Explicit retainers:
 
@@ -56,7 +56,28 @@ Explicit retainers:
 - Closed GREEN stays closed unless invalidated
 - competitor claims/copy are **not** copy sources
 
-This overlay does **not** authorize G5+ source implementation without a later Human gate. G1 and G2 are **CLOSED GREEN** on `main` via PR #137 and PR #139 respectively and must not be re-audited or re-implemented absent actual invalidation. **G3 REVISIT / RETENTION LOOP** is **CLOSED GREEN** — G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** (PR #141) · G3-03 **CLOSED GREEN** (WT-044) · G3-04 **CLOSED / KEEP_REJECTED** (WT-045) — **DO NOT REOPEN** absent actual invalidation. **G4 ORGANIC DISCOVERY** is **CLOSED GREEN** via WT-046 / `feat/m55-g4-organic-discovery-v1` @ `a715fd6ec7f07ee792794fd870a0f0815f7a8109` — Wave 1+2 authority/indexability + qualified landing identity; JSON-LD deferred; **DO NOT REOPEN** absent actual invalidation. Commercial quality consolidation is **CLOSED GREEN** via PR #144 **MERGED** @ `ecc3e37b43414e2a56941377c35235b965047aff` — **USER_VISIBLE_CLOSED_GREEN = YES** for that consolidation scope; **DO NOT REOPEN** absent actual invalidation. Durable **ACTIVE lane** after G4 PR merge is **G5 METRICS / FUNNEL LEAKAGE**. **Current phase / NEXT SINGLE ACTION after merge:** **G5 METRICS / FUNNEL LEAKAGE MAPPING-FIRST** — mapping-first only; **G5 source implementation NOT AUTHORIZED**; do **not** invent another Personal Free redesign wave. **No** follow-up docs-only settlement PR is required to close G4 / WT-046.
+G1 and G2 are **CLOSED GREEN** on `main` via PR #137 and PR #139 respectively and must not be re-audited or re-implemented absent actual invalidation. **G3 REVISIT / RETENTION LOOP** is **CLOSED GREEN** — G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** (PR #141) · G3-03 **CLOSED GREEN** (WT-044) · G3-04 **CLOSED / KEEP_REJECTED** (WT-045) — **DO NOT REOPEN** absent actual invalidation. **G4 ORGANIC DISCOVERY** is **CLOSED GREEN** via WT-046 / `feat/m55-g4-organic-discovery-v1` @ `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957`, merged in PR #148 @ `0f62ff7c575eb65730862092ff80d7168469ae95`; **DO NOT REOPEN** absent actual invalidation. **G5 Wave 1** is **CLOSED GREEN** via PR #149 @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; **G5 Wave 2 = DEFER UNTIL REAL TRAFFIC DATA** and no further G5 source work is required now. Commercial quality consolidation remains **CLOSED GREEN** via PR #144 except for the specifically invalidated Live paid DTR readability surface.
+
+## Pair lane entrance — Wave 0 Live paid DTR readability (CURRENT)
+
+Wave 0 is a **bounded quality gate inside the Pair lane**, not an independent roadmap lane. Human actual invalidation reopens only the currently Live paid DTR readability surface; it does not trigger a sitewide commercial-quality re-audit and does not revoke unrelated CLOSED GREEN decisions.
+
+Fixed Pair entrance order:
+
+1. G5 Wave 1 **CLOSED GREEN**
+2. PAIR LANE
+3. Wave 0 Live paid DTR readability
+4. Fresh read-only source/computed-style mapping
+5. exact defect proof
+6. shared token/style owner minimal fix
+7. automated contrast/readability regression
+8. mobile + desktop representative check
+9. Human representative visual approval
+10. Pair free→paid mapping-first
+11. minimal Pair implementation
+12. Pair Premium activation decision
+
+**Current phase / NEXT SINGLE ACTION:** `CATEGORY-1-M55-PAIR-WAVE0-LIVE-PAID-DTR-READABILITY-READ-ONLY-MAPPING`. Pair implementation is **not started**. Pair Premium is **NOT ACTIVATED**.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
