@@ -6,10 +6,14 @@ on:
       - '.product-authority/**'
       - 'scripts/product-authority/**'
       - 'scripts/verify-m55-commercial-ssot.mjs'
+      - 'scripts/verify-m55-control-tower.mjs'
       - 'scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs'
       - '.github/workflows/verify-product-authority-pack.yml'
       - '.github/CODEOWNERS'
       - 'AGENTS.md'
+      - '.cursor/rules/m55-control-tower.mdc'
+      - 'docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md'
+      - 'docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md'
       - 'docs/ssot/M55_CURRENT_STATE.md'
       - 'docs/ssot/M55_WORKTREE_REGISTRY.md'
       - 'docs/ssot/M55_ROADMAP.md'
@@ -32,6 +36,8 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Repository-static M55 SSOT verification
         run: npm run verify:m55-ssot
+      - name: Control Tower boot + evidence verification
+        run: npm run verify:m55-control-tower
       - name: Registry fixture tests
         run: node --test scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs
       - name: Steady-state Product Authority verification

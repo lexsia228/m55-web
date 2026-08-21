@@ -15,6 +15,26 @@ Memory and conversation history are **not** authority. The Product Authority Pac
 
 Bootstrap mode applies **only** on the Authority Pack implementation branch during provisional sequence-0 initialization. Steady-state verification must fail on unreconciled bootstrap tips.
 
+## Control Tower boot sequence
+
+Every session must establish durable repo memory **before** proposing high-cost work:
+
+1. `AGENTS.md` (this file)
+2. `docs/ssot/M55_CURRENT_STATE.md` — active lane · CLOSED GREEN · **NEXT SINGLE ACTION**
+3. `docs/ssot/M55_ROADMAP.md`
+4. `docs/ssot/M55_WORKTREE_REGISTRY.md`
+5. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md` — GitHub / Vercel / Clerk / Supabase / Stripe separation
+6. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md` — closed high-cost tests · rerun prohibition
+7. Fresh Git / remote facts — `pwd`, branch, HEAD, `git status`, `git worktree list`, registry drift
+8. Current lane from `M55_CURRENT_STATE.md`
+9. CLOSED GREEN gates — do not re-audit without invalidation
+10. Invalidating dependencies — document before any proposed rerun
+11. Execute only the authorized **NEXT SINGLE ACTION**
+
+**Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN`. Missing evidence in the current chat does **not** authorize rerunning real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, or real consult consumption. Search SSOT and prior evidence first.
+
+Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` (always apply). **Do not use legacy `.cursorrules` as authority.**
+
 ## Read order
 
 1. `AGENTS.md` (this file)
@@ -22,11 +42,13 @@ Bootstrap mode applies **only** on the Authority Pack implementation branch duri
 3. `docs/ssot/README.md`
 4. `docs/ssot/M55_CURRENT_STATE.md`
 5. `docs/ssot/M55_WORKTREE_REGISTRY.md`
-6. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
-7. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
-8. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-9. `docs/ssot/M55_DECISION_LOG.md`
-10. `docs/ssot/M55_ROADMAP.md`
+6. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
+7. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
+8. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
+9. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
+10. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+11. `docs/ssot/M55_DECISION_LOG.md`
+12. `docs/ssot/M55_ROADMAP.md`
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts.
 
@@ -68,7 +90,10 @@ npm run verify:product-authority:bootstrap
 npm run verify:product-authority
 npm run test:product-authority
 npm run verify:m55-ssot
+npm run verify:m55-control-tower
 ```
+
+Required validation/check commands are **fail-closed**. If a required check returns non-zero: **STOP** — do not commit, do not push, do not classify GREEN. "Cosmetic", "known", or "non-product" does not override a failed required check unless the Human explicitly waives that exact check.
 
 ## Superseded / subordinate authorities
 

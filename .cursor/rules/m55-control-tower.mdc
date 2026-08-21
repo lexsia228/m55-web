@@ -1,0 +1,21 @@
+---
+description: M55 control-tower boot — repo-as-memory, high-cost rerun prohibition, operations map authority.
+alwaysApply: true
+---
+
+# M55 Control Tower (always apply)
+
+**Do not treat `.cursorrules` or chat memory as authority.** Read `AGENTS.md` first.
+
+Before analysis or mutation, complete the boot sequence in `AGENTS.md` § Control Tower boot sequence, including:
+
+- `docs/ssot/M55_CURRENT_STATE.md` (lane + **NEXT SINGLE ACTION**)
+- `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
+- `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
+- fresh Git facts + registry drift check
+
+**Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN` — missing evidence in this chat does **not** authorize rerunning high-cost tests (real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, real consult consumption).
+
+Search repo SSOT and prior evidence first. Rerun only when an **invalidating dependency** changed and is documented.
+
+Run `npm run verify:m55-control-tower` when touching control-tower SSOT or boot references.

@@ -8,6 +8,7 @@
         "dev": "node scripts/audit_gate.mjs --fast && next dev",
         "audit": "node scripts/audit_gate.mjs",
         "verify:m55-ssot": "node scripts/verify-m55-commercial-ssot.mjs",
+        "verify:m55-control-tower": "node scripts/verify-m55-control-tower.mjs",
         "verify:m55-worktree-preflight:local": "node scripts/verify-m55-commercial-ssot.mjs --local-worktree-preflight",
         "verify:m55-experience-control-plane": "node scripts/verify-m55-experience-control-plane.mjs",
         "verify:m55-asset-ledger": "node scripts/verify-m55-asset-ledger.mjs",
