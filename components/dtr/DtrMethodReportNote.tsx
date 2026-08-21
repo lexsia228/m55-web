@@ -23,6 +23,7 @@ export default function DtrMethodReportNote() {
   return (
     <MethodBlock
       testId="m55-method-purchased-report"
+      tone="dark"
       quiet
       ariaLabelledBy="m55-method-report-title"
     >

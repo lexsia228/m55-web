@@ -43,6 +43,7 @@
         "test:e2e:self-funnel-growth": "playwright test e2e/self-funnel-growth-share.spec.ts",
         "test:e2e:premium-experience-evidence": "node scripts/run-premium-experience-evidence.mjs",
         "test:m55-commercial-visual-quality": "tsx --test lib/m55/commercialUx/visualQuality/commercialVisualQuality.test.ts",
+        "test:m55-sku-capability-invariant": "tsx --test lib/m55/paidResult/paidSkuCapabilityInvariant.test.ts",
         "test:m55-method-authority": "tsx --test lib/m55/method/m55MethodAuthority.test.ts lib/m55/method/m55MethodRouteConsumption.test.ts",
         "test:e2e:commercial-visual-quality": "playwright test e2e/commercial-visual-quality.spec.ts",
         "test:e2e:method-authority-placement": "playwright test e2e/method-authority-placement.spec.ts",

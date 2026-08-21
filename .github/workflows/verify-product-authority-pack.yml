@@ -18,6 +18,11 @@ on:
       - 'docs/ssot/M55_WORKTREE_REGISTRY.md'
       - 'docs/ssot/M55_ROADMAP.md'
       - 'docs/ssot/M55_DECISION_LOG.md'
+      - 'lib/m55/contracts/m55CommercialFunnelContract.ts'
+      - 'lib/m55/fixtures/consultRoomPreviewFixture.ts'
+      - 'lib/m55/paidResult/paidSkuCapabilityInvariant.test.ts'
+      - 'lib/m55/reply/replyTicketCheckoutConstants.ts'
+      - 'lib/m55/reply/replyWalletFulfillmentMath.ts'
       - 'package.json'
   push:
     branches:
@@ -38,6 +43,8 @@ jobs:
         run: npm run verify:m55-ssot
       - name: Control Tower boot + evidence verification
         run: npm run verify:m55-control-tower
+      - name: Paid SKU capability invariant
+        run: npm run test:m55-sku-capability-invariant
       - name: Registry fixture tests
         run: node --test scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs
       - name: Steady-state Product Authority verification

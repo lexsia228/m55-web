@@ -205,8 +205,8 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1.45;
-  color: var(--dtr-accent);
-  opacity: 0.88;
+  color: var(--dtr-body-muted);
+  opacity: 1;
 }
 
 .drawerHubContinuousSupportSurface {
@@ -310,6 +310,12 @@
   padding-right: 2px;
 }
 
+.drawerHubTriggerLeadingNoPill {
+  flex-shrink: 0;
+  width: 10px;
+  align-self: stretch;
+}
+
 .drawerHubPill {
   display: inline-flex;
   align-items: center;
@@ -346,10 +352,10 @@
   display: block;
   margin-top: 3px;
   font-size: 0.68rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1.35;
-  color: rgba(185, 168, 228, 0.62);
+  color: rgba(205, 195, 230, 0.82);
   overflow-wrap: anywhere;
   word-break: normal;
 }
@@ -376,25 +382,143 @@
   color: rgba(225, 210, 255, 0.95);
 }
 
-/* ── 相談返書行 ── */
+/* ── TOC row identity (closed + open) — Chapter I / summary / consult only ── */
 
-.drawerHubRowConsult .drawerHubTriggerConsult {
-  border-color: rgba(190, 172, 245, 0.3);
+.drawerHubRow:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubTrigger {
+  border-color: rgba(188, 168, 248, 0.38);
+  border-left: 3px solid rgba(175, 155, 235, 0.52);
   background: linear-gradient(
     165deg,
-    rgba(54, 44, 78, 0.82),
-    rgba(40, 34, 62, 0.72)
+    rgba(58, 48, 82, 0.78),
+    rgba(44, 36, 66, 0.66)
   );
+  box-shadow:
+    inset 0 1px 0 rgba(188, 168, 248, 0.1),
+    inset 3px 0 10px -8px rgba(175, 155, 235, 0.16),
+    0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.drawerHubRow:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubPill {
+  border-color: rgba(195, 178, 252, 0.44);
+  background: rgba(175, 155, 235, 0.24);
+  color: rgba(232, 222, 255, 0.96);
+}
+
+.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubTrigger {
+  border-color: rgba(205, 188, 252, 0.46);
+  border-left-color: rgba(195, 178, 252, 0.62);
+  background: linear-gradient(
+    165deg,
+    rgba(62, 52, 88, 0.88),
+    rgba(48, 40, 72, 0.76)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(188, 168, 248, 0.12),
+    inset 3px 0 12px -8px rgba(175, 155, 235, 0.2),
+    0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.drawerHubRowSummary .drawerHubTriggerSummary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(195, 188, 248, 0.3);
+  background: linear-gradient(
+    165deg,
+    rgba(54, 48, 76, 0.8),
+    rgba(42, 36, 60, 0.68)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 235, 0.06),
+    0 6px 18px rgba(0, 0, 0, 0.24);
+}
+
+.drawerHubRowSummary .drawerHubTriggerSummary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(155, 135, 225, 0.44),
+    rgba(96, 155, 232, 0.4),
+    rgba(218, 165, 64, 0.42),
+    rgba(88, 190, 148, 0.4)
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.drawerHubRowSummary .drawerHubTriggerSummary > * {
+  position: relative;
+  z-index: 2;
+}
+
+.drawerHubRowSummary.drawerHubRowOpen .drawerHubTriggerSummary {
+  border-color: rgba(210, 198, 255, 0.44);
+  background: linear-gradient(165deg, rgba(62, 54, 88, 0.9), rgba(48, 40, 70, 0.78));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 235, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.drawerHubRowConsult .drawerHubTriggerConsult {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(200, 182, 248, 0.32);
+  border-left: 3px solid rgba(255, 248, 235, 0.22);
+  background: linear-gradient(
+    165deg,
+    rgba(56, 46, 76, 0.82),
+    rgba(42, 34, 58, 0.7)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 235, 0.09),
+    0 6px 18px rgba(0, 0, 0, 0.24);
+}
+
+.drawerHubRowConsult .drawerHubTriggerConsult::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 248, 235, 0.2),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.drawerHubRowConsult .drawerHubTriggerConsult > * {
+  position: relative;
+  z-index: 2;
 }
 
 .drawerHubRowConsult .drawerHubPill {
-  border-color: rgba(200, 182, 248, 0.35);
-  background: rgba(175, 155, 235, 0.16);
-  color: rgba(228, 215, 255, 0.95);
+  border-color: rgba(210, 195, 248, 0.38);
+  background: rgba(185, 165, 230, 0.18);
+  color: rgba(235, 225, 255, 0.96);
 }
 
 .drawerHubRowConsult.drawerHubRowOpen .drawerHubTriggerConsult {
-  border-color: rgba(215, 198, 255, 0.42);
+  border-color: rgba(220, 205, 255, 0.4);
+  border-left-color: rgba(255, 248, 235, 0.3);
+  background: linear-gradient(
+    165deg,
+    rgba(64, 52, 86, 0.9),
+    rgba(48, 38, 66, 0.78)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 235, 0.11),
+    0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 /* ── 開いた本文領域（入口カードの外・演出なし） ── */
@@ -447,10 +571,113 @@
   padding: clamp(12px, 2.2vw, 16px) clamp(12px, 2.6vw, 16px)
     calc(clamp(14px, 2.8vw, 18px) + env(safe-area-inset-bottom, 0px));
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.012);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: none;
   box-sizing: border-box;
+}
+
+.drawerHubReadingSurfaceSummary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.032);
+  border-color: rgba(185, 165, 230, 0.22);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.drawerHubReadingSurfaceSummary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 82% 58% at 10% -8%, rgba(155, 135, 225, 0.06), transparent 58%),
+    radial-gradient(ellipse 58% 46% at 92% 0%, rgba(96, 155, 232, 0.05), transparent 54%),
+    radial-gradient(ellipse 52% 42% at 100% 100%, rgba(218, 165, 64, 0.05), transparent 52%),
+    radial-gradient(ellipse 48% 40% at 0% 100%, rgba(88, 190, 148, 0.05), transparent 50%);
+}
+
+.drawerHubReadingSurfaceSummary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(155, 135, 225, 0.35),
+    rgba(96, 155, 232, 0.32),
+    rgba(218, 165, 64, 0.34),
+    rgba(88, 190, 148, 0.32)
+  );
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.drawerHubReadingSurfaceSummary > * {
+  position: relative;
+  z-index: 2;
+}
+
+.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-2']) .drawerHubTrigger {
+  border-color: rgba(120, 175, 238, 0.34);
+  background: linear-gradient(
+    165deg,
+    rgba(46, 52, 76, 0.84),
+    rgba(34, 38, 58, 0.72)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(96, 155, 232, 0.08),
+    0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-3']) .drawerHubTrigger {
+  border-color: rgba(228, 178, 78, 0.34);
+  background: linear-gradient(
+    165deg,
+    rgba(58, 48, 40, 0.84),
+    rgba(44, 36, 30, 0.72)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(218, 165, 64, 0.08),
+    0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-4']) .drawerHubTrigger {
+  border-color: rgba(108, 205, 162, 0.34);
+  background: linear-gradient(
+    165deg,
+    rgba(40, 54, 48, 0.84),
+    rgba(30, 42, 36, 0.72)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(88, 190, 148, 0.08),
+    0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-1']) .drawerHubReadingSurface {
+  border-left: 4px solid rgba(155, 135, 225, 0.46);
+  box-shadow: inset 4px 0 12px -8px rgba(155, 135, 225, 0.15);
+}
+
+.drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-2']) .drawerHubReadingSurface {
+  border-left: 4px solid rgba(96, 155, 232, 0.42);
+  box-shadow: inset 4px 0 12px -8px rgba(96, 155, 232, 0.14);
+}
+
+.drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-3']) .drawerHubReadingSurface {
+  border-left: 4px solid rgba(218, 165, 64, 0.46);
+  box-shadow: inset 4px 0 12px -8px rgba(218, 165, 64, 0.14);
+}
+
+.drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-4']) .drawerHubReadingSurface {
+  border-left: 4px solid rgba(88, 190, 148, 0.42);
+  box-shadow: inset 4px 0 12px -8px rgba(88, 190, 148, 0.14);
 }
 
 /* consult: DOM 温存・画面上は完全非表示 */
@@ -461,6 +688,42 @@
   margin: 0;
   padding: 0;
   border: none;
+}
+
+@media (max-width: 320px) {
+  .drawerHubRowSummary .drawerHubTriggerSummary::before {
+    opacity: 0.62;
+  }
+
+  .drawerHubRow:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubTrigger {
+    box-shadow:
+      inset 0 1px 0 rgba(188, 168, 248, 0.08),
+      inset 2px 0 8px -8px rgba(175, 155, 235, 0.12),
+      0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .drawerHubReadingSurfaceSummary::after {
+    background: radial-gradient(
+      ellipse 72% 52% at 50% -10%,
+      rgba(155, 135, 225, 0.035),
+      transparent 56%
+    );
+  }
+
+  .drawerHubReadingSurfaceSummary {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+  }
+
+  .drawerHubReadingSurfaceSummary::before {
+    opacity: 0.55;
+  }
+
+  .drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-1']) .drawerHubReadingSurface,
+  .drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-2']) .drawerHubReadingSurface,
+  .drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-3']) .drawerHubReadingSurface,
+  .drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-4']) .drawerHubReadingSurface {
+    box-shadow: inset 3px 0 8px -8px rgba(255, 255, 255, 0.06);
+  }
 }
 
 @media (max-width: 390px) {

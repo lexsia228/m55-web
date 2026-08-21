@@ -5,6 +5,7 @@ import type { DtrPayload } from '../../lib/m55/dtrEngine';
 import { projectPersonalPremiumNarrativeV1 } from '../../lib/m55/narrative/projectPersonalPremiumNarrativeV1';
 import type { PremiumPurchasedSemanticProjectionV1 } from '../../lib/m55/narrative/buildPremiumPurchasedSemanticProjectionV1';
 import { PREMIUM_SHARE_IDENTITY_PERSISTENCE, projectPremiumPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
+import { normalizeDisplaySentenceForDedupe } from '../../lib/m55/dtrPaidModules';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import { isConsultWalletDisplaySnapshotUsable } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import PublicShareCardPreview from './PublicShareCardPreview';
@@ -54,14 +55,23 @@ export default function PremiumNarrativeClose({
   const walletUsable = isConsultWalletDisplaySnapshotUsable(consultWalletSnapshot);
   const hasAdditionalReading = walletUsable && consultWalletSnapshot.availableCount > 0;
   const nextAction = narrative.actions[0]?.text ?? null;
+  const takeawayText = narrative.takeaway?.text ?? null;
+  const hiddenSpecText = narrative.manualSpec.hiddenSpecJa.trim();
+  const showStandaloneTakeaway =
+    Boolean(takeawayText) &&
+    normalizeDisplaySentenceForDedupe(takeawayText ?? '') !==
+      normalizeDisplaySentenceForDedupe(hiddenSpecText);
 
   return (
     <section
-      className={styles.chooser}
+      className={`${styles.chooser} ${styles.premiumClose}`}
       aria-labelledby="premium-narrative-close-title"
       data-testid="m55-premium-narrative-close"
+      data-m55-semantic-role="global_summary"
     >
-      <span className={styles.optionLabel}>プレミアムレポート</span>
+      <span className={styles.optionLabel} data-testid="m55-premium-overline">
+        プレミアムレポート
+      </span>
       <h2 id="premium-narrative-close-title" className={styles.headline}>
         読みのまとめ
       </h2>
@@ -79,15 +89,18 @@ export default function PremiumNarrativeClose({
           )}
         </div>
       ) : null}
-      <h3 className={styles.headline}>今のあなたへ残しておく一文</h3>
-      <p className={styles.body} data-testid="m55-premium-takeaway">
-        {narrative.takeaway?.text}
-      </p>
+      {showStandaloneTakeaway ? (
+        <p className={styles.body} data-testid="m55-premium-takeaway">
+          {takeawayText}
+        </p>
+      ) : null}
       <p className={styles.mark} data-premium-share-persistence={PREMIUM_SHARE_IDENTITY_PERSISTENCE}>
         公開カードには生年月日や回答は含まれません。
       </p>
-      <p className={styles.chooserLead}>本文は共有されません。残す一文だけを渡せます。</p>
-      <PublicShareCardPreview spec={spec} premiumMark />
+      <p className={styles.chooserLead} data-testid="m55-premium-share-guidance">
+        本文は共有されません。残す一文だけを渡せます。
+      </p>
+      <PublicShareCardPreview spec={spec} />
       <NarrativeShareActions spec={spec} surface="dtr_saved_report" />
     </section>
   );

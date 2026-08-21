@@ -4,6 +4,36 @@
   scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
 }
 
+/* Paid DTR context only; shared light-surface defaults below remain unchanged. */
+.premiumClose > .optionLabel {
+  color: var(--dtr-accent);
+}
+
+.premiumClose > .body,
+.premiumClose > .chooserLead {
+  color: var(--dtr-body);
+}
+
+.premiumClose > .mark,
+.premiumClose > .slot > .slotLabel,
+.premiumClose > .slot > .mark {
+  color: var(--dtr-body-muted);
+}
+
+.premiumClose > .manual .slotList {
+  background: var(--dtr-surface);
+  border-color: var(--dtr-border-up);
+}
+
+.premiumClose > .manual .slotLabel {
+  color: var(--dtr-body-muted);
+}
+
+.premiumClose > .preview .secondary {
+  color: var(--dtr-text);
+  border-color: var(--dtr-border-up);
+}
+
 .chooserLead {
   margin: 0;
   font-size: 0.95rem;

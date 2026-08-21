@@ -34,6 +34,7 @@ import {
   firstSentence,
   dtrDisplayOrFallback,
   pickUniqueDisplaySentence,
+  normalizeDisplaySentenceForDedupe,
   DTR_DISPLAY_FALLBACK_NEUTRAL,
   DTR_DISPLAY_FALLBACK_SOFT,
   DTR_DISPLAY_FALLBACK_CONSULT,
@@ -420,7 +421,7 @@ type Props = {
   /** Dev-only: skip Clerk isLoaded gate for fixture rendering (/dev/dtr-drawer-preview). */
   [PREMIUM_DEV_FIXTURE_READY_PROP]?: boolean;
   /** Dev-only: open a hub panel on mount without a click (Clerk keyless-safe). */
-  initialOpenPanel?: 'chapter-1' | 'consult';
+  initialOpenPanel?: 'chapter-1' | 'summary' | 'consult';
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -614,6 +615,7 @@ function chapter1SoftTone(text: string): string {
 
 function VisualRole({
   role,
+  semanticRole,
   children,
   className,
 }: {
@@ -627,6 +629,12 @@ function VisualRole({
     | 'takeaway'
     | 'visualSummary'
     | 'bridge';
+  semanticRole?:
+    | 'foundation'
+    | 'current_paid_analysis'
+    | 'personalized_insight'
+    | 'recap'
+    | 'action';
   children: ReactNode;
   className?: string;
 }) {
@@ -648,8 +656,23 @@ function VisualRole({
                   : role === 'visualSummary'
                     ? styles.roleVisualSummary
                     : styles.roleBridge;
+  const resolvedSemanticRole =
+    semanticRole ??
+    (role === 'primaryRecognition' || role === 'recognition'
+      ? 'personalized_insight'
+      : role === 'secondaryRecognition' || role === 'visualSummary' || role === 'bridge' || role === 'takeaway'
+        ? 'recap'
+        : role === 'action'
+          ? 'action'
+          : role === 'risk'
+            ? 'current_paid_analysis'
+            : undefined);
   return (
-    <div className={className ? `${roleClass} ${className}` : roleClass} data-visual-role={role}>
+    <div
+      className={className ? `${roleClass} ${className}` : roleClass}
+      data-visual-role={role}
+      data-m55-semantic-role={resolvedSemanticRole}
+    >
       {children}
     </div>
   );
@@ -912,7 +935,7 @@ function ReportFooterMetaCard({
   const wallet = walletUsable ? consultWalletSnapshot : null;
 
   return (
-    <section className={styles.reportMetaCard} aria-label="プレミアムレポートの情報">
+    <section className={styles.reportMetaCard} aria-label="プレミアムレポートの情報" data-m55-semantic-role="metadata">
       <p className={styles.reportMetaHeading}>プレミアムレポートの情報</p>
       <p className={styles.reportMetaLead}>
         {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'このプレミアムレポートには、追加読み解きは付いていません。'}
@@ -2073,7 +2096,7 @@ function PaidModuleShell({
         aria-controls={bodyId}
       >
         <PremiumModuleLead n={n} tierJa={tierJa} tierClass={tierClass} />
-        <span className={styles.moduleOverline}>{overline}</span>
+        {overline !== title ? <span className={styles.moduleOverline}>{overline}</span> : null}
         <div className={styles.pmTitleRow}>
           <h3 className={styles.moduleTitle}>{title}</h3>
           <svg
@@ -2234,11 +2257,13 @@ function DomainMatrixModule({
   relationSection,
   workSection,
   compositionSection,
+  priorDisplayedKeys,
 }: {
   essenceSection: DtrSection;
   relationSection: DtrSection;
   workSection: DtrSection;
   compositionSection?: DtrSection;
+  priorDisplayedKeys?: readonly string[];
 }) {
   const workItems = parseBlockItems(workSection.body);
   const relationItems = parseBlockItems(relationSection.body);
@@ -2252,7 +2277,7 @@ function DomainMatrixModule({
     '';
   const convRhythm = relationItems.find((i) => i.header === '会話のリズム')?.content ?? '';
 
-  const usedDisplay = new Set<string>();
+  const usedDisplay = new Set<string>(priorDisplayedKeys ?? []);
 
   const domainTiles = [
     {
@@ -3133,7 +3158,7 @@ function DtrFullReaderCore({
                 <DtrMethodReportNote />
                 <ReportPartBand partId="1" />
                 {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections) ? (
-                  <VisualRole role="thesis">
+                  <VisualRole role="thesis" semanticRole="foundation">
                     <DrawerChapterPersonalLead
                       partId="1"
                       nickname={view.nickname}
@@ -3218,7 +3243,7 @@ function DtrFullReaderCore({
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="2" />
                 {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', hybridLeadSections) ? (
-                  <VisualRole role="thesis">
+                  <VisualRole role="thesis" semanticRole="current_paid_analysis">
                     <DrawerChapterPersonalLead
                       partId="2"
                       nickname={view.nickname}
@@ -3284,7 +3309,18 @@ function DtrFullReaderCore({
             ) : null}
           </>
         );
-      case 'chapter-3':
+      case 'chapter-3': {
+        const ch3PriorDisplayedKeys = gridS5
+          ? [
+              ...snapshotBodyParas(gridS5.body),
+              ...parseBlockItems(gridS5.body).flatMap((item) => [
+                item.content,
+                firstSentence(item.content),
+              ]),
+            ]
+              .map((text) => normalizeDisplaySentenceForDedupe(text))
+              .filter((key) => key.length > 0)
+          : [];
         return (
           <>
             <section
@@ -3293,7 +3329,7 @@ function DtrFullReaderCore({
             >
               <ReportPartBand partId="3" />
               {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '3', hybridLeadSections) ? (
-                <VisualRole role="thesis">
+                <VisualRole role="thesis" semanticRole="current_paid_analysis">
                   <DrawerChapterPersonalLead
                     partId="3"
                     nickname={view.nickname}
@@ -3336,6 +3372,7 @@ function DtrFullReaderCore({
                       relationSection={sec('s6_relation')!}
                       workSection={sec('s7_work')!}
                       compositionSection={sec('s2_composition')}
+                      priorDisplayedKeys={ch3PriorDisplayedKeys}
                     />
                   </PaidModuleShell>
                 ) : null}
@@ -3350,6 +3387,28 @@ function DtrFullReaderCore({
             ) : null}
           </>
         );
+      }
+      case 'summary':
+        return (
+          <div className={styles.drawerSummaryPanel} data-testid="m55-drawer-summary-panel">
+            <SavedSnapshotNotice />
+            <PremiumNarrativeClose
+              payload={payload}
+              nickname={view.nickname}
+              stemLaneIndex={stemIdx}
+              projection={premiumProjection}
+              consultWalletSnapshot={footerWalletSnapshot}
+              onOpenConsult={() => selectPanel('consult')}
+            />
+            <ReportFooterMetaCard
+              aiConsultIncluded={aiConsultIncluded}
+              expiresAt={expiresAt}
+              stemTitle={stem.publicTitle}
+              displayedEnvelopeReadMode={displayedEnvelopeReadMode}
+              consultWalletSnapshot={footerWalletSnapshot}
+            />
+          </div>
+        );
       case 'chapter-4': {
         const hybridCh4 = hybridAiVisible && gridS4 && hasSnapshotBody(gridS4.body);
         const legacyCh4 = Boolean(sec('s7_work') && sec('s6_relation'));
@@ -3359,7 +3418,7 @@ function DtrFullReaderCore({
             <div className={styles.drawerChapterLead}>
               <ReportPartBand partId="4" />
               {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '4', hybridLeadSections) ? (
-                <VisualRole role="thesis">
+                <VisualRole role="thesis" semanticRole="current_paid_analysis">
                   <DrawerChapterPersonalLead
                     partId="4"
                     nickname={view.nickname}
@@ -3473,22 +3532,6 @@ function DtrFullReaderCore({
           openPanel={openPanel}
           onSelectPanel={selectPanel}
           renderPanelBody={renderDrawerPanelBody}
-        />
-        <SavedSnapshotNotice />
-        <PremiumNarrativeClose
-          payload={payload}
-          nickname={view.nickname}
-          stemLaneIndex={stemIdx}
-          projection={premiumProjection}
-          consultWalletSnapshot={footerWalletSnapshot}
-          onOpenConsult={() => selectPanel('consult')}
-        />
-        <ReportFooterMetaCard
-          aiConsultIncluded={aiConsultIncluded}
-          expiresAt={expiresAt}
-          stemTitle={stem.publicTitle}
-          displayedEnvelopeReadMode={displayedEnvelopeReadMode}
-          consultWalletSnapshot={footerWalletSnapshot}
         />
       </div>
     </div>

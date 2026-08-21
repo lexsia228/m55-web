@@ -292,7 +292,7 @@ test.describe('Narrative share current-head final proof', () => {
     const context = await cleanContext(browser);
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
-    const res = await page.goto('/dev/dtr-drawer-preview');
+    const res = await page.goto('/dev/dtr-drawer-preview?projection=1');
     expect(res?.ok(), 'preview HTTP').toBeTruthy();
     await expect(page.getByText('プレミアムレポート').first()).toBeVisible({ timeout: 20_000 });
     await page.locator('[aria-label="保存済みレポート"]').screenshot({
@@ -300,9 +300,14 @@ test.describe('Narrative share current-head final proof', () => {
       animations: 'disabled',
     });
     const close = page.getByTestId('m55-premium-narrative-close');
+    await page.locator('[aria-controls="drawer-hub-body-summary"]').click();
+    await expect(page.locator('#drawer-hub-body-summary')).toBeVisible();
     await close.scrollIntoViewIfNeeded();
-    await expect(close).toContainText('今のあなたへ残しておく一文');
-    await expect(close).toContainText('一度だけ試すこと');
+    const shareCard = close.getByTestId('m55-narrative-share-card');
+    await expect(shareCard.getByRole('heading', { level: 3, name: '今のあなたへ残しておく一文' })).toBeVisible();
+    await expect(
+      shareCard.locator(':scope > p').filter({ hasText: /^M55 プレミアムレポートから$/ }),
+    ).toHaveCount(1);
     await close.screenshot({ path: join(OUT, 'premium-close-390.png'), animations: 'disabled' });
     await page.setViewportSize({ width: 1280, height: 900 });
     await close.scrollIntoViewIfNeeded();
