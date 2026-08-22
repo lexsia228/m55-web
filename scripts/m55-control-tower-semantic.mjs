@@ -10,6 +10,8 @@ export const LEGACY_SEMANTIC_AUTHORITY_SECTION =
   '## PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)';
 
 const COMPLETED_SUBGATES_HEADING = '### Completed sub-gates (CLOSED — do not replay)';
+const COLD_START_GATE = 'CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN';
+const PAIR_MAPPING_GATE = 'PAIR-FREE-TO-PAID-MAPPING-FIRST';
 
 export function normalizeGateToken(value) {
   return String(value ?? '')
@@ -67,20 +69,64 @@ export function validateExecutionState(src) {
       }
     }
   }
-  if (state.pairFreeToPaidMappingAuthorizedNow !== false) {
-    errors.push('Pair free→paid mapping must remain unauthorized during cold-start acceptance');
+
+  const next = normalizeGateToken(state.nextSingleAction);
+  const coldStart = normalizeGateToken(COLD_START_GATE);
+  const pairMapping = normalizeGateToken(PAIR_MAPPING_GATE);
+
+  if (next === coldStart) {
+    if (state.pairFreeToPaidMappingAuthorizedNow !== false) {
+      errors.push('Pair free→paid mapping must remain unauthorized during cold-start acceptance');
+    }
+  } else if (next === pairMapping) {
+    if (state.pairFreeToPaidMappingAuthorizedNow !== true) {
+      errors.push('Pair free→paid mapping gate requires pairFreeToPaidMappingAuthorizedNow=true');
+    }
+    if (state.acceptance?.latestResult !== 'HANDOFF_COLD_START_PASS') {
+      errors.push('Pair mapping requires latest HANDOFF_COLD_START_PASS');
+    }
+    if (state.acceptance?.latestResultAcceptedByHuman !== true) {
+      errors.push('Pair mapping requires Human acceptance of the cold-start PASS');
+    }
+    if (state.completedSubGates?.some((gate) => normalizeGateToken(gate) === coldStart) !== true) {
+      errors.push('Pair mapping requires cold-start acceptance rerun in completedSubGates');
+    }
+  } else {
+    errors.push(`unsupported executable gate for this Control Tower revision: ${state.nextSingleAction}`);
+  }
+
+  if (state.productWorkAfterControlTower !== PAIR_MAPPING_GATE) {
+    errors.push(`productWorkAfterControlTower must remain ${PAIR_MAPPING_GATE}`);
+  }
+  if (state.pairImplementation !== 'NOT_STARTED') {
+    errors.push('Pair implementation must remain NOT_STARTED before implementation authorization');
+  }
+  if (state.pairPremium !== 'NOT_ACTIVATED') {
+    errors.push('Pair Premium must remain NOT_ACTIVATED');
   }
   if (state.acceptance?.requiredBeforePairMapping !== 'HANDOFF_COLD_START_PASS') {
     errors.push('execution state must require HANDOFF_COLD_START_PASS before Pair mapping');
   }
   if (!state.postMergeTransition?.mergeCommit || !state.postMergeTransition?.featureHeadAtClosure) {
-    errors.push('execution state missing postMergeTransition identity');
+    errors.push('execution state missing Phase-B postMergeTransition identity');
   }
   if (state.postMergeTransition?.productionStateObserved !== 'READY') {
-    errors.push('post-merge Production observation must be READY at this transition revision');
+    errors.push('Phase-B Production observation must be READY');
   }
   if (state.postMergeTransition?.productionShaObserved !== state.postMergeTransition?.mergeCommit) {
-    errors.push('Production SHA observation must match mergeCommit');
+    errors.push('Phase-B Production SHA observation must match mergeCommit');
+  }
+  if (!state.controlTowerHardeningTransition?.mergeCommit || !state.controlTowerHardeningTransition?.featureHeadAtClosure) {
+    errors.push('execution state missing Control Tower hardening transition identity');
+  }
+  if (state.controlTowerHardeningTransition?.productionStateObserved !== 'READY') {
+    errors.push('Control Tower hardening Production observation must be READY');
+  }
+  if (
+    state.controlTowerHardeningTransition?.productionShaObserved !==
+    state.controlTowerHardeningTransition?.mergeCommit
+  ) {
+    errors.push('Control Tower hardening Production SHA must match mergeCommit');
   }
   if (state.freshnessPolicy?.chatMemoryIsAuthority !== false) {
     errors.push('chat memory must never be authority');
