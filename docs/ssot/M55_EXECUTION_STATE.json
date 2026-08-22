@@ -1,12 +1,12 @@
 {
-  "schemaVersion": "1.3.0",
+  "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-08-22T10:53:00Z",
+  "updatedAt": "2026-08-22T14:50:00Z",
   "macroLane": "PAIR LANE",
-  "currentExecutionGate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
-  "nextSingleAction": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
-  "productWorkAfterControlTower": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
+  "currentExecutionGate": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
+  "nextSingleAction": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
+  "productWorkAfterControlTower": "PAIR-MINIMAL-IMPLEMENTATION",
   "pairImplementation": "NOT_STARTED",
   "pairPremium": "NOT_ACTIVATED",
   "pairFreeToPaidMappingAuthorizedNow": true,
@@ -20,8 +20,15 @@
     "PHASE-B-PR-150-MERGE",
     "PHASE-B-PRODUCTION-READY",
     "CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL",
-    "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN"
+    "PAIR-FREE-TO-PAID-MAPPING-FIRST"
   ],
+  "pairFreeToPaidMapping": {
+    "gate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
+    "status": "HUMAN_APPROVED_COMPLETE",
+    "humanApprovedAt": "2026-08-22T10:53:00Z",
+    "contractReference": "docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md",
+    "repeatMapping": "PROHIBITED"
+  },
   "postMergeTransition": {
     "prNumber": 150,
     "featureBranch": "feat/m55-pair-funnel-v1",
@@ -61,6 +68,20 @@
     "humanAccepted": true,
     "observedAt": "2026-08-22T10:53:00Z"
   },
+  "controlTowerColdStartPassAcceptanceTransition": {
+    "prNumber": 153,
+    "featureBranch": "docs/m55-cold-start-pass-acceptance-v1",
+    "featureHeadAtClosure": "d726470187dac7516cabd79027995c02e1222bf8",
+    "mergeCommit": "be63981da01cdfae1f143d13cb205938be30bc9e",
+    "productionStateObserved": "READY",
+    "productionTargetObserved": "production",
+    "productionBranchObserved": "main",
+    "productionShaObserved": "be63981da01cdfae1f143d13cb205938be30bc9e",
+    "blackBoxRegressionResult": "HANDOFF_COLD_START_PASS",
+    "blackBoxRegressionMutationsObserved": 0,
+    "humanAccepted": true,
+    "observedAt": "2026-08-22T10:53:00Z"
+  },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,
     "newChatIsInvalidation": false,
@@ -75,18 +96,18 @@
     "mutationDuringAcceptance": "PROHIBITED",
     "previousAcceptedResult": "HANDOFF_COLD_START_PASS",
     "previousAcceptedResultAcceptedByHuman": true,
-    "previousAcceptedAt": "2026-08-22T09:26:00Z",
+    "previousAcceptedAt": "2026-08-22T10:53:00Z",
     "previousZeroMemoryOnePrompt": true,
     "previousLocalRuntimeHandlingCorrect": true,
     "previousMutationsObserved": 0,
-    "revalidationRequired": false,
-    "revalidationReason": "PR #152 handoff mechanism changes were revalidated after merge and READY Production deployment by a fresh zero-memory one-prompt black-box regression",
-    "latestResult": "HANDOFF_COLD_START_PASS",
-    "latestResultAcceptedByHuman": true,
-    "acceptedAt": "2026-08-22T10:53:00Z",
-    "zeroMemoryOnePrompt": true,
-    "localRuntimeHandlingCorrect": true,
-    "mutationsObserved": 0,
+    "revalidationRequired": true,
+    "revalidationReason": "Generic Control Tower gate-progression mechanism change (semantic validator, verifier, acceptance contract) is an invalidating dependency; fresh zero-memory black-box regression required before PAIR-MINIMAL-IMPLEMENTATION",
+    "latestResult": "PENDING_REVALIDATION",
+    "latestResultAcceptedByHuman": false,
+    "acceptedAt": null,
+    "zeroMemoryOnePrompt": null,
+    "localRuntimeHandlingCorrect": null,
+    "mutationsObserved": null,
     "finalAdvanceAllowedFiles": [
       "docs/ssot/M55_EXECUTION_STATE.json"
     ]

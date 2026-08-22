@@ -1,6 +1,6 @@
 # M55 GPT Cold-Start Acceptance Contract
 
-Status: **REVALIDATION REQUIRED / FAIL-CLOSED**  
+Status: **State-driven / fail-closed**
 Owner: `docs/ssot/M55_EXECUTION_STATE.json`
 
 ## Purpose
@@ -8,6 +8,21 @@ Owner: `docs/ssot/M55_EXECUTION_STATE.json`
 Prove that a completely new ChatGPT conversation can reconstruct M55's current execution state from repository authority and fresh remote evidence without relying on prior chat memory.
 
 This is not a claim that a model can never hallucinate. The operational acceptance target is that stale or hallucinated state cannot authorize work unless repository authority and required fresh evidence agree.
+
+## Where current status lives
+
+The current acceptance and revalidation status is **not** defined by prose in this contract. Read `docs/ssot/M55_EXECUTION_STATE.json` for:
+
+- `currentExecutionGate` / `nextSingleAction`
+- `productWorkAfterControlTower`
+- `acceptance.revalidationRequired`
+- `acceptance.latestResult`
+- `acceptance.latestResultAcceptedByHuman`
+- `acceptance.revalidationReason`
+
+When `acceptance.revalidationRequired=true`, the control plane is in a cold-start revalidation hold. `CURRENT EXECUTION GATE` and `NEXT SINGLE ACTION` must be `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` and `latestResult` must be `PENDING_REVALIDATION` until a fresh run completes and Human accepts it.
+
+When `acceptance.revalidationRequired=false`, cold-start handoff is accepted. `CURRENT EXECUTION GATE` and `NEXT SINGLE ACTION` must equal `productWorkAfterControlTower`.
 
 ## Mandatory boot order for a fresh GPT conversation
 
@@ -22,37 +37,26 @@ This is not a claim that a model can never hallucinate. The operational acceptan
 9. Reobserve Vercel Production identity/state when connected access exists.
 10. If local runtime is unavailable, say `LOCAL_RUNTIME_UNAVAILABLE`; never invent local HEAD, dirty/staged paths, worktree existence, or local divergence.
 
-## Previous accepted result
+## Historical accepted evidence
 
-A zero-memory, one-prompt acceptance run previously returned:
+Prior accepted cold-start runs remain historical evidence. They must not be erased or treated as if they never happened. The execution-state `acceptance` history fields (`previousAcceptedResult`, `previousAcceptedAt`, transition records) preserve that evidence.
 
-`HANDOFF_COLD_START_PASS`
+A previous PASS does **not** by itself authorize work under a changed handoff mechanism.
 
-Human accepted that result on 2026-08-22. That run correctly reconstructed the sole executable authority, current main and Production identity, CLOSED GREEN / rerun prohibitions, Pair implementation `NOT_STARTED`, Pair Premium `NOT_ACTIVATED`, governed stale subordinate narrative state, and performed zero mutations.
+## When revalidation is required
 
-That evidence remains valid for the exact handoff mechanism that produced it. It is retained as historical accepted evidence and must not be erased or treated as if it never happened.
+A new chat/session alone is **never** an invalidating dependency.
 
-## Why revalidation is now required
+Revalidation **is** required when the handoff mechanism itself changes in a way that can materially affect cold-start correctness, including:
 
-PR #152 changes the handoff mechanism itself: execution-state semantics, semantic validation, context output/containment checks, verifier behavior, and this acceptance contract. Those are direct invalidating dependencies for cold-start handoff correctness.
+- execution-state semantics / validator behavior
+- context verifier behavior
+- this acceptance contract
+- executable-state ownership or boot rules
 
-Therefore the previous PASS cannot by itself authorize Pair mapping under the changed mechanism. The current executable gate remains:
+Ordinary state-only progression that changes only `M55_EXECUTION_STATE.json` product gate fields **does not** invalidate the handoff mechanism and **does not** require another cold-start run.
 
-`CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`
-
-and the current latest result is:
-
-`PENDING_REVALIDATION`
-
-until the changed mechanism is merged to `main`, observed READY in Production, and a completely fresh GPT conversation passes the one-prompt black-box acceptance against that merged revision.
-
-The product work after successful revalidation remains:
-
-`PAIR-FREE-TO-PAID-MAPPING-FIRST`
-
-Pair implementation remains `NOT_STARTED`. Pair Premium remains `NOT_ACTIVATED`. Pair free→paid mapping remains unauthorized while revalidation is pending.
-
-## PASS criteria for the required post-change regression run
+## PASS criteria for a cold-start regression run
 
 A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the following are true:
 
@@ -65,8 +69,8 @@ A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the f
 - it detects stale narrative/operational snapshots without promoting them over the execution-state owner;
 - it reports local runtime as unavailable rather than fabricating local state when local tools are absent;
 - it preserves CLOSED GREEN / high-cost rerun prohibitions;
-- it does not start Pair mapping while the execution state says `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`;
-- it does not start Pair implementation or Pair Premium activation;
+- it does not advance product work while the execution state says revalidation is pending;
+- it does not start Pair implementation or Pair Premium activation unless execution state authorizes those gates;
 - mutation count is zero.
 
 Any authority conflict, unexplained branch movement, unverifiable required identity, attempted high-cost replay, or mutation during the acceptance test is FAIL/STOP.
@@ -77,21 +81,27 @@ A PASS does not mutate repository authority. Human approval is still required.
 
 Only after Human acceptance may a final bounded state-only transition set:
 
-- `currentExecutionGate = PAIR-FREE-TO-PAID-MAPPING-FIRST`
-- `nextSingleAction = PAIR-FREE-TO-PAID-MAPPING-FIRST`
-- `pairFreeToPaidMappingAuthorizedNow = true`
+- `currentExecutionGate = productWorkAfterControlTower`
+- `nextSingleAction = productWorkAfterControlTower`
 - `revalidationRequired = false`
 - `latestResult = HANDOFF_COLD_START_PASS`
 - `latestResultAcceptedByHuman = true`
-- add `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` to completedSubGates
+
+That ordinary final advance goes directly to `productWorkAfterControlTower` and does **not** require another cold-start run.
 
 The final advance must not modify the handoff mechanism again; otherwise that mechanism change is a new invalidating dependency and revalidation is required again.
 
+`CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` is a repeatable validation condition, not a permanent completed development gate. It does not need to remain in `completedSubGates` after a successful run.
+
+## Ordinary product gate progression
+
+Future ordinary product gate transitions should change only `docs/ssot/M55_EXECUTION_STATE.json` (and any explicitly authorized narrative evidence files). They must **not** require edits to `scripts/m55-control-tower-semantic.mjs`, `scripts/verify-m55-control-tower.mjs`, or this acceptance contract.
+
 ## Regression rule
 
-A new chat/session alone is not an invalidating dependency. Do not rerun this acceptance merely because a new conversation was opened.
+Do not rerun this acceptance merely because a new conversation was opened.
 
-Rerun is required when the handoff mechanism, executable-state ownership, cold-start boot rules, semantic validator, context verifier, acceptance contract, or another dependency that can materially change handoff correctness changes.
+Rerun is required only when a real handoff-mechanism invalidating dependency changes.
 
 ## Reusable fresh-chat test prompt
 

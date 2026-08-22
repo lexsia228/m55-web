@@ -63,3 +63,35 @@ Repo-verified facts only (`lib/m55/compatibility/compatibilityCommerceAuthority.
 - 次に試せること
 
 Do not describe unverified repo value as implemented or purchasable in production.
+
+## Pair Free / Paid value boundary (Human-approved — do not re-map)
+
+Status: **HUMAN_APPROVED / COMPLETE** (`PAIR-FREE-TO-PAID-MAPPING-FIRST`)
+Repeat mapping: **PROHIBITED**
+
+### Pair Free owns
+
+- two-person stable/base relationship reading
+- overlap / difference
+- current expression
+- mismatch / misread loop recognition
+- recognition of what is happening between the two people
+
+### Pair Paid owns
+
+- why / conditions behind the pattern
+- how to handle the difference
+- return/reset procedure
+- concrete actionable steps
+- usable phrase
+- small experiment
+- reflection/revisit question
+- six-scene deeper reading
+- durable saved/revisit value
+
+### Boundary rules
+
+- Free must not leak paid handling, actionable steps, experiments, or durable revisit value.
+- Paid must not re-open the base relationship/overlap/mismatch recognition work that Free already owns.
+- Pair Premium activation remains `NOT_ACTIVATED` until `PAIR-PREMIUM-ACTIVATION-DECISION` is explicitly completed.
+- Compatibility commerce is not live; do not claim purchasable Pair Paid in production.

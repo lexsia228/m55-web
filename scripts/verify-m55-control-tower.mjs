@@ -10,6 +10,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   EXECUTION_STATE_PATH,
+  COLD_START_GATE,
+  PAIR_MAPPING_GATE,
+  PAIR_MINIMAL_IMPLEMENTATION_GATE,
+  PAIR_PREMIUM_ACTIVATION_GATE,
   validateExecutionState,
   detectLegacyExecutionDrift,
 } from './m55-control-tower-semantic.mjs';
@@ -38,8 +42,211 @@ const REQUIRED_CONTROL_TOWER_FILES = [
 const GATE_LOCAL_RULE = 'GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN';
 const LEDGER_RERUN_RULE =
   'HIGH-COST CLOSED GREEN TESTS MUST NOT BE RERUN UNLESS AN INVALIDATING DEPENDENCY CHANGED.';
-const COLD_START_GATE = 'CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN';
-const PAIR_MAPPING_GATE = 'PAIR-FREE-TO-PAID-MAPPING-FIRST';
+
+const BASE_COMPLETED_SUBGATES = [
+  'CATEGORY-1-M55-PAIR-WAVE0-LIVE-PAID-DTR-READABILITY-READ-ONLY-MAPPING',
+  'PHASE-B-PAID-DTR-READABILITY-IMPLEMENTATION',
+  'PHASE-B-HUMAN-VISUAL-CLOSURE',
+  'SKU-CAPABILITY-REGRESSION-PREVENTION',
+  'PHASE-B-PR-150-MERGE',
+  'PHASE-B-PRODUCTION-READY',
+  'CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL',
+];
+
+const BASE_TRANSITIONS = {
+  postMergeTransition: {
+    prNumber: 150,
+    featureBranch: 'feat/m55-pair-funnel-v1',
+    featureHeadAtClosure: '0f897035ea2c42c81b65f19082cd1be472c3a27f',
+    mergeCommit: 'ca7ea2a15f0538cf20ec9afd6fc9ab52395850b7',
+    productionDeploymentId: 'dpl_Dhhj8a3jbsiQjzDufcg4wVnSy6A3',
+    productionStateObserved: 'READY',
+    productionTargetObserved: 'production',
+    productionBranchObserved: 'main',
+    productionShaObserved: 'ca7ea2a15f0538cf20ec9afd6fc9ab52395850b7',
+    observedAt: '2026-08-22T08:10:00Z',
+  },
+  controlTowerHardeningTransition: {
+    prNumber: 151,
+    featureBranch: 'fix/m55-control-tower-cold-start-v1',
+    featureHeadAtClosure: 'eff87c0e8ada3a9c26ee6b28acc75584762ab7fc',
+    mergeCommit: '201c883112e9c0a85ee7689f1d23fa1ee16f570b',
+    productionDeploymentId: 'dpl_DsEdULbawGZdUkx1yvAuV2VozmZ6',
+    productionStateObserved: 'READY',
+    productionTargetObserved: 'production',
+    productionBranchObserved: 'main',
+    productionShaObserved: '201c883112e9c0a85ee7689f1d23fa1ee16f570b',
+    observedAt: '2026-08-22T09:21:00Z',
+  },
+};
+
+function buildFixtureState(overrides = {}) {
+  return {
+    schemaVersion: '1.4.0',
+    status: 'ACTIVE',
+    semanticAuthorityOwner: EXECUTION_STATE_PATH,
+    updatedAt: '2026-08-22T14:50:00Z',
+    macroLane: 'PAIR LANE',
+    currentExecutionGate: COLD_START_GATE,
+    nextSingleAction: COLD_START_GATE,
+    productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+    pairImplementation: 'NOT_STARTED',
+    pairPremium: 'NOT_ACTIVATED',
+    pairFreeToPaidMappingAuthorizedNow: true,
+    legacyExecutionFieldsSuperseded: true,
+    legacyNarrativeStateFile: 'docs/ssot/M55_CURRENT_STATE.md',
+    completedSubGates: [...BASE_COMPLETED_SUBGATES, PAIR_MAPPING_GATE],
+    freshnessPolicy: {
+      chatMemoryIsAuthority: false,
+      newChatIsInvalidation: false,
+      dynamicGitFactsMustBeReobserved: true,
+      remoteOnlyGptMustDeclareLocalRuntimeUnavailable: true,
+      authorityConflictMustStop: true,
+      highCostRerunWithoutInvalidatingDependency: 'PROHIBITED',
+    },
+    acceptance: {
+      requiredBeforePairMapping: 'HANDOFF_COLD_START_PASS',
+      acceptanceContract: 'docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md',
+      mutationDuringAcceptance: 'PROHIBITED',
+      previousAcceptedResult: 'HANDOFF_COLD_START_PASS',
+      previousAcceptedResultAcceptedByHuman: true,
+      previousAcceptedAt: '2026-08-22T10:53:00Z',
+      previousZeroMemoryOnePrompt: true,
+      previousLocalRuntimeHandlingCorrect: true,
+      previousMutationsObserved: 0,
+      revalidationRequired: true,
+      revalidationReason: 'fixture pending revalidation',
+      latestResult: 'PENDING_REVALIDATION',
+      latestResultAcceptedByHuman: false,
+      acceptedAt: null,
+      zeroMemoryOnePrompt: null,
+      localRuntimeHandlingCorrect: null,
+      mutationsObserved: null,
+      finalAdvanceAllowedFiles: [EXECUTION_STATE_PATH],
+    },
+    ...BASE_TRANSITIONS,
+    ...overrides,
+  };
+}
+
+function expectValidationPass(label, state) {
+  const { errors } = validateExecutionState(JSON.stringify(state));
+  if (errors.length > 0) {
+    fail(`semantic self-test ${label} expected PASS but failed: ${errors.join('; ')}`);
+  }
+}
+
+function expectValidationFail(label, state, expectedSubstring) {
+  const { errors } = validateExecutionState(JSON.stringify(state));
+  if (errors.length === 0) {
+    fail(`semantic self-test ${label} expected FAIL but passed`);
+    return;
+  }
+  if (expectedSubstring && !errors.some((message) => message.includes(expectedSubstring))) {
+    fail(`semantic self-test ${label} failed without expected message "${expectedSubstring}": ${errors.join('; ')}`);
+  }
+}
+
+function runSemanticSelfTests() {
+  expectValidationPass('pending mechanism revalidation', buildFixtureState());
+
+  expectValidationPass(
+    'post-revalidation normal product state',
+    buildFixtureState({
+      currentExecutionGate: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      nextSingleAction: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture post-revalidation',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+  );
+
+  expectValidationPass(
+    'later normal product gate without mechanism edits',
+    buildFixtureState({
+      currentExecutionGate: 'PAIR-UX-REVIEW-FIRST',
+      nextSingleAction: 'PAIR-UX-REVIEW-FIRST',
+      productWorkAfterControlTower: 'PAIR-UX-REVIEW-FIRST',
+      completedSubGates: [...BASE_COMPLETED_SUBGATES, PAIR_MAPPING_GATE, PAIR_MINIMAL_IMPLEMENTATION_GATE],
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture later gate',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T16:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+  );
+
+  expectValidationFail(
+    'CURRENT/NEXT mismatch',
+    buildFixtureState({
+      currentExecutionGate: COLD_START_GATE,
+      nextSingleAction: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+    }),
+    'CURRENT EXECUTION GATE and NEXT SINGLE ACTION must match',
+  );
+
+  expectValidationFail(
+    'current gate already completed',
+    buildFixtureState({
+      currentExecutionGate: PAIR_MAPPING_GATE,
+      nextSingleAction: PAIR_MAPPING_GATE,
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+    }),
+    'NEXT SINGLE ACTION is already completed',
+  );
+
+  expectValidationFail(
+    'pending revalidation with non-cold-start CURRENT',
+    buildFixtureState({
+      currentExecutionGate: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      nextSingleAction: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+    }),
+    'pending handoff revalidation requires CURRENT/NEXT to be CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN',
+  );
+
+  expectValidationFail(
+    'latest PASS without Human acceptance',
+    buildFixtureState({
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: false,
+      },
+    }),
+    'post-revalidation execution state requires Human acceptance',
+  );
+
+  expectValidationFail(
+    'Pair Premium activation before decision gate',
+    buildFixtureState({
+      pairPremium: 'ACTIVATED',
+    }),
+    'pairPremium=ACTIVATED requires PAIR-PREMIUM-ACTIVATION-DECISION',
+  );
+
+  expectValidationFail(
+    'Pair implementation COMPLETE before minimal implementation',
+    buildFixtureState({
+      pairImplementation: 'COMPLETE',
+    }),
+    'pairImplementation=COMPLETE requires PAIR-MINIMAL-IMPLEMENTATION',
+  );
+}
 
 function checkRequiredFiles() {
   for (const rel of REQUIRED_CONTROL_TOWER_FILES) {
@@ -59,43 +266,13 @@ function checkExecutionState() {
   for (const message of errors) fail(message);
   if (!state) return;
 
-  if (state.nextSingleAction !== COLD_START_GATE) {
-    fail(`handoff-mechanism-changing revision must keep NEXT at ${COLD_START_GATE} until fresh revalidation`);
-  }
-  if (state.currentExecutionGate !== COLD_START_GATE) {
-    fail(`handoff-mechanism-changing revision must keep CURRENT GATE at ${COLD_START_GATE}`);
-  }
-  if (state.productWorkAfterControlTower !== PAIR_MAPPING_GATE) {
-    fail('execution state must preserve Pair free→paid mapping-first as post-Control-Tower product work');
-  }
-  if (state.pairFreeToPaidMappingAuthorizedNow !== false) {
-    fail('Pair mapping must remain unauthorized until post-change cold-start revalidation PASS');
-  }
-  if (state.acceptance?.revalidationRequired !== true) {
-    fail('handoff mechanism changes must record revalidationRequired=true');
-  }
-  if (state.acceptance?.latestResult !== 'PENDING_REVALIDATION') {
-    fail('handoff mechanism changes must keep latestResult=PENDING_REVALIDATION');
-  }
-  if (state.acceptance?.latestResultAcceptedByHuman !== false) {
-    fail('pending revalidation must not be Human-accepted');
-  }
-  if (state.completedSubGates?.includes(COLD_START_GATE)) {
-    fail('cold-start rerun must not be closed before the post-change fresh-chat run completes');
-  }
   if (state.pairImplementation !== 'NOT_STARTED') fail('Pair implementation must remain NOT_STARTED');
   if (state.pairPremium !== 'NOT_ACTIVATED') fail('Pair Premium must remain NOT_ACTIVATED');
-
-  const hardening = state.controlTowerHardeningTransition;
-  if (hardening?.prNumber !== 151) fail('Control Tower hardening transition must record PR #151');
-  if (hardening?.mergeCommit !== '201c883112e9c0a85ee7689f1d23fa1ee16f570b') {
-    fail('Control Tower hardening transition must record merged main SHA');
+  if (!state.completedSubGates?.includes(PAIR_MAPPING_GATE)) {
+    fail('Pair free→paid mapping must remain durably complete in completedSubGates');
   }
-  if (hardening?.productionDeploymentId !== 'dpl_DsEdULbawGZdUkx1yvAuV2VozmZ6') {
-    fail('Control Tower hardening transition must record Production deployment');
-  }
-  if (hardening?.productionStateObserved !== 'READY') {
-    fail('Control Tower hardening Production must be READY');
+  if (state.productWorkAfterControlTower !== PAIR_MINIMAL_IMPLEMENTATION_GATE) {
+    fail('next product gate after revalidation must be PAIR-MINIMAL-IMPLEMENTATION');
   }
 
   const legacy = detectLegacyExecutionDrift(state, current);
@@ -124,10 +301,12 @@ function checkColdStartContract() {
     'LOCAL_RUNTIME_UNAVAILABLE',
     'HANDOFF_COLD_START_PASS',
     COLD_START_GATE,
-    PAIR_MAPPING_GATE,
     'PENDING_REVALIDATION',
+    'productWorkAfterControlTower',
     'mutation count is zero',
     'Regression rule',
+    'Ordinary product gate progression',
+    'never** an invalidating dependency',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
   }
@@ -147,6 +326,7 @@ function checkCommercialSkuOwnersInContract() {
 }
 
 function main() {
+  runSemanticSelfTests();
   checkRequiredFiles();
   checkPackageContextScript();
   checkExecutionState();
