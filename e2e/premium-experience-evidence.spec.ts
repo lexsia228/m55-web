@@ -545,7 +545,7 @@ for (const vp of VIEWPORTS) {
     requireLocalDevFixture(`saved premium reopen @${vp.name}`);
     await prepareCleanCapturePage(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await safeGotoLocal(page, '/dev/dtr-drawer-preview?openPanel=summary');
     await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible({ timeout: 60_000 });
     await assertPremiumAuthority(page);
     await capturePng(page, 'saved-premium-reopen', vp.name);

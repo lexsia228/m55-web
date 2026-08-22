@@ -39,6 +39,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
+      - name: Install dependencies
+        run: npm ci
       - name: Repository-static M55 SSOT verification
         run: npm run verify:m55-ssot
       - name: Control Tower boot + evidence verification

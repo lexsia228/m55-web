@@ -38,7 +38,9 @@ export default async function DtrDrawerPreviewPage({
     sp.projection === '1',
   );
   const openPanel =
-    sp.openPanel === 'chapter-1' || sp.openPanel === 'consult' ? sp.openPanel : undefined;
+    sp.openPanel === 'chapter-1' || sp.openPanel === 'summary' || sp.openPanel === 'consult'
+      ? sp.openPanel
+      : undefined;
 
   return (
     <main
