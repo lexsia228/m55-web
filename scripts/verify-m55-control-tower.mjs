@@ -38,6 +38,8 @@ const REQUIRED_CONTROL_TOWER_FILES = [
 const GATE_LOCAL_RULE = 'GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN';
 const LEDGER_RERUN_RULE =
   'HIGH-COST CLOSED GREEN TESTS MUST NOT BE RERUN UNLESS AN INVALIDATING DEPENDENCY CHANGED.';
+const COLD_START_GATE = 'CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN';
+const PAIR_MAPPING_GATE = 'PAIR-FREE-TO-PAID-MAPPING-FIRST';
 
 function checkRequiredFiles() {
   for (const rel of REQUIRED_CONTROL_TOWER_FILES) {
@@ -57,14 +59,41 @@ function checkExecutionState() {
   for (const message of errors) fail(message);
   if (!state) return;
 
-  if (state.nextSingleAction !== 'CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN') {
-    fail('cold-start hardening revision must keep NEXT at CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN');
+  if (state.nextSingleAction !== PAIR_MAPPING_GATE) {
+    fail(`accepted handoff revision must advance NEXT to ${PAIR_MAPPING_GATE}`);
   }
-  if (state.productWorkAfterControlTower !== 'PAIR-FREE-TO-PAID-MAPPING-FIRST') {
-    fail('execution state must preserve Pair free→paid mapping-first as post-acceptance product work');
+  if (state.currentExecutionGate !== PAIR_MAPPING_GATE) {
+    fail(`accepted handoff revision must advance CURRENT GATE to ${PAIR_MAPPING_GATE}`);
+  }
+  if (state.productWorkAfterControlTower !== PAIR_MAPPING_GATE) {
+    fail('execution state must preserve Pair free→paid mapping-first as post-Control-Tower product work');
+  }
+  if (state.pairFreeToPaidMappingAuthorizedNow !== true) {
+    fail('accepted handoff revision must authorize Pair free→paid mapping');
+  }
+  if (state.acceptance?.latestResult !== 'HANDOFF_COLD_START_PASS') {
+    fail('accepted handoff revision must record HANDOFF_COLD_START_PASS');
+  }
+  if (state.acceptance?.latestResultAcceptedByHuman !== true) {
+    fail('accepted handoff revision must record Human acceptance');
+  }
+  if (!state.completedSubGates?.includes(COLD_START_GATE)) {
+    fail('accepted handoff revision must close cold-start acceptance rerun');
   }
   if (state.pairImplementation !== 'NOT_STARTED') fail('Pair implementation must remain NOT_STARTED');
   if (state.pairPremium !== 'NOT_ACTIVATED') fail('Pair Premium must remain NOT_ACTIVATED');
+
+  const hardening = state.controlTowerHardeningTransition;
+  if (hardening?.prNumber !== 151) fail('Control Tower hardening transition must record PR #151');
+  if (hardening?.mergeCommit !== '201c883112e9c0a85ee7689f1d23fa1ee16f570b') {
+    fail('Control Tower hardening transition must record merged main SHA');
+  }
+  if (hardening?.productionDeploymentId !== 'dpl_DsEdULbawGZdUkx1yvAuV2VozmZ6') {
+    fail('Control Tower hardening transition must record Production deployment');
+  }
+  if (hardening?.productionStateObserved !== 'READY') {
+    fail('Control Tower hardening Production must be READY');
+  }
 
   const legacy = detectLegacyExecutionDrift(state, current);
   if (legacy.drift && state.legacyExecutionFieldsSuperseded !== true) {
@@ -91,9 +120,9 @@ function checkColdStartContract() {
   for (const required of [
     'LOCAL_RUNTIME_UNAVAILABLE',
     'HANDOFF_COLD_START_PASS',
-    'CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN',
-    'PAIR-FREE-TO-PAID-MAPPING-FIRST',
+    PAIR_MAPPING_GATE,
     'mutation count is zero',
+    'Accepted result',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
   }
