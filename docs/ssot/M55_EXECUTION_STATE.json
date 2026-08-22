@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.2.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-08-22T08:10:00Z",
+  "updatedAt": "2026-08-22T09:43:00Z",
   "macroLane": "PAIR LANE",
   "currentExecutionGate": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
   "nextSingleAction": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
@@ -33,6 +33,18 @@
     "productionShaObserved": "ca7ea2a15f0538cf20ec9afd6fc9ab52395850b7",
     "observedAt": "2026-08-22T08:10:00Z"
   },
+  "controlTowerHardeningTransition": {
+    "prNumber": 151,
+    "featureBranch": "fix/m55-control-tower-cold-start-v1",
+    "featureHeadAtClosure": "eff87c0e8ada3a9c26ee6b28acc75584762ab7fc",
+    "mergeCommit": "201c883112e9c0a85ee7689f1d23fa1ee16f570b",
+    "productionDeploymentId": "dpl_DsEdULbawGZdUkx1yvAuV2VozmZ6",
+    "productionStateObserved": "READY",
+    "productionTargetObserved": "production",
+    "productionBranchObserved": "main",
+    "productionShaObserved": "201c883112e9c0a85ee7689f1d23fa1ee16f570b",
+    "observedAt": "2026-08-22T09:21:00Z"
+  },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,
     "newChatIsInvalidation": false,
@@ -44,6 +56,22 @@
   "acceptance": {
     "requiredBeforePairMapping": "HANDOFF_COLD_START_PASS",
     "acceptanceContract": "docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md",
-    "mutationDuringAcceptance": "PROHIBITED"
+    "mutationDuringAcceptance": "PROHIBITED",
+    "previousAcceptedResult": "HANDOFF_COLD_START_PASS",
+    "previousAcceptedResultAcceptedByHuman": true,
+    "previousAcceptedAt": "2026-08-22T09:26:00Z",
+    "previousZeroMemoryOnePrompt": true,
+    "previousLocalRuntimeHandlingCorrect": true,
+    "previousMutationsObserved": 0,
+    "revalidationRequired": true,
+    "revalidationReason": "PR #152 changes handoff semantic/verifier/context/acceptance-contract behavior after the accepted run",
+    "latestResult": "PENDING_REVALIDATION",
+    "latestResultAcceptedByHuman": false,
+    "zeroMemoryOnePrompt": null,
+    "localRuntimeHandlingCorrect": null,
+    "mutationsObserved": null,
+    "finalAdvanceAllowedFiles": [
+      "docs/ssot/M55_EXECUTION_STATE.json"
+    ]
   }
 }
