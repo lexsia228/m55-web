@@ -72,6 +72,17 @@ function isAncestor(ancestor, descendant) {
   if (result.status === 1) return false;
   return null;
 }
+function evaluateTransitionContainment(label, transition, originMain, errors) {
+  const featureContained = isAncestor(transition?.featureHeadAtClosure, originMain);
+  const mergeContained = isAncestor(transition?.mergeCommit, originMain);
+  if (featureContained === false) {
+    errors.push(`${label} feature head is not contained in local origin/main — run git fetch origin and STOP if still false`);
+  }
+  if (mergeContained === false) {
+    errors.push(`${label} merge commit is not contained in local origin/main — run git fetch origin and STOP if still false`);
+  }
+  return { featureContained, mergeContained };
+}
 
 function main() {
   const executionSrc = read(EXECUTION_STATE_PATH);
@@ -88,15 +99,15 @@ function main() {
   const stagedPaths = staged ? staged.split('\n').filter(Boolean) : [];
   const dirty = listDirtyPaths();
 
-  const transition = state?.postMergeTransition ?? {};
-  const featureContainedInMain = isAncestor(transition.featureHeadAtClosure, originMain);
-  const mergeContainedInMain = isAncestor(transition.mergeCommit, originMain);
-  if (featureContainedInMain === false) {
-    errors.push('post-merge feature head is not contained in local origin/main — run git fetch origin and STOP if still false');
-  }
-  if (mergeContainedInMain === false) {
-    errors.push('recorded merge commit is not contained in local origin/main — run git fetch origin and STOP if still false');
-  }
+  const phaseBTransition = state?.postMergeTransition ?? {};
+  const hardeningTransition = state?.controlTowerHardeningTransition ?? {};
+  const phaseBContainment = evaluateTransitionContainment('Phase-B transition', phaseBTransition, originMain, errors);
+  const hardeningContainment = evaluateTransitionContainment(
+    'Control Tower hardening transition',
+    hardeningTransition,
+    originMain,
+    errors,
+  );
 
   const context = {
     repository: git('remote', 'get-url', 'origin') ?? 'unknown',
@@ -120,15 +131,23 @@ function main() {
       pairFreeToPaidMappingAuthorizedNow: state?.pairFreeToPaidMappingAuthorizedNow ?? null,
       completedSubGates: state?.completedSubGates ?? [],
     },
-    transition: {
-      prNumber: transition.prNumber ?? null,
-      featureHeadAtClosure: transition.featureHeadAtClosure ?? null,
-      mergeCommit: transition.mergeCommit ?? null,
-      featureContainedInLocalOriginMain: featureContainedInMain,
-      mergeContainedInLocalOriginMain: mergeContainedInMain,
-      productionDeploymentIdObserved: transition.productionDeploymentId ?? null,
-      productionStateObserved: transition.productionStateObserved ?? null,
-      remoteProductionReobservationRequiredForColdStart: true,
+    phaseBTransition: {
+      prNumber: phaseBTransition.prNumber ?? null,
+      featureHeadAtClosure: phaseBTransition.featureHeadAtClosure ?? null,
+      mergeCommit: phaseBTransition.mergeCommit ?? null,
+      featureContainedInLocalOriginMain: phaseBContainment.featureContained,
+      mergeContainedInLocalOriginMain: phaseBContainment.mergeContained,
+      productionDeploymentIdObserved: phaseBTransition.productionDeploymentId ?? null,
+      productionStateObserved: phaseBTransition.productionStateObserved ?? null,
+    },
+    controlTowerHardeningTransition: {
+      prNumber: hardeningTransition.prNumber ?? null,
+      featureHeadAtClosure: hardeningTransition.featureHeadAtClosure ?? null,
+      mergeCommit: hardeningTransition.mergeCommit ?? null,
+      featureContainedInLocalOriginMain: hardeningContainment.featureContained,
+      mergeContainedInLocalOriginMain: hardeningContainment.mergeContained,
+      productionDeploymentIdObserved: hardeningTransition.productionDeploymentId ?? null,
+      productionStateObserved: hardeningTransition.productionStateObserved ?? null,
     },
     legacyNarrativeState: {
       path: CURRENT_STATE,
@@ -143,6 +162,7 @@ function main() {
     },
     highCostRerunPolicy: RERUN_POLICY,
     developmentGateRerunPolicy: DEV_GATE_RERUN_POLICY,
+    remoteProductionReobservationRequired: true,
     semanticValidationErrors: errors,
     note: 'This command does not git fetch. Run git fetch origin first when local network is authorized. Remote-only GPT must declare LOCAL_RUNTIME_UNAVAILABLE instead of fabricating local facts.',
   };
@@ -170,8 +190,10 @@ function main() {
   console.log(`product after control tower: ${context.semantic.productWorkAfterControlTower ?? 'unknown'}`);
   console.log(`Pair mapping authorized now: ${context.semantic.pairFreeToPaidMappingAuthorizedNow}`);
   console.log(`legacy CURRENT_STATE drift detected: ${context.legacyNarrativeState.driftDetected}`);
-  console.log(`feature head contained in origin/main: ${context.transition.featureContainedInLocalOriginMain}`);
-  console.log(`merge commit contained in origin/main: ${context.transition.mergeContainedInLocalOriginMain}`);
+  console.log(`Phase-B feature contained in origin/main: ${context.phaseBTransition.featureContainedInLocalOriginMain}`);
+  console.log(`Phase-B merge contained in origin/main: ${context.phaseBTransition.mergeContainedInLocalOriginMain}`);
+  console.log(`Control Tower feature contained in origin/main: ${context.controlTowerHardeningTransition.featureContainedInLocalOriginMain}`);
+  console.log(`Control Tower merge contained in origin/main: ${context.controlTowerHardeningTransition.mergeContainedInLocalOriginMain}`);
   console.log('');
   console.log(`high-cost rerun policy: ${RERUN_POLICY}`);
   console.log(`development-gate replay policy: ${DEV_GATE_RERUN_POLICY}`);
