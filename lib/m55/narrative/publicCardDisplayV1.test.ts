@@ -16,6 +16,7 @@ import {
 import { PERSONAL_V5_FIXTURES } from '../freeResult/personalFreeCommercialCopyV5.test';
 import { buildPersonalFreeNarrativeShareContextV1 } from './projectPersonalFreeNarrativeV1';
 import { reconstructPersonalPublicCard } from './reconstructPublicCardV1';
+import { reconstructPairPublicCard } from './reconstructPublicCardV1';
 import { buildPairManualV1 } from './pairManualV1';
 import { buildPairFreeInsightSpecV2 } from '../compatibility/pairFreeInsightSpecV2';
 import {
@@ -137,6 +138,19 @@ describe('public card display parse', () => {
     assert.ok(ids.includes('other_tends'));
     assert.equal(manual.slots.find((slot) => slot.id === 'one_tends')?.labelJa, '一方');
     assert.equal(manual.slots.find((slot) => slot.id === 'other_tends')?.labelJa, 'もう一方');
+  });
+
+  it('pair manual public card parse omits return when body has entry only', () => {
+    const card = reconstructPairPublicCard('talk_now_go_quiet', 'try', 'map');
+    const display = parsePublicCardDisplayV1({
+      variant: 'pair_manual',
+      headline: card.headline,
+      body: card.body,
+      cta: card.cta,
+    });
+    assert.match(display.entryJa, /一方|もう一方|すれ違い/);
+    assert.equal(display.returnJa, '');
+    assert.doesNotMatch(card.body, /戻りやすい方法/);
   });
 });
 

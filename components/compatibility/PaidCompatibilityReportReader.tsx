@@ -121,7 +121,6 @@ export default function PaidCompatibilityReportReader({
           tone="night"
           overlap={snapshot.sharedFoundation}
           difference={snapshot.differentFoundation}
-          immediateAction={leadChapter?.resetSteps[0] ?? snapshot.recurringLoop}
         />
         <p className={styles.readingGuide}>
           {snapshot.currentContext?.readingGuide

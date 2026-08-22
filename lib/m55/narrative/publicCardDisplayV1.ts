@@ -95,9 +95,13 @@ export function parsePublicCardDisplayV1(input: {
   const seenJa = quoted(main, '人から見える私');
   const actualJa = quoted(main, '実際の私');
 
-  const entryMatch = /すれ違いの入口\n([\s\S]*?)\n\n戻りやすい方法/.exec(main);
+  const entryWithReturnMatch = /すれ違いの入口\n([\s\S]*?)\n\n戻りやすい方法/.exec(main);
+  const entryOnlyMatch =
+    input.variant === 'pair_manual'
+      ? /すれ違いの入口\n([\s\S]+)$/.exec(main)
+      : null;
   const returnMatch = /戻りやすい方法\n([\s\S]+)$/.exec(main);
-  const entryJa = (entryMatch?.[1] ?? '').trim();
+  const entryJa = (entryWithReturnMatch?.[1] ?? entryOnlyMatch?.[1] ?? '').trim();
   const returnJa = (returnMatch?.[1] ?? '').trim();
   const sideA = /一方は、([^\n。]+)/.exec(entryJa)?.[1]?.trim() ?? '';
   const sideB = /もう一方は、([^\n。]+)/.exec(entryJa)?.[1]?.trim() ?? '';

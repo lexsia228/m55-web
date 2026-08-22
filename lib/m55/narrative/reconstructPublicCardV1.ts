@@ -172,16 +172,6 @@ export function pairRelationSidesJa(
   };
 }
 
-const PAIR_RETURN: Readonly<Record<PairFreeInteractionId, string>> = {
-  tempo_mismatch: '「今は決めない。でも今の気持ちはこれ」と分ける。',
-  space_misread: '次に話す一点だけ先に置く。返事は急がない。',
-  one_carries_quiet: '残った一点だけを、短い一文で戻す。',
-  talk_now_go_quiet: '結論ではなく、次に話すときだけ先に決める。',
-  later_decide_words_soon: '決める話と、今の気持ちを分けておく。',
-  hard_return_hard_space: '戻る入口を一つだけ、小さく置く。',
-  default_relationship_loop: '今日の進め方を一言そろえてから、中身に入る。',
-};
-
 const PAIR_SAME_ENTRY: Readonly<Record<PairFreeInteractionId, string>> = {
   tempo_mismatch: '速さは近く見えても、終わらせたい気持ちと、置いて考えたい気持ちが同時に出やすい。',
   space_misread: '静かな時間の意味が揃わず、距離を置かれたように感じられやすい。',
@@ -347,7 +337,6 @@ export function reconstructPairPublicCard(
   visibleStart?: StartTendency,
   inwardStart?: StartTendency,
 ): ReconstructedPublicCardV1 {
-  const returnJa = PAIR_RETURN[interactionId];
   const differentiated =
     visibleStart &&
     inwardStart &&
@@ -355,7 +344,7 @@ export function reconstructPairPublicCard(
   const entryJa = differentiated
     ? `一方は、${PAIR_SIDE[visibleStart]}。\nもう一方は、${PAIR_SIDE[inwardStart]}。`
     : PAIR_SAME_ENTRY[interactionId];
-  const body = `すれ違いの入口\n${entryJa}\n\n戻りやすい方法\n${returnJa}`;
+  const body = `すれ違いの入口\n${entryJa}`;
   const insight = differentiated
     ? `一方は${PAIR_SIDE[visibleStart!]}。もう一方は${PAIR_SIDE[inwardStart!]}。`
     : entryJa;
@@ -365,7 +354,7 @@ export function reconstructPairPublicCard(
     body,
     cta: 'あなたの二人では、どう出る？',
     insightJa: insight,
-    shareTextJa: selectedShareText('二人の取扱説明書', `${insight}\n戻りやすい方法：${returnJa}`),
+    shareTextJa: selectedShareText('二人の取扱説明書', insight),
   };
 }
 

@@ -2,24 +2,19 @@ import {
   compactExistingPhrase,
   PAIR_SIGNATURE_LABELS,
 } from '../../lib/m55/compatibility/pairResultSignatureCopy';
-import { PAIR_READING_FREE_STRUCTURE_ITEMS } from '../../lib/m55/compatibility/pairReadingPublicStructure';
 import styles from './PairResultSignature.module.css';
 
 export default function PairResultSignature({
   overlap,
   difference,
-  immediateAction,
   tone = 'light',
 }: {
   overlap: string;
   difference: string;
-  immediateAction: string;
   tone?: 'light' | 'night';
 }) {
   const overlapLine = compactExistingPhrase(overlap);
   const differenceLine = compactExistingPhrase(difference);
-  const actionLine = compactExistingPhrase(immediateAction);
-  const actionTitle = PAIR_READING_FREE_STRUCTURE_ITEMS[3].titleJa;
 
   return (
     <section
@@ -69,10 +64,6 @@ export default function PairResultSignature({
         <li>
           <span>{PAIR_SIGNATURE_LABELS.difference}</span>
           <p>{differenceLine}</p>
-        </li>
-        <li>
-          <span>{actionTitle}</span>
-          <p>{actionLine}</p>
         </li>
       </ul>
     </section>

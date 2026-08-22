@@ -36,10 +36,10 @@ export function buildPairManualV1(input: {
         : []),
     slot('mismatch_entry', 'すれ違い', firstSentenceJa(spec.mismatchEntry), ids),
     slot('pair_misread', '誤読されやすいところ', firstSentenceJa(spec.misreadLoop), ids),
-    slot('return_path', '戻り', firstSentenceJa(spec.reset), ids),
   ];
   if (input.completeness === 'complete') {
     slots.push(
+      slot('return_path', '戻り', firstSentenceJa(spec.reset), ids),
       slot(
         'pair_talk_hint',
         '話すときのヒント',
@@ -60,10 +60,8 @@ export function buildPairManualV1(input: {
 
 export function buildPairPublicManualLines(spec: PairFreeInsightSpecV2): {
   entryJa: string;
-  returnJa: string;
 } {
   return {
     entryJa: publicPairVoiceJa(firstSentenceJa(spec.mismatchEntry)),
-    returnJa: publicPairVoiceJa(firstSentenceJa(spec.reset)),
   };
 }

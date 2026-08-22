@@ -20,19 +20,18 @@ const pairSectionSource = readFileSync(
 );
 
 describe('pairReadingPublicStructure — shared free result authority', () => {
-  it('defines exact four structure labels in order', () => {
+  it('defines exact three structure labels in order', () => {
     assert.deepEqual(
       PAIR_READING_FREE_STRUCTURE_ITEMS.map((item) => item.titleJa),
       [
         '二人の変わりにくい土台',
         '今の二人に表れやすいこと',
         '二人の間で続きやすい連鎖',
-        '次に一度だけ試すこと',
       ],
     );
     assert.deepEqual(
       PAIR_READING_FREE_STRUCTURE_ITEMS.map((item) => item.index),
-      ['01', '02', '03', '04'],
+      ['01', '02', '03'],
     );
   });
 
