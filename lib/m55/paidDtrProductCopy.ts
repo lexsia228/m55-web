@@ -151,6 +151,8 @@ export const PAID_DTR_DRAWER_HUB = {
   ] as const,
   consultLabelJa: '追加読み解きで整理する',
   consultSublabelJa: 'プレミアムレポートをもとに、いま気になっていることを1テーマだけ整理する',
+  summaryLabelJa: '読みのまとめ',
+  summarySublabelJa: '私の取扱説明書',
 } as const;
 
 /** PremiumDrawerHub theme-first entry rows — labels align with PAID_DTR_CONSULT_REPLY.themeExamplesJa. */

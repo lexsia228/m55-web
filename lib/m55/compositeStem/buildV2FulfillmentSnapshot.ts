@@ -4,7 +4,10 @@ import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndivid
 import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 import { buildPaidDtrChapterMaterialPack } from '../dtrPaidChapterMaterialPack';
 import { buildPaidSavedReportChapterBodiesV1 } from '../paidResult/buildPaidSavedReportChapterBodiesV1';
-import { readPurchaseInputSnapshotV1 } from '../paidResult/purchaseInputSnapshotV1';
+import {
+  readPurchaseInputSnapshotV1,
+  type PurchaseInputSnapshotV1,
+} from '../paidResult/purchaseInputSnapshotV1';
 import {
   CORRECTION_VERSION,
   ENGINE_VERSION_V2,
@@ -58,6 +61,8 @@ export type V2FulfillmentSnapshotBuild = {
 
 export type BuildV2FulfillmentSnapshotOptions = {
   dobPersonalizationV2Enabled?: boolean;
+  /** Frozen purchase input for pure callers such as deterministic preview fixtures. */
+  purchaseInput?: PurchaseInputSnapshotV1;
   /**
    * Pre-generated chapter bodies from the AI pipeline (flag-gated, test-injectable).
    * When provided, passed through to runDtrEngine which uses them for s1/s2/s3/s4.
@@ -127,7 +132,8 @@ export function buildV2FulfillmentSnapshot(
   };
   const paidIndividualization = composePaidIndividualizationFromEngineContext(engineContext);
 
-  const purchaseSnap = readPurchaseInputSnapshotV1(draft?.extra_json ?? null);
+  const purchaseSnap =
+    options.purchaseInput ?? readPurchaseInputSnapshotV1(draft?.extra_json ?? null);
   let chapterBodies = options.generatedChapterBodies;
   if (!chapterBodies && purchaseSnap) {
     const materialPack = buildPaidDtrChapterMaterialPack(

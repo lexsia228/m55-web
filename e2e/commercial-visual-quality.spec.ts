@@ -8,6 +8,7 @@
  * Run: npx playwright test e2e/commercial-visual-quality.spec.ts
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 import {
   COMMERCIAL_VIEWPORTS,
@@ -19,6 +20,8 @@ import {
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityContract';
 import {
   checkMeasuredPage,
+  contrastRatio,
+  requiredContrastFor,
   type MeasuredPage,
   type MeasuredScrollState,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityChecks';
@@ -667,6 +670,201 @@ test.beforeAll(() => {
 
 test('every reviewed commercial finding is owned by a governed case', () => {
   expect(findingCoverageGaps(), 'reviewed findings without a governed case').toEqual([]);
+});
+
+type PaintedTextMeasurement = {
+  text: string;
+  color: string;
+  foreground: [number, number, number];
+  background: [number, number, number];
+  fontSizePx: number;
+  fontWeight: number;
+  opacity: number;
+  ancestorOpacities: number[];
+  hasBackgroundImage: boolean;
+};
+
+async function openDrawerSummaryPanel(page: Page) {
+  const trigger = page.locator('[aria-controls="drawer-hub-body-summary"]');
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+  await expect(page.locator('#drawer-hub-body-summary')).toBeVisible();
+  await expect(page.getByTestId('m55-drawer-summary-panel')).toBeVisible();
+}
+
+async function measurePaintedText(page: Page, selector: string): Promise<PaintedTextMeasurement[]> {
+  return page.locator(selector).evaluateAll((elements) => {
+    type Rgba = { r: number; g: number; b: number; a: number };
+    const parse = (value: string): Rgba | null => {
+      const match = /rgba?\(([^)]+)\)/.exec(value);
+      if (!match) return null;
+      const parts = match[1].split(/[ ,/]+/).filter(Boolean).map(Number);
+      if (parts.length < 3 || parts.some(Number.isNaN)) return null;
+      return { r: parts[0], g: parts[1], b: parts[2], a: parts[3] ?? 1 };
+    };
+    const over = (foreground: Rgba, background: Rgba): Rgba => ({
+      r: foreground.r * foreground.a + background.r * (1 - foreground.a),
+      g: foreground.g * foreground.a + background.g * (1 - foreground.a),
+      b: foreground.b * foreground.a + background.b * (1 - foreground.a),
+      a: foreground.a + background.a * (1 - foreground.a),
+    });
+
+    return elements.map((element) => {
+      const style = getComputedStyle(element);
+      const layers: Rgba[] = [];
+      const ancestorOpacities: number[] = [];
+      let hasBackgroundImage = false;
+      for (let node: Element | null = element; node; node = node.parentElement) {
+        const nodeStyle = getComputedStyle(node);
+        const background = parse(nodeStyle.backgroundColor);
+        if (background && background.a > 0) layers.push(background);
+        const opacity = Number.parseFloat(nodeStyle.opacity || '1');
+        ancestorOpacities.push(opacity);
+        if (nodeStyle.backgroundImage !== 'none') hasBackgroundImage = true;
+      }
+      let background: Rgba = { r: 255, g: 255, b: 255, a: 1 };
+      for (const layer of layers.reverse()) background = over(layer, background);
+      const rawForeground = parse(style.color);
+      if (!rawForeground) throw new Error(`unparseable foreground: ${style.color}`);
+      const painted = over(rawForeground, background);
+      return {
+        text: element.textContent?.trim() ?? '',
+        color: style.color,
+        foreground: [painted.r, painted.g, painted.b] as [number, number, number],
+        background: [background.r, background.g, background.b] as [number, number, number],
+        fontSizePx: Number.parseFloat(style.fontSize),
+        fontWeight: Number.parseInt(style.fontWeight, 10) || 400,
+        opacity: Number.parseFloat(style.opacity || '1'),
+        ancestorOpacities,
+        hasBackgroundImage,
+      };
+    });
+  });
+}
+
+test('paid DTR readability — painted contrast and shared-style isolation', async ({ browser }) => {
+  const viewports = [
+    { width: 320, height: 568 },
+    { width: 390, height: 844 },
+    { width: 1280, height: 900 },
+  ] as const;
+  const targets = [
+    { role: 'premium overline', selector: '[data-testid="m55-premium-overline"]', minWeight: 400 },
+    { role: 'manual slot label', selector: '[data-testid="m55-personal-manual"] li span', minWeight: 400 },
+    { role: 'manual slot body', selector: '[data-testid="m55-personal-manual"] li p', minWeight: 400 },
+    { role: 'premium takeaway', selector: '[data-testid="m55-premium-takeaway"]', minWeight: 400 },
+    { role: 'privacy note', selector: '[data-premium-share-persistence]', minWeight: 400 },
+    { role: 'share guidance', selector: '[data-testid="m55-premium-share-guidance"]', minWeight: 400 },
+    { role: 'next-action label', selector: '[data-testid="m55-premium-next-action"] span', minWeight: 400 },
+    { role: 'next-action body', selector: '[data-testid="m55-premium-next-action"] p:not([class*="mark"])', minWeight: 400 },
+    { role: 'next-action note', selector: '[data-testid="m55-premium-next-action"] p[class*="mark"]', minWeight: 400 },
+    { role: 'share action', selector: '[data-testid="m55-narrative-share-actions"] button', minWeight: 650 },
+    { role: 'report meta heading', selector: '[aria-label="プレミアムレポートの情報"] > p:first-child', minWeight: 600 },
+    { role: 'report meta label', selector: '[aria-label="プレミアムレポートの情報"] [role="listitem"] > span:first-child', minWeight: 600 },
+    { role: 'report meta note', selector: '[aria-label="プレミアムレポートの情報"] > p[class*="reportMetaNote"]', minWeight: 400 },
+    { role: 'headline control', selector: '#premium-narrative-close-title', minWeight: 700 },
+    { role: 'report meta lead control', selector: '[aria-label="プレミアムレポートの情報"] > p:nth-child(2)', minWeight: 400 },
+    { role: 'report meta value control', selector: '[aria-label="プレミアムレポートの情報"] [role="listitem"] > span:last-child', minWeight: 400 },
+  ] as const;
+
+  for (const viewport of viewports) {
+    const context = await browser.newContext({ viewport });
+    const page = await context.newPage();
+    await prepareCleanCapturePage(page);
+    await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/dtr-drawer-preview?projection=1&withConsult=1`);
+    await openDrawerSummaryPanel(page);
+    const premiumClose = page.getByTestId('m55-premium-narrative-close');
+    await expect(premiumClose).toBeVisible();
+    const shareCard = premiumClose.getByTestId('m55-narrative-share-card');
+    await expect(
+      premiumClose.locator(':scope > h3').filter({ hasText: /^今のあなたへ残しておく一文$/ }),
+      'reader-local duplicate heading',
+    ).toHaveCount(0);
+    await expect(
+      shareCard.getByRole('heading', { level: 3, name: '今のあなたへ残しておく一文' }),
+      'canonical public share headline',
+    ).toHaveCount(1);
+    await expect(
+      shareCard.locator(':scope > p').filter({ hasText: /^M55 プレミアムレポートから$/ }),
+      'share-card provenance rendered exactly once',
+    ).toHaveCount(1);
+    for (const target of targets) {
+      const measurements = await measurePaintedText(page, target.selector);
+      if (target.role === 'premium takeaway' && measurements.length === 0) {
+        await expect(page.getByTestId('m55-personal-hidden-spec')).toBeVisible();
+        continue;
+      }
+      expect(measurements.length, `${target.role}@${viewport.width} rendered`).toBeGreaterThan(0);
+      for (const measurement of measurements) {
+        const required = requiredContrastFor(measurement.fontSizePx, measurement.fontWeight);
+        expect(measurement.hasBackgroundImage, `${target.role}: unresolved background`).toBe(false);
+        expect(contrastRatio(measurement.foreground, measurement.background), target.role).toBeGreaterThanOrEqual(required);
+        expect(measurement.fontWeight, `${target.role}: font weight`).toBeGreaterThanOrEqual(target.minWeight);
+        expect(measurement.opacity, `${target.role}: element opacity`).toBe(1);
+        expect(measurement.ancestorOpacities.every((opacity) => opacity === 1), `${target.role}: ancestor opacity`).toBe(true);
+      }
+    }
+    if (viewport.width === 390) {
+      const chapterTrigger = page.locator('[aria-controls="drawer-hub-body-chapter-1"]');
+      await chapterTrigger.click();
+      await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
+      await expect(page.getByTestId('m55-premium-narrative-close')).toHaveCount(0);
+      await openDrawerSummaryPanel(page);
+      const fabBox = await page.getByRole('button', { name: 'プレミアムレポートの入口へ戻る' }).boundingBox();
+      expect(fabBox).not.toBeNull();
+      if (fabBox) {
+        expect(fabBox.width).toBeGreaterThanOrEqual(44);
+        expect(fabBox.height).toBeGreaterThanOrEqual(44);
+        expect(fabBox.x + fabBox.width / 2).toBeGreaterThan(viewport.width * 0.55);
+      }
+      const axe = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
+      const targeted = axe.violations.flatMap((violation) => violation.nodes).filter((node) =>
+        node.target.some((selector) =>
+          /NarrativeShare_(optionLabel|body|mark|chooserLead|secondary)|reportMeta(Heading|ItemLabel|Note)/.test(String(selector)),
+        ),
+      );
+      expect(targeted, 'targeted Axe color-contrast violations').toEqual([]);
+    }
+    await context.close();
+  }
+
+  const defaultContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const defaultPage = await defaultContext.newPage();
+  await prepareCleanCapturePage(defaultPage);
+  await defaultPage.goto(`${VISUAL_QUALITY_BASE_URL}/dev/dtr-drawer-preview`);
+  await openDrawerSummaryPanel(defaultPage);
+  await expect(defaultPage.getByTestId('m55-premium-narrative-close')).toBeVisible();
+  await expect(defaultPage.locator('[data-testid="m55-personal-manual"] li')).toHaveCount(0);
+  await expect(defaultPage.getByTestId('m55-premium-next-action')).toHaveCount(0);
+  const sharedProvenance = await measurePaintedText(defaultPage, '[data-testid="m55-narrative-share-card"] p[class*="cta"]');
+  expect(sharedProvenance).toHaveLength(1);
+  expect(sharedProvenance[0].color).toBe('rgba(255, 250, 241, 0.92)');
+  expect(sharedProvenance[0].fontSizePx).toBeCloseTo(14.08, 2);
+  expect(sharedProvenance[0].fontWeight).toBe(600);
+  expect(sharedProvenance[0].opacity).toBe(1);
+  await defaultContext.close();
+
+  const freeContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await seedFreeResult(freeContext);
+  const freePage = await freeContext.newPage();
+  await prepareCleanCapturePage(freePage);
+  await freePage.goto(`${VISUAL_QUALITY_BASE_URL}/core`);
+  await expect(freePage.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT');
+  const freeChooser = freePage.getByTestId('m55-free-result-share');
+  await expect(freeChooser).toBeVisible();
+  await expect(freeChooser).not.toHaveClass(/premiumClose/);
+  const freeLead = await measurePaintedText(
+    freePage,
+    '[data-testid="m55-free-result-share"] > p[class*="chooserLead"]',
+  );
+  expect(freeLead).toHaveLength(1);
+  expect(freeLead[0].color).toBe('rgba(45, 40, 70, 0.82)');
+  expect(freeLead[0].background).toEqual([254.04, 253.72, 253.4]);
+  expect(freeLead[0].fontSizePx).toBeCloseTo(15.2, 2);
+  expect(freeLead[0].fontWeight).toBe(400);
+  expect(freeLead[0].opacity).toBe(1);
+  expect(freeLead[0].ancestorOpacities).toEqual([1, 1, 1, 0, 1, 1, 1, 1, 1]);
+  await freeContext.close();
 });
 
 for (const governedCase of COMMERCIAL_VISUAL_CASES) {

@@ -52,4 +52,23 @@ describe('dtrReader chapter duplicate guard', () => {
     assert.equal(block.includes('今日やることを一つだけに絞ります'), false);
     assert.ok(block.includes('後回しにすると楽になる作業'));
   });
+
+  it('PaidModuleShell suppresses duplicate overline when identical to title', () => {
+    const block = extractFunctionBlock(readerSource, 'PaidModuleShell');
+    assert.ok(block.includes('overline !== title'));
+  });
+
+  it('PremiumNarrativeClose suppresses exact duplicate takeaway after hidden spec', () => {
+    const closeSource = readFileSync(
+      join(repoRoot, 'components/narrative/PremiumNarrativeClose.tsx'),
+      'utf8',
+    );
+    assert.ok(closeSource.includes('showStandaloneTakeaway'));
+    assert.ok(closeSource.includes('normalizeDisplaySentenceForDedupe'));
+  });
+
+  it('DomainMatrixModule accepts priorDisplayedKeys for chapter-3 exact dedupe', () => {
+    const block = extractFunctionBlock(readerSource, 'DomainMatrixModule');
+    assert.ok(block.includes('priorDisplayedKeys'));
+  });
 });

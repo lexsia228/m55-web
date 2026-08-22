@@ -15,6 +15,41 @@ Memory and conversation history are **not** authority. The Product Authority Pac
 
 Bootstrap mode applies **only** on the Authority Pack implementation branch during provisional sequence-0 initialization. Steady-state verification must fail on unreconciled bootstrap tips.
 
+## Control Tower boot sequence
+
+Every session must establish durable repo memory **before** proposing high-cost work:
+
+1. `AGENTS.md` (this file)
+2. `docs/ssot/M55_CURRENT_STATE.md` — active lane · CLOSED GREEN · **NEXT SINGLE ACTION**
+3. `docs/ssot/M55_ROADMAP.md`
+4. `docs/ssot/M55_WORKTREE_REGISTRY.md`
+5. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md` — GitHub / Vercel / Clerk / Supabase / Stripe separation
+6. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md` — closed high-cost tests · rerun prohibition
+7. **`npm run m55:context`** — fresh Git runtime + semantic SSOT merge (READ-ONLY); **if this contradicts remembered chat for dynamic facts, fresh context wins**
+8. Fresh Git / remote facts — `git fetch origin`, registry drift vs durable ownership (not vs stale SHA snapshots)
+9. Current lane from `M55_CURRENT_STATE.md`
+10. CLOSED GREEN gates — do not re-audit without invalidation
+11. Invalidating dependencies — document before any proposed rerun
+12. Execute only the authorized **NEXT SINGLE ACTION**
+
+**Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN`. Missing evidence in the current chat does **not** authorize rerunning real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, or real consult consumption. Search SSOT and prior evidence first.
+
+**Static vs dynamic:** Tier-E SSOT stores semantic/project facts (lane, NEXT SINGLE ACTION, ownership). Volatile Git facts (HEAD, divergence, dirty/staged) come from **`npm run m55:context`**, not manual SHA fields in SSOT.
+
+**Duplicate-gate precheck (before any high-cost or previously executed validation):**
+
+1. Identify capability/gate.
+2. Search `M55_HIGH_COST_EVIDENCE_LEDGER.md`.
+3. Identify last accepted evidence.
+4. Identify exact invalidating dependencies.
+5. Compare current diff/dependencies.
+
+If no invalidating dependency changed → **`RERUN_PROHIBITED`**. A new chat/session is **never** an invalidating dependency. A missing local report is **never** by itself an invalidating dependency.
+
+**Completed development-gate replay:** do not replay gates listed as **CLOSED** / **CLOSED GREEN** / **do not replay** in `M55_CURRENT_STATE.md` completed sub-gates. A new chat/session is **never** invalidation for development-gate replay either.
+
+Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` (always apply). **Do not use legacy `.cursorrules` as authority.**
+
 ## Read order
 
 1. `AGENTS.md` (this file)
@@ -22,11 +57,13 @@ Bootstrap mode applies **only** on the Authority Pack implementation branch duri
 3. `docs/ssot/README.md`
 4. `docs/ssot/M55_CURRENT_STATE.md`
 5. `docs/ssot/M55_WORKTREE_REGISTRY.md`
-6. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
-7. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
-8. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-9. `docs/ssot/M55_DECISION_LOG.md`
-10. `docs/ssot/M55_ROADMAP.md`
+6. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
+7. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
+8. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
+9. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
+10. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+11. `docs/ssot/M55_DECISION_LOG.md`
+12. `docs/ssot/M55_ROADMAP.md`
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts.
 
@@ -68,7 +105,11 @@ npm run verify:product-authority:bootstrap
 npm run verify:product-authority
 npm run test:product-authority
 npm run verify:m55-ssot
+npm run verify:m55-control-tower
+npm run m55:context
 ```
+
+Required validation/check commands are **fail-closed**. If a required check returns non-zero: **STOP** — do not commit, do not push, do not classify GREEN. "Cosmetic", "known", or "non-product" does not override a failed required check unless the Human explicitly waives that exact check.
 
 ## Superseded / subordinate authorities
 

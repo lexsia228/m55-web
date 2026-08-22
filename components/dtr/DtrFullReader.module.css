@@ -327,9 +327,10 @@
 .chapterTakeawayBlock {
   margin: 0 0 clamp(14px, 2.4vw, 18px);
   padding: clamp(12px, 2.4vw, 16px);
-  border: 1px solid rgba(162, 192, 224, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
-  background: linear-gradient(162deg, rgba(38, 48, 74, 0.28), rgba(27, 28, 46, 0.2));
+  background: rgba(255, 255, 255, 0.018);
+  box-shadow: none;
 }
 
 .chapterTakeawayLead {
@@ -382,12 +383,43 @@
 }
 
 .rolePrimaryRecognition {
-  margin: clamp(8px, 1.6vw, 12px) 0 clamp(16px, 2.8vw, 22px);
-  padding: clamp(14px, 2.6vw, 20px) clamp(12px, 2.2vw, 16px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: clamp(10px, 1.8vw, 14px) 0 clamp(18px, 3vw, 24px);
+  padding: clamp(16px, 2.8vw, 22px) clamp(14px, 2.4vw, 18px);
   border-radius: 16px;
-  border: 1px solid rgba(185, 165, 230, 0.28);
-  background: linear-gradient(168deg, rgba(32, 28, 48, 0.72), rgba(22, 18, 34, 0.58));
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(185, 165, 230, 0.34);
+  background: linear-gradient(168deg, rgba(36, 30, 54, 0.82), rgba(24, 20, 38, 0.68));
+  box-shadow:
+    0 1px 0 rgba(255, 248, 235, 0.05) inset,
+    0 12px 32px rgba(0, 0, 0, 0.32);
+}
+
+.rolePrimaryRecognition::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52%;
+  background: radial-gradient(
+    ellipse 92% 72% at 50% -18%,
+    rgba(255, 248, 235, 0.06),
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.rolePrimaryRecognition > * {
+  position: relative;
+  z-index: 1;
+}
+
+.rolePrimaryRecognition .chapterPersonalHeading,
+.rolePrimaryRecognition .idDesignBlockTitle:first-of-type {
+  color: rgba(255, 252, 245, 0.94);
 }
 
 .rolePrimaryRecognition .idDesignShell,
@@ -444,10 +476,31 @@
 
 .roleAction .practicalShell,
 .roleAction .practicalStack {
+  position: relative;
   padding: clamp(12px, 2.4vw, 16px);
   border-radius: 16px;
-  border: 1px solid rgba(185, 165, 230, 0.32);
-  background: linear-gradient(168deg, rgba(40, 34, 58, 0.78), rgba(26, 22, 40, 0.64));
+  border: 1px solid rgba(185, 165, 230, 0.36);
+  background: linear-gradient(168deg, rgba(48, 40, 58, 0.85), rgba(34, 28, 48, 0.72));
+  box-shadow:
+    0 1px 0 rgba(255, 248, 235, 0.07) inset,
+    0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+.roleAction .practicalShell::before,
+.roleAction .practicalStack::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 248, 235, 0.12),
+    transparent
+  );
+  pointer-events: none;
 }
 
 .roleTakeaway .chapterTakeawayBlock {
@@ -465,6 +518,51 @@
   border-color: rgba(160, 140, 220, 0.16);
   background: rgba(255, 255, 255, 0.02);
   box-shadow: none;
+}
+
+.drawerSummaryPanel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.8vw, 22px);
+  padding: clamp(4px, 1vw, 8px) 0 clamp(8px, 1.6vw, 12px);
+}
+
+.drawerSummaryPanel > :global([data-testid='m55-saved-snapshot-notice']) {
+  margin: 0;
+}
+
+.drawerSummaryPanel > :global([data-testid='m55-premium-narrative-close']) {
+  margin: 0;
+}
+
+.drawerSummaryPanel > :global([aria-label='プレミアムレポートの情報']) {
+  margin: 0;
+}
+
+.roleSecondaryRecognition,
+.roleVisualSummary,
+.roleBridge {
+  border-left: 2px solid rgba(255, 255, 255, 0.08);
+  padding-left: clamp(10px, 2vw, 14px);
+}
+
+.roleRecognition {
+  position: relative;
+  margin: clamp(8px, 1.4vw, 12px) 0 clamp(14px, 2.4vw, 20px);
+  padding: clamp(12px, 2.2vw, 16px) clamp(12px, 2.2vw, 16px) clamp(12px, 2.2vw, 16px)
+    clamp(14px, 2.4vw, 18px);
+  border-radius: 14px;
+  border: 1px solid rgba(185, 165, 230, 0.28);
+  border-left: 4px solid rgba(185, 165, 230, 0.42);
+  background: linear-gradient(168deg, rgba(34, 28, 50, 0.76), rgba(22, 18, 36, 0.62));
+  box-shadow:
+    0 1px 0 rgba(255, 248, 235, 0.04) inset,
+    0 8px 24px rgba(0, 0, 0, 0.26);
+}
+
+.roleRecognition .chapterPersonalHeading,
+.roleRecognition .idDesignBlockTitle:first-of-type {
+  color: rgba(255, 252, 245, 0.92);
 }
 
 .pmSecondary {
@@ -507,6 +605,51 @@
 .rolePrimaryRecognition .stabCell[data-visual-role='action'] {
   border-color: rgba(185, 165, 230, 0.42);
   background: rgba(40, 34, 58, 0.55);
+}
+
+/* Midnight Luminous P0 — chapter-scoped insight/action rails inside drawer panels. */
+:global([data-m55-dtr-drawer-panel='chapter-1']) .rolePrimaryRecognition,
+:global([data-m55-dtr-drawer-panel='chapter-1']) .roleRecognition {
+  border-color: rgba(155, 135, 225, 0.38);
+  border-left-color: rgba(155, 135, 225, 0.48);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-2']) .rolePrimaryRecognition,
+:global([data-m55-dtr-drawer-panel='chapter-2']) .roleRecognition {
+  border-color: rgba(96, 155, 232, 0.34);
+  border-left-color: rgba(96, 155, 232, 0.44);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-3']) .rolePrimaryRecognition,
+:global([data-m55-dtr-drawer-panel='chapter-3']) .roleRecognition {
+  border-color: rgba(218, 165, 64, 0.36);
+  border-left-color: rgba(218, 165, 64, 0.46);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-4']) .rolePrimaryRecognition,
+:global([data-m55-dtr-drawer-panel='chapter-4']) .roleRecognition {
+  border-color: rgba(88, 190, 148, 0.34);
+  border-left-color: rgba(88, 190, 148, 0.44);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-1']) .roleAction .practicalShell,
+:global([data-m55-dtr-drawer-panel='chapter-1']) .roleAction .practicalStack {
+  border-left: 4px solid rgba(155, 135, 225, 0.42);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-2']) .roleAction .practicalShell,
+:global([data-m55-dtr-drawer-panel='chapter-2']) .roleAction .practicalStack {
+  border-left: 4px solid rgba(96, 155, 232, 0.4);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-3']) .roleAction .practicalShell,
+:global([data-m55-dtr-drawer-panel='chapter-3']) .roleAction .practicalStack {
+  border-left: 4px solid rgba(218, 165, 64, 0.42);
+}
+
+:global([data-m55-dtr-drawer-panel='chapter-4']) .roleAction .practicalShell,
+:global([data-m55-dtr-drawer-panel='chapter-4']) .roleAction .practicalStack {
+  border-left: 4px solid rgba(88, 190, 148, 0.42);
 }
 
 .roleVisualSummary .strMapReadCard {
@@ -1521,11 +1664,11 @@
 
 /* Per-chapter border-top accent ?Esets color temperature for each section */
 .reportPartBand[data-part="1"]:not(.reportPartBandChapterPlate) {
-  border-top-color: rgba(155, 135, 225, 0.32);
+  border-top-color: rgba(155, 135, 225, 0.48);
 } /* ? lavender  */
-.reportPartBand[data-part="2"] { border-top-color: rgba( 96, 155, 232, 0.28); } /* ? cool blue */
-.reportPartBand[data-part="3"] { border-top-color: rgba(218, 165,  64, 0.38); } /* ? amber     */
-.reportPartBand[data-part="4"] { border-top-color: rgba( 88, 190, 148, 0.28); } /* ? soft green*/
+.reportPartBand[data-part="2"] { border-top-color: rgba( 96, 155, 232, 0.44); } /* ? cool blue */
+.reportPartBand[data-part="3"] { border-top-color: rgba(218, 165,  64, 0.54); } /* ? amber     */
+.reportPartBand[data-part="4"] { border-top-color: rgba( 88, 190, 148, 0.44); } /* ? soft green*/
 
 /* Landing glow ?Eadded/removed by scrollTo() for 1.4 s after TOC navigation */
 @keyframes reportPartLandPulse {
@@ -1628,6 +1771,8 @@
  * — 全周ボーダー・角丸カード感を避け、左ライン＋極薄の上辺で「ここから章」と示す
  */
 .reportPartBand.reportPartBandChapterPlate {
+  position: relative;
+  isolation: isolate;
   max-width: 100%;
   margin-top: clamp(20px, 3.6vw, 34px);
   margin-bottom: clamp(26px, 4.4vw, 38px);
@@ -1641,6 +1786,75 @@
   cursor: default;
   box-sizing: border-box;
   scroll-margin-top: 72px;
+  overflow: hidden;
+}
+
+.reportPartBand.reportPartBandChapterPlate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(42%, 160px);
+  height: min(48%, 96px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='1']::before {
+  background: radial-gradient(
+    ellipse 100% 88% at 0% 0%,
+    rgba(155, 135, 225, 0.1),
+    transparent 72%
+  );
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='2']::before {
+  background: radial-gradient(
+    ellipse 100% 88% at 0% 0%,
+    rgba(96, 155, 232, 0.09),
+    transparent 72%
+  );
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='3']::before {
+  background: radial-gradient(
+    ellipse 100% 88% at 0% 0%,
+    rgba(218, 165, 64, 0.1),
+    transparent 72%
+  );
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='4']::before {
+  background: radial-gradient(
+    ellipse 100% 88% at 0% 0%,
+    rgba(88, 190, 148, 0.09),
+    transparent 72%
+  );
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='1'] {
+  border-left-color: rgba(155, 135, 225, 0.32);
+  border-top-color: rgba(155, 135, 225, 0.16);
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='2'] {
+  border-left-color: rgba(96, 155, 232, 0.3);
+  border-top-color: rgba(96, 155, 232, 0.14);
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='3'] {
+  border-left-color: rgba(218, 165, 64, 0.34);
+  border-top-color: rgba(218, 165, 64, 0.16);
+}
+
+.reportPartBand.reportPartBandChapterPlate[data-part='4'] {
+  border-left-color: rgba(88, 190, 148, 0.3);
+  border-top-color: rgba(88, 190, 148, 0.14);
+}
+
+.reportPartBand.reportPartBandChapterPlate > * {
+  position: relative;
+  z-index: 1;
 }
 
 .savedGridArticle {
@@ -2416,7 +2630,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(188, 175, 220, 0.58);
+  color: var(--dtr-body-muted);
 }
 
 .reportMetaLead {
@@ -2450,7 +2664,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(188, 175, 220, 0.5);
+  color: var(--dtr-body-muted);
 }
 
 .reportMetaItemValue {
@@ -2464,7 +2678,7 @@
   margin: 8px 0 0;
   font-size: 0.74rem;
   line-height: 1.55;
-  color: rgba(188, 175, 220, 0.5);
+  color: var(--dtr-body-muted);
 }
 
 .reportMetaWalletAvailable {
@@ -2628,7 +2842,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--dtr-accent);
-  opacity: 0.82;
+  opacity: 1;
   margin: 0 0 7px;
 }
 
@@ -2808,12 +3022,13 @@
 /* 保存版専用：中央下 ↑ → 入口カード上端へ（ScrollToTopButton と同系の静かな丸ボタン） */
 .readingGuideFab {
   position: fixed;
-  bottom: clamp(24px, 4vw, 36px);
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: auto;
+  right: max(12px, calc((100vw - min(896px, calc(100vw - 24px))) / 2 - 60px));
+  transform: translateY(8px);
   z-index: 1500;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   padding: 0;
   display: flex;
@@ -2841,7 +3056,7 @@
 .readingGuideFabVisible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .readingGuideFab:hover {
@@ -2854,7 +3069,7 @@
 }
 
 .readingGuideFab:active {
-  transform: translateX(-50%) translateY(0) scale(0.93);
+  transform: translateY(0) scale(0.93);
   transition: transform 0.08s ease;
 }
 
@@ -2872,11 +3087,11 @@
 @media (prefers-reduced-motion: reduce) {
   .readingGuideFab {
     transition: opacity 0.12s ease;
-    transform: translateX(-50%) !important;
+    transform: none !important;
   }
 
   .readingGuideFab:active {
-    transform: translateX(-50%) !important;
+    transform: none !important;
   }
 }
 
@@ -2886,11 +3101,17 @@
   }
 }
 
+@media (min-width: 960px) {
+  .readingGuideFab {
+    right: max(20px, calc((100vw - min(896px, calc(100vw - 40px))) / 2 - 64px));
+  }
+}
+
 @media (max-width: 480px) {
   .readingGuideFab {
     width: 44px;
     height: 44px;
-    bottom: 24px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   .readingGuideFabIcon {
@@ -3246,9 +3467,9 @@
 .heroFirstRecordLabel {
   font-family: var(--dtr-sans);
   font-size: max(10px, calc(var(--dtr-label-floor) - 1px));
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.32);
+  color: var(--dtr-body-muted);
   line-height: 1.3;
   margin: 0;
 }
@@ -3256,9 +3477,9 @@
 .heroFirstRecordDate {
   font-family: var(--dtr-sans);
   font-size: clamp(0.62rem, 1.6vw, 0.72rem);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--dtr-body);
   line-height: 1.3;
   margin: 0;
 }

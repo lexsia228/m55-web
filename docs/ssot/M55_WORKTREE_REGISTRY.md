@@ -1,15 +1,25 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-20 G3-04 CLOSED GREEN self-closing PR** (`git worktree list --porcelain`; branch `feat/m55-g3-04-copy-safety-v1` · implementation head **`03ae78dbd91d63ffc411d389dfd9e276525155f2`** · base `origin/main` **`d33e9d3dc685e733826348b128faa9184a3b0072`** · Preview `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** · WT-045 **CLOSES_WITH_THIS_PR_MERGE**)
-Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
+Last semantic reconciliation: **2026-08-22 Control Tower static/dynamic separation** — durable ownership/lane only; live Git identity via **`npm run m55:context`**.
+Source command for volatile facts: **`npm run m55:context`** (preferred) or manual `git fetch origin` + `git status` + `rev-list`.
 
 ## How to read this registry
+
+### Static vs dynamic authority (permanent)
+
+**Durable here:** worktree path · branch identity · registry id · lifecycle · ACTIVE/CLOSED status · intended upstream branch model · semantic lane purpose.
+
+**Volatile — never timeless SSOT:** HEAD SHA · ahead/behind · dirty/staged file lists · worktree count · CI/PR/Vercel status.
+
+**Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. Historical tables below may retain `OBSERVED_AT` SHA snapshots; they are evidence, not live truth.
 
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **Current live remote main (2026-08-19 post-PR-#145):** `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` — PR #145 **MERGED** · self-closing PR #144 Tier-E / docs/control-plane settlement only · Production deployment `dpl_7xHKu8cQ1rtARxmSS8JyozA3VNC5` **READY** · Human Sales Launch authority **SELL** (inherited from PR #144 closure)
+- **Current live remote main (2026-08-21 post-PR-#149; historical evidence):** `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` — PR #149 **MERGED** · feature head `144686ca83b05179f9f159e2040802845f2e65a0` · G5 Wave 1 **CLOSED GREEN** · G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA** · **live SHA: `npm run m55:context`**
+- **Previous live remote main (2026-08-21 post-PR-#148; historical):** `0f62ff7c575eb65730862092ff80d7168469ae95` — PR #148 **MERGED** · G4 feature head `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957` · G4 Organic Discovery **CLOSED GREEN**
+- **Previous live remote main (2026-08-19 post-PR-#145; historical):** `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` — PR #145 **MERGED** · self-closing PR #144 Tier-E / docs/control-plane settlement only · Production deployment `dpl_7xHKu8cQ1rtARxmSS8JyozA3VNC5` **READY** · Human Sales Launch authority **SELL** (inherited from PR #144 closure)
 - **Previous live remote main (2026-08-19 post-PR-#144; historical):** `ecc3e37b43414e2a56941377c35235b965047aff` — PR #144 **MERGED** · feature head `f7ca4d44882e5820afdc3836ee8b7be2c4e30d86` · commercial quality consolidation **CLOSED GREEN** · Production deployment `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** · superseded by PR #145 merge @ `9ca5b57…` — **not** current live remote main
 - **Previous live remote main (2026-08-19 post-PR-#142/#143; historical):** `22b00a6bfc9190f713633e694d90d4dbfa2c8a56` — PR #142 **MERGED** @ `32f22da527033a0ca094bb717ab2e160c7006d5e` · PR #143 **MERGED** · feature head `156dd18ea17952b8398e2e2b608abc3f1b605226` · Wave A copy clarity **MERGED** · superseded by PR #144 merge @ `ecc3e37b…`
 - **Previous live remote main (2026-08-19 post-PR-#141; historical):** `4edcf631c5bccfba18f16db8767d20f83bc104f0` — PR #141 **MERGED** · G3-02 **CLOSED GREEN** · superseded by PR #142/#143 merges @ `22b00a6…`
@@ -48,7 +58,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-20 G3-04 CLOSED GREEN self-closing PR) — authoritative, read this first:** branch `feat/m55-g3-04-copy-safety-v1` · implementation head **`03ae78dbd91d63ffc411d389dfd9e276525155f2`** · base `origin/main` **`d33e9d3dc685e733826348b128faa9184a3b0072`**. **G3 REVISIT / RETENTION LOOP CLOSED GREEN** on merge of this PR. WT-045 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** @ implementation head. G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** · G3-03 **CLOSED GREEN** · G3-04 **CLOSED / KEEP_REJECTED**. G4/G5 **planned / not started** · G4 source **NOT YET AUTHORIZED**. Durable **ACTIVE lane after merge:** **G4 ORGANIC DISCOVERY**. **Current phase / NEXT SINGLE ACTION after merge:** **G4 ORGANIC DISCOVERY MAPPING-FIRST**. **No** follow-up docs-only settlement PR required.
+**CURRENT (2026-08-21 Pair lane entrance) — authoritative, read this first:** PR #149 **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; G5 Wave 1 **CLOSED GREEN**; G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA**. Durable **ACTIVE lane = PAIR LANE**. Active worktree **WT-048** `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1`; branch `feat/m55-pair-funnel-v1`; intended upstream **`origin/feat/m55-pair-funnel-v1`**. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_CURRENT_STATE.md` § PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)** only. Wave 0 read-only mapping is **CLOSED GREEN** — do not replay. Pair implementation has not started on merged runtime. Pair Premium **NOT ACTIVATED**.
+
+**CURRENT (2026-08-20 G3-04 CLOSED GREEN self-closing PR) — historical:** branch `feat/m55-g3-04-copy-safety-v1` · implementation head **`03ae78dbd91d63ffc411d389dfd9e276525155f2`** · base `origin/main` **`d33e9d3dc685e733826348b128faa9184a3b0072`**. **G3 REVISIT / RETENTION LOOP CLOSED GREEN** on merge of this PR. WT-045 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** @ implementation head. G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** · G3-03 **CLOSED GREEN** · G3-04 **CLOSED / KEEP_REJECTED**. G4/G5 **planned / not started** · G4 source **NOT YET AUTHORIZED**. Durable **ACTIVE lane after merge:** **G4 ORGANIC DISCOVERY**. **Current phase / NEXT SINGLE ACTION after merge:** **G4 ORGANIC DISCOVERY MAPPING-FIRST**. **No** follow-up docs-only settlement PR required.
 
 **CURRENT (2026-08-20 G3-03 CLOSED GREEN self-closing PR) — historical:** branch `feat/m55-g3-runtime-proof-v1` · implementation head **`ec663849ad0ba755e0e8a002d10d8540e3a94e21`** · base `origin/main` **`9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f`**. G3-03 **CLOSED GREEN** on merge of this PR. WT-044 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `dpl_6RHww1uMqbuQAka21VA687SPYror` **READY** @ implementation head. Runtime proof **GREEN** (matched identity restore · mismatched identity fail-closed · Safari TP representative). G3-01 **NOT AUTHORIZED** · G3-04 **REJECT_EXPOSURE**. G4/G5 **planned / not started**. Durable **ACTIVE lane after merge:** **G3 REVISIT / RETENTION LOOP**. **Current phase / NEXT SINGLE ACTION after merge:** **WAIT_FOR_HUMAN_G3_REMAINING_AUTHORIZATION**. **No** follow-up docs-only settlement PR required.
 
@@ -1075,22 +1087,25 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-### WT-046 — G4 Organic Discovery Wave 1+2 (CLOSED GREEN — self-closing on this PR merge)
+### WT-046 — G4 Organic Discovery Wave 1+2 (CLOSED GREEN / MERGED / RETAINED)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` |
 | branch | `feat/m55-g4-organic-discovery-v1` |
 | base origin/main | `00def3a596655dedceceb85764724ef6070a0c91` |
-| HEAD | `a715fd6ec7f07ee792794fd870a0f0815f7a8109` |
-| lastVerifiedAt | `2026-08-20` |
-| lifecycle | **CLOSED GREEN / CLOSES_WITH_THIS_PR_MERGE** |
+| HEAD | `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957` |
+| upstream | `origin/feat/m55-g4-organic-discovery-v1` @ `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957` · `0 behind / 0 ahead` |
+| current origin/main divergence | `0 ahead / 5 behind` |
+| lastVerifiedAt | `2026-08-21` |
+| lifecycle | **CLOSED GREEN / MERGED / RETAINED** |
 | operational state | **G4_ORGANIC_DISCOVERY_CLOSED_GREEN** |
 | purpose | G4 Wave 1+2 authority/indexability + qualified landing identity |
 | G4 ORGANIC DISCOVERY | **CLOSED GREEN** |
 | G4 mapping | **completed** |
 | Preview deployment | `https://m55-webv2-3n0t7cyc4-m55-official.vercel.app` **READY** @ implementation head |
-| WT-046 | **CLOSES_WITH_THIS_PR_MERGE** — physical path **retained** |
+| PR #148 | **MERGED** @ `0f62ff7c575eb65730862092ff80d7168469ae95` |
+| WT-046 | **CLOSED GREEN / MERGED / RETAINED** — physical path retained |
 | Durable ACTIVE lane after merge | **G5 METRICS / FUNNEL LEAKAGE** |
 | NEXT SINGLE ACTION after merge | **G5 METRICS / FUNNEL LEAKAGE MAPPING-FIRST** |
 | G5 source implementation | **NOT AUTHORIZED** |
@@ -1118,7 +1133,69 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-20 G4 mapping-first) — AUTHORITATIVE
+### WT-047 — G5 Metrics / Funnel Leakage Wave 1 (CLOSED GREEN / MERGED / RETAINED)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-g5-metrics-v1` |
+| branch | `feat/m55-g5-metrics-v1` |
+| HEAD | `144686ca83b05179f9f159e2040802845f2e65a0` |
+| baseline | `origin/main` before PR #149 @ `0f62ff7c575eb65730862092ff80d7168469ae95` |
+| upstream | `origin/feat/m55-g5-metrics-v1` @ `144686ca83b05179f9f159e2040802845f2e65a0` · `0 behind / 0 ahead` |
+| current origin/main divergence | `0 ahead / 2 behind` |
+| cleanliness | **clean** |
+| lifecycle | **CLOSED GREEN / MERGED / RETAINED** |
+| purpose | G5 Wave 1 privacy-safe core funnel metrics; PR #149 merged |
+| PR #149 | **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` |
+| G5 Wave 1 | **CLOSED GREEN** |
+| G5 Wave 2 | **DEFER UNTIL REAL TRAFFIC DATA** |
+| further G5 source work now | **NO** |
+| removal eligibility | physical worktree retained; separate retirement authorization required |
+
+---
+
+### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` |
+| branch | `feat/m55-pair-funnel-v1` |
+| intended upstream | `origin/feat/m55-pair-funnel-v1` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| production main anchor (PR #149 merge evidence) | `origin/main` @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` |
+| lifecycle | **ACTIVE** |
+| operational state | **PAIR_WAVE0_PHASE_B_LOCAL_PENDING_ATOMIC_COMMIT** |
+| purpose | Pair lane Wave 0 readability track closed locally; Phase-B product dirty; Control Tower hardening closed |
+| executable next action owner | `docs/ssot/M55_CURRENT_STATE.md` § semantic execution authority only |
+| product/source implementation authorized | **false** — read-only mapping only |
+| actual invalidation scope | Live paid DTR readability surface only; no sitewide commercial-quality re-audit |
+| Pair implementation | **NOT STARTED** |
+| Pair Premium | **NOT ACTIVATED** |
+| allowed operations | read-only source/computed-style/runtime mapping after this Tier-E reconciliation |
+| prohibited operations | replay completed Wave 0 mapping · Pair implementation · Pair Premium activation · price/Stripe/DB/Clerk/provider/env/deploy without Human scope |
+| executable next action | see `docs/ssot/M55_CURRENT_STATE.md` § semantic execution authority |
+
+---
+
+## FINAL LIVE WORKTREES (2026-08-21 Pair lane entrance) — AUTHORITATIVE
+
+Production main anchor at PR #149 merge (historical evidence): **`53b71f8c8ea0ddeecd1828a2a809b4de08583aba`**. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
+
+Live count from `git worktree list --porcelain`: observation-only — refresh via `m55:context` / live Git.
+
+| Path | Branch | Live runtime | Registry id | Status | Lifecycle |
+|---|---|---|---|---|---|
+| `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `m55:context` | primary git root | RETAINED | **PRIMARY_REPO_ROOT / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `m55:context` | WT-043 | RETAINED | **CLOSED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `m55:context` | WT-045 | RETAINED | **CLOSED GREEN / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `m55:context` | WT-044 | RETAINED | **CLOSED GREEN / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` | `feat/m55-g4-organic-discovery-v1` | `m55:context` | WT-046 | RETAINED | **CLOSED GREEN / MERGED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g5-metrics-v1` | `feat/m55-g5-metrics-v1` | `m55:context` | WT-047 | RETAINED | **CLOSED GREEN / MERGED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `m55:context` | WT-024 (control) | STALE | **STALE_MAIN_CONTROL_SNAPSHOT** |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `m55:context` | WT-027 | PENDING | **PENDING_INTEGRATION / COMMERCE OFF** |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` | `feat/m55-pair-funnel-v1` | `m55:context` | WT-048 | ACTIVE | **ACTIVE / READ-ONLY MAPPING** |
+
+## FINAL LIVE WORKTREES (2026-08-20 G4 mapping-first) — HISTORICAL
 
 Current `origin/main`: **`00def3a596655dedceceb85764724ef6070a0c91`**
 

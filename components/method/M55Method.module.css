@@ -201,6 +201,51 @@
   outline-color: #d9d0ff;
 }
 
+/* Paid DTR purchased-report bridge — lifted dark explanatory card (not light island). */
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(230, 220, 200, 0.16);
+  background: linear-gradient(168deg, rgba(36, 30, 52, 0.94), rgba(26, 22, 40, 0.88));
+  box-shadow:
+    0 1px 0 rgba(255, 248, 235, 0.08) inset,
+    0 10px 28px rgba(0, 0, 0, 0.34);
+}
+
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 248, 235, 0.24) 50%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodHeading,
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodStepTitle {
+  color: rgba(255, 252, 245, 0.94);
+}
+
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodLead,
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodStepText,
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodBoundary {
+  color: rgba(240, 236, 228, 0.86);
+}
+
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodEyebrow,
+.methodBlockOnDark[data-m55-method-placement='m55-method-purchased-report'] .methodStepOrder {
+  color: rgba(214, 205, 245, 0.92);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .methodBlock,
   .methodLink {

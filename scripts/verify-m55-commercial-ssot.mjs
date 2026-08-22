@@ -197,8 +197,32 @@ function checkDocsParity(data) {
   if (!fullMatches || fullPrice !== 1480) fail('docs Full price must match machine contract');
 }
 
+function extractAgentsReadOrderSection(agents) {
+  const heading = '## Read order';
+  const headingPattern = /^## Read order$/gm;
+  const matches = [...agents.matchAll(headingPattern)];
+  if (matches.length === 0) {
+    fail('AGENTS.md missing canonical Read order section (## Read order)');
+    return null;
+  }
+  if (matches.length > 1) {
+    fail('AGENTS.md has duplicate Read order sections; exactly one canonical section required');
+    return null;
+  }
+  const firstIdx = matches[0].index;
+  const afterHeading = agents.indexOf('\n', firstIdx);
+  const sectionStart = afterHeading === -1 ? firstIdx + heading.length : afterHeading + 1;
+  const rest = agents.slice(sectionStart);
+  const nextHeadingMatch = rest.match(/\n## /);
+  const sectionEnd = nextHeadingMatch ? sectionStart + nextHeadingMatch.index : agents.length;
+  return agents.slice(sectionStart, sectionEnd);
+}
+
 function checkAgentsReadOrder() {
   const agents = read('AGENTS.md');
+  const readOrderSection = extractAgentsReadOrderSection(agents);
+  if (readOrderSection === null) return;
+
   const expected = [
     'AGENTS.md',
     'docs/ssot/README.md',
@@ -211,9 +235,9 @@ function checkAgentsReadOrder() {
   ];
   let lastIndex = -1;
   for (const item of expected) {
-    const idx = agents.indexOf(item);
+    const idx = readOrderSection.indexOf(item);
     if (idx === -1) {
-      fail(`AGENTS.md missing read-order item: ${item}`);
+      fail(`AGENTS.md Read order section missing item: ${item}`);
       continue;
     }
     if (idx < lastIndex) fail(`AGENTS.md read order out of sequence near: ${item}`);

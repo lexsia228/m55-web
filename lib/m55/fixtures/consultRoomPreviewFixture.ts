@@ -208,7 +208,7 @@ export function resolveConsultRoomPreviewScenario(
   ) {
     return raw;
   }
-  return 'purchase';
+  return 'available';
 }
 
 export function getConsultRoomPreviewRoomData(
