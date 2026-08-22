@@ -73,20 +73,35 @@ export function validateExecutionState(src) {
   const next = normalizeGateToken(state.nextSingleAction);
   const coldStart = normalizeGateToken(COLD_START_GATE);
   const pairMapping = normalizeGateToken(PAIR_MAPPING_GATE);
+  const acceptance = state.acceptance ?? {};
 
   if (next === coldStart) {
     if (state.pairFreeToPaidMappingAuthorizedNow !== false) {
       errors.push('Pair free→paid mapping must remain unauthorized during cold-start acceptance');
     }
+    if (acceptance.revalidationRequired === true) {
+      if (acceptance.latestResult !== 'PENDING_REVALIDATION') {
+        errors.push('handoff mechanism revalidation must keep latestResult=PENDING_REVALIDATION until a new acceptance run completes');
+      }
+      if (acceptance.latestResultAcceptedByHuman !== false) {
+        errors.push('pending handoff revalidation must not be marked Human-accepted');
+      }
+      if (!acceptance.revalidationReason) {
+        errors.push('pending handoff revalidation requires a revalidationReason');
+      }
+    }
   } else if (next === pairMapping) {
     if (state.pairFreeToPaidMappingAuthorizedNow !== true) {
       errors.push('Pair free→paid mapping gate requires pairFreeToPaidMappingAuthorizedNow=true');
     }
-    if (state.acceptance?.latestResult !== 'HANDOFF_COLD_START_PASS') {
+    if (acceptance.revalidationRequired === true) {
+      errors.push('Pair mapping cannot be authorized while handoff revalidation is required');
+    }
+    if (acceptance.latestResult !== 'HANDOFF_COLD_START_PASS') {
       errors.push('Pair mapping requires latest HANDOFF_COLD_START_PASS');
     }
-    if (state.acceptance?.latestResultAcceptedByHuman !== true) {
-      errors.push('Pair mapping requires Human acceptance of the cold-start PASS');
+    if (acceptance.latestResultAcceptedByHuman !== true) {
+      errors.push('Pair mapping requires Human acceptance of the latest cold-start PASS');
     }
     if (state.completedSubGates?.some((gate) => normalizeGateToken(gate) === coldStart) !== true) {
       errors.push('Pair mapping requires cold-start acceptance rerun in completedSubGates');
@@ -104,7 +119,7 @@ export function validateExecutionState(src) {
   if (state.pairPremium !== 'NOT_ACTIVATED') {
     errors.push('Pair Premium must remain NOT_ACTIVATED');
   }
-  if (state.acceptance?.requiredBeforePairMapping !== 'HANDOFF_COLD_START_PASS') {
+  if (acceptance.requiredBeforePairMapping !== 'HANDOFF_COLD_START_PASS') {
     errors.push('execution state must require HANDOFF_COLD_START_PASS before Pair mapping');
   }
   if (!state.postMergeTransition?.mergeCommit || !state.postMergeTransition?.featureHeadAtClosure) {
