@@ -1,22 +1,32 @@
 ---
-description: M55 control-tower boot — repo-as-memory, high-cost rerun prohibition, operations map authority.
+description: M55 control-tower boot — repo-as-memory, cold-start handoff, high-cost rerun prohibition.
 alwaysApply: true
 ---
 
 # M55 Control Tower (always apply)
 
-**Do not treat `.cursorrules` or chat memory as authority.** Read `AGENTS.md` first.
+**Do not treat `.cursorrules` or chat memory as authority. Read `AGENTS.md` first.**
 
-Before analysis or mutation, complete the boot sequence in `AGENTS.md` § Control Tower boot sequence, including:
+Executable state owner:
 
-- `docs/ssot/M55_CURRENT_STATE.md` (lane + **NEXT SINGLE ACTION**)
-- `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
-- `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
-- **`npm run m55:context`** (fresh Git runtime; dynamic facts override chat memory)
-- fresh Git facts + registry drift check (durable ownership only)
+`docs/ssot/M55_EXECUTION_STATE.json`
 
-**Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN` — missing evidence in this chat does **not** authorize rerunning high-cost tests (real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, real consult consumption).
+It is the sole executable CURRENT GATE / NEXT authority. `M55_CURRENT_STATE.md` remains narrative/history while the execution-state file says `legacyExecutionFieldsSuperseded=true`.
 
-Search repo SSOT and prior evidence first. Rerun only when an **invalidating dependency** changed and is documented. Before proposing rerun: ledger search → invalidating dependency compare → else **RERUN_PROHIBITED** (new chat ≠ invalidation). Do not replay completed development gates listed in CURRENT_STATE completed sub-gates.
+Before analysis or mutation:
 
-Run `npm run m55:context` at session boot. Run `npm run verify:m55-control-tower` when touching control-tower SSOT or boot references.
+- read `AGENTS.md`;
+- read `docs/ssot/M55_EXECUTION_STATE.json`;
+- read the required SSOT/operations/evidence files from the AGENTS boot order;
+- run `npm run m55:context` after `git fetch origin` when local runtime exists;
+- if local runtime does not exist, declare `LOCAL_RUNTIME_UNAVAILABLE` and use fresh connected GitHub/Vercel evidence without inventing local facts;
+- preserve `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN`;
+- ledger search → invalidating dependency compare → otherwise **RERUN_PROHIBITED**;
+- do not replay completed development gates;
+- during `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation is prohibited and Pair mapping is not yet authorized.
+
+Fresh GPT acceptance contract:
+
+`docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md`
+
+Any authority conflict or unexplained identity drift is STOP.

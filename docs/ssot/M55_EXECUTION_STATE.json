@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "ACTIVE",
+  "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
+  "updatedAt": "2026-08-22T08:10:00Z",
+  "macroLane": "PAIR LANE",
+  "currentExecutionGate": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
+  "nextSingleAction": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
+  "productWorkAfterControlTower": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
+  "pairImplementation": "NOT_STARTED",
+  "pairPremium": "NOT_ACTIVATED",
+  "pairFreeToPaidMappingAuthorizedNow": false,
+  "legacyExecutionFieldsSuperseded": true,
+  "legacyNarrativeStateFile": "docs/ssot/M55_CURRENT_STATE.md",
+  "completedSubGates": [
+    "CATEGORY-1-M55-PAIR-WAVE0-LIVE-PAID-DTR-READABILITY-READ-ONLY-MAPPING",
+    "PHASE-B-PAID-DTR-READABILITY-IMPLEMENTATION",
+    "PHASE-B-HUMAN-VISUAL-CLOSURE",
+    "SKU-CAPABILITY-REGRESSION-PREVENTION",
+    "PHASE-B-PR-150-MERGE",
+    "PHASE-B-PRODUCTION-READY",
+    "CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL"
+  ],
+  "postMergeTransition": {
+    "prNumber": 150,
+    "featureBranch": "feat/m55-pair-funnel-v1",
+    "featureHeadAtClosure": "0f897035ea2c42c81b65f19082cd1be472c3a27f",
+    "mergeCommit": "ca7ea2a15f0538cf20ec9afd6fc9ab52395850b7",
+    "productionDeploymentId": "dpl_Dhhj8a3jbsiQjzDufcg4wVnSy6A3",
+    "productionStateObserved": "READY",
+    "productionTargetObserved": "production",
+    "productionBranchObserved": "main",
+    "productionShaObserved": "ca7ea2a15f0538cf20ec9afd6fc9ab52395850b7",
+    "observedAt": "2026-08-22T08:10:00Z"
+  },
+  "freshnessPolicy": {
+    "chatMemoryIsAuthority": false,
+    "newChatIsInvalidation": false,
+    "dynamicGitFactsMustBeReobserved": true,
+    "remoteOnlyGptMustDeclareLocalRuntimeUnavailable": true,
+    "authorityConflictMustStop": true,
+    "highCostRerunWithoutInvalidatingDependency": "PROHIBITED"
+  },
+  "acceptance": {
+    "requiredBeforePairMapping": "HANDOFF_COLD_START_PASS",
+    "acceptanceContract": "docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md",
+    "mutationDuringAcceptance": "PROHIBITED"
+  }
+}
