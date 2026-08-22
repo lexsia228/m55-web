@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-21T21:36:30.204219+00:00",
-  "count": 700,
+  "generated_at_utc": "2026-08-22T21:34:05.941732+00:00",
+  "count": 704,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -78,6 +78,11 @@
       "bytes": 10481
     },
     {
+      "path": "docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md",
+      "category": "ssot",
+      "bytes": 5138
+    },
+    {
       "path": "docs/ssot/M55_COPY_AND_CLAIMS.md",
       "category": "ssot",
       "bytes": 2471
@@ -85,7 +90,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 93869
+      "bytes": 100843
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -188,6 +193,11 @@
       "bytes": 8821
     },
     {
+      "path": "docs/ssot/M55_EXECUTION_STATE.json",
+      "category": "ssot",
+      "bytes": 5825
+    },
+    {
       "path": "docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_2026-05-25.md",
       "category": "ssot",
       "bytes": 8330
@@ -208,9 +218,19 @@
       "bytes": 5550
     },
     {
+      "path": "docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md",
+      "category": "ssot",
+      "bytes": 7184
+    },
+    {
       "path": "docs/ssot/M55_HEADER_VISUAL_FREEZE_v1.md",
       "category": "ssot",
       "bytes": 1825
+    },
+    {
+      "path": "docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md",
+      "category": "ssot",
+      "bytes": 8691
     },
     {
       "path": "docs/ssot/M55_HOME_CLUSTER_SSOT_FREEZE_v2.md",
@@ -260,7 +280,7 @@
     {
       "path": "docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md",
       "category": "ssot",
-      "bytes": 1882
+      "bytes": 2953
     },
     {
       "path": "docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md",
@@ -3030,7 +3050,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 17799
+      "bytes": 18981
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3110,7 +3130,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 103975
+      "bytes": 110243
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
@@ -3135,7 +3155,7 @@
     {
       "path": "docs/ssot/README.md",
       "category": "ssot",
-      "bytes": 2538
+      "bytes": 2784
     },
     {
       "path": "docs/ssot/SOURCES_USED__PROJECT_B_v8.md",
