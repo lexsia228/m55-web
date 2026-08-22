@@ -43,6 +43,12 @@ export function parseExecutionState(src) {
   } catch (error) {
     return { state: null, errors: [`invalid M55_EXECUTION_STATE.json: ${error.message}`] };
   }
+  if (state === null || typeof state !== 'object' || Array.isArray(state)) {
+    return {
+      state: null,
+      errors: ['M55_EXECUTION_STATE.json must contain a JSON object execution state'],
+    };
+  }
   return { state, errors: [] };
 }
 

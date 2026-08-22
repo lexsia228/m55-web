@@ -142,6 +142,26 @@ function verifyExecutionStatePolicy(state) {
   return failures;
 }
 
+function verifyExecutionStateSource(src) {
+  const failures = [];
+  const { state, errors } = validateExecutionState(src);
+  failures.push(...errors);
+  if (!state) return failures;
+  failures.push(...verifyExecutionStatePolicy(state));
+  return failures;
+}
+
+function expectSourceVerificationFail(label, src, expectedSubstring) {
+  const failures = verifyExecutionStateSource(src);
+  if (failures.length === 0) {
+    fail(`source self-test ${label} expected FAIL but passed`);
+    return;
+  }
+  if (expectedSubstring && !failures.some((message) => message.includes(expectedSubstring))) {
+    fail(`source self-test ${label} failed without expected message "${expectedSubstring}": ${failures.join('; ')}`);
+  }
+}
+
 function expectValidationPass(label, state) {
   const { errors } = validateExecutionState(JSON.stringify(state));
   if (errors.length > 0) {
@@ -268,6 +288,24 @@ function runSemanticSelfTests() {
     }),
     'pairImplementation=COMPLETE requires PAIR-MINIMAL-IMPLEMENTATION',
   );
+
+  expectSourceVerificationFail(
+    'malformed JSON source',
+    '{not json',
+    'invalid M55_EXECUTION_STATE.json',
+  );
+
+  expectSourceVerificationFail(
+    'null JSON source',
+    'null',
+    'must contain a JSON object execution state',
+  );
+
+  expectSourceVerificationFail(
+    'array JSON source',
+    '[]',
+    'must contain a JSON object execution state',
+  );
 }
 
 function checkRequiredFiles() {
@@ -284,9 +322,10 @@ function checkPackageContextScript() {
 function checkExecutionState() {
   const src = read(EXECUTION_STATE_PATH);
   const current = read('docs/ssot/M55_CURRENT_STATE.md');
-  const { state } = validateExecutionState(src);
-  for (const message of verifyExecutionStatePolicy(state)) fail(message);
+  const { state, errors } = validateExecutionState(src);
+  for (const message of errors) fail(message);
   if (!state) return;
+  for (const message of verifyExecutionStatePolicy(state)) fail(message);
 
   const legacy = detectLegacyExecutionDrift(state, current);
   if (legacy.drift && state.legacyExecutionFieldsSuperseded !== true) {
