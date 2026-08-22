@@ -1,6 +1,6 @@
 # M55 GPT Cold-Start Acceptance Contract
 
-Status: **ACTIVE / FAIL-CLOSED**  
+Status: **ACCEPTED / RETAINED AS REGRESSION CONTRACT**  
 Owner: `docs/ssot/M55_EXECUTION_STATE.json`
 
 ## Purpose
@@ -22,39 +22,45 @@ This is not a claim that a model can never hallucinate. The acceptance target is
 9. Reobserve Vercel Production identity/state when connected access exists.
 10. If local runtime is unavailable, say `LOCAL_RUNTIME_UNAVAILABLE`; never invent local HEAD, dirty/staged paths, worktree existence, or local divergence.
 
-## Effective current state at this contract revision
+## Accepted result
 
-The current execution gate and NEXT are intentionally **not** Pair mapping yet.
+The zero-memory, one-prompt acceptance rerun returned:
 
-`CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`
+`HANDOFF_COLD_START_PASS`
 
-Product work after a successful cold-start acceptance is:
+Human accepted that result on 2026-08-22. The accepted run reconstructed the sole executable authority, current main and Production identity, CLOSED GREEN / rerun prohibitions, Pair implementation `NOT_STARTED`, Pair Premium `NOT_ACTIVATED`, governed stale subordinate narrative state, and performed zero mutations.
+
+The Control Tower hardening itself was merged in PR #151 and observed READY in Production at main SHA:
+
+`201c883112e9c0a85ee7689f1d23fa1ee16f570b`
+
+The accepted transition therefore advances product work to:
 
 `PAIR-FREE-TO-PAID-MAPPING-FIRST`
 
-Pair implementation remains `NOT_STARTED`. Pair Premium remains `NOT_ACTIVATED`.
+This authorizes **read-only mapping only**. It does not authorize Pair implementation or Pair Premium activation.
 
-## PASS criteria
+## PASS criteria for future regression checks
 
 A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the following are true:
 
 - it identifies `M55_EXECUTION_STATE.json` as the executable-state owner;
 - it does not use chat memory as authority;
+- it reconstructs the **current** `CURRENT EXECUTION GATE` and `NEXT SINGLE ACTION` from that owner rather than relying on an expected token embedded in a prompt;
 - it distinguishes durable semantic state from fresh dynamic Git/Vercel observations;
-- it observes PR #150 as merged and its feature head as contained in current `main` (or reports UNKNOWN if the connector cannot establish that fact);
-- it observes Production at the merged main identity when Vercel is available;
+- it reobserves current `main` and relevant completed transition identity, or reports UNKNOWN when a connector genuinely cannot establish a required fact;
+- it observes current Production at current main identity when Vercel is available;
 - it detects stale narrative/operational snapshots without promoting them over the execution-state owner;
 - it reports local runtime as unavailable rather than fabricating local state when local tools are absent;
 - it preserves CLOSED GREEN / high-cost rerun prohibitions;
-- it does not start Pair mapping during this acceptance gate;
-- it identifies the next action as the cold-start acceptance itself;
+- it does not start implementation or a later roadmap gate merely because the handoff test passed;
 - mutation count is zero.
 
 Any authority conflict, unexplained branch movement, unverifiable required identity, attempted high-cost replay, or mutation during the acceptance test is FAIL/STOP.
 
-## After PASS
+## Regression rule
 
-A PASS does not itself mutate the repository. Human approval is required to advance `M55_EXECUTION_STATE.json` from `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` to `PAIR-FREE-TO-PAID-MAPPING-FIRST`.
+A new chat/session is not an invalidating dependency. Do not rerun this acceptance merely because a new conversation was opened. Rerun only if the handoff mechanism, executable-state ownership, cold-start boot rules, or another dependency that can invalidate handoff correctness materially changes.
 
 ## Reusable fresh-chat test prompt
 
@@ -62,4 +68,4 @@ Use a completely new GPT conversation and provide only the repository identity p
 
 > Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Return PASS only if you can reconstruct the sole executable NEXT, preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed.
 
-Expected gate at this revision: `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`.
+There is intentionally no expected gate token in the prompt. A fresh model must discover the current NEXT from repository authority.
