@@ -59,26 +59,29 @@ function checkExecutionState() {
   for (const message of errors) fail(message);
   if (!state) return;
 
-  if (state.nextSingleAction !== PAIR_MAPPING_GATE) {
-    fail(`accepted handoff revision must advance NEXT to ${PAIR_MAPPING_GATE}`);
+  if (state.nextSingleAction !== COLD_START_GATE) {
+    fail(`handoff-mechanism-changing revision must keep NEXT at ${COLD_START_GATE} until fresh revalidation`);
   }
-  if (state.currentExecutionGate !== PAIR_MAPPING_GATE) {
-    fail(`accepted handoff revision must advance CURRENT GATE to ${PAIR_MAPPING_GATE}`);
+  if (state.currentExecutionGate !== COLD_START_GATE) {
+    fail(`handoff-mechanism-changing revision must keep CURRENT GATE at ${COLD_START_GATE}`);
   }
   if (state.productWorkAfterControlTower !== PAIR_MAPPING_GATE) {
     fail('execution state must preserve Pair free→paid mapping-first as post-Control-Tower product work');
   }
-  if (state.pairFreeToPaidMappingAuthorizedNow !== true) {
-    fail('accepted handoff revision must authorize Pair free→paid mapping');
+  if (state.pairFreeToPaidMappingAuthorizedNow !== false) {
+    fail('Pair mapping must remain unauthorized until post-change cold-start revalidation PASS');
   }
-  if (state.acceptance?.latestResult !== 'HANDOFF_COLD_START_PASS') {
-    fail('accepted handoff revision must record HANDOFF_COLD_START_PASS');
+  if (state.acceptance?.revalidationRequired !== true) {
+    fail('handoff mechanism changes must record revalidationRequired=true');
   }
-  if (state.acceptance?.latestResultAcceptedByHuman !== true) {
-    fail('accepted handoff revision must record Human acceptance');
+  if (state.acceptance?.latestResult !== 'PENDING_REVALIDATION') {
+    fail('handoff mechanism changes must keep latestResult=PENDING_REVALIDATION');
   }
-  if (!state.completedSubGates?.includes(COLD_START_GATE)) {
-    fail('accepted handoff revision must close cold-start acceptance rerun');
+  if (state.acceptance?.latestResultAcceptedByHuman !== false) {
+    fail('pending revalidation must not be Human-accepted');
+  }
+  if (state.completedSubGates?.includes(COLD_START_GATE)) {
+    fail('cold-start rerun must not be closed before the post-change fresh-chat run completes');
   }
   if (state.pairImplementation !== 'NOT_STARTED') fail('Pair implementation must remain NOT_STARTED');
   if (state.pairPremium !== 'NOT_ACTIVATED') fail('Pair Premium must remain NOT_ACTIVATED');
@@ -120,9 +123,11 @@ function checkColdStartContract() {
   for (const required of [
     'LOCAL_RUNTIME_UNAVAILABLE',
     'HANDOFF_COLD_START_PASS',
+    COLD_START_GATE,
     PAIR_MAPPING_GATE,
+    'PENDING_REVALIDATION',
     'mutation count is zero',
-    'Accepted result',
+    'Regression rule',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
   }
