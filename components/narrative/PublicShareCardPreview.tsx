@@ -96,10 +96,12 @@ export default function PublicShareCardPreview({
               <p className={styles.relationBody}>{display.entryJa}</p>
             </div>
           )}
-          <div className={styles.relationReturn}>
-            <span className={styles.relationLabel}>戻りやすい方法</span>
-            <p className={styles.relationBody}>{display.returnJa}</p>
-          </div>
+          {display.returnJa ? (
+            <div className={styles.relationReturn}>
+              <span className={styles.relationLabel}>戻りやすい方法</span>
+              <p className={styles.relationBody}>{display.returnJa}</p>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

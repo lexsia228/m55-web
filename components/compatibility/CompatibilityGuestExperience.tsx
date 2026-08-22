@@ -371,7 +371,6 @@ export default function CompatibilityGuestExperience({
           <PairResultSignature
             overlap={result.free.overlap}
             difference={result.free.difference}
-            immediateAction={context.immediateAction}
           />
 
           <section className={styles.baselineSection} aria-labelledby="baseline-title">
@@ -418,13 +417,6 @@ export default function CompatibilityGuestExperience({
                 </li>
               ))}
             </ol>
-          </section>
-
-          <section className={styles.actionCard} aria-labelledby="action-title">
-            <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[3].index}</p>
-            <h3 id="action-title">{PAIR_READING_FREE_STRUCTURE_ITEMS[3].titleJa}</h3>
-            <p className={styles.actionText}>{context.immediateAction}</p>
-            <p className={styles.actionNote}>結果を決めるためではなく、二人の違いを確かめる一回分の行動です。</p>
           </section>
 
           {pairNarrative ? <PairManualBlock manual={pairNarrative.manualSpec} /> : null}

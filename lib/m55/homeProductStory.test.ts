@@ -141,7 +141,6 @@ describe('homeProductStory — pair free dedicated section', () => {
         '二人の変わりにくい土台',
         '今の二人に表れやすいこと',
         '二人の間で続きやすい連鎖',
-        '次に一度だけ試すこと',
       ],
     );
     assert.deepEqual(PAIR_READING_GUEST_SUPPORT_LINES, [

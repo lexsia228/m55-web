@@ -63,11 +63,10 @@ describe('pair free surface wiring', () => {
     const insightSpec = read('lib/m55/compatibility/pairFreeInsightSpecV2.ts');
     assert.doesNotMatch(insightSpec, /pairReadingFingerprint/);
     assert.match(guest, /result\.free\.overlap/);
-    assert.match(guest, /context\.immediateAction/);
-    const shareAt = guest.indexOf('<PairFreeShareCTA');
-    const actionAt = guest.indexOf('styles.actionCard');
+    const manualAt = guest.indexOf('<PairManualBlock');
     const bridgeAt = guest.indexOf('この二人の続きとして読めること');
-    assert.ok(actionAt > 0 && shareAt > actionAt, 'share must follow the action block');
+    const shareAt = guest.indexOf('<PairFreeShareCTA');
+    assert.ok(manualAt > 0 && shareAt > manualAt, 'share must follow the manual block');
     assert.ok(shareAt > bridgeAt, 'narrative overlay places sanitized share after the paid teaser');
   });
 
@@ -75,6 +74,7 @@ describe('pair free surface wiring', () => {
     const sig = read('components/compatibility/PairResultSignature.tsx');
     const share = read('lib/m55/compatibility/privacySafePairShare.ts');
     const blob = sig + share;
+    assert.doesNotMatch(sig, /immediateAction|次に一度だけ試す/);
     assert.doesNotMatch(blob, /%|相性点数|zodiac|dashboard|node map|heart|ハート|運命/);
     assert.doesNotMatch(share, /personA|personB|overlap|difference|immediateAction/);
   });

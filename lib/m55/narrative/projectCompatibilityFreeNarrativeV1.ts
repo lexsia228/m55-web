@@ -8,7 +8,7 @@ import {
   type M55NarrativeSpecV1,
   type ShareCandidateV1,
 } from './m55NarrativeSpecV1';
-import { compactSentencesJa, firstSentenceJa } from './narrativeSafetyV1';
+import { compactSentencesJa } from './narrativeSafetyV1';
 import { buildPairManualV1, buildPairPublicManualLines } from './pairManualV1';
 
 export function projectCompatibilityFreeNarrativeV1(input: {
@@ -23,7 +23,7 @@ export function projectCompatibilityFreeNarrativeV1(input: {
       variant: 'pair_manual',
       labelJa: '二人の取扱説明書',
       headlineJa: '二人の取扱説明書',
-      bodyJa: `すれ違いの入口：${publicLines.entryJa}\n戻りやすい方法：${publicLines.returnJa}`,
+      bodyJa: `すれ違いの入口：${publicLines.entryJa}`,
       ctaJa: 'あなたの二人では、どう出る？',
       provenanceIds: [spec.interactionId, spec.id],
     },
@@ -50,12 +50,7 @@ export function projectCompatibilityFreeNarrativeV1(input: {
       { text: spec.misreadLoop, provenanceIds: [`${spec.interactionId}.loop`] },
     ],
     manualSpec: manual,
-    actions: [
-      {
-        text: firstSentenceJa(spec.reset),
-        provenanceIds: [`${spec.interactionId}.reset`],
-      },
-    ],
+    actions: [],
     shareCandidates,
     inferenceIds: [spec.id, spec.interactionId, spec.manifestationPatternId],
   };
