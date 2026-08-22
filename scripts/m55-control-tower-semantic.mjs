@@ -1,15 +1,102 @@
 /**
  * Shared semantic authority parser for M55 Control Tower.
- * Sole NEXT SINGLE ACTION owner: M55_CURRENT_STATE.md CURRENT section.
+ * Sole executable NEXT owner: docs/ssot/M55_EXECUTION_STATE.json.
+ * M55_CURRENT_STATE.md remains narrative/history while the execution-state file
+ * explicitly supersedes its legacy executable fields.
  */
 
-export const SEMANTIC_AUTHORITY_SECTION =
+export const EXECUTION_STATE_PATH = 'docs/ssot/M55_EXECUTION_STATE.json';
+export const LEGACY_SEMANTIC_AUTHORITY_SECTION =
   '## PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)';
 
 const COMPLETED_SUBGATES_HEADING = '### Completed sub-gates (CLOSED — do not replay)';
 
-export function extractSemanticAuthorityBlock(src) {
-  const start = src.indexOf(SEMANTIC_AUTHORITY_SECTION);
+export function normalizeGateToken(value) {
+  return String(value ?? '')
+    .replace(/\*\*/g, '')
+    .replace(/`/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+}
+
+export function parseExecutionState(src) {
+  let state;
+  try {
+    state = JSON.parse(src);
+  } catch (error) {
+    return { state: null, errors: [`invalid M55_EXECUTION_STATE.json: ${error.message}`] };
+  }
+  return { state, errors: [] };
+}
+
+export function validateExecutionState(src) {
+  const { state, errors } = parseExecutionState(src);
+  if (!state) return { state, errors };
+
+  const requiredStrings = [
+    'schemaVersion',
+    'status',
+    'semanticAuthorityOwner',
+    'macroLane',
+    'currentExecutionGate',
+    'nextSingleAction',
+    'productWorkAfterControlTower',
+    'pairImplementation',
+    'pairPremium',
+  ];
+  for (const key of requiredStrings) {
+    if (typeof state[key] !== 'string' || !state[key].trim()) {
+      errors.push(`execution state missing non-empty string: ${key}`);
+    }
+  }
+
+  if (state.semanticAuthorityOwner !== EXECUTION_STATE_PATH) {
+    errors.push(`semanticAuthorityOwner must be ${EXECUTION_STATE_PATH}`);
+  }
+  if (normalizeGateToken(state.currentExecutionGate) !== normalizeGateToken(state.nextSingleAction)) {
+    errors.push('CURRENT EXECUTION GATE and NEXT SINGLE ACTION must match');
+  }
+  if (!Array.isArray(state.completedSubGates) || state.completedSubGates.length === 0) {
+    errors.push('execution state missing completedSubGates');
+  } else {
+    const next = normalizeGateToken(state.nextSingleAction);
+    for (const completed of state.completedSubGates) {
+      if (normalizeGateToken(completed) === next) {
+        errors.push(`NEXT SINGLE ACTION is already completed: ${completed}`);
+      }
+    }
+  }
+  if (state.pairFreeToPaidMappingAuthorizedNow !== false) {
+    errors.push('Pair free→paid mapping must remain unauthorized during cold-start acceptance');
+  }
+  if (state.acceptance?.requiredBeforePairMapping !== 'HANDOFF_COLD_START_PASS') {
+    errors.push('execution state must require HANDOFF_COLD_START_PASS before Pair mapping');
+  }
+  if (!state.postMergeTransition?.mergeCommit || !state.postMergeTransition?.featureHeadAtClosure) {
+    errors.push('execution state missing postMergeTransition identity');
+  }
+  if (state.postMergeTransition?.productionStateObserved !== 'READY') {
+    errors.push('post-merge Production observation must be READY at this transition revision');
+  }
+  if (state.postMergeTransition?.productionShaObserved !== state.postMergeTransition?.mergeCommit) {
+    errors.push('Production SHA observation must match mergeCommit');
+  }
+  if (state.freshnessPolicy?.chatMemoryIsAuthority !== false) {
+    errors.push('chat memory must never be authority');
+  }
+  if (state.freshnessPolicy?.newChatIsInvalidation !== false) {
+    errors.push('new chat must never count as invalidation');
+  }
+  if (state.freshnessPolicy?.authorityConflictMustStop !== true) {
+    errors.push('authority conflict must be fail-closed');
+  }
+
+  return { state, errors };
+}
+
+export function extractLegacySemanticAuthorityBlock(src) {
+  const start = src.indexOf(LEGACY_SEMANTIC_AUTHORITY_SECTION);
   if (start === -1) return '';
   const next = src.indexOf('\n## ', start + 4);
   return next === -1 ? src.slice(start) : src.slice(start, next);
@@ -34,93 +121,32 @@ export function parseCompletedSubGates(block) {
     .map((line) => line.slice(2).trim());
 }
 
-function normalizeGateToken(value) {
-  return value
-    .replace(/\*\*/g, '')
-    .replace(/`/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toUpperCase();
-}
-
-export function parseSemanticAuthority(src) {
-  const block = extractSemanticAuthorityBlock(src);
-  const completedSubGates = parseCompletedSubGates(block);
-
+export function parseLegacySemanticAuthority(src) {
+  const block = extractLegacySemanticAuthorityBlock(src);
   return {
     block,
     macroLane: parseTableField(block, 'Macro lane'),
-    macroRoadmapStage: parseTableField(block, 'Macro roadmap stage'),
     currentExecutionGate: parseTableField(block, 'CURRENT EXECUTION GATE'),
     nextSingleAction: parseTableField(block, 'NEXT SINGLE ACTION'),
-    productWorkAfterControlTower: parseTableField(block, 'Product work after control tower'),
-    localPreservedProductWork: parseTableField(block, 'Local preserved product work'),
-    completedSubGates,
+    completedSubGates: parseCompletedSubGates(block),
     worktree: parseTableField(block, 'worktree'),
     branch: parseTableField(block, 'branch'),
   };
 }
 
-export function validateSemanticAuthority(src, { checkRoadmap = null } = {}) {
-  const errors = [];
-  const authority = parseSemanticAuthority(src);
-
-  if (!authority.block) {
-    errors.push('missing semantic authority section in M55_CURRENT_STATE.md');
-    return { authority, errors };
+export function detectLegacyExecutionDrift(executionState, legacyCurrentStateSrc) {
+  const legacy = parseLegacySemanticAuthority(legacyCurrentStateSrc);
+  if (!legacy.block) {
+    return { legacy, drift: true, reason: 'legacy CURRENT_STATE semantic section missing' };
   }
-
-  if (!authority.macroLane) errors.push('missing Macro lane in semantic authority section');
-  if (!authority.currentExecutionGate) {
-    errors.push('missing CURRENT EXECUTION GATE in semantic authority section');
-  }
-  if (!authority.nextSingleAction) {
-    errors.push('missing NEXT SINGLE ACTION in semantic authority section');
-  }
-  if (authority.completedSubGates.length === 0) {
-    errors.push('missing completed sub-gates list in semantic authority section');
-  }
-
-  const nextNorm = normalizeGateToken(authority.nextSingleAction ?? '');
-  if (nextNorm.includes('READ-ONLY-MAPPING')) {
-    errors.push('NEXT SINGLE ACTION still points to Wave 0 read-only mapping');
-  }
-
-  for (const completed of authority.completedSubGates) {
-    const completedNorm = normalizeGateToken(completed);
-    if (!nextNorm || !completedNorm) continue;
-    if (completedNorm.includes(nextNorm) || nextNorm.includes(completedNorm.split('—')[0].trim())) {
-      errors.push(`NEXT SINGLE ACTION conflicts with completed sub-gate: ${completed}`);
-    }
-    if (
-      completedNorm.includes('READ-ONLY-MAPPING') &&
-      (nextNorm.includes('READ-ONLY-MAPPING') || nextNorm.includes('WAVE0'))
-    ) {
-      errors.push('Wave 0 read-only mapping cannot be both completed and NEXT SINGLE ACTION');
-    }
-  }
-
-  if (checkRoadmap) {
-    const waveSectionStart = checkRoadmap.indexOf('## Pair lane entrance — Wave 0 Live paid DTR readability (CURRENT)');
-    if (waveSectionStart !== -1) {
-      const waveSectionEnd = checkRoadmap.indexOf('\n## ', waveSectionStart + 4);
-      const waveSection =
-        waveSectionEnd === -1 ? checkRoadmap.slice(waveSectionStart) : checkRoadmap.slice(waveSectionStart, waveSectionEnd);
-      if (/NEXT SINGLE ACTION:\s*`CATEGORY-1-M55-PAIR-WAVE0/i.test(waveSection)) {
-        errors.push('M55_ROADMAP Wave 0 section still owns an executable mapping NEXT SINGLE ACTION');
-      }
-    }
-  }
-
-  const nextActionRows = [...authority.block.matchAll(/\|\s*NEXT SINGLE ACTION\s*\|/g)];
-  if (nextActionRows.length !== 1) {
-    errors.push('semantic authority section must contain exactly one NEXT SINGLE ACTION table row');
-  }
-
-  const executionGateRows = [...authority.block.matchAll(/\|\s*CURRENT EXECUTION GATE\s*\|/g)];
-  if (executionGateRows.length !== 1) {
-    errors.push('semantic authority section must contain exactly one CURRENT EXECUTION GATE table row');
-  }
-
-  return { authority, errors };
+  const effectiveNext = normalizeGateToken(executionState?.nextSingleAction);
+  const legacyNext = normalizeGateToken(legacy.nextSingleAction);
+  const drift = effectiveNext !== legacyNext;
+  return {
+    legacy,
+    drift,
+    reason: drift
+      ? `legacy CURRENT_STATE NEXT (${legacy.nextSingleAction ?? 'missing'}) differs from execution owner (${executionState?.nextSingleAction ?? 'missing'})`
+      : null,
+  };
 }
