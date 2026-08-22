@@ -94,7 +94,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **No unplanned worktrees** — confirm `pwd`, branch, HEAD, `git status`, and `git worktree list` before local editing.
 - **Do not infer purpose from folder names** — Git branch, HEAD, and worktree registry are authority for ownership.
 - **DO_NOT_USE worktrees** — never edit; never reset / clean / stash dirty trees without explicit Human instruction.
-- **Registry drift** — unexplained drift between live `git worktree list` and durable ownership → **STOP and report**. A **documented post-merge transition** with fresh merge/containment evidence is not unexplained drift; reconcile the registry snapshot under the authorized transition instead of treating history as live state.
+- **Registry drift** — unexplained drift between live `git worktree list` and durable ownership → **STOP and report**. A **Documented post-merge transition** with fresh merge/containment evidence is not unexplained drift; reconcile the registry snapshot under the authorized transition instead of treating history as live state.
 - **Read authority before source changes** — especially price, copy, and funnel flow.
 - **Stop and report** if executable state and required fresh evidence contradict each other.
 - **Commercial quality closure** — user-visible surfaces require `USER_VISIBLE_CLOSED_GREEN` per `M55_COMMERCIAL_QUALITY_CONTRACT.md`; technical GREEN alone is insufficient; Human visual approval is mandatory.
