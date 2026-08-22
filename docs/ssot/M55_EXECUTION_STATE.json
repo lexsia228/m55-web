@@ -1,15 +1,15 @@
 {
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-08-22T09:43:00Z",
+  "updatedAt": "2026-08-22T10:53:00Z",
   "macroLane": "PAIR LANE",
-  "currentExecutionGate": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
-  "nextSingleAction": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
+  "currentExecutionGate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
+  "nextSingleAction": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
   "productWorkAfterControlTower": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
   "pairImplementation": "NOT_STARTED",
   "pairPremium": "NOT_ACTIVATED",
-  "pairFreeToPaidMappingAuthorizedNow": false,
+  "pairFreeToPaidMappingAuthorizedNow": true,
   "legacyExecutionFieldsSuperseded": true,
   "legacyNarrativeStateFile": "docs/ssot/M55_CURRENT_STATE.md",
   "completedSubGates": [
@@ -19,7 +19,8 @@
     "SKU-CAPABILITY-REGRESSION-PREVENTION",
     "PHASE-B-PR-150-MERGE",
     "PHASE-B-PRODUCTION-READY",
-    "CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL"
+    "CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL",
+    "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN"
   ],
   "postMergeTransition": {
     "prNumber": 150,
@@ -45,6 +46,21 @@
     "productionShaObserved": "201c883112e9c0a85ee7689f1d23fa1ee16f570b",
     "observedAt": "2026-08-22T09:21:00Z"
   },
+  "controlTowerRevalidationTransition": {
+    "prNumber": 152,
+    "featureBranch": "fix/m55-control-tower-handoff-closure-v1",
+    "featureHeadAtClosure": "a423e2e5dcb6e7292747f3f6d9affc5c43d697ca",
+    "mergeCommit": "92279c3abaf7520384c3d109f85ecd17d644a9d7",
+    "productionDeploymentId": "dpl_5rUUzySBkQ8Vs1sBPKqhDtPk1DdS",
+    "productionStateObserved": "READY",
+    "productionTargetObserved": "production",
+    "productionBranchObserved": "main",
+    "productionShaObserved": "92279c3abaf7520384c3d109f85ecd17d644a9d7",
+    "blackBoxRegressionResult": "HANDOFF_COLD_START_PASS",
+    "blackBoxRegressionMutationsObserved": 0,
+    "humanAccepted": true,
+    "observedAt": "2026-08-22T10:53:00Z"
+  },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,
     "newChatIsInvalidation": false,
@@ -63,13 +79,14 @@
     "previousZeroMemoryOnePrompt": true,
     "previousLocalRuntimeHandlingCorrect": true,
     "previousMutationsObserved": 0,
-    "revalidationRequired": true,
-    "revalidationReason": "PR #152 changes handoff semantic/verifier/context/acceptance-contract behavior after the accepted run",
-    "latestResult": "PENDING_REVALIDATION",
-    "latestResultAcceptedByHuman": false,
-    "zeroMemoryOnePrompt": null,
-    "localRuntimeHandlingCorrect": null,
-    "mutationsObserved": null,
+    "revalidationRequired": false,
+    "revalidationReason": "PR #152 handoff mechanism changes were revalidated after merge and READY Production deployment by a fresh zero-memory one-prompt black-box regression",
+    "latestResult": "HANDOFF_COLD_START_PASS",
+    "latestResultAcceptedByHuman": true,
+    "acceptedAt": "2026-08-22T10:53:00Z",
+    "zeroMemoryOnePrompt": true,
+    "localRuntimeHandlingCorrect": true,
+    "mutationsObserved": 0,
     "finalAdvanceAllowedFiles": [
       "docs/ssot/M55_EXECUTION_STATE.json"
     ]
