@@ -129,10 +129,30 @@ function buildFixtureState(overrides = {}) {
   };
 }
 
+function verifyExecutionStatePolicy(state) {
+  const failures = [];
+  const { errors } = validateExecutionState(JSON.stringify(state));
+  failures.push(...errors);
+  if (!state) return failures;
+
+  if (!state.completedSubGates?.includes(PAIR_MAPPING_GATE)) {
+    failures.push('Pair free→paid mapping must remain durably complete in completedSubGates');
+  }
+
+  return failures;
+}
+
 function expectValidationPass(label, state) {
   const { errors } = validateExecutionState(JSON.stringify(state));
   if (errors.length > 0) {
     fail(`semantic self-test ${label} expected PASS but failed: ${errors.join('; ')}`);
+  }
+}
+
+function expectPolicyPass(label, state) {
+  const failures = verifyExecutionStatePolicy(state);
+  if (failures.length > 0) {
+    fail(`policy self-test ${label} expected PASS but failed: ${failures.join('; ')}`);
   }
 }
 
@@ -169,12 +189,14 @@ function runSemanticSelfTests() {
     }),
   );
 
-  expectValidationPass(
+  expectPolicyPass(
     'later normal product gate without mechanism edits',
     buildFixtureState({
       currentExecutionGate: 'PAIR-UX-REVIEW-FIRST',
       nextSingleAction: 'PAIR-UX-REVIEW-FIRST',
       productWorkAfterControlTower: 'PAIR-UX-REVIEW-FIRST',
+      pairImplementation: 'COMPLETE',
+      pairPremium: 'DEFERRED',
       completedSubGates: [...BASE_COMPLETED_SUBGATES, PAIR_MAPPING_GATE, PAIR_MINIMAL_IMPLEMENTATION_GATE],
       acceptance: {
         ...buildFixtureState().acceptance,
@@ -262,18 +284,9 @@ function checkPackageContextScript() {
 function checkExecutionState() {
   const src = read(EXECUTION_STATE_PATH);
   const current = read('docs/ssot/M55_CURRENT_STATE.md');
-  const { state, errors } = validateExecutionState(src);
-  for (const message of errors) fail(message);
+  const { state } = validateExecutionState(src);
+  for (const message of verifyExecutionStatePolicy(state)) fail(message);
   if (!state) return;
-
-  if (state.pairImplementation !== 'NOT_STARTED') fail('Pair implementation must remain NOT_STARTED');
-  if (state.pairPremium !== 'NOT_ACTIVATED') fail('Pair Premium must remain NOT_ACTIVATED');
-  if (!state.completedSubGates?.includes(PAIR_MAPPING_GATE)) {
-    fail('Pair free→paid mapping must remain durably complete in completedSubGates');
-  }
-  if (state.productWorkAfterControlTower !== PAIR_MINIMAL_IMPLEMENTATION_GATE) {
-    fail('next product gate after revalidation must be PAIR-MINIMAL-IMPLEMENTATION');
-  }
 
   const legacy = detectLegacyExecutionDrift(state, current);
   if (legacy.drift && state.legacyExecutionFieldsSuperseded !== true) {

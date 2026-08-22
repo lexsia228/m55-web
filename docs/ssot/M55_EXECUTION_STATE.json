@@ -80,7 +80,7 @@
     "blackBoxRegressionResult": "HANDOFF_COLD_START_PASS",
     "blackBoxRegressionMutationsObserved": 0,
     "humanAccepted": true,
-    "observedAt": "2026-08-22T10:53:00Z"
+    "observedAt": "2026-08-22T11:57:51Z"
   },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,
