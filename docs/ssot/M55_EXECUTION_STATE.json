@@ -1,15 +1,15 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-08-22T09:26:00Z",
+  "updatedAt": "2026-08-22T09:43:00Z",
   "macroLane": "PAIR LANE",
-  "currentExecutionGate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
-  "nextSingleAction": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
+  "currentExecutionGate": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
+  "nextSingleAction": "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
   "productWorkAfterControlTower": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
   "pairImplementation": "NOT_STARTED",
   "pairPremium": "NOT_ACTIVATED",
-  "pairFreeToPaidMappingAuthorizedNow": true,
+  "pairFreeToPaidMappingAuthorizedNow": false,
   "legacyExecutionFieldsSuperseded": true,
   "legacyNarrativeStateFile": "docs/ssot/M55_CURRENT_STATE.md",
   "completedSubGates": [
@@ -19,8 +19,7 @@
     "SKU-CAPABILITY-REGRESSION-PREVENTION",
     "PHASE-B-PR-150-MERGE",
     "PHASE-B-PRODUCTION-READY",
-    "CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL",
-    "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN"
+    "CONTROL-TOWER-COLD-START-ACCEPTANCE-INITIAL"
   ],
   "postMergeTransition": {
     "prNumber": 150,
@@ -58,11 +57,21 @@
     "requiredBeforePairMapping": "HANDOFF_COLD_START_PASS",
     "acceptanceContract": "docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md",
     "mutationDuringAcceptance": "PROHIBITED",
-    "latestResult": "HANDOFF_COLD_START_PASS",
-    "latestResultAcceptedByHuman": true,
-    "acceptedAt": "2026-08-22T09:26:00Z",
-    "zeroMemoryOnePrompt": true,
-    "localRuntimeUnavailableHandledCorrectly": true,
-    "mutationsObserved": 0
+    "previousAcceptedResult": "HANDOFF_COLD_START_PASS",
+    "previousAcceptedResultAcceptedByHuman": true,
+    "previousAcceptedAt": "2026-08-22T09:26:00Z",
+    "previousZeroMemoryOnePrompt": true,
+    "previousLocalRuntimeHandlingCorrect": true,
+    "previousMutationsObserved": 0,
+    "revalidationRequired": true,
+    "revalidationReason": "PR #152 changes handoff semantic/verifier/context/acceptance-contract behavior after the accepted run",
+    "latestResult": "PENDING_REVALIDATION",
+    "latestResultAcceptedByHuman": false,
+    "zeroMemoryOnePrompt": null,
+    "localRuntimeHandlingCorrect": null,
+    "mutationsObserved": null,
+    "finalAdvanceAllowedFiles": [
+      "docs/ssot/M55_EXECUTION_STATE.json"
+    ]
   }
 }
