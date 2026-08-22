@@ -14,7 +14,6 @@ export default function DtrDrawerPreviewClient({
   ...props
 }: DtrFullReaderProps & {
   showLightUpgrade?: boolean;
-  initialOpenPanel?: 'chapter-1' | 'consult';
 }) {
   return (
     <>
