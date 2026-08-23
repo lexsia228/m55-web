@@ -6,6 +6,10 @@ import {
   M55_PUBLIC_SUPPORT_EMAIL,
   M55_PUBLIC_SUPPORT_MAILTO,
 } from "../../../lib/m55/accountDataControlPublicCopy";
+import {
+  COMPATIBILITY_REPORT_INCLUDED,
+  COMPATIBILITY_REPORT_PRODUCT_AUTHORITY,
+} from "../../../lib/m55/compatibility/compatibilityCommerceAuthority";
 
 export const metadata = {
   title: "特定商取引法に基づく表記 | M55",
@@ -79,7 +83,7 @@ export default function TokushohoPage() {
         </h2>
 
         <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.9 }}>
-          いずれも4章のプレミアムレポートを含むデジタル商品です。決済完了後にウェブ上で閲覧できます（物理配送はありません）。プレミアムレポートは購入時点の入力内容をもとにした読み返し用レポートです。
+          以下はデジタル商品の販売条件です。決済完了後にウェブ上で閲覧できます（物理配送はありません）。レポートは購入時点の入力内容をもとにした読み返し用です。
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -116,11 +120,30 @@ export default function TokushohoPage() {
               <li>参考：ライト ¥1,000 ＋ FULL化 ¥600 ＝ 合計¥1,600（最初からFULL ¥1,480）</li>
             </ul>
           </div>
+
+          <div>
+            <p style={{ margin: "0 0 4px" }}>
+              <strong>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</strong> — 二人の関係の違いとすれ違いの流れを、六つの場面から読み返す方向け
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              <li>販売価格：{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}</li>
+              <li>内容：相性レポート（{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.reportCount}件）</li>
+              <li>支払：一回払い（自動更新はありません）</li>
+              <li>追加読み解き：なし</li>
+              <li>
+                含まれるもの：
+                {COMPATIBILITY_REPORT_INCLUDED.join("、")}
+              </li>
+              <li>
+                入力：二人分の生年月日。回答はユーザー本人が行います（相手が回答したものではありません）
+              </li>
+            </ul>
+          </div>
         </div>
 
         <ul style={{ margin: "14px 0 0", paddingLeft: 18 }}>
           <li>提供方法：決済完了後にウェブ上でデジタル閲覧（ダウンロード販売ではなく、サイト内での閲覧を主とします）。</li>
-          <li>追加読み解きは、プレミアムレポートに紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。</li>
+          <li>追加読み解きは、個人向けプレミアムレポートに紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。二人の相性レポートには追加読み解きは含まれません。</li>
           <li>支払方法：クレジットカード（Link対応）</li>
           <li>代金の支払時期：ご注文時に決済が確定します。なお、実際の引落時期は、お客様がご利用の決済手段（クレジットカード等）の契約内容や各社の定めにより異なります。</li>
           <li>表示価格以外の追加料金はありません。ただし、通信料等は利用者の負担となります。</li>
