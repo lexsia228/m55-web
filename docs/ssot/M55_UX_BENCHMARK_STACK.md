@@ -40,6 +40,10 @@ All resulting copy and design must be **newly expressed as M55**.
 
 ### with
 
+Official reference:
+
+`https://with.is/`
+
 Role:
 
 - Japanese relationship UX
@@ -50,6 +54,10 @@ Role:
 
 ### The Pattern
 
+Official reference:
+
+`https://www.thepattern.com/`
+
 Role:
 
 - introspective relationship language
@@ -58,6 +66,10 @@ Role:
 - depth without prediction or judgment
 
 ### Paired
+
+Official reference:
+
+`https://www.paired.com/`
 
 Role:
 
@@ -68,6 +80,10 @@ Role:
 
 ### Co–Star
 
+Official reference:
+
+`https://www.costarastrology.com/`
+
 Role:
 
 - personalized paid-reading merchandising
@@ -75,6 +91,10 @@ Role:
 - packaging a one-time personalized reading
 
 ### Stripe
+
+Official reference:
+
+`https://stripe.com/`
 
 Role:
 
@@ -84,12 +104,26 @@ Role:
 
 ### Baymard
 
+Official reference:
+
+`https://baymard.com/`
+
 Role:
 
 - checkout cognitive-load guardrail
 - duplication / friction reduction
 - order-summary clarity
 - vertical-distance / task-effort discipline
+
+### Canonical benchmark identity rule
+
+These URLs identify the frozen external references.
+
+They are **NOT** instructions to perform fresh competitor research every session.
+
+The durable pattern/role definitions in this SSOT are the ordinary implementation reference.
+
+Visiting/searching alternative competitor sites remains **prohibited** absent a valid reselection invalidator.
 
 ## Fixed surface mapping
 
@@ -146,7 +180,41 @@ Freeze exact shared owners:
 | Public shell owner | `app/_components/PublicShell.tsx` |
 | Shared header state owner | `components/shell/PublicHeaderContainer.tsx` |
 | Shared header renderer | `components/shell/PublicHeader.tsx` |
+| Header navigation/state contract | `lib/m55/commercialUx/publicHeaderState.ts` |
 | Shared footer owner | `app/_components/PublicFooter.tsx` |
+
+`PublicHeader.tsx` renders navigation from the shared header-state contract in `publicHeaderState.ts`.
+
+Agents must inspect `publicHeaderState.ts` before adding page-local or new site-wide navigation.
+
+If a requested navigation destination belongs site-wide: modify the shared header contract/renderer as appropriate.
+
+Do not add a page-local substitute because the existing header inventory was not discovered.
+
+Freeze current route inventory by group (route identity only; display labels remain terminology/copy authority):
+
+**Desktop primary (`DESKTOP_PRIMARY_NAV`):**
+
+- `/core`
+- `/dtr/lp`
+
+**About dropdown (`ABOUT_DROPDOWN_NAV`):**
+
+- `/how-m55-works`
+- `/ten-views`
+
+**Mobile public (`MOBILE_MENU_PUBLIC`):**
+
+- `/home`
+- `/core`
+- `/dtr/lp`
+- `/how-m55-works`
+- `/ten-views`
+
+**Signed-in account (`ACCOUNT_DROPDOWN_NAV`):**
+
+- `/dtr`
+- `/my`
 
 For routes using `PublicShell`, the shared Header and Footer **already exist**.
 

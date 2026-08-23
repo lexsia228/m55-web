@@ -74,8 +74,11 @@ A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the f
 - it does not advance product work while the execution state says revalidation is pending;
 - it does not start Pair implementation or Pair Premium activation unless execution state authorizes those gates;
 - it reconstructs from repository authority the fixed commercial UX benchmark stack, frozen surface mapping, research/reselection freeze, and valid reselection invalidators from `M55_UX_BENCHMARK_STACK.md`;
+- it reconstructs the exact official identity/domain for all six fixed external references (`with`, `The Pattern`, `Paired`, `Co–Star`, `Stripe`, `Baymard`) from `M55_UX_BENCHMARK_STACK.md`;
 - it reconstructs shared shell ownership (`PublicShell`, `PublicHeaderContainer` / `PublicHeader`, `PublicFooter`), site-wide footer legal/support ownership, and the rule that agents must not create duplicate page-local legal/support/header/footer when shared owners already provide the capability;
+- it reconstructs the header navigation/state contract owner `lib/m55/commercialUx/publicHeaderState.ts` and the exact current route inventory by group: desktop primary, About dropdown, mobile public, and signed-in account;
 - it cross-checks `M55_UX_BENCHMARK_STACK.md` shared chrome inventory against actual `PublicShell`, `PublicHeaderContainer`, `PublicHeader`, and `PublicFooter` source owners and STOPs on disagreement between SSOT inventory and live source truth;
+- it cross-checks `M55_UX_BENCHMARK_STACK.md` header navigation inventory against actual `publicHeaderState.ts` source; if inventory disagrees, **STOP / HANDOFF_COLD_START_FAIL**;
 - it recognizes that cross-site chrome changes belong in the shared owner, not duplicated components;
 - mutation count is zero.
 

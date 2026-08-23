@@ -345,11 +345,30 @@ const FOOTER_ROUTE_PATHS = [
   '/legal/tokushoho',
 ];
 
+const HEADER_STATE_PATH = 'lib/m55/commercialUx/publicHeaderState.ts';
+
+const CANONICAL_BENCHMARK_URLS = [
+  'https://with.is/',
+  'https://www.thepattern.com/',
+  'https://www.paired.com/',
+  'https://www.costarastrology.com/',
+  'https://stripe.com/',
+  'https://baymard.com/',
+];
+
+const HEADER_NAV_GROUPS = {
+  DESKTOP_PRIMARY_NAV: ['/core', '/dtr/lp'],
+  ABOUT_DROPDOWN_NAV: ['/how-m55-works', '/ten-views'],
+  MOBILE_MENU_PUBLIC: ['/home', '/core', '/dtr/lp', '/how-m55-works', '/ten-views'],
+  ACCOUNT_DROPDOWN_NAV: ['/dtr', '/my'],
+};
+
 const SHARED_CHROME_SOURCE = {
   publicShell: 'app/_components/PublicShell.tsx',
   publicHeaderContainer: 'components/shell/PublicHeaderContainer.tsx',
   publicHeader: 'components/shell/PublicHeader.tsx',
   publicFooter: 'app/_components/PublicFooter.tsx',
+  publicHeaderState: HEADER_STATE_PATH,
 };
 
 function collectSharedChromeSourceFailures(shellSrc, headerContainerSrc, footerSrc) {
@@ -375,17 +394,91 @@ function collectSharedChromeSourceFailures(shellSrc, headerContainerSrc, footerS
   return failures;
 }
 
+function extractSourceNavGroupBlock(src, groupName) {
+  const marker = `export const ${groupName}`;
+  const start = src.indexOf(marker);
+  if (start === -1) return '';
+  const end = src.indexOf('];', start);
+  if (end === -1) return '';
+  return src.slice(start, end + 2);
+}
+
+function extractBenchmarkNavGroupBlock(src, groupName) {
+  const label =
+    groupName === 'DESKTOP_PRIMARY_NAV'
+      ? 'Desktop primary'
+      : groupName === 'ABOUT_DROPDOWN_NAV'
+        ? 'About dropdown'
+        : groupName === 'MOBILE_MENU_PUBLIC'
+          ? 'Mobile public'
+          : 'Signed-in account';
+  const marker = `**${label} (\`${groupName}\`):**`;
+  const start = src.indexOf(marker);
+  if (start === -1) return '';
+  const nextHeading = src.indexOf('**', start + marker.length);
+  const end = nextHeading === -1 ? src.length : nextHeading;
+  return src.slice(start, end);
+}
+
+function collectHeaderNavSourceFailures(headerStateSrc) {
+  const failures = [];
+
+  for (const [groupName, routes] of Object.entries(HEADER_NAV_GROUPS)) {
+    const block = extractSourceNavGroupBlock(headerStateSrc, groupName);
+    if (!block) {
+      failures.push(`publicHeaderState source missing nav group: ${groupName}`);
+      continue;
+    }
+    for (const route of routes) {
+      if (!block.includes(route)) {
+        failures.push(`publicHeaderState source missing route in ${groupName}: ${route}`);
+      }
+    }
+  }
+
+  return failures;
+}
+
+function collectHeaderNavBenchmarkFailures(benchmarkSrc) {
+  const failures = [];
+
+  if (!benchmarkSrc.includes(HEADER_STATE_PATH)) {
+    failures.push(`benchmark SSOT missing header state owner: ${HEADER_STATE_PATH}`);
+  }
+
+  for (const [groupName, routes] of Object.entries(HEADER_NAV_GROUPS)) {
+    const block = extractBenchmarkNavGroupBlock(benchmarkSrc, groupName);
+    if (!block) {
+      failures.push(`benchmark SSOT missing header nav group: ${groupName}`);
+      continue;
+    }
+    for (const route of routes) {
+      if (!block.includes(route)) {
+        failures.push(`benchmark SSOT missing header route in ${groupName}: ${route}`);
+      }
+    }
+  }
+
+  return failures;
+}
+
 function checkSharedChromeSourceTruth() {
   for (const rel of SHARED_CHROME_OWNER_PATHS) {
     if (!exists(rel)) fail(`missing shared chrome source file: ${rel}`);
   }
+  if (!exists(HEADER_STATE_PATH)) fail(`missing shared chrome source file: ${HEADER_STATE_PATH}`);
 
   const shellSrc = read(SHARED_CHROME_SOURCE.publicShell);
   const headerContainerSrc = read(SHARED_CHROME_SOURCE.publicHeaderContainer);
   const footerSrc = read(SHARED_CHROME_SOURCE.publicFooter);
+  const headerStateSrc = read(SHARED_CHROME_SOURCE.publicHeaderState);
   const benchmarkSrc = read(BENCHMARK_STACK_PATH);
 
   for (const message of collectSharedChromeSourceFailures(shellSrc, headerContainerSrc, footerSrc)) {
+    fail(message);
+  }
+
+  for (const message of collectHeaderNavSourceFailures(headerStateSrc)) {
     fail(message);
   }
 
@@ -394,12 +487,17 @@ function checkSharedChromeSourceTruth() {
       fail(`benchmark SSOT missing footer route for source cross-check: ${route}`);
     }
   }
+
+  for (const message of collectHeaderNavBenchmarkFailures(benchmarkSrc)) {
+    fail(message);
+  }
 }
 
 function runSharedChromeSourceNegativeSelfTests() {
   const shellSrc = read(SHARED_CHROME_SOURCE.publicShell);
   const headerContainerSrc = read(SHARED_CHROME_SOURCE.publicHeaderContainer);
   const footerSrc = read(SHARED_CHROME_SOURCE.publicFooter);
+  const headerStateSrc = read(SHARED_CHROME_SOURCE.publicHeaderState);
 
   const cases = [
     {
@@ -445,6 +543,29 @@ function runSharedChromeSourceNegativeSelfTests() {
       fail(`shared chrome source self-test ${testCase.label} expected FAIL but passed`);
     }
   }
+
+  const headerNavCases = [
+    {
+      label: 'removed /core from desktop inventory',
+      mutated: headerStateSrc.replace(
+        'export const DESKTOP_PRIMARY_NAV: PublicHeaderNavItem[] = [\n  { href: \'/core\', label: T.freeEntry },\n  { href: \'/dtr/lp\', label: T.premiumProduct },\n];',
+        'export const DESKTOP_PRIMARY_NAV: PublicHeaderNavItem[] = [\n  { href: \'/dtr/lp\', label: T.premiumProduct },\n];',
+      ),
+    },
+    {
+      label: 'removed /my from account inventory',
+      mutated: headerStateSrc.replace(
+        'export const ACCOUNT_DROPDOWN_NAV: PublicHeaderNavItem[] = [\n  { href: \'/dtr\', label: \'マイレポート\' },\n  { href: \'/my\', label: \'マイページ\' },\n];',
+        'export const ACCOUNT_DROPDOWN_NAV: PublicHeaderNavItem[] = [\n  { href: \'/dtr\', label: \'マイレポート\' },\n];',
+      ),
+    },
+  ];
+
+  for (const testCase of headerNavCases) {
+    if (collectHeaderNavSourceFailures(testCase.mutated).length === 0) {
+      fail(`header nav source self-test ${testCase.label} expected FAIL but passed`);
+    }
+  }
 }
 
 const BENCHMARK_HEADINGS = [
@@ -471,6 +592,14 @@ const SHARED_CHROME_OWNER_PATHS = [
   'components/shell/PublicHeaderContainer.tsx',
   'components/shell/PublicHeader.tsx',
   'app/_components/PublicFooter.tsx',
+  HEADER_STATE_PATH,
+];
+
+const CANONICAL_IDENTITY_RULE_TOKENS = [
+  'These URLs identify the frozen external references.',
+  'They are **NOT** instructions to perform fresh competitor research every session.',
+  'The durable pattern/role definitions in this SSOT are the ordinary implementation reference.',
+  'Visiting/searching alternative competitor sites remains **prohibited** absent a valid reselection invalidator.',
 ];
 
 const FOOTER_DESTINATION_LINES = [
@@ -516,12 +645,15 @@ function collectBenchmarkStackFailures(src) {
   requireToken('Ad-hoc competitor research is **prohibited**');
 
   for (const heading of BENCHMARK_HEADINGS) requireToken(heading);
+  for (const url of CANONICAL_BENCHMARK_URLS) requireToken(url);
+  for (const token of CANONICAL_IDENTITY_RULE_TOKENS) requireToken(token);
   for (const row of SURFACE_MAPPING_ROWS) requireToken(row);
   for (const ownerPath of SHARED_CHROME_OWNER_PATHS) requireToken(ownerPath);
   for (const destination of FOOTER_DESTINATION_LINES) requireToken(destination);
   for (const token of DUPLICATION_RULE_TOKENS) requireToken(token);
   for (const invalidator of RESELECTION_INVALIDATORS) requireToken(invalidator);
   for (const nonInvalidator of RESELECTION_NON_INVALIDATORS) requireToken(nonInvalidator);
+  for (const message of collectHeaderNavBenchmarkFailures(src)) failures.push(message);
 
   return failures;
 }
@@ -549,6 +681,32 @@ function runBenchmarkStackNegativeSelfTests() {
     {
       label: 'removed Paired benchmark heading',
       mutated: src.replace('### Paired\n', ''),
+    },
+    {
+      label: 'removed one canonical domain',
+      mutated: src.replace('https://stripe.com/', ''),
+    },
+    {
+      label: 'changed with domain',
+      mutated: src.replace('https://with.is/', 'https://with.example/'),
+    },
+    {
+      label: 'removed /core from desktop inventory',
+      mutated: src.replace(
+        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/dtr/lp`\n',
+        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/dtr/lp`\n',
+      ),
+    },
+    {
+      label: 'removed /my from account inventory',
+      mutated: src.replace(
+        '**Signed-in account (`ACCOUNT_DROPDOWN_NAV`):**\n\n- `/dtr`\n- `/my`\n',
+        '**Signed-in account (`ACCOUNT_DROPDOWN_NAV`):**\n\n- `/dtr`\n',
+      ),
+    },
+    {
+      label: 'removed publicHeaderState owner path',
+      mutated: src.replace(HEADER_STATE_PATH, ''),
     },
   ];
 
@@ -610,6 +768,14 @@ function checkColdStartContract() {
     'must **not** return `HANDOFF_COLD_START_PASS`',
     'Cross-check shared chrome inventory against actual shell/header/footer source owners',
     'no expected gate token or benchmark name list in the prompt',
+    'exact official identity/domain for all six fixed external references',
+    HEADER_STATE_PATH,
+    'desktop primary',
+    'About dropdown',
+    'mobile public',
+    'signed-in account',
+    'cross-checks `M55_UX_BENCHMARK_STACK.md` header navigation inventory against actual',
+    'STOP / HANDOFF_COLD_START_FAIL',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
   }
