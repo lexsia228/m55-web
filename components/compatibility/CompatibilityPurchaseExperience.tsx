@@ -62,7 +62,7 @@ function ProductDetails() {
     <>
       <dl className={styles.details}>
         <div><dt>商品</dt><dd>二人の相性レポート</dd></div>
-        <div><dt>内容</dt><dd>6章レポート1件</dd></div>
+        <div><dt>内容</dt><dd>相性レポート1件</dd></div>
         <div><dt>価格</dt><dd className={styles.price}>¥1,480（税込）</dd></div>
         <div><dt>支払</dt><dd>一回払い</dd></div>
         <div><dt>自動更新</dt><dd>なし</dd></div>
@@ -193,9 +193,9 @@ export function CompatibilityPurchaseConfirmation({
       {journey ? (
         <>
           <div className={styles.personalization}>
-            <strong>現在の二人に合わせた6章</strong>
+            <strong>現在の二人に合わせた読み</strong>
             <span>今のfocus：{contextDisplay?.focusLabel}</span>
-            <small>無料結果で答えた現在の状況を、購入後の6章にも反映します。</small>
+            <small>無料結果で答えた現在の状況を、購入後のレポートにも反映します。</small>
           </div>
           <button
             type="button"
