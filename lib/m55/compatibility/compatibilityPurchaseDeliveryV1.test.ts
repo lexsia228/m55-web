@@ -508,15 +508,27 @@ describe('owned delivery, commercial copy, and analytics', () => {
     const source = read(
       'components/compatibility/CompatibilityPurchaseExperience.tsx',
     );
+    assert.match(
+      source,
+      /COMPATIBILITY_REPORT_PRODUCT_AUTHORITY\.publicName/,
+    );
+    assert.match(
+      source,
+      /COMPATIBILITY_REPORT_PRODUCT_AUTHORITY\.reportCount/,
+    );
+    assert.match(
+      source,
+      /COMPATIBILITY_REPORT_PRODUCT_AUTHORITY\.priceLabel/,
+    );
+    assert.match(source, /COMPATIBILITY_REPORT_INCLUDED\.map/);
+    assert.match(source, /このレポートで読めること/);
+    assert.match(source, /現在の二人に合わせた読み/);
+    assert.doesNotMatch(source, /6章/);
     for (const term of [
-      '二人の相性レポート',
-      '6章レポート1件',
-      '¥1,480（税込）',
       '一回払い',
       '自動更新',
       '支払い確認後にマイページへ表示',
       '決済前は内容を見直せます',
-      '現在の二人に合わせた6章',
       '購入したアカウントに保存',
       '相手への自動共有はありません',
       '/legal/tokushoho',
