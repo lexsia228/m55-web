@@ -337,14 +337,236 @@ function checkExecutionState() {
     fail(`legacy execution drift is ungoverned: ${legacy.reason}`);
   }
 }
+const FOOTER_ROUTE_PATHS = [
+  '/support',
+  '/legal/refund',
+  '/legal/terms',
+  '/legal/privacy',
+  '/legal/tokushoho',
+];
+
+const SHARED_CHROME_SOURCE = {
+  publicShell: 'app/_components/PublicShell.tsx',
+  publicHeaderContainer: 'components/shell/PublicHeaderContainer.tsx',
+  publicHeader: 'components/shell/PublicHeader.tsx',
+  publicFooter: 'app/_components/PublicFooter.tsx',
+};
+
+function collectSharedChromeSourceFailures(shellSrc, headerContainerSrc, footerSrc) {
+  const failures = [];
+  const requireIn = (label, src, token) => {
+    if (!src.includes(token)) failures.push(`shared chrome source ${label} missing: ${token}`);
+  };
+
+  requireIn('PublicShell', shellSrc, 'PublicHeaderContainer');
+  requireIn('PublicShell', shellSrc, 'PublicFooter');
+  requireIn('PublicShell', shellSrc, '<PublicHeaderContainer');
+  requireIn('PublicShell', shellSrc, '<PublicFooter');
+
+  requireIn('PublicHeaderContainer', headerContainerSrc, 'PublicHeader');
+  requireIn('PublicHeaderContainer', headerContainerSrc, '<PublicHeader');
+
+  for (const route of FOOTER_ROUTE_PATHS) {
+    if (!footerSrc.includes(route)) {
+      failures.push(`PublicFooter source missing route: ${route}`);
+    }
+  }
+
+  return failures;
+}
+
+function checkSharedChromeSourceTruth() {
+  for (const rel of SHARED_CHROME_OWNER_PATHS) {
+    if (!exists(rel)) fail(`missing shared chrome source file: ${rel}`);
+  }
+
+  const shellSrc = read(SHARED_CHROME_SOURCE.publicShell);
+  const headerContainerSrc = read(SHARED_CHROME_SOURCE.publicHeaderContainer);
+  const footerSrc = read(SHARED_CHROME_SOURCE.publicFooter);
+  const benchmarkSrc = read(BENCHMARK_STACK_PATH);
+
+  for (const message of collectSharedChromeSourceFailures(shellSrc, headerContainerSrc, footerSrc)) {
+    fail(message);
+  }
+
+  for (const route of FOOTER_ROUTE_PATHS) {
+    if (!benchmarkSrc.includes(route)) {
+      fail(`benchmark SSOT missing footer route for source cross-check: ${route}`);
+    }
+  }
+}
+
+function runSharedChromeSourceNegativeSelfTests() {
+  const shellSrc = read(SHARED_CHROME_SOURCE.publicShell);
+  const headerContainerSrc = read(SHARED_CHROME_SOURCE.publicHeaderContainer);
+  const footerSrc = read(SHARED_CHROME_SOURCE.publicFooter);
+
+  const cases = [
+    {
+      label: 'removed PublicHeaderContainer from PublicShell',
+      shell: shellSrc.replace(/PublicHeaderContainer/g, 'RemovedHeaderContainer'),
+      headerContainer: headerContainerSrc,
+      footer: footerSrc,
+    },
+    {
+      label: 'removed PublicFooter from PublicShell',
+      shell: shellSrc.replace(/PublicFooter/g, 'RemovedFooter'),
+      headerContainer: headerContainerSrc,
+      footer: footerSrc,
+    },
+    {
+      label: 'removed PublicHeader from PublicHeaderContainer',
+      shell: shellSrc,
+      headerContainer: headerContainerSrc.replace(/PublicHeader/g, 'RemovedHeader'),
+      footer: footerSrc,
+    },
+    {
+      label: 'removed /legal/privacy from PublicFooter',
+      shell: shellSrc,
+      headerContainer: headerContainerSrc,
+      footer: footerSrc.replace('/legal/privacy', ''),
+    },
+    {
+      label: 'removed /legal/tokushoho from PublicFooter',
+      shell: shellSrc,
+      headerContainer: headerContainerSrc,
+      footer: footerSrc.replace('/legal/tokushoho', ''),
+    },
+  ];
+
+  for (const testCase of cases) {
+    if (
+      collectSharedChromeSourceFailures(
+        testCase.shell,
+        testCase.headerContainer,
+        testCase.footer,
+      ).length === 0
+    ) {
+      fail(`shared chrome source self-test ${testCase.label} expected FAIL but passed`);
+    }
+  }
+}
+
+const BENCHMARK_HEADINGS = [
+  '### with',
+  '### The Pattern',
+  '### Paired',
+  '### Co–Star',
+  '### Stripe',
+  '### Baymard',
+];
+
+const SURFACE_MAPPING_ROWS = [
+  '| HOME | with + Co–Star | — |',
+  '| Free input / questionnaire | with | — |',
+  '| Free result | The Pattern + with | — |',
+  '| Pair free result | The Pattern + Paired | — |',
+  '| Premium bridge / purchase confirmation | Paired + Co–Star | Stripe + Baymard |',
+  '| Paid report / premium reading body | The Pattern + Paired | — |',
+  '| My Page / owned report / revisit | Paired + with | — |',
+];
+
+const SHARED_CHROME_OWNER_PATHS = [
+  'app/_components/PublicShell.tsx',
+  'components/shell/PublicHeaderContainer.tsx',
+  'components/shell/PublicHeader.tsx',
+  'app/_components/PublicFooter.tsx',
+];
+
+const FOOTER_DESTINATION_LINES = [
+  'Support (`/support`)',
+  'Refund (`/legal/refund`)',
+  'Terms (`/legal/terms`)',
+  'Privacy Policy (`/legal/privacy`)',
+  'Specified Commercial Transactions Act disclosure (`/legal/tokushoho`)',
+];
+
+const RESELECTION_INVALIDATORS = [
+  'Human changes primary UX target',
+  'reference service ends or materially changes',
+  'M55 product architecture materially changes',
+  'observed Production data materially rejects the current pattern',
+  'legal / accessibility / privacy conflict',
+  'Human explicitly authorizes benchmark reselection',
+];
+
+const RESELECTION_NON_INVALIDATORS = [
+  'A new AI found another attractive site',
+  'A new chat started',
+];
+
+const DUPLICATION_RULE_TOKENS = [
+  'the agent **must** inspect the shared owners above',
+  'If a site-wide destination already exists: **do not duplicate it locally**',
+  'If the requested improvement is site-wide: modify the shared owner instead of making another page-local copy',
+  'A page-local legal / support element is allowed only when',
+  'a product / legal contract explicitly requires proximity at that step',
+  'the shared footer is insufficient',
+  'the reason must be stated before mutation',
+  'Otherwise: **STOP / ROUTE CHANGE TO SHARED OWNER**',
+];
+
+function collectBenchmarkStackFailures(src) {
+  const failures = [];
+  const requireToken = (token) => {
+    if (!src.includes(token)) failures.push(`benchmark stack SSOT missing: ${token}`);
+  };
+
+  requireToken('M55 UX Benchmark Stack');
+  requireToken('Ad-hoc competitor research is **prohibited**');
+
+  for (const heading of BENCHMARK_HEADINGS) requireToken(heading);
+  for (const row of SURFACE_MAPPING_ROWS) requireToken(row);
+  for (const ownerPath of SHARED_CHROME_OWNER_PATHS) requireToken(ownerPath);
+  for (const destination of FOOTER_DESTINATION_LINES) requireToken(destination);
+  for (const token of DUPLICATION_RULE_TOKENS) requireToken(token);
+  for (const invalidator of RESELECTION_INVALIDATORS) requireToken(invalidator);
+  for (const nonInvalidator of RESELECTION_NON_INVALIDATORS) requireToken(nonInvalidator);
+
+  return failures;
+}
+
+function runBenchmarkStackNegativeSelfTests() {
+  const src = read(BENCHMARK_STACK_PATH);
+
+  const cases = [
+    {
+      label: 'HOME mapping permutation',
+      mutated: src.replace('| HOME | with + Co–Star | — |', '| HOME | Paired | — |'),
+    },
+    {
+      label: 'removed PublicFooter privacy route',
+      mutated: src.replace('- Privacy Policy (`/legal/privacy`)\n', ''),
+    },
+    {
+      label: 'removed PublicHeaderContainer owner',
+      mutated: src.replace('components/shell/PublicHeaderContainer.tsx', ''),
+    },
+    {
+      label: 'removed reselection invalidator',
+      mutated: src.replace('- Human changes primary UX target\n', ''),
+    },
+    {
+      label: 'removed Paired benchmark heading',
+      mutated: src.replace('### Paired\n', ''),
+    },
+  ];
+
+  for (const testCase of cases) {
+    if (collectBenchmarkStackFailures(testCase.mutated).length === 0) {
+      fail(`benchmark stack self-test ${testCase.label} expected FAIL but passed`);
+    }
+  }
+}
 function checkAgents() {
   const src = read('AGENTS.md');
   if (!src.includes(EXECUTION_STATE_PATH)) fail('AGENTS.md missing M55_EXECUTION_STATE.json');
   if (!src.includes('sole executable authority')) fail('AGENTS.md must declare sole executable authority');
   if (!src.includes('M55_GPT_COLD_START_ACCEPTANCE.md')) fail('AGENTS.md missing GPT cold-start acceptance contract');
   if (!src.includes(BENCHMARK_STACK_PATH)) fail('AGENTS.md missing M55_UX_BENCHMARK_STACK.md');
-  if (!src.includes('PublicShell')) fail('AGENTS.md missing PublicShell shared chrome rule');
-  if (!src.includes('PublicFooter')) fail('AGENTS.md missing PublicFooter shared chrome rule');
+  for (const owner of ['PublicShell', 'PublicHeaderContainer', 'PublicHeader', 'PublicFooter']) {
+    if (!src.includes(owner)) fail(`AGENTS.md missing ${owner} shared chrome rule`);
+  }
   if (!src.includes('LOCAL_RUNTIME_UNAVAILABLE')) fail('AGENTS.md missing remote-only GPT fallback');
   if (!src.includes('RERUN_PROHIBITED')) fail('AGENTS.md missing RERUN_PROHIBITED');
   if (!src.includes('npm run m55:context')) fail('AGENTS.md missing m55:context');
@@ -354,8 +576,9 @@ function checkCursorRule() {
   if (!/alwaysApply:\s*true/.test(src)) fail('Cursor rule must be alwaysApply');
   if (!src.includes(EXECUTION_STATE_PATH)) fail('Cursor rule missing execution state owner');
   if (!src.includes(BENCHMARK_STACK_PATH)) fail('Cursor rule missing M55_UX_BENCHMARK_STACK.md');
-  if (!src.includes('PublicShell')) fail('Cursor rule missing PublicShell reference');
-  if (!src.includes('PublicFooter')) fail('Cursor rule missing PublicFooter reference');
+  for (const owner of ['PublicShell', 'PublicHeaderContainer', 'PublicHeader', 'PublicFooter']) {
+    if (!src.includes(owner)) fail(`Cursor rule missing ${owner} reference`);
+  }
   if (!src.includes('RERUN_PROHIBITED')) fail('Cursor rule missing rerun prohibition');
 }
 function checkColdStartContract() {
@@ -372,9 +595,21 @@ function checkColdStartContract() {
     'never** an invalidating dependency',
     BENCHMARK_STACK_PATH,
     'M55_COMMERCIAL_QUALITY_CONTRACT.md',
+    'fixed commercial UX benchmark stack',
+    'frozen surface mapping',
+    'valid reselection invalidators',
     'PublicShell',
+    'PublicHeaderContainer',
+    'PublicHeader',
     'PublicFooter',
+    'site-wide footer legal/support ownership',
+    'duplicate page-local legal/support/header/footer',
+    'cross-site chrome changes belong in the shared owner',
+    'cross-checks `M55_UX_BENCHMARK_STACK.md` shared chrome inventory against actual',
+    'STOPs on disagreement between SSOT inventory and live source truth',
     'must **not** return `HANDOFF_COLD_START_PASS`',
+    'Cross-check shared chrome inventory against actual shell/header/footer source owners',
+    'no expected gate token or benchmark name list in the prompt',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
   }
@@ -384,8 +619,10 @@ function checkCommercialQualityContract() {
   if (!src.includes(BENCHMARK_STACK_PATH)) {
     fail('commercial quality contract missing M55_UX_BENCHMARK_STACK.md reference');
   }
-  if (!src.includes('PublicFooter')) {
-    fail('commercial quality contract missing PublicFooter shared chrome rule');
+  for (const owner of ['PublicShell', 'PublicHeaderContainer', 'PublicHeader', 'PublicFooter']) {
+    if (!src.includes(owner)) {
+      fail(`commercial quality contract missing ${owner} shared chrome rule`);
+    }
   }
   if (!src.includes('ad-hoc benchmark reselection')) {
     fail('commercial quality contract missing ad-hoc benchmark reselection prohibition');
@@ -393,32 +630,7 @@ function checkCommercialQualityContract() {
 }
 function checkBenchmarkStack() {
   const src = read(BENCHMARK_STACK_PATH);
-  for (const required of [
-    'M55 UX Benchmark Stack',
-    'with',
-    'The Pattern',
-    'Paired',
-    'Co–Star',
-    'Stripe',
-    'Baymard',
-    'HOME',
-    'Free input / questionnaire',
-    'Free result',
-    'Pair free result',
-    'Premium bridge / purchase confirmation',
-    'Paid report / premium reading body',
-    'My Page / owned report / revisit',
-    'PublicShell.tsx',
-    'PublicHeaderContainer.tsx',
-    'PublicHeader.tsx',
-    'PublicFooter.tsx',
-    'Ad-hoc competitor research is **prohibited**',
-    'do not duplicate it locally',
-    'Human changes primary UX target',
-    'A new chat started',
-  ]) {
-    if (!src.includes(required)) fail(`benchmark stack SSOT missing: ${required}`);
-  }
+  for (const message of collectBenchmarkStackFailures(src)) fail(message);
 }
 function checkLedger() {
   const src = read('docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md');
@@ -444,6 +656,9 @@ function main() {
   checkColdStartContract();
   checkCommercialQualityContract();
   checkBenchmarkStack();
+  runBenchmarkStackNegativeSelfTests();
+  checkSharedChromeSourceTruth();
+  runSharedChromeSourceNegativeSelfTests();
   checkLedger();
   checkCommercialSkuOwnersInContract();
 

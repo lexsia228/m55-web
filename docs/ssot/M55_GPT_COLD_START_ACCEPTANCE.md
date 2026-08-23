@@ -75,6 +75,7 @@ A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the f
 - it does not start Pair implementation or Pair Premium activation unless execution state authorizes those gates;
 - it reconstructs from repository authority the fixed commercial UX benchmark stack, frozen surface mapping, research/reselection freeze, and valid reselection invalidators from `M55_UX_BENCHMARK_STACK.md`;
 - it reconstructs shared shell ownership (`PublicShell`, `PublicHeaderContainer` / `PublicHeader`, `PublicFooter`), site-wide footer legal/support ownership, and the rule that agents must not create duplicate page-local legal/support/header/footer when shared owners already provide the capability;
+- it cross-checks `M55_UX_BENCHMARK_STACK.md` shared chrome inventory against actual `PublicShell`, `PublicHeaderContainer`, `PublicHeader`, and `PublicFooter` source owners and STOPs on disagreement between SSOT inventory and live source truth;
 - it recognizes that cross-site chrome changes belong in the shared owner, not duplicated components;
 - mutation count is zero.
 
@@ -114,6 +115,6 @@ Rerun is required only when a real handoff-mechanism invalidating dependency cha
 
 Use a completely new GPT conversation and provide only the repository identity plus this instruction:
 
-> Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Reconstruct the sole executable NEXT, the fixed commercial UX benchmark/reference system and frozen surface mapping, shared Header/Footer/legal ownership and duplication rules, and valid benchmark reselection invalidators. Return PASS only if you can preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed and READ-ONLY.
+> Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Reconstruct the sole executable NEXT, the fixed commercial UX benchmark/reference system and frozen surface mapping, shared Header/Footer/legal ownership and duplication rules, and valid benchmark reselection invalidators. Cross-check shared chrome inventory against actual shell/header/footer source owners. Return PASS only if you can preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed and READ-ONLY.
 
 There is intentionally no expected gate token or benchmark name list in the prompt. A fresh model must discover CURRENT/NEXT and commercial handoff invariants from repository authority.
