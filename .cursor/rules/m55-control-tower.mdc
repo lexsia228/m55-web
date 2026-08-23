@@ -25,6 +25,15 @@ Before analysis or mutation:
 - do not replay completed development gates;
 - during `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation is prohibited and Pair mapping is not yet authorized.
 
+For user-visible work, also read:
+
+- `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md`
+- `docs/ssot/M55_UX_BENCHMARK_STACK.md`
+
+Use the frozen surface mapping in `M55_UX_BENCHMARK_STACK.md`. Do not perform ad-hoc benchmark research absent a documented invalidator.
+
+Before creating page-local header, footer, legal, support, privacy, or refund navigation, inspect shared ownership in `PublicShell`, `PublicHeaderContainer`, `PublicHeader`, and `PublicFooter`. Do not duplicate site-wide chrome when the shared owner already provides it.
+
 Fresh GPT acceptance contract:
 
 `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md`

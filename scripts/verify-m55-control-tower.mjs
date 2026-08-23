@@ -24,11 +24,16 @@ function fail(message) { FAILURES.push(message); }
 function read(rel) { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); }
 function exists(rel) { return fs.existsSync(path.join(ROOT, rel)); }
 
+const BENCHMARK_STACK_PATH = 'docs/ssot/M55_UX_BENCHMARK_STACK.md';
+const COMMERCIAL_QUALITY_PATH = 'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md';
+
 const REQUIRED_CONTROL_TOWER_FILES = [
   'AGENTS.md',
   '.cursor/rules/m55-control-tower.mdc',
   EXECUTION_STATE_PATH,
   'docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md',
+  COMMERCIAL_QUALITY_PATH,
+  BENCHMARK_STACK_PATH,
   'docs/ssot/M55_CURRENT_STATE.md',
   'docs/ssot/M55_ROADMAP.md',
   'docs/ssot/M55_WORKTREE_REGISTRY.md',
@@ -337,6 +342,9 @@ function checkAgents() {
   if (!src.includes(EXECUTION_STATE_PATH)) fail('AGENTS.md missing M55_EXECUTION_STATE.json');
   if (!src.includes('sole executable authority')) fail('AGENTS.md must declare sole executable authority');
   if (!src.includes('M55_GPT_COLD_START_ACCEPTANCE.md')) fail('AGENTS.md missing GPT cold-start acceptance contract');
+  if (!src.includes(BENCHMARK_STACK_PATH)) fail('AGENTS.md missing M55_UX_BENCHMARK_STACK.md');
+  if (!src.includes('PublicShell')) fail('AGENTS.md missing PublicShell shared chrome rule');
+  if (!src.includes('PublicFooter')) fail('AGENTS.md missing PublicFooter shared chrome rule');
   if (!src.includes('LOCAL_RUNTIME_UNAVAILABLE')) fail('AGENTS.md missing remote-only GPT fallback');
   if (!src.includes('RERUN_PROHIBITED')) fail('AGENTS.md missing RERUN_PROHIBITED');
   if (!src.includes('npm run m55:context')) fail('AGENTS.md missing m55:context');
@@ -345,6 +353,9 @@ function checkCursorRule() {
   const src = read('.cursor/rules/m55-control-tower.mdc');
   if (!/alwaysApply:\s*true/.test(src)) fail('Cursor rule must be alwaysApply');
   if (!src.includes(EXECUTION_STATE_PATH)) fail('Cursor rule missing execution state owner');
+  if (!src.includes(BENCHMARK_STACK_PATH)) fail('Cursor rule missing M55_UX_BENCHMARK_STACK.md');
+  if (!src.includes('PublicShell')) fail('Cursor rule missing PublicShell reference');
+  if (!src.includes('PublicFooter')) fail('Cursor rule missing PublicFooter reference');
   if (!src.includes('RERUN_PROHIBITED')) fail('Cursor rule missing rerun prohibition');
 }
 function checkColdStartContract() {
@@ -359,8 +370,54 @@ function checkColdStartContract() {
     'Regression rule',
     'Ordinary product gate progression',
     'never** an invalidating dependency',
+    BENCHMARK_STACK_PATH,
+    'M55_COMMERCIAL_QUALITY_CONTRACT.md',
+    'PublicShell',
+    'PublicFooter',
+    'must **not** return `HANDOFF_COLD_START_PASS`',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
+  }
+}
+function checkCommercialQualityContract() {
+  const src = read(COMMERCIAL_QUALITY_PATH);
+  if (!src.includes(BENCHMARK_STACK_PATH)) {
+    fail('commercial quality contract missing M55_UX_BENCHMARK_STACK.md reference');
+  }
+  if (!src.includes('PublicFooter')) {
+    fail('commercial quality contract missing PublicFooter shared chrome rule');
+  }
+  if (!src.includes('ad-hoc benchmark reselection')) {
+    fail('commercial quality contract missing ad-hoc benchmark reselection prohibition');
+  }
+}
+function checkBenchmarkStack() {
+  const src = read(BENCHMARK_STACK_PATH);
+  for (const required of [
+    'M55 UX Benchmark Stack',
+    'with',
+    'The Pattern',
+    'Paired',
+    'Co–Star',
+    'Stripe',
+    'Baymard',
+    'HOME',
+    'Free input / questionnaire',
+    'Free result',
+    'Pair free result',
+    'Premium bridge / purchase confirmation',
+    'Paid report / premium reading body',
+    'My Page / owned report / revisit',
+    'PublicShell.tsx',
+    'PublicHeaderContainer.tsx',
+    'PublicHeader.tsx',
+    'PublicFooter.tsx',
+    'Ad-hoc competitor research is **prohibited**',
+    'do not duplicate it locally',
+    'Human changes primary UX target',
+    'A new chat started',
+  ]) {
+    if (!src.includes(required)) fail(`benchmark stack SSOT missing: ${required}`);
   }
 }
 function checkLedger() {
@@ -385,6 +442,8 @@ function main() {
   checkAgents();
   checkCursorRule();
   checkColdStartContract();
+  checkCommercialQualityContract();
+  checkBenchmarkStack();
   checkLedger();
   checkCommercialSkuOwnersInContract();
 

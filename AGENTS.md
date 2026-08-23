@@ -77,10 +77,11 @@ Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` (always apply). **Do not
 8. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
 9. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
 10. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
-11. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-12. `docs/ssot/M55_DECISION_LOG.md`
-13. `docs/ssot/M55_ROADMAP.md`
-14. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
+11. `docs/ssot/M55_UX_BENCHMARK_STACK.md` — **mandatory before any user-visible implementation or review**
+12. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+13. `docs/ssot/M55_DECISION_LOG.md`
+14. `docs/ssot/M55_ROADMAP.md`
+15. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts and subordinate to `M55_EXECUTION_STATE.json` for executable gate/NEXT.
 
@@ -98,6 +99,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **Read authority before source changes** — especially price, copy, and funnel flow.
 - **Stop and report** if executable state and required fresh evidence contradict each other.
 - **Commercial quality closure** — user-visible surfaces require `USER_VISIBLE_CLOSED_GREEN` per `M55_COMMERCIAL_QUALITY_CONTRACT.md`; technical GREEN alone is insufficient; Human visual approval is mandatory.
+- **Shared public chrome** — before creating or modifying page-local Header, Footer, legal, support, privacy, or refund navigation, inspect `PublicShell` / `PublicHeaderContainer` / `PublicFooter` ownership and reuse or update the shared owner. Duplicate shared chrome is prohibited unless an explicit route-specific contract requires it and the reason is stated before mutation.
 - **Cold-start acceptance** — while NEXT is `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation and Pair mapping are prohibited. Human approval is required after PASS to advance the execution state.
 
 ## Authority hierarchy (summary)
