@@ -58,7 +58,9 @@ Source command for volatile facts: **`npm run m55:context`** (preferred) or manu
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-21 Pair lane entrance) — authoritative, read this first:** PR #149 **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; G5 Wave 1 **CLOSED GREEN**; G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA**. Durable **ACTIVE lane = PAIR LANE**. Active worktree **WT-048** `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1`; branch `feat/m55-pair-funnel-v1`; intended upstream **`origin/feat/m55-pair-funnel-v1`**. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_CURRENT_STATE.md` § PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)** only. Wave 0 read-only mapping is **CLOSED GREEN** — do not replay. Pair implementation has not started on merged runtime. Pair Premium **NOT ACTIVATED**.
+**CURRENT (2026-08-24 Pair relation-stage bounded correction) — authoritative, read this first:** Durable **ACTIVE lane = PAIR LANE**. Active worktree **WT-049** `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1`; branch `feat/m55-pair-relation-stage-v1`; intended upstream **fresh `origin/main`**. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT`. Purpose: Human actual-screen defect correction for relation-stage semantics before Pair Premium activation. Explicit freezes: Pair Free→Paid mapping repeat **PROHIBITED** · benchmark reselection **PROHIBITED** · Pair Premium **NOT_ACTIVATED** · #159 merge/change **not authorized in this gate** · Pair Premium product-page implementation **not authorized yet** · provider/DB/Stripe/Clerk/env/deploy mutation **prohibited** · current gate is READ-ONLY preflight after this authority transition.
+
+**CURRENT (2026-08-21 Pair lane entrance) — historical:** PR #149 **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; G5 Wave 1 **CLOSED GREEN**; G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA**. Durable **ACTIVE lane = PAIR LANE**. Active worktree **WT-048** `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1`; branch `feat/m55-pair-funnel-v1`; intended upstream **`origin/feat/m55-pair-funnel-v1`**. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_CURRENT_STATE.md` § PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)** only. Wave 0 read-only mapping is **CLOSED GREEN** — do not replay. Pair implementation has not started on merged runtime. Pair Premium **NOT ACTIVATED**.
 
 **CURRENT (2026-08-20 G3-04 CLOSED GREEN self-closing PR) — historical:** branch `feat/m55-g3-04-copy-safety-v1` · implementation head **`03ae78dbd91d63ffc411d389dfd9e276525155f2`** · base `origin/main` **`d33e9d3dc685e733826348b128faa9184a3b0072`**. **G3 REVISIT / RETENTION LOOP CLOSED GREEN** on merge of this PR. WT-045 **CLOSES_WITH_THIS_PR_MERGE** — operationally **CLOSED** on merge; physical worktree path **retained**. Preview `https://m55-webv2-hrohtt4ek-m55-official.vercel.app` **READY** @ implementation head. G3-01 **CLOSED GREEN / NO CODE DELTA** · G3-02 **CLOSED GREEN** · G3-03 **CLOSED GREEN** · G3-04 **CLOSED / KEEP_REJECTED**. G4/G5 **planned / not started** · G4 source **NOT YET AUTHORIZED**. Durable **ACTIVE lane after merge:** **G4 ORGANIC DISCOVERY**. **Current phase / NEXT SINGLE ACTION after merge:** **G4 ORGANIC DISCOVERY MAPPING-FIRST**. **No** follow-up docs-only settlement PR required.
 
@@ -1154,7 +1156,29 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (ACTIVE)
+### WT-049 — Pair relation-stage semantic correction (ACTIVE_BOUNDED_PAIR_CORRECTION)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` |
+| branch | `feat/m55-pair-relation-stage-v1` |
+| intended upstream | fresh `origin/main` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **ACTIVE_BOUNDED_PAIR_CORRECTION** |
+| macro lane | **PAIR LANE** |
+| current gate / NEXT | **PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT** |
+| purpose | Human actual-screen defect correction for relation-stage semantics before Pair Premium activation |
+| Pair Free→Paid mapping repeat | **PROHIBITED** |
+| benchmark reselection | **PROHIBITED** |
+| Pair Premium | **NOT_ACTIVATED** |
+| #159 merge/change | **not authorized in this gate** |
+| Pair Premium product-page implementation | **not authorized yet** |
+| provider/DB/Stripe/Clerk/env/deploy mutation | **prohibited** |
+| current gate mode | READ-ONLY preflight after authority transition |
+
+---
+
+### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (CLOSED / RETAINED)
 
 | Field | Value |
 |---|---|
@@ -1163,7 +1187,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | intended upstream | `origin/feat/m55-pair-funnel-v1` |
 | live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
 | production main anchor (PR #149 merge evidence) | `origin/main` @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` |
-| lifecycle | **ACTIVE** |
+| lifecycle | **CLOSED / RETAINED** |
 | operational state | **PAIR_WAVE0_PHASE_B_LOCAL_PENDING_ATOMIC_COMMIT** |
 | purpose | Pair lane Wave 0 readability track closed locally; Phase-B product dirty; Control Tower hardening closed |
 | executable next action owner | `docs/ssot/M55_CURRENT_STATE.md` § semantic execution authority only |
@@ -1177,7 +1201,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-21 Pair lane entrance) — AUTHORITATIVE
+## FINAL LIVE WORKTREES (2026-08-24 Pair relation-stage bounded correction) — AUTHORITATIVE
 
 Production main anchor at PR #149 merge (historical evidence): **`53b71f8c8ea0ddeecd1828a2a809b4de08583aba`**. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
 
@@ -1193,7 +1217,8 @@ Live count from `git worktree list --porcelain`: observation-only — refresh vi
 | `/Users/lexsia/Documents/M55_WORKTREE-g5-metrics-v1` | `feat/m55-g5-metrics-v1` | `m55:context` | WT-047 | RETAINED | **CLOSED GREEN / MERGED / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `m55:context` | WT-024 (control) | STALE | **STALE_MAIN_CONTROL_SNAPSHOT** |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `m55:context` | WT-027 | PENDING | **PENDING_INTEGRATION / COMMERCE OFF** |
-| `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` | `feat/m55-pair-funnel-v1` | `m55:context` | WT-048 | ACTIVE | **ACTIVE / READ-ONLY MAPPING** |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` | `feat/m55-pair-funnel-v1` | `m55:context` | WT-048 | RETAINED | **CLOSED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` | `feat/m55-pair-relation-stage-v1` | `m55:context` | WT-049 | ACTIVE | **ACTIVE_BOUNDED_PAIR_CORRECTION** |
 
 ## FINAL LIVE WORKTREES (2026-08-20 G4 mapping-first) — HISTORICAL
 
