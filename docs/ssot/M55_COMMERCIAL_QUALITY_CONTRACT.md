@@ -99,6 +99,20 @@ User comprehension, product value, conversion clarity, trust, terminology consis
 - Unsupported accuracy claims, unsupported science claims, and unsupported user-count claims are **prohibited**.
 - Public copy must remain within Product Truth and `M55_COPY_AND_CLAIMS.md`.
 
+## External reference patterns and shared chrome
+
+Durable owner for Human-approved external-reference patterns:
+
+`docs/ssot/M55_UX_BENCHMARK_STACK.md`
+
+User-visible implementation and review **must read** that SSOT.
+
+Ordinary gates **must not** perform ad-hoc benchmark reselection. Use the frozen surface mapping defined there.
+
+Before creating page-local header, footer, legal, support, privacy, or refund navigation, agents **must** inspect shared chrome ownership (`PublicShell`, `PublicHeaderContainer`, `PublicHeader`, `PublicFooter`) and reuse or update the shared owner. Duplicate shared chrome is prohibited unless an explicit route-specific contract requires proximity and the reason is stated before mutation.
+
+Product Truth, claims, privacy, accessibility, and legal requirements remain **superior authority** to benchmark assimilation. The detailed benchmark table and surface mapping live only in `M55_UX_BENCHMARK_STACK.md`; this contract does not duplicate them.
+
 ## Pre-launch vs post-launch requirements
 
 Pre-launch commercial quality and post-launch revenue validation are **separate requirements**.
@@ -175,7 +189,7 @@ human_visual_review_required_for_screenshot_evidence = true
 
 ## Agent obligations
 
-Before user-visible implementation or review, agents must read this contract in the mandatory order defined in `AGENTS.md`.
+Before user-visible implementation or review, agents must read this contract and `docs/ssot/M55_UX_BENCHMARK_STACK.md` in the mandatory order defined in `AGENTS.md`.
 
 Agents must not:
 

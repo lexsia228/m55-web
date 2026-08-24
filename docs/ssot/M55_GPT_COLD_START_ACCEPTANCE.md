@@ -32,10 +32,11 @@ When `acceptance.revalidationRequired=false`, cold-start handoff is accepted. `C
 4. Read `docs/ssot/M55_CURRENT_STATE.md` for narrative/history only; executable fields there are superseded while `legacyExecutionFieldsSuperseded=true`.
 5. Read `docs/ssot/M55_ROADMAP.md` and `docs/ssot/M55_WORKTREE_REGISTRY.md` as sequence/ownership context; stale observation snapshots never override execution state or fresh remote facts.
 6. Read `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md` and `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`.
-7. Inspect `scripts/m55-control-tower-context.mjs`, `scripts/m55-control-tower-semantic.mjs`, and `scripts/verify-m55-control-tower.mjs` when validating the handoff mechanism itself.
-8. Reobserve GitHub `main`, relevant PR lifecycle, feature containment, and CI.
-9. Reobserve Vercel Production identity/state when connected access exists.
-10. If local runtime is unavailable, say `LOCAL_RUNTIME_UNAVAILABLE`; never invent local HEAD, dirty/staged paths, worktree existence, or local divergence.
+7. Read `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` and `docs/ssot/M55_UX_BENCHMARK_STACK.md` for user-visible commercial handoff invariants.
+8. Inspect `scripts/m55-control-tower-context.mjs`, `scripts/m55-control-tower-semantic.mjs`, and `scripts/verify-m55-control-tower.mjs` when validating the handoff mechanism itself.
+9. Reobserve GitHub `main`, relevant PR lifecycle, feature containment, and CI.
+10. Reobserve Vercel Production identity/state when connected access exists.
+11. If local runtime is unavailable, say `LOCAL_RUNTIME_UNAVAILABLE`; never invent local HEAD, dirty/staged paths, worktree existence, or local divergence.
 
 ## Historical accepted evidence
 
@@ -53,6 +54,7 @@ Revalidation **is** required when the handoff mechanism itself changes in a way 
 - context verifier behavior
 - this acceptance contract
 - executable-state ownership or boot rules
+- commercial UX benchmark stack or shared chrome ownership added to mandatory handoff semantics
 
 Ordinary state-only progression that changes only `M55_EXECUTION_STATE.json` product gate fields **does not** invalidate the handoff mechanism and **does not** require another cold-start run.
 
@@ -71,7 +73,29 @@ A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the f
 - it preserves CLOSED GREEN / high-cost rerun prohibitions;
 - it does not advance product work while the execution state says revalidation is pending;
 - it does not start Pair implementation or Pair Premium activation unless execution state authorizes those gates;
+- it reconstructs from repository authority the fixed commercial UX benchmark stack, frozen surface mapping, research/reselection freeze, and valid reselection invalidators from `M55_UX_BENCHMARK_STACK.md`;
+- it reconstructs the exact official identity/domain for all six fixed external references (`with`, `The Pattern`, `Paired`, `Co–Star`, `Stripe`, `Baymard`) from `M55_UX_BENCHMARK_STACK.md`;
+- it reconstructs shared shell ownership (`PublicShell`, `PublicHeaderContainer` / `PublicHeader`, `PublicFooter`), site-wide footer legal/support ownership, and the rule that agents must not create duplicate page-local legal/support/header/footer when shared owners already provide the capability;
+- it reconstructs the full Header capability inventory from `M55_UX_BENCHMARK_STACK.md`: brand `/home` lockup, desktop primary, About dropdown, mobile public, signed-in account routes, exact contextual primary-action kind/route pairs, and exact desktop vs mobile auth capabilities (`SignedOut`/`SignedIn`, `SignInButton`, `UserButton`, account dropdown exposure);
+- it reconstructs the header navigation/state contract owner `lib/m55/commercialUx/publicHeaderState.ts` and the exact current route inventory by group with **exact ordered equality** against live source;
+- it reconstructs contextual primary-action kind/route inventory with **exact ordered equality** between `publicHeaderState.ts` and `M55_UX_BENCHMARK_STACK.md`;
+- it reconstructs the full Footer capability inventory from `M55_UX_BENCHMARK_STACK.md`: M55 method utility (`UTILITY_GROUP`), `m55MethodAuthority.ts` as route authority, `M55_METHOD_CANONICAL_ROUTE` = `/how-m55-works`, support/legal navigation route sequence, site-wide copyright capability (year not frozen), and the distinction that `PublicFooter` owns site-wide navigation while canonical support/legal **content** lives in route page owners;
+- it reconstructs the canonical support/legal route → content-owner mapping (`app/support/page.tsx`, `app/legal/*/page.tsx`) and the rule that content edits vs navigation edits go to different correct owners with no duplicate page-local replacement;
+- it reconstructs the Experience Archetype benchmark fallback mapping for all `M55_EXPERIENCE_ARCHETYPES` entries from `M55_UX_BENCHMARK_STACK.md` and the source owner `lib/m55/commercialUx/experience/experienceArchetypes.ts`;
+- it reconstructs benchmark classification precedence: explicit surface mapping → archetype fallback → **STOP / BENCHMARK CLASSIFICATION REQUIRED** (no ad-hoc competitor research for unmapped surfaces);
+- it reconstructs that explicit surface mapping may be **state/section scoped** inside a single route, not only pathname-level;
+- it reconstructs the `/synastry` composite state/section benchmark bindings from `M55_UX_BENCHMARK_STACK.md` (`phase=dob`, `phase=questions`, `phase=result` free reading body, embedded paid bridge, purchase confirm/success, report body);
+- it recognizes that whole-route `PRODUCT_DECISION` archetype fallback **must not** overwrite the explicit Pair input/result/paid-bridge mappings for `/synastry` runtime states;
+- a model that answers only "`/synastry` = `PRODUCT_DECISION` = Paired + Co–Star`" for every runtime state **must FAIL** cold-start;
+- it cross-checks `M55_UX_BENCHMARK_STACK.md` shared chrome inventory against actual `PublicShell`, `PublicHeaderContainer`, `PublicHeader`, and `PublicFooter` source owners and STOPs on disagreement between SSOT inventory and live source truth;
+- it cross-checks `M55_UX_BENCHMARK_STACK.md` header navigation inventory against actual `publicHeaderState.ts` source with exact ordered route equality per nav group; if inventory disagrees, **STOP / HANDOFF_COLD_START_FAIL**;
+- it cross-checks Footer support/legal navigation inventories and canonical content-owner mappings against actual `PublicFooter.tsx`, `m55MethodAuthority.ts`, and route page owners with exact ordered route equality where applicable; if inventory disagrees, **STOP / HANDOFF_COLD_START_FAIL**;
+- it cross-checks archetype IDs in `experienceArchetypes.ts` against archetype fallback mappings in `M55_UX_BENCHMARK_STACK.md` with exact set equality; if `M55_EXPERIENCE_ARCHETYPES` contains an unmapped archetype, **STOP / HANDOFF_COLD_START_FAIL**;
+- if source Header/Footer inventory has added or removed capability that SSOT does not reflect, **STOP / HANDOFF_COLD_START_FAIL**;
+- it recognizes that cross-site chrome changes belong in the shared owner, not duplicated components;
 - mutation count is zero.
+
+A model that reconstructs CURRENT/NEXT correctly but misses these commercial handoff invariants must **not** return `HANDOFF_COLD_START_PASS`.
 
 Any authority conflict, unexplained branch movement, unverifiable required identity, attempted high-cost replay, or mutation during the acceptance test is FAIL/STOP.
 
@@ -107,6 +131,6 @@ Rerun is required only when a real handoff-mechanism invalidating dependency cha
 
 Use a completely new GPT conversation and provide only the repository identity plus this instruction:
 
-> Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Return PASS only if you can reconstruct the sole executable NEXT, preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed.
+> Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Reconstruct the sole executable NEXT, the fixed commercial UX benchmark/reference system and frozen surface mapping, known composite route/state benchmark bindings where explicit mapping is state/section scoped, complete shared Header/Footer capability inventory (including exact contextual primary-action pairs, desktop vs mobile auth capabilities, method utility, and support/legal navigation vs canonical content-owner distinction), complete user-visible benchmark coverage with archetype fallback mapping, exact source-vs-SSOT inventory equality rules, unmapped-surface fail-closed rules, and valid benchmark reselection invalidators. Cross-check shared chrome inventory against actual shell/header/footer source owners. Return PASS only if you can preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed and READ-ONLY.
 
-There is intentionally no expected gate token in the prompt. A fresh model must discover the current NEXT from repository authority.
+There is intentionally no expected gate token or benchmark name list in the prompt. A fresh model must discover CURRENT/NEXT and commercial handoff invariants from repository authority.
