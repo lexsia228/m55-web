@@ -153,6 +153,63 @@ Do **not** reselect benchmarks every gate.
 
 - new gate → web-search new competitors → redesign reference system → repeat
 
+## Experience Archetype benchmark fallback mapping
+
+Source owner:
+
+`lib/m55/commercialUx/experience/experienceArchetypes.ts`
+
+When a user-visible surface does not match an explicit route/surface row in **Fixed surface mapping** above, classify it by `M55_EXPERIENCE_ARCHETYPES` and use this fallback table.
+
+| Archetype | Primary references | Guardrails |
+|---|---|---|
+| PUBLIC_POSTER | with + Co–Star | — |
+| PUBLIC_EDITORIAL | The Pattern + with | M55 legal/support authority remains superior; Stripe/Baymard may guide clarity/friction only |
+| GUIDED_FREE_FLOW | with | — |
+| EDITORIAL_FREE_RESULT | The Pattern + with | — |
+| SHARED_SOCIAL_ENTRY | The Pattern + with | — |
+| PREMIUM_GUIDED_FLOW | with + Paired | — |
+| PRODUCT_DECISION | Paired + Co–Star | Stripe + Baymard |
+| PURCHASE_CONFIRMATION | Paired + Co–Star | Stripe + Baymard |
+| DIGITAL_PUBLICATION | The Pattern + Paired | — |
+
+### Benchmark classification precedence
+
+1. explicit route/surface mapping in this SSOT (**Fixed surface mapping**)
+2. archetype fallback mapping in this section
+3. if still unmapped: **STOP / BENCHMARK CLASSIFICATION REQUIRED**
+
+An unmapped new surface **must not** trigger ad-hoc competitor research.
+
+A newly introduced `M55_EXPERIENCE_ARCHETYPES` entry must receive an explicit benchmark classification here before ordinary user-visible work may proceed.
+
+### Known composite route/state bindings
+
+Explicit surface mapping may apply to a **state or section inside a single route** and therefore overrides whole-route archetype fallback.
+
+Source authorities:
+
+- `components/compatibility/CompatibilityGuestExperience.tsx` — `JourneyPhase`: `'dob' | 'questions' | 'result'`
+- `lib/m55/commercialUx/experience/experienceRouteRegistry.ts` — `legacy.synastry`, `legacy.synastry.confirm`, `legacy.synastry.success`, `legacy.synastry.report`
+
+Freeze `/synastry`:
+
+| Route / state | Surface mapping | Primary references | Guardrails |
+|---|---|---|---|
+| `/synastry` — `phase=dob` | Free input / questionnaire | with | — |
+| `/synastry` — `phase=questions` | Free input / questionnaire | with | — |
+| `/synastry` — `phase=result`, free reading body | Pair free result | The Pattern + Paired | — |
+| `/synastry` — `phase=result`, embedded paid bridge | Premium bridge / purchase confirmation | Paired + Co–Star | Stripe + Baymard |
+| `/synastry/purchase/confirm` | Premium bridge / purchase confirmation | Paired + Co–Star | Stripe + Baymard |
+| `/synastry/purchase/success` | purchase/processing continuity (`PURCHASE_CONFIRMATION` fallback) | Paired + Co–Star | Stripe + Baymard where payment/trust semantics apply |
+| `/synastry/report/:reportId` | Paid report / premium reading body | The Pattern + Paired | — |
+
+A composite route **must not** be classified once at pathname level when its runtime states/sections correspond to different explicit surface mappings.
+
+**State/section explicit mapping** has precedence over route-level `PRODUCT_DECISION` archetype fallback.
+
+Classifying every `/synastry` runtime state as `PRODUCT_DECISION = Paired + Co–Star` is **prohibited**.
+
 ## Research / reselection freeze
 
 Ad-hoc competitor research is **prohibited** during ordinary user-visible work.
@@ -185,13 +242,21 @@ Freeze exact shared owners:
 
 `PublicHeader.tsx` renders navigation from the shared header-state contract in `publicHeaderState.ts`.
 
-Agents must inspect `publicHeaderState.ts` before adding page-local or new site-wide navigation.
+Agents **MUST** inspect `components/shell/PublicHeaderContainer.tsx`, `components/shell/PublicHeader.tsx`, and `lib/m55/commercialUx/publicHeaderState.ts` before inventing page-local or replacement navigation.
+
+If a header capability already exists: modify/reuse the shared Header owner. Do not recreate it locally.
 
 If a requested navigation destination belongs site-wide: modify the shared header contract/renderer as appropriate.
 
 Do not add a page-local substitute because the existing header inventory was not discovered.
 
-Freeze current route inventory by group (route identity only; display labels remain terminology/copy authority):
+Freeze route/capability identity only; display labels remain copy/terminology authority.
+
+### Header capability inventory
+
+**Brand / home:**
+
+- M55 brand lockup routes to `/home`
 
 **Desktop primary (`DESKTOP_PRIMARY_NAV`):**
 
@@ -216,15 +281,76 @@ Freeze current route inventory by group (route identity only; display labels rem
 - `/dtr`
 - `/my`
 
+**Contextual primary-action contract** (owner: `lib/m55/commercialUx/publicHeaderState.ts`):
+
+| Destination class | Route |
+|---|---|
+| `free_entry` | `/core` |
+| `view_premium` | `/dtr/lp` |
+| `return_free_result` | `/core` |
+| `recipient_free` | `/core` |
+
+**Header auth capability:**
+
+**Desktop (`data-testid="m55-desktop-auth"`):**
+
+- signed-out: Clerk `SignInButton` inside `<SignedOut>`
+- signed-in: `ACCOUNT_DROPDOWN_NAV` dropdown + Clerk `UserButton` inside `<SignedIn>`
+
+**Mobile menu (`MOBILE_MENU_PUBLIC` + `styles.mobileMenuAuth`):**
+
+- public navigation: `MOBILE_MENU_PUBLIC` routes (separate from auth)
+- signed-out: Clerk `SignInButton` inside mobile `<SignedOut>`
+- signed-in: `ACCOUNT_DROPDOWN_NAV` routes + Clerk `UserButton` inside mobile `<SignedIn>`
+
+`PublicHeader.tsx` must consume/render: `state.desktopPrimaryNav`, `state.aboutDropdownNav`, `state.mobileMenuPublic`, desktop and mobile `ACCOUNT_DROPDOWN_NAV`, brand `/home` link, desktop/mobile `SignedOut`/`SignedIn` auth blocks, `SignInButton`, and `UserButton`.
+
+### Footer capability inventory
+
 For routes using `PublicShell`, the shared Header and Footer **already exist**.
 
-`PublicFooter` currently owns site-wide support / legal destinations including:
+Owner: `app/_components/PublicFooter.tsx`
 
-- Support (`/support`)
-- Refund (`/legal/refund`)
-- Terms (`/legal/terms`)
-- Privacy Policy (`/legal/privacy`)
-- Specified Commercial Transactions Act disclosure (`/legal/tokushoho`)
+`PublicFooter` owns **site-wide discovery / navigation only** for support and legal destinations. It does **not** own canonical page content.
+
+**UTILITY (`UTILITY_GROUP`):**
+
+- M55 method link
+- route authority: `lib/m55/method/m55MethodAuthority.ts`
+- `M55_METHOD_CANONICAL_ROUTE` = `/how-m55-works`
+- rendered by `PublicFooter` `UTILITY_GROUP`
+
+**SUPPORT / LEGAL (`SUPPORT_LEGAL_GROUP`) — site-wide navigation routes:**
+
+- `/support`
+- `/legal/refund`
+- `/legal/terms`
+- `/legal/privacy`
+- `/legal/tokushoho`
+
+**Canonical content owners (route → page owner):**
+
+| Route | Content owner |
+|---|---|
+| `/support` | `app/support/page.tsx` |
+| `/legal/refund` | `app/legal/refund/page.tsx` |
+| `/legal/terms` | `app/legal/terms/page.tsx` |
+| `/legal/privacy` | `app/legal/privacy/page.tsx` |
+| `/legal/tokushoho` | `app/legal/tokushoho/page.tsx` |
+
+**Navigation vs content rule:**
+
+- If the request changes legal/support **content**: modify the canonical route content owner above.
+- If the request changes site-wide **access / navigation**: modify `PublicFooter`.
+- Do not copy canonical legal/support content into `PublicFooter`.
+- Do not create a second page-local legal/support block merely because the shared footer or canonical page was not discovered.
+- Route-specific proximity disclosure is allowed only when an explicit product/legal contract requires it and the reason is stated before mutation.
+
+Footer owns/renders a site-wide copyright line (`©` + four-digit year + `M55`). The year is not frozen handoff authority.
+
+Before adding support/legal/privacy/refund/Tokushoho/method/footer utility: inspect `PublicFooter`, `m55MethodAuthority.ts`, and the canonical content owners above first.
+
+Existing utility or site-wide legal destinations must not be duplicated locally.
 
 ### Duplication prohibition
 
@@ -232,6 +358,7 @@ Before adding **any** page-local:
 
 - header
 - footer
+- M55 method utility link
 - support link block
 - refund link block
 - terms link block
