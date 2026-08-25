@@ -209,6 +209,7 @@ Machine enforcement of this contract runs through a shared control plane. It **p
 | Repository-independent engine | `lib/commercialQuality/**` | Must not import Product Truth, copy modules, route registries, selectors or Premium authorities |
 | M55 adapter and registrations | `lib/m55/commercialUx/qualityControl/**` | Imports existing governed identities by stable reference; never restates their authority |
 | Browser execution | `e2e/helpers/commercialQualityRunner.ts`, `e2e/commercial-quality-control-plane.spec.ts` | Reuses the clean-capture environment; read-only measurement, no sanitization before capture |
+| Safari MCP actual-browser adapter | `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` | Supported canonical actual-browser evidence adapter for WebKit observation; prepares evidence only; never grants Human approval or closure |
 | Verification and CI | `scripts/verify-m55-commercial-quality-control-plane.mjs`, `.github/workflows/audit.yml` | Registration and negative fixtures are mandatory; browser gate is mandatory |
 
 ### Surface / state manifest
@@ -249,6 +250,19 @@ Canonical promotion requires **all** of:
 Promotion is rejected on missing Human approval, stale source commit, changed manifest digest, altered candidate hash, implementation-generated self-approval, direct candidate-to-canonical assignment, or an unknown approval authority.
 
 Geometry remains authoritative **before** pixel comparison.
+
+### Safari MCP actual-browser evidence
+
+Safari MCP is the **supported canonical actual-browser evidence adapter** for WebKit observation within this control plane.
+
+Rules:
+
+- Safari MCP evidence **prepares** review material; it does **not** grant `USER_VISIBLE_CLOSED_GREEN`
+- Human commercial-quality approval remains mandatory and non-substitutable
+- SOURCE REVIEW GREEN does **not** equal ACTUAL-BROWSER GREEN
+- when implementer and independent auditor are the same agent, independent Safari audit GREEN is **impossible**
+
+Normative policy: `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md`.
 
 ## Relationship to lane contracts
 

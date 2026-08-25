@@ -43,6 +43,9 @@ const BROWSER_FILES = [
   'scripts/run-m55-commercial-quality-control-plane-e2e.mjs',
 ];
 const CONTRACT_DOC = 'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md';
+const SAFARI_SSOT_DOC = 'docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md';
+const BENCHMARK_STACK_DOC = 'docs/ssot/M55_UX_BENCHMARK_STACK.md';
+const SAFARI_RUNBOOK_DOC = 'docs/runbooks/M55_SAFARI_MCP_LOCAL_READINESS_RUNBOOK.md';
 const DECISION_LOG = 'docs/ssot/M55_DECISION_LOG.md';
 const WORKFLOW = '.github/workflows/audit.yml';
 const APPROVAL_PACK_DIR = 'test-results/commercial-quality-approval-pack';
@@ -134,6 +137,7 @@ const REPORT = {
   canonicalObservableStateCount: 0,
   registrationAliasCount: 0,
   fixedAuthGateFixtureCount: 0,
+  safariMcpGovernanceHooks: 0,
   candidatePack: null,
 };
 
@@ -786,6 +790,102 @@ function checkStateIdentityUniqueness() {
   }
 }
 
+function checkSafariMcpGovernance() {
+  let hooks = 0;
+
+  if (!existsSync(join(ROOT, SAFARI_SSOT_DOC))) {
+    fail('safari.ssot', `${SAFARI_SSOT_DOC} must exist`);
+    return;
+  }
+  hooks += 1;
+
+  if (!existsSync(join(ROOT, SAFARI_RUNBOOK_DOC))) {
+    fail('safari.runbook', `${SAFARI_RUNBOOK_DOC} must exist`);
+    return;
+  }
+  hooks += 1;
+
+  const safari = read(SAFARI_SSOT_DOC);
+  for (const needle of [
+    'canonical actual-browser observation adapter',
+    'M55_COMMERCIAL_QUALITY_CONTRACT.md',
+    'M55_UX_BENCHMARK_STACK.md',
+    'implementer == independent_auditor',
+    'SOURCE REVIEW GREEN',
+    'ACTUAL-BROWSER GREEN',
+    'LATEST_ELIGIBLE_STP',
+    '320',
+    '390',
+    'does not authorize benchmark reselection',
+  ]) {
+    if (!safari.includes(needle)) {
+      fail('safari.ssot', `${SAFARI_SSOT_DOC} must document: ${needle}`);
+    } else {
+      hooks += 1;
+    }
+  }
+
+  const contract = read(CONTRACT_DOC);
+  for (const needle of [
+    SAFARI_SSOT_DOC,
+    'supported canonical actual-browser evidence adapter',
+    'Human commercial-quality approval remains mandatory',
+    'SOURCE REVIEW GREEN does **not** equal ACTUAL-BROWSER GREEN',
+  ]) {
+    if (!contract.includes(needle)) {
+      fail('safari.contract', `${CONTRACT_DOC} must document Safari adapter hook: ${needle}`);
+    } else {
+      hooks += 1;
+    }
+  }
+
+  const benchmark = read(BENCHMARK_STACK_DOC);
+  for (const needle of [
+    'Safari MCP observation boundary',
+    'do not authorize benchmark reselection',
+    SAFARI_SSOT_DOC,
+  ]) {
+    if (!benchmark.includes(needle)) {
+      fail('safari.benchmark', `${BENCHMARK_STACK_DOC} must document non-reselection hook: ${needle}`);
+    } else {
+      hooks += 1;
+    }
+  }
+
+  const agents = read('AGENTS.md');
+  if (!agents.includes(SAFARI_SSOT_DOC)) {
+    fail('safari.agents', 'AGENTS.md must reference Safari MCP SSOT');
+  } else {
+    hooks += 1;
+  }
+  if (!agents.includes('ACTUAL-BROWSER GREEN')) {
+    fail('safari.agents', 'AGENTS.md must distinguish ACTUAL-BROWSER GREEN');
+  } else {
+    hooks += 1;
+  }
+
+  const cursorRule = read('.cursor/rules/m55-control-tower.mdc');
+  if (!cursorRule.includes(SAFARI_SSOT_DOC)) {
+    fail('safari.cursor', 'control-tower cursor rule must reference Safari MCP SSOT');
+  } else {
+    hooks += 1;
+  }
+  if (!cursorRule.includes('cannot') || !cursorRule.includes('independent Safari audit GREEN')) {
+    fail('safari.cursor', 'control-tower cursor rule must prohibit implementer self-certification');
+  } else {
+    hooks += 1;
+  }
+
+  const readme = read('docs/ssot/README.md');
+  if (!readme.includes('M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md')) {
+    fail('safari.readme', 'docs/ssot/README.md must register Safari MCP SSOT');
+  } else {
+    hooks += 1;
+  }
+
+  REPORT.safariMcpGovernanceHooks = hooks;
+}
+
 function main() {
   console.log('M55 commercial quality control plane verifier');
   console.log(`root: ${ROOT}`);
@@ -798,6 +898,7 @@ function main() {
   checkDependencies();
   checkCiWiring();
   checkDurablePolicy();
+  checkSafariMcpGovernance();
   if (EMIT_CANDIDATE_PACK && FAILURES.length === 0) emitCandidatePack();
 
   console.log('--- report ---');
