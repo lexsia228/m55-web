@@ -140,8 +140,9 @@ describe('paid compatibility report order safety', () => {
     const reverse = build({ personAUsesFirstPerspective: false });
     assert.equal(forward.chapters[0]?.phraseSpeaker, 'personA');
     assert.equal(forward.chapters[1]?.phraseSpeaker, 'personB');
-    assert.equal(forward.chapters[0]?.usablePhrase, reverse.chapters[1]?.usablePhrase);
-    assert.equal(forward.chapters[1]?.usablePhrase, reverse.chapters[0]?.usablePhrase);
+    assert.equal(forward.chapters[0]?.usablePhrase, reverse.chapters[0]?.usablePhrase);
+    assert.equal(forward.chapters[1]?.usablePhrase, reverse.chapters[1]?.usablePhrase);
+    assert.notEqual(forward.chapters[0]?.usablePhrase, forward.chapters[1]?.usablePhrase);
     assert.deepEqual(
       forward.chapters.slice(2).map((chapter) => chapter.usablePhrase),
       reverse.chapters.slice(2).map((chapter) => chapter.usablePhrase),
@@ -216,7 +217,7 @@ describe('paid compatibility reader, bridge, analytics, and preview boundary', (
     const css = read('components/compatibility/PaidCompatibilityReportReader.module.css');
     assert.match(reader, /aria-label="6章の一覧"/);
     assert.match(reader, /aria-expanded=\{isOpen\}/);
-    assert.match(reader, /章一覧へ戻る/);
+    assert.match(reader, /章一覧を見る/);
     assert.match(reader, /navigator\.clipboard\?\.writeText/);
     assert.match(reader, /コピーしました/);
     assert.match(reader, /コピーできませんでした/);

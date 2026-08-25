@@ -151,10 +151,10 @@ describe('current-context questionnaire contract', () => {
 
   it('implements one-question navigation, answer retention, and no result auth wall', () => {
     const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
-    assert.match(component, /整理 \{questionIndex \+ 1\}\/6/);
-    assert.match(component, /disabled=\{!selectedAnswer \|\| isPending\}/);
+    assert.match(component, /整理 \{questionIndex \+ 1\}\/\{questionTotal\}/);
+    assert.match(component, /disabled=\{\(!selectedAnswer && !currentQuestion\.optional\) \|\| isPending\}/);
     assert.match(component, /setQuestionIndex\(\(current\) => Math\.max\(0, current - 1\)\)/);
-    assert.match(component, /setAnswers\(\(current\) => \(\{ \.\.\.current/);
+    assert.match(component, /delete next\.focus/);
     assert.doesNotMatch(component, /useUser|SignedIn|SignInButton|auth wall/i);
   });
 
@@ -218,8 +218,8 @@ describe('same-pair current-context variance', () => {
 
   it('keeps the DOB baseline stable while expression, loop, and action change', () => {
     const pair = { personA: '1992-04-11', personB: '1994-09-23' };
-    const a = buildCompatibilityPublicResult(pair, undefined, CONTEXT_A);
-    const b = buildCompatibilityPublicResult(pair, undefined, CONTEXT_B);
+    const a = buildCompatibilityPublicResult(pair, 'R3', undefined, undefined, CONTEXT_A);
+    const b = buildCompatibilityPublicResult(pair, 'R3', undefined, undefined, CONTEXT_B);
     if (!a.ok || !b.ok) assert.fail('same-pair fixtures must build');
     assert.equal(a.value.free.overlap, b.value.free.overlap);
     assert.equal(a.value.free.difference, b.value.free.difference);
@@ -318,9 +318,11 @@ describe('current-context order safety and compatibility', () => {
       { personA: '1990-01-31', personB: '1990-02-01' },
     ];
     for (const pair of pairs) {
-      const forward = buildCompatibilityPublicResult(pair, undefined, CONTEXT_C);
+      const forward = buildCompatibilityPublicResult(pair, 'R3', undefined, undefined, CONTEXT_C);
       const reverse = buildCompatibilityPublicResult(
         { personA: pair.personB, personB: pair.personA },
+        'R3',
+        undefined,
         undefined,
         CONTEXT_C,
       );

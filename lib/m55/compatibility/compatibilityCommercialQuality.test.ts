@@ -69,6 +69,8 @@ function buildFixture(index: number) {
   const fixture = FIXTURES[index]!;
   const outcome = buildCompatibilityPublicResult(
     { personA: fixture.personA, personB: fixture.personB },
+    'R3',
+    undefined,
     undefined,
     fixture.answers,
   );
@@ -169,7 +171,7 @@ describe('paid report opening delivers the first thirty seconds', () => {
     assert.match(component, /data-testid="paid-report-opening-handling"/);
     assert.match(component, /Aに出やすい動き/);
     assert.match(component, /Bに出やすい動き/);
-    assert.match(component, /この連鎖を戻す入口/);
+    assert.match(component, /この連鎖の入口/);
     assert.match(component, /最初に使える一言/);
     const openingAt = component.indexOf('paid-report-opening-moves');
     const stackAt = component.indexOf('styles.chapterStack');
@@ -289,7 +291,7 @@ describe('paid report opening delivers the first thirty seconds', () => {
       personAUsesFirstPerspective: true,
     });
     const about = snapshot.chapters.find((chapter) => chapter.key === 'ch_about');
-    assert.equal(about?.title, '戻るときの最初の接点');
+    assert.equal(about?.title, '最初の接点を考える場面');
   });
 });
 

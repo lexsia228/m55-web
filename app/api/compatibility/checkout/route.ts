@@ -14,27 +14,40 @@ import {
   createCompatibilityPurchaseContext,
 } from '../../../../lib/m55/compatibility/compatibilityCommerceDb';
 import {
-  isCompleteCompatibilityCurrentContext,
-  type CompatibilityCurrentContextAnswers,
-  type CompatibilityCurrentQuestionId,
-} from '../../../../lib/m55/compatibility/currentContextContract.v1';
+  isCompleteCompatibilityCurrentContextV2,
+  questionsForRelationStage,
+  type CompatibilityCurrentContextAnswersV2,
+} from '../../../../lib/m55/compatibility/currentContextContract.v2';
 import {
   isCompleteCompatibilityGuestInput,
+  isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
 } from '../../../../lib/m55/compatibility/pairReadingGuestContract';
+import type { RelationStatusId } from '../../../../lib/m55/compatibility/pairReadingTypes';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const CHECKOUT_INPUT_KEYS = ['currentContext', 'personA', 'personB'] as const;
-const CURRENT_CONTEXT_KEYS: readonly CompatibilityCurrentQuestionId[] = [
-  'decisionPace',
-  'disagreement',
-  'distance',
-  'expressionPace',
-  'returnPattern',
-  'focus',
-];
+const CHECKOUT_INPUT_KEYS = [
+  'currentContext',
+  'personA',
+  'personB',
+  'relationStatusId',
+] as const;
+
+function isValidCheckoutCurrentContext(
+  rawContext: Record<string, unknown>,
+  relationStatusId: RelationStatusId,
+): rawContext is CompatibilityCurrentContextAnswersV2 {
+  const allowedKeys = new Set(
+    questionsForRelationStage(relationStatusId).map((question) => question.questionId),
+  );
+  const keys = Object.keys(rawContext);
+  if (!keys.every((key) => allowedKeys.has(key as keyof CompatibilityCurrentContextAnswersV2))) {
+    return false;
+  }
+  return isCompleteCompatibilityCurrentContextV2(rawContext, relationStatusId);
+}
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -50,7 +63,8 @@ export async function POST(req: NextRequest) {
   }
 
   let input: CompatibilityGuestInput;
-  let currentContext: CompatibilityCurrentContextAnswers;
+  let currentContext: CompatibilityCurrentContextAnswersV2;
+  let relationStatusId: RelationStatusId;
   try {
     const body = (await req.json()) as Record<string, unknown>;
     if (
@@ -63,20 +77,17 @@ export async function POST(req: NextRequest) {
       personA: typeof body.personA === 'string' ? body.personA : '',
       personB: typeof body.personB === 'string' ? body.personB : '',
     };
+    relationStatusId = isValidCompatibilityRelationStatusId(body.relationStatusId)
+      ? body.relationStatusId
+      : ('' as RelationStatusId);
     const rawContext =
       body.currentContext &&
       typeof body.currentContext === 'object' &&
       !Array.isArray(body.currentContext)
         ? body.currentContext as Record<string, unknown>
         : {};
-    if (
-      Object.keys(rawContext).sort().join('|') !==
-      [...CURRENT_CONTEXT_KEYS].sort().join('|')
-    ) {
+    if (!isValidCheckoutCurrentContext(rawContext, relationStatusId)) {
       return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
-    }
-    if (!isCompleteCompatibilityCurrentContext(rawContext)) {
-      return NextResponse.json({ error: 'invalid_input' }, { status: 400 });
     }
     currentContext = rawContext;
   } catch {
@@ -86,7 +97,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid_input' }, { status: 400 });
   }
 
-  const built = buildCanonicalCompatibilityPurchaseSnapshot(input, currentContext);
+  const built = buildCanonicalCompatibilityPurchaseSnapshot(
+    input,
+    relationStatusId,
+    currentContext,
+  );
   if (!built.ok) {
     return NextResponse.json({ error: 'invalid_input' }, { status: 400 });
   }

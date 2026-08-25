@@ -131,6 +131,7 @@ describe('public card display parse', () => {
       personBBirthDate: '1997-06-15',
       personAUsesFirstPerspective: true,
       focusLabel: 'conversation',
+      relationStatusId: 'R3',
     });
     const manual = buildPairManualV1({ spec, completeness: 'short' });
     const ids = manual.slots.map((slot) => slot.id);

@@ -51,6 +51,7 @@ describe('personalization resolution v2 pair cohort', () => {
       personBBirthDate: '1990-05-14',
       personAUsesFirstPerspective: true,
       focusLabel: '会話の進め方',
+      relationStatusId: 'R3',
     });
     const b = buildPairFreeInsightSpecV2({
       answers,
@@ -59,6 +60,7 @@ describe('personalization resolution v2 pair cohort', () => {
       personBBirthDate: '1990-05-14',
       personAUsesFirstPerspective: false,
       focusLabel: '会話の進め方',
+      relationStatusId: 'R3',
     });
     assert.notEqual(a.misreadLoop, b.misreadLoop);
     assert.match(a.betweenThem, /二人の間では/);
@@ -90,6 +92,7 @@ describe('personalization resolution v2 pair cohort', () => {
         personBBirthDate: b,
         personAUsesFirstPerspective: true,
         focusLabel: '会話の進め方',
+        relationStatusId: 'R3',
       });
       const pair = resolvePairCanonicalProfileV2({ personABirthDate: a, personBBirthDate: b });
       rows.push({
@@ -136,6 +139,7 @@ describe('personalization resolution v2 pair cohort', () => {
         personBBirthDate: c.b,
         personAUsesFirstPerspective: !c.swap,
         focusLabel: '会話の進め方',
+        relationStatusId: 'R3',
       });
       const between = spec.betweenThem;
       const sentences = between.split('。').filter((part) => part.trim().length > 0);
@@ -161,6 +165,7 @@ describe('personalization resolution v2 pair cohort', () => {
       personBBirthDate: '1990-05-14',
       personAUsesFirstPerspective: true,
       focusLabel: '会話の進め方',
+      relationStatusId: 'R3',
     });
     const b = buildPairFreeInsightSpecV2({
       answers: answersAt(4),
@@ -169,6 +174,7 @@ describe('personalization resolution v2 pair cohort', () => {
       personBBirthDate: '1990-05-14',
       personAUsesFirstPerspective: false,
       focusLabel: '会話の進め方',
+      relationStatusId: 'R3',
     });
     assert.notEqual(a.misreadLoop, b.misreadLoop);
     assert.notEqual(a.id, b.id);

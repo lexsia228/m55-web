@@ -11,7 +11,9 @@ import type {
   ExpressionPaceAnswer,
   ReturnPatternAnswer,
 } from './currentContextContract.v1';
-import type { PairAxisId, PairDifferenceType } from './pairReadingTypes';
+import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
+import { resolveFocusAnswer } from './currentContextContract.v2';
+import type { PairAxisId, PairDifferenceType, RelationStatusId } from './pairReadingTypes';
 import {
   resolveCivilBirthDimensions,
   type CivilBirthDimensionsV1,
@@ -30,16 +32,20 @@ export type PairFreeInteractionId =
   | 'hard_return_hard_space'
   | 'default_relationship_loop';
 
+export type PairFreeEvidenceQuestionId =
+  | 'decisionPace'
+  | 'disagreement'
+  | 'distance'
+  | 'expressionPace'
+  | 'returnPattern'
+  | 'approachIntent'
+  | 'contactPace'
+  | 'reapproachReadiness';
+
 export type PairFreeInsightSpecV2 = {
   readonly id: string;
   readonly kind: 'pair_free_v2';
-  readonly evidenceQuestionIds: readonly [
-    'decisionPace',
-    'disagreement',
-    'distance',
-    'expressionPace',
-    'returnPattern',
-  ];
+  readonly evidenceQuestionIds: readonly PairFreeEvidenceQuestionId[];
   readonly pairAxisId: PairAxisId;
   readonly pairDifferenceType: PairDifferenceType;
   readonly aBirthEvidence: true;
@@ -58,15 +64,44 @@ export type PairFreeInsightSpecV2 = {
   readonly premiumContinuation: string;
   readonly manifestationPatternId: string;
   readonly relationshipTriggerJa: string;
+  readonly relationStatusId: RelationStatusId;
 };
 
-const EVIDENCE = [
+const EVIDENCE_ESTABLISHED = [
   'decisionPace',
   'disagreement',
-  'distance',
   'expressionPace',
   'returnPattern',
-] as const;
+] as const satisfies readonly PairFreeEvidenceQuestionId[];
+
+const EVIDENCE_R1 = ['expressionPace', 'approachIntent'] as const satisfies readonly PairFreeEvidenceQuestionId[];
+const EVIDENCE_R2 = ['expressionPace', 'contactPace'] as const satisfies readonly PairFreeEvidenceQuestionId[];
+const EVIDENCE_R4 = ['distance', 'expressionPace'] as const satisfies readonly PairFreeEvidenceQuestionId[];
+const EVIDENCE_R5 = ['reapproachReadiness', 'expressionPace', 'distance'] as const satisfies readonly PairFreeEvidenceQuestionId[];
+
+const EVIDENCE = EVIDENCE_ESTABLISHED;
+
+type InsightContextAnswers = Omit<CompatibilityCurrentContextAnswers, 'distance'> & {
+  distance?: DistanceAnswer;
+};
+
+function insightAnswersFromV2(
+  answersV2: CompatibilityCurrentContextAnswersV2,
+  relationStatusId: RelationStatusId,
+): InsightContextAnswers {
+  const focus = resolveFocusAnswer(relationStatusId, answersV2.focus);
+  const base: InsightContextAnswers = {
+    decisionPace: answersV2.decisionPace ?? 'decide_varies',
+    disagreement: answersV2.disagreement ?? 'take_space',
+    expressionPace: answersV2.expressionPace,
+    returnPattern: answersV2.returnPattern ?? 'time_restores',
+    focus,
+  };
+  if (answersV2.distance) {
+    base.distance = answersV2.distance;
+  }
+  return base;
+}
 
 function roleLabels(
   personAUsesFirstPerspective: boolean,
@@ -78,7 +113,7 @@ function roleLabels(
 }
 
 function selectInteraction(
-  answers: CompatibilityCurrentContextAnswers,
+  answers: InsightContextAnswers,
 ): { interactionId: PairFreeInteractionId; confidence: 'high' | 'medium' } {
   if (
     (answers.decisionPace === 'decide_now' && answers.expressionPace === 'words_later') ||
@@ -92,7 +127,7 @@ function selectInteraction(
   if (answers.disagreement === 'take_space' || answers.distance === 'go_quiet') {
     return { interactionId: 'space_misread', confidence: 'high' };
   }
-  if (answers.disagreement === 'one_carries' && answers.distance !== 'explain_space') {
+  if (answers.disagreement === 'one_carries' && answers.distance && answers.distance !== 'explain_space') {
     return { interactionId: 'one_carries_quiet', confidence: 'high' };
   }
   if (answers.decisionPace === 'decide_later' && answers.expressionPace === 'words_soon') {
@@ -165,7 +200,7 @@ const TEMPO: Readonly<
 
 function loopFromConflict(
   disagreement: DisagreementAnswer,
-  distance: DistanceAnswer,
+  distance: DistanceAnswer | undefined,
   returning: ReturnPatternAnswer,
   roles: { visible: string; inward: string },
 ): { loop: string; reset: string } {
@@ -208,7 +243,7 @@ function loopFromConflict(
 }
 
 function sideLead(
-  answers: CompatibilityCurrentContextAnswers,
+  answers: InsightContextAnswers,
   roles: { visible: string; inward: string },
 ): string {
   const { visible, inward } = roles;
@@ -237,7 +272,7 @@ function sideLead(
 }
 
 function pairOpeningHit(
-  _answers: CompatibilityCurrentContextAnswers,
+  _answers: InsightContextAnswers,
   visibleStart: CivilBirthDimensionsV1['start'],
   inwardStart: CivilBirthDimensionsV1['start'],
   interactionId: PairFreeInteractionId,
@@ -313,7 +348,7 @@ function meshFromBirth(
 }
 
 function pickPairAnswerSupport(
-  answers: CompatibilityCurrentContextAnswers,
+  answers: InsightContextAnswers,
   interactionId: PairFreeInteractionId,
 ): string {
   const returnBeat =
@@ -327,7 +362,9 @@ function pickPairAnswerSupport(
       ? '離れる前に次に話す時点を置けると噛み合いやすい。'
       : answers.distance === 'go_quiet'
         ? '静かになる時間を拒否と読みやすい。'
-        : '間を取ること自体が負荷になりやすい。';
+        : answers.distance === 'space_is_hard'
+          ? '間を取ること自体が負荷になりやすい。'
+          : '';
   const disagreeBeat =
     answers.disagreement === 'talk_now'
       ? '違いが出ると、その場で言葉を重ねたくなる。'
@@ -342,7 +379,10 @@ function pickPairAnswerSupport(
     return returnBeat;
   }
   if (interactionId === 'hard_return_hard_space') {
-    return distanceBeat;
+    return distanceBeat || disagreeBeat;
+  }
+  if (!answers.distance) {
+    return disagreeBeat;
   }
   if (answers.disagreement !== 'talk_now') return disagreeBeat;
   if (answers.distance !== 'explain_space') return distanceBeat;
@@ -382,7 +422,7 @@ function pickPairBirthSupport(
 }
 
 function betweenThemLine(
-  answers: CompatibilityCurrentContextAnswers,
+  answers: InsightContextAnswers,
   roles: { visible: string; inward: string },
   birth: string,
   hit: string,
@@ -409,7 +449,39 @@ function betweenThemLine(
   return `二人の間では、${hit}${answer}。${mechanism}${answerSupport}${birthSupport}そのため二人の間では、${birth}。`;
 }
 
-function premiumContinuation(focusLabel: string, interactionId: PairFreeInteractionId): string {
+function premiumContinuation(
+  focusLabel: string,
+  interactionId: PairFreeInteractionId,
+  relationStatusId: RelationStatusId,
+): string {
+  if (relationStatusId === 'R1') {
+    return [
+      '無料では、まだ会話がない状態で起きやすい読み取りのずれまでを読みました。',
+      '「二人の相性レポート」では、同じ流れを六つの場面に分け、自分の中の動き、読み取りがずれる入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+    ].join('');
+  }
+  if (relationStatusId === 'R2') {
+    return [
+      '無料では、やり取りの速さや受け取り方のずれまでを読みました。',
+      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、受け取りがずれる入口、言葉を置き直す順序、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+    ].join('');
+  }
+  if (relationStatusId === 'R4') {
+    return [
+      '無料では、距離が感じられる場面での読み取りのずれまでを読みました。',
+      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、間合いがずれる入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+    ].join('');
+  }
+  if (relationStatusId === 'R5') {
+    return [
+      '無料では、もう一度近づく前の読み取りのずれまでを読みました。',
+      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、再接近の入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+    ].join('');
+  }
   const hook =
     interactionId === 'space_misread'
       ? '間の意味が分かれるこのループが、他の場面ではどう出るか'
@@ -429,14 +501,423 @@ function premiumContinuation(focusLabel: string, interactionId: PairFreeInteract
   ].join('');
 }
 
-export function buildPairFreeInsightSpecV2(args: {
-  answers: CompatibilityCurrentContextAnswers;
+function buildR1FreeInsight(args: {
+  answersV2: CompatibilityCurrentContextAnswersV2;
   pairAxisId: PairAxisId;
   personABirthDate: string;
   personBBirthDate: string;
   personAUsesFirstPerspective: boolean;
   focusLabel: string;
+  relationStatusId: 'R1';
 }): PairFreeInsightSpecV2 {
+  const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
+  const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
+  if (!aCivil.ok || !bCivil.ok) throw new Error('invalid_pair_dob');
+  const pairProfile = resolvePairCanonicalProfileV2({
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
+  });
+  const differenceType = derivePairDifferenceType(
+    args.personABirthDate,
+    args.personBBirthDate,
+    args.pairAxisId,
+  );
+  const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
+  const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
+  const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
+  const meshMoment =
+    args.answersV2.expressionPace === 'words_soon'
+      ? '気持ちがすぐ言葉になりやすい日は、言葉の出方と相手の反応の見えなさが重なりやすいことがあります。'
+      : args.answersV2.expressionPace === 'words_later'
+        ? '言葉が遅れて出る日は、整っていない感覚と相手の反応の見えなさが重なりやすいことがあります。'
+        : 'その日によって言葉の出方が変わるため、今日の温度が読み取りにくくなることがあります。';
+  const mismatchEntry =
+    args.answersV2.approachIntent === 'consider_reaching'
+      ? '小さな接点を考え始めると、相手の反応が見えないまま先に動きが大きくなりやすいことがあります。'
+      : args.answersV2.approachIntent === 'wait_for_signal'
+        ? '相手の様子を見ながら動く前に確かめたいとき、自分の中だけで意味を置く時間が長くなりやすいことがあります。'
+        : 'まだ近づくかどうか決めていないとき、動かない間に相手の気持ちを想像しやすいことがあります。';
+  const misreadLoop =
+    '相手の反応が見えないまま、自分の中だけで意味を置いてしまうと、静けさを拒否のように受け取りやすくなることがあります。相手の気持ちを決めつけずに読むと、ずれが小さく見えることがあります。';
+  const reset =
+    args.answersV2.approachIntent === 'consider_reaching'
+      ? '小さな接点を考え始める前後で、相手の反応が見えない時間と自分の中で意味を置く時間が重なりやすい読み取りのずれが起きやすいことがあります。'
+      : 'まだ近づくかどうか決めていないとき、静けさを拒否の合図のように受け取りやすい読み取りのずれが起きやすいことがあります。';
+  const betweenThem =
+    '二人の間では、まだ会話が始まっていない状態でも、気持ちの言葉の出方と、近づくかどうかの迷いが、読み取りのずれを生みやすいことがあります。';
+  const hit =
+    'まだ会話がない状態では、相手の反応が見えないまま自分の中で意味を置きやすく、読み取りのずれが先に立ちやすいことがあります。';
+  return {
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:no_contact:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${args.answersV2.expressionPace}:${args.answersV2.approachIntent}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    kind: 'pair_free_v2',
+    evidenceQuestionIds: EVIDENCE_R1,
+    pairAxisId: args.pairAxisId,
+    pairDifferenceType: differenceType,
+    aBirthEvidence: true,
+    bBirthEvidence: true,
+    pairAnswerEvidence: true,
+    independentAAnswerEvidence: false,
+    independentBAnswerEvidence: false,
+    interactionId: 'default_relationship_loop',
+    confidence: 'medium',
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    betweenThem,
+    meshMoment,
+    mismatchEntry,
+    misreadLoop,
+    reset,
+    premiumContinuation: premiumContinuation(args.focusLabel, 'default_relationship_loop', 'R1'),
+    manifestationPatternId: `no_contact:${visibleCivil.start}x${inwardCivil.start}:${args.answersV2.expressionPace}:${args.answersV2.approachIntent}`,
+    relationshipTriggerJa: hit,
+    relationStatusId: 'R1',
+  };
+}
+
+function buildR2FreeInsight(args: {
+  answersV2: CompatibilityCurrentContextAnswersV2;
+  pairAxisId: PairAxisId;
+  personABirthDate: string;
+  personBBirthDate: string;
+  personAUsesFirstPerspective: boolean;
+  focusLabel: string;
+  relationStatusId: 'R2';
+}): PairFreeInsightSpecV2 {
+  const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
+  const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
+  if (!aCivil.ok || !bCivil.ok) throw new Error('invalid_pair_dob');
+  const pairProfile = resolvePairCanonicalProfileV2({
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
+  });
+  const differenceType = derivePairDifferenceType(
+    args.personABirthDate,
+    args.personBBirthDate,
+    args.pairAxisId,
+  );
+  const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
+  const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
+  const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
+  const meshMoment =
+    args.answersV2.contactPace === 'steady_contact'
+      ? '一定のリズムで続いているときは、速さの差が目立ちにくいことがあります。'
+      : args.answersV2.contactPace === 'light_contact'
+        ? '短いやり取りが中心のときは、反応の見え方が小さく感じられやすいことがあります。'
+        : '時期によってやり取りの量が変わるときは、今日の温度が読み取りにくいことがあります。';
+  const mismatchEntry =
+    args.answersV2.expressionPace === 'words_soon'
+      ? '言葉が先に出る日は、相手の反応がまだ見えない時間を長く感じやすいことがあります。'
+      : args.answersV2.expressionPace === 'words_later'
+        ? '言葉が遅れて出る日は、返す前に整える時間を、相手には関心の薄さのように見えやすいことがあります。'
+        : 'その日によって言葉の出方が変わるため、同じやり取りでも受け取り方がずれやすいことがあります。';
+  const misreadLoop =
+    '反応の量や速さだけを手がかりにすると、相手の気持ちを決めつけやすくなることがあります。届いた合図の見え方が分かれると、読み取りのずれが生じやすいことがあります。';
+  const reset =
+    'やり取りの速さと受け取った合図の見え方が分かれやすく、読み取りのずれが生じやすいことがあります。';
+  const betweenThem =
+    '二人の間では、やり取りの速さや反応の見え方の違いが、まだ関係の形を決めずに読み取りのずれを生みやすいことがあります。';
+  const hit =
+    'やり取りのリズムは近く見えても、受け取った合図の見え方が分かれやすいことがあります。';
+  return {
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:early_contact:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${args.answersV2.expressionPace}:${args.answersV2.contactPace}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    kind: 'pair_free_v2',
+    evidenceQuestionIds: EVIDENCE_R2,
+    pairAxisId: args.pairAxisId,
+    pairDifferenceType: differenceType,
+    aBirthEvidence: true,
+    bBirthEvidence: true,
+    pairAnswerEvidence: true,
+    independentAAnswerEvidence: false,
+    independentBAnswerEvidence: false,
+    interactionId: 'default_relationship_loop',
+    confidence: 'medium',
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    betweenThem,
+    meshMoment,
+    mismatchEntry,
+    misreadLoop,
+    reset,
+    premiumContinuation: premiumContinuation(args.focusLabel, 'default_relationship_loop', 'R2'),
+    manifestationPatternId: `early_contact:${visibleCivil.start}x${inwardCivil.start}:${args.answersV2.expressionPace}:${args.answersV2.contactPace}`,
+    relationshipTriggerJa: hit,
+    relationStatusId: 'R2',
+  };
+}
+
+function buildR4FreeInsight(args: {
+  answersV2: CompatibilityCurrentContextAnswersV2;
+  pairAxisId: PairAxisId;
+  personABirthDate: string;
+  personBBirthDate: string;
+  personAUsesFirstPerspective: boolean;
+  focusLabel: string;
+  relationStatusId: 'R4';
+}): PairFreeInsightSpecV2 {
+  const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
+  const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
+  if (!aCivil.ok || !bCivil.ok) throw new Error('invalid_pair_dob');
+  const pairProfile = resolvePairCanonicalProfileV2({
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
+  });
+  const differenceType = derivePairDifferenceType(
+    args.personABirthDate,
+    args.personBBirthDate,
+    args.pairAxisId,
+  );
+  const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
+  const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
+  const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
+  const distance = args.answersV2.distance ?? 'go_quiet';
+  const meshMoment =
+    distance === 'explain_space'
+      ? '距離を取る理由や時間が伝わっているときは、間合いの見え方と言葉の出方がずれやすいことがあります。'
+      : distance === 'go_quiet'
+        ? '説明より先に静かになっているときは、静けさの意味が読み取りにくくなることがあります。'
+        : '距離そのものを扱いにくいときは、間合いの見え方が大きく見えやすいことがあります。';
+  const mismatchEntry =
+    args.answersV2.expressionPace === 'words_soon'
+      ? '言葉が先に出る日は、間合いの見え方が急に近づいたように感じられやすいことがあります。'
+      : args.answersV2.expressionPace === 'words_later'
+        ? '言葉が遅れて出る日は、静かな時間が長く感じられやすいことがあります。'
+        : 'その日によって言葉の出方が変わるため、同じ間合いでも受け取り方がずれやすいことがあります。';
+  const misreadLoop =
+    '間合いの見え方だけを手がかりにすると、相手の気持ちを決めつけやすくなることがあります。距離の理由を一つに決めずに読むと、ずれが小さく見えることがあります。';
+  const reset =
+    '距離が感じられる場面では、間合いの見え方と言葉の出方の差が、読み取りのずれとして見えやすいことがあります。';
+  const betweenThem =
+    '二人の間では、距離が感じられる状態でも、間合いの見え方と言葉の出方の違いが、読み取りのずれを生みやすいことがあります。';
+  const hit =
+    '距離がある場面では、間合いの見え方の差が先に立ちやすいことがあります。';
+  return {
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:distanced:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${args.answersV2.expressionPace}:${distance}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    kind: 'pair_free_v2',
+    evidenceQuestionIds: EVIDENCE_R4,
+    pairAxisId: args.pairAxisId,
+    pairDifferenceType: differenceType,
+    aBirthEvidence: true,
+    bBirthEvidence: true,
+    pairAnswerEvidence: true,
+    independentAAnswerEvidence: false,
+    independentBAnswerEvidence: false,
+    interactionId: 'default_relationship_loop',
+    confidence: 'medium',
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    betweenThem,
+    meshMoment,
+    mismatchEntry,
+    misreadLoop,
+    reset,
+    premiumContinuation: premiumContinuation(args.focusLabel, 'default_relationship_loop', 'R4'),
+    manifestationPatternId: `distanced:${visibleCivil.start}x${inwardCivil.start}:${args.answersV2.expressionPace}:${distance}`,
+    relationshipTriggerJa: hit,
+    relationStatusId: 'R4',
+  };
+}
+
+function buildR5FreeInsight(args: {
+  answersV2: CompatibilityCurrentContextAnswersV2;
+  pairAxisId: PairAxisId;
+  personABirthDate: string;
+  personBBirthDate: string;
+  personAUsesFirstPerspective: boolean;
+  focusLabel: string;
+  relationStatusId: 'R5';
+}): PairFreeInsightSpecV2 {
+  const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
+  const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
+  if (!aCivil.ok || !bCivil.ok) throw new Error('invalid_pair_dob');
+  const pairProfile = resolvePairCanonicalProfileV2({
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
+  });
+  const differenceType = derivePairDifferenceType(
+    args.personABirthDate,
+    args.personBBirthDate,
+    args.pairAxisId,
+  );
+  const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
+  const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
+  const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
+  const readiness = args.answersV2.reapproachReadiness ?? 'timing_uncertain';
+  const distance = args.answersV2.distance ?? 'go_quiet';
+  const meshMoment =
+    readiness === 'small_step_first'
+      ? '小さな接点から始めたいときは、大きな話を先に置きにくいことがあります。'
+      : readiness === 'need_clarity_first'
+        ? '先に自分の気持ちを整理したいときは、近づく前に整える時間が必要に感じられやすいことがあります。'
+        : 'タイミングがまだ見えないときは、近づくかどうかの判断が保留になりやすいことがあります。';
+  const mismatchEntry =
+    distance === 'explain_space'
+      ? '距離の理由は伝わっていても、再接近のタイミングの見え方がずれやすいことがあります。'
+      : distance === 'go_quiet'
+        ? '静かな間合いのあとでは、小さな接点の重さが読み取りにくくなることがあります。'
+        : '距離そのものを扱いにくいときは、再接近の入口が大きく見えやすいことがあります。';
+  const misreadLoop =
+    '相手の気持ちを決めつけずに読むと、再接近の入口が小さく見えることがあります。自分が整えたい一点と、間合いの見え方がずれると、読み取りのずれが生じやすいことがあります。';
+  const reset =
+    'もう一度近づく前は、再接近のタイミングと今の間合いの見え方が、読み取りのずれとして見えやすいことがあります。';
+  const betweenThem =
+    '二人の間では、もう一度近づくことを考える場面でも、再接近のタイミングと間合いの見え方が、読み取りのずれを生みやすいことがあります。';
+  const hit =
+    '再接近を考える場面では、間合いの見え方の差が先に立ちやすいことがあります。';
+  return {
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:reapproach:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${readiness}:${distance}:${args.answersV2.expressionPace}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    kind: 'pair_free_v2',
+    evidenceQuestionIds: EVIDENCE_R5,
+    pairAxisId: args.pairAxisId,
+    pairDifferenceType: differenceType,
+    aBirthEvidence: true,
+    bBirthEvidence: true,
+    pairAnswerEvidence: true,
+    independentAAnswerEvidence: false,
+    independentBAnswerEvidence: false,
+    interactionId: 'default_relationship_loop',
+    confidence: 'medium',
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    betweenThem,
+    meshMoment,
+    mismatchEntry,
+    misreadLoop,
+    reset,
+    premiumContinuation: premiumContinuation(args.focusLabel, 'default_relationship_loop', 'R5'),
+    manifestationPatternId: `reapproach:${visibleCivil.start}x${inwardCivil.start}:${readiness}:${distance}:${args.answersV2.expressionPace}`,
+    relationshipTriggerJa: hit,
+    relationStatusId: 'R5',
+  };
+}
+
+function buildEstablishedNativeFreeInsight(args: {
+  answersV2: CompatibilityCurrentContextAnswersV2;
+  pairAxisId: PairAxisId;
+  personABirthDate: string;
+  personBBirthDate: string;
+  personAUsesFirstPerspective: boolean;
+  focusLabel: string;
+  relationStatusId: 'R3' | 'R6';
+}): PairFreeInsightSpecV2 {
+  const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
+  const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
+  if (!aCivil.ok || !bCivil.ok) throw new Error('invalid_pair_dob');
+  const pairProfile = resolvePairCanonicalProfileV2({
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
+  });
+  const differenceType = derivePairDifferenceType(
+    args.personABirthDate,
+    args.personBBirthDate,
+    args.pairAxisId,
+  );
+  const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
+  const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
+  const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
+  const decisionPace = args.answersV2.decisionPace ?? 'decide_later';
+  const disagreement = args.answersV2.disagreement ?? 'talk_now';
+  const expressionPace = args.answersV2.expressionPace ?? 'words_soon';
+  const returnPattern = args.answersV2.returnPattern ?? 'someone_reaches';
+  const meshMoment =
+    expressionPace === 'words_soon'
+      ? '気持ちがすぐ言葉になりやすい日は、決める速さとの差が先に見えやすいことがあります。'
+      : expressionPace === 'words_later'
+        ? '言葉が遅れて出る日は、結論の置き方との差が先に見えやすいことがあります。'
+        : 'その日によって言葉の出方が変わるため、同じ場面でも進み方の見え方がずれやすいことがあります。';
+  const mismatchEntry =
+    decisionPace === 'decide_now'
+      ? 'その場で進めたい動きと、言葉が整うまでの時間差が、読み取りのずれとして見えやすいことがあります。'
+      : decisionPace === 'decide_later'
+        ? '結論を置く前に言葉が先に出ると、読み取りのずれとして見えやすいことがあります。'
+        : '決める速さが場面で変わるため、今日の進み方が読み取りにくくなることがあります。';
+  const misreadLoop =
+    disagreement === 'talk_now'
+      ? '違いをその場の言葉で揃えたい動きと、静かに整えたい動きが逆方向に見えやすいことがあります。受け取り方の差だけを先に見ると、ずれが小さく見えることがあります。'
+      : disagreement === 'take_space'
+        ? 'いったん間を取る動きと、先に声をかける動きの意味が、同じ場面でも違って見えやすいことがあります。間の意味を一つに決めずに読むと、ずれが小さく見えることがあります。'
+        : '話題を引き取る動きと、まだ残っている一点の見え方がずれやすいことがあります。出なかった一点だけを先に見ると、ずれが小さく見えることがあります。';
+  const reset =
+    returnPattern === 'someone_reaches'
+      ? '戻るきっかけの見え方と、決める速さの差が、読み取りのずれとして見えやすいことがあります。'
+      : returnPattern === 'time_restores'
+        ? '自然に戻ったあとの温度差と、言葉の出方の差が、読み取りのずれとして見えやすいことがあります。'
+        : '戻る入口の重さと、今の間合いの見え方が、読み取りのずれとして見えやすいことがあります。';
+  const betweenThem =
+    args.relationStatusId === 'R6'
+      ? '二人の間では、日常のリズムの中でも、決める速さと言葉の出方の違いが、読み取りのずれを生みやすいことがあります。'
+      : '二人の間では、関係が続いている場面でも、決める速さと受け止め方の違いが、読み取りのずれを生みやすいことがあります。';
+  const hit =
+    args.relationStatusId === 'R6'
+      ? '日常のリズムの中では、速さの差が先に立ちやすいことがあります。'
+      : '意見の違いより、話し終えたと感じるタイミングの差が先に立ちやすいことがあります。';
+  return {
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:established_native:${args.relationStatusId}:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${decisionPace}:${disagreement}:${expressionPace}:${returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    kind: 'pair_free_v2',
+    evidenceQuestionIds: EVIDENCE_ESTABLISHED,
+    pairAxisId: args.pairAxisId,
+    pairDifferenceType: differenceType,
+    aBirthEvidence: true,
+    bBirthEvidence: true,
+    pairAnswerEvidence: true,
+    independentAAnswerEvidence: false,
+    independentBAnswerEvidence: false,
+    interactionId: 'default_relationship_loop',
+    confidence: 'medium',
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    betweenThem,
+    meshMoment,
+    mismatchEntry,
+    misreadLoop,
+    reset,
+    premiumContinuation: premiumContinuation(
+      args.focusLabel,
+      'default_relationship_loop',
+      args.relationStatusId,
+    ),
+    manifestationPatternId: `established_native:${args.relationStatusId}:${visibleCivil.start}x${inwardCivil.start}:${decisionPace}:${disagreement}:${expressionPace}:${returnPattern}`,
+    relationshipTriggerJa: hit,
+    relationStatusId: args.relationStatusId,
+  };
+}
+
+export function buildPairFreeInsightSpecV2(args: {
+  answers?: CompatibilityCurrentContextAnswers;
+  answersV2?: CompatibilityCurrentContextAnswersV2;
+  pairAxisId: PairAxisId;
+  personABirthDate: string;
+  personBBirthDate: string;
+  personAUsesFirstPerspective: boolean;
+  focusLabel: string;
+  relationStatusId: RelationStatusId;
+}): PairFreeInsightSpecV2 {
+  if (args.relationStatusId === 'R1') {
+    if (!args.answersV2) throw new Error('answersV2_required');
+    return buildR1FreeInsight({ ...args, answersV2: args.answersV2, relationStatusId: 'R1' });
+  }
+  if (args.relationStatusId === 'R2') {
+    if (!args.answersV2) throw new Error('answersV2_required');
+    return buildR2FreeInsight({ ...args, answersV2: args.answersV2, relationStatusId: 'R2' });
+  }
+  if (args.relationStatusId === 'R4') {
+    if (!args.answersV2) throw new Error('answersV2_required');
+    return buildR4FreeInsight({ ...args, answersV2: args.answersV2, relationStatusId: 'R4' });
+  }
+  if (args.relationStatusId === 'R5') {
+    if (!args.answersV2) throw new Error('answersV2_required');
+    return buildR5FreeInsight({ ...args, answersV2: args.answersV2, relationStatusId: 'R5' });
+  }
+  if (
+    (args.relationStatusId === 'R3' || args.relationStatusId === 'R6') &&
+    args.answersV2
+  ) {
+    return buildEstablishedNativeFreeInsight({
+      ...args,
+      answersV2: args.answersV2,
+      relationStatusId: args.relationStatusId,
+    });
+  }
+  const answers =
+    args.answers ??
+    (args.answersV2
+      ? insightAnswersFromV2(args.answersV2, args.relationStatusId)
+      : undefined);
+  if (!answers) throw new Error('answers_required');
   const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
   const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
   if (!aCivil.ok || !bCivil.ok) {
@@ -451,16 +932,16 @@ export function buildPairFreeInsightSpecV2(args: {
     args.personBBirthDate,
     args.pairAxisId,
   );
-  const selected = selectInteraction(args.answers);
+  const selected = selectInteraction(answers);
   const roles = roleLabels(args.personAUsesFirstPerspective);
   const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
   const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
   const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
-  const tempo = TEMPO[args.answers.decisionPace][args.answers.expressionPace];
+  const tempo = TEMPO[answers.decisionPace][answers.expressionPace];
   const conflict = loopFromConflict(
-    args.answers.disagreement,
-    args.answers.distance,
-    args.answers.returnPattern,
+    answers.disagreement,
+    answers.distance,
+    answers.returnPattern,
     roles,
   );
   const birth = birthLead(
@@ -472,15 +953,27 @@ export function buildPairFreeInsightSpecV2(args: {
     stemDelta,
   );
   const hit = pairOpeningHit(
-    args.answers,
+    answers,
     visibleCivil.start,
     inwardCivil.start,
     selected.interactionId,
   );
   const mesh = meshFromBirth(visibleCivil, inwardCivil, tempo.mesh);
   const misreadLoop = conflict.loop.replace(/。{2,}/g, '。');
+  const betweenThem = betweenThemLine(
+    answers,
+    roles,
+    birth,
+    hit,
+    selected.interactionId,
+    tempo.between,
+    pairProfile,
+    differenceType,
+    visibleCivil,
+    inwardCivil,
+  );
   return {
-    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'l1' : 'l0'}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'l1' : 'l0'}:${answers.decisionPace}-${answers.disagreement}-${answers.distance ?? 'no_distance'}-${answers.expressionPace}-${answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
     kind: 'pair_free_v2',
     evidenceQuestionIds: EVIDENCE,
     pairAxisId: args.pairAxisId,
@@ -493,24 +986,18 @@ export function buildPairFreeInsightSpecV2(args: {
     interactionId: selected.interactionId,
     confidence: selected.confidence,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
-    betweenThem: betweenThemLine(
-      args.answers,
-      roles,
-      birth,
-      hit,
-      selected.interactionId,
-      tempo.between,
-      pairProfile,
-      differenceType,
-      visibleCivil,
-      inwardCivil,
-    ),
+    betweenThem,
     meshMoment: mesh,
     mismatchEntry: tempo.entry,
     misreadLoop,
     reset: conflict.reset,
-    premiumContinuation: premiumContinuation(args.focusLabel, selected.interactionId),
-    manifestationPatternId: `${selected.interactionId}:${visibleCivil.start}x${inwardCivil.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'lsame' : 'ldiff'}:${pairProfile?.a.stemLane ?? 'x'}x${pairProfile?.b.stemLane ?? 'x'}:${args.answers.decisionPace}:${args.answers.disagreement}:${args.answers.distance}:${args.answers.expressionPace}:${args.answers.returnPattern}`,
+    premiumContinuation: premiumContinuation(
+      args.focusLabel,
+      selected.interactionId,
+      args.relationStatusId,
+    ),
+    manifestationPatternId: `${selected.interactionId}:${visibleCivil.start}x${inwardCivil.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'lsame' : 'ldiff'}:${pairProfile?.a.stemLane ?? 'x'}x${pairProfile?.b.stemLane ?? 'x'}:${answers.decisionPace}:${answers.disagreement}:${answers.distance ?? 'no_distance'}:${answers.expressionPace}:${answers.returnPattern}`,
     relationshipTriggerJa: hit,
+    relationStatusId: args.relationStatusId,
   };
 }

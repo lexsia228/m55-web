@@ -8,7 +8,7 @@ import {
 import PaidCompatibilityReportReader from '../PaidCompatibilityReportReader';
 import { CompatibilitySavedReportsSection } from '../../my/CompatibilitySavedReportsSection';
 import { buildPaidCompatibilityReportV1 } from '../../../lib/m55/compatibility/buildPaidCompatibilityReportV1';
-import type { CompatibilityCurrentContextAnswers } from '../../../lib/m55/compatibility/currentContextContract.v1';
+import type { CompatibilityCurrentContextAnswersV2 } from '../../../lib/m55/compatibility/currentContextContract.v2';
 
 const STATES = [
   ['confirm-a', 'A purchase confirmation · context A'],
@@ -24,7 +24,7 @@ const STATES = [
   ['off', 'K commerce flag OFF'],
 ] as const;
 
-const CONTEXT_A: CompatibilityCurrentContextAnswers = {
+const CONTEXT_A: CompatibilityCurrentContextAnswersV2 = {
   decisionPace: 'decide_later',
   disagreement: 'talk_now',
   distance: 'explain_space',
@@ -32,7 +32,7 @@ const CONTEXT_A: CompatibilityCurrentContextAnswers = {
   returnPattern: 'someone_reaches',
   focus: 'conversation_focus',
 };
-const CONTEXT_B: CompatibilityCurrentContextAnswers = {
+const CONTEXT_B: CompatibilityCurrentContextAnswersV2 = {
   decisionPace: 'decide_later',
   disagreement: 'take_space',
   distance: 'go_quiet',
@@ -40,7 +40,7 @@ const CONTEXT_B: CompatibilityCurrentContextAnswers = {
   returnPattern: 'return_is_hard',
   focus: 'return_focus',
 };
-const CONTEXT_Q6: CompatibilityCurrentContextAnswers = {
+const CONTEXT_Q6: CompatibilityCurrentContextAnswersV2 = {
   ...CONTEXT_A,
   focus: 'distance_focus',
 };
@@ -48,14 +48,14 @@ const CONTEXT_Q6: CompatibilityCurrentContextAnswers = {
 export default function CompatibilityCommercePreviewClient() {
   const [state, setState] = useState<(typeof STATES)[number][0]>('confirm-a');
   const snapshots = useMemo(() => {
-    const build = (currentContext: CompatibilityCurrentContextAnswers) =>
+    const build = (currentContextV2: CompatibilityCurrentContextAnswersV2) =>
       buildPaidCompatibilityReportV1({
       pairAxisId: 'A3',
       paidTopicId: 'T2',
       relationStatusId: 'R3',
       temperatureId: 'E1',
       personAUsesFirstPerspective: true,
-        currentContext,
+        currentContextV2,
       });
     return {
       a: build(CONTEXT_A),

@@ -7,116 +7,119 @@ import {
 } from '../../../lib/m55/compatibility/buildPaidCompatibilityReportV1';
 import PaidCompatibilityReportReader from '../PaidCompatibilityReportReader';
 
-const CONTEXT_A = {
-  decisionPace: 'decide_later',
-  disagreement: 'talk_now',
-  distance: 'explain_space',
-  expressionPace: 'words_soon',
-  returnPattern: 'someone_reaches',
-  focus: 'conversation_focus',
-} as const;
-
-const CONTEXT_B = {
-  decisionPace: 'decide_later',
-  disagreement: 'take_space',
-  distance: 'go_quiet',
-  expressionPace: 'words_later',
-  returnPattern: 'return_is_hard',
-  focus: 'return_focus',
-} as const;
-
-const CONTEXT_C = {
-  decisionPace: 'decide_now',
-  disagreement: 'one_carries',
-  distance: 'space_is_hard',
-  expressionPace: 'words_vary',
-  returnPattern: 'time_restores',
-  focus: 'next_step_focus',
-} as const;
-
-const SYNTHETIC_REPORTS: readonly {
+export const PAID_COMPATIBILITY_PREVIEW_SYNTHETIC_REPORTS: readonly {
   id: string;
   label: string;
   input: PaidCompatibilityReportInput;
 }[] = [
   {
-    id: 'balanced',
-    label: 'A balanced pair',
-    input: {
-      pairAxisId: 'A3',
-      paidTopicId: 'T2',
-      relationStatusId: 'R3',
-      temperatureId: 'E1',
-      personAUsesFirstPerspective: true,
-      currentContext: CONTEXT_A,
-    },
-  },
-  {
-    id: 'pace',
-    label: 'strong pace difference',
-    input: {
-      pairAxisId: 'A1',
-      paidTopicId: 'T3',
-      relationStatusId: 'R2',
-      temperatureId: 'E2',
-      personAUsesFirstPerspective: true,
-      currentContext: CONTEXT_B,
-    },
-  },
-  {
-    id: 'distance',
-    label: 'strong distance difference',
-    input: {
-      pairAxisId: 'A4',
-      paidTopicId: 'T1',
-      relationStatusId: 'R5',
-      temperatureId: 'E4',
-      personAUsesFirstPerspective: true,
-      currentContext: CONTEXT_C,
-    },
-  },
-  {
-    id: 'expression',
-    label: 'strong expression difference',
+    id: 'stage-r1',
+    label: 'R1 no prior contact',
     input: {
       pairAxisId: 'A2',
       paidTopicId: 'T4',
       relationStatusId: 'R1',
       temperatureId: 'E2',
       personAUsesFirstPerspective: true,
-      currentContext: { ...CONTEXT_A, focus: 'distance_focus' },
+      currentContextV2: {
+        expressionPace: 'words_soon',
+        approachIntent: 'wait_for_signal',
+        focus: 'next_step_focus',
+      },
     },
   },
   {
-    id: 'swapped',
-    label: 'swapped pair',
+    id: 'stage-r2',
+    label: 'R2 early contact',
     input: {
       pairAxisId: 'A1',
       paidTopicId: 'T3',
       relationStatusId: 'R2',
       temperatureId: 'E2',
-      personAUsesFirstPerspective: false,
-      currentContext: CONTEXT_A,
+      personAUsesFirstPerspective: true,
+      currentContextV2: {
+        expressionPace: 'words_later',
+        contactPace: 'light_contact',
+        focus: 'conversation_focus',
+      },
     },
   },
   {
-    id: 'same',
-    label: 'same DOB pair',
+    id: 'stage-r3',
+    label: 'R3 established',
+    input: {
+      pairAxisId: 'A3',
+      paidTopicId: 'T2',
+      relationStatusId: 'R3',
+      temperatureId: 'E1',
+      personAUsesFirstPerspective: true,
+      currentContextV2: {
+        decisionPace: 'decide_later',
+        disagreement: 'talk_now',
+        expressionPace: 'words_soon',
+        returnPattern: 'someone_reaches',
+        focus: 'conversation_focus',
+      },
+    },
+  },
+  {
+    id: 'stage-r4',
+    label: 'R4 distance exists',
+    input: {
+      pairAxisId: 'A4',
+      paidTopicId: 'T1',
+      relationStatusId: 'R4',
+      temperatureId: 'E4',
+      personAUsesFirstPerspective: true,
+      currentContextV2: {
+        distance: 'go_quiet',
+        expressionPace: 'words_later',
+        focus: 'distance_focus',
+      },
+    },
+  },
+  {
+    id: 'stage-r5',
+    label: 'R5 reapproach',
+    input: {
+      pairAxisId: 'A4',
+      paidTopicId: 'T1',
+      relationStatusId: 'R5',
+      temperatureId: 'E4',
+      personAUsesFirstPerspective: true,
+      currentContextV2: {
+        reapproachReadiness: 'small_step_first',
+        distance: 'go_quiet',
+        expressionPace: 'words_soon',
+        focus: 'return_focus',
+      },
+    },
+  },
+  {
+    id: 'stage-r6',
+    label: 'R6 long-term',
     input: {
       pairAxisId: 'A3',
       paidTopicId: 'T5',
       relationStatusId: 'R6',
       temperatureId: 'E5',
       personAUsesFirstPerspective: true,
-      currentContext: CONTEXT_B,
+      currentContextV2: {
+        decisionPace: 'decide_later',
+        disagreement: 'take_space',
+        expressionPace: 'words_later',
+        returnPattern: 'return_is_hard',
+        focus: 'return_focus',
+      },
     },
   },
 ] as const;
 
 export default function PaidCompatibilityReportPreviewClient() {
-  const [fixtureId, setFixtureId] = useState(SYNTHETIC_REPORTS[0]!.id);
-  const fixture = SYNTHETIC_REPORTS.find((candidate) => candidate.id === fixtureId)
-    ?? SYNTHETIC_REPORTS[0]!;
+  const [fixtureId, setFixtureId] = useState(PAID_COMPATIBILITY_PREVIEW_SYNTHETIC_REPORTS[0]!.id);
+  const fixture = PAID_COMPATIBILITY_PREVIEW_SYNTHETIC_REPORTS.find(
+    (candidate) => candidate.id === fixtureId,
+  ) ?? PAID_COMPATIBILITY_PREVIEW_SYNTHETIC_REPORTS[0]!;
   const snapshot = useMemo(
     () => buildPaidCompatibilityReportV1(fixture.input),
     [fixture],
@@ -143,7 +146,7 @@ export default function PaidCompatibilityReportPreviewClient() {
             onChange={(event) => setFixtureId(event.target.value)}
             style={{ minHeight: 44, padding: '8px 10px', font: 'inherit' }}
           >
-            {SYNTHETIC_REPORTS.map((candidate) => (
+            {PAID_COMPATIBILITY_PREVIEW_SYNTHETIC_REPORTS.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
                 {candidate.label}
               </option>

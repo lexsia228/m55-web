@@ -239,6 +239,7 @@ for (let i = 0; i < 1000; i += 1) {
     personBBirthDate: b,
     personAUsesFirstPerspective: true,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   const pair = resolvePairCanonicalProfileV2({ personABirthDate: a, personBBirthDate: b });
   pairRows.push({
@@ -262,6 +263,7 @@ for (let i = 0; i < 100; i += 1) {
     personBBirthDate: '1990-05-14',
     personAUsesFirstPerspective: true,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   const b = buildPairFreeInsightSpecV2({
     answers: pairAnswersAt(i),
@@ -270,6 +272,7 @@ for (let i = 0; i < 100; i += 1) {
     personBBirthDate: '1990-05-14',
     personAUsesFirstPerspective: false,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   if (a.misreadLoop !== b.misreadLoop) swapOk += 1;
 }

@@ -27,6 +27,9 @@ import {
   type CompatibilityPurchaseContextRow,
 } from './compatibilityCommerceDb';
 import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
+import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
+import { questionsForRelationStage } from './currentContextContract.v2';
+import type { RelationStatusId } from './pairReadingTypes';
 import {
   M55_FUNNEL_EVENTS,
   buildPrivacySafeFunnelPayload,
@@ -44,7 +47,7 @@ const CONTEXT_A: CompatibilityCurrentContextAnswers = {
   focus: 'conversation_focus',
 };
 const CONTEXT_B: CompatibilityCurrentContextAnswers = {
-  decisionPace: 'decide_later',
+  decisionPace: 'decide_varies',
   disagreement: 'take_space',
   distance: 'go_quiet',
   expressionPace: 'words_later',
@@ -64,13 +67,38 @@ function read(relativePath: string): string {
   return readFileSync(join(ROOT, relativePath), 'utf8');
 }
 
+function toV2Context(
+  currentContext: CompatibilityCurrentContextAnswers,
+  relationStatusId: RelationStatusId = 'R3',
+): CompatibilityCurrentContextAnswersV2 {
+  const allowed = new Set(
+    questionsForRelationStage(relationStatusId).map((question) => question.questionId),
+  );
+  const candidate = {
+    decisionPace: currentContext.decisionPace,
+    disagreement: currentContext.disagreement,
+    distance: currentContext.distance,
+    expressionPace: currentContext.expressionPace,
+    returnPattern: currentContext.returnPattern,
+    focus: currentContext.focus,
+  };
+  return Object.fromEntries(
+    Object.entries(candidate).filter(([key]) => allowed.has(key as keyof typeof candidate)),
+  ) as unknown as CompatibilityCurrentContextAnswersV2;
+}
+
 function canonicalSnapshot(
   currentContext: CompatibilityCurrentContextAnswers = CONTEXT_A,
+  relationStatusId: RelationStatusId = 'R3',
 ) {
-  const result = buildCanonicalCompatibilityPurchaseSnapshot({
-    personA: '1990-01-01',
-    personB: '1992-02-02',
-  }, currentContext);
+  const result = buildCanonicalCompatibilityPurchaseSnapshot(
+    {
+      personA: '1990-01-01',
+      personB: '1992-02-02',
+    },
+    relationStatusId,
+    toV2Context(currentContext, relationStatusId),
+  );
   assert.equal(result.ok, true);
   if (!result.ok) throw new Error('fixture failed');
   return result.snapshot;
@@ -197,7 +225,7 @@ describe('canonical snapshot privacy', () => {
     assert.deepEqual(first, second);
     assert.deepEqual(JSON.parse(JSON.stringify(first)), first);
     assert.equal(isPaidCompatibilityReportSnapshot(first), true);
-    assert.equal(first.currentContext?.questionnaireContractVersion, 'compatibility_current_context_v1');
+    assert.equal(first.currentContext?.questionnaireContractVersion, 'compatibility_current_context_v2');
     assert.equal(first.currentContext?.relationshipLoopSteps.length, 3);
     const serialized = JSON.stringify(first);
     assert.doesNotMatch(serialized, /1990-01-01|1992-02-02/);
@@ -257,10 +285,10 @@ describe('canonical snapshot privacy', () => {
   });
 
   it('keeps legacy snapshots without current context readable', () => {
-    const legacy = {
-      ...canonicalSnapshot(),
-      currentContext: undefined,
-    };
+    const legacy = JSON.parse(JSON.stringify(canonicalSnapshot())) as ReturnType<
+      typeof canonicalSnapshot
+    >;
+    delete (legacy as { currentContext?: unknown }).currentContext;
     assert.equal(isPaidCompatibilityReportSnapshot(legacy), true);
   });
 
@@ -303,15 +331,16 @@ describe('checkout source contract', () => {
     assert.doesNotMatch(metadata, /personA|personB|birth|userId|snapshot|chapter/);
   });
 
-  it('accepts only DOB and current-context answers and rejects client authority overrides', () => {
+  it('accepts only DOB, relation stage, and current-context answers and rejects client authority overrides', () => {
     const parseBlock = source.slice(
       source.indexOf('const body ='),
       source.indexOf('const built ='),
     );
     assert.match(parseBlock, /body\.personA/);
     assert.match(parseBlock, /body\.personB/);
+    assert.match(parseBlock, /body\.relationStatusId/);
     assert.match(parseBlock, /body\.currentContext/);
-    assert.match(parseBlock, /isCompleteCompatibilityCurrentContext/);
+    assert.match(parseBlock, /isCompleteCompatibilityCurrentContextV2|isValidCheckoutCurrentContext/);
     assert.match(parseBlock, /Object\.keys\(body\)/);
     assert.doesNotMatch(parseBlock, /body\.price|body\.amount|body\.chapter|body\.snapshot/);
   });
@@ -320,8 +349,9 @@ describe('checkout source contract', () => {
     const client = read(
       'components/compatibility/CompatibilityPurchaseExperience.tsx',
     );
-    assert.match(client, /parsed\.input\?\.personA/);
-    assert.match(client, /isCompleteCompatibilityCurrentContext\(parsed\.answers\)/);
+    assert.match(client, /!parsed\.input/);
+    assert.match(client, /isCompleteCompatibilityCurrentContextV2\(parsed\.answers, parsed\.relationStatusId\)/);
+    assert.match(client, /relationStatusId: journey\.relationStatusId/);
     assert.match(client, /currentContext: journey\.currentContext/);
     const requestBody = client.slice(
       client.indexOf('body: JSON.stringify'),

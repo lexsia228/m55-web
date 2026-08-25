@@ -61,6 +61,7 @@ function insight(
     personBBirthDate: '1992-08-20',
     personAUsesFirstPerspective: perspective,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
 }
 
@@ -110,6 +111,8 @@ describe('pair free insight quality v2', () => {
   it('guest public result overlays synthesis onto free current context only', () => {
     const result = buildCompatibilityPublicResult(
       { personA: '1990-01-15', personB: '1992-08-20' },
+      'R3',
+      undefined,
       undefined,
       TEMPO,
     );
@@ -133,11 +136,15 @@ describe('pair free insight quality v2', () => {
   it('same answers with different A/B birth signatures change the relationship reading', () => {
     const left = buildCompatibilityPublicResult(
       { personA: '1983-02-28', personB: '1997-06-15' },
+      'R3',
+      undefined,
       undefined,
       TEMPO,
     );
     const right = buildCompatibilityPublicResult(
       { personA: '1990-01-05', personB: '1990-01-06' },
+      'R3',
+      undefined,
       undefined,
       TEMPO,
     );

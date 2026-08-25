@@ -4,17 +4,26 @@ import { FormEvent, useEffect, useMemo, useState, useTransition } from 'react';
 import { buildGuestCompatibilityResult } from '../../app/synastry/actions';
 import {
   COMPATIBILITY_GUEST_SESSION_KEY,
+  COMPATIBILITY_GUEST_SESSION_KEY_V3,
   isCompleteCompatibilityGuestInput,
+  isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
+  type CompatibilityGuestJourneyV3,
   type CompatibilityPublicResult,
 } from '../../lib/m55/compatibility/pairReadingGuestContract';
+import { RELATIONSHIP_LOOP_STEP_LABELS } from '../../lib/m55/compatibility/currentContextContract.v1';
 import {
-  COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS,
-  RELATIONSHIP_LOOP_STEP_LABELS,
-  isCompleteCompatibilityCurrentContext,
-  type CompatibilityCurrentContextAnswers,
-  type CompatibilityCurrentQuestionId,
-} from '../../lib/m55/compatibility/currentContextContract.v1';
+  isCompleteCompatibilityCurrentContextV2,
+  questionsForRelationStage,
+  RELATIONSHIP_LOOP_STEP_LABELS_V2,
+  relationshipLoopStepLabelsFor,
+  stagePremiumBridgeCopy,
+  stageSafeFocusOptions,
+  type CompatibilityCurrentContextAnswersV2,
+  type CompatibilityCurrentQuestionIdV2,
+} from '../../lib/m55/compatibility/currentContextContract.v2';
+import { RELATION_STATUS_CATALOG } from '../../lib/m55/compatibility/pairReadingCatalog.v1';
+import type { RelationStatusId } from '../../lib/m55/compatibility/pairReadingTypes';
 import { PAIR_READING_FREE_STRUCTURE_ITEMS } from '../../lib/m55/compatibility/pairReadingPublicStructure';
 import {
   M55_FUNNEL_EVENTS,
@@ -31,27 +40,38 @@ import styles from './CompatibilityGuestExperience.module.css';
 const EMPTY_INPUT: CompatibilityGuestInput = { personA: '', personB: '' };
 
 type JourneyPhase = 'dob' | 'questions' | 'result';
-type PartialCurrentContext = Partial<CompatibilityCurrentContextAnswers>;
+type PartialCurrentContext = Partial<CompatibilityCurrentContextAnswersV2>;
 
-function restoreSessionJourney(): {
-  input: CompatibilityGuestInput;
-  answers: CompatibilityCurrentContextAnswers;
-} | null {
+function restoreLegacyV2DobOnly(): CompatibilityGuestInput | null {
   try {
     const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY);
     if (!raw) return null;
-    const value = JSON.parse(raw) as {
-      input?: Partial<CompatibilityGuestInput>;
-      answers?: unknown;
-    };
+    const value = JSON.parse(raw) as { input?: Partial<CompatibilityGuestInput> };
     const input = {
       personA: typeof value.input?.personA === 'string' ? value.input.personA : '',
       personB: typeof value.input?.personB === 'string' ? value.input.personB : '',
     };
-    return isCompleteCompatibilityGuestInput(input) &&
-      isCompleteCompatibilityCurrentContext(value.answers)
-      ? { input, answers: value.answers }
-      : null;
+    return isCompleteCompatibilityGuestInput(input) ? input : null;
+  } catch {
+    return null;
+  }
+}
+
+function restoreSessionJourney(): CompatibilityGuestJourneyV3 | null {
+  try {
+    const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
+    if (!raw) return null;
+    const value = JSON.parse(raw) as Partial<CompatibilityGuestJourneyV3>;
+    if (
+      value.version !== 'journey_v3' ||
+      !value.input ||
+      !isCompleteCompatibilityGuestInput(value.input) ||
+      !isValidCompatibilityRelationStatusId(value.relationStatusId) ||
+      !isCompleteCompatibilityCurrentContextV2(value.answers, value.relationStatusId)
+    ) {
+      return null;
+    }
+    return value as CompatibilityGuestJourneyV3;
   } catch {
     return null;
   }
@@ -64,13 +84,19 @@ export default function CompatibilityGuestExperience({
 }) {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [input, setInput] = useState<CompatibilityGuestInput>(EMPTY_INPUT);
+  const [relationStatusId, setRelationStatusId] = useState<RelationStatusId | ''>('');
   const [answers, setAnswers] = useState<PartialCurrentContext>({});
   const [phase, setPhase] = useState<JourneyPhase>('dob');
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [inQuestionnaire, setInQuestionnaire] = useState(false);
   const [result, setResult] = useState<CompatibilityPublicResult | null>(null);
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const complete = isCompleteCompatibilityGuestInput(input, today);
+  const questions = useMemo(
+    () => (relationStatusId ? questionsForRelationStage(relationStatusId) : []),
+    [relationStatusId],
+  );
 
   useEffect(() => {
     trackFunnelImpressionOnce(
@@ -79,19 +105,29 @@ export default function CompatibilityGuestExperience({
       'compatibility-input-view',
     );
     const restored = restoreSessionJourney();
-    if (!restored) return;
-    setInput(restored.input);
-    setAnswers(restored.answers);
-    startTransition(async () => {
-      const outcome = await buildGuestCompatibilityResult(
-        restored.input,
-        restored.answers,
-      );
-      if (outcome.ok) {
-        setResult(outcome.value);
-        setPhase('result');
-      }
-    });
+    if (restored) {
+      setInput(restored.input);
+      setRelationStatusId(restored.relationStatusId);
+      setAnswers(restored.answers);
+      setInQuestionnaire(true);
+      startTransition(async () => {
+        const outcome = await buildGuestCompatibilityResult(
+          restored.input,
+          restored.relationStatusId,
+          restored.answers,
+        );
+        if (outcome.ok) {
+          setResult(outcome.value);
+          setPhase('result');
+        }
+      });
+      return;
+    }
+    const legacyDob = restoreLegacyV2DobOnly();
+    if (legacyDob) {
+      setInput(legacyDob);
+      setPhase('questions');
+    }
   }, []);
 
   useEffect(() => {
@@ -114,15 +150,33 @@ export default function CompatibilityGuestExperience({
     setError('');
   }
 
-  function startQuestionnaire(event: FormEvent<HTMLFormElement>) {
+  function startRelationStage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!complete) {
       setError('二人分の有効な生年月日を入力してください。');
       return;
     }
     setError('');
+    setInQuestionnaire(false);
+    setPhase('questions');
+  }
+
+  function selectRelationStage(stageId: RelationStatusId) {
+    setRelationStatusId(stageId);
+    setAnswers({});
+    setQuestionIndex(0);
+    setResult(null);
+    setError('');
+  }
+
+  function startQuestionnaire() {
+    if (!relationStatusId) {
+      setError('関係の段階を選んでください。');
+      return;
+    }
     setPhase('questions');
     setQuestionIndex(0);
+    setInQuestionnaire(true);
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.compatibilityQuestionnaireView,
       'compatibility_guest',
@@ -134,42 +188,77 @@ export default function CompatibilityGuestExperience({
     );
   }
 
-  function selectAnswer(questionId: CompatibilityCurrentQuestionId, answerId: string) {
-    setAnswers((current) => ({ ...current, [questionId]: answerId }));
+  function selectAnswer(questionId: CompatibilityCurrentQuestionIdV2, answerId: string) {
+    setAnswers((current) => {
+      if (questionId === 'focus' && answerId === 'skip_focus') {
+        const next = { ...current };
+        delete next.focus;
+        return next;
+      }
+      return { ...current, [questionId]: answerId };
+    });
     setError('');
   }
 
   function goBack() {
-    if (questionIndex === 0) {
-      setPhase('dob');
+    if (phase === 'questions' && inQuestionnaire && questionIndex === 0) {
+      setInQuestionnaire(false);
+      setAnswers({});
       return;
     }
-    setQuestionIndex((current) => Math.max(0, current - 1));
+    if (phase === 'questions' && inQuestionnaire && questionIndex > 0) {
+      setQuestionIndex((current) => Math.max(0, current - 1));
+      return;
+    }
+    if (phase === 'questions' && !inQuestionnaire) {
+      setPhase('dob');
+    }
   }
 
   function goNext() {
-    const question = COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS[questionIndex]!;
-    if (!answers[question.questionId]) return;
-    if (questionIndex < COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS.length - 1) {
+    if (phase === 'questions' && !inQuestionnaire) {
+      if (!relationStatusId) {
+        setError('関係の段階を選んでください。');
+        return;
+      }
+      startQuestionnaire();
+      return;
+    }
+    const question = questions[questionIndex]!;
+    const selected = answers[question.questionId];
+    if (!selected && !question.optional) return;
+    if (questionIndex < questions.length - 1) {
       setQuestionIndex((current) => current + 1);
       return;
     }
-    if (!isCompleteCompatibilityCurrentContext(answers)) {
-      setError('現在の二人について、6つの回答を確認してください。');
+    if (!relationStatusId || !isCompleteCompatibilityCurrentContextV2(answers, relationStatusId)) {
+      setError('現在の二人について、必要な回答を確認してください。');
       return;
     }
+    const completeAnswers = answers as CompatibilityCurrentContextAnswersV2;
     trackFunnelAction(
       M55_FUNNEL_EVENTS.compatibilityQuestionnaireComplete,
       'compatibility_guest',
     );
     startTransition(async () => {
-      const outcome = await buildGuestCompatibilityResult(input, answers);
+      const outcome = await buildGuestCompatibilityResult(
+        input,
+        relationStatusId,
+        completeAnswers,
+      );
       if (!outcome.ok) {
         setError(outcome.message);
         return;
       }
+      const journey: CompatibilityGuestJourneyV3 = {
+        version: 'journey_v3',
+        input,
+        relationStatusId,
+        answers: completeAnswers,
+      };
       try {
-        sessionStorage.setItem(COMPATIBILITY_GUEST_SESSION_KEY, JSON.stringify({ input, answers }));
+        sessionStorage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
+        sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
       } catch {
         /* Result remains available even when tab storage is unavailable. */
       }
@@ -181,39 +270,52 @@ export default function CompatibilityGuestExperience({
   function resetJourney() {
     try {
       sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
+      sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
     } catch {
       /* Reset still clears visible state when tab storage is unavailable. */
     }
     setInput(EMPTY_INPUT);
+    setRelationStatusId('');
     setAnswers({});
     setResult(null);
     setQuestionIndex(0);
+    setInQuestionnaire(false);
     setPhase('dob');
     setError('');
   }
 
-  const currentQuestion = COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS[questionIndex]!;
-  const selectedAnswer = answers[currentQuestion.questionId] ?? '';
+  const currentQuestion = questions[questionIndex];
+  const selectedAnswer = currentQuestion ? answers[currentQuestion.questionId] ?? '' : '';
   const context = result?.currentContext;
+  const focusChoices = relationStatusId
+    ? questionsForRelationStage(relationStatusId).find((q) => q.questionId === 'focus')?.choices ?? []
+    : [];
+  const safeFocusIds = relationStatusId ? stageSafeFocusOptions(relationStatusId) : [];
   const pairInsight = useMemo(() => {
-    if (phase !== 'result' || !result || !context) return null;
-    if (!isCompleteCompatibilityCurrentContext(answers)) return null;
+    if (phase !== 'result' || !result || !context || !relationStatusId) return null;
+    if (!isCompleteCompatibilityCurrentContextV2(answers, relationStatusId)) return null;
     try {
       return buildPairFreeInsightSpecV2({
-        answers,
+        answersV2: answers as CompatibilityCurrentContextAnswersV2,
         pairAxisId: 'A2',
         personABirthDate: input.personA,
         personBBirthDate: input.personB,
         personAUsesFirstPerspective: true,
         focusLabel: context.focusLabel,
+        relationStatusId,
       });
     } catch {
       return null;
     }
-  }, [phase, result, context, answers, input.personA, input.personB]);
+  }, [phase, result, context, answers, input.personA, input.personB, relationStatusId]);
   const pairNarrative = pairInsight
     ? projectCompatibilityFreeNarrativeV1({ spec: pairInsight })
     : null;
+  const questionTotal = questions.length;
+  const loopLabels = relationStatusId
+    ? relationshipLoopStepLabelsFor(relationStatusId)
+    : RELATIONSHIP_LOOP_STEP_LABELS_V2;
+  const premiumBridge = relationStatusId ? stagePremiumBridgeCopy(relationStatusId) : null;
 
   return (
     <div className={styles.page}>
@@ -229,7 +331,7 @@ export default function CompatibilityGuestExperience({
           良し悪しや点数ではなく、距離・反応・進め方の違いを確認します。
         </p>
 
-        <form className={styles.form} onSubmit={startQuestionnaire} noValidate>
+        <form className={styles.form} onSubmit={startRelationStage} noValidate>
           <div className={styles.inputGrid}>
             <label className={styles.inputCard}>
               <span className={styles.inputRole}>あなた</span>
@@ -268,13 +370,61 @@ export default function CompatibilityGuestExperience({
           </ul>
           {error ? <p className={styles.error} role="alert">{error}</p> : null}
           <button className={styles.submit} type="submit" disabled={!complete || isPending}>
-            今の二人について答える
+            関係の段階を選ぶ
           </button>
         </form>
       </section>
       ) : null}
 
-      {phase === 'questions' ? (
+      {phase === 'questions' && !inQuestionnaire ? (
+        <section
+          className={styles.questionnaire}
+          aria-labelledby="compatibility-relation-title"
+          data-testid="compatibility-relation-step"
+        >
+          <p className={styles.eyebrow}>今の二人の関係</p>
+          <h1 id="compatibility-relation-title" className={styles.questionTitle}>
+            今、あなたと関係を知りたい相手の間は、どの段階に近いですか？
+          </h1>
+          <p className={styles.observationNote}>
+            あなた自身の観察として選んでください。相手が回答したものではありません。
+          </p>
+          <div className={styles.choiceList} role="radiogroup" aria-label="関係の段階">
+            {RELATION_STATUS_CATALOG.map((entry) => {
+              const selected = relationStatusId === entry.id;
+              return (
+                <button
+                  key={entry.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  className={selected ? styles.choiceSelected : styles.choice}
+                  onClick={() => selectRelationStage(entry.id)}
+                >
+                  <span>{entry.labelJa}</span>
+                  {selected ? <small>選択中</small> : null}
+                </button>
+              );
+            })}
+          </div>
+          {error ? <p className={styles.error} role="alert">{error}</p> : null}
+          <div className={styles.questionActions}>
+            <button type="button" className={styles.backButton} onClick={goBack}>
+              戻る
+            </button>
+            <button
+              type="button"
+              className={styles.nextButton}
+              onClick={goNext}
+              disabled={!relationStatusId || isPending}
+            >
+              今の二人について答える
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {phase === 'questions' && inQuestionnaire && currentQuestion ? (
         <section
           className={styles.questionnaire}
           aria-labelledby="compatibility-question-title"
@@ -289,7 +439,7 @@ export default function CompatibilityGuestExperience({
             {questionIndex === 0 ? (
               <>
                 <p>
-                  今の二人の距離や会話の表れ方を重ねることで、同じ生年月日でも現在の関係に近い内容へ変わります。
+                  選んだ関係の段階に合わせて、今の二人について答えられる質問だけを出します。
                 </p>
                 <p className={styles.observationNote}>
                   回答するのは、あなたから観察できる二人の間の状況です。相手が回答したものではありません。
@@ -302,16 +452,16 @@ export default function CompatibilityGuestExperience({
             )}
           </div>
           <div className={styles.progressRow}>
-            <span>整理 {questionIndex + 1}/6</span>
+            <span>整理 {questionIndex + 1}/{questionTotal}</span>
             <div
               className={styles.progressTrack}
               role="progressbar"
               aria-valuemin={1}
-              aria-valuemax={6}
+              aria-valuemax={questionTotal}
               aria-valuenow={questionIndex + 1}
-              aria-label={`整理 ${questionIndex + 1}/6`}
+              aria-label={`整理 ${questionIndex + 1}/${questionTotal}`}
             >
-              <span style={{ width: `${((questionIndex + 1) / 6) * 100}%` }} />
+              <span style={{ width: `${((questionIndex + 1) / questionTotal) * 100}%` }} />
             </div>
           </div>
           <h1 id="compatibility-question-title" className={styles.questionTitle}>
@@ -322,7 +472,13 @@ export default function CompatibilityGuestExperience({
             role="radiogroup"
             aria-label={currentQuestion.question}
           >
-            {currentQuestion.choices.map((choice) => {
+            {currentQuestion.choices
+              .filter((choice) =>
+                currentQuestion.questionId !== 'focus' ||
+                choice.answerId === 'skip_focus' ||
+                safeFocusIds.includes(choice.answerId as typeof safeFocusIds[number]),
+              )
+              .map((choice) => {
               const selected = selectedAnswer === choice.answerId;
               return (
                 <button
@@ -348,13 +504,15 @@ export default function CompatibilityGuestExperience({
               type="button"
               className={styles.nextButton}
               onClick={goNext}
-              disabled={!selectedAnswer || isPending}
+              disabled={(!selectedAnswer && !currentQuestion.optional) || isPending}
             >
-              {questionIndex === 5
+              {questionIndex === questionTotal - 1
                 ? isPending
                   ? '読み解きを組み立てています'
                   : '今の二人の読み解きを見る'
-                : '次へ'}
+                : currentQuestion.optional && !selectedAnswer
+                  ? 'スキップして次へ'
+                  : '次へ'}
             </button>
           </div>
         </section>
@@ -409,9 +567,9 @@ export default function CompatibilityGuestExperience({
             <h3>{PAIR_READING_FREE_STRUCTURE_ITEMS[2].titleJa}</h3>
             <ol className={styles.loopSteps}>
               {context.relationshipLoopSteps.map((step, index) => (
-                <li key={RELATIONSHIP_LOOP_STEP_LABELS[index]}>
+                <li key={loopLabels[index] ?? RELATIONSHIP_LOOP_STEP_LABELS[index]}>
                   <span className={styles.loopStepLabel}>
-                    {RELATIONSHIP_LOOP_STEP_LABELS[index]}
+                    {loopLabels[index] ?? RELATIONSHIP_LOOP_STEP_LABELS[index]}
                   </span>
                   <p>{step}</p>
                 </li>
@@ -440,34 +598,23 @@ export default function CompatibilityGuestExperience({
             <p className={styles.eyebrow}>今いちばん整理したいこと：{context.focusLabel}</p>
             <h3 id="paid-bridge-title">この二人の続きとして読めること</h3>
             <p className={styles.deliverableLead}>
-              無料では、二人の間で回りやすい基本のループまでを読みました。
-              「二人の相性レポート」では、同じループを六つの場面に分け、あなた側と相手側の視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。
+              {premiumBridge?.deliverableLead ??
+                '無料では、二人の間で回りやすい基本のループまでを読みました。「二人の相性レポート」では、同じループを六つの場面に分け、あなた側と相手側の視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。'}
             </p>
             <ul className={styles.toolkitTiles} aria-label="レポートで受け取れるもの">
-              <li>
-                <strong>二人それぞれの動き</strong>
-                <span>同じ場面で、あなた側と相手側に何が起きているか</span>
-              </li>
-              <li>
-                <strong>すれ違いが始まる場面</strong>
-                <span>どこから連鎖に変わるのかの順番</span>
-              </li>
-              <li>
-                <strong>場面から戻る手順</strong>
-                <span>すれ違いのあとに戻る、小さな順序</span>
-              </li>
-              <li>
-                <strong>そのまま使える一言</strong>
-                <span>責めずに話を始めるための短い言葉</span>
-              </li>
-              <li>
-                <strong>今週一度だけ試すこと</strong>
-                <span>負担を増やさず、今の二人で試せる一歩</span>
-              </li>
-              <li>
-                <strong>あとで振り返る一問</strong>
-                <span>何が変わったかを見直すための問い</span>
-              </li>
+              {(premiumBridge?.toolkitTiles ?? [
+                { title: '二人それぞれの動き', body: '同じ場面で、あなた側と相手側に何が起きているか' },
+                { title: 'すれ違いが始まる場面', body: 'どこから連鎖に変わるのかの順番' },
+                { title: '場面から戻る手順', body: 'すれ違いのあとに戻る、小さな順序' },
+                { title: 'そのまま使える一言', body: '責めずに話を始めるための短い言葉' },
+                { title: '今週一度だけ試すこと', body: '負担を増やさず、今の二人で試せる一歩' },
+                { title: 'あとで振り返る一問', body: '何が変わったかを見直すための問い' },
+              ]).map((tile) => (
+                <li key={tile.title}>
+                  <strong>{tile.title}</strong>
+                  <span>{tile.body}</span>
+                </li>
+              ))}
             </ul>
             <h4 className={styles.mappedTitle}>この二人なら、最初に読む場面</h4>
             <div
@@ -487,10 +634,14 @@ export default function CompatibilityGuestExperience({
 
             <h4 className={styles.sixTitle} id="compatibility-six-chapters">読み返せる場面</h4>
             <div className={styles.useCases}>
-              <span>会話の前に読む</span>
-              <span>すれ違った時に読む</span>
-              <span>距離を戻したい時に読む</span>
-              <span>あとで振り返る</span>
+              {(premiumBridge?.useCases ?? [
+                '会話の前に読む',
+                'すれ違った時に読む',
+                '距離を戻したい時に読む',
+                'あとで振り返る',
+              ]).map((label) => (
+                <span key={label}>{label}</span>
+              ))}
             </div>
             {commerceEnabled ? (
               <div className={styles.commerceOffer}>

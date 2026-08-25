@@ -1,12 +1,14 @@
 import {
   PRODUCT_INTERNAL_NAME,
   PRODUCT_PUBLIC_NAME,
+  PAIR_READING_CTA,
   SAFETY_PROFILE,
+  SAFETY_SHORT_TEXT,
 } from './pairReadingCatalog.v1';
-import { buildCompatibilityFreeResultFragments } from './pairReadingFragments.v1';
+import { buildCompatibilityFreeResultFragments, buildTeaserText, validateGuestFreeTeaser } from './pairReadingFragments.v1';
 import {
-  COMPATIBILITY_GUEST_DEFAULT_STATE,
   isCompleteCompatibilityGuestInput,
+  isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
   type CompatibilityGuestResultOutcome,
   type CompatibilityMappedChapter,
@@ -15,6 +17,12 @@ import { derivePairAxisId } from './pairReadingFingerprint';
 import { renderPairReading } from './pairReadingRenderer';
 import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1';
 import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
+import {
+  isCompleteCompatibilityCurrentContextV2,
+  resolveFocusAnswer,
+  toLegacyCurrentContextAnswers,
+  type CompatibilityCurrentContextAnswersV2,
+} from './currentContextContract.v2';
 import { buildPairFreeInsightSpecV2 } from './pairFreeInsightSpecV2';
 import type {
   ChapterId,
@@ -56,17 +64,31 @@ type CompatibilityMatrixState = {
 
 export function buildCompatibilityPublicResult(
   guestInput: CompatibilityGuestInput,
+  relationStatusId: RelationStatusId,
+  currentContextV2?: CompatibilityCurrentContextAnswersV2,
   stateOverride?: CompatibilityMatrixState,
-  currentContext?: CompatibilityCurrentContextAnswers,
+  legacyCurrentContext?: CompatibilityCurrentContextAnswers,
 ): CompatibilityGuestResultOutcome {
   if (!isCompleteCompatibilityGuestInput(guestInput)) {
     return { ok: false, message: '二人分の有効な生年月日を入力してください。' };
   }
+  if (!isValidCompatibilityRelationStatusId(relationStatusId)) {
+    return { ok: false, message: '関係の段階を選んでください。' };
+  }
+  const hasV2 = Boolean(
+    currentContextV2 &&
+    isCompleteCompatibilityCurrentContextV2(currentContextV2, relationStatusId),
+  );
+  const legacyAnswers =
+    hasV2 && (relationStatusId === 'R3' || relationStatusId === 'R6')
+      ? toLegacyCurrentContextAnswers(currentContextV2!, relationStatusId)
+      : legacyCurrentContext;
 
   const derivedAxis = derivePairAxisId(guestInput.personA, guestInput.personB);
   const state: CompatibilityMatrixState = stateOverride ?? {
-    ...COMPATIBILITY_GUEST_DEFAULT_STATE,
+    relationStatusId,
     paidTopicId: GUEST_TOPIC_BY_PAIR_AXIS[derivedAxis],
+    temperatureId: 'E0',
   };
   const input: PairReadingInput = {
     schemaVersion: 'pair_reading_input_v1',
@@ -91,6 +113,8 @@ export function buildCompatibilityPublicResult(
     pairAxisId: rendered.pairFingerprint.pairAxisId,
     paidTopicId: state.paidTopicId,
     personAUsesFirstPerspective,
+    relationStatusId: state.relationStatusId,
+    recognitionOnly: hasV2,
   });
   const paidSnapshot = buildPaidCompatibilityReportV1({
     pairAxisId: rendered.pairFingerprint.pairAxisId,
@@ -98,7 +122,11 @@ export function buildCompatibilityPublicResult(
     relationStatusId: state.relationStatusId,
     temperatureId: state.temperatureId,
     personAUsesFirstPerspective,
-    ...(currentContext ? { currentContext } : {}),
+    ...(hasV2
+      ? { currentContextV2: currentContextV2! }
+      : legacyAnswers
+        ? { currentContext: legacyAnswers }
+        : {}),
     personABirthDate: guestInput.personA,
     personBBirthDate: guestInput.personB,
   });
@@ -128,27 +156,60 @@ export function buildCompatibilityPublicResult(
   }) as [CompatibilityMappedChapter, CompatibilityMappedChapter];
 
   const baseContext = paidSnapshot.currentContext;
-  const freeContext = currentContext && baseContext
-    ? overlayPairFreeInsight(baseContext, currentContext, {
+  const focusLabel = hasV2
+    ? resolveFocusAnswer(relationStatusId, currentContextV2!.focus)
+    : baseContext?.focusLabel ?? 'これからの進め方';
+  const freeContext = baseContext
+    ? overlayPairFreeInsight(baseContext, {
+        answersV2: hasV2 ? currentContextV2 : undefined,
+        answers: legacyAnswers,
         pairAxisId: rendered.pairFingerprint.pairAxisId,
         personABirthDate: guestInput.personA,
         personBBirthDate: guestInput.personB,
         personAUsesFirstPerspective,
         focusLabel: baseContext.focusLabel,
+        relationStatusId: state.relationStatusId,
       })
     : baseContext;
+
+  const freeTeaserCandidate =
+    state.relationStatusId === 'R1'
+      ? buildTeaserText({
+          pairAxisId: rendered.pairFingerprint.pairAxisId,
+          paidTopicId: state.paidTopicId,
+          safetyShortText: SAFETY_SHORT_TEXT,
+          ctaText: PAIR_READING_CTA,
+          relationStatusId: 'R1',
+        })
+      : rendered.freeTeaser.teaserText;
+  const teaserValidation = validateGuestFreeTeaser({
+    teaserText: freeTeaserCandidate,
+    ctaText: PAIR_READING_CTA,
+    dobs: [guestInput.personA, guestInput.personB],
+    paidChapterBodies: rendered.paidReport.chapters.map((chapter) => chapter.chapterBody),
+  });
+  if (!teaserValidation.ok) {
+    return {
+      ok: false,
+      message: '見取り図を組み立てられませんでした。入力を確認してください。',
+    };
+  }
+  const freeTeaser = freeTeaserCandidate;
 
   return {
     ok: true,
     value: {
-      free: overlayPairFreeDynamic(free, currentContext, {
+      free: overlayPairFreeDynamic(free, {
+        answersV2: hasV2 ? currentContextV2 : undefined,
+        answers: legacyAnswers,
         pairAxisId: rendered.pairFingerprint.pairAxisId,
         personABirthDate: guestInput.personA,
         personBBirthDate: guestInput.personB,
         personAUsesFirstPerspective,
-        focusLabel: baseContext?.focusLabel ?? '二人の間',
+        focusLabel,
+        relationStatusId: state.relationStatusId,
       }),
-      freeTeaser: rendered.freeTeaser.teaserText,
+      freeTeaser,
       ...(freeContext ? { currentContext: freeContext } : {}),
       mappedChapters,
       allChapters,
@@ -158,22 +219,26 @@ export function buildCompatibilityPublicResult(
 
 function overlayPairFreeInsight(
   base: NonNullable<ReturnType<typeof buildPaidCompatibilityReportV1>['currentContext']>,
-  answers: CompatibilityCurrentContextAnswers,
   args: {
+    answersV2?: CompatibilityCurrentContextAnswersV2;
+    answers?: CompatibilityCurrentContextAnswers;
     pairAxisId: PairAxisId;
     personABirthDate: string;
     personBBirthDate: string;
     personAUsesFirstPerspective: boolean;
     focusLabel: string;
+    relationStatusId: RelationStatusId;
   },
 ) {
   const insight = buildPairFreeInsightSpecV2({
-    answers,
+    answersV2: args.answersV2,
+    answers: args.answers,
     pairAxisId: args.pairAxisId,
     personABirthDate: args.personABirthDate,
     personBBirthDate: args.personBBirthDate,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     focusLabel: args.focusLabel,
+    relationStatusId: args.relationStatusId,
   });
   const relationshipLoopSteps = Object.freeze([
     insight.meshMoment,
@@ -191,23 +256,27 @@ function overlayPairFreeInsight(
 
 function overlayPairFreeDynamic(
   free: ReturnType<typeof buildCompatibilityFreeResultFragments>,
-  answers: CompatibilityCurrentContextAnswers | undefined,
   args: {
+    answersV2?: CompatibilityCurrentContextAnswersV2;
+    answers?: CompatibilityCurrentContextAnswers;
     pairAxisId: PairAxisId;
     personABirthDate: string;
     personBBirthDate: string;
     personAUsesFirstPerspective: boolean;
     focusLabel: string;
+    relationStatusId: RelationStatusId;
   },
 ) {
-  if (!answers) return free;
+  if (!args.answersV2 && !args.answers) return free;
   const insight = buildPairFreeInsightSpecV2({
-    answers,
+    answersV2: args.answersV2,
+    answers: args.answers,
     pairAxisId: args.pairAxisId,
     personABirthDate: args.personABirthDate,
     personBBirthDate: args.personBBirthDate,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     focusLabel: args.focusLabel,
+    relationStatusId: args.relationStatusId,
   });
   return {
     ...free,

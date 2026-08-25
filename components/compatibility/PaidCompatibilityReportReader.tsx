@@ -128,8 +128,8 @@ export default function PaidCompatibilityReportReader({
         </p>
         <div className={styles.readingMoments} aria-label="レポートを使う場面">
           <span>会話の前に読む</span>
-          <span>すれ違った時に読む</span>
-          <span>距離を戻したい時に読む</span>
+          <span>気になる章から読む</span>
+          <span>間合いを整えるときに読む</span>
           <span>あとで振り返る</span>
         </div>
       </header>
@@ -178,7 +178,7 @@ export default function PaidCompatibilityReportReader({
         {leadChapter ? (
           <div className={styles.openingHandling} data-testid="paid-report-opening-handling" data-visual-role="action">
             <div>
-              <p className={styles.blockLabel}>この連鎖を戻す入口</p>
+              <p className={styles.blockLabel}>この連鎖の入口</p>
               <p>{leadChapter.resetSteps[0]}</p>
             </div>
             <div>
@@ -306,7 +306,7 @@ export default function PaidCompatibilityReportReader({
                   </section>
 
                   <section className={`${styles.resetBlock} ${styles.roleAction}`} data-testid="paid-report-reset" data-visual-role="action">
-                    <p className={styles.blockLabel}>この場面から戻るために</p>
+                    <p className={styles.blockLabel}>この場面を整えるために</p>
                     <ol>
                       {chapter.resetSteps.map((step) => (
                         <li key={step}>{step}</li>
@@ -340,7 +340,7 @@ export default function PaidCompatibilityReportReader({
                   </section>
 
                   <a className={styles.indexReturn} href="#paid-compatibility-chapter-index">
-                    章一覧へ戻る
+                    章一覧を見る
                   </a>
                 </div>
               ) : null}

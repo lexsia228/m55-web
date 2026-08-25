@@ -6,9 +6,14 @@ import type {
   TemperatureId,
 } from './pairReadingTypes';
 import type { CompatibilityCurrentContextDisplay } from './currentContextContract.v1';
+import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
+import { RELATION_STATUS_IDS } from './pairReadingCatalog.v1';
 
 export const COMPATIBILITY_GUEST_SESSION_KEY = 'm55_compatibility_guest_journey_v2' as const;
+export const COMPATIBILITY_GUEST_SESSION_KEY_V3 =
+  'm55_compatibility_guest_journey_v3' as const;
 
+/** Legacy/test default — public journey must pass explicit relationStatusId. */
 export const COMPATIBILITY_GUEST_DEFAULT_STATE = {
   relationStatusId: 'R2',
   paidTopicId: 'T3',
@@ -22,6 +27,13 @@ export const COMPATIBILITY_GUEST_DEFAULT_STATE = {
 export type CompatibilityGuestInput = {
   personA: string;
   personB: string;
+};
+
+export type CompatibilityGuestJourneyV3 = {
+  version: 'journey_v3';
+  input: CompatibilityGuestInput;
+  relationStatusId: RelationStatusId;
+  answers: CompatibilityCurrentContextAnswersV2;
 };
 
 export type CompatibilityPublicChapter = {
@@ -64,6 +76,15 @@ export function isValidCompatibilityBirthDate(
     parsed.getUTCFullYear() === year &&
     parsed.getUTCMonth() === month - 1 &&
     parsed.getUTCDate() === day
+  );
+}
+
+export function isValidCompatibilityRelationStatusId(
+  value: unknown,
+): value is RelationStatusId {
+  return (
+    typeof value === 'string' &&
+    (RELATION_STATUS_IDS as readonly string[]).includes(value)
   );
 }
 

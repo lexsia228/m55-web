@@ -478,6 +478,7 @@ const pairRows = pairCohort.map((p) => {
     personBBirthDate: p.b,
     personAUsesFirstPerspective: true,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   const swapped = buildPairFreeInsightSpecV2({
     answers: p.answers,
@@ -486,6 +487,7 @@ const pairRows = pairCohort.map((p) => {
     personBBirthDate: p.b,
     personAUsesFirstPerspective: false,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   const axis = derivePairAxisId(p.a, p.b);
   const diff = derivePairDifferenceType(p.a, p.b, axis);
@@ -529,6 +531,7 @@ for (let t = 0; t < 200; t += 1) {
     personBBirthDate: b1,
     personAUsesFirstPerspective: true,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   const s2 = buildPairFreeInsightSpecV2({
     answers,
@@ -537,6 +540,7 @@ for (let t = 0; t < 200; t += 1) {
     personBBirthDate: b2,
     personAUsesFirstPerspective: true,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
   const d1 = derivePairDifferenceType(a1, b1, derivePairAxisId(a1, b1));
   const d2 = derivePairDifferenceType(a2, b2, derivePairAxisId(a2, b2));
