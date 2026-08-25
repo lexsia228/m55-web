@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-23T21:34:37.346721+00:00",
-  "count": 704,
+  "generated_at_utc": "2026-08-24T21:42:41.208317+00:00",
+  "count": 705,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -75,7 +75,7 @@
     {
       "path": "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
       "category": "ssot",
-      "bytes": 10481
+      "bytes": 11503
     },
     {
       "path": "docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md",
@@ -195,7 +195,7 @@
     {
       "path": "docs/ssot/M55_EXECUTION_STATE.json",
       "category": "ssot",
-      "bytes": 6621
+      "bytes": 6804
     },
     {
       "path": "docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_2026-05-25.md",
@@ -220,7 +220,7 @@
     {
       "path": "docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md",
       "category": "ssot",
-      "bytes": 7184
+      "bytes": 12819
     },
     {
       "path": "docs/ssot/M55_HEADER_VISUAL_FREEZE_v1.md",
@@ -3083,6 +3083,11 @@
       "bytes": 6676
     },
     {
+      "path": "docs/ssot/M55_UX_BENCHMARK_STACK.md",
+      "category": "ssot",
+      "bytes": 12791
+    },
+    {
       "path": "docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_2026-05-24.md",
       "category": "ssot",
       "bytes": 6653
@@ -3130,7 +3135,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 110243
+      "bytes": 114489
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",

@@ -78,10 +78,11 @@ Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` (always apply). **Do not
 9. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
 10. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
 11. `docs/ssot/M55_UX_BENCHMARK_STACK.md` — **mandatory before any user-visible implementation or review**
-12. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-13. `docs/ssot/M55_DECISION_LOG.md`
-14. `docs/ssot/M55_ROADMAP.md`
-15. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
+12. `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` — **mandatory before any Safari MCP actual-browser gate or ACTUAL-BROWSER GREEN claim**
+13. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+14. `docs/ssot/M55_DECISION_LOG.md`
+15. `docs/ssot/M55_ROADMAP.md`
+16. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts and subordinate to `M55_EXECUTION_STATE.json` for executable gate/NEXT.
 
@@ -99,6 +100,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **Read authority before source changes** — especially price, copy, and funnel flow.
 - **Stop and report** if executable state and required fresh evidence contradict each other.
 - **Commercial quality closure** — user-visible surfaces require `USER_VISIBLE_CLOSED_GREEN` per `M55_COMMERCIAL_QUALITY_CONTRACT.md`; technical GREEN alone is insufficient; Human visual approval is mandatory.
+- **Safari actual-browser gates** — before claiming ACTUAL-BROWSER GREEN or running Safari MCP observation, read `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md`; SOURCE REVIEW GREEN does not equal ACTUAL-BROWSER GREEN; implementer cannot self-certify independent Safari audit GREEN.
 - **Shared public chrome** — before creating or modifying page-local Header, Footer, legal, support, privacy, or refund navigation, inspect `PublicShell` / `PublicHeaderContainer` / `PublicHeader` / `PublicFooter` ownership and reuse or update the shared owner. Duplicate shared chrome is prohibited unless an explicit route-specific contract requires it and the reason is stated before mutation.
 - **Cold-start acceptance** — while NEXT is `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation and Pair mapping are prohibited. Human approval is required after PASS to advance the execution state.
 
@@ -110,6 +112,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 | A — Machine product truth | `lib/m55/contracts/m55CommercialFunnelContract.ts` |
 | B — Commercial principles | `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` |
 | B+ — Global commercial quality | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` |
+| B++ — Safari MCP actual-browser | `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` |
 | C — Funnel contracts | `M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md` |
 | D — Language / visual | `M55_COPY_AND_CLAIMS.md`, `M55_VISUAL_SYSTEM.md` |
 | E — Narrative state / roadmap / decisions | `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` |

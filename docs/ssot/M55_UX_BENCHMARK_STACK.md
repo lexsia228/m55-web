@@ -228,6 +228,14 @@ The stack may be reconsidered only if at least one **invalidator** exists:
 - "A new AI found another attractive site"
 - "A new chat started"
 
+### Safari MCP observation boundary
+
+Safari MCP observation and benchmark-pattern extraction do not authorize benchmark reselection.
+
+Safari auditors must use the frozen stack and surface mapping in this document only. Visiting alternative competitor sites during Safari observation is **prohibited** absent a valid reselection invalidator listed above.
+
+Normative adapter policy: `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md`.
+
 ## Shared public chrome inventory
 
 Freeze exact shared owners:
