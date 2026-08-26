@@ -39,15 +39,17 @@ import { buildGuestCompatibilityResult } from '../../../app/synastry/actions';
 import type { PaidCompatibilityChapter } from './buildPaidCompatibilityReportV1';
 import {
   backFromGuestQuestionnaire,
-  buildCompatibilityPublicResult,
   clearGuestRelationStageAnswers,
   clearGuestSessionStorage,
-  guestMappedChapterBridge,
   mergeGuestAnswerSelection,
   parseSanitizedGuestJourneyV3,
   prepareGuestSubmitAnswers,
   sanitizeGuestSessionAnswers,
   stripFocusForPublicGuestAnswers,
+} from './pairReadingGuestClientSafe';
+import {
+  buildCompatibilityPublicResult,
+  guestMappedChapterBridge,
 } from './pairReadingGuestResult';
 import { renderPairReading } from './pairReadingRenderer';
 import { validateGuestFreeTeaser } from './pairReadingFragments.v1';

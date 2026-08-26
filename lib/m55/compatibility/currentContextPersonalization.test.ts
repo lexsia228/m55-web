@@ -158,6 +158,7 @@ describe('current-context questionnaire contract', () => {
     assert.doesNotMatch(component, /今いちばん整理したいこと：/);
     assert.doesNotMatch(component, /今、このレポートで特に整理したいことはありますか/);
     assert.match(component, /stripFocusForPublicGuestAnswers|sanitizeGuestSessionAnswers/);
+    assert.match(component, /pairReadingGuestClientSafe/);
     assert.match(component, /parseSanitizedGuestJourneyV3/);
     assert.doesNotMatch(component, /useUser|SignedIn|SignInButton|auth wall/i);
   });

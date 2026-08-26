@@ -10,7 +10,7 @@ import {
   parseSanitizedGuestJourneyV3,
   prepareGuestSubmitAnswers,
   sanitizeGuestSessionAnswers,
-} from '../../lib/m55/compatibility/pairReadingGuestResult';
+} from '../../lib/m55/compatibility/pairReadingGuestClientSafe';
 import {
   COMPATIBILITY_GUEST_SESSION_KEY,
   COMPATIBILITY_GUEST_SESSION_KEY_V3,
