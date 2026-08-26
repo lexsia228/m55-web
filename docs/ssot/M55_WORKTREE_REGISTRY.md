@@ -1274,7 +1274,7 @@ Live count from `git worktree list --porcelain` at reconciliation observation: *
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `m55:context` | WT-043 | RETAINED | **CLOSED / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-reference-handoff-v1` | `fix/m55-commercial-reference-handoff-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #160 merged) |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-commercial-handoff-closure-v1` | `docs/m55-control-tower-commercial-handoff-closure-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #161 merged) |
-| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `fix/m55-control-tower-generic-gate-progression-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #154 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `docs/m55-pair-wave-a-evidence-closure-v1` | `m55:context` | — | EXECUTOR | **ACTIVE_CONTROL_PLANE / COLD_START_CLOSURE_EXECUTOR** (PR #168 OPEN · docs-only · no product authority) |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-pass-acceptance-v1` | `docs/m55-worktree-registry-drift-reconciliation-v1` | `m55:context` | WT-052 | EXECUTOR | **DOCS_ONLY / REGISTRY_RECONCILIATION_EXECUTOR** (historical PR #155) |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `m55:context` | WT-045 | RETAINED | **CLOSED GREEN / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `m55:context` | WT-044 | RETAINED | **CLOSED GREEN / RETAINED** |
@@ -1298,10 +1298,11 @@ The following live paths are **CLOSED_RETAINED** merged lanes. Classification on
 |---|---|
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-reference-handoff-v1` | PR #160 merged |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-commercial-handoff-closure-v1` | PR #161 merged |
-| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | PR #154 merged |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-closure-v1` | PR #157 merged |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-implementation-v1` | PR #156 merged |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-activation-decision-v1` | PR #158 merged |
+
+**Historical note:** `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` previously hosted PR #154 on branch `fix/m55-control-tower-generic-gate-progression-v1` — that closure remains valid historical evidence (`controlTowerGenericGateProgressionTransition`). The same physical path is now the active control-plane executor for PR #168 on `docs/m55-pair-wave-a-evidence-closure-v1`.
 
 ## FINAL LIVE WORKTREES (2026-08-24 Pair relation-stage bounded correction) — HISTORICAL
 
