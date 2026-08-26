@@ -28,7 +28,7 @@ const DEV_GATE_RERUN_POLICY =
 function gitResult(...args) {
   return spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
 }
-function git(...args) {
+export function git(...args) {
   const result = gitResult(...args);
   if (result.status !== 0) return null;
   return result.stdout.trim();
@@ -36,12 +36,11 @@ function git(...args) {
 function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
-function listDirtyPaths() {
-  const out = git('status', '--porcelain');
-  if (!out) return [];
-  return out
-    .split('\n')
-    .filter(Boolean)
+export function parsePorcelainDirtyPaths(rawStdout) {
+  if (rawStdout == null || rawStdout === '') return [];
+  return rawStdout
+    .split(/\r?\n/)
+    .filter((line) => line.length > 0)
     .map((line) => {
       const match = line.match(/^(.{2})\s+(.+)$/);
       if (!match) return null;
@@ -51,6 +50,11 @@ function listDirtyPaths() {
       return { code, path: file };
     })
     .filter(Boolean);
+}
+function listDirtyPaths() {
+  const result = gitResult('status', '--porcelain=v1');
+  if (result.status !== 0) return [];
+  return parsePorcelainDirtyPaths(result.stdout);
 }
 function upstreamRef(branch) {
   const tracked = git('rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}');
@@ -209,4 +213,8 @@ function main() {
   console.log('m55:context:PASS');
 }
 
-main();
+const isDirectExecution =
+  process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isDirectExecution) {
+  main();
+}

@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-24T21:42:41.208317+00:00",
-  "count": 705,
+  "generated_at_utc": "2026-08-25T21:42:48.207477+00:00",
+  "count": 706,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -75,7 +75,7 @@
     {
       "path": "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
       "category": "ssot",
-      "bytes": 11503
+      "bytes": 12338
     },
     {
       "path": "docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md",
@@ -3053,6 +3053,11 @@
       "bytes": 18981
     },
     {
+      "path": "docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md",
+      "category": "ssot",
+      "bytes": 9096
+    },
+    {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
       "category": "ssot",
       "bytes": 4516
@@ -3085,7 +3090,7 @@
     {
       "path": "docs/ssot/M55_UX_BENCHMARK_STACK.md",
       "category": "ssot",
-      "bytes": 12791
+      "bytes": 13228
     },
     {
       "path": "docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_2026-05-24.md",
@@ -3160,7 +3165,7 @@
     {
       "path": "docs/ssot/README.md",
       "category": "ssot",
-      "bytes": 2784
+      "bytes": 3071
     },
     {
       "path": "docs/ssot/SOURCES_USED__PROJECT_B_v8.md",
@@ -3345,12 +3350,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 111231
+      "bytes": 111345
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 74616
+      "bytes": 74678
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",

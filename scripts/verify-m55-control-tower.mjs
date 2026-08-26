@@ -17,6 +17,7 @@ import {
   validateExecutionState,
   detectLegacyExecutionDrift,
 } from './m55-control-tower-semantic.mjs';
+import { git, parsePorcelainDirtyPaths } from './m55-control-tower-context.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FAILURES = [];
@@ -1792,8 +1793,82 @@ function checkCommercialSkuOwnersInContract() {
   if (!/dtr_core_full_v1/.test(contract)) fail('machine contract missing dtr_core_full_v1');
 }
 
+function expectDirtyPaths(label, rawStdout, expectedPaths) {
+  const parsed = parsePorcelainDirtyPaths(rawStdout);
+  const paths = parsed.map((entry) => entry.path);
+  const sameLength = paths.length === expectedPaths.length;
+  const sameOrder = sameLength && expectedPaths.every((expected, index) => paths[index] === expected);
+  if (!sameOrder) {
+    fail(`${label}: expected [${expectedPaths.join(', ')}] got [${paths.join(', ')}]`);
+  }
+}
+
+function expectDirtyCodes(label, rawStdout, expectedCodes) {
+  const parsed = parsePorcelainDirtyPaths(rawStdout);
+  const codes = parsed.map((entry) => entry.code);
+  const sameLength = codes.length === expectedCodes.length;
+  const sameOrder = sameLength && expectedCodes.every((expected, index) => codes[index] === expected);
+  if (!sameOrder) {
+    fail(`${label}: expected codes [${expectedCodes.join(', ')}] got [${codes.join(', ')}]`);
+  }
+}
+
+function runPorcelainDirtyPathParserSelfTests() {
+  expectDirtyPaths('first line unstaged modified', ' M first-file.ts', ['first-file.ts']);
+  expectDirtyCodes('first line unstaged modified code', ' M first-file.ts', ['M']);
+
+  expectDirtyPaths(
+    'multiple dirty lines',
+    ' M first-file.ts\n M second-file.ts',
+    ['first-file.ts', 'second-file.ts'],
+  );
+
+  expectDirtyPaths('staged modified', 'M  staged-file.ts', ['staged-file.ts']);
+  expectDirtyCodes('staged modified code', 'M  staged-file.ts', ['M']);
+
+  expectDirtyPaths('untracked', '?? new-file.ts', ['new-file.ts']);
+  expectDirtyCodes('untracked code', '?? new-file.ts', ['??']);
+
+  expectDirtyPaths('node_modules filtered', ' M node_modules/pkg/index.js', []);
+  expectDirtyPaths(
+    'node_modules first then real path',
+    ' M node_modules/pkg/index.js\n M real-file.ts',
+    ['real-file.ts'],
+  );
+
+  expectDirtyPaths('first line MM', 'MM both-staged-and-worktree.ts', ['both-staged-and-worktree.ts']);
+  expectDirtyCodes('first line MM code', 'MM both-staged-and-worktree.ts', ['MM']);
+
+  expectDirtyPaths('first line untracked', '?? lone-untracked.ts', ['lone-untracked.ts']);
+
+  expectDirtyPaths(
+    'trailing newline',
+    ' M first-file.ts\n M second-file.ts\n',
+    ['first-file.ts', 'second-file.ts'],
+  );
+
+  expectDirtyPaths(
+    'no trailing newline',
+    ' M first-file.ts\n M second-file.ts',
+    ['first-file.ts', 'second-file.ts'],
+  );
+
+  expectDirtyPaths('empty clean status', '', []);
+  expectDirtyPaths('whitespace-only clean status', '   \n  \n', []);
+
+  const head = git('rev-parse', 'HEAD');
+  if (!head || /\s/.test(head)) {
+    fail('git() must return trimmed SHA output without surrounding whitespace');
+  }
+  const branch = git('rev-parse', '--abbrev-ref', 'HEAD');
+  if (!branch || /^\s|\s$/.test(branch)) {
+    fail('git() must return trimmed branch output without surrounding whitespace');
+  }
+}
+
 function main() {
   runSemanticSelfTests();
+  runPorcelainDirtyPathParserSelfTests();
   checkRequiredFiles();
   checkPackageContextScript();
   checkExecutionState();
