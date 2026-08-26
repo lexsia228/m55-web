@@ -7,11 +7,15 @@ import {
 } from './pairReadingCatalog.v1';
 import { buildCompatibilityFreeResultFragments, buildTeaserText, validateGuestFreeTeaser } from './pairReadingFragments.v1';
 import {
+  COMPATIBILITY_GUEST_SESSION_KEY,
+  COMPATIBILITY_GUEST_SESSION_KEY_V3,
   isCompleteCompatibilityGuestInput,
   isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
+  type CompatibilityGuestJourneyV3,
   type CompatibilityGuestResultOutcome,
   type CompatibilityMappedChapter,
+  type CompatibilityPublicChapter,
 } from './pairReadingGuestContract';
 import { derivePairAxisId } from './pairReadingFingerprint';
 import { renderPairReading } from './pairReadingRenderer';
@@ -19,9 +23,9 @@ import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1
 import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
 import {
   isCompleteCompatibilityCurrentContextV2,
-  resolveFocusAnswer,
   toLegacyCurrentContextAnswers,
   type CompatibilityCurrentContextAnswersV2,
+  type CompatibilityCurrentQuestionIdV2,
 } from './currentContextContract.v2';
 import { buildPairFreeInsightSpecV2 } from './pairFreeInsightSpecV2';
 import type {
@@ -55,6 +59,131 @@ export const GUEST_TOPIC_BY_PAIR_AXIS: Readonly<Record<PairAxisId, PaidTopicId>>
   A4: 'T1',
 };
 
+/** Strip legacy optional focus before primary guest/public projection. Paid snapshots keep focus when passed separately. */
+export function stripFocusForPublicGuestAnswers(
+  answers: CompatibilityCurrentContextAnswersV2,
+): CompatibilityCurrentContextAnswersV2 {
+  if (!('focus' in answers)) {
+    return answers;
+  }
+  const { focus: _focus, ...publicAnswers } = answers;
+  return publicAnswers as CompatibilityCurrentContextAnswersV2;
+}
+
+/** Production alias used by guest session restore and submit paths. */
+export function sanitizeGuestSessionAnswers(
+  answers: CompatibilityCurrentContextAnswersV2,
+): CompatibilityCurrentContextAnswersV2 {
+  return stripFocusForPublicGuestAnswers(answers);
+}
+
+export function prepareGuestSubmitAnswers(
+  answers: CompatibilityCurrentContextAnswersV2,
+): CompatibilityCurrentContextAnswersV2 {
+  return stripFocusForPublicGuestAnswers(answers);
+}
+
+export function mergeGuestAnswerSelection(
+  current: Partial<CompatibilityCurrentContextAnswersV2>,
+  questionId: CompatibilityCurrentQuestionIdV2,
+  answerId: string,
+): Partial<CompatibilityCurrentContextAnswersV2> {
+  const next = { ...current, [questionId]: answerId };
+  if (!('focus' in next)) {
+    return next;
+  }
+  return stripFocusForPublicGuestAnswers(next as CompatibilityCurrentContextAnswersV2);
+}
+
+export function clearGuestRelationStageAnswers(): Partial<CompatibilityCurrentContextAnswersV2> {
+  return {};
+}
+
+export function backFromGuestQuestionnaire(
+  inQuestionnaire: boolean,
+  questionIndex: number,
+  currentAnswers: Partial<CompatibilityCurrentContextAnswersV2>,
+): {
+  inQuestionnaire: boolean;
+  questionIndex: number;
+  answers: Partial<CompatibilityCurrentContextAnswersV2>;
+} {
+  if (inQuestionnaire && questionIndex === 0) {
+    return { inQuestionnaire: false, questionIndex: 0, answers: clearGuestRelationStageAnswers() };
+  }
+  if (inQuestionnaire && questionIndex > 0) {
+    return {
+      inQuestionnaire: true,
+      questionIndex: Math.max(0, questionIndex - 1),
+      answers: currentAnswers,
+    };
+  }
+  return { inQuestionnaire, questionIndex, answers: currentAnswers };
+}
+
+export function parseSanitizedGuestJourneyV3(raw: string): CompatibilityGuestJourneyV3 | null {
+  try {
+    const value = JSON.parse(raw) as Partial<CompatibilityGuestJourneyV3>;
+    if (
+      value.version !== 'journey_v3' ||
+      !value.input ||
+      !isCompleteCompatibilityGuestInput(value.input) ||
+      !isValidCompatibilityRelationStatusId(value.relationStatusId) ||
+      !isCompleteCompatibilityCurrentContextV2(value.answers, value.relationStatusId)
+    ) {
+      return null;
+    }
+    return {
+      ...value,
+      answers: sanitizeGuestSessionAnswers(value.answers),
+    } as CompatibilityGuestJourneyV3;
+  } catch {
+    return null;
+  }
+}
+
+export const GUEST_SESSION_STORAGE_KEYS = Object.freeze({
+  legacy: COMPATIBILITY_GUEST_SESSION_KEY,
+  journeyV3: COMPATIBILITY_GUEST_SESSION_KEY_V3,
+} as const);
+
+/** Production guest reset — removes journey and legacy session keys only. */
+export function clearGuestSessionStorage(storage: Pick<Storage, 'removeItem'>): void {
+  storage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
+  storage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
+}
+
+export type GuestMappedChapterBridge = {
+  currentConnection: string;
+  concreteValue: string;
+};
+
+const GUEST_MAPPED_CHAPTER_BRIDGE = Object.freeze({
+  ch_pair_gap: Object.freeze({
+    currentConnection:
+      '二人の距離や解釈のずれが、どの場面で出やすいかを扱う章です。',
+    concreteValue: 'ずれの場面整理と、戻りやすい順序',
+  }),
+  ch_topic_deep: Object.freeze({
+    currentConnection: '今の二人の流れを、一つの場面として深く読む章です。',
+    concreteValue: '使える一言・小さな実験・振り返りの手順',
+  }),
+} satisfies Readonly<Record<'ch_pair_gap' | 'ch_topic_deep', GuestMappedChapterBridge>>);
+
+export function guestMappedChapterBridge(chapterId: ChapterId): GuestMappedChapterBridge {
+  if (chapterId === 'ch_pair_gap' || chapterId === 'ch_topic_deep') {
+    return GUEST_MAPPED_CHAPTER_BRIDGE[chapterId];
+  }
+  throw new Error(`guest mapped chapter bridge unavailable for ${chapterId}`);
+}
+
+function toPublicGuestChapter(chapter: { key: ChapterId; title: string }): CompatibilityPublicChapter {
+  return {
+    chapterId: chapter.key,
+    chapterTitle: chapter.title,
+  };
+}
+
 type CompatibilityMatrixState = {
   relationStatusId: RelationStatusId;
   paidTopicId: PaidTopicId;
@@ -79,9 +208,13 @@ export function buildCompatibilityPublicResult(
     currentContextV2 &&
     isCompleteCompatibilityCurrentContextV2(currentContextV2, relationStatusId),
   );
+  const publicContextV2 =
+    hasV2 && currentContextV2
+      ? stripFocusForPublicGuestAnswers(currentContextV2)
+      : undefined;
   const legacyAnswers =
-    hasV2 && (relationStatusId === 'R3' || relationStatusId === 'R6')
-      ? toLegacyCurrentContextAnswers(currentContextV2!, relationStatusId)
+    publicContextV2 && (relationStatusId === 'R3' || relationStatusId === 'R6')
+      ? toLegacyCurrentContextAnswers(publicContextV2, relationStatusId)
       : legacyCurrentContext;
 
   const derivedAxis = derivePairAxisId(guestInput.personA, guestInput.personB);
@@ -122,52 +255,43 @@ export function buildCompatibilityPublicResult(
     relationStatusId: state.relationStatusId,
     temperatureId: state.temperatureId,
     personAUsesFirstPerspective,
-    ...(hasV2
-      ? { currentContextV2: currentContextV2! }
+    ...(publicContextV2
+      ? { currentContextV2: publicContextV2 }
       : legacyAnswers
         ? { currentContext: legacyAnswers }
         : {}),
     personABirthDate: guestInput.personA,
     personBBirthDate: guestInput.personB,
   });
-  const allChapters = paidSnapshot.chapters.map((chapter) => ({
-    chapterId: chapter.key,
-    chapterTitle: chapter.title,
-    actualContent: chapter.scene,
-  }));
-  const mappedIds = paidSnapshot.currentContext?.highlightedChapterKeys ?? [
+  const allChapters = paidSnapshot.chapters.map(toPublicGuestChapter);
+  const mappedIds = [
     PAIR_AXIS_PAID_CHAPTER_MAPPING[rendered.pairFingerprint.pairAxisId],
     TOPIC_PAID_CHAPTER_MAPPING[state.paidTopicId],
   ] as const;
   const mappedChapters = mappedIds.map((chapterId, index) => {
     const chapter = allChapters.find((candidate) => candidate.chapterId === chapterId);
     if (!chapter) throw new Error('compatibility chapter mapping is incomplete');
-    const preview = paidSnapshot.currentContext?.chapterPreview[index];
+    const bridge = guestMappedChapterBridge(chapterId);
     return {
-      ...chapter,
+      chapterId: chapter.chapterId,
+      chapterTitle: chapter.chapterTitle,
       freeConnection: index === 0 ? free.difference : free.relationshipDynamic,
-      ...(preview
-        ? {
-          currentConnection: preview.reason,
-          concreteValue: preview.concreteValue,
-        }
-        : {}),
+      currentConnection: bridge.currentConnection,
+      concreteValue: bridge.concreteValue,
     };
   }) as [CompatibilityMappedChapter, CompatibilityMappedChapter];
 
   const baseContext = paidSnapshot.currentContext;
-  const focusLabel = hasV2
-    ? resolveFocusAnswer(relationStatusId, currentContextV2!.focus)
-    : baseContext?.focusLabel ?? 'これからの進め方';
+  const focusLabel = baseContext?.focusLabel ?? 'これからの進め方';
   const freeContext = baseContext
     ? overlayPairFreeInsight(baseContext, {
-        answersV2: hasV2 ? currentContextV2 : undefined,
+        answersV2: publicContextV2,
         answers: legacyAnswers,
         pairAxisId: rendered.pairFingerprint.pairAxisId,
         personABirthDate: guestInput.personA,
         personBBirthDate: guestInput.personB,
         personAUsesFirstPerspective,
-        focusLabel: baseContext.focusLabel,
+        focusLabel,
         relationStatusId: state.relationStatusId,
       })
     : baseContext;
@@ -200,7 +324,7 @@ export function buildCompatibilityPublicResult(
     ok: true,
     value: {
       free: overlayPairFreeDynamic(free, {
-        answersV2: hasV2 ? currentContextV2 : undefined,
+        answersV2: publicContextV2,
         answers: legacyAnswers,
         pairAxisId: rendered.pairFingerprint.pairAxisId,
         personABirthDate: guestInput.personA,

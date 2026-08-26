@@ -152,9 +152,13 @@ describe('current-context questionnaire contract', () => {
   it('implements one-question navigation, answer retention, and no result auth wall', () => {
     const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
     assert.match(component, /整理 \{questionIndex \+ 1\}\/\{questionTotal\}/);
-    assert.match(component, /disabled=\{\(!selectedAnswer && !currentQuestion\.optional\) \|\| isPending\}/);
-    assert.match(component, /setQuestionIndex\(\(current\) => Math\.max\(0, current - 1\)\)/);
-    assert.match(component, /delete next\.focus/);
+    assert.match(component, /disabled=\{\!selectedAnswer \|\| isPending\}/);
+    assert.match(component, /backFromGuestQuestionnaire/);
+    assert.doesNotMatch(component, /skip_focus/);
+    assert.doesNotMatch(component, /今いちばん整理したいこと：/);
+    assert.doesNotMatch(component, /今、このレポートで特に整理したいことはありますか/);
+    assert.match(component, /stripFocusForPublicGuestAnswers|sanitizeGuestSessionAnswers/);
+    assert.match(component, /parseSanitizedGuestJourneyV3/);
     assert.doesNotMatch(component, /useUser|SignedIn|SignInButton|auth wall/i);
   });
 

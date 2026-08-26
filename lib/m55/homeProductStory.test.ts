@@ -131,7 +131,7 @@ describe('homeProductStory — pair free dedicated section', () => {
     assert.equal(home.pairFreeHeadlineJa, 'なぜ話しやすい時と、\nすれ違う時があるのか。');
     assert.equal(
       home.pairFreeBodyJa,
-      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
+      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れまでを、\n決めつけずに読み解きます。',
     );
     assert.equal(home.pairFreeStatusJa, '無料・ログイン不要');
     assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');

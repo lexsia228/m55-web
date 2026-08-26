@@ -62,20 +62,6 @@ export type CompatibilityCurrentContextQuestionV2 = {
   readonly optional?: boolean;
 };
 
-const FOCUS_QUESTION: CompatibilityCurrentContextQuestionV2 = {
-  questionId: 'focus',
-  question: '今、このレポートで特に整理したいことはありますか？（任意）',
-  optional: true,
-  choices: [
-    { answerId: 'distance_focus', label: '二人の距離感' },
-    { answerId: 'conversation_focus', label: '会話の進め方' },
-    { answerId: 'loop_focus', label: 'すれ違いが続く理由' },
-    { answerId: 'return_focus', label: '関係を戻すきっかけ' },
-    { answerId: 'next_step_focus', label: 'これからの進め方' },
-    { answerId: 'skip_focus', label: '今は特に決めない' },
-  ],
-};
-
 const R1_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = [
   {
     questionId: 'expressionPace',
@@ -211,17 +197,19 @@ const R5_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = [
 export function questionsForRelationStage(
   relationStatusId: RelationStatusId,
 ): readonly CompatibilityCurrentContextQuestionV2[] {
-  const body =
-    relationStatusId === 'R1'
-      ? R1_QUESTIONS
-      : relationStatusId === 'R2'
-        ? R2_QUESTIONS
-        : relationStatusId === 'R3' || relationStatusId === 'R6'
-          ? ESTABLISHED_QUESTIONS
-          : relationStatusId === 'R4'
-            ? R4_QUESTIONS
-            : R5_QUESTIONS;
-  return Object.freeze([...body, FOCUS_QUESTION]);
+  if (relationStatusId === 'R1') {
+    return R1_QUESTIONS;
+  }
+  if (relationStatusId === 'R2') {
+    return R2_QUESTIONS;
+  }
+  if (relationStatusId === 'R3' || relationStatusId === 'R6') {
+    return ESTABLISHED_QUESTIONS;
+  }
+  if (relationStatusId === 'R4') {
+    return R4_QUESTIONS;
+  }
+  return R5_QUESTIONS;
 }
 
 const V2_ANSWER_IDS: Record<CompatibilityCurrentQuestionIdV2, readonly string[]> = {
@@ -298,6 +286,7 @@ export function isCompleteCompatibilityCurrentContextV2(
   const allowedQuestionIds = new Set(
     questionsForRelationStage(relationStatusId).map((question) => question.questionId),
   );
+  allowedQuestionIds.add('focus');
   const keys = Object.keys(candidate);
   if (!keys.every((key) => allowedQuestionIds.has(key as CompatibilityCurrentQuestionIdV2))) {
     return false;

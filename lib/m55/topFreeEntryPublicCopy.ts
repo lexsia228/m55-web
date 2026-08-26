@@ -105,7 +105,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     pairFreeEyebrowJa: '二人の関係を見る',
     pairFreeHeadlineJa: 'なぜ話しやすい時と、\nすれ違う時があるのか。',
     pairFreeBodyJa:
-      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
+      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れまでを、\n決めつけずに読み解きます。',
     pairFreeStatusJa: '無料・ログイン不要',
     pairFreeCtaJa: '二人の関係を無料で見てみる',
     pairFreePreparingStatusJa: '準備中',

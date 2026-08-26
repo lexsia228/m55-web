@@ -3,6 +3,15 @@
 import { FormEvent, useEffect, useMemo, useState, useTransition } from 'react';
 import { buildGuestCompatibilityResult } from '../../app/synastry/actions';
 import {
+  backFromGuestQuestionnaire,
+  clearGuestRelationStageAnswers,
+  clearGuestSessionStorage,
+  mergeGuestAnswerSelection,
+  parseSanitizedGuestJourneyV3,
+  prepareGuestSubmitAnswers,
+  sanitizeGuestSessionAnswers,
+} from '../../lib/m55/compatibility/pairReadingGuestResult';
+import {
   COMPATIBILITY_GUEST_SESSION_KEY,
   COMPATIBILITY_GUEST_SESSION_KEY_V3,
   isCompleteCompatibilityGuestInput,
@@ -18,7 +27,6 @@ import {
   RELATIONSHIP_LOOP_STEP_LABELS_V2,
   relationshipLoopStepLabelsFor,
   stagePremiumBridgeCopy,
-  stageSafeFocusOptions,
   type CompatibilityCurrentContextAnswersV2,
   type CompatibilityCurrentQuestionIdV2,
 } from '../../lib/m55/compatibility/currentContextContract.v2';
@@ -61,17 +69,7 @@ function restoreSessionJourney(): CompatibilityGuestJourneyV3 | null {
   try {
     const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
     if (!raw) return null;
-    const value = JSON.parse(raw) as Partial<CompatibilityGuestJourneyV3>;
-    if (
-      value.version !== 'journey_v3' ||
-      !value.input ||
-      !isCompleteCompatibilityGuestInput(value.input) ||
-      !isValidCompatibilityRelationStatusId(value.relationStatusId) ||
-      !isCompleteCompatibilityCurrentContextV2(value.answers, value.relationStatusId)
-    ) {
-      return null;
-    }
-    return value as CompatibilityGuestJourneyV3;
+    return parseSanitizedGuestJourneyV3(raw);
   } catch {
     return null;
   }
@@ -163,7 +161,7 @@ export default function CompatibilityGuestExperience({
 
   function selectRelationStage(stageId: RelationStatusId) {
     setRelationStatusId(stageId);
-    setAnswers({});
+    setAnswers(clearGuestRelationStageAnswers());
     setQuestionIndex(0);
     setResult(null);
     setError('');
@@ -189,27 +187,15 @@ export default function CompatibilityGuestExperience({
   }
 
   function selectAnswer(questionId: CompatibilityCurrentQuestionIdV2, answerId: string) {
-    setAnswers((current) => {
-      if (questionId === 'focus' && answerId === 'skip_focus') {
-        const next = { ...current };
-        delete next.focus;
-        return next;
-      }
-      return { ...current, [questionId]: answerId };
-    });
+    setAnswers((current) => mergeGuestAnswerSelection(current, questionId, answerId));
     setError('');
   }
 
   function goBack() {
-    if (phase === 'questions' && inQuestionnaire && questionIndex === 0) {
-      setInQuestionnaire(false);
-      setAnswers({});
-      return;
-    }
-    if (phase === 'questions' && inQuestionnaire && questionIndex > 0) {
-      setQuestionIndex((current) => Math.max(0, current - 1));
-      return;
-    }
+    const next = backFromGuestQuestionnaire(inQuestionnaire, questionIndex, answers);
+    setInQuestionnaire(next.inQuestionnaire);
+    setQuestionIndex(next.questionIndex);
+    setAnswers(next.answers);
     if (phase === 'questions' && !inQuestionnaire) {
       setPhase('dob');
     }
@@ -235,7 +221,9 @@ export default function CompatibilityGuestExperience({
       setError('現在の二人について、必要な回答を確認してください。');
       return;
     }
-    const completeAnswers = answers as CompatibilityCurrentContextAnswersV2;
+    const completeAnswers = prepareGuestSubmitAnswers(
+      answers as CompatibilityCurrentContextAnswersV2,
+    );
     trackFunnelAction(
       M55_FUNNEL_EVENTS.compatibilityQuestionnaireComplete,
       'compatibility_guest',
@@ -262,6 +250,7 @@ export default function CompatibilityGuestExperience({
       } catch {
         /* Result remains available even when tab storage is unavailable. */
       }
+      setAnswers(completeAnswers);
       setResult(outcome.value);
       setPhase('result');
     });
@@ -269,8 +258,7 @@ export default function CompatibilityGuestExperience({
 
   function resetJourney() {
     try {
-      sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
-      sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
+      clearGuestSessionStorage(sessionStorage);
     } catch {
       /* Reset still clears visible state when tab storage is unavailable. */
     }
@@ -287,16 +275,14 @@ export default function CompatibilityGuestExperience({
   const currentQuestion = questions[questionIndex];
   const selectedAnswer = currentQuestion ? answers[currentQuestion.questionId] ?? '' : '';
   const context = result?.currentContext;
-  const focusChoices = relationStatusId
-    ? questionsForRelationStage(relationStatusId).find((q) => q.questionId === 'focus')?.choices ?? []
-    : [];
-  const safeFocusIds = relationStatusId ? stageSafeFocusOptions(relationStatusId) : [];
   const pairInsight = useMemo(() => {
     if (phase !== 'result' || !result || !context || !relationStatusId) return null;
     if (!isCompleteCompatibilityCurrentContextV2(answers, relationStatusId)) return null;
     try {
       return buildPairFreeInsightSpecV2({
-        answersV2: answers as CompatibilityCurrentContextAnswersV2,
+        answersV2: sanitizeGuestSessionAnswers(
+          answers as CompatibilityCurrentContextAnswersV2,
+        ),
         pairAxisId: 'A2',
         personABirthDate: input.personA,
         personBBirthDate: input.personB,
@@ -472,13 +458,7 @@ export default function CompatibilityGuestExperience({
             role="radiogroup"
             aria-label={currentQuestion.question}
           >
-            {currentQuestion.choices
-              .filter((choice) =>
-                currentQuestion.questionId !== 'focus' ||
-                choice.answerId === 'skip_focus' ||
-                safeFocusIds.includes(choice.answerId as typeof safeFocusIds[number]),
-              )
-              .map((choice) => {
+            {currentQuestion.choices.map((choice) => {
               const selected = selectedAnswer === choice.answerId;
               return (
                 <button
@@ -504,15 +484,13 @@ export default function CompatibilityGuestExperience({
               type="button"
               className={styles.nextButton}
               onClick={goNext}
-              disabled={(!selectedAnswer && !currentQuestion.optional) || isPending}
+              disabled={!selectedAnswer || isPending}
             >
               {questionIndex === questionTotal - 1
                 ? isPending
                   ? '読み解きを組み立てています'
                   : '今の二人の読み解きを見る'
-                : currentQuestion.optional && !selectedAnswer
-                  ? 'スキップして次へ'
-                  : '次へ'}
+                : '次へ'}
             </button>
           </div>
         </section>
@@ -595,7 +573,6 @@ export default function CompatibilityGuestExperience({
           </section>
 
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
-            <p className={styles.eyebrow}>今いちばん整理したいこと：{context.focusLabel}</p>
             <h3 id="paid-bridge-title">この二人の続きとして読めること</h3>
             <p className={styles.deliverableLead}>
               {premiumBridge?.deliverableLead ??

@@ -28,9 +28,27 @@ import {
   type CompatibilityCurrentContextAnswers,
 } from './currentContextContract.v1';
 import { buildPairFreeInsightSpecV2 } from './pairFreeInsightSpecV2';
-import { isValidCompatibilityRelationStatusId } from './pairReadingGuestContract';
+import {
+  COMPATIBILITY_GUEST_SESSION_KEY,
+  COMPATIBILITY_GUEST_SESSION_KEY_V3,
+  isValidCompatibilityRelationStatusId,
+  type CompatibilityMappedChapter,
+  type CompatibilityPublicChapter,
+} from './pairReadingGuestContract';
+import { buildGuestCompatibilityResult } from '../../../app/synastry/actions';
 import type { PaidCompatibilityChapter } from './buildPaidCompatibilityReportV1';
-import { buildCompatibilityPublicResult } from './pairReadingGuestResult';
+import {
+  backFromGuestQuestionnaire,
+  buildCompatibilityPublicResult,
+  clearGuestRelationStageAnswers,
+  clearGuestSessionStorage,
+  guestMappedChapterBridge,
+  mergeGuestAnswerSelection,
+  parseSanitizedGuestJourneyV3,
+  prepareGuestSubmitAnswers,
+  sanitizeGuestSessionAnswers,
+  stripFocusForPublicGuestAnswers,
+} from './pairReadingGuestResult';
 import { renderPairReading } from './pairReadingRenderer';
 import { validateGuestFreeTeaser } from './pairReadingFragments.v1';
 import {
@@ -45,6 +63,23 @@ import { buildPairManualV1 } from '../narrative/pairManualV1';
 
 import type { RelationStatusId, PaidTopicId, TemperatureId, PairAxisId, PairReadingInput } from './pairReadingTypes';
 
+const LEGACY_FOCUS_BRIDGE_FORBIDDEN =
+  /今気になる話題|気になる点を|扱いたい一点|連鎖を止める三つの手順|話題を小さく|自分の中で整理できる入口|近づく前に整えたい一点|言葉の置き方のずれ/;
+
+/** Fail-closed if CompatibilityPublicChapter widens beyond authorized public keys. */
+const PUBLIC_CHAPTER_KEY_GUARD: Record<keyof CompatibilityPublicChapter, true> = {
+  chapterId: true,
+  chapterTitle: true,
+};
+
+/** Fail-closed if CompatibilityMappedChapter widens beyond authorized public keys. */
+const PUBLIC_MAPPED_CHAPTER_KEY_GUARD: Record<keyof CompatibilityMappedChapter, true> = {
+  chapterId: true,
+  chapterTitle: true,
+  freeConnection: true,
+  currentConnection: true,
+  concreteValue: true,
+};
 const PREVIEW_FIXTURE_PATH = join(
   import.meta.dirname,
   '../../../components/compatibility/__preview__/PaidCompatibilityReportPreviewClient.tsx',
@@ -339,12 +374,108 @@ describe('relation stage semantic correction wave A', () => {
     });
   }
 
-  it('accepts omitted focus and falls back to next-step emphasis', () => {
+  it('accepts omitted focus for legacy readability without public focus selection', () => {
     const answers = { ...STAGE_ANSWERS.R1 };
     assert.equal(isCompleteCompatibilityCurrentContextV2(answers, 'R1'), true);
     const focus = resolveFocusAnswer('R1', undefined);
     assert.equal(focus, 'next_step_focus');
     const built = buildCompatibilityPublicResult(PAIR, 'R1', answers);
+    assert.equal(built.ok, true);
+  });
+
+  for (const stage of RAW_RELATION_IDS) {
+    it(`keeps ${stage} public guest projection invariant across omitted and stage-valid legacy focus`, () => {
+      const baseline = buildCompatibilityPublicResult(PAIR, stage, STAGE_ANSWERS[stage]);
+      assert.equal(baseline.ok, true, `${stage} omitted focus must build`);
+      if (!baseline.ok) throw new Error('unreachable');
+      const baselineFingerprint = JSON.stringify({
+        free: {
+          overlap: baseline.value.free.overlap,
+          difference: baseline.value.free.difference,
+          relationshipDynamic: baseline.value.free.relationshipDynamic,
+        },
+        freeTeaser: baseline.value.freeTeaser,
+        currentContext: baseline.value.currentContext
+          ? {
+              glanceLabel: baseline.value.currentContext.glanceLabel,
+              currentExpression: baseline.value.currentContext.currentExpression,
+              relationshipLoopSteps: baseline.value.currentContext.relationshipLoopSteps,
+            }
+          : undefined,
+        mappedChapters: baseline.value.mappedChapters.map((chapter) => ({
+          chapterId: chapter.chapterId,
+          chapterTitle: chapter.chapterTitle,
+          freeConnection: chapter.freeConnection,
+          currentConnection: chapter.currentConnection,
+          concreteValue: chapter.concreteValue,
+        })),
+      });
+      for (const focus of stageSafeFocusOptions(stage)) {
+        const withFocus = buildCompatibilityPublicResult(PAIR, stage, {
+          ...STAGE_ANSWERS[stage],
+          focus,
+        });
+        assert.equal(withFocus.ok, true, `${stage}/${focus} must build`);
+        if (!withFocus.ok) throw new Error('unreachable');
+        const focusFingerprint = JSON.stringify({
+          free: {
+            overlap: withFocus.value.free.overlap,
+            difference: withFocus.value.free.difference,
+            relationshipDynamic: withFocus.value.free.relationshipDynamic,
+          },
+          freeTeaser: withFocus.value.freeTeaser,
+          currentContext: withFocus.value.currentContext
+            ? {
+                glanceLabel: withFocus.value.currentContext.glanceLabel,
+                currentExpression: withFocus.value.currentContext.currentExpression,
+                relationshipLoopSteps: withFocus.value.currentContext.relationshipLoopSteps,
+              }
+            : undefined,
+          mappedChapters: withFocus.value.mappedChapters.map((chapter) => ({
+            chapterId: chapter.chapterId,
+            chapterTitle: chapter.chapterTitle,
+            freeConnection: chapter.freeConnection,
+            currentConnection: chapter.currentConnection,
+            concreteValue: chapter.concreteValue,
+          })),
+        });
+        assert.equal(
+          focusFingerprint,
+          baselineFingerprint,
+          `${stage}/${focus} must not alter public guest projection`,
+        );
+      }
+    });
+  }
+
+  it('strips stale legacy focus before public guest answers can rebuild', () => {
+    const legacy = {
+      ...STAGE_ANSWERS.R2,
+      focus: 'conversation_focus' as const,
+    };
+    const sanitized = stripFocusForPublicGuestAnswers(legacy);
+    assert.equal('focus' in sanitized, false);
+    assert.equal(isCompleteCompatibilityCurrentContextV2(sanitized, 'R2'), true);
+    const omitted = buildCompatibilityPublicResult(PAIR, 'R2', STAGE_ANSWERS.R2);
+    const restored = buildCompatibilityPublicResult(PAIR, 'R2', sanitized);
+    assert.equal(omitted.ok, true);
+    assert.equal(restored.ok, true);
+    if (!omitted.ok || !restored.ok) throw new Error('unreachable');
+    assert.deepEqual(restored.value.mappedChapters, omitted.value.mappedChapters);
+    assert.equal(
+      restored.value.free.relationshipDynamic,
+      omitted.value.free.relationshipDynamic,
+    );
+  });
+
+  it('accepts legacy stored focus on completed V3 answers without public focus question', () => {
+    const legacy = {
+      ...STAGE_ANSWERS.R1,
+      focus: 'conversation_focus' as const,
+    };
+    assert.equal(isCompleteCompatibilityCurrentContextV2(legacy, 'R1'), true);
+    assert.equal(questionsForRelationStage('R1').some((q) => q.questionId === 'focus'), false);
+    const built = buildCompatibilityPublicResult(PAIR, 'R1', legacy);
     assert.equal(built.ok, true);
   });
 
@@ -805,8 +936,18 @@ describe('relation stage semantic correction wave A', () => {
   });
 
   it('exposes stage-specific question counts instead of fixed six mandatory questions', () => {
-    assert.equal(questionsForRelationStage('R1').filter((q) => q.questionId !== 'focus').length, 2);
-    assert.equal(questionsForRelationStage('R3').filter((q) => q.questionId !== 'focus').length, 4);
+    assert.equal(questionsForRelationStage('R1').length, 2);
+    assert.equal(questionsForRelationStage('R2').length, 2);
+    assert.equal(questionsForRelationStage('R3').length, 4);
+    assert.equal(questionsForRelationStage('R4').length, 2);
+    assert.equal(questionsForRelationStage('R5').length, 3);
+    assert.equal(questionsForRelationStage('R6').length, 4);
+    for (const stage of RAW_RELATION_IDS) {
+      assert.equal(
+        questionsForRelationStage(stage).some((question) => question.questionId === 'focus'),
+        false,
+      );
+    }
   });
 
   it('maps v2 answers to legacy-readable bodies without exposing raw IDs in display', () => {
@@ -969,7 +1110,7 @@ describe('relation stage semantic correction wave A', () => {
     );
     const poisoned = { ...STAGE_ANSWERS.R4, returnPattern: 'someone_reaches' as const };
     assert.equal(isCompleteCompatibilityCurrentContextV2(poisoned, 'R4'), false);
-    assert.equal(questionsForRelationStage('R4').filter((q) => q.questionId !== 'focus').length, 2);
+    assert.equal(questionsForRelationStage('R4').length, 2);
   });
 
   it('materializes stage-specific evidenceQuestionIds for every native stage', () => {
@@ -1408,4 +1549,318 @@ describe('relation stage semantic correction wave A', () => {
       }
     });
   }
+});
+
+describe('hidden-focus P1 patch-2 — chapter bridge and session lifecycle', () => {
+  const GUEST_COMPONENT = join(
+    import.meta.dirname,
+    '../../../components/compatibility/CompatibilityGuestExperience.tsx',
+  );
+
+  function journeyV3Payload(
+    stage: RelationStatusId,
+    focus?: CompatibilityCurrentContextAnswersV2['focus'],
+  ): string {
+    const answers = focus
+      ? { ...STAGE_ANSWERS[stage], focus }
+      : STAGE_ANSWERS[stage];
+    return JSON.stringify({
+      version: 'journey_v3',
+      input: PAIR,
+      relationStatusId: stage,
+      answers,
+    });
+  }
+
+  function mappedChapterBridgeFingerprint(stage: RelationStatusId) {
+    const built = buildCompatibilityPublicResult(PAIR, stage, STAGE_ANSWERS[stage]);
+    assert.equal(built.ok, true, stage);
+    if (!built.ok) throw new Error('unreachable');
+    return built.value.mappedChapters.map((chapter) => ({
+      chapterId: chapter.chapterId,
+      chapterTitle: chapter.chapterTitle,
+      freeConnection: chapter.freeConnection,
+      currentConnection: chapter.currentConnection,
+      concreteValue: chapter.concreteValue,
+    }));
+  }
+
+  it('derives guest mapped chapter bridge from chapter identity only', () => {
+    const gap = guestMappedChapterBridge('ch_pair_gap');
+    const deep = guestMappedChapterBridge('ch_topic_deep');
+    assert.equal(
+      gap.currentConnection,
+      '二人の距離や解釈のずれが、どの場面で出やすいかを扱う章です。',
+    );
+    assert.equal(gap.concreteValue, 'ずれの場面整理と、戻りやすい順序');
+    assert.equal(
+      deep.currentConnection,
+      '今の二人の流れを、一つの場面として深く読む章です。',
+    );
+    assert.equal(deep.concreteValue, '使える一言・小さな実験・振り返りの手順');
+    assert.doesNotMatch(gap.currentConnection, LEGACY_FOCUS_BRIDGE_FORBIDDEN);
+    assert.doesNotMatch(deep.currentConnection, LEGACY_FOCUS_BRIDGE_FORBIDDEN);
+    assert.doesNotMatch(gap.concreteValue, LEGACY_FOCUS_BRIDGE_FORBIDDEN);
+    assert.doesNotMatch(deep.concreteValue, LEGACY_FOCUS_BRIDGE_FORBIDDEN);
+  });
+
+  for (const stage of RAW_RELATION_IDS) {
+    it(`keeps ${stage} mapped chapter bridge invariant across legacy focus values`, () => {
+      const baseline = mappedChapterBridgeFingerprint(stage);
+      for (const focus of stageSafeFocusOptions(stage)) {
+        const withFocus = buildCompatibilityPublicResult(PAIR, stage, {
+          ...STAGE_ANSWERS[stage],
+          focus,
+        });
+        assert.equal(withFocus.ok, true, `${stage}/${focus}`);
+        if (!withFocus.ok) throw new Error('unreachable');
+        const fingerprint = withFocus.value.mappedChapters.map((chapter) => ({
+          chapterId: chapter.chapterId,
+          chapterTitle: chapter.chapterTitle,
+          freeConnection: chapter.freeConnection,
+          currentConnection: chapter.currentConnection,
+          concreteValue: chapter.concreteValue,
+        }));
+        assert.deepEqual(fingerprint, baseline, `${stage}/${focus} bridge drift`);
+      }
+    });
+  }
+
+  it('keeps identical chapter bridge copy across relation stages for the same chapter id', () => {
+    const gapByStage = RAW_RELATION_IDS.map((stage) =>
+      mappedChapterBridgeFingerprint(stage).find((chapter) => chapter.chapterId === 'ch_pair_gap')!,
+    );
+    const deepByStage = RAW_RELATION_IDS.map((stage) =>
+      mappedChapterBridgeFingerprint(stage).find((chapter) => chapter.chapterId === 'ch_topic_deep')!,
+    );
+    for (let index = 1; index < gapByStage.length; index += 1) {
+      assert.deepEqual(gapByStage[index]!.currentConnection, gapByStage[0]!.currentConnection);
+      assert.deepEqual(gapByStage[index]!.concreteValue, gapByStage[0]!.concreteValue);
+      assert.deepEqual(deepByStage[index]!.currentConnection, deepByStage[0]!.currentConnection);
+      assert.deepEqual(deepByStage[index]!.concreteValue, deepByStage[0]!.concreteValue);
+    }
+  });
+
+  for (const stage of RAW_RELATION_IDS) {
+    it(`keeps ${stage} public mapped bridge free of disguised legacy focus semantics`, () => {
+      const built = buildCompatibilityPublicResult(PAIR, stage, STAGE_ANSWERS[stage]);
+      assert.equal(built.ok, true);
+      if (!built.ok) throw new Error('unreachable');
+      const blob = built.value.mappedChapters
+        .map((chapter) => `${chapter.currentConnection} ${chapter.concreteValue}`)
+        .join('\n');
+      assert.doesNotMatch(blob, LEGACY_FOCUS_BRIDGE_FORBIDDEN, stage);
+    });
+  }
+
+  it('neutralizes legacy focus on journey_v3 restore before public rebuild', () => {
+    const raw = journeyV3Payload('R2', 'conversation_focus');
+    const restored = parseSanitizedGuestJourneyV3(raw);
+    assert.ok(restored);
+    assert.equal('focus' in restored.answers, false);
+    const rebuilt = buildCompatibilityPublicResult(
+      restored.input,
+      restored.relationStatusId,
+      restored.answers,
+    );
+    const omitted = buildCompatibilityPublicResult(PAIR, 'R2', STAGE_ANSWERS.R2);
+    assert.equal(rebuilt.ok, true);
+    assert.equal(omitted.ok, true);
+    if (!rebuilt.ok || !omitted.ok) throw new Error('unreachable');
+    assert.deepEqual(rebuilt.value.mappedChapters, omitted.value.mappedChapters);
+    assert.equal(
+      rebuilt.value.free.relationshipDynamic,
+      omitted.value.free.relationshipDynamic,
+    );
+  });
+
+  it('re-sanitizes unchanged legacy storage payload on reload', () => {
+    const raw = journeyV3Payload('R3', 'loop_focus');
+    const first = parseSanitizedGuestJourneyV3(raw);
+    const second = parseSanitizedGuestJourneyV3(raw);
+    assert.ok(first && second);
+    assert.equal('focus' in first.answers, false);
+    assert.equal('focus' in second.answers, false);
+    assert.deepEqual(first.answers, second.answers);
+  });
+
+  it('clears answers when backing from questionnaire start so legacy focus cannot reactivate', () => {
+    const poisoned = {
+      ...STAGE_ANSWERS.R2,
+      focus: 'distance_focus' as const,
+    };
+    const next = backFromGuestQuestionnaire(true, 0, poisoned);
+    assert.equal(next.inQuestionnaire, false);
+    assert.equal(next.questionIndex, 0);
+    assert.equal('focus' in next.answers, false);
+    assert.deepEqual(next.answers, clearGuestRelationStageAnswers());
+  });
+
+  it('strips focus when merging answer selections during forward navigation', () => {
+    const merged = mergeGuestAnswerSelection(
+      { ...STAGE_ANSWERS.R2, focus: 'conversation_focus' },
+      'expressionPace',
+      'words_later',
+    );
+    assert.equal('focus' in merged, false);
+    const submit = prepareGuestSubmitAnswers({
+      ...STAGE_ANSWERS.R2,
+      focus: 'loop_focus',
+    });
+    assert.equal('focus' in submit, false);
+    assert.equal(isCompleteCompatibilityCurrentContextV2(submit, 'R2'), true);
+  });
+
+  it('clears persisted focus contamination when relation stage changes', () => {
+    const poisoned = {
+      ...STAGE_ANSWERS.R1,
+      focus: 'next_step_focus' as const,
+    };
+    const cleared = clearGuestRelationStageAnswers();
+    assert.equal('focus' in cleared, false);
+    assert.deepEqual(cleared, {});
+    const rebuilt = buildCompatibilityPublicResult(PAIR, 'R2', {
+      ...STAGE_ANSWERS.R2,
+      ...cleared,
+    } as CompatibilityCurrentContextAnswersV2);
+    assert.equal(rebuilt.ok, true);
+    if (!rebuilt.ok) throw new Error('unreachable');
+    assert.doesNotMatch(
+      rebuilt.value.mappedChapters
+        .map((chapter) => `${chapter.currentConnection} ${chapter.concreteValue}`)
+        .join('\n'),
+      LEGACY_FOCUS_BRIDGE_FORBIDDEN,
+    );
+    assert.equal('focus' in poisoned, true);
+  });
+
+  it('clears guest session storage keys via production helper without touching unrelated keys', () => {
+    const unrelatedKey = 'unrelated-key';
+    const values = new Map<string, string>([
+      [COMPATIBILITY_GUEST_SESSION_KEY, 'legacy'],
+      [COMPATIBILITY_GUEST_SESSION_KEY_V3, 'journey'],
+      [unrelatedKey, 'keep'],
+    ]);
+    const removed: string[] = [];
+    const storage: Pick<Storage, 'removeItem'> = {
+      removeItem(key: string) {
+        removed.push(key);
+        values.delete(key);
+      },
+    };
+    clearGuestSessionStorage(storage);
+    assert.deepEqual(removed, [
+      COMPATIBILITY_GUEST_SESSION_KEY,
+      COMPATIBILITY_GUEST_SESSION_KEY_V3,
+    ]);
+    assert.equal(values.has(COMPATIBILITY_GUEST_SESSION_KEY), false);
+    assert.equal(values.has(COMPATIBILITY_GUEST_SESSION_KEY_V3), false);
+    assert.equal(values.get(unrelatedKey), 'keep');
+  });
+
+  it('wires production guest component to shared lifecycle helpers', () => {
+    const component = readFileSync(GUEST_COMPONENT, 'utf8');
+    assert.match(component, /parseSanitizedGuestJourneyV3/);
+    assert.match(component, /sanitizeGuestSessionAnswers/);
+    assert.match(component, /prepareGuestSubmitAnswers/);
+    assert.match(component, /mergeGuestAnswerSelection/);
+    assert.match(component, /backFromGuestQuestionnaire/);
+    assert.match(component, /clearGuestRelationStageAnswers/);
+    assert.match(component, /clearGuestSessionStorage\(sessionStorage\)/);
+    assert.doesNotMatch(component, /function sanitizeRestoredAnswers/);
+    assert.doesNotMatch(component, /PUBLIC_GUEST_MAPPED_CHAPTER_PREVIEW/);
+    assert.doesNotMatch(
+      component,
+      /resetJourney[\s\S]*sessionStorage\.removeItem\(COMPATIBILITY_GUEST_SESSION_KEY/,
+    );
+  });
+
+  it('would fail if chapter bridge drifted by focus while chapter ids stayed fixed', () => {
+    const baseline = guestMappedChapterBridge('ch_pair_gap');
+    const poisoned = {
+      ...baseline,
+      currentConnection: '今気になる話題へ入る間合いを扱う章です。',
+    };
+    assert.notDeepEqual(poisoned, baseline);
+    assert.match(poisoned.currentConnection, LEGACY_FOCUS_BRIDGE_FORBIDDEN);
+  });
+});
+
+describe('hidden-focus P1 patch-3 — public payload redaction and reset wiring', () => {
+  it('keeps compile-time exact-key guards aligned with production public chapter types', () => {
+    assert.deepEqual(Object.keys(PUBLIC_CHAPTER_KEY_GUARD).sort(), ['chapterId', 'chapterTitle']);
+    assert.deepEqual(
+      Object.keys(PUBLIC_MAPPED_CHAPTER_KEY_GUARD).sort(),
+      ['chapterId', 'chapterTitle', 'concreteValue', 'currentConnection', 'freeConnection'],
+    );
+  });
+
+  function publicGuestPayload(stage: RelationStatusId = 'R3') {
+    const built = buildCompatibilityPublicResult(PAIR, stage, STAGE_ANSWERS[stage]);
+    assert.equal(built.ok, true, stage);
+    if (!built.ok) throw new Error('unreachable');
+    return built.value;
+  }
+
+  function paidChapterScenes(stage: RelationStatusId): readonly string[] {
+    return paidSnapshot(stage).chapters.map((chapter) => chapter.scene);
+  }
+
+  it('omits actualContent from public guest chapter contract objects', () => {
+    const value = publicGuestPayload('R2');
+    for (const chapter of value.mappedChapters) {
+      assert.equal('actualContent' in chapter, false);
+      assert.ok(chapter.chapterTitle.length > 0);
+      assert.ok(chapter.freeConnection.length > 0);
+      assert.ok(chapter.currentConnection && chapter.currentConnection.length > 0);
+      assert.ok(chapter.concreteValue && chapter.concreteValue.length > 0);
+    }
+    for (const chapter of value.allChapters) {
+      assert.equal('actualContent' in chapter, false);
+      assert.ok(chapter.chapterTitle.length > 0);
+    }
+  });
+
+  for (const stage of RAW_RELATION_IDS) {
+    it(`does not serialize Paid chapter body through public guest result for ${stage}`, () => {
+      const value = publicGuestPayload(stage);
+      const serialized = JSON.stringify(value);
+      assert.doesNotMatch(serialized, /"actualContent"/);
+      assert.doesNotMatch(serialized, /"scene"/);
+      for (const scene of paidChapterScenes(stage)) {
+        assert.equal(serialized.includes(scene), false, `leaked paid scene for ${stage}`);
+      }
+      assert.ok(value.mappedChapters.every((chapter) => chapter.chapterTitle.length > 0));
+      assert.ok(
+        value.mappedChapters.every(
+          (chapter) => chapter.currentConnection && chapter.concreteValue,
+        ),
+      );
+    });
+  }
+
+  it('returns the same public projection through the guest Server Action boundary', async () => {
+    const direct = buildCompatibilityPublicResult(PAIR, 'R3', STAGE_ANSWERS.R3);
+    const viaAction = await buildGuestCompatibilityResult(PAIR, 'R3', STAGE_ANSWERS.R3);
+    assert.equal(direct.ok, true);
+    assert.equal(viaAction.ok, true);
+    if (!direct.ok || !viaAction.ok) throw new Error('unreachable');
+    assert.deepEqual(viaAction.value.mappedChapters, direct.value.mappedChapters);
+    assert.deepEqual(viaAction.value.allChapters, direct.value.allChapters);
+    const serialized = JSON.stringify(viaAction.value);
+    assert.doesNotMatch(serialized, /"actualContent"/);
+  });
+
+  it('would fail if actualContent were re-added to mappedChapters only', () => {
+    const poisoned = {
+      chapterId: 'ch_pair_gap' as const,
+      chapterTitle: '2人の距離に出やすいズレ',
+      actualContent: 'paid scene leak',
+      freeConnection: 'free',
+      currentConnection: guestMappedChapterBridge('ch_pair_gap').currentConnection,
+      concreteValue: guestMappedChapterBridge('ch_pair_gap').concreteValue,
+    };
+    assert.equal('actualContent' in poisoned, true);
+    assert.match(JSON.stringify(poisoned), /"actualContent"/);
+  });
 });

@@ -39,7 +39,6 @@ export type CompatibilityGuestJourneyV3 = {
 export type CompatibilityPublicChapter = {
   chapterId: ChapterId;
   chapterTitle: string;
-  actualContent: string;
 };
 
 export type CompatibilityMappedChapter = CompatibilityPublicChapter & {
