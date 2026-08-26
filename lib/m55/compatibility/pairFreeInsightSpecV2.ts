@@ -482,6 +482,13 @@ function premiumContinuation(
       `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
     ].join('');
   }
+  if (relationStatusId === 'R6') {
+    return [
+      '無料では、長く一緒にいることを考える段階で起きやすい読み取りのずれまでを読みました。',
+      '「二人の相性レポート」では、その段階を六つの場面に分け、あなた側と相手側の見え方、進み方のずれの入口、言葉の置き方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+    ].join('');
+  }
   const hook =
     interactionId === 'space_misread'
       ? '間の意味が分かれるこのループが、他の場面ではどう出るか'
@@ -840,11 +847,11 @@ function buildEstablishedNativeFreeInsight(args: {
         : '戻る入口の重さと、今の間合いの見え方が、読み取りのずれとして見えやすいことがあります。';
   const betweenThem =
     args.relationStatusId === 'R6'
-      ? '二人の間では、日常のリズムの中でも、決める速さと言葉の出方の違いが、読み取りのずれを生みやすいことがあります。'
+      ? '二人の間では、長く一緒にいることを考える段階でも、決める速さと言葉の出方の違いが、読み取りのずれを生みやすいことがあります。'
       : '二人の間では、関係が続いている場面でも、決める速さと受け止め方の違いが、読み取りのずれを生みやすいことがあります。';
   const hit =
     args.relationStatusId === 'R6'
-      ? '日常のリズムの中では、速さの差が先に立ちやすいことがあります。'
+      ? '長く一緒にいることを考える段階では、決める速さの差が先に立ちやすいことがあります。'
       : '意見の違いより、話し終えたと感じるタイミングの差が先に立ちやすいことがあります。';
   return {
     id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:established_native:${args.relationStatusId}:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${decisionPace}:${disagreement}:${expressionPace}:${returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,

@@ -247,6 +247,31 @@ const FREE_HANDLING_FORBIDDEN =
   /書き留めて|確かめてください|確かめます|先に(置いて|書いて|伝えて|選んで|返して)|一度だけ(置|試)|返せる時間を|試してみ|やってみて|次に(話す|連絡)|短い一文を(書|送)|接点を(増や|提案)|結論ではなく.*(伝え|選んで|決め)|読んでください/;
 const R4_SCENE_FORBIDDEN = /すれ違ったあと|意見が分かれ|二人で予定や次の動きを決めよう/;
 const R5_SCENE_REQUIRED = /もう一度近づく|再接近|最初の接点/;
+const R6_LONG_TERM_MARK = /長く一緒にいることを考える/;
+
+const EQUIVALENT_ESTABLISHED_ANSWERS: CompatibilityCurrentContextAnswersV2 = {
+  decisionPace: 'decide_later',
+  disagreement: 'talk_now',
+  expressionPace: 'words_soon',
+  returnPattern: 'someone_reaches',
+};
+
+function buildEstablishedPublicSurface(stage: 'R3' | 'R6') {
+  const outcome = buildCompatibilityPublicResult(PAIR, stage, EQUIVALENT_ESTABLISHED_ANSWERS);
+  assert.equal(outcome.ok, true, `stage ${stage} public build`);
+  if (!outcome.ok) throw new Error('unreachable');
+  const insight = buildPairFreeInsightSpecV2({
+    answersV2: EQUIVALENT_ESTABLISHED_ANSWERS,
+    pairAxisId: 'A2',
+    personABirthDate: PAIR.personA,
+    personBBirthDate: PAIR.personB,
+    personAUsesFirstPerspective: true,
+    focusLabel: outcome.value.currentContext?.focusLabel ?? '会話の進め方',
+    relationStatusId: stage,
+  });
+  const narrative = projectCompatibilityFreeNarrativeV1({ spec: insight });
+  return { built: outcome.value, narrative };
+}
 
 function mustBuild(stage: RelationStatusId) {
   const answers = STAGE_ANSWERS[stage];
@@ -629,6 +654,54 @@ describe('relation stage semantic correction wave A', () => {
       assert.ok(gap.resetSteps.length >= 2);
       assert.ok(gap.relationshipLoop.length >= 3);
     }
+  });
+
+  it('differentiates R6 long-term visible projection from R3 with equivalent established answers', () => {
+    const r3Surface = buildEstablishedPublicSurface('R3');
+    const r6Surface = buildEstablishedPublicSurface('R6');
+    const { built: r3Built, narrative: r3Narrative } = r3Surface;
+    const { built: r6Built, narrative: r6Narrative } = r6Surface;
+
+    assert.match(r6Built.free.relationshipDynamic, R6_LONG_TERM_MARK);
+    assert.match(r6Built.currentContext?.currentExpression ?? '', R6_LONG_TERM_MARK);
+    assert.match(r6Narrative.openingHit.text, R6_LONG_TERM_MARK);
+    assert.match(r6Narrative.fusedDiscovery?.text ?? '', R6_LONG_TERM_MARK);
+
+    const r3VisibleBlob = [
+      r3Built.free.relationshipDynamic,
+      r3Built.currentContext?.currentExpression ?? '',
+      r3Narrative.openingHit.text,
+      r3Narrative.fusedDiscovery?.text ?? '',
+    ].join('\n');
+    assert.doesNotMatch(r3VisibleBlob, R6_LONG_TERM_MARK);
+
+    assert.notEqual(r3Built.free.relationshipDynamic, r6Built.free.relationshipDynamic);
+    assert.notEqual(r3Built.currentContext?.currentExpression, r6Built.currentContext?.currentExpression);
+    assert.notEqual(r3Narrative.openingHit.text, r6Narrative.openingHit.text);
+    assert.notEqual(r3Narrative.fusedDiscovery?.text, r6Narrative.fusedDiscovery?.text);
+    assert.match(r3Built.free.relationshipDynamic, /関係が続いている場面/);
+
+    const r6ProjectedFreeBlob = [
+      r6Built.free.relationshipDynamic,
+      r6Built.currentContext?.currentExpression ?? '',
+      r6Built.currentContext?.relationshipLoop ?? '',
+      ...(r6Built.currentContext?.relationshipLoopSteps ?? []),
+      r6Built.currentContext?.immediateAction ?? '',
+      r6Narrative.openingHit.text,
+      r6Narrative.fusedDiscovery?.text ?? '',
+      ...r6Narrative.contextSections.map((section) => section.text),
+    ].join('\n');
+    assert.doesNotMatch(r6ProjectedFreeBlob, CLAIM_FORBIDDEN);
+    for (const pattern of [
+      /相手も長く一緒にいたい/,
+      /二人とも長く一緒にいたい/,
+      /相手も将来を考えている/,
+      /相手も結婚を考えている/,
+      /二人とも将来を望んでいる/,
+    ]) {
+      assert.doesNotMatch(r6ProjectedFreeBlob, pattern);
+    }
+    assert.doesNotMatch(r6ProjectedFreeBlob, FREE_HANDLING_FORBIDDEN);
   });
 
   it('keeps R4 and R5 semantically distinct on distance vs reapproach', () => {
