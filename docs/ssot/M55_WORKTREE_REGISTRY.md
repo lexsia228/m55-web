@@ -1180,6 +1180,60 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
+### WT-050 — Safari MCP AI-browser quality operational sidecar (AUTHORIZED_SIDECAR)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-safari-mcp-ai-browser-quality` |
+| branch | `docs/m55-safari-mcp-ai-browser-quality` |
+| intended upstream | `origin/main` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **CLOSED_DOCS_MERGED / RETAINED_FOR_OPERATIONAL_GATE** |
+| macro lane | **NON-PRODUCT CONTROL PLANE** |
+| purpose | Authorized non-product Safari MCP actual-browser observation sidecar; readiness and audit support |
+| related PR | **#164 MERGED** — Safari MCP AI-browser quality SSOT / runbook docs |
+| product implementation authorized | **false** |
+| Pair lane mutation | **prohibited** unless explicitly authorized |
+| provider/DB/Stripe/Clerk/env/deploy mutation | **prohibited** |
+| removal eligibility | physical worktree retained; separate retirement authorization required |
+
+---
+
+### WT-051 — Pair premium purchase copy open-PR sidecar (OPEN_PR_SIDECAR)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-purchase-copy-v1` |
+| branch | `fix/m55-pair-premium-purchase-copy-v1` |
+| intended upstream | `origin/fix/m55-pair-premium-purchase-copy-v1` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **PENDING / OUT_OF_WT049_SCOPE** |
+| macro lane | **PAIR LANE — DEFERRED SIDEcar** |
+| purpose | Open PR #159 purchase-report copy alignment; not part of WT-049 Wave-A correction |
+| related PR | **#159 OPEN** — do not merge in WT-049 gate |
+| WT-049 relation | **OUT OF SCOPE / DO NOT MODIFY** during Wave-A |
+| product implementation authorized | **false** in WT-049 gate |
+| removal eligibility | physical worktree retained while PR #159 remains open |
+
+---
+
+### WT-052 — Worktree registry drift reconciliation executor (DOCS_ONLY)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-pass-acceptance-v1` |
+| branch | `docs/m55-worktree-registry-drift-reconciliation-v1` |
+| intended upstream | `origin/main` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **DOCS_ONLY / REGISTRY_RECONCILIATION_EXECUTOR** |
+| purpose | Durable docs-only reconciliation of live worktree inventory vs registry |
+| historical branch | `docs/m55-post-pr154-cold-start-pass-acceptance-v1` — PR **#155 MERGED** |
+| product implementation authorized | **false** |
+| executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` — unchanged by this registry lane |
+| removal eligibility | physical worktree retained after reconciliation merge |
+
+---
+
 ### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (CLOSED / RETAINED)
 
 | Field | Value |
@@ -1203,11 +1257,52 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-24 Pair relation-stage bounded correction) — AUTHORITATIVE
+## FINAL LIVE WORKTREES (2026-08-26 worktree registry drift reconciliation) — AUTHORITATIVE
 
-Production main anchor at PR #149 merge (historical evidence): **`53b71f8c8ea0ddeecd1828a2a809b4de08583aba`**. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
+Durable **ACTIVE lane = PAIR LANE** remains **WT-049**. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
 
-Live count from `git worktree list --porcelain`: observation-only — refresh via `m55:context` / live Git.
+Live count from `git worktree list --porcelain` at reconciliation observation: **19**. Count is observation-only — refresh via live Git; do not treat as timeless registry truth.
+
+| Path | Branch | Live runtime | Registry id | Status | Lifecycle |
+|---|---|---|---|---|---|
+| `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | `m55:context` | primary git root | RETAINED | **PRIMARY_REPO_ROOT / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `m55:context` | WT-043 | RETAINED | **CLOSED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-reference-handoff-v1` | `fix/m55-commercial-reference-handoff-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #160 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-commercial-handoff-closure-v1` | `docs/m55-control-tower-commercial-handoff-closure-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #161 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `fix/m55-control-tower-generic-gate-progression-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #154 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-pass-acceptance-v1` | `docs/m55-worktree-registry-drift-reconciliation-v1` | `m55:context` | WT-052 | EXECUTOR | **DOCS_ONLY / REGISTRY_RECONCILIATION_EXECUTOR** (historical PR #155) |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `m55:context` | WT-045 | RETAINED | **CLOSED GREEN / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `m55:context` | WT-044 | RETAINED | **CLOSED GREEN / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g4-organic-discovery-v1` | `feat/m55-g4-organic-discovery-v1` | `m55:context` | WT-046 | RETAINED | **CLOSED GREEN / MERGED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-g5-metrics-v1` | `feat/m55-g5-metrics-v1` | `m55:context` | WT-047 | RETAINED | **CLOSED GREEN / MERGED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `m55:context` | WT-024 (control) | STALE | **STALE_MAIN_CONTROL_SNAPSHOT** |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `m55:context` | WT-027 | PENDING | **PENDING_INTEGRATION / COMMERCE OFF** (PR #119 OPEN) |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` | `feat/m55-pair-funnel-v1` | `m55:context` | WT-048 | RETAINED | **CLOSED / RETAINED** |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-closure-v1` | `docs/m55-pair-minimal-closure-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #157 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-implementation-v1` | `feat/m55-pair-minimal-implementation-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #156 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-activation-decision-v1` | `fix/m55-pair-premium-legal-parity-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #158 merged) |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-purchase-copy-v1` | `fix/m55-pair-premium-purchase-copy-v1` | `m55:context` | WT-051 | PENDING | **OPEN_PR_SIDECAR / OUT_OF_WT049_SCOPE** (PR #159 OPEN) |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` | `feat/m55-pair-relation-stage-v1` | `m55:context` | WT-049 | ACTIVE | **ACTIVE_BOUNDED_PAIR_CORRECTION** |
+| `/Users/lexsia/Documents/M55_WORKTREE-safari-mcp-ai-browser-quality` | `docs/m55-safari-mcp-ai-browser-quality` | `m55:context` | WT-050 | RETAINED | **AUTHORIZED_SIDECAR / OPERATIONAL_GATE** (PR #164 merged) |
+
+### STALE_RETIRE_CANDIDATES (2026-08-26 observation)
+
+The following live paths are **CLOSED_RETAINED** merged lanes. Classification only — **no** `git worktree remove`, **no** prune, **no** branch deletion without separate Human authorization:
+
+| Path | Historical closure evidence |
+|---|---|
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-reference-handoff-v1` | PR #160 merged |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-commercial-handoff-closure-v1` | PR #161 merged |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | PR #154 merged |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-closure-v1` | PR #157 merged |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-implementation-v1` | PR #156 merged |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-activation-decision-v1` | PR #158 merged |
+
+## FINAL LIVE WORKTREES (2026-08-24 Pair relation-stage bounded correction) — HISTORICAL
+
+Production main anchor at PR #149 merge (historical evidence): **`53b71f8c8ea0ddeecd1828a2a809b4de08583aba`**. Superseded by **FINAL LIVE WORKTREES (2026-08-26)** above for durable path inventory.
+
+Live count at that observation: **10**.
 
 | Path | Branch | Live runtime | Registry id | Status | Lifecycle |
 |---|---|---|---|---|---|
