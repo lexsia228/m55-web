@@ -7,7 +7,7 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 
 1. Commercial Funnel SSOT ← **complete**
 2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share **PR #81 MERGED** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` 2026-08-01 — commercial + technical closure complete)
-3. 二人向け無料→有料 — **ACTIVE PAIR LANE (macro)**; Wave 0 mapping closed locally; Phase-B readability work dirty uncommitted; Pair implementation not started on merged runtime; Pair Premium not activated
+3. 二人向け無料→有料 — **ACTIVE PAIR LANE (macro)**; Pair free→paid mapping **COMPLETE**; Pair minimal implementation **COMPLETE**; Pair relation-stage Wave-A source closure **CLOSED GREEN**; actual-browser commercial-quality verification **NEXT** after cold-start; PR #165 **OPEN**; Pair Premium **NOT_ACTIVATED**
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
@@ -60,24 +60,29 @@ G1 and G2 are **CLOSED GREEN** on `main` via PR #137 and PR #139 respectively an
 
 ## Pair lane entrance — Wave 0 Live paid DTR readability (MACRO STAGE)
 
-Wave 0 is a **bounded quality gate inside the Pair lane**, not an independent roadmap lane. Steps 1–9 below include mapping and local Phase-B readability work that is **already closed locally**; they are **not** the current executable gate.
+Wave 0 is a **bounded quality gate inside the Pair lane**, not an independent roadmap lane. Steps 1–9 below are **historical** — Wave 0 mapping and Phase-B readability are **CLOSED GREEN**.
 
 Fixed Pair entrance order:
 
 1. G5 Wave 1 **CLOSED GREEN**
 2. PAIR LANE
-3. Wave 0 Live paid DTR readability
-4. Fresh read-only source/computed-style mapping — **CLOSED GREEN locally**
-5. exact defect proof — **CLOSED GREEN locally**
-6. shared token/style owner minimal fix — **LOCAL ACCEPTED** (dirty Phase-B)
-7. automated contrast/readability regression — **LOCAL ACCEPTED**
-8. mobile + desktop representative check — **LOCAL ACCEPTED**
-9. Human representative visual approval — **USER_VISIBLE_CLOSED_GREEN** (ledger)
-10. Pair free→paid mapping-first
-11. minimal Pair implementation
-12. Pair Premium activation decision
+3. Wave 0 Live paid DTR readability — **CLOSED GREEN**
+4. Fresh read-only source/computed-style mapping — **CLOSED GREEN**
+5. exact defect proof — **CLOSED GREEN**
+6. shared token/style owner minimal fix — **CLOSED GREEN**
+7. automated contrast/readability regression — **CLOSED GREEN**
+8. mobile + desktop representative check — **CLOSED GREEN**
+9. Human representative visual approval — **USER_VISIBLE_CLOSED_GREEN**
+10. Pair free→paid mapping-first — **COMPLETE**
+11. minimal Pair implementation — **COMPLETE**
+12. Pair relation-stage Wave-A source/local implementation — **CLOSED GREEN**
+13. **PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION** — **NEXT** (after `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`)
+14. Human commercial-quality acceptance of invalidated user-visible Pair Free flow — **pending**
+15. PR #165 merge authorization / merge — **pending** (only after browser + Human acceptance GREEN)
+16. Fresh post-merge origin/main + CI + Production/Preview observation — **pending**
+17. Pair Premium activation decision — **later** · **NOT_ACTIVATED**
 
-**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_CURRENT_STATE.md` § **PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)**. Pair implementation is **not started** on merged runtime. Pair Premium is **NOT ACTIVATED**.
+**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_EXECUTION_STATE.json`. Pair implementation is **COMPLETE** on product branch evidence. Pair Premium is **NOT_ACTIVATED**.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
