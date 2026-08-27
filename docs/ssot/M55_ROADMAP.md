@@ -13,6 +13,26 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 6. ファネル計測
 7. 全ページvisual統一
 
+## Human-approved commercial growth strategy order (future, non-executable)
+
+**Status:** Human **APPROVED** 2026-08-27 · docs-only durable recording · see `M55_DECISION_LOG.md` § 2026-08-27.
+
+This section records the Human-approved **directional commercial strategy order** only. It does **not** change the canonical current executable gate. Sole executable authority for **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** remains `docs/ssot/M55_EXECUTION_STATE.json`.
+
+| Order | Future concept | Status |
+|---|---|---|
+| 1 | **PAIR-PREMIUM-ACTIVATION** | current macro priority — executable gate = `PAIR-PREMIUM-ACTIVATION-DECISION` · Pair Premium **NOT_ACTIVATED** |
+| 2 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | future · Personal Free + Pair Free/compatibility share commercial upgrade · **NON-EXECUTABLE** until Pair Premium reaches appropriate commercial closure |
+| 3 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | future · single-tier referral/creator design lane · **TARGET_COMMISSION_RATE = 50%** is **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required · **IMPLEMENTATION NOT AUTHORIZED** |
+| 4 | Referral implementation / provider activation | future · only after independent review and **separate Human GO** |
+
+Explicit retainers:
+
+- Do **not** promote items 2–4 into CURRENT / NEXT
+- Pair Free→Paid mapping remains **HUMAN_APPROVED_COMPLETE** · `repeatMapping` = **PROHIBITED**
+- Multi-level / recruitment-only compensation **prohibited**
+- No share implementation · no referral implementation · no provider mutation from this recording
+
 ## Active commercial priority
 
 第一目標は **商用化・収益化・ユーザー訴求**。内部整理を目的化しない。
