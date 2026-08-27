@@ -17,42 +17,48 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 
 ## PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)
 
-**Sole owner:** executable **CURRENT EXECUTION GATE** and **NEXT SINGLE ACTION** live only in this section. Other SSOT files must reference this section — not maintain competing next-action strings.
+**Executable sole owner:** `docs/ssot/M55_EXECUTION_STATE.json` (`legacyExecutionFieldsSuperseded=true`). This section is narrative/history mirror only — it must not compete with the execution-state file for CURRENT/NEXT.
 
 | Field | Value |
 |---|---|
 | Macro lane | **PAIR LANE** |
-| Macro roadmap stage | Pair entrance · Wave 0 paid DTR readability era · Pair implementation **NOT STARTED** on merged runtime |
-| Human authorization | **PAIR LANE** entrance bounded quality gate |
-| Production main at PR #149 merge (historical evidence) | `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` |
+| Pair implementation | **COMPLETE** (`pairImplementation=COMPLETE`) |
+| Pair Premium | **NOT_ACTIVATED** |
+| Pair free→paid mapping | **COMPLETE** — `PAIR-FREE-TO-PAID-MAPPING-FIRST` · repeat mapping **PROHIBITED** |
+| Pair minimal implementation | **COMPLETE** — `PAIR-MINIMAL-IMPLEMENTATION` |
+| Pair relation-stage Wave-A source/local implementation | **CLOSED GREEN** — `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` |
+| Product branch (observed evidence) | `feat/m55-pair-relation-stage-v1` |
+| Product worktree (observed evidence) | `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` (WT-049) |
+| Product feature head (observed evidence @ closure) | `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
+| Product implementation commit (observed evidence) | `9c7245b1ee0c98a3418520e3160885a80cc1c62a` — `fix(pair): harden free result focus and paid boundary` |
+| Client boundary fix commit (observed evidence) | `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` — `fix(pair): isolate guest client lifecycle` |
+| Reviewed cumulative Pair diff SHA-256 (observed evidence) | `64f9d5b68446da7718a0b5ada5d0947e86ec8bbb45983116bff48876505f931c` |
+| Independent Codex source review (observed evidence) | **GREEN** · P0=0 · P1=0 · P2=0 |
+| Focused tests (observed evidence) | **354/354 PASS** |
+| PR #165 (observed evidence) | **OPEN** · merged=false · mergeable=true |
+| Preview deployment (observed evidence) | `dpl_GpmUfdbJReqD74RpRcCQ1GQJqYUC` **READY** @ `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
+| Preview branch alias (observed evidence) | `m55-webv2-git-feat-m55-pair-relation-stage-v1-m55-official.vercel.app` |
+| Remote CI (observed evidence) | **SUCCESS** — 10 checks completed · failure=0 |
+| Source re-review policy | **PROHIBITED** absent dependency invalidation — see `pairWaveAClosureTransition.invalidatingDependencies` in execution state |
+| Actual-browser commercial-quality verification | **NOT CLOSED** — next product gate after cold-start |
+| Human commercial-quality acceptance (Wave-A delta) | **NOT RE-CLOSED** |
+| Post-merge main/Production observation | **NOT DONE** |
 | Live Git runtime (HEAD · origin/main · divergence · dirty/staged) | **derive via `npm run m55:context`** — not timeless SSOT |
-| PR #149 | **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` |
-| G5 Wave 1 | **CLOSED GREEN** |
-| G5 Wave 2 | **DEFER UNTIL REAL TRAFFIC DATA** |
-| Pair Premium | **NOT ACTIVATED** |
-| worktree | `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` (WT-048) |
-| branch | `feat/m55-pair-funnel-v1` |
-| intended upstream model | `origin/feat/m55-pair-funnel-v1` |
-| Local preserved product work | **none** — Phase-B product on remote feature; excluded screenshot PNGs remain unstaged locally |
-| Current control-plane blocker | **none** — remote diff review **CLOSED GREEN**; bounded PR creation is next |
-| CURRENT EXECUTION GATE | **PHASE-B-PR-CREATE-AND-CI-OBSERVATION** |
-| NEXT SINGLE ACTION | **PHASE-B-PR-CREATE-AND-CI-OBSERVATION** |
-| prohibited expansion | replay completed Wave 0 mapping · sitewide commercial-quality re-audit · Pair implementation · Pair Premium activation · price/Stripe/DB/Clerk/provider/env change · high-cost reruns without invalidation |
+| CURRENT EXECUTION GATE | **CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN** |
+| NEXT SINGLE ACTION | **CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN** |
+| Product work after control tower | **PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION** |
+| Cold-start revalidation | **REQUIRED** — `acceptance.revalidationRequired=true` · `latestResult=PENDING_REVALIDATION` |
+| prohibited expansion | replay closed Wave-A source findings absent invalidation · PR #165 merge before browser + Human acceptance · Pair Premium activation · price/Stripe/DB/Clerk/provider/env change · benchmark reselection · payment/fulfillment evidence replay |
 
 ### Completed sub-gates (CLOSED — do not replay)
 
 - `CATEGORY-1-M55-PAIR-WAVE0-LIVE-PAID-DTR-READABILITY-READ-ONLY-MAPPING` — **CLOSED GREEN**
-- Phase-B paid DTR readability implementation — **CLOSED GREEN** (atomic COMMIT B · on remote feature · not merged to main)
-- Midnight Luminous TOC / visual bounded patch — **USER_VISIBLE_CLOSED_GREEN** (`M55_HIGH_COST_EVIDENCE_LEDGER.md`)
-- Additional Reading hub default regression — **CLOSED GREEN** (fix in COMMIT B)
-- SKU capability regression prevention — **CLOSED GREEN** (`SKU_CAPABILITY_REGRESSION_PREVENTION_GREEN` · invariant test + fixture default in COMMIT B)
-- Phase-B precommit review — **CLOSED GREEN** (`PHASE_B_PRECOMMIT_GREEN` · `PHASE_B_COMMIT_B_PATH_ACCOUNTING_GREEN`)
-- Phase-B atomic COMMIT B — **CLOSED GREEN** (paid DTR readability · hub/summary · SKU CI wiring · remote feature)
-- Phase-B remote durability / cold-start proof — **CLOSED GREEN** (`PHASE_B_REMOTE_DURABILITY_GREEN`)
-- Phase-B PR preparation / remote diff review — **CLOSED GREEN** (`PHASE_B_PR_PREPARATION_GREEN`)
-- Control Tower context-as-code COMMIT A — **PUSHED** (live SHA via `m55:context` only)
-- Control Tower self-refreshing hardening — **CLOSED GREEN** (Context-as-Code foundation · remote durability / cold-start operability · dynamic-vs-static separation · semantic NEXT-action single ownership · completed-gate replay guard · high-cost rerun guard preserved · `npm run m55:context`)
-- Control Tower operational proof — **CLOSED GREEN** (`CONTROL_TOWER_OPERATIONAL_GREEN`)
+- `PAIR-FREE-TO-PAID-MAPPING-FIRST` — **CLOSED GREEN**
+- `PAIR-MINIMAL-IMPLEMENTATION` — **CLOSED GREEN**
+- `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT` — **CLOSED GREEN**
+- `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` — **CLOSED GREEN** — findings A–Q durably recorded in `pairWaveAClosureTransition`
+- Phase-B paid DTR readability implementation — **CLOSED GREEN** (historical)
+- Control Tower cold-start / generic gate progression — **CLOSED GREEN** (historical)
 
 ## PAIR LANE ENTRANCE — WAVE 0 LIVE PAID DTR READABILITY — HISTORICAL SNAPSHOT (SUPERSEDED)
 
