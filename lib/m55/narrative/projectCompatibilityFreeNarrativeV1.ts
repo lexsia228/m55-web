@@ -23,7 +23,7 @@ export function projectCompatibilityFreeNarrativeV1(input: {
       variant: 'pair_manual',
       labelJa: '二人の取扱説明書',
       headlineJa: '二人の取扱説明書',
-      bodyJa: `すれ違いの入口：${publicLines.entryJa}`,
+      bodyJa: publicLines.entryJa,
       ctaJa: 'あなたの二人では、どう出る？',
       provenanceIds: [spec.interactionId, spec.id],
     },

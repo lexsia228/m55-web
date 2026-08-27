@@ -32,6 +32,7 @@ function pairSpec(fixture: (typeof PAIR_V5_FIXTURES)[number]) {
     personBBirthDate: fixture.personB,
     personAUsesFirstPerspective: true,
     focusLabel: fixture.focus,
+    relationStatusId: 'R3',
   });
 }
 

@@ -4,15 +4,18 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
-  COMPATIBILITY_GUEST_SESSION_KEY,
+  COMPATIBILITY_GUEST_SESSION_KEY_V3,
   isCompleteCompatibilityGuestInput,
+  isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
+  type CompatibilityGuestJourneyV3,
 } from '../../lib/m55/compatibility/pairReadingGuestContract';
 import {
-  buildCompatibilityCurrentContextDisplay,
-  isCompleteCompatibilityCurrentContext,
-  type CompatibilityCurrentContextAnswers,
-} from '../../lib/m55/compatibility/currentContextContract.v1';
+  buildCompatibilityCurrentContextDisplayV2,
+  isCompleteCompatibilityCurrentContextV2,
+  type CompatibilityCurrentContextAnswersV2,
+} from '../../lib/m55/compatibility/currentContextContract.v2';
+import type { RelationStatusId } from '../../lib/m55/compatibility/pairReadingTypes';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -24,34 +27,35 @@ type PreviewAuthState = 'signed_in' | 'signed_out' | 'redirecting';
 
 type CompatibilityPurchaseJourney = {
   input: CompatibilityGuestInput;
-  currentContext: CompatibilityCurrentContextAnswers;
+  relationStatusId: RelationStatusId;
+  currentContext: CompatibilityCurrentContextAnswersV2;
 };
 
-const PREVIEW_CURRENT_CONTEXT: CompatibilityCurrentContextAnswers = {
-  decisionPace: 'decide_later',
-  disagreement: 'talk_now',
-  distance: 'explain_space',
+const PREVIEW_CURRENT_CONTEXT: CompatibilityCurrentContextAnswersV2 = {
   expressionPace: 'words_soon',
-  returnPattern: 'someone_reaches',
+  contactPace: 'steady_contact',
   focus: 'conversation_focus',
 };
 
 function readPurchaseInput(): CompatibilityPurchaseJourney | null {
   try {
-    const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY);
+    const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as {
-      input?: Partial<CompatibilityGuestInput>;
-      answers?: unknown;
+    const parsed = JSON.parse(raw) as Partial<CompatibilityGuestJourneyV3>;
+    if (
+      parsed.version !== 'journey_v3' ||
+      !parsed.input ||
+      !isCompleteCompatibilityGuestInput(parsed.input) ||
+      !isValidCompatibilityRelationStatusId(parsed.relationStatusId) ||
+      !isCompleteCompatibilityCurrentContextV2(parsed.answers, parsed.relationStatusId)
+    ) {
+      return null;
+    }
+    return {
+      input: parsed.input,
+      relationStatusId: parsed.relationStatusId,
+      currentContext: parsed.answers,
     };
-    const input = {
-      personA: typeof parsed.input?.personA === 'string' ? parsed.input.personA : '',
-      personB: typeof parsed.input?.personB === 'string' ? parsed.input.personB : '',
-    };
-    return isCompleteCompatibilityGuestInput(input) &&
-      isCompleteCompatibilityCurrentContext(parsed.answers)
-      ? { input, currentContext: parsed.answers }
-      : null;
   } catch {
     return null;
   }
@@ -113,12 +117,13 @@ export function CompatibilityPurchaseConfirmation({
   commerceEnabled: boolean;
   cancelled?: boolean;
   previewAuthState?: PreviewAuthState;
-  previewCurrentContext?: CompatibilityCurrentContextAnswers;
+  previewCurrentContext?: CompatibilityCurrentContextAnswersV2;
 }) {
   const [journey, setJourney] = useState<CompatibilityPurchaseJourney | null>(
     previewAuthState
       ? {
           input: { personA: '1990-01-01', personB: '1992-02-02' },
+          relationStatusId: 'R2',
           currentContext: previewCurrentContext,
         }
       : null,
@@ -130,6 +135,7 @@ export function CompatibilityPurchaseConfirmation({
     if (!previewAuthState) return;
     setJourney({
       input: { personA: '1990-01-01', personB: '1992-02-02' },
+      relationStatusId: 'R2',
       currentContext: previewCurrentContext,
     });
     setLoading(previewAuthState === 'redirecting');
@@ -165,6 +171,7 @@ export function CompatibilityPurchaseConfirmation({
         body: JSON.stringify({
           personA: journey.input.personA,
           personB: journey.input.personB,
+          relationStatusId: journey.relationStatusId,
           currentContext: journey.currentContext,
         }),
       });
@@ -186,7 +193,10 @@ export function CompatibilityPurchaseConfirmation({
   if (!commerceEnabled) return null;
 
   const contextDisplay = journey
-    ? buildCompatibilityCurrentContextDisplay(journey.currentContext)
+    ? buildCompatibilityCurrentContextDisplayV2(
+      journey.currentContext,
+      journey.relationStatusId,
+    )
     : null;
   const signedInContent = (
     <div className={styles.actionArea}>

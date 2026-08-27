@@ -21,6 +21,11 @@ import {
   type CompatibilityCurrentContextAnswers,
   type CompatibilityCurrentContextDisplay,
 } from './currentContextContract.v1';
+import {
+  buildCompatibilityCurrentContextChapterVariationV2,
+  buildCompatibilityCurrentContextDisplayV2,
+  type CompatibilityCurrentContextAnswersV2,
+} from './currentContextContract.v2';
 import { resolvePairCanonicalProfileV2, type PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
@@ -33,6 +38,7 @@ export type PaidCompatibilityReportInput = {
   temperatureId: TemperatureId;
   personAUsesFirstPerspective: boolean;
   currentContext?: CompatibilityCurrentContextAnswers;
+  currentContextV2?: CompatibilityCurrentContextAnswersV2;
   personABirthDate?: string;
   personBBirthDate?: string;
 };
@@ -81,6 +87,7 @@ type ChapterFocus = {
   resetSteps: readonly string[];
   experimentAction: string;
   reflectionQuestion: string;
+  relationshipLoop?: readonly string[];
 };
 
 const STATUS_CONTEXT: Readonly<Record<RelationStatusId, string>> = {
@@ -100,6 +107,89 @@ const TEMPERATURE_CONTEXT: Readonly<Record<TemperatureId, string>> = {
   E4: '距離ができた理由を一つに決めない',
   E5: 'これからの結論より今の間合いを見る',
 };
+
+const R1_TEMPERATURE_CONTEXT: Readonly<Record<TemperatureId, string>> = {
+  E0: '今の距離を一つの答えに固定しない',
+  E1: '気になる点を一度に広げすぎない',
+  E2: '言葉の出方だけで温度を決めない',
+  E3: '近づくかどうかを急いで決めない',
+  E4: '静けさの意味を一つに決めない',
+  E5: 'これからの結論より今の迷いを見る',
+};
+
+function temperatureContextFor(
+  relationStatusId: RelationStatusId,
+  temperatureId: TemperatureId,
+): string {
+  return relationStatusId === 'R1'
+    ? R1_TEMPERATURE_CONTEXT[temperatureId]
+    : TEMPERATURE_CONTEXT[temperatureId];
+}
+
+type PerspectiveFragmentKind = 'observation_complete' | 'tendency_phrase';
+
+function perspectiveFragmentKind(perspective: string): PerspectiveFragmentKind {
+  const trimmed = perspective.replace(/。$/u, '');
+  if (/見えやすい$|見えます$/u.test(trimmed)) {
+    return 'observation_complete';
+  }
+  return 'tendency_phrase';
+}
+
+function perspectiveWithSuffix(
+  perspective: string,
+  suffix:
+    | 'ことが自然に見えます'
+    | 'ところがあります'
+    | '進め方がなじみます'
+    | '流れが自然です'
+    | '動きが見えます'
+    | 'ことが入口になります',
+): string {
+  const trimmed = perspective.replace(/。$/u, '');
+  if (perspectiveFragmentKind(perspective) === 'observation_complete') {
+    return trimmed;
+  }
+  return `${trimmed}${suffix}`;
+}
+
+function perspectiveAppearanceClause(perspective: string): string {
+  return perspectiveWithSuffix(perspective, '動きが見えます');
+}
+
+function actionMotionPhrase(action: string): string {
+  return action.replace(/。$/u, '');
+}
+
+const R1_PARTNER_UNCERTAINTY: readonly string[] = [
+  'B側については、まだ反応材料が少ないため、A側からは意味を決めにくい状態です。',
+  'B側については、まだやり取りがないため、A側からは気持ちの中身までは確かめにくい状態です。',
+  'B側については、近づく前の段階のため、A側からは動きの意図までは読み取りにくい状態です。',
+  'B側については、まだ会話がないため、A側からは扱いたい点の輪郭までは見えにくい状態です。',
+  'B側については、距離の見え方だけでは、A側からは内側の温度までは確かめにくい状態です。',
+  'B側については、最初の接点の前なので、A側からは次の動きまでは決めにくい状態です。',
+];
+
+const R4_PARTNER_UNCERTAINTY: readonly string[] = [
+  'B側については、いまの間合いの見え方だけでは、A側からは内側の動きまでは確かめにくい状態です。',
+  'B側については、連絡の少なさだけでは、A側からは気持ちの中身までは読み取りにくい状態です。',
+  'B側については、距離の理由を一つに決めずに読む必要があり、A側からは動きの意図までは確かめにくい状態です。',
+  'B側については、間合いの見え方だけでは、A側からは扱いたい点の輪郭までは見えにくい状態です。',
+  'B側については、距離がある中でも、A側からは内側の温度までは確かめにくい状態です。',
+  'B側については、今の間合いを整える場面では、A側からは次の動きまでは決めにくい状態です。',
+];
+
+const R5_PARTNER_UNCERTAINTY: readonly string[] = [
+  'B側については、再接近を望んでいるとは限らず、A側からは間合いの見え方だけを手がかりに読みやすい状態です。',
+  'B側については、再び連絡する意思があるとは限らず、A側からは反応材料が少ない状態です。',
+  'B側については、近づき方の見え方だけでは、A側からは内側の動きまでは確かめにくい状態です。',
+  'B側については、再接近の入口だけでは、A側からは扱いたい点の輪郭までは見えにくい状態です。',
+  'B側については、距離のあとの間合いだけでは、A側からは内側の温度までは確かめにくい状態です。',
+  'B側については、最初の接点を考える場面では、A側からは次の動きまでは決めにくい状態です。',
+];
+
+const R1_PARTNER_LOOP_UNCERTAINTY =
+  'B側については、まだ反応材料が少ないため、A側からは意味を決めにくい状態です';
 
 const CHAPTER_FOCUS: Readonly<Record<ChapterId, ChapterFocus>> = {
   ch_you_pace: {
@@ -242,11 +332,72 @@ const SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, stri
   ],
 };
 
+type AxisAuthoritySlice = {
+  readonly overlap: string;
+  readonly difference: string;
+  readonly perspectiveOne: string;
+  readonly perspectiveTwo: string;
+  readonly dynamicOutcome: string;
+};
+
+const R1_AXIS_AUTHORITY: Readonly<Record<PairAxisId, AxisAuthoritySlice>> = {
+  A1: {
+    overlap:
+      'まだ会話がない状態でも、気持ちの言葉の出方や近づく前の迷いが見えやすいところが重なります。',
+    difference:
+      'その場で輪郭を決めたいときと、自分の中で整えてから動きたいときに、進め方の違いが表れやすいです。',
+    perspectiveOne: '気持ちの輪郭を先に言葉へ置こうとする動きが見えやすい',
+    perspectiveTwo: '自分の中で整えてから動きを選びたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+  A2: {
+    overlap:
+      'まだ会話がない状態でも、気持ちの言葉の出方の違いが見えやすいところが重なります。',
+    difference:
+      '気持ちが先に言葉になりやすい傾向と、整えてから動きやすい傾向の差が表れやすいです。',
+    perspectiveOne: '気持ちを先に言葉へ置こうとする動きが見えやすい',
+    perspectiveTwo: '言葉が整うまで動きを控えたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+  A3: {
+    overlap:
+      'まだ会話がない状態でも、気持ちの整理の仕方に近いリズムが見えやすいところが重なります。',
+    difference:
+      '理由を先に整理したいときと、感覚を先に言葉にしたいときに、順序の違いが表れやすいです。',
+    perspectiveOne: '気持ちの順序を先に整えようとする動きが見えやすい',
+    perspectiveTwo: '感覚が整うまで動きを控えたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+  A4: {
+    overlap:
+      'まだ会話がない状態でも、近づき方の入口を探す動きが見えやすいところが重なります。',
+    difference:
+      '短い一文から始めたいときと、整えてから動きたいときに、入口の作り方の違いが表れやすいです。',
+    perspectiveOne: '短い入口から動きを考え始めやすい',
+    perspectiveTwo: '入口の形を整えてから動きを選びたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+};
+
+function axisAuthorityFor(
+  pairAxisId: PairAxisId,
+  relationStatusId: RelationStatusId,
+): AxisAuthoritySlice {
+  if (relationStatusId === 'R1') {
+    return R1_AXIS_AUTHORITY[pairAxisId];
+  }
+  return PAIR_AXIS_FREE_RESULT_FRAGMENTS[pairAxisId];
+}
+
 function semanticRoles(
   axis: PairAxisId,
   personAUsesFirstPerspective: boolean,
+  authority: AxisAuthoritySlice = PAIR_AXIS_FREE_RESULT_FRAGMENTS[axis],
 ): { first: SemanticRole; second: SemanticRole; personA: string; personB: string } {
-  const authority = PAIR_AXIS_FREE_RESULT_FRAGMENTS[axis];
   const firstRole: SemanticRole = {
     role: personAUsesFirstPerspective ? 'A' : 'B',
     perspective: authority.perspectiveOne,
@@ -274,30 +425,67 @@ function semanticRoles(
  */
 const PERSPECTIVE_TAILS: readonly { readonly first: string; readonly second: string }[] = [
   {
-    first: '自分が動ける輪郭を、先に確かめたくなります。',
-    second: '決める前に、確かめておきたいことが残りやすくなります。',
+    first: '自分が動ける輪郭を、先に確かめたくなる動きが見えやすいことがあります。',
+    second: '決める前に、確かめておきたいことが残りやすく見えることがあります。',
   },
   {
-    first: '返事が見えない時間を、そのまま置いておきにくくなります。',
-    second: '返す前に、言葉の置き方を整える時間を取ります。',
+    first: '返事が見えない時間を、そのまま置いておきにくくなることがあります。',
+    second: '返す前に言葉を整える時間を取りたい状態に見えやすいことがあります。',
   },
   {
-    first: 'その場で、違いの輪郭をはっきりさせようとします。',
-    second: '話の順序が整うまで、結論を先に置かずにおきます。',
+    first: 'その場で、違いの輪郭をはっきりさせようとする動きが見えやすいことがあります。',
+    second: '話の順序が整うまで、結論を先に置かずにおきたい状態に見えやすいことがあります。',
   },
   {
-    first: '話題に入る合図を、自分から先に出しやすくなります。',
-    second: '話題に入る前に、その場の温度を一度確かめます。',
+    first: '話題に入る合図を、自分から先に出しやすくなることがあります。',
+    second: '話題に入る前に、その場の温度を一度確かめたい状態に見えやすいことがあります。',
   },
   {
-    first: '$statusContext$を、早めに確かめて先に置こうとします。',
-    second: '$statusContext$を、自分の中で整えてから扱おうとします。',
+    first: '$statusContext$を、早めに確かめて先に置こうとする動きが見えやすいことがあります。',
+    second: '$statusContext$を、自分の中で整えてから扱いたい状態に見えやすいことがあります。',
   },
   {
-    first: '短い接点を先に一つ置いて、そこから様子を見ます。',
-    second: '置かれた接点の重さを見てから、返す幅を決めます。',
+    first: '短い接点を先に一つ置いて、そこから様子を見る動きが見えやすいことがあります。',
+    second: '置かれた接点の重さを見てから、返す幅を決めたい状態に見えやすいことがあります。',
   },
 ];
+
+const R1_PERSPECTIVE_TAILS: typeof PERSPECTIVE_TAILS = [
+  {
+    first: '自分が動ける輪郭を、先に確かめたくなる動きが見えやすいことがあります。',
+    second: '決める前に、確かめておきたいことが残りやすく見えることがあります。',
+  },
+  {
+    first: '相手の反応が見えない時間を、そのまま置いておきにくくなることがあります。',
+    second: '言葉を整える時間を取りたい状態に見えやすいことがあります。',
+  },
+  {
+    first: 'その場で、違いの輪郭をはっきりさせようとする動きが見えやすいことがあります。',
+    second: '話の順序が整うまで、結論を先に置かずにおきたい状態に見えやすいことがあります。',
+  },
+  {
+    first: '話題に入る合図を、自分から先に出しやすくなることがあります。',
+    second: '話題に入る前に、その場の温度を一度確かめたい状態に見えやすいことがあります。',
+  },
+  {
+    first: '$statusContext$を、早めに確かめて先に置こうとする動きが見えやすいことがあります。',
+    second: '$statusContext$を、自分の中で整えてから扱いたい状態に見えやすいことがあります。',
+  },
+  {
+    first: '短い接点を先に一つ置いて、そこから様子を見る動きが見えやすいことがあります。',
+    second: '短い接点の重さを見てから、動きを選びたい状態に見えやすいことがあります。',
+  },
+];
+
+function perspectiveTailFor(
+  relationStatusId: RelationStatusId,
+  chapterIndex: number,
+  side: 'first' | 'second',
+  statusContext: string,
+): string {
+  const tails = relationStatusId === 'R1' ? R1_PERSPECTIVE_TAILS : PERSPECTIVE_TAILS;
+  return tails[chapterIndex]![side].replaceAll('$statusContext$', statusContext);
+}
 
 function perspectiveText(
   chapterIndex: number,
@@ -306,27 +494,160 @@ function perspectiveText(
   topicLabel: string,
   statusContext: string,
   side: 'first' | 'second',
+  relationStatusId: RelationStatusId,
 ): string {
-  const leads = [
-    `予定を決める場面では、${role}には${perspective}ことが自然に見えます。`,
-    `反応がまだ見えない場面では、${role}から見ると${perspective}ところがあります。`,
-    `意見が分かれる場面では、${role}には${perspective}進め方がなじみます。`,
-    `「${topicLabel}」を扱う場面では、${role}からは${perspective}流れが自然です。`,
-    `少し距離を置きたくなる場面では、${role}には${perspective}動きが見えます。`,
-    `元の距離へ戻る場面では、${role}から見ると${perspective}ことが入口になります。`,
+  if (relationStatusId === 'R1' && role === 'B') {
+    return R1_PARTNER_UNCERTAINTY[chapterIndex]!;
+  }
+  if (relationStatusId === 'R4' && role === 'B') {
+    return R4_PARTNER_UNCERTAINTY[chapterIndex]!;
+  }
+  if (relationStatusId === 'R5' && role === 'B') {
+    return R5_PARTNER_UNCERTAINTY[chapterIndex]!;
+  }
+  const establishedLeads = [
+    `予定を決める場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
+    `反応がまだ見えない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
+    `意見が分かれる場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
+    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
+    `少し距離を置きたくなる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
+    `元の距離へ戻る場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
   ] as const;
-  const tail = PERSPECTIVE_TAILS[chapterIndex]![side].replaceAll(
-    '$statusContext$',
-    statusContext,
-  );
+  const noContactLeads = [
+    `まだ会話が始まっていない場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
+    `相手の反応がまだ見えない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
+    `近づくかどうかを考える場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
+    `気になる点を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
+    `距離を感じる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
+    `最初の接点を考える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
+  ] as const;
+  const earlyContactLeads = [
+    `やり取りのリズムを整える場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
+    `連絡のあと、反応がまだ見えない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
+    `言葉の置き方がずれてきた場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
+    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
+    `間合いを感じる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
+    `次の接点を考える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
+  ] as const;
+  const distancedLeads = [
+    `距離が感じられる場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
+    `連絡が少ない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
+    `間合いの取り方がずれてきた場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
+    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
+    `距離がある場面では、${role}には${perspectiveAppearanceClause(perspective)}。`,
+    `今の間合いを整える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
+  ] as const;
+  const reapproachLeads = [
+    `もう一度近づくことを考える場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
+    `再び連絡する前の場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
+    `近づき方がずれてきた場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
+    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
+    `距離のあと、間合いを確かめる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
+    `最初の接点を考える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
+  ] as const;
+  const leads =
+    relationStatusId === 'R1'
+      ? noContactLeads
+      : relationStatusId === 'R2'
+        ? earlyContactLeads
+        : relationStatusId === 'R4'
+          ? distancedLeads
+          : relationStatusId === 'R5'
+            ? reapproachLeads
+            : establishedLeads;
+  const tail = perspectiveTailFor(relationStatusId, chapterIndex, side, statusContext);
   return `${leads[chapterIndex]!}${tail}`;
 }
+
+const R1_SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, string, string, string, string]>> = {
+  A1: [
+    '相手の反応を決めつけず、自分が置きたい言葉の形だけ一つ選ばない？',
+    '近づくかどうかは後で決めて、今は短い一文だけ書き留めない？',
+    '会話の前に、自分が知りたい一点だけ整理しない？',
+    '相手の気持ちより、自分が確認したい一点だけ先に書かない？',
+    'まだ言葉にしない前提で、自分が感じていることを一文で書き留めない？',
+    '近づく前に、自分が確認したい一点だけ先に整理しない？',
+  ],
+  A2: [
+    '相手の反応を想像する前に、自分が感じていることを一文で書かない？',
+    'まだ連絡しない前提で、置きたい言葉の形だけ選ばない？',
+    '答えを決めず、自分が知りたい一点だけ書き留めない？',
+    '相手の気持ちを決めつけず、短い一文だけ先に整えない？',
+    '静けさを拒否の合図と決めつけず、自分の中の一点だけ先に書かない？',
+    '近づく前に、負担の小さい一文だけ候補にしない？',
+  ],
+  A3: [
+    '相手の反応を決めつけず、自分が整理したい一点だけ書かない？',
+    '近づく前に、自分が確認したい一点だけ先に書き留めない？',
+    '会話の前に、負担の小さい一文だけ候補にしない？',
+    '相手の気持ちより、自分が感じている距離だけ先に書かない？',
+    'まだ会話がない前提で、自分が知りたい一点だけ整理しない？',
+    '相手の反応は後で見て、今は短い一文だけ整えない？',
+  ],
+  A4: [
+    '本題の前に、自分が置きたい短い一文だけ選ばない？',
+    '相手の反応を想像せず、自分が伝えたい一点だけ書かない？',
+    '近づくかどうかは後で決めて、短い一文だけ整えない？',
+    '相手の気持ちを決めつけず、自分の中の一点だけ先に書き留めない？',
+    'まだ言葉にしない前提で、自分が感じていることを一文で書き留めない？',
+    '近づく前に、自分が確認したい一点だけ先に整理しない？',
+  ],
+};
+
+const R2_SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, string, string, string, string]>> = {
+  A1: [
+    'やり取りの速さではなく、次に返しやすい時間だけ一度決めない？',
+    '反応の大きさではなく、届いた合図を一つずつ確かめない？',
+    'このやり取りは一つだけ扱って、続きの時間を別に決めない？',
+    '少し間を置いて、次に短く返す時間だけ決めておかない？',
+    '関係の答えより、今日は短く返せる形を一緒に選ばない？',
+    'やり取りの量ではなく、今日の温度だけ先に確かめない？',
+  ],
+  A2: [
+    '反応の大きさではなく、届いた合図を一つずつ確かめない？',
+    '今すぐ答えなくていいので、返せる時間だけ選んでもらえる？',
+    '静かに考える時間と、短い合図の両方を残しておかない？',
+    '言葉が少なくても決めつけず、短い接点から続けてみない？',
+    '続きの話は後回しにして、短い合図だけ一度交換しない？',
+    'やり取りの速さではなく、次に返しやすい時間だけ一度決めない？',
+  ],
+  A3: [
+    '説明を続ける前に、受け取れた部分を一つずつ確かめない？',
+    '結論より先に、今いちばん引っかかる一点を聞いてもいい？',
+    '落ち着くための間を取り、次に返す時間だけ決めておかない？',
+    '続け方を決める前に、負担の小さいやり取りを一度置かない？',
+    'やり取りの量ではなく、今日の温度だけ先に確かめない？',
+    '短い合図だけ先に交換して、続きの時間は別に決めない？',
+  ],
+  A4: [
+    '本題の前に、二人が入りやすい話の始め方を選ばない？',
+    'この場面を話すなら、短い入口から始めてもいい？',
+    'いったん間を取り、次の連絡は短い一言からにしない？',
+    '大きな話を急がず、短いやり取りから続けてみない？',
+    '続きの話は後回しにして、短い合図だけ一度交換しない？',
+    'やり取りの速さではなく、今日の温度だけ先に確かめない？',
+  ],
+};
 
 function chapterPhrase(
   key: ChapterId,
   axis: PairAxisId,
   roles: ReturnType<typeof semanticRoles>,
+  relationStatusId: RelationStatusId,
 ): { speaker: PaidCompatibilityChapter['phraseSpeaker']; text: string } {
+  if (relationStatusId === 'R1' || relationStatusId === 'R2') {
+    const phrases = relationStatusId === 'R1' ? R1_SHARED_PHRASES : R2_SHARED_PHRASES;
+    const phraseIndex = CHAPTER_IDS.indexOf(key);
+    return {
+      speaker:
+        key === 'ch_you_pace'
+          ? 'personA'
+          : key === 'ch_other_pace'
+            ? 'personB'
+            : 'either',
+      text: phrases[axis][phraseIndex]!,
+    };
+  }
   if (key === 'ch_you_pace') {
     const text = roles.first.role === 'A'
       ? ROLE_PHRASES[axis].first
@@ -346,14 +667,36 @@ function chapterPhrase(
   };
 }
 
+function experimentSituationFor(
+  relationStatusId: RelationStatusId,
+  topicSituation: string,
+): string {
+  if (relationStatusId === 'R1') {
+    return 'まだ会話がない状態で気持ちを整理する時間ができたとき';
+  }
+  return topicSituation;
+}
+
 /**
  * ch_about carries the "returning after distance" scene in this report, while the
  * catalog title still names the legacy renderer's disclaimer chapter. Disclaimers
  * live in snapshot.safetyNote, so the reader title must describe the scene it holds.
  */
 export const PAID_COMPATIBILITY_CHAPTER_TITLE_OVERRIDES = {
-  ch_about: '戻るときの最初の接点',
+  ch_about: '最初の接点を考える場面',
 } as const satisfies Partial<Record<ChapterId, string>>;
+
+const R1_TOPIC_CHAPTER_TITLES: Readonly<Record<PaidTopicId, string>> = {
+  T1: '近づき方の入口の違い',
+  T2: '安心の取り方の違い',
+  T3: '気持ちの言葉の出方の違い',
+  T4: '反応の見えなさ',
+  T5: '距離の温度差',
+};
+
+export const PAID_COMPATIBILITY_R1_TOPIC_DEEP_TITLES = Object.freeze(
+  Object.values(R1_TOPIC_CHAPTER_TITLES),
+);
 
 export function paidCompatibilityChapterTitle(
   key: ChapterId,
@@ -365,34 +708,470 @@ export function paidCompatibilityChapterTitle(
   return override ?? getChapterTitle(key, topicId);
 }
 
-function sceneInteractionIdFor(
+function chapterTitleForReport(
   key: ChapterId,
-  pair: PairCanonicalProfileV2 | null,
-  input: PaidCompatibilityReportInput,
+  topicId: PaidTopicId,
+  relationStatusId: RelationStatusId,
 ): string {
-  const answers = input.currentContext;
-  const answerKey = answers
-    ? `${answers.decisionPace}:${answers.disagreement}:${answers.distance}:${answers.expressionPace}:${answers.returnPattern}`
-    : 'noctx';
-  if (!pair) return `${key}:${input.pairAxisId}:${answerKey}`;
-  const a = pair.a;
-  const b = pair.b;
-  switch (key) {
-    case 'ch_you_pace':
-      return `${key}:start:${a.civil.start}x${b.civil.start}:${pair.stemDeltaClass}:${answerKey}`;
-    case 'ch_other_pace':
-      return `${key}:distance:${a.birthSignature.dimensions.distance}x${b.birthSignature.dimensions.distance}:${answerKey}`;
-    case 'ch_pair_gap':
-      return `${key}:decision:${a.civil.decision}x${b.civil.decision}:${answerKey}`;
-    case 'ch_topic_deep':
-      return `${key}:answers:${input.paidTopicId}:${answerKey}`;
-    case 'ch_today_clue':
-      return `${key}:recovery:${a.civil.recovery}x${b.civil.recovery}:${pair.lunarAligned ? 'lsame' : 'ldiff'}:${answerKey}`;
-    case 'ch_about':
-      return `${key}:change:${a.birthSignature.dimensions.change}x${b.birthSignature.dimensions.change}:${answerKey}`;
-    default:
-      return `${key}:${input.pairAxisId}:${answerKey}`;
+  if (key === 'ch_topic_deep' && relationStatusId === 'R1') {
+    return R1_TOPIC_CHAPTER_TITLES[topicId];
   }
+  return paidCompatibilityChapterTitle(key, topicId);
+}
+
+export function sceneInteractionIdFor(key: ChapterId): string {
+  return `paid-compatibility:${PAID_COMPATIBILITY_REPORT_VERSION}:${key}:scene`;
+}
+
+function buildRelationshipLoop(
+  focus: ChapterFocus,
+  roles: ReturnType<typeof semanticRoles>,
+  continuation: string,
+  relationStatusId: RelationStatusId,
+  contextTail?: string,
+): readonly string[] {
+  if (focus.relationshipLoop) {
+    const lines = [...focus.relationshipLoop];
+    if (contextTail) {
+      lines.push(`今は、${contextTail.replace(/。$/u, '')}`);
+    }
+    return Object.freeze(lines);
+  }
+  const firstLabel = roles.first.role === 'A' ? 'A側' : 'B側';
+  const secondLabel = roles.second.role === 'A' ? 'A側' : 'B側';
+  const partnerLine =
+    relationStatusId === 'R4'
+      ? `${secondLabel}については、いまの間合いの見え方だけでは内側の動きまでは確かめにくい状態です`
+      : relationStatusId === 'R5'
+        ? `${secondLabel}が再接近を望んでいるとは限らず、こちらからは間合いの見え方だけを手がかりに読みやすいことがあります`
+        : relationStatusId === 'R1'
+          ? `${secondLabel}については、まだ反応材料が少ないため、意味を決めにくい状態です`
+          : `${secondLabel}には、${focus.secondAction}パターンに見えることがあります`;
+  const lines = [
+    `${firstLabel}から見ると、${actionMotionPhrase(focus.firstAction)}動きが見えやすいことがあります`,
+    `${secondLabel}の反応がまだ見えにくい場合、${focus.secondReception}`,
+    partnerLine,
+    `${firstLabel}から見ると、${focus.firstReception}`,
+    `二人の間では、${continuation}傾向が見えやすいことがあります`,
+  ];
+  if (contextTail) {
+    lines.push(`今は、${contextTail.replace(/。$/u, '')}`);
+  }
+  return Object.freeze(lines);
+}
+
+const R1_NO_CONTACT_RESET: readonly string[] = Object.freeze([
+  '相手の反応を決めつけず、自分が確認したい一点だけを書き留める',
+  '近づくかどうかは、そのあとで改めて選ぶ',
+  '小さな接点を置くなら、相手に負担の少ない形だけを候補にする',
+]);
+
+const STAGE_CHAPTER_FOCUS: Partial<
+  Record<RelationStatusId, Partial<Record<ChapterId, ChapterFocus>>>
+> = {
+  R1: {
+    ch_you_pace: {
+      scene: 'まだ会話がない状態で、自分の気持ちの出し方を考える場面',
+      firstAction: '相手に近づく前に、自分の気持ちを言葉にしようとする',
+      secondReception: '関心のなさのように見えやすい',
+      secondAction: '動きを止めたい',
+      firstReception: '相手の反応が見えないこと自体が、距離の合図のように受け取られる可能性がある',
+      continuation: '想像と実際の距離の差が、気持ちの重さを増やしやすい',
+      resetSteps: R1_NO_CONTACT_RESET,
+      experimentAction: '相手の反応を想像する前に、自分が言いたい一点を一文で書く',
+      reflectionQuestion: 'まだ会話がないとき、自分の中で何が一番引っかかっただろう？',
+      relationshipLoop: Object.freeze([
+        'A側から見ると、相手に近づく前に自分の気持ちを言葉にしようとする動きが見えやすいことがあります',
+        'B側の反応がまだ見えにくい場合、Aには関心のなさのように見えやすいことがあります',
+        R1_PARTNER_LOOP_UNCERTAINTY,
+        'A側には、相手の反応が見えないこと自体が距離の合図のように受け取られる可能性があります',
+        '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
+      ]),
+    },
+    ch_other_pace: {
+      scene: 'まだやり取りがなく、相手の反応が見えない場面',
+      firstAction: '相手の様子を想像して、自分の気持ちを確かめようとする',
+      secondReception: '自分だけが考えているように見えやすい',
+      secondAction: '動きを止めたい',
+      firstReception: '相手の反応が見えないこと自体が、拒否のように受け取られる可能性がある',
+      continuation: '想像と実際の距離の差が、気持ちの重さを増やしやすい',
+      resetSteps: R1_NO_CONTACT_RESET,
+      experimentAction: '相手の反応を想像する前に、自分が知りたい一点を一文で書く',
+      reflectionQuestion: '相手の反応が見えないとき、自分の中で何が一番重く感じられただろう？',
+      relationshipLoop: Object.freeze([
+        'A側から見ると、相手の様子を想像しながら自分の気持ちを確かめようとする動きが見えやすいことがあります',
+        'B側の反応がまだ見えにくい場合、自分だけが考えているように見えやすいことがあります',
+        R1_PARTNER_LOOP_UNCERTAINTY,
+        'A側には、相手の反応が見えないこと自体が拒否のように受け取られる可能性があります',
+        '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
+      ]),
+    },
+    ch_pair_gap: {
+      scene: 'まだ会話が始まっていない場面で、近づくかどうかを考えるとき',
+      firstAction: '相手の反応を想像して、自分の気持ちを整理しようとする',
+      secondReception: '自分だけが動こうとしているように見えやすい',
+      secondAction: '動きを止めたい',
+      firstReception: '相手の反応が見えないこと自体が、拒否のように受け取られる可能性がある',
+      continuation: '想像と実際の距離の差が、気持ちの重さを増やしやすい',
+      resetSteps: R1_NO_CONTACT_RESET,
+      experimentAction: '相手の反応を想像する前に、自分が知りたい一点を一文で書く',
+      reflectionQuestion: '相手の反応が見えないとき、自分の中で何が一番重く感じられただろう？',
+      relationshipLoop: Object.freeze([
+        'A側から見ると、相手の反応を想像しながら自分の気持ちを整理しようとする動きが見えやすいことがあります',
+        'B側の反応がまだ見えにくい場合、自分だけが動こうとしているように見えやすいことがあります',
+        R1_PARTNER_LOOP_UNCERTAINTY,
+        'A側には、相手の反応が見えないこと自体が拒否のように受け取られる可能性があります',
+        '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
+      ]),
+    },
+    ch_topic_deep: {
+      scene: 'まだ会話がない状態で、気になる点を自分の中で整理する場面',
+      firstAction: '気になる点を、相手に伝える前に言葉へ置こうとする',
+      secondReception: '自分だけが整理しているように見えやすい',
+      secondAction: '動きを止めたい',
+      firstReception: '相手が動いていないことが、話題を避けたように受け取られる可能性がある',
+      continuation: '整理の速さと、相手の反応の見えなさが重なりやすい',
+      resetSteps: Object.freeze([
+        '相手の反応を決めつけず、自分が整理したい一点だけを書き留める',
+        '伝えるかどうかは、そのあとで改めて選ぶ',
+        '小さな接点を置くなら、短い一文から始める形だけを候補にする',
+      ]),
+      experimentAction: '相手に伝える前に、自分が整理したい一点を一文で書く',
+      reflectionQuestion: 'まだ会話がないとき、何を一番知りたかっただろう？',
+      relationshipLoop: Object.freeze([
+        'A側から見ると、気になる点を相手に伝える前に言葉へ置こうとする動きが見えやすいことがあります',
+        'B側の反応がまだ見えにくい場合、自分だけが整理しているように見えやすいことがあります',
+        R1_PARTNER_LOOP_UNCERTAINTY,
+        'A側には、相手が動いていないことが話題を避けたように受け取られる可能性があります',
+        '二人の間では、整理の速さと相手の反応の見えなさが重なりやすい傾向が見えます',
+      ]),
+    },
+    ch_today_clue: {
+      scene: 'まだ会話がないのに、距離や気持ちの重さを感じる場面',
+      firstAction: '相手の様子を想像して、自分の気持ちを整理しようとする',
+      secondReception: '自分だけが考えているように見えやすい',
+      secondAction: '動きを止めたい',
+      firstReception: '相手の反応が見えないこと自体が、距離の合図のように受け取られる可能性がある',
+      continuation: '想像と実際の距離の差が、気持ちの重さを増やしやすい',
+      resetSteps: R1_NO_CONTACT_RESET,
+      experimentAction: '相手の反応を想像する前に、自分が感じている距離を一文で書く',
+      reflectionQuestion: '会話がなくても感じた距離は、何を整えたかった時間だっただろう？',
+      relationshipLoop: Object.freeze([
+        'A側から見ると、相手の様子を想像しながら自分の気持ちを整理しようとする動きが見えやすいことがあります',
+        'B側の反応がまだ見えにくい場合、自分だけが考えているように見えやすいことがあります',
+        R1_PARTNER_LOOP_UNCERTAINTY,
+        'A側には、相手の反応が見えないこと自体が距離の合図のように受け取られる可能性があります',
+        '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
+      ]),
+    },
+    ch_about: {
+      scene: 'まだ会話がない状態で、最初の接点を考える場面',
+      firstAction: 'どんな言葉で始めるかを、何度も考え直す',
+      secondReception: '始め方だけを探しているように見えやすい',
+      secondAction: '動きを止めたい',
+      firstReception: '相手が動いていないことが、関心のなさのように受け取られる可能性がある',
+      continuation: '始め方の迷いと、相手の反応の見えなさが重なりやすい',
+      resetSteps: Object.freeze([
+        '相手の気持ちを決めつけず、自分が置きたい接点の形だけを一つ選ぶ',
+        '大きな意味を求めず、短い一言から始められる形だけを候補にする',
+        '相手の反応は、そのあとで見る',
+      ]),
+      experimentAction: '相手の反応を想像せず、自分が置ける最小の接点を一つ書き留める',
+      reflectionQuestion: '最初の接点で、何を確認したかっただろう？',
+      relationshipLoop: Object.freeze([
+        'A側から見ると、どんな言葉で始めるかを何度も考え直す動きが見えやすいことがあります',
+        'B側の反応がまだ見えにくい場合、始め方だけを探しているように見えやすいことがあります',
+        R1_PARTNER_LOOP_UNCERTAINTY,
+        'A側には、相手が動いていないことが関心のなさのように受け取られる可能性があります',
+        '二人の間では、始め方の迷いと相手の反応の見えなさが重なりやすい傾向が見えます',
+      ]),
+    },
+  },
+  R2: {
+    ch_you_pace: {
+      scene: 'やり取りのリズムを整えようとする場面',
+      firstAction: '次の連絡のタイミングを先に置こうとする',
+      secondReception: 'まだ整っていないところへ話が進んだように見える',
+      secondAction: '返す前に言葉を整える時間を取りたい',
+      firstReception: '関心が薄いか、やり取りが止まったように見えやすい',
+      continuation: '連絡の速さと、返す前の整え方が別々に強まりやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、結論ではなく「いつ返すか」だけを短く伝える',
+        'もう一方が、返せる時刻か日だけを短く返す',
+        '決めた時刻までは、返事の意味を推測せずに置いておく',
+      ]),
+      experimentAction: '結論の代わりに、返す時間だけを一つ決める',
+      reflectionQuestion: 'やり取りの速さの意味を、二人は同じように受け取っていただろうか？',
+    },
+    ch_other_pace: {
+      scene: '連絡のあと、相手の反応がまだ見えにくい場面',
+      firstAction: '受け取った合図を早めに確かめようとする',
+      secondReception: '考えている途中に反応を求められたように見える',
+      secondAction: '言葉を選ぶために表の反応を小さくする',
+      firstReception: 'やり取りが届いていないか、避けられたように見えやすい',
+      continuation: '確認する量と静かに考える時間が互いに増えやすい',
+      resetSteps: Object.freeze([
+        'どちらかが「受け取った合図だけ欲しい」と短く伝える',
+        'もう一方が、答えではなく受け取ったことだけを返す',
+        '続きのやり取りは、二人が扱える時間を改めて選ぶ',
+      ]),
+      experimentAction: '答えの前に「読んだ」「聞いた」の合図だけを一度返す',
+      reflectionQuestion: '反応の量ではなく、受け取った合図として見えたものは何だっただろう？',
+    },
+    ch_pair_gap: {
+      scene: 'やり取りの中で、言葉の置き方やタイミングがずれてきた場面',
+      firstAction: '相手の反応を確かめようとする',
+      secondReception: 'まだ整っていないところへ話が進んだように見える',
+      secondAction: '返事を整えるために間を取りたい',
+      firstReception: '関心が薄いか、やり取りが止まったように見えやすい',
+      continuation: '確認する動きと、整える時間が別々に強まりやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、相手の意図を一文で確認する',
+        'もう一方が、合っている部分だけを先に返す',
+        '違っていた部分は、一つだけ選んで話し直す',
+      ]),
+      experimentAction: '意見を返す前に、相手の意図を一文で確認する',
+      reflectionQuestion: 'やり取りの中で、何を確かめたかっただろう？',
+    },
+    ch_topic_deep: {
+      scene: '気になる点を、やり取りの中で扱おうとする場面',
+      firstAction: '気になる点を早めに言葉へ置こうとする',
+      secondReception: 'まだ輪郭のないことに答えを求められたように見える',
+      secondAction: '場面を見直すために反応を控えたい',
+      firstReception: '話題そのものを避けられたように見えやすい',
+      continuation: '話題へ入る速さの差が、気持ちの差に見えやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、扱いたい場面を一つだけ挙げる',
+        'もう一方が、今話せるか、別の時間がよいかを選ぶ',
+        '話す場合も、最初の十分で扱う一点を決める',
+      ]),
+      experimentAction: '扱う場面を一つに絞り、話せる時間を先に確かめる',
+      reflectionQuestion: '話題の重さではなく、入口の作り方で変わったことはあっただろうか？',
+    },
+    ch_today_clue: {
+      scene: 'やり取りのあと、少し間合いを感じる場面',
+      firstAction: '今の温度を確かめるために接点を増やそうとする',
+      secondReception: '落ち着くための間が狭くなったように見える',
+      secondAction: '自分のペースを戻すために接点を減らしたい',
+      firstReception: '距離がさらに広がる合図のように見えやすい',
+      continuation: '近づいて確かめる動きと、離れて整える動きが続きやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、必要な間の長さを大まかに伝える',
+        'もう一方が、その間に必要な連絡だけを一つ確認する',
+        '二十四時間から四十八時間以内に、短い接点を置く',
+      ]),
+      experimentAction: '離れる前に、次に短く連絡する時間だけを決める',
+      reflectionQuestion: '間合いを感じたとき、それぞれ何を整えたかっただろう？',
+    },
+    ch_about: {
+      scene: 'やり取りが途切れたあと、次の接点を考える場面',
+      firstAction: '次の連絡の形を確かめてから動こうとする',
+      secondReception: '大きな答えを求められたように見える',
+      secondAction: '負担の小さい短い接点から続けたい',
+      firstReception: '大切な話を避けたまま進めるように見えやすい',
+      continuation: '次の接点の形と、短いやり取りの選び方が別々に求められやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、結論ではなく短い接点を提案する',
+        'もう一方が、応じられる形や時間だけを返す',
+        '続けるかどうかは、その一回のあとで改めて選ぶ',
+      ]),
+      experimentAction: '答えを決めず、十分ほどの短いやり取りを一度だけ置く',
+      reflectionQuestion: '大きな答えを出さずに続けられた接点は、どんな形だっただろう？',
+    },
+  },
+  R4: {
+    ch_you_pace: {
+      scene: '距離が感じられる中で、次の動きを考える場面',
+      firstAction: '今の間合いを確かめようとする',
+      secondReception: '距離の理由を一つに決められたように見える',
+      secondAction: '負担の小さい間合いを保ちたい',
+      firstReception: '急いで近づこうとしているように見えやすい',
+      continuation: '間合いの確認と、距離の理由を決めない動きが別々に強まりやすい',
+      resetSteps: Object.freeze([
+        '距離の理由を決めつけず、今扱いたい一点だけを挙げる',
+        'もう一方が、応じられる形や時間だけを返す',
+        '続けるかどうかは、そのあとで改めて選ぶ',
+      ]),
+      experimentAction: '距離の理由を決めず、自分が整えたい一点を一文で書く',
+      reflectionQuestion: '今の距離を、それぞれ何のために置いていただろう？',
+    },
+    ch_other_pace: {
+      scene: '連絡が少ない場面で、相手の反応がまだ見えないとき',
+      firstAction: '短い合図を先に置こうとする',
+      secondReception: '急いで距離を縮めようとされたように見える',
+      secondAction: '返す前に間合いを整える時間を取りたい',
+      firstReception: '関心が薄いか、距離が広がる合図のように見えやすい',
+      continuation: '合図を求める動きと、間合いを整える時間が別々に強まりやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、答えではなく受け取った合図だけを短く伝える',
+        'もう一方が、返せる時間だけを短く返す',
+        '距離の理由を決めず、短い接点だけを置く',
+      ]),
+      experimentAction: '答えの前に「読んだ」「聞いた」の合図だけを一度返す',
+      reflectionQuestion: '反応の量ではなく、受け取った合図として見えたものは何だっただろう？',
+    },
+    ch_pair_gap: {
+      scene: '距離がある中で、言葉の置き方やタイミングがずれてきた場面',
+      firstAction: '今の間合いを言葉で確かめようとする',
+      secondReception: '距離の理由を一つに決められたように見える',
+      secondAction: '返事を整えるために間を取りたい',
+      firstReception: '大切な話を避けたまま距離を置くように見えやすい',
+      continuation: '間合いの確認と、言葉を整える時間が別々に強まりやすい',
+      resetSteps: Object.freeze([
+        '距離の理由を決めつけず、今扱いたい一点だけを挙げる',
+        'もう一方が、応じられる形や時間だけを返す',
+        '違っていた部分は、一つだけ選んで話し直す',
+      ]),
+      experimentAction: '意見を返す前に、相手の意図を一文で確認する',
+      reflectionQuestion: '距離の理由を決めずに、何を確かめたかっただろう？',
+    },
+    ch_topic_deep: {
+      scene: '距離がある中で、気になる点を扱おうとする場面',
+      firstAction: '気になる点を早めに言葉へ置こうとする',
+      secondReception: 'まだ輪郭のないことに答えを求められたように見える',
+      secondAction: '場面を見直すために反応を控えたい',
+      firstReception: '話題そのものを避けられたように見えやすい',
+      continuation: '話題へ入る速さの差が、距離の意味の差に見えやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、扱いたい場面を一つだけ挙げる',
+        'もう一方が、今話せるか、別の時間がよいかを選ぶ',
+        '話す場合も、最初の十分で扱う一点を決める',
+      ]),
+      experimentAction: '扱う場面を一つに絞り、話せる時間を先に確かめる',
+      reflectionQuestion: '話題の重さではなく、入口の作り方で変わったことはあっただろうか？',
+    },
+    ch_about: {
+      scene: '距離が続いている状態で、今の間合いを整える場面',
+      firstAction: '距離の意味を確かめようとする',
+      secondReception: '距離の理由を一つに決められたように見える',
+      secondAction: '負担の小さい間合いを保ちたい',
+      firstReception: '大切な話を避けたまま距離を置くように見えやすい',
+      continuation: '距離の意味の確認と、今の間合いの整え方が別々に求められやすい',
+      resetSteps: Object.freeze([
+        '距離の理由を決めつけず、今扱いたい一点だけを挙げる',
+        'もう一方が、応じられる形や時間だけを返す',
+        '続けるかどうかは、そのあとで改めて選ぶ',
+      ]),
+      experimentAction: '距離の理由を決めつけず、自分が整えたい一点を一文で書く',
+      reflectionQuestion: '今の距離を、それぞれ何のために置いていただろう？',
+    },
+    ch_today_clue: {
+      scene: '距離が感じられる場面で、間合いを扱おうとする場面',
+      firstAction: '今の温度を確かめるために接点を増やそうとする',
+      secondReception: '落ち着くための間が狭くなったように見える',
+      secondAction: '自分のペースを戻すために接点を減らしたい',
+      firstReception: '距離がさらに広がる合図のように見えやすい',
+      continuation: '近づいて確かめる動きと、離れて整える動きが続きやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、必要な間の長さを大まかに伝える',
+        'もう一方が、その間に必要な連絡だけを一つ確認する',
+        '距離の理由を決めず、短い接点だけを置く',
+      ]),
+      experimentAction: '距離の理由を決めず、次に短く連絡する時間だけを決める',
+      reflectionQuestion: '距離を置くことは、二人にとってそれぞれ何を整える時間だっただろう？',
+    },
+  },
+  R5: {
+    ch_you_pace: {
+      scene: 'もう一度近づくことを考える場面で、次の動きを整えるとき',
+      firstAction: '再接近のタイミングを先に置こうとする',
+      secondReception: '急いで近づかれたように見える',
+      secondAction: '小さな接点から始めたい',
+      firstReception: '大きな意味を求められたように見えやすい',
+      continuation: '再接近の速さと、小さな接点の選び方が別々に強まりやすい',
+      resetSteps: Object.freeze([
+        '関係の結論ではなく、短い接点を一つ提案する',
+        '相手が応じられる形や時間だけを返してもらう',
+        '続けるかどうかは、その一回のあとで改めて選ぶ',
+      ]),
+      experimentAction: '答えを決めず、短い一言から始める形を一つ選ぶ',
+      reflectionQuestion: '再接近の前に、何を一番確認したかっただろう？',
+    },
+    ch_other_pace: {
+      scene: '再び連絡する前の場面で、相手の反応がまだ見えないとき',
+      firstAction: '小さな合図を先に置こうとする',
+      secondReception: '急いで近づかれたように見える',
+      secondAction: '返す前に間合いを整える時間を取りたい',
+      firstReception: '大きな答えを求められたように見えやすい',
+      continuation: '合図を求める動きと、間合いを整える時間が別々に強まりやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、答えではなく受け取った合図だけを短く伝える',
+        'もう一方が、返せる時間だけを短く返す',
+        '続けるかどうかは、その一回のあとで改めて選ぶ',
+      ]),
+      experimentAction: '答えの前に「読んだ」「聞いた」の合図だけを一度返す',
+      reflectionQuestion: '再接近の最初の接点で、何を確認したかっただろう？',
+    },
+    ch_pair_gap: {
+      scene: '近づき方がずれてきた場面で、言葉の置き方を整えるとき',
+      firstAction: '再接近の意図を言葉で確かめようとする',
+      secondReception: '大きな答えを求められたように見える',
+      secondAction: '小さな接点から戻りたい',
+      firstReception: '急いで関係の意味を決めようとしているように見えやすい',
+      continuation: '再接近の意図と、小さな接点の選び方がずれやすい',
+      resetSteps: Object.freeze([
+        '関係の結論ではなく、短い接点を一つ提案する',
+        '相手が応じられる形や時間だけを返してもらう',
+        '違っていた部分は、一つだけ選んで話し直す',
+      ]),
+      experimentAction: '意見を返す前に、相手の意図を一文で確認する',
+      reflectionQuestion: '近づき方のずれについて、何を確かめたかっただろう？',
+    },
+    ch_topic_deep: {
+      scene: 'もう一度近づく前に、気になる点を扱おうとする場面',
+      firstAction: '気になる点を早めに言葉へ置こうとする',
+      secondReception: 'まだ輪郭のないことに答えを求められたように見える',
+      secondAction: '小さな接点から始めたい',
+      firstReception: '大きな話を避けられたように見えやすい',
+      continuation: '話題へ入る速さの差が、再接近の速さの差に見えやすい',
+      resetSteps: Object.freeze([
+        'どちらかが、扱いたい場面を一つだけ挙げる',
+        'もう一方が、今話せるか、別の時間がよいかを選ぶ',
+        '話す場合も、最初の十分で扱う一点を決める',
+      ]),
+      experimentAction: '扱う場面を一つに絞り、話せる時間を先に確かめる',
+      reflectionQuestion: '再接近の前に、何を一番整理したかっただろう？',
+    },
+    ch_about: {
+      scene: '距離ができたあと、もう一度近づく最初の接点を考える場面',
+      firstAction: '戻る意味を確かめてから、小さな接点を探そうとする',
+      secondReception: '大きな答えを求められたように見える',
+      secondAction: '負担の小さい接点から戻りたい',
+      firstReception: '大切な話を避けたまま進めるように見えやすい',
+      continuation: '再接近の意図と、小さな接点の選び方が別々に求められやすい',
+      resetSteps: Object.freeze([
+        '関係の結論ではなく、短い接点を一つ提案する',
+        '相手が応じられる形や時間だけを返してもらう',
+        '続けるかどうかは、その一回のあとで改めて選ぶ',
+      ]),
+      experimentAction: '答えを決めず、十分ほどの短いやり取りを一度だけ置く',
+      reflectionQuestion: '再接近の最初の接点で、何を確認したかっただろう？',
+    },
+    ch_today_clue: {
+      scene: '距離のあと、もう一度近づく前の間合いを感じる場面',
+      firstAction: '再接近のタイミングを確かめようとする',
+      secondReception: '急いで近づかれたように見える',
+      secondAction: '小さな接点から始めたい',
+      firstReception: '大きな意味を求められたように見えやすい',
+      continuation: '再接近の速さと、小さな接点の選び方がずれやすい',
+      resetSteps: Object.freeze([
+        '関係の結論ではなく、短い接点を一つ提案する',
+        '相手が応じられる形や時間だけを返してもらう',
+        '続けるかどうかは、その一回のあとで改めて選ぶ',
+      ]),
+      experimentAction: '答えを決めず、短い一言から始める形を一つ選ぶ',
+      reflectionQuestion: '再接近の前に、何を一番確認したかっただろう？',
+    },
+  },
+};
+
+function chapterFocusFor(
+  key: ChapterId,
+  relationStatusId: RelationStatusId,
+): ChapterFocus {
+  const stageOverride = STAGE_CHAPTER_FOCUS[relationStatusId]?.[key];
+  if (stageOverride) return stageOverride;
+  return CHAPTER_FOCUS[key];
 }
 
 function buildChapter(
@@ -402,18 +1181,34 @@ function buildChapter(
   roles: ReturnType<typeof semanticRoles>,
   pair: PairCanonicalProfileV2 | null,
 ): PaidCompatibilityChapter {
-  const focus = CHAPTER_FOCUS[key];
+  const focus = chapterFocusFor(key, input.relationStatusId);
   const topicLabel = getTopicLabel(input.paidTopicId);
   const topicAction = TOPIC_IMMEDIATE_ACTIONS[input.paidTopicId];
-  const phrase = chapterPhrase(key, input.pairAxisId, roles);
-  const contextVariation = input.currentContext
-    ? buildCompatibilityCurrentContextChapterVariation(
-      key,
-      bodyAnswersFromCurrentContext(input.currentContext),
-    )
-    : null;
+  const phrase = chapterPhrase(key, input.pairAxisId, roles, input.relationStatusId);
+  const skipContextVariation =
+    input.relationStatusId === 'R1' ||
+    input.relationStatusId === 'R2' ||
+    input.relationStatusId === 'R4' ||
+    input.relationStatusId === 'R5';
+  const contextVariation =
+    skipContextVariation
+      ? null
+      : input.currentContextV2
+      ? buildCompatibilityCurrentContextChapterVariationV2(
+        key,
+        input.currentContextV2,
+        input.relationStatusId,
+      )
+      : input.currentContext
+        ? buildCompatibilityCurrentContextChapterVariation(
+          key,
+          bodyAnswersFromCurrentContext(input.currentContext),
+        )
+        : null;
   const topicScene = key === 'ch_topic_deep'
-    ? `${focus.scene}。ここでは「${topicLabel}」に場面を絞ります`
+    ? input.relationStatusId === 'R1'
+      ? `${focus.scene}。ここでは、気になる点の入口から見ます`
+      : `${focus.scene}。ここでは「${topicLabel}」に場面を絞ります`
     : focus.scene;
   const personA = perspectiveText(
     index,
@@ -422,6 +1217,7 @@ function buildChapter(
     topicLabel,
     STATUS_CONTEXT[input.relationStatusId],
     roles.first.role === 'A' ? 'first' : 'second',
+    input.relationStatusId,
   );
   const personB = perspectiveText(
     index,
@@ -430,9 +1226,10 @@ function buildChapter(
     topicLabel,
     STATUS_CONTEXT[input.relationStatusId],
     roles.first.role === 'B' ? 'first' : 'second',
+    input.relationStatusId,
   );
   const smallExperiment = [
-    `今週、${topicAction.situation}に、${focus.experimentAction}。`,
+    `今週、${experimentSituationFor(input.relationStatusId, topicAction.situation)}に、${focus.experimentAction}。`,
     '一回分の場面だけを見て、次も続けるかはそのあとで選びます。',
   ].join('');
   const contextualPhrase = contextVariation?.usablePhrase
@@ -442,28 +1239,26 @@ function buildChapter(
   return Object.freeze({
     key,
     number: index + 1,
-    title: paidCompatibilityChapterTitle(key, input.paidTopicId),
+    title: chapterTitleForReport(key, input.paidTopicId, input.relationStatusId),
     scene: contextVariation?.sceneSuffix
       ? `${topicScene}。${contextVariation.sceneSuffix}`
       : topicScene,
     personAPerspective: personA,
     personBPerspective: personB,
-    relationshipLoop: Object.freeze([
-      `${roles.first.role}が${focus.firstAction}`,
-      `${roles.second.role}が${focus.secondReception}`,
-      `${roles.second.role}が${focus.secondAction}`,
-      `${roles.first.role}が${focus.firstReception}`,
-      contextVariation?.relationshipLoopTail
-        ? `二人の間で、${focus.continuation}。今は、${contextVariation.relationshipLoopTail}`
-        : `二人の間で、${focus.continuation}`,
-    ]),
+    relationshipLoop: buildRelationshipLoop(
+      focus,
+      roles,
+      focus.continuation,
+      input.relationStatusId,
+      contextVariation?.relationshipLoopTail ?? undefined,
+    ),
     resetSteps: Object.freeze([...focus.resetSteps]),
     phraseSpeaker: phrase.speaker,
     usablePhrase: contextualPhrase,
     smallExperiment: contextVariation?.smallExperiment ?? smallExperiment,
     reflectionQuestion:
       contextVariation?.reflectionQuestion ?? focus.reflectionQuestion,
-    sceneInteractionId: sceneInteractionIdFor(key, pair, input),
+    sceneInteractionId: sceneInteractionIdFor(key),
   });
 }
 
@@ -477,14 +1272,19 @@ export function buildPaidCompatibilityReportV1(
           personBBirthDate: input.personBBirthDate,
         })
       : null;
-  const roles = semanticRoles(input.pairAxisId, input.personAUsesFirstPerspective);
-  const authority = PAIR_AXIS_FREE_RESULT_FRAGMENTS[input.pairAxisId];
+  const authority = axisAuthorityFor(input.pairAxisId, input.relationStatusId);
+  const roles = semanticRoles(input.pairAxisId, input.personAUsesFirstPerspective, authority);
   const chapters = CHAPTER_IDS.map((key, index) =>
     buildChapter(key, index, input, roles, pair),
   );
-  const currentContext = input.currentContext
-    ? buildCompatibilityCurrentContextDisplay(input.currentContext)
-    : undefined;
+  const currentContext = input.currentContextV2
+    ? buildCompatibilityCurrentContextDisplayV2(
+      input.currentContextV2,
+      input.relationStatusId,
+    )
+    : input.currentContext
+      ? buildCompatibilityCurrentContextDisplay(input.currentContext)
+      : undefined;
   const highlightedChapterKeys = currentContext?.highlightedChapterKeys
     ?? Object.freeze([
       'ch_pair_gap',
@@ -497,7 +1297,7 @@ export function buildPaidCompatibilityReportV1(
     relationshipSummary: [
       authority.overlap,
       authority.difference,
-      `${TEMPERATURE_CONTEXT[input.temperatureId]}ことが、六つの場面を読むときの入口です。`,
+      `${temperatureContextFor(input.relationStatusId, input.temperatureId)}ことが、六つの場面を読むときの入口です。`,
     ].join(''),
     sharedFoundation: authority.overlap,
     differentFoundation: authority.difference,

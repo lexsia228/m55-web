@@ -4,18 +4,18 @@ import {
   SAFETY_PROFILE,
 } from './pairReadingCatalog.v1';
 import {
-  COMPATIBILITY_GUEST_DEFAULT_STATE,
   isCompleteCompatibilityGuestInput,
+  isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
 } from './pairReadingGuestContract';
 import {
-  isCompleteCompatibilityCurrentContext,
-  type CompatibilityCurrentContextAnswers,
-} from './currentContextContract.v1';
+  isCompleteCompatibilityCurrentContextV2,
+  type CompatibilityCurrentContextAnswersV2,
+} from './currentContextContract.v2';
 import { GUEST_TOPIC_BY_PAIR_AXIS } from './pairReadingGuestResult';
 import { derivePairAxisId } from './pairReadingFingerprint';
 import { renderPairReading } from './pairReadingRenderer';
-import type { PairReadingInput } from './pairReadingTypes';
+import type { PairReadingInput, RelationStatusId } from './pairReadingTypes';
 import {
   buildPaidCompatibilityReportV1,
   type PaidCompatibilityReportSnapshot,
@@ -31,11 +31,13 @@ export type CanonicalCompatibilityPurchaseSnapshotResult =
  */
 export function buildCanonicalCompatibilityPurchaseSnapshot(
   input: CompatibilityGuestInput,
-  currentContext: CompatibilityCurrentContextAnswers,
+  relationStatusId: RelationStatusId,
+  currentContext: CompatibilityCurrentContextAnswersV2,
 ): CanonicalCompatibilityPurchaseSnapshotResult {
   if (
     !isCompleteCompatibilityGuestInput(input) ||
-    !isCompleteCompatibilityCurrentContext(currentContext)
+    !isValidCompatibilityRelationStatusId(relationStatusId) ||
+    !isCompleteCompatibilityCurrentContextV2(currentContext, relationStatusId)
   ) {
     return { ok: false, reason: 'invalid_input' };
   }
@@ -45,9 +47,9 @@ export function buildCanonicalCompatibilityPurchaseSnapshot(
     schemaVersion: 'pair_reading_input_v1',
     personA: { role: 'personA', birthDate: input.personA },
     personB: { role: 'personB', birthDate: input.personB },
-    relationStatusId: COMPATIBILITY_GUEST_DEFAULT_STATE.relationStatusId,
+    relationStatusId,
     paidTopicId,
-    temperatureId: COMPATIBILITY_GUEST_DEFAULT_STATE.temperatureId,
+    temperatureId: 'E0',
     pairAxisOverride: pairAxisId,
     productInternalName: PRODUCT_INTERNAL_NAME,
     productPublicName: PRODUCT_PUBLIC_NAME,
@@ -66,12 +68,12 @@ export function buildCanonicalCompatibilityPurchaseSnapshot(
     snapshot: buildPaidCompatibilityReportV1({
       pairAxisId,
       paidTopicId,
-      relationStatusId: pairInput.relationStatusId,
+      relationStatusId,
       temperatureId: pairInput.temperatureId ?? 'E0',
       personAUsesFirstPerspective:
         rendered.pairFingerprint.personADobHash <=
         rendered.pairFingerprint.personBDobHash,
-      currentContext,
+      currentContextV2: currentContext,
       personABirthDate: input.personA,
       personBBirthDate: input.personB,
     }),

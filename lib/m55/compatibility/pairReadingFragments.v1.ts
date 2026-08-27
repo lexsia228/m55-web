@@ -12,6 +12,17 @@ import type {
   TemperatureId,
 } from './pairReadingTypes';
 import { CH_ABOUT_DISCLAIMER, getAxisLabel, getTopicLabel } from './pairReadingCatalog.v1';
+import {
+  auditPairReadingText,
+  countFullWidthChars,
+  countSentencesJa,
+  findTeaserDeepeningLeakage,
+  textsAreNearDuplicates,
+} from './pairReadingSafetyAudit';
+
+export type GuestFreeTeaserValidationResult =
+  | { ok: true }
+  | { ok: false; code: string; message: string };
 
 export const PAIR_READING_FRAGMENT_SET_VERSION = 'pair_fragments_v1' as const;
 
@@ -28,6 +39,14 @@ export const TOPIC_TEASER_BRIDGES: Readonly<Record<PaidTopicId, string>> = {
   T3: '今の視点「連絡や会話のペース差」では、速さより会話の温度の続き方が手がかりになります。',
   T4: '今の視点「相手が反応しやすい場面」では、反応の有無より場面の作り方が手がかりになります。',
   T5: '今の視点「気持ちを伝える前に見る距離の温度差」では、伝える前の距離の温度が手がかりになります。',
+};
+
+const R1_TOPIC_TEASER_BRIDGES: Readonly<Record<PaidTopicId, string>> = {
+  T1: '今の視点「近づき方の入口」では、まだ会話がない状態での間合いの見え方が手がかりになります。',
+  T2: '今の視点「気持ちの整え方」では、まだ会話がない状態での安心の取り方の違いが手がかりになります。',
+  T3: '今の視点「言葉の出方の違い」では、まだ会話がない状態での読み取りのずれが手がかりになります。',
+  T4: '今の視点「反応の見えなさ」では、まだ会話がない状態での読み取りのずれが手がかりになります。',
+  T5: '今の視点「距離の温度差」では、まだ会話がない状態での距離の見え方が手がかりになります。',
 };
 
 export const PAIR_AXIS_GAP_BODIES: Readonly<Record<PairAxisId, string>> = {
@@ -123,6 +142,15 @@ export const TEMPERATURE_CLUE_MOD: Readonly<Record<TemperatureId, string>> = {
   E3: '距離の取り方に迷う温度感なら、詰め方の指示ではなく、距離の見え方を先に見ると整いやすいです。',
   E4: '一度距離ができている温度感なら、終わりの断定ではなく、いまの距離の型を先に見ると整いやすいです。',
   E5: 'これからを真剣に考えている温度感でも、急がず、今の温度差を一点だけ見ると整いやすいです。',
+};
+
+const R1_TEMPERATURE_CLUE_MOD: Readonly<Record<TemperatureId, string>> = {
+  E0: '',
+  E1: '少し気になっている温度感なら、まだ会話がない状態でも一点だけに絞ると見えやすいです。',
+  E2: '気持ちの言葉の出方が気になる温度感なら、反応の有無より自分の中の温度を先に見ると見えやすいです。',
+  E3: '近づくかどうか迷う温度感なら、結論より今の迷いの見え方を先に見ると見えやすいです。',
+  E4: '静けさが気になる温度感なら、拒否の断定ではなく、距離の見え方を先に見ると見えやすいです。',
+  E5: 'これからを考え始めている温度感でも、急がず、今の温度差を一点だけ見ると見えやすいです。',
 };
 
 export const TOPIC_CLUE_CORE: Readonly<Record<PaidTopicId, string>> = {
@@ -245,26 +273,236 @@ export const TOPIC_IMMEDIATE_ACTIONS: Readonly<
   },
 };
 
+const R1_TOPIC_IMMEDIATE_OBSERVATIONS: Readonly<
+  Record<PaidTopicId, CompatibilityImmediateActionFragment>
+> = {
+  T1: {
+    situation: 'まだ会話がない状態で、近づき方の入口の違いが見えやすい場面',
+    action: '入口の作り方の差が、読み取りのずれとして見えやすいことがあります。',
+  },
+  T2: {
+    situation: 'まだ会話がない状態で、安心の取り方の違いが見えやすい場面',
+    action: '整える速さの差が、読み取りのずれとして見えやすいことがあります。',
+  },
+  T3: {
+    situation: 'まだ会話がない状態で、気持ちの言葉の出方の違いが見えやすい場面',
+    action: '言葉の出方の差が、読み取りのずれとして見えやすいことがあります。',
+  },
+  T4: {
+    situation: 'まだ会話がない状態で、相手の反応の見えなさが気になりやすい場面',
+    action: '反応の見えなさが、読み取りのずれとして見えやすいことがあります。',
+  },
+  T5: {
+    situation: 'まだ会話がない状態で、距離の温度差が見えやすい場面',
+    action: '距離の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+  },
+};
+
+const V2_FREE_TOPIC_OBSERVATIONS: Readonly<
+  Record<RelationStatusId, Record<PaidTopicId, CompatibilityImmediateActionFragment>>
+> = {
+  R1: R1_TOPIC_IMMEDIATE_OBSERVATIONS,
+  R2: {
+    T1: {
+      situation: 'やり取りのリズムを整える場面で、近づき方の入口の違いが見えやすいとき',
+      action: '入口の作り方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T2: {
+      situation: '言葉の置き方がずれてきた場面で、安心の取り方の違いが見えやすいとき',
+      action: '受け取り方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T3: {
+      situation: 'やり取りの速さがずれて見える場面',
+      action: '反応の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T4: {
+      situation: '反応がまだ見えにくい場面',
+      action: '反応の量だけを手がかりにすると、読み取りのずれが起きやすいことがあります。',
+    },
+    T5: {
+      situation: '間合いを感じる場面',
+      action: '距離の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+  },
+  R3: {
+    T1: {
+      situation: '近づき方の入口がずれて見える場面',
+      action: '入口の作り方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T2: {
+      situation: '意見が分かれ、受け止め方の順序がずれて見える場面',
+      action: '安心の確認の順序の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T3: {
+      situation: '決める速さと言葉の出方がずれて見える場面',
+      action: '速さの差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T4: {
+      situation: '反応の見え方が分かれて見える場面',
+      action: '反応の量だけを手がかりにすると、読み取りのずれが起きやすいことがあります。',
+    },
+    T5: {
+      situation: '距離の温度差がずれて見える場面',
+      action: '距離の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+  },
+  R4: {
+    T1: {
+      situation: '距離がある中で、近づき方の入口の違いが見えやすい場面',
+      action: '間合いの見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T2: {
+      situation: '距離がある中で、受け止め方の順序がずれて見える場面',
+      action: '静けさの意味の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T3: {
+      situation: '距離がある中で、言葉の出方の違いが見えやすい場面',
+      action: '言葉の出方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T4: {
+      situation: '距離がある中で、反応の見え方が分かれて見える場面',
+      action: '反応の量だけを手がかりにすると、読み取りのずれが起きやすいことがあります。',
+    },
+    T5: {
+      situation: '距離がある中で、間合いの温度差が見えやすい場面',
+      action: '距離の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+  },
+  R5: {
+    T1: {
+      situation: 'もう一度近づく前に、入口の作り方の違いが見えやすい場面',
+      action: '近づき方の入口の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T2: {
+      situation: '再接近を考える場面で、受け止め方の順序がずれて見えるとき',
+      action: '整える順序の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T3: {
+      situation: '再接近を考える場面で、言葉の出方の違いが見えやすいとき',
+      action: '言葉の出方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T4: {
+      situation: '再接近を考える場面で、反応の見え方が分かれて見えるとき',
+      action: '相手の気持ちを決めつけずに読むと、読み取りのずれが小さく見えることがあります。',
+    },
+    T5: {
+      situation: 'もう一度近づく前に、間合いの温度差が見えやすい場面',
+      action: '間合いの見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+  },
+  R6: {
+    T1: {
+      situation: '日常のリズムの中で、近づき方の入口の違いが見えやすい場面',
+      action: '入口の作り方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T2: {
+      situation: '日常の中で、受け止め方の順序がずれて見える場面',
+      action: '安心の確認の順序の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T3: {
+      situation: '日常の中で、決める速さと言葉の出方がずれて見える場面',
+      action: '速さの差が、読み取りのずれとして見えやすいことがあります。',
+    },
+    T4: {
+      situation: '日常の中で、反応の見え方が分かれて見える場面',
+      action: '反応の量だけを手がかりにすると、読み取りのずれが起きやすいことがあります。',
+    },
+    T5: {
+      situation: '日常の中で、距離の温度差がずれて見える場面',
+      action: '距離の見え方の差が、読み取りのずれとして見えやすいことがあります。',
+    },
+  },
+};
+
+const R1_PARTNER_FREE_UNCERTAINTY =
+  'まだ反応材料が少ないため、こちらからは意味を決めにくい状態です';
+
+const R1_FREE_RESULT_FRAGMENTS: Readonly<
+  Record<PairAxisId, CompatibilityFreeAxisAuthority>
+> = {
+  A1: {
+    semanticKeys: PAIR_AXIS_FREE_RESULT_FRAGMENTS.A1.semanticKeys,
+    overlap:
+      'まだ会話がない状態でも、気持ちの言葉の出方や近づく前の迷いが見えやすいところが重なります。',
+    difference:
+      'その場で輪郭を決めたいときと、自分の中で整えてから動きたいときに、進め方の違いが表れやすいです。',
+    perspectiveOne: '気持ちの輪郭を先に言葉へ置こうとする動きが見えやすい',
+    perspectiveTwo: '自分の中で整えてから動きを選びたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+  A2: {
+    semanticKeys: PAIR_AXIS_FREE_RESULT_FRAGMENTS.A2.semanticKeys,
+    overlap:
+      'まだ会話がない状態でも、気持ちの言葉の出方の違いが見えやすいところが重なります。',
+    difference:
+      '気持ちが先に言葉になりやすい傾向と、整えてから動きやすい傾向の差が表れやすいです。',
+    perspectiveOne: '気持ちを先に言葉へ置こうとする動きが見えやすい',
+    perspectiveTwo: '言葉が整うまで動きを控えたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+  A3: {
+    semanticKeys: PAIR_AXIS_FREE_RESULT_FRAGMENTS.A3.semanticKeys,
+    overlap:
+      'まだ会話がない状態でも、気持ちの整理の仕方に近いリズムが見えやすいところが重なります。',
+    difference:
+      '理由を先に整理したいときと、感覚を先に言葉にしたいときに、順序の違いが表れやすいです。',
+    perspectiveOne: '気持ちの順序を先に整えようとする動きが見えやすい',
+    perspectiveTwo: '感覚が整うまで動きを控えたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+  A4: {
+    semanticKeys: PAIR_AXIS_FREE_RESULT_FRAGMENTS.A4.semanticKeys,
+    overlap:
+      'まだ会話がない状態でも、近づき方の入口を探す動きが見えやすいところが重なります。',
+    difference:
+      '短い一文から始めたいときと、整えてから動きたいときに、入口の作り方の違いが表れやすいです。',
+    perspectiveOne: '短い入口から動きを考え始めやすい',
+    perspectiveTwo: '入口の形を整えてから動きを選びたい状態に見えやすい',
+    dynamicOutcome:
+      '相手の反応が見えないまま、自分の中だけで意味を置きやすく、読み取りのずれが先に立ちやすい',
+  },
+};
+
 export function buildCompatibilityFreeResultFragments(args: {
   pairAxisId: PairAxisId;
   paidTopicId: PaidTopicId;
   personAUsesFirstPerspective: boolean;
+  relationStatusId?: RelationStatusId;
+  recognitionOnly?: boolean;
 }): CompatibilityFreeResultFragments {
-  const axis = PAIR_AXIS_FREE_RESULT_FRAGMENTS[args.pairAxisId];
+  const axis =
+    args.relationStatusId === 'R1'
+      ? R1_FREE_RESULT_FRAGMENTS[args.pairAxisId]
+      : PAIR_AXIS_FREE_RESULT_FRAGMENTS[args.pairAxisId];
   const personA = args.personAUsesFirstPerspective
     ? axis.perspectiveOne
     : axis.perspectiveTwo;
-  const personB = args.personAUsesFirstPerspective
-    ? axis.perspectiveTwo
-    : axis.perspectiveOne;
+  const personB =
+    args.relationStatusId === 'R1'
+      ? R1_PARTNER_FREE_UNCERTAINTY
+      : args.personAUsesFirstPerspective
+        ? axis.perspectiveTwo
+        : axis.perspectiveOne;
+  const immediateAction =
+    args.recognitionOnly && args.relationStatusId
+      ? V2_FREE_TOPIC_OBSERVATIONS[args.relationStatusId][args.paidTopicId]
+      : args.relationStatusId === 'R1'
+        ? R1_TOPIC_IMMEDIATE_OBSERVATIONS[args.paidTopicId]
+        : TOPIC_IMMEDIATE_ACTIONS[args.paidTopicId];
 
   return {
     semanticKeys: axis.semanticKeys,
     overlap: axis.overlap,
     difference: axis.difference,
     perspectives: { personA, personB },
-    relationshipDynamic: `あなた側は、${personA}傾向があります。相手側は、${personB}傾向があります。そのため二人の間では、${axis.dynamicOutcome}。`,
-    immediateAction: TOPIC_IMMEDIATE_ACTIONS[args.paidTopicId],
+    relationshipDynamic:
+      args.relationStatusId === 'R1'
+        ? `あなた側は、${personA}傾向があります。相手側については、${R1_PARTNER_FREE_UNCERTAINTY}。そのため二人の間では、${axis.dynamicOutcome}。`
+        : `あなた側は、${personA}傾向があります。相手側は、${personB}傾向があります。そのため二人の間では、${axis.dynamicOutcome}。`,
+    immediateAction,
   };
 }
 
@@ -287,13 +525,65 @@ export function buildTeaserText(args: {
   paidTopicId: PaidTopicId;
   safetyShortText: string;
   ctaText: string;
+  relationStatusId?: RelationStatusId;
 }): string {
   const s1 = PAIR_AXIS_TEASER_OPENERS[args.pairAxisId];
-  const s2 = TOPIC_TEASER_BRIDGES[args.paidTopicId];
+  const s2 =
+    args.relationStatusId === 'R1'
+      ? R1_TOPIC_TEASER_BRIDGES[args.paidTopicId]
+      : TOPIC_TEASER_BRIDGES[args.paidTopicId];
   // Single sentence: safety short + CTA (must keep total teaser at exactly 3 sentences).
   const safetyCore = args.safetyShortText.replace(/。\s*$/u, '');
   const s3 = `${safetyCore}が、${args.ctaText}で開けます。`;
   return `${s1}${s2}${s3}`;
+}
+
+export function validateGuestFreeTeaser(args: {
+  teaserText: string;
+  ctaText: string;
+  dobs: readonly [string, string];
+  paidChapterBodies?: readonly string[];
+}): GuestFreeTeaserValidationResult {
+  // Renderer-equivalent: validate RAW teaser text (pairReadingRenderer.ts — no trim).
+  const teaserText = args.teaserText;
+  if (teaserText.length === 0) {
+    return { ok: false, code: 'teaser_empty', message: 'teaser is empty' };
+  }
+  const sentences = countSentencesJa(teaserText);
+  if (sentences !== 3) {
+    return {
+      ok: false,
+      code: 'teaser_sentence_count',
+      message: `expected 3 sentences, got ${sentences}`,
+    };
+  }
+  const len = countFullWidthChars(teaserText);
+  if (len < 120 || len > 220) {
+    return {
+      ok: false,
+      code: 'teaser_length',
+      message: `teaser length ${len} out of 120-220`,
+    };
+  }
+  const leak = findTeaserDeepeningLeakage(teaserText);
+  const audit = auditPairReadingText(teaserText, { dobs: args.dobs });
+  if (leak.length > 0 || !audit.ok) {
+    return {
+      ok: false,
+      code: 'teaser_unsafe',
+      message: [...leak, ...audit.hits].join(','),
+    };
+  }
+  for (const body of args.paidChapterBodies ?? []) {
+    if (textsAreNearDuplicates(teaserText, body)) {
+      return { ok: false, code: 'teaser_paid_duplicate', message: 'near duplicate paid chapter' };
+    }
+  }
+  const ctaCore = args.ctaText.replace(/[。！？]$/u, '');
+  if (teaserText.split(ctaCore).length > 2) {
+    return { ok: false, code: 'teaser_cta_duplicate', message: 'duplicate cta' };
+  }
+  return { ok: true };
 }
 
 export function buildTodayClueBody(args: {
@@ -303,7 +593,10 @@ export function buildTodayClueBody(args: {
 }): string {
   const core = TOPIC_CLUE_CORE[args.paidTopicId];
   const status = STATUS_EMPHASIS[args.relationStatusId].clueAdd;
-  const temp = TEMPERATURE_CLUE_MOD[args.temperatureId];
+  const temp =
+    args.relationStatusId === 'R1'
+      ? R1_TEMPERATURE_CLUE_MOD[args.temperatureId]
+      : TEMPERATURE_CLUE_MOD[args.temperatureId];
   return [core, status, temp].filter(Boolean).join('\n\n');
 }
 

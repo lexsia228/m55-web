@@ -91,6 +91,7 @@ describe('pair free editorial copy v6', () => {
         personBBirthDate: fixture.personB,
         personAUsesFirstPerspective: true,
         focusLabel: fixture.focus,
+        relationStatusId: 'R3',
       });
       const blob = `${spec.betweenThem}\n${spec.misreadLoop}\n${spec.reset}\n${spec.premiumContinuation}`;
       assert.doesNotMatch(blob, /今どちらの日か|見えやすい反応|土台の差が|同じ土台でも|接点の入口|基調の寄り/);

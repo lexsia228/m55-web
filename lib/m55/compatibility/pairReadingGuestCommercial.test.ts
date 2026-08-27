@@ -47,7 +47,12 @@ function mustBuild(
     pairAxisOverride?: PairAxisId;
   },
 ) {
-  const outcome = buildCompatibilityPublicResult(input, state);
+  const outcome = buildCompatibilityPublicResult(
+    input,
+    state?.relationStatusId ?? 'R2',
+    undefined,
+    state,
+  );
   if (!outcome.ok) assert.fail(outcome.message);
   return outcome.value;
 }

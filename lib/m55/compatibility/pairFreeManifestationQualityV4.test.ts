@@ -104,6 +104,7 @@ function insight(
     personBBirthDate: personB,
     personAUsesFirstPerspective: true,
     focusLabel: '会話の進め方',
+    relationStatusId: 'R3',
   });
 }
 
@@ -163,6 +164,8 @@ describe('pair free manifestation quality v4', () => {
   it('guest overlay stays DOB-free in public copy while recording both births', () => {
     const result = buildCompatibilityPublicResult(
       { personA: '1983-02-28', personB: '1997-06-15' },
+      'R3',
+      undefined,
       undefined,
       TEMPO,
     );

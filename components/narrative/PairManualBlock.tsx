@@ -45,13 +45,13 @@ export default function PairManualBlock({ manual }: { manual: ManualSpecV1 }) {
         ) : null}
         {entry ? (
           <div className={styles.relationSide}>
-            <span className={styles.relationLabel}>すれ違い</span>
+            <span className={styles.relationLabel}>{entry.labelJa}</span>
             <p className={styles.relationBody}>{entry.bodyJa}</p>
           </div>
         ) : null}
         {ret ? (
           <div className={styles.relationReturn}>
-            <span className={styles.relationLabel}>戻り</span>
+            <span className={styles.relationLabel}>{ret.labelJa}</span>
             <p className={styles.relationBody}>{ret.bodyJa}</p>
           </div>
         ) : null}

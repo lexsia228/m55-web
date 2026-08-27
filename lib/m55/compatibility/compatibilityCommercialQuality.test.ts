@@ -9,8 +9,12 @@ import { dirname, join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { buildCompatibilityPublicResult } from './pairReadingGuestResult';
+import { stripFocusForPublicGuestAnswers } from './pairReadingGuestClientSafe';
 import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1';
 import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
+import { questionsForRelationStage, stageSafeFocusOptions } from './currentContextContract.v2';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../topFreeEntryPublicCopy';
+import type { RelationStatusId } from './pairReadingTypes';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (relative: string) => readFileSync(join(repoRoot, relative), 'utf8');
@@ -69,6 +73,8 @@ function buildFixture(index: number) {
   const fixture = FIXTURES[index]!;
   const outcome = buildCompatibilityPublicResult(
     { personA: fixture.personA, personB: fixture.personB },
+    'R3',
+    undefined,
     undefined,
     fixture.answers,
   );
@@ -76,6 +82,104 @@ function buildFixture(index: number) {
   if (!outcome.ok) throw new Error('unreachable');
   return outcome.value;
 }
+
+describe('pair free commercial authority — no pre-result theme selector', () => {
+  const PUBLIC_BODY_QUESTION_COUNTS: Record<RelationStatusId, number> = {
+    R1: 2,
+    R2: 2,
+    R3: 4,
+    R4: 2,
+    R5: 3,
+    R6: 4,
+  };
+
+  for (const stage of ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'] as const) {
+    it(`keeps ${stage} public questionnaire body-only with ${PUBLIC_BODY_QUESTION_COUNTS[stage]} questions`, () => {
+      const questions = questionsForRelationStage(stage);
+      assert.equal(questions.length, PUBLIC_BODY_QUESTION_COUNTS[stage]);
+      assert.equal(questions.some((question) => question.questionId === 'focus'), false);
+      assert.equal(
+        questions.every((question) => question.questionId !== 'focus'),
+        true,
+      );
+    });
+  }
+
+  it('removes public user-intent chrome from the guest experience', () => {
+    const component = read(GUEST);
+    assert.doesNotMatch(component, /今いちばん整理したいこと：/);
+    assert.doesNotMatch(component, /skip_focus/);
+    assert.doesNotMatch(component, /stageSafeFocusOptions/);
+    assert.doesNotMatch(component, /今、このレポートで特に整理したいことはありますか/);
+    assert.match(component, /今の二人の読み解きを見る/);
+  });
+
+  it('keeps Home Pair Free copy recognition-only without actionable experiment promise', () => {
+    const pairFreeBlob = [
+      TOP_FREE_ENTRY_PUBLIC_COPY.home.pairFreeBodyJa,
+      TOP_FREE_ENTRY_PUBLIC_COPY.home.productMapPairBodyJa,
+    ].join('\n');
+    assert.doesNotMatch(pairFreeBlob, /試せること/);
+    assert.doesNotMatch(pairFreeBlob, /一度だけ試す/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.pairFreeBodyJa, /重なりや違い、すれ違いが続く流れ/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.pairFreeBodyJa, /決めつけずに読み解きます/);
+  });
+
+  it('keeps Paid bridge toolkit promises separate from Free Home copy', () => {
+    const component = read(GUEST);
+    assert.match(component, /今週一度だけ試すこと/);
+    assert.match(component, /そのまま使える一言/);
+    assert.match(component, /場面から戻る手順/);
+    assert.match(component, /この二人の続きとして読めること/);
+  });
+
+  it('sanitizes restored guest session answers before public rebuild', () => {
+    const component = read(GUEST);
+    assert.match(component, /parseSanitizedGuestJourneyV3/);
+    assert.match(component, /sanitizeGuestSessionAnswers/);
+    assert.match(component, /prepareGuestSubmitAnswers/);
+    assert.match(component, /setAnswers\(completeAnswers\)/);
+  });
+
+  it('maps public paid bridge chapters from axis/topic authority not legacy focus', () => {
+    const pair = { personA: '1982-02-28', personB: '1997-06-15' };
+    const answers = {
+      expressionPace: 'words_soon' as const,
+      contactPace: 'light_contact' as const,
+      focus: 'distance_focus' as const,
+    };
+    const built = buildCompatibilityPublicResult(pair, 'R2', answers);
+    assert.equal(built.ok, true);
+    if (!built.ok) throw new Error('unreachable');
+    assert.deepEqual(
+      built.value.mappedChapters.map((chapter) => chapter.chapterId),
+      ['ch_pair_gap', 'ch_topic_deep'],
+    );
+    assert.ok(built.value.mappedChapters.every((chapter) => chapter.currentConnection));
+    assert.ok(built.value.mappedChapters.every((chapter) => chapter.concreteValue));
+    for (const focus of stageSafeFocusOptions('R2')) {
+      const variant = buildCompatibilityPublicResult(pair, 'R2', { ...answers, focus });
+      assert.equal(variant.ok, true);
+      if (!variant.ok) throw new Error('unreachable');
+      assert.deepEqual(variant.value.mappedChapters, built.value.mappedChapters);
+    }
+  });
+
+  it('keeps dormant premiumContinuation user-intent debt off guest/manual/share surfaces', () => {
+    const guest = read(GUEST);
+    const manual = read('lib/m55/narrative/projectCompatibilityFreeNarrativeV1.ts');
+    const share = read('lib/m55/narrative/projectPublicShareV1.ts');
+    const blob = [guest, manual, share].join('\n');
+    assert.doesNotMatch(blob, /premiumContinuation/);
+    assert.doesNotMatch(blob, /今いちばん整理したいこと（/);
+    const legacyFocus = stripFocusForPublicGuestAnswers({
+      expressionPace: 'words_soon',
+      contactPace: 'light_contact',
+      focus: 'conversation_focus',
+    });
+    assert.equal('focus' in legacyFocus, false);
+  });
+});
 
 describe('free pair result renders a relationship dynamic, not two profiles', () => {
   it('surfaces the pair-level dynamic field in the free result', () => {
@@ -169,7 +273,7 @@ describe('paid report opening delivers the first thirty seconds', () => {
     assert.match(component, /data-testid="paid-report-opening-handling"/);
     assert.match(component, /Aに出やすい動き/);
     assert.match(component, /Bに出やすい動き/);
-    assert.match(component, /この連鎖を戻す入口/);
+    assert.match(component, /この連鎖の入口/);
     assert.match(component, /最初に使える一言/);
     const openingAt = component.indexOf('paid-report-opening-moves');
     const stackAt = component.indexOf('styles.chapterStack');
@@ -289,7 +393,7 @@ describe('paid report opening delivers the first thirty seconds', () => {
       personAUsesFirstPerspective: true,
     });
     const about = snapshot.chapters.find((chapter) => chapter.key === 'ch_about');
-    assert.equal(about?.title, '戻るときの最初の接点');
+    assert.equal(about?.title, '最初の接点を考える場面');
   });
 });
 

@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 import {
   PAID_COMPATIBILITY_REPORT_VERSION,
+  PAID_COMPATIBILITY_R1_TOPIC_DEEP_TITLES,
   paidCompatibilityChapterTitle,
   type PaidCompatibilityReportSnapshot,
 } from './buildPaidCompatibilityReportV1';
@@ -11,7 +12,12 @@ import {
 import {
   COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS,
   COMPATIBILITY_CURRENT_CONTEXT_VERSION,
+  type CompatibilityCurrentContextAnswers,
 } from './currentContextContract.v1';
+import {
+  COMPATIBILITY_CURRENT_CONTEXT_VERSION_V2,
+  questionsForRelationStage,
+} from './currentContextContract.v2';
 import { COMPATIBILITY_REPORT_FULL_PRODUCT_KEY } from './compatibilityCommerceAuthority';
 
 type DbClient = ReturnType<typeof getSupabaseAdmin>;
@@ -42,12 +48,84 @@ const UUID_RE =
 const RAW_DOB_RE = /\b\d{4}-\d{2}-\d{2}\b/;
 const FORBIDDEN_SNAPSHOT_KEYS =
   /"(?:birthDate|dob|dobHash|nickname|userId|clerkId|stripeId|matrixScore|prompt|providerMetadata|answers|decisionPace|disagreement|distance|expressionPace|returnPattern|focus)"\s*:/i;
-const RAW_CURRENT_CONTEXT_ANSWER_IDS = COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS.flatMap(
-  (question) => question.choices.map((choice) => choice.answerId),
-);
+const FORBIDDEN_PROVIDER_ID_PATTERNS = [
+  /user_[A-Za-z0-9]{10,}/,
+  /cus_[A-Za-z0-9]{10,}/,
+  /sub_[A-Za-z0-9]{10,}/,
+  /acct_[A-Za-z0-9]{10,}/,
+  /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,
+  /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i,
+] as const;
+const RAW_RELATION_STATUS_IDS = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'] as const;
+const RAW_V2_ANSWER_IDS = questionsForRelationStage('R3')
+  .flatMap((question) => question.choices.map((choice) => choice.answerId))
+  .concat(
+    questionsForRelationStage('R1').flatMap((q) => q.choices.map((c) => c.answerId)),
+    questionsForRelationStage('R2').flatMap((q) => q.choices.map((c) => c.answerId)),
+    questionsForRelationStage('R4').flatMap((q) => q.choices.map((c) => c.answerId)),
+    questionsForRelationStage('R5').flatMap((q) => q.choices.map((c) => c.answerId)),
+  );
+const RAW_CURRENT_CONTEXT_ANSWER_IDS = [
+  ...COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS.flatMap(
+    (question) => question.choices.map((choice) => choice.answerId),
+  ),
+  ...RAW_V2_ANSWER_IDS,
+];
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+const PAID_SNAPSHOT_TOP_LEVEL_KEYS = [
+  'version',
+  'reportTitle',
+  'relationshipSummary',
+  'sharedFoundation',
+  'differentFoundation',
+  'recurringLoop',
+  'highlightedChapterKeys',
+  'currentContext',
+  'chapters',
+  'safetyNote',
+] as const;
+
+const PAID_CHAPTER_KEYS = [
+  'key',
+  'number',
+  'title',
+  'scene',
+  'personAPerspective',
+  'personBPerspective',
+  'relationshipLoop',
+  'resetSteps',
+  'phraseSpeaker',
+  'usablePhrase',
+  'smallExperiment',
+  'reflectionQuestion',
+  'sceneInteractionId',
+] as const;
+
+const CURRENT_CONTEXT_DISPLAY_KEYS = [
+  'questionnaireContractVersion',
+  'currentExpression',
+  'relationshipLoop',
+  'relationshipLoopSteps',
+  'glanceLabel',
+  'immediateAction',
+  'focusLabel',
+  'readingGuide',
+  'highlightedChapterKeys',
+  'chapterPreview',
+] as const;
+
+const CHAPTER_PREVIEW_KEYS = ['chapterKey', 'reason', 'concreteValue'] as const;
+
+function hasExactKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+): boolean {
+  const keys = Object.keys(value);
+  return keys.length === allowed.length && keys.every((key) => allowed.includes(key));
 }
 
 export function isOpaqueCompatibilityId(value: unknown): value is string {
@@ -57,8 +135,10 @@ export function isOpaqueCompatibilityId(value: unknown): value is string {
 function isDisplaySafeCurrentContext(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const context = value as Record<string, unknown>;
+  if (!hasExactKeys(context, CURRENT_CONTEXT_DISPLAY_KEYS)) return false;
   if (
-    context.questionnaireContractVersion !== COMPATIBILITY_CURRENT_CONTEXT_VERSION ||
+    (context.questionnaireContractVersion !== COMPATIBILITY_CURRENT_CONTEXT_VERSION &&
+      context.questionnaireContractVersion !== COMPATIBILITY_CURRENT_CONTEXT_VERSION_V2) ||
     !isNonEmptyString(context.currentExpression) ||
     !isNonEmptyString(context.relationshipLoop) ||
     !isNonEmptyString(context.glanceLabel) ||
@@ -81,6 +161,7 @@ function isDisplaySafeCurrentContext(value: unknown): boolean {
   return context.chapterPreview.every((preview) => {
     if (!preview || typeof preview !== 'object' || Array.isArray(preview)) return false;
     const item = preview as Record<string, unknown>;
+    if (!hasExactKeys(item, CHAPTER_PREVIEW_KEYS)) return false;
     return (
       typeof item.chapterKey === 'string' &&
       CHAPTER_IDS.includes(item.chapterKey as any) &&
@@ -94,58 +175,80 @@ export function isPaidCompatibilityReportSnapshot(
   value: unknown,
 ): value is PaidCompatibilityReportSnapshot {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  const snapshot = value as Partial<PaidCompatibilityReportSnapshot>;
+  const snapshot = value as Record<string, unknown>;
+  const optionalCurrentContext = snapshot.currentContext === undefined;
   if (
-    snapshot.version !== PAID_COMPATIBILITY_REPORT_VERSION ||
-    snapshot.reportTitle !== '二人の相性レポート' ||
-    !isNonEmptyString(snapshot.relationshipSummary) ||
-    !isNonEmptyString(snapshot.sharedFoundation) ||
-    !isNonEmptyString(snapshot.differentFoundation) ||
-    !isNonEmptyString(snapshot.recurringLoop) ||
-    !isNonEmptyString(snapshot.safetyNote) ||
-    !Array.isArray(snapshot.highlightedChapterKeys) ||
-    !Array.isArray(snapshot.chapters) ||
-    snapshot.chapters.length !== CHAPTER_IDS.length ||
-    (snapshot.currentContext !== undefined &&
-      !isDisplaySafeCurrentContext(snapshot.currentContext))
+    !hasExactKeys(
+      snapshot,
+      optionalCurrentContext
+        ? PAID_SNAPSHOT_TOP_LEVEL_KEYS.filter((key) => key !== 'currentContext')
+        : [...PAID_SNAPSHOT_TOP_LEVEL_KEYS],
+    )
+  ) {
+    return false;
+  }
+  const typedSnapshot = snapshot as Partial<PaidCompatibilityReportSnapshot>;
+  if (
+    typedSnapshot.version !== PAID_COMPATIBILITY_REPORT_VERSION ||
+    typedSnapshot.reportTitle !== '二人の相性レポート' ||
+    !isNonEmptyString(typedSnapshot.relationshipSummary) ||
+    !isNonEmptyString(typedSnapshot.sharedFoundation) ||
+    !isNonEmptyString(typedSnapshot.differentFoundation) ||
+    !isNonEmptyString(typedSnapshot.recurringLoop) ||
+    !isNonEmptyString(typedSnapshot.safetyNote) ||
+    !Array.isArray(typedSnapshot.highlightedChapterKeys) ||
+    !Array.isArray(typedSnapshot.chapters) ||
+    typedSnapshot.chapters.length !== CHAPTER_IDS.length ||
+    (typedSnapshot.currentContext !== undefined &&
+      !isDisplaySafeCurrentContext(typedSnapshot.currentContext))
   ) {
     return false;
   }
 
   for (let index = 0; index < CHAPTER_IDS.length; index += 1) {
-    const chapter = snapshot.chapters[index];
+    const chapter = typedSnapshot.chapters![index] as Record<string, unknown>;
     const key = CHAPTER_IDS[index];
+    if (!hasExactKeys(chapter, PAID_CHAPTER_KEYS)) return false;
+    const typedChapter = chapter as PaidCompatibilityReportSnapshot['chapters'][number];
     const titleIsCanonical =
       key === 'ch_topic_deep'
-        ? PAID_TOPIC_CATALOG.some((topic) => topic.labelJa === chapter?.title)
-        : chapter?.title === paidCompatibilityChapterTitle(key);
+        ? PAID_TOPIC_CATALOG.some((topic) => topic.labelJa === typedChapter.title) ||
+          PAID_COMPATIBILITY_R1_TOPIC_DEEP_TITLES.includes(
+            typedChapter.title as (typeof PAID_COMPATIBILITY_R1_TOPIC_DEEP_TITLES)[number],
+          )
+        : typedChapter.title === paidCompatibilityChapterTitle(key);
     if (
-      !chapter ||
-      chapter.key !== key ||
-      chapter.number !== index + 1 ||
+      typedChapter.key !== key ||
+      typedChapter.number !== index + 1 ||
       !titleIsCanonical ||
-      !isNonEmptyString(chapter.scene) ||
-      !isNonEmptyString(chapter.personAPerspective) ||
-      !isNonEmptyString(chapter.personBPerspective) ||
-      !Array.isArray(chapter.relationshipLoop) ||
-      chapter.relationshipLoop.length < 3 ||
-      !chapter.relationshipLoop.every(isNonEmptyString) ||
-      !Array.isArray(chapter.resetSteps) ||
-      chapter.resetSteps.length < 2 ||
-      !chapter.resetSteps.every(isNonEmptyString) ||
-      !['personA', 'personB', 'either'].includes(chapter.phraseSpeaker) ||
-      !isNonEmptyString(chapter.usablePhrase) ||
-      !isNonEmptyString(chapter.smallExperiment) ||
-      !isNonEmptyString(chapter.reflectionQuestion)
+      !isNonEmptyString(typedChapter.scene) ||
+      !isNonEmptyString(typedChapter.personAPerspective) ||
+      !isNonEmptyString(typedChapter.personBPerspective) ||
+      !Array.isArray(typedChapter.relationshipLoop) ||
+      typedChapter.relationshipLoop.length < 3 ||
+      !typedChapter.relationshipLoop.every(isNonEmptyString) ||
+      !Array.isArray(typedChapter.resetSteps) ||
+      typedChapter.resetSteps.length < 2 ||
+      !typedChapter.resetSteps.every(isNonEmptyString) ||
+      !['personA', 'personB', 'either'].includes(typedChapter.phraseSpeaker) ||
+      !isNonEmptyString(typedChapter.usablePhrase) ||
+      !isNonEmptyString(typedChapter.smallExperiment) ||
+      !isNonEmptyString(typedChapter.reflectionQuestion) ||
+      !isNonEmptyString(typedChapter.sceneInteractionId) ||
+      RAW_RELATION_STATUS_IDS.some((statusId) =>
+        typedChapter.sceneInteractionId.includes(statusId),
+      )
     ) {
       return false;
     }
   }
 
-  const serialized = JSON.stringify(snapshot);
+  const serialized = JSON.stringify(typedSnapshot);
   return (
     !RAW_DOB_RE.test(serialized) &&
     !FORBIDDEN_SNAPSHOT_KEYS.test(serialized) &&
+    !FORBIDDEN_PROVIDER_ID_PATTERNS.some((pattern) => pattern.test(serialized)) &&
+    !RAW_RELATION_STATUS_IDS.some((statusId) => serialized.includes(`"${statusId}"`)) &&
     !RAW_CURRENT_CONTEXT_ANSWER_IDS.some((answerId) => serialized.includes(answerId))
   );
 }
