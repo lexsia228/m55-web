@@ -659,3 +659,75 @@ This decision authorizes **only** durable transition recording in the four-file 
 | NEXT SINGLE ACTION | **WAIT_FOR_CHATGPT_G3_03_PATCH2_REVIEW** after Preview runtime proof |
 | PATCH-2 | draft POST ownership = Clerk `auth()` only; body `clerkUserId` removed from client payload |
 | PR | **NOT OPENED** |
+
+### 2026-08-27 — Human-approved commercial growth strategy (docs-only durable recording)
+
+**Status:** Human **APPROVED** · **docs-only** durable recording on branch `docs/m55-commercial-strategy-durable-v1` from `origin/main` @ `1ec9667da1da51470a32feee6fbdf2b9949ff5fb`. Records Human-approved commercial strategy for zero-memory GPT recovery. **No product, provider, implementation, or executable-gate mutation.**
+
+| Decision | Value |
+|---|---|
+| Authority scope | `M55_DECISION_LOG.md` · `M55_ROADMAP.md` only |
+| Executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` — **unchanged** |
+| Current execution gate | **PAIR-PREMIUM-ACTIVATION-DECISION** — **unchanged** |
+| Pair Premium | **NOT_ACTIVATED** — **unchanged** |
+| Pair Free→Paid mapping | **HUMAN_APPROVED_COMPLETE** · `repeatMapping` = **PROHIBITED** — **do not reopen** absent actual invalidator |
+| Wave-A / Free→Paid remapping | **PROHIBITED** absent actual invalidator |
+
+#### A. Pair Premium sales funnel first
+
+Commercial sequence starts with completing/verifying the **real merchandise/payment funnel**:
+
+Pair Free result → paid value bridge → merchandise/product decision → ¥1,480（税込） one-time semantics → what user receives → checkout → payment → success/processing → owned Paid report → revisit/recovery.
+
+Pair Free→Paid mapping remains **HUMAN_APPROVED_COMPLETE**; `repeatMapping` = **PROHIBITED**. Do not reopen Wave-A or Free/Paid mapping absent actual invalidator.
+
+#### B. M55 independent-recognition principle
+
+Do **not** create perceived accuracy by asking the user to choose a result theme/focus first and then reflecting it back.
+
+Desired product-experience objective: M55 independently uses supplied two-person information and current relationship context so the user naturally perceives 「M55ちゃんと二人のことを読み解いてくれる」.
+
+Do **not** encode unsupported accuracy claims, science claims, deterministic claims, or self-praise. The removed public pre-result focus/theme selection remains removed absent new explicit Human authority.
+
+#### C. Social share commercial experience — future
+
+After Pair Premium reaches an appropriate commercial closure: improve social sharing for **both** Personal Free and Pair Free / compatibility.
+
+Human concern: Personal Free share currently behaves more like a placed utility than a desirable/luxury M55 product moment.
+
+Target acquisition experience: result → desire to share → premium recognizable M55 presentation → recipient curiosity → recipient enters M55 Free → potential Paid conversion.
+
+Pair sharing requires its own safe two-person presentation. Do **not** imply partner answered, partner consented, or partner has specific feelings or intent. Do not expose inappropriate private details.
+
+Future concept: **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** — **NON-EXECUTABLE FUTURE STRATEGY ONLY**.
+
+#### D. Referral / creator commerce — future
+
+After (1) Pair Premium real sales funnel and (2) Social Share commercial experience, Human wants a referral/creator commerce design lane.
+
+Strategic intent:
+
+- purchaser status **not** required to become a referrer
+- Free user may become a promoter
+- commission only from genuine attributed eligible customer purchase
+
+**TARGET_COMMISSION_RATE = 50%** — **HUMAN TARGET ONLY** · **NOT YET PROVIDER/LEGAL VERIFIED**.
+
+Future fresh verification required: Stripe/provider capabilities and terms · Japanese legal/commercial requirements · advertising/referral disclosure · payout/KYC · tax · fraud/abuse · refund/chargeback reversal · attribution · unit economics.
+
+Strategic anti-MLM rules:
+
+- single-tier direct referral only
+- no reward merely for recruiting referrers
+- no downstream override commission
+- no recursive multi-level compensation
+- no joining fee
+- no purchase/inventory requirement to qualify
+- no compensation primarily based on recruitment
+- self-referral/circular referral prevention
+- duplicate identity/payment abuse prevention
+- refund/chargeback commission reversal
+
+Do **not** decide yet: Stripe Connect vs another mechanism · payout schedule · attribution cookie/window · payout threshold · KYC implementation · tax reporting implementation · referral-link architecture · exact commission eligibility basis · whether 50% is calculated before/after tax, Stripe fees, refunds, etc. Those belong to the future referral design gate.
+
+Future concept: **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** — **IMPLEMENTATION NOT AUTHORIZED NOW**.
