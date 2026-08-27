@@ -22,33 +22,29 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Field | Value |
 |---|---|
 | Macro lane | **PAIR LANE** |
+| Pair Wave-A | **USER_VISIBLE_CLOSED_GREEN** |
 | Pair implementation | **COMPLETE** (`pairImplementation=COMPLETE`) |
 | Pair Premium | **NOT_ACTIVATED** |
 | Pair free→paid mapping | **COMPLETE** — `PAIR-FREE-TO-PAID-MAPPING-FIRST` · repeat mapping **PROHIBITED** |
 | Pair minimal implementation | **COMPLETE** — `PAIR-MINIMAL-IMPLEMENTATION` |
-| Pair relation-stage Wave-A source/local implementation | **CLOSED GREEN** — `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` |
-| Product branch (observed evidence) | `feat/m55-pair-relation-stage-v1` |
+| Pair relation-stage Wave-A source/local implementation | **CLOSED GREEN** |
+| Pair Wave-A actual-browser commercial-quality verification | **CLOSED GREEN** — `PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION` |
+| Product source SHA (observed evidence) | `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
 | Product worktree (observed evidence) | `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` (WT-049) |
-| Product feature head (observed evidence @ closure) | `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
-| Product implementation commit (observed evidence) | `9c7245b1ee0c98a3418520e3160885a80cc1c62a` — `fix(pair): harden free result focus and paid boundary` |
-| Client boundary fix commit (observed evidence) | `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` — `fix(pair): isolate guest client lifecycle` |
-| Reviewed cumulative Pair diff SHA-256 (observed evidence) | `64f9d5b68446da7718a0b5ada5d0947e86ec8bbb45983116bff48876505f931c` |
-| Independent Codex source review (observed evidence) | **GREEN** · P0=0 · P1=0 · P2=0 |
-| Focused tests (observed evidence) | **354/354 PASS** |
-| PR #165 (observed evidence) | **OPEN** · merged=false · mergeable=true |
+| PR #165 (observed evidence) | **MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99` · merge time `2026-08-27T03:32:05Z` |
 | Preview deployment (observed evidence) | `dpl_GpmUfdbJReqD74RpRcCQ1GQJqYUC` **READY** @ `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
-| Preview branch alias (observed evidence) | `m55-webv2-git-feat-m55-pair-relation-stage-v1-m55-official.vercel.app` |
-| Remote CI (observed evidence) | **SUCCESS** — 10 checks completed · failure=0 |
-| Source re-review policy | **PROHIBITED** absent dependency invalidation — see `pairWaveAClosureTransition.invalidatingDependencies` in execution state |
-| Actual-browser commercial-quality verification | **NOT CLOSED** — next product gate after cold-start |
-| Human commercial-quality acceptance (Wave-A delta) | **NOT RE-CLOSED** |
-| Post-merge main/Production observation | **NOT DONE** |
+| Production deployment (observed evidence) | `dpl_8incbWrtaJunn7T3G8wGzozTQG8E` **READY** @ `3a87ee84129086a261c4f34a074e8b63fd735b99` |
+| Safari actual-browser (observed evidence) | **GREEN** · STP Release 250 · Safari 27.0 · WebKit 21626.1.2.19.2 · P0=0 · P1=0 · P2=1 |
+| Human commercial-quality approval | **APPROVED** |
+| Accepted nonblocking P2 | **P2-A11Y-RESULT-HEADING-LEVEL** — result top visible heading observed as H2 without observed H1 |
+| Safari evidence invalidated by merge | **NO** — main-delta/product-path intersection = 0 |
+| Pair purchase funnel | **NOT GREEN** — merchandise shelf · checkout · payment · owned report delivery unproven |
+| Source/browser replay policy | **PROHIBITED** absent dependency invalidation — see `pairWaveAUserVisibleClosureTransition` |
 | Live Git runtime (HEAD · origin/main · divergence · dirty/staged) | **derive via `npm run m55:context`** — not timeless SSOT |
-| CURRENT EXECUTION GATE | **CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN** |
-| NEXT SINGLE ACTION | **CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN** |
-| Product work after control tower | **PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION** |
-| Cold-start revalidation | **REQUIRED** — `acceptance.revalidationRequired=true` · `latestResult=PENDING_REVALIDATION` |
-| prohibited expansion | replay closed Wave-A source findings absent invalidation · PR #165 merge before browser + Human acceptance · Pair Premium activation · price/Stripe/DB/Clerk/provider/env change · benchmark reselection · payment/fulfillment evidence replay |
+| CURRENT EXECUTION GATE | **PAIR-PREMIUM-ACTIVATION-DECISION** |
+| NEXT SINGLE ACTION | **PAIR-PREMIUM-ACTIVATION-DECISION** |
+| Product work after control tower | **PAIR-PREMIUM-ACTIVATION-DECISION** |
+| prohibited expansion | replay closed Wave-A findings absent invalidation · Pair Free→Paid remapping · Pair Premium activation without decision gate · benchmark reselection · provider mutation without Human GO |
 
 ### Completed sub-gates (CLOSED — do not replay)
 
@@ -56,9 +52,9 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 - `PAIR-FREE-TO-PAID-MAPPING-FIRST` — **CLOSED GREEN**
 - `PAIR-MINIMAL-IMPLEMENTATION` — **CLOSED GREEN**
 - `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT` — **CLOSED GREEN**
-- `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` — **CLOSED GREEN** — findings A–Q durably recorded in `pairWaveAClosureTransition`
-- Phase-B paid DTR readability implementation — **CLOSED GREEN** (historical)
-- Control Tower cold-start / generic gate progression — **CLOSED GREEN** (historical)
+- `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` — **CLOSED GREEN**
+- `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` — **CLOSED GREEN**
+- `PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION` — **USER_VISIBLE_CLOSED_GREEN**
 
 ## PAIR LANE ENTRANCE — WAVE 0 LIVE PAID DTR READABILITY — HISTORICAL SNAPSHOT (SUPERSEDED)
 

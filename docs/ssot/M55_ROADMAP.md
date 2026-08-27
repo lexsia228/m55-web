@@ -7,7 +7,7 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 
 1. Commercial Funnel SSOT ← **complete**
 2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share **PR #81 MERGED** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` 2026-08-01 — commercial + technical closure complete)
-3. 二人向け無料→有料 — **ACTIVE PAIR LANE (macro)**; Pair free→paid mapping **COMPLETE**; Pair minimal implementation **COMPLETE**; Pair relation-stage Wave-A source closure **CLOSED GREEN**; actual-browser commercial-quality verification **NEXT** after cold-start; PR #165 **OPEN**; Pair Premium **NOT_ACTIVATED**
+3. 二人向け無料→有料 — **ACTIVE PAIR LANE (macro)**; Pair Wave-A **USER_VISIBLE_CLOSED_GREEN**; PR #165 **MERGED**; Production **READY** @ product merge SHA; **NEXT** = `PAIR-PREMIUM-ACTIVATION-DECISION`; Pair Premium **NOT_ACTIVATED**
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
@@ -76,13 +76,13 @@ Fixed Pair entrance order:
 10. Pair free→paid mapping-first — **COMPLETE**
 11. minimal Pair implementation — **COMPLETE**
 12. Pair relation-stage Wave-A source/local implementation — **CLOSED GREEN**
-13. **PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION** — **NEXT** (after `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`)
-14. Human commercial-quality acceptance of invalidated user-visible Pair Free flow — **pending**
-15. PR #165 merge authorization / merge — **pending** (only after browser + Human acceptance GREEN)
-16. Fresh post-merge origin/main + CI + Production/Preview observation — **pending**
-17. Pair Premium activation decision — **later** · **NOT_ACTIVATED**
+13. Safari actual-browser commercial-quality verification — **USER_VISIBLE_CLOSED_GREEN**
+14. Human commercial-quality approval — **APPROVED**
+15. PR #165 merge — **MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99`
+16. post-merge Product Production READY observation — **CLOSED GREEN** @ `dpl_8incbWrtaJunn7T3G8wGzozTQG8E`
+17. **PAIR-PREMIUM-ACTIVATION-DECISION** — **NEXT** · decision scope only · **NOT_ACTIVATED**
 
-**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_EXECUTION_STATE.json`. Pair implementation is **COMPLETE** on product branch evidence. Pair Premium is **NOT_ACTIVATED**.
+**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_EXECUTION_STATE.json`. Pair implementation is **COMPLETE**. Pair Premium is **NOT_ACTIVATED**. Pair purchase funnel is **NOT GREEN**.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 

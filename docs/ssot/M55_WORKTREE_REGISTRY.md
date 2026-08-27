@@ -58,7 +58,7 @@ Source command for volatile facts: **`npm run m55:context`** (preferred) or manu
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-26 Pair Wave-A source closure evidence) — authoritative, read this first:** Durable **ACTIVE lane = PAIR LANE**. Active product worktree **WT-049** `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1`; branch `feat/m55-pair-relation-stage-v1`; feature head observed @ `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1`; PR **#165 OPEN** (not merged). Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` (fail-closed revalidation before next product gate). Product work after control tower: **`PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION`**. Pair relation-stage Wave-A source/local implementation **CLOSED GREEN** — independent Codex review GREEN · 354 focused tests · Preview READY @ `81a3412` · remote CI SUCCESS. Source re-review **PROHIBITED** absent dependency invalidation. Actual-browser/Human commercial acceptance **NOT CLOSED**. Pair Premium **NOT_ACTIVATED**. No provider/DB/Stripe/Clerk/env mutation in this closure.. Explicit freezes retained: Pair Free→Paid mapping repeat **PROHIBITED** · benchmark reselection **PROHIBITED**.
+**CURRENT (2026-08-27 Pair Wave-A user-visible closure) — authoritative, read this first:** Durable **ACTIVE lane = PAIR LANE**. Product worktree **WT-049** `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1`; branch `feat/m55-pair-relation-stage-v1`; **USER_VISIBLE_CLOSED_GREEN** · PR **#165 MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99`; Production **READY** @ `dpl_8incbWrtaJunn7T3G8wGzozTQG8E`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `PAIR-PREMIUM-ACTIVATION-DECISION`. Pair Wave-A source + Safari actual-browser + Human commercial approval **CLOSED GREEN**. Source/browser replay **PROHIBITED** absent dependency invalidation. Pair Premium **NOT_ACTIVATED**. Pair purchase funnel **NOT GREEN**.. Explicit freezes retained: Pair Free→Paid mapping repeat **PROHIBITED** · benchmark reselection **PROHIBITED**.
 
 **CURRENT (2026-08-21 Pair lane entrance) — historical:** PR #149 **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; G5 Wave 1 **CLOSED GREEN**; G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA**. Durable **ACTIVE lane = PAIR LANE**. Active worktree **WT-048** `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1`; branch `feat/m55-pair-funnel-v1`; intended upstream **`origin/feat/m55-pair-funnel-v1`**. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_CURRENT_STATE.md` § PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)** only. Wave 0 read-only mapping is **CLOSED GREEN** — do not replay. Pair implementation has not started on merged runtime. Pair Premium **NOT ACTIVATED**.
 
@@ -1156,7 +1156,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-### WT-049 — Pair relation-stage semantic correction (WAVE_A_SOURCE_CLOSED / PR_OPEN)
+### WT-049 — Pair relation-stage semantic correction (USER_VISIBLE_CLOSED_GREEN / MERGED / RETAINED)
 
 | Field | Value |
 |---|---|
@@ -1164,19 +1164,19 @@ Historical post-merge transition snapshots remain recorded for audit.
 | branch | `feat/m55-pair-relation-stage-v1` |
 | intended upstream | fresh `origin/main` |
 | live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
-| lifecycle | **WAVE_A_SOURCE_CLOSED / PR_OPEN** |
+| lifecycle | **USER_VISIBLE_CLOSED_GREEN / MERGED / RETAINED** |
 | macro lane | **PAIR LANE** |
 | feature head (observed evidence) | `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
-| related PR | **#165 OPEN** — merged=false · mergeable=true (observed) |
-| source implementation status | **CLOSED GREEN** — `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` |
-| independent source review | **GREEN** · P0=0 · P1=0 · P2=0 (observed) |
+| related PR | **#165 MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99` · merge time `2026-08-27T03:32:05Z` |
+| source implementation status | **CLOSED GREEN** |
+| user-visible closure status | **USER_VISIBLE_CLOSED_GREEN** — Human APPROVED · Safari actual-browser GREEN |
+| accepted nonblocking P2 | **P2-A11Y-RESULT-HEADING-LEVEL** |
 | Preview (observed evidence) | `dpl_GpmUfdbJReqD74RpRcCQ1GQJqYUC` **READY** @ `81a341210a9cbb70776626b5b55ba6a7c6f1dbb1` |
-| remote CI (observed evidence) | **SUCCESS** — completed · failure=0 |
-| current product gate after cold-start | **PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION** |
+| Production (observed evidence) | `dpl_8incbWrtaJunn7T3G8wGzozTQG8E` **READY** @ `3a87ee84129086a261c4f34a074e8b63fd735b99` |
+| current executable gate | **PAIR-PREMIUM-ACTIVATION-DECISION** |
 | preflight status | **PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT — CLOSED GREEN / RERUN PROHIBITED** |
-| purpose | Pair relation-stage Wave-A semantic correction — source closure complete; worktree remains relevant for actual-browser verification and PR #165 merge lifecycle |
-| source re-review | **PROHIBITED** absent dependency invalidation — see `pairWaveAClosureTransition.invalidatingDependencies` |
-| actual-browser / Human commercial acceptance | **NOT CLOSED** |
+| purpose | Pair relation-stage Wave-A — source + user-visible closure complete; worktree retained for reference |
+| source/browser re-review | **PROHIBITED** absent dependency invalidation |
 | Pair Free→Paid mapping repeat | **PROHIBITED** |
 | benchmark reselection | **PROHIBITED** |
 | Pair Premium | **NOT_ACTIVATED** |
@@ -1274,7 +1274,7 @@ Live count from `git worktree list --porcelain` at reconciliation observation: *
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `m55:context` | WT-043 | RETAINED | **CLOSED / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-reference-handoff-v1` | `fix/m55-commercial-reference-handoff-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #160 merged) |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-commercial-handoff-closure-v1` | `docs/m55-control-tower-commercial-handoff-closure-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #161 merged) |
-| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `docs/m55-pair-wave-a-evidence-closure-v1` | `m55:context` | — | EXECUTOR | **ACTIVE_CONTROL_PLANE / COLD_START_CLOSURE_EXECUTOR** (PR #168 OPEN · docs-only · no product authority) |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `docs/m55-pair-wave-a-user-visible-closure-v1` | `m55:context` | — | EXECUTOR | **ACTIVE_CONTROL_PLANE / WAVE_A_FINAL_CLOSURE_EXECUTOR** |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-pass-acceptance-v1` | `docs/m55-worktree-registry-drift-reconciliation-v1` | `m55:context` | WT-052 | EXECUTOR | **DOCS_ONLY / REGISTRY_RECONCILIATION_EXECUTOR** (historical PR #155) |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `m55:context` | WT-045 | RETAINED | **CLOSED GREEN / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `m55:context` | WT-044 | RETAINED | **CLOSED GREEN / RETAINED** |
@@ -1287,7 +1287,7 @@ Live count from `git worktree list --porcelain` at reconciliation observation: *
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-implementation-v1` | `feat/m55-pair-minimal-implementation-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #156 merged) |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-activation-decision-v1` | `fix/m55-pair-premium-legal-parity-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #158 merged) |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-purchase-copy-v1` | `fix/m55-pair-premium-purchase-copy-v1` | `m55:context` | WT-051 | PENDING | **OPEN_PR_SIDECAR / OUT_OF_WT049_SCOPE** (PR #159 OPEN) |
-| `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` | `feat/m55-pair-relation-stage-v1` | `m55:context` | WT-049 | ACTIVE | **WAVE_A_SOURCE_CLOSED / PR_OPEN** |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` | `feat/m55-pair-relation-stage-v1` | `m55:context` | WT-049 | RETAINED | **USER_VISIBLE_CLOSED_GREEN / MERGED / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-safari-mcp-ai-browser-quality` | `docs/m55-safari-mcp-ai-browser-quality` | `m55:context` | WT-050 | RETAINED | **AUTHORIZED_SIDECAR / OPERATIONAL_GATE** (PR #164 merged) |
 
 ### STALE_RETIRE_CANDIDATES (2026-08-26 observation)
@@ -1302,7 +1302,7 @@ The following live paths are **CLOSED_RETAINED** merged lanes. Classification on
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-implementation-v1` | PR #156 merged |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-activation-decision-v1` | PR #158 merged |
 
-**Historical note:** `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` previously hosted PR #154 on branch `fix/m55-control-tower-generic-gate-progression-v1` — that closure remains valid historical evidence (`controlTowerGenericGateProgressionTransition`). The same physical path is now the active control-plane executor for PR #168 on `docs/m55-pair-wave-a-evidence-closure-v1`.
+**Historical note:** `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` previously hosted PR #154 on branch `fix/m55-control-tower-generic-gate-progression-v1` and PR #168 on `docs/m55-pair-wave-a-evidence-closure-v1` — those closures remain valid historical evidence. The same physical path is now the active control-plane executor for Pair Wave-A final user-visible closure on `docs/m55-pair-wave-a-user-visible-closure-v1`.
 
 ## FINAL LIVE WORKTREES (2026-08-24 Pair relation-stage bounded correction) — HISTORICAL
 
@@ -1321,7 +1321,7 @@ Live count at that observation: **10**.
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` | `m55:context` | WT-024 (control) | STALE | **STALE_MAIN_CONTROL_SNAPSHOT** |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | `m55:context` | WT-027 | PENDING | **PENDING_INTEGRATION / COMMERCE OFF** |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1` | `feat/m55-pair-funnel-v1` | `m55:context` | WT-048 | RETAINED | **CLOSED / RETAINED** |
-| `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` | `feat/m55-pair-relation-stage-v1` | `m55:context` | WT-049 | ACTIVE | **WAVE_A_SOURCE_CLOSED / PR_OPEN** |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1` | `feat/m55-pair-relation-stage-v1` | `m55:context` | WT-049 | RETAINED | **USER_VISIBLE_CLOSED_GREEN / MERGED / RETAINED** |
 
 ## FINAL LIVE WORKTREES (2026-08-20 G4 mapping-first) — HISTORICAL
 
