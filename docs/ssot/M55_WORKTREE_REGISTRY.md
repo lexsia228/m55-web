@@ -58,7 +58,9 @@ Source command for volatile facts: **`npm run m55:context`** (preferred) or manu
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-27 Pair Wave-A user-visible closure) — authoritative, read this first:** Durable **ACTIVE lane = PAIR LANE**. Product worktree **WT-049** `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1`; branch `feat/m55-pair-relation-stage-v1`; **USER_VISIBLE_CLOSED_GREEN** · PR **#165 MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99`; Production **READY** @ `dpl_8incbWrtaJunn7T3G8wGzozTQG8E`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `PAIR-PREMIUM-ACTIVATION-DECISION`. Pair Wave-A source + Safari actual-browser + Human commercial approval **CLOSED GREEN**. Source/browser replay **PROHIBITED** absent dependency invalidation. Pair Premium **NOT_ACTIVATED**. Pair purchase funnel **NOT GREEN**.. Explicit freezes retained: Pair Free→Paid mapping repeat **PROHIBITED** · benchmark reselection **PROHIBITED**.
+**CURRENT (2026-08-28 Global commercial Japanese comprehension quality) — authoritative, read this first:** Durable **macro lane = GLOBAL COMMERCIAL QUALITY** · program identity **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY**. Control-plane worktree `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` (WT-053); branch `feat/m55-global-commercial-japanese-quality-v1`; base `origin/main` @ `a656980fbb1945e05f966d74a038f58088fa4378`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable CURRENT / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE`. Pair Premium activation switch = **ACTIVATED / CLOSED GREEN** · purchase confirmation route **proven/live** · Pair real-payment E2E = **PAUSED_BEFORE_PAYMENT** — do **not** mark GREEN. Prior docs branch `docs/m55-commercial-strategy-durable-v1` (PR #170 **MERGED**) is **CLOSED**. Baseline/control-plane implementation = **AUTHORIZED** on existing Commercial Quality Control Plane allowlist only · user-visible product remediation = **PROHIBITED until baseline review** · commit = **PROHIBITED** · push = **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization.
+
+**CURRENT (2026-08-27 Pair Wave-A user-visible closure) — historical:** Durable **ACTIVE lane = PAIR LANE**. Product worktree **WT-049** `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1`; branch `feat/m55-pair-relation-stage-v1`; **USER_VISIBLE_CLOSED_GREEN** · PR **#165 MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99`; Production **READY** @ `dpl_8incbWrtaJunn7T3G8wGzozTQG8E`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `PAIR-PREMIUM-ACTIVATION-DECISION`. Pair Wave-A source + Safari actual-browser + Human commercial approval **CLOSED GREEN**. Source/browser replay **PROHIBITED** absent dependency invalidation. Pair Premium **NOT_ACTIVATED**. Pair purchase funnel **NOT GREEN**.. Explicit freezes retained: Pair Free→Paid mapping repeat **PROHIBITED** · benchmark reselection **PROHIBITED**.
 
 **CURRENT (2026-08-21 Pair lane entrance) — historical:** PR #149 **MERGED** @ `53b71f8c8ea0ddeecd1828a2a809b4de08583aba`; G5 Wave 1 **CLOSED GREEN**; G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA**. Durable **ACTIVE lane = PAIR LANE**. Active worktree **WT-048** `/Users/lexsia/Documents/M55_WORKTREE-pair-funnel-v1`; branch `feat/m55-pair-funnel-v1`; intended upstream **`origin/feat/m55-pair-funnel-v1`**. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_CURRENT_STATE.md` § PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)** only. Wave 0 read-only mapping is **CLOSED GREEN** — do not replay. Pair implementation has not started on merged runtime. Pair Premium **NOT ACTIVATED**.
 
@@ -1239,6 +1241,34 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
+### WT-053 — Global commercial Japanese comprehension quality (ACTIVE_CONTROL_PLANE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` |
+| branch | `feat/m55-global-commercial-japanese-quality-v1` |
+| intended upstream | fresh `origin/main` @ `a656980fbb1945e05f966d74a038f58088fa4378` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **ACTIVE_CONTROL_PLANE / GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** |
+| macro lane | **GLOBAL COMMERCIAL QUALITY** |
+| program identity | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** |
+| prior docs branch | `docs/m55-commercial-strategy-durable-v1` — PR **#170 MERGED** @ `ebff97ca40260785aab3c34b2ad16a73a94b7861` — **CLOSED** |
+| current executable gate | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| next single action | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| Pair Premium activation switch | **ACTIVATED / CLOSED GREEN** |
+| Pair purchase confirmation route | **proven/live** |
+| Pair real-payment E2E | **PAUSED_BEFORE_PAYMENT** — do **not** mark GREEN |
+| baseline/control-plane implementation | **AUTHORIZED** — extends existing Commercial Quality Control Plane · see `implementationAllowedPaths` in `M55_EXECUTION_STATE.json` |
+| implementation allowed paths | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` · `lib/commercialQuality/**` · `lib/m55/commercialUx/qualityControl/**` · `e2e/helpers/commercialQualityRunner.ts` · `e2e/helpers/m55CommercialQualityFixtures.ts` · `e2e/commercial-quality-control-plane.spec.ts` · `scripts/verify-m55-commercial-quality-control-plane.mjs` |
+| user-visible product remediation | **PROHIBITED until baseline review** |
+| commit | **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization |
+| push | **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization |
+| provider/DB/Stripe/Clerk/env/deploy/payment mutation | **prohibited** |
+| human commercial findings recorded | **4 / 4** — see `globalCommercialJapaneseComprehensionTransition` in `M55_EXECUTION_STATE.json` |
+| deferred security debt | `public.entitlements_current` Security Definer View — **REAL SECURITY DEBT** · Pair activation relevance **NONBLOCKING** · remediation **DEFERRED SEPARATE SECURITY LANE** |
+
+---
+
 ### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (CLOSED / RETAINED)
 
 | Field | Value |
@@ -1264,7 +1294,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ## FINAL LIVE WORKTREES (2026-08-26 worktree registry drift reconciliation) — AUTHORITATIVE
 
-Durable **ACTIVE lane = PAIR LANE** remains **WT-049**. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
+Durable **ACTIVE control-plane executor = WT-053** `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1`. Durable **ACTIVE product lane reference = WT-049** (Pair Wave-A **USER_VISIBLE_CLOSED_GREEN** / **MERGED** / **RETAINED**). Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
 
 Live count from `git worktree list --porcelain` at reconciliation observation: **19**. Count is observation-only — refresh via live Git; do not treat as timeless registry truth.
 
@@ -1274,7 +1304,7 @@ Live count from `git worktree list --porcelain` at reconciliation observation: *
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | `chore/m55-pr144-post-merge-tier-e-settlement` | `m55:context` | WT-043 | RETAINED | **CLOSED / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-commercial-reference-handoff-v1` | `fix/m55-commercial-reference-handoff-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #160 merged) |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-commercial-handoff-closure-v1` | `docs/m55-control-tower-commercial-handoff-closure-v1` | `m55:context` | — | RETAINED | **CLOSED_RETAINED / STALE_RETIRE_CANDIDATE** (PR #161 merged) |
-| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `docs/m55-pair-wave-a-user-visible-closure-v1` | `m55:context` | — | EXECUTOR | **ACTIVE_CONTROL_PLANE / WAVE_A_FINAL_CLOSURE_EXECUTOR** |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `feat/m55-global-commercial-japanese-quality-v1` | `m55:context` | WT-053 | EXECUTOR | **ACTIVE_CONTROL_PLANE / GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** |
 | `/Users/lexsia/Documents/M55_WORKTREE-control-tower-pass-acceptance-v1` | `docs/m55-worktree-registry-drift-reconciliation-v1` | `m55:context` | WT-052 | EXECUTOR | **DOCS_ONLY / REGISTRY_RECONCILIATION_EXECUTOR** (historical PR #155) |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-01-revisit-v1` | `feat/m55-g3-04-copy-safety-v1` | `m55:context` | WT-045 | RETAINED | **CLOSED GREEN / RETAINED** |
 | `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | `feat/m55-g3-runtime-proof-v1` | `m55:context` | WT-044 | RETAINED | **CLOSED GREEN / RETAINED** |
@@ -1302,7 +1332,7 @@ The following live paths are **CLOSED_RETAINED** merged lanes. Classification on
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-minimal-implementation-v1` | PR #156 merged |
 | `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-activation-decision-v1` | PR #158 merged |
 
-**Historical note:** `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` previously hosted PR #154 on branch `fix/m55-control-tower-generic-gate-progression-v1` and PR #168 on `docs/m55-pair-wave-a-evidence-closure-v1` — those closures remain valid historical evidence. The same physical path is now the active control-plane executor for Pair Wave-A final user-visible closure on `docs/m55-pair-wave-a-user-visible-closure-v1`.
+**Historical note:** `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` previously hosted PR #154 on branch `fix/m55-control-tower-generic-gate-progression-v1`, PR #168 on `docs/m55-pair-wave-a-evidence-closure-v1`, Pair Wave-A final user-visible closure on `docs/m55-pair-wave-a-user-visible-closure-v1`, and docs-only commercial strategy on `docs/m55-commercial-strategy-durable-v1` (PR #170 **MERGED** @ `ebff97ca40260785aab3c34b2ad16a73a94b7861`) — those closures remain valid historical evidence. The same physical path is now the active control-plane executor for **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** on `feat/m55-global-commercial-japanese-quality-v1`.
 
 ## FINAL LIVE WORKTREES (2026-08-24 Pair relation-stage bounded correction) — HISTORICAL
 

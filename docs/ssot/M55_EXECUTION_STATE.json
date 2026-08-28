@@ -2,13 +2,13 @@
   "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-08-27T04:18:08Z",
-  "macroLane": "PAIR LANE",
-  "currentExecutionGate": "PAIR-PREMIUM-ACTIVATION-DECISION",
-  "nextSingleAction": "PAIR-PREMIUM-ACTIVATION-DECISION",
-  "productWorkAfterControlTower": "PAIR-PREMIUM-ACTIVATION-DECISION",
+  "updatedAt": "2026-08-28T05:37:00Z",
+  "macroLane": "GLOBAL COMMERCIAL QUALITY",
+  "currentExecutionGate": "GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE",
+  "nextSingleAction": "GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE",
+  "productWorkAfterControlTower": "GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE",
   "pairImplementation": "COMPLETE",
-  "pairPremium": "NOT_ACTIVATED",
+  "pairPremium": "ACTIVATED",
   "pairFreeToPaidMappingAuthorizedNow": true,
   "legacyExecutionFieldsSuperseded": true,
   "legacyNarrativeStateFile": "docs/ssot/M55_CURRENT_STATE.md",
@@ -25,7 +25,8 @@
     "PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT",
     "PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION",
     "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
-    "PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION"
+    "PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION",
+    "PAIR-PREMIUM-ACTIVATION-DECISION"
   ],
   "pairFreeToPaidMapping": {
     "gate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
@@ -399,6 +400,101 @@
     },
     "nextGate": "PAIR-PREMIUM-ACTIVATION-DECISION",
     "closedAt": "2026-08-27T04:18:08Z"
+  },
+  "pairPremiumActivationTransition": {
+    "status": "CLOSED_GREEN",
+    "pairPremiumProductionCommerceSwitch": "ACTIVATED",
+    "productionPairDbDeliveryContract": "CLOSED_GREEN",
+    "stripeLiveProductPriceWebhook": "CLOSED_GREEN",
+    "pairRealPaymentE2e": "PAUSED_BEFORE_PAYMENT",
+    "pairRealPaymentE2ePauseReason": "Human actual-use review found material commercial comprehension / question applicability / share motivation / product discoverability defects; no payment completed in latest E2E attempt",
+    "noReplayPolicy": {
+      "pairRealPaymentE2e": "DO NOT mark GREEN until comprehension defects are remediated and Human authorizes resume",
+      "productionPairDbDelivery": "NO-REPLAY",
+      "stripeLiveProductPriceWebhook": "NO-REPLAY"
+    },
+    "humanAccepted": true,
+    "observedAt": "2026-08-28T05:37:00Z"
+  },
+  "globalCommercialJapaneseComprehensionTransition": {
+    "status": "ACTIVE",
+    "humanApprovedProgram": true,
+    "worktreePath": "/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1",
+    "featureBranch": "feat/m55-global-commercial-japanese-quality-v1",
+    "baseMainSha": "a656980fbb1945e05f966d74a038f58088fa4378",
+    "priorDocsBranch": "docs/m55-commercial-strategy-durable-v1",
+    "priorDocsPr": 170,
+    "priorDocsMergeCommit": "ebff97ca40260785aab3c34b2ad16a73a94b7861",
+    "programIdentity": "GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY",
+    "currentExecutionGate": "GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE",
+    "nextSingleAction": "GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE",
+    "implementationAuthorized": true,
+    "implementationScope": "BASELINE_AND_CONTROL_PLANE_ONLY",
+    "implementationExtends": "EXISTING_COMMERCIAL_QUALITY_CONTROL_PLANE",
+    "implementationAllowedPaths": [
+      "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
+      "lib/commercialQuality/**",
+      "lib/m55/commercialUx/qualityControl/**",
+      "e2e/helpers/commercialQualityRunner.ts",
+      "e2e/helpers/m55CommercialQualityFixtures.ts",
+      "e2e/commercial-quality-control-plane.spec.ts",
+      "scripts/verify-m55-commercial-quality-control-plane.mjs"
+    ],
+    "userVisibleProductRemediationAuthorized": false,
+    "commit": "PROHIBITED",
+    "push": "PROHIBITED",
+    "commitPushAuthorizationRequires": [
+      "CONTROL_TOWER_ACTUAL_DIFF_REVIEW_GREEN",
+      "CODEX_INDEPENDENT_REVIEW_GREEN",
+      "SUBSEQUENT_EXPLICIT_COMMIT_AUTHORIZATION"
+    ],
+    "humanCommercialFindings": [
+      {
+        "id": "GCJQ-01",
+        "area": "R6 wording",
+        "summary": "「長く一緒にいることを考えている」is materially ambiguous"
+      },
+      {
+        "id": "GCJQ-02",
+        "area": "Pair questionnaire applicability",
+        "summary": "Pair questions such as decisionPace / disagreement can require fabricated interaction history when that interaction has never occurred"
+      },
+      {
+        "id": "GCJQ-03",
+        "area": "Share UI motivation",
+        "summary": "Share UI exposes mechanics/safety but does not sufficiently create user motivation to share"
+      },
+      {
+        "id": "GCJQ-04",
+        "area": "Pair Premium discoverability",
+        "summary": "Pair Premium is technically purchasable but is not a first-class discoverable merchandise item"
+      }
+    ],
+    "deferredSecurityDebt": {
+      "item": "public.entitlements_current Security Definer View",
+      "classification": "REAL_SECURITY_DEBT",
+      "pairActivationRelevance": "NONBLOCKING",
+      "remediation": "DEFERRED_SEPARATE_SECURITY_LANE",
+      "remediateInThisGate": false
+    },
+    "prohibitedInThisGate": [
+      "AGENTS.md",
+      "Product Truth mutation",
+      "Pair questionnaire/product UI mutation",
+      "Self user-visible UI mutation",
+      "result-copy remediation",
+      "share UI remediation",
+      "merchandise UI remediation",
+      "Production mutation",
+      "Vercel mutation",
+      "Stripe mutation",
+      "DB mutation",
+      "payment",
+      "deploy",
+      "commit",
+      "push"
+    ],
+    "observedAt": "2026-08-28T05:37:00Z"
   },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,

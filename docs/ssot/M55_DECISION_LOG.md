@@ -731,3 +731,51 @@ Strategic anti-MLM rules:
 Do **not** decide yet: Stripe Connect vs another mechanism · payout schedule · attribution cookie/window · payout threshold · KYC implementation · tax reporting implementation · referral-link architecture · exact commission eligibility basis · whether 50% is calculated before/after tax, Stripe fees, refunds, etc. Those belong to the future referral design gate.
 
 Future concept: **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** — **IMPLEMENTATION NOT AUTHORIZED NOW**.
+
+### 2026-08-28 — Global commercial Japanese comprehension authority reconciliation
+
+**Status:** Human **APPROVED** · **control-plane reconciliation only** on `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` · branch `feat/m55-global-commercial-japanese-quality-v1` · base `origin/main` @ `a656980fbb1945e05f966d74a038f58088fa4378`. Prior docs branch `docs/m55-commercial-strategy-durable-v1` (PR #170 **MERGED** @ `ebff97ca40260785aab3c34b2ad16a73a94b7861`) is **CLOSED**. **No product, provider, payment, deploy, or implementation mutation occurred during this completed reconciliation pass.** The authorized **NEXT** action is baseline/control-plane implementation only.
+
+| Decision | Value |
+|---|---|
+| Authority scope | `M55_EXECUTION_STATE.json` · `M55_WORKTREE_REGISTRY.md` · `M55_CURRENT_STATE.md` · `M55_ROADMAP.md` · `M55_DECISION_LOG.md` · `M55_HIGH_COST_EVIDENCE_LEDGER.md` |
+| Macro lane | **GLOBAL COMMERCIAL QUALITY** |
+| Program identity | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** |
+| Current execution gate | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| Next single action | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| Baseline/control-plane implementation | **AUTHORIZED** — extends existing Commercial Quality Control Plane · see `implementationAllowedPaths` in `M55_EXECUTION_STATE.json` |
+| User-visible product remediation | **NOT YET AUTHORIZED** |
+| Commit | **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization |
+| Push | **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization |
+| Pair Premium Production commerce switch | **ACTIVATED / CLOSED GREEN** |
+| Production Pair DB delivery contract | **CLOSED GREEN / NO-REPLAY** |
+| Stripe live Product/Price/webhook | **CLOSED GREEN / NO-REPLAY** |
+| Pair real-payment E2E | **PAUSED_BEFORE_PAYMENT** — do **not** mark GREEN |
+| Pair Premium | **ACTIVATED** |
+| `PAIR-PREMIUM-ACTIVATION-DECISION` | moved to **completedSubGates** — **CLOSED GREEN** |
+
+#### Human commercial findings (durable open items)
+
+| # | Finding |
+|---|---|
+| 1 | R6 wording 「長く一緒にいることを考えている」is materially ambiguous |
+| 2 | Pair questions such as `decisionPace` / `disagreement` can require fabricated interaction history when that interaction has never occurred |
+| 3 | Share UI exposes mechanics/safety but does not sufficiently create user motivation to share |
+| 4 | Pair Premium is technically purchasable but is not a first-class discoverable merchandise item |
+
+#### Deferred security debt (separate lane)
+
+| Item | Classification |
+|---|---|
+| `public.entitlements_current` Security Definer View | **REAL SECURITY DEBT** · Pair activation relevance = **NONBLOCKING** · remediation = **DEFERRED SEPARATE SECURITY LANE** · **not remediated in this gate** |
+
+#### Scope boundary — reconciliation pass only (does not prohibit NEXT)
+
+The completed reconciliation pass did **not** authorize:
+
+- user-visible product/copy remediation
+- Pair questionnaire/product UI · Self user-visible UI · result copy · share UI · merchandise UI
+- Production / Vercel / Stripe / DB mutation · payment · deploy
+- commit / push (that reconciliation pass)
+
+The authorized **NEXT** action is baseline/control-plane implementation on the existing Commercial Quality Control Plane allowlist only — see `implementationAllowedPaths` in `M55_EXECUTION_STATE.json`. Commit and push remain **PROHIBITED** during the CURRENT gate until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization.
