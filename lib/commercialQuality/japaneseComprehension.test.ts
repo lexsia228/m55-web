@@ -266,11 +266,14 @@ test('parent axis cannot manufacture option axis GREEN', () => {
   assert.ok(findings.some((f) => f.category === 'option_axis_mixed'));
 });
 
-test('one independently registered mixed option fails', () => {
+test('real relation-stage registrations have no mixed option axis after Wave-1A', () => {
   const inventory = buildM55GovernedCopyInventory();
   const registrations = buildM55OptionAxisRegistrations();
   const findings = checkOptionAxisConsistency(registrations, inventory);
-  assert.ok(findings.some((f) => f.category.startsWith('option_axis_mixed')));
+  assert.equal(
+    findings.filter((f) => f.category.startsWith('option_axis_mixed')).length,
+    0,
+  );
 });
 
 test('relation-stage R1-R6 selector is always registered', () => {
@@ -357,10 +360,32 @@ test('partner-private dependency without alternative is P1', () => {
 
 test('fabrication risk without mitigation is P1', () => {
   const findings = checkQuestionSemantics({
-    metadata: QUESTION_SEMANTIC_METADATA.filter((m) => m.fabricationRisk),
-    stageBindings: buildQuestionStageBindings(),
-    noObservationRegistry: M55_NO_OBSERVATION_CHOICE_REGISTRY,
-    scenarioEvaluations: buildPairScenarioMatrix(),
+    metadata: [
+      {
+        questionId: 'decisionPace',
+        copyId: 'pair.question.decisionPace',
+        subjectReferent: '二人の共同決定',
+        timeFrame: '現在',
+        observationRequirement: 'shared_decision_history',
+        relationStageApplicability: ['R3'],
+        answerSemanticAxis: 'decision_timing',
+        noObservationAvailable: false,
+        partnerPrivateStateDependency: false,
+        fabricationRisk: true,
+      },
+    ],
+    stageBindings: [{ questionId: 'decisionPace', relationStageId: 'R3' }],
+    noObservationRegistry: {},
+    scenarioEvaluations: [
+      {
+        scenarioId: 'R3',
+        questionId: 'decisionPace',
+        relationStageId: 'R3',
+        applicability: 'APPLICABLE',
+        answerableWithoutFabrication: false,
+        explicitNoObservationPath: false,
+      },
+    ],
   });
   assert.ok(findings.some((f) => f.category === 'question_fabrication_risk' && f.severity === 'P1'));
 });
@@ -655,7 +680,9 @@ test('rendered binding missing CTA fails', () => {
 
 test('baseline reproduces four known Human findings', () => {
   const report = runM55JapaneseComprehensionBaseline();
+  assert.equal(report.knownHumanRegressionFixturesCovered, 4);
   assert.equal(report.knownHumanFindingsReproduced, 4);
+  assert.deepEqual(report.currentActiveKnownHumanFindingIds, ['GCJQ-03', 'GCJQ-04']);
   assert.equal(report.aiAutoGreenCount, 0);
   assert.equal(report.frozenBaseline.dynamicSourceDerivedEntries, 0);
   assert.equal(report.frozenBaseline.questionSourceFingerprintBound, true);
@@ -670,10 +697,10 @@ test('baseline reproduces four known Human findings', () => {
   assert.equal(report.optionAxisSummary.relationStageSelectorCovered, true);
   assert.equal(report.optionAxisSummary.parentDerivedOptionAxes, 0);
   assert.equal(report.aiStatus.aiReviewStatus, 'PENDING');
-  assert.equal(report.currentProductFindings.rawP1Count, 11);
-  assert.equal(report.currentProductFindings.pendingHumanDecisionCount, 11);
+  assert.equal(report.currentProductFindings.rawP1Count, 0);
+  assert.equal(report.currentProductFindings.pendingHumanDecisionCount, 0);
   assert.equal(report.currentProductFindings.autoFrozenCount, 0);
-  assert.equal(report.controlPlaneIntegrity.currentProductComprehensionGate, 'RED');
+  assert.equal(report.controlPlaneIntegrity.currentProductComprehensionGate, 'GREEN');
   assert.equal(report.controlPlaneIntegrity.implementationIntegrity, 'GREEN');
 });
 
@@ -713,9 +740,9 @@ test('novel P1 fails durable verifier acceptance', () => {
 
   const verifier = summarizeJapaneseComprehensionBaselineForVerifier();
   assert.equal(verifier.durableComprehensionGatePassed, false);
-  assert.ok(verifier.materialP1Count >= 11);
-  assert.equal(verifier.newCurrentFindingsNotFrozen, 11);
-  assert.equal(verifier.currentProductComprehensionGate, 'RED');
+  assert.equal(verifier.materialP1Count, 0);
+  assert.equal(verifier.newCurrentFindingsNotFrozen, 0);
+  assert.equal(verifier.currentProductComprehensionGate, 'GREEN');
 });
 
 test('durable verifier blocks novel P1 while preserving diagnostic newCurrent count', () => {
@@ -723,7 +750,7 @@ test('durable verifier blocks novel P1 while preserving diagnostic newCurrent co
   assert.equal(verifier.durableComprehensionGatePassed, false);
   assert.equal(verifier.implementationGatePassed, true);
   assert.equal(verifier.implementationIntegrity, 'GREEN');
-  assert.equal(verifier.newCurrentFindingsNotFrozen, 11);
+  assert.equal(verifier.newCurrentFindingsNotFrozen, 0);
 });
 
 test('real builder mutation removing one governed option semantic registration fails', () => {
@@ -778,9 +805,9 @@ test('question answerability frozen binding rejects changed question text', () =
     deterministicEvidence: `scenario=${matrix.scenarioId} applicability=${matrix.applicability}`,
     currentTextOrItem: sourceFingerprint,
   });
-  assert.equal(exactFingerprint, entry.baselineEvidenceFingerprint);
+  assert.notEqual(exactFingerprint, entry.baselineEvidenceFingerprint);
   const exactFinding: ComprehensionFinding = { ...finding, currentTextOrItem: sourceFingerprint };
-  assert.equal(finalizeFindingSeverity(exactFinding, frozen).severity, 'OPEN_BASELINE');
+  assert.equal(finalizeFindingSeverity(exactFinding, frozen).severity, 'P1');
 });
 
 test('NO_OBSERVATION in one stage does not make another applicable stage safe', () => {

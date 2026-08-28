@@ -12,8 +12,21 @@ import type {
   QuestionSemanticMetadata,
 } from '../../../commercialQuality/japaneseComprehensionTypes';
 
-/** Explicit NO_OBSERVATION semantics must be registered per stage + answerId. */
-export const M55_NO_OBSERVATION_CHOICE_REGISTRY: NoObservationChoiceRegistry = {};
+/** Explicit NO_OBSERVATION semantics — stage-specific registered answer IDs only. */
+export const M55_NO_OBSERVATION_CHOICE_REGISTRY: NoObservationChoiceRegistry = {
+  decisionPace: [
+    { relationStageId: 'R3', questionId: 'decisionPace', answerId: 'no_shared_decision_yet' },
+    { relationStageId: 'R6', questionId: 'decisionPace', answerId: 'no_shared_decision_yet' },
+  ],
+  disagreement: [
+    { relationStageId: 'R3', questionId: 'disagreement', answerId: 'no_disagreement_yet' },
+    { relationStageId: 'R6', questionId: 'disagreement', answerId: 'no_disagreement_yet' },
+  ],
+  returnPattern: [
+    { relationStageId: 'R3', questionId: 'returnPattern', answerId: 'no_misalignment_return_yet' },
+    { relationStageId: 'R6', questionId: 'returnPattern', answerId: 'no_misalignment_return_yet' },
+  ],
+};
 
 export function buildQuestionStageBindings(): readonly QuestionStageBinding[] {
   const bindings: QuestionStageBinding[] = [];
@@ -60,7 +73,7 @@ export const QUESTION_SEMANTIC_METADATA: readonly QuestionSemanticMetadata[] = [
     observationRequirement: 'shared_decision_history',
     relationStageApplicability: ['R3', 'R6'],
     answerSemanticAxis: 'decision_timing',
-    noObservationAvailable: false,
+    noObservationAvailable: true,
     partnerPrivateStateDependency: false,
     fabricationRisk: true,
   },
@@ -72,7 +85,7 @@ export const QUESTION_SEMANTIC_METADATA: readonly QuestionSemanticMetadata[] = [
     observationRequirement: 'prior_disagreement_event',
     relationStageApplicability: ['R3', 'R6'],
     answerSemanticAxis: 'conflict_handling',
-    noObservationAvailable: false,
+    noObservationAvailable: true,
     partnerPrivateStateDependency: true,
     fabricationRisk: true,
   },
@@ -132,7 +145,7 @@ export const QUESTION_SEMANTIC_METADATA: readonly QuestionSemanticMetadata[] = [
     observationRequirement: 'prior_misalignment_event',
     relationStageApplicability: ['R3', 'R6'],
     answerSemanticAxis: 'reconciliation_pattern',
-    noObservationAvailable: false,
+    noObservationAvailable: true,
     partnerPrivateStateDependency: false,
     fabricationRisk: true,
   },
@@ -149,6 +162,24 @@ export const QUESTION_SEMANTIC_METADATA: readonly QuestionSemanticMetadata[] = [
     fabricationRisk: false,
   },
 ];
+
+function stageHasRegisteredNoObservationChoice(
+  relationStageId: RelationStatusId,
+  questionId: string,
+): boolean {
+  const entries = M55_NO_OBSERVATION_CHOICE_REGISTRY[questionId] ?? [];
+  const question = questionsForRelationStage(relationStageId).find(
+    (item) => item.questionId === questionId,
+  );
+  if (!question) return false;
+  const choiceIds = new Set(question.choices.map((choice) => choice.answerId));
+  return entries.some(
+    (entry) =>
+      entry.relationStageId === relationStageId &&
+      entry.questionId === questionId &&
+      choiceIds.has(entry.answerId),
+  );
+}
 
 function evaluateScenarioQuestion(
   scenarioId: PairScenarioId,
@@ -185,8 +216,8 @@ function evaluateScenarioQuestion(
       questionId,
       relationStageId,
       applicability: 'REQUIRES_NO_OBSERVATION',
-      answerableWithoutFabrication: false,
-      explicitNoObservationPath: false,
+      answerableWithoutFabrication: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
+      explicitNoObservationPath: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
     };
   }
 
@@ -196,8 +227,8 @@ function evaluateScenarioQuestion(
       questionId,
       relationStageId,
       applicability: 'REQUIRES_NO_OBSERVATION',
-      answerableWithoutFabrication: false,
-      explicitNoObservationPath: false,
+      answerableWithoutFabrication: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
+      explicitNoObservationPath: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
     };
   }
 
@@ -207,8 +238,23 @@ function evaluateScenarioQuestion(
       questionId,
       relationStageId,
       applicability: 'REQUIRES_NO_OBSERVATION',
-      answerableWithoutFabrication: false,
-      explicitNoObservationPath: false,
+      answerableWithoutFabrication: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
+      explicitNoObservationPath: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
+    };
+  }
+
+  if (
+    scenarioId === 'NO_DISAGREEMENT_YET' &&
+    questionId === 'returnPattern' &&
+    stageHasRegisteredNoObservationChoice(relationStageId, questionId)
+  ) {
+    return {
+      scenarioId,
+      questionId,
+      relationStageId,
+      applicability: 'REQUIRES_NO_OBSERVATION',
+      answerableWithoutFabrication: true,
+      explicitNoObservationPath: true,
     };
   }
 
@@ -218,8 +264,30 @@ function evaluateScenarioQuestion(
       questionId,
       relationStageId,
       applicability: 'REQUIRES_NO_OBSERVATION',
-      answerableWithoutFabrication: false,
-      explicitNoObservationPath: false,
+      answerableWithoutFabrication: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
+      explicitNoObservationPath: stageHasRegisteredNoObservationChoice(relationStageId, questionId),
+    };
+  }
+
+  if (meta.noObservationAvailable && stageHasRegisteredNoObservationChoice(relationStageId, questionId)) {
+    return {
+      scenarioId,
+      questionId,
+      relationStageId,
+      applicability: 'APPLICABLE',
+      answerableWithoutFabrication: true,
+      explicitNoObservationPath: true,
+    };
+  }
+
+  if (meta.fabricationRisk && stageHasRegisteredNoObservationChoice(relationStageId, questionId)) {
+    return {
+      scenarioId,
+      questionId,
+      relationStageId,
+      applicability: 'APPLICABLE',
+      answerableWithoutFabrication: true,
+      explicitNoObservationPath: true,
     };
   }
 

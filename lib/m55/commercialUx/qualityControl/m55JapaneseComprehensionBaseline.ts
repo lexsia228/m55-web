@@ -135,6 +135,86 @@ function runRenderedBindingSelfTests(inventory: ReturnType<typeof buildM55Govern
   };
 }
 
+function buildKnownHumanRegressionFixtureFindings(): ComprehensionFinding[] {
+  const fixtures: ComprehensionFinding[] = [];
+  const r6 = checkR6Ambiguity({
+    copyId: 'pair.relation_stage.R6',
+    surfaceId: 'm55:pair.entry',
+    runtimeStateId: 'pair.relation_stage.R6',
+    surfaceFamily: 'PAIR',
+    copyRole: 'ANSWER_OPTION',
+    sourceOwner: 'regression_fixture',
+    audienceContext: 'public',
+    textRef: 'fixture',
+    visibleText: '長く一緒にいることを考えている',
+  });
+  if (r6) fixtures.push(r6);
+
+  fixtures.push(
+    ...checkCtaComprehension([
+      {
+        ctaId: 'pair.share.native',
+        action: '共有する',
+        commercialRole: 'SHARE_TO_PARTNER',
+        userOutcome: 'safe only',
+        destinationSuccessState: '/synastry',
+        surfaceId: 'm55:pair.free.result',
+        runtimeStateId: 'pair.free.share',
+        sourceOwner: 'regression_fixture',
+      },
+    ]).filter((finding) => finding.category === 'share_motivation_insufficient'),
+  );
+
+  fixtures.push(
+    ...checkProductDiscoverability([
+      {
+        productKey: 'compatibility_report_full_v1',
+        productFamily: 'PAIR_DEPTH_NOT_LIVE',
+        valuePropositionPresent: true,
+        pricePresentationPresent: true,
+        purchaseType: 'one_time',
+        discoverySurfaces: ['m55:pair.bridge_only'],
+        nextAction: 'm55:pair.bridge_only',
+        contextualPrerequisiteRequired: true,
+        firstClassMerchandise: false,
+      },
+    ]),
+  );
+
+  fixtures.push(
+    ...checkQuestionAnswerability(
+      [
+        {
+          scenarioId: 'NO_SHARED_DECISION_YET',
+          questionId: 'decisionPace',
+          relationStageId: 'R3',
+          applicability: 'REQUIRES_NO_OBSERVATION',
+          answerableWithoutFabrication: false,
+          explicitNoObservationPath: false,
+        },
+      ],
+      (evaluation) =>
+        `${evaluation.scenarioId}|${evaluation.relationStageId}|${evaluation.questionId}|${evaluation.applicability}|二人で何かを決めるとき、今はどの形に近いですか？`,
+    ),
+  );
+
+  return fixtures;
+}
+
+function listCurrentActiveKnownHumanFindingIds(
+  findings: readonly ComprehensionFinding[],
+): string[] {
+  const active = new Set<string>();
+  for (const finding of findings) {
+    if (finding.severity !== 'P1' && finding.severity !== 'OPEN_BASELINE') continue;
+    const attached = attachKnownHumanFindingId(finding);
+    if (attached.knownHumanFindingId) {
+      active.add(attached.knownHumanFindingId);
+    }
+  }
+  return [...active].sort();
+}
+
 export function runM55JapaneseComprehensionBaseline(): JapaneseComprehensionBaselineReport {
   const structuralFailures: string[] = [];
   const inventory = buildM55GovernedCopyInventory();
@@ -235,10 +315,17 @@ export function runM55JapaneseComprehensionBaseline(): JapaneseComprehensionBase
     (e) => !e.answerableWithoutFabrication && !e.explicitNoObservationPath,
   ).length;
 
-  const knownHumanFindingsReproduced = countValidatedKnownHumanFindings(findings);
-  if (knownHumanFindingsReproduced < 4) {
-    structuralFailures.push(`known_human_finding_missing:${4 - knownHumanFindingsReproduced}`);
+  const knownHumanRegressionFixturesCovered = countValidatedKnownHumanFindings(
+    buildKnownHumanRegressionFixtureFindings(),
+  );
+  if (knownHumanRegressionFixturesCovered < 4) {
+    structuralFailures.push(
+      `known_human_regression_fixture_missing:${4 - knownHumanRegressionFixturesCovered}`,
+    );
   }
+
+  const currentActiveKnownHumanFindingIds = listCurrentActiveKnownHumanFindingIds(findings);
+  const knownHumanFindingsReproduced = knownHumanRegressionFixturesCovered;
 
   const finalPassSummary = summarizeBaselinePass({
     structuralFailures,
@@ -442,6 +529,8 @@ export function runM55JapaneseComprehensionBaseline(): JapaneseComprehensionBase
     pendingAiReviewCount: finalPassSummary.pendingAiReviewCount,
     openBaselineCount: finalPassSummary.openBaselineCount,
     knownHumanFindingsReproduced,
+    knownHumanRegressionFixturesCovered,
+    currentActiveKnownHumanFindingIds,
     aiReviewCorpusItemCount: aiCorpus.length,
     aiAutoGreenCount: 0,
     findings,
@@ -465,6 +554,8 @@ export function summarizeJapaneseComprehensionBaselineForVerifier(): {
     | 'PENDING_HUMAN_APPROVAL'
     | 'USER_VISIBLE_CLOSED_GREEN';
   knownHumanFindingsReproduced: number;
+  knownHumanRegressionFixturesCovered: number;
+  currentActiveKnownHumanFindingIds: readonly string[];
   structuralFailures: readonly string[];
   inventoryTotal: number;
   aiAutoGreenCount: number;
@@ -492,7 +583,7 @@ export function summarizeJapaneseComprehensionBaselineForVerifier(): {
     report.sourceDomainCoverage.missing === 0;
   const implementationGatePassed =
     report.controlPlaneIntegrity.implementationIntegrity === 'GREEN' &&
-    report.knownHumanFindingsReproduced === 4 &&
+    report.knownHumanRegressionFixturesCovered === 4 &&
     report.aiAutoGreenCount === 0 &&
     report.inventory.unregisteredCopy === 0 &&
     report.sourceIdentityCoverage.fingerprintMismatches === 0;
@@ -506,6 +597,8 @@ export function summarizeJapaneseComprehensionBaselineForVerifier(): {
     humanApprovalStatus: report.comprehensionStatus.humanApprovalStatus,
     overallComprehensionStatus: report.comprehensionStatus.overallComprehensionStatus,
     knownHumanFindingsReproduced: report.knownHumanFindingsReproduced,
+    knownHumanRegressionFixturesCovered: report.knownHumanRegressionFixturesCovered,
+    currentActiveKnownHumanFindingIds: report.currentActiveKnownHumanFindingIds,
     structuralFailures: report.structuralFailures,
     inventoryTotal: report.inventory.totalGovernedCopy,
     aiAutoGreenCount: report.aiAutoGreenCount,

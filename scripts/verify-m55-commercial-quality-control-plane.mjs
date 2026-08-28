@@ -969,7 +969,7 @@ function checkJapaneseComprehensionBaseline() {
     parsed.implementationGatePassed === true &&
     (parsed.structuralFailures ?? []).length === 0 &&
     (parsed.materialP0Count ?? 0) === 0 &&
-    parsed.knownHumanFindingsReproduced === 4 &&
+    parsed.knownHumanRegressionFixturesCovered === 4 &&
     (parsed.aiAutoGreenCount ?? 0) === 0 &&
     (parsed.unexpectedFindingCount ?? 0) === 0 &&
     (parsed.sourceDomainMissing ?? 0) === 0 &&
@@ -984,10 +984,10 @@ function checkJapaneseComprehensionBaseline() {
       `implementation gate fail-closed: structural=${(parsed.structuralFailures ?? []).join(',') || 'none'} materialP0=${parsed.materialP0Count ?? '?'} unexpected=${parsed.unexpectedFindingCount ?? '?'} sourceDomainMissing=${parsed.sourceDomainMissing ?? '?'} unregistered=${parsed.unregisteredCopy ?? '?'} unmapped=${parsed.unmappedGovernedCopy ?? '?'} parentDerived=${parsed.parentDerivedOptionAxes ?? '?'}`,
     );
   }
-  if (parsed.knownHumanFindingsReproduced !== 4) {
+  if (parsed.knownHumanRegressionFixturesCovered !== 4) {
     fail(
       'japanese.known_human',
-      `KNOWN_HUMAN_FINDINGS_REPRODUCED must be 4/4 (received ${parsed.knownHumanFindingsReproduced})`,
+      `KNOWN_HUMAN_REGRESSION_FIXTURES_COVERED must be 4/4 (received ${parsed.knownHumanRegressionFixturesCovered ?? '?'})`,
     );
   }
   if ((parsed.inventoryTotal ?? 0) < 40) {

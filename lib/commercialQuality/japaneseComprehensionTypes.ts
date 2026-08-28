@@ -356,7 +356,17 @@ export type JapaneseComprehensionBaselineReport = {
   p2Count: number;
   pendingAiReviewCount: number;
   openBaselineCount: number;
+  /**
+   * @deprecated Compatibility field only. Mirrors historical regression-fixture
+   * detector coverage (`knownHumanRegressionFixturesCovered`), not current live
+   * Human defect reproduction. Use `currentActiveKnownHumanFindingIds` for
+   * findings reproduced by current source/runtime evaluation.
+   */
   knownHumanFindingsReproduced: number;
+  /** Regression/detector fixture coverage count (target: 4/4). */
+  knownHumanRegressionFixturesCovered: number;
+  /** Human finding IDs currently reproduced by live source/runtime evaluation. */
+  currentActiveKnownHumanFindingIds: readonly string[];
   aiReviewCorpusItemCount: number;
   aiAutoGreenCount: number;
   findings: readonly ComprehensionFinding[];

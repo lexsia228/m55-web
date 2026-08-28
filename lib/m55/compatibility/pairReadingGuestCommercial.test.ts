@@ -23,6 +23,7 @@ import {
   TOPIC_PAID_CHAPTER_MAPPING,
   buildCompatibilityPublicResult,
 } from './pairReadingGuestResult';
+import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
 import type {
   PaidTopicId,
   PairAxisId,
@@ -137,6 +138,56 @@ describe('compatibility free authority', () => {
       visible,
       /相性点数|%|ランキング|運命の相手|結婚する|別れる未来|診断です|Aが原因|Bが問題|一方だけ/,
     );
+  });
+});
+
+describe('compatibility guest NO_OBSERVATION propagation', () => {
+  const R3_NO_OBS_DECISION: CompatibilityCurrentContextAnswersV2 = {
+    expressionPace: 'words_later',
+    decisionPace: 'no_shared_decision_yet',
+    disagreement: 'talk_now',
+    returnPattern: 'someone_reaches',
+  };
+
+  const R6_NO_OBS_RETURN: CompatibilityCurrentContextAnswersV2 = {
+    expressionPace: 'words_soon',
+    decisionPace: 'decide_later',
+    disagreement: 'take_space',
+    returnPattern: 'no_misalignment_return_yet',
+  };
+
+  it('builds R3 guest result without legacy conversion when decisionPace is NO_OBSERVATION', () => {
+    const outcome = buildCompatibilityPublicResult(
+      FORWARD,
+      'R3',
+      R3_NO_OBS_DECISION,
+    );
+    assert.equal(outcome.ok, true);
+    if (!outcome.ok) return;
+    const context = outcome.value.currentContext;
+    assert.ok(context);
+    assert.match(context.currentExpression, /まだ|観察|出来事/);
+    assert.doesNotMatch(context.currentExpression, /その場で進めたい|結論を置く前に/);
+    assert.doesNotMatch(outcome.value.free.relationshipDynamic, /その場で進めたい|結論を置く前に/);
+    assert.doesNotMatch(
+      JSON.stringify(outcome.value),
+      /decide_varies|take_space|time_restores/,
+    );
+  });
+
+  it('builds R6 guest result without legacy conversion when returnPattern is NO_OBSERVATION', () => {
+    const outcome = buildCompatibilityPublicResult(
+      FORWARD,
+      'R6',
+      R6_NO_OBS_RETURN,
+    );
+    assert.equal(outcome.ok, true);
+    if (!outcome.ok) return;
+    const context = outcome.value.currentContext;
+    assert.ok(context);
+    assert.match(context.currentExpression, /まだ|観察|出来事/);
+    assert.doesNotMatch(context.currentExpression, /戻るきっかけ|自然に戻ったあと/);
+    assert.doesNotMatch(outcome.value.free.relationshipDynamic, /戻るきっかけ|自然に戻ったあと/);
   });
 });
 
