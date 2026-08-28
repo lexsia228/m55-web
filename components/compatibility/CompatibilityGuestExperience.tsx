@@ -1,7 +1,15 @@
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
 import { FormEvent, useEffect, useMemo, useState, useTransition } from 'react';
 import { buildGuestCompatibilityResult } from '../../app/synastry/actions';
+import {
+  clearLastCompletedPairJourney,
+  readLastCompletedPairJourney,
+  readProfileBirthDate,
+  resolvePairGuestMountBootstrap,
+  writeLastCompletedPairJourney,
+} from '../../lib/m55/compatibility/pairGuestClientStore';
 import {
   backFromGuestQuestionnaire,
   clearGuestRelationStageAnswers,
@@ -75,12 +83,32 @@ function restoreSessionJourney(): CompatibilityGuestJourneyV3 | null {
   }
 }
 
+function persistCompletedJourney(
+  journey: CompatibilityGuestJourneyV3,
+  clerkUserId: string | null | undefined,
+): void {
+  try {
+    sessionStorage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
+    sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
+  } catch {
+    /* Result remains available even when tab storage is unavailable. */
+  }
+  if (clerkUserId) {
+    writeLastCompletedPairJourney(clerkUserId, journey);
+  }
+}
+
 export default function CompatibilityGuestExperience({
   commerceEnabled = false,
 }: {
   commerceEnabled?: boolean;
 }) {
+  const { userId, isLoaded: authLoaded } = useAuth();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const profileBirthDate = useMemo(
+    () => (authLoaded && userId ? readProfileBirthDate(userId) : null),
+    [authLoaded, userId],
+  );
   const [input, setInput] = useState<CompatibilityGuestInput>(EMPTY_INPUT);
   const [relationStatusId, setRelationStatusId] = useState<RelationStatusId | ''>('');
   const [answers, setAnswers] = useState<PartialCurrentContext>({});
@@ -97,13 +125,24 @@ export default function CompatibilityGuestExperience({
   );
 
   useEffect(() => {
+    if (!authLoaded) return;
+
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.compatibilityInputView,
       'compatibility_guest',
       'compatibility-input-view',
     );
-    const restored = restoreSessionJourney();
-    if (restored) {
+
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: userId ?? null,
+      profileBirthDate,
+      persistedJourney: userId ? readLastCompletedPairJourney(userId) : null,
+      sessionJourney: restoreSessionJourney(),
+      legacyDobInput: restoreLegacyV2DobOnly(),
+    });
+
+    if (bootstrap.kind === 'restore_result') {
+      const restored = bootstrap.journey;
       setInput(restored.input);
       setRelationStatusId(restored.relationStatusId);
       setAnswers(restored.answers);
@@ -121,12 +160,17 @@ export default function CompatibilityGuestExperience({
       });
       return;
     }
-    const legacyDob = restoreLegacyV2DobOnly();
-    if (legacyDob) {
-      setInput(legacyDob);
+
+    if (bootstrap.kind === 'legacy_dob') {
+      setInput(bootstrap.input);
       setPhase('questions');
+      return;
     }
-  }, []);
+
+    if (bootstrap.kind === 'profile_only') {
+      setInput({ personA: bootstrap.personA, personB: '' });
+    }
+  }, [authLoaded, userId, profileBirthDate]);
 
   useEffect(() => {
     if (!result) return;
@@ -244,25 +288,31 @@ export default function CompatibilityGuestExperience({
         relationStatusId,
         answers: completeAnswers,
       };
-      try {
-        sessionStorage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
-        sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
-      } catch {
-        /* Result remains available even when tab storage is unavailable. */
-      }
+      persistCompletedJourney(journey, userId);
       setAnswers(completeAnswers);
       setResult(outcome.value);
       setPhase('result');
     });
   }
 
-  function resetJourney() {
+  function updateCurrentPair() {
+    setPhase('questions');
+    setInQuestionnaire(true);
+    setQuestionIndex(0);
+    setError('');
+  }
+
+  function startDifferentPartner() {
     try {
       clearGuestSessionStorage(sessionStorage);
     } catch {
-      /* Reset still clears visible state when tab storage is unavailable. */
+      /* Clear visible state even when tab storage is unavailable. */
     }
-    setInput(EMPTY_INPUT);
+    if (userId) {
+      clearLastCompletedPairJourney(userId);
+    }
+    const ownBirth = profileBirthDate ?? input.personA;
+    setInput({ personA: ownBirth, personB: '' });
     setRelationStatusId('');
     setAnswers({});
     setResult(null);
@@ -271,6 +321,28 @@ export default function CompatibilityGuestExperience({
     setPhase('dob');
     setError('');
   }
+
+  function resetJourney() {
+    try {
+      clearGuestSessionStorage(sessionStorage);
+    } catch {
+      /* Reset still clears visible state when tab storage is unavailable. */
+    }
+    if (userId) {
+      clearLastCompletedPairJourney(userId);
+    }
+    const ownBirth = profileBirthDate ?? '';
+    setInput(ownBirth ? { personA: ownBirth, personB: '' } : EMPTY_INPUT);
+    setRelationStatusId('');
+    setAnswers({});
+    setResult(null);
+    setQuestionIndex(0);
+    setInQuestionnaire(false);
+    setPhase('dob');
+    setError('');
+  }
+
+  const personAFromProfile = Boolean(userId && profileBirthDate && input.personA === profileBirthDate);
 
   const currentQuestion = questions[questionIndex];
   const selectedAnswer = currentQuestion ? answers[currentQuestion.questionId] ?? '' : '';
@@ -327,6 +399,8 @@ export default function CompatibilityGuestExperience({
                 required
                 max={today}
                 value={input.personA}
+                readOnly={personAFromProfile}
+                aria-readonly={personAFromProfile}
                 onChange={(event) => updateInput('personA', event.target.value)}
               />
             </label>
@@ -343,7 +417,9 @@ export default function CompatibilityGuestExperience({
             </label>
           </div>
           <p className={styles.privacyNote}>
-            入力はこの結果の組み立てにだけ使い、このタブを閉じると保持されません。
+            {userId
+              ? 'あなたの生年月日はプロフィールから読み込んでいます。ログイン中は、この端末に前回の二人の読み解きを保存して再開できます。'
+              : '入力はこの結果の組み立てにだけ使い、このタブを閉じると保持されません。'}
           </p>
           <ul
             className={styles.trustStrip}
@@ -654,9 +730,18 @@ export default function CompatibilityGuestExperience({
           <PairFreeShareCTA insight={pairInsight} />
 
           <p className={styles.revisitNote}>
-            この結果は、タブを開いている間は同じ内容で読み返せます。
-            別の相手との関係を見るときは、入力と回答を消してから進めてください。
+            {userId
+              ? 'この端末では、ログイン中に前回の二人の読み解きを保存して再開できます。'
+              : 'この結果は、タブを開いている間は同じ内容で読み返せます。'}
           </p>
+          <div className={styles.questionActions}>
+            <button type="button" className={styles.nextButton} onClick={updateCurrentPair}>
+              今の二人を更新する
+            </button>
+            <button type="button" className={styles.backButton} onClick={startDifferentPartner}>
+              別の相手を見る
+            </button>
+          </div>
           <button type="button" className={styles.resetJourney} onClick={resetJourney}>
             入力と回答を消して、最初から見る
           </button>

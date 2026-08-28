@@ -16,7 +16,15 @@ import {
 import {
   isCompleteCompatibilityGuestInput,
   isValidCompatibilityBirthDate,
+  type CompatibilityGuestJourneyV3,
 } from './pairReadingGuestContract';
+import {
+  applyProfilePersonAToJourney,
+  clearLastCompletedPairJourney,
+  readLastCompletedPairJourney,
+  resolvePairGuestMountBootstrap,
+  writeLastCompletedPairJourney,
+} from './pairGuestClientStore';
 import {
   GUEST_TOPIC_BY_PAIR_AXIS,
   PAIR_AXIS_PAID_CHAPTER_MAPPING,
@@ -34,6 +42,66 @@ import type {
 const ROOT = join(import.meta.dirname, '../../..');
 const FORWARD = { personA: '1982-02-28', personB: '1997-06-15' };
 const REVERSE = { personA: FORWARD.personB, personB: FORWARD.personA };
+const USER_A = 'user_clerk_a';
+const USER_B = 'user_clerk_b';
+const PROFILE_DOB = '1990-03-21';
+
+const COMPLETE_R2_ANSWERS: CompatibilityCurrentContextAnswersV2 = {
+  expressionPace: 'words_soon',
+  contactPace: 'steady_contact',
+};
+
+function completeJourney(
+  input = FORWARD,
+  relationStatusId: RelationStatusId = 'R2',
+  answers: CompatibilityCurrentContextAnswersV2 = COMPLETE_R2_ANSWERS,
+): CompatibilityGuestJourneyV3 {
+  return {
+    version: 'journey_v3',
+    input,
+    relationStatusId,
+    answers,
+  };
+}
+
+function createMemoryStorage(): Storage {
+  const map = new Map<string, string>();
+  return {
+    get length() {
+      return map.size;
+    },
+    clear() {
+      map.clear();
+    },
+    getItem(key: string) {
+      return map.has(key) ? map.get(key)! : null;
+    },
+    key(index: number) {
+      return [...map.keys()][index] ?? null;
+    },
+    removeItem(key: string) {
+      map.delete(key);
+    },
+    setItem(key: string, value: string) {
+      map.set(key, value);
+    },
+  };
+}
+
+function withLocalStorage<T>(run: (storage: Storage) => T): T {
+  const storage = createMemoryStorage();
+  const previous = (globalThis as { localStorage?: Storage }).localStorage;
+  (globalThis as { localStorage: Storage }).localStorage = storage;
+  try {
+    return run(storage);
+  } finally {
+    if (previous === undefined) {
+      delete (globalThis as { localStorage?: Storage }).localStorage;
+    } else {
+      (globalThis as { localStorage: Storage }).localStorage = previous;
+    }
+  }
+}
 
 function read(relativePath: string): string {
   return readFileSync(join(ROOT, relativePath), 'utf8');
@@ -229,9 +297,11 @@ describe('compatibility privacy and runtime wiring', () => {
     const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
     const action = read('app/synastry/actions.ts');
     const builder = read('lib/m55/compatibility/pairReadingGuestResult.ts');
+    const store = read('lib/m55/compatibility/pairGuestClientStore.ts');
     assert.doesNotMatch(component, /localStorage|inputHash|outputHash|pairHash|dobHash|proofHash/i);
     assert.doesNotMatch(action + builder, /console\.|logger|log\(/);
-    assert.match(component, /sessionStorage\.setItem\(COMPATIBILITY_GUEST_SESSION_KEY/);
+    assert.match(component, /persistCompletedJourney/);
+    assert.match(store, /localStorage\.setItem/);
   });
 
   it('uses the analytics allowlist and requested compatibility events', () => {
@@ -281,5 +351,158 @@ describe('compatibility privacy and runtime wiring', () => {
     assert.ok(component.indexOf('resultHeader') < component.indexOf('paidBridge'));
     assert.doesNotMatch(component + route, /useUser|SignedIn|SignInButton|auth wall/i);
     assert.match(middleware, /'\/synastry'/);
+  });
+});
+
+describe('pair guest resume store', () => {
+  it('hydrates profile-only mount when logged-in user has DOB but no saved Pair', () => {
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: USER_A,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: null,
+    });
+    assert.deepEqual(bootstrap, { kind: 'profile_only', personA: PROFILE_DOB });
+  });
+
+  it('restores a valid saved Pair journey for the same Clerk user', () => {
+    const journey = completeJourney();
+    withLocalStorage(() => {
+      writeLastCompletedPairJourney(USER_A, journey);
+      const restored = readLastCompletedPairJourney(USER_A);
+      assert.deepEqual(restored, journey);
+    });
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: USER_A,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: journey,
+      sessionJourney: null,
+      legacyDobInput: null,
+    });
+    assert.equal(bootstrap.kind, 'restore_result');
+    if (bootstrap.kind !== 'restore_result') return;
+    assert.equal(bootstrap.journey.input.personB, journey.input.personB);
+  });
+
+  it('does not restore user A journey for user B', () => {
+    const journey = completeJourney();
+    withLocalStorage(() => {
+      writeLastCompletedPairJourney(USER_A, journey);
+      assert.equal(readLastCompletedPairJourney(USER_B), null);
+    });
+  });
+
+  it('fails closed to onboarding when persisted journey is malformed', () => {
+    withLocalStorage((storage) => {
+      storage.setItem(
+        `m55_pair_guest_last_journey_v1_${USER_A}`,
+        JSON.stringify({
+          version: 'pair_guest_persisted_v1',
+          ownerUserId: USER_A,
+          journey: { version: 'journey_v3', input: { personA: 'bad', personB: '' } },
+        }),
+      );
+      assert.equal(readLastCompletedPairJourney(USER_A), null);
+    });
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: USER_A,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: null,
+    });
+    assert.deepEqual(bootstrap, { kind: 'profile_only', personA: PROFILE_DOB });
+  });
+
+  it('replaces saved personA with current ProfileRepository birthDate on restore', () => {
+    const journey = completeJourney({ personA: '1982-02-28', personB: '1997-06-15' });
+    const merged = applyProfilePersonAToJourney(journey, PROFILE_DOB);
+    assert.equal(merged.input.personA, PROFILE_DOB);
+    assert.equal(merged.input.personB, journey.input.personB);
+    assert.equal(merged.relationStatusId, journey.relationStatusId);
+    assert.deepEqual(merged.answers, journey.answers);
+  });
+
+  it('keeps signed-out guest behavior on session journey before profile-only hydration', () => {
+    const sessionJourney = completeJourney();
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: null,
+      persistedJourney: null,
+      sessionJourney,
+      legacyDobInput: null,
+    });
+    assert.equal(bootstrap.kind, 'restore_result');
+    if (bootstrap.kind !== 'restore_result') return;
+    assert.deepEqual(bootstrap.journey, sessionJourney);
+  });
+
+  it('ignores unowned session journey for logged-in user B with profile DOB', () => {
+    const sessionJourney = completeJourney(
+      { personA: '1982-02-28', personB: '1997-06-15' },
+      'R2',
+    );
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: USER_B,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney,
+      legacyDobInput: null,
+    });
+    assert.deepEqual(bootstrap, { kind: 'profile_only', personA: PROFILE_DOB });
+    assert.notEqual(bootstrap.kind, 'restore_result');
+  });
+
+  it('ignores legacy DOB partner data for logged-in user B with profile DOB', () => {
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: USER_B,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: { personA: '1982-02-28', personB: '1997-06-15' },
+    });
+    assert.deepEqual(bootstrap, { kind: 'profile_only', personA: PROFILE_DOB });
+    assert.notEqual(bootstrap.kind, 'legacy_dob');
+  });
+
+  it('keeps signed-out legacy DOB fallback behavior', () => {
+    const legacyDobInput = { personA: '1982-02-28', personB: '1997-06-15' };
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: null,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput,
+    });
+    assert.deepEqual(bootstrap, { kind: 'legacy_dob', input: legacyDobInput });
+  });
+
+  it('returns empty onboarding for logged-in user without profile or persisted journey', () => {
+    const sessionJourney = completeJourney();
+    const bootstrap = resolvePairGuestMountBootstrap({
+      clerkUserId: USER_B,
+      profileBirthDate: null,
+      persistedJourney: null,
+      sessionJourney,
+      legacyDobInput: { personA: '1982-02-28', personB: '1997-06-15' },
+    });
+    assert.deepEqual(bootstrap, { kind: 'empty' });
+  });
+
+  it('exposes update and different-partner resume controls on the result surface', () => {
+    const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
+    assert.match(component, /今の二人を更新する/);
+    assert.match(component, /別の相手を見る/);
+    assert.match(component, /function updateCurrentPair/);
+    assert.match(component, /function startDifferentPartner/);
+    assert.doesNotMatch(component, /ProfileRepository\.save/);
+  });
+
+  it('clears only the current user saved journey when starting a different partner', () => {
+    const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
+    assert.match(component, /clearLastCompletedPairJourney\(userId\)/);
+    assert.match(component, /personB: ''/);
+    assert.match(component, /clearGuestRelationStageAnswers/);
   });
 });
