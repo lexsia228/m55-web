@@ -28,6 +28,11 @@ const ENGINE_FILES = [
   'lib/commercialQuality/approvalPack.ts',
   'lib/commercialQuality/fixtures.ts',
   'lib/commercialQuality/commercialQuality.test.ts',
+  'lib/commercialQuality/japaneseComprehensionTypes.ts',
+  'lib/commercialQuality/japaneseComprehensionChecks.ts',
+  'lib/commercialQuality/japaneseComprehension.test.ts',
+  'lib/commercialQuality/japaneseComprehensionBaselinePolicy.ts',
+  'lib/commercialQuality/japaneseComprehensionRenderedBinding.ts',
 ];
 const ADAPTER_FILES = [
   'lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts',
@@ -36,9 +41,15 @@ const ADAPTER_FILES = [
   'lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts',
   'lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts',
   'lib/m55/commercialUx/qualityControl/m55StateIdentityReconciliation.ts',
+  'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionInventory.ts',
+  'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionBaseline.ts',
+  'lib/m55/commercialUx/qualityControl/m55PairScenarioMatrix.ts',
+  'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionFrozenBaseline.ts',
+  'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionSourceCoverage.ts',
 ];
 const BROWSER_FILES = [
   'e2e/helpers/commercialQualityRunner.ts',
+  'e2e/helpers/m55CommercialQualityFixtures.ts',
   'e2e/commercial-quality-control-plane.spec.ts',
   'scripts/run-m55-commercial-quality-control-plane-e2e.mjs',
 ];
@@ -138,6 +149,17 @@ const REPORT = {
   registrationAliasCount: 0,
   fixedAuthGateFixtureCount: 0,
   safariMcpGovernanceHooks: 0,
+  japaneseComprehensionBaselinePassed: false,
+  japaneseComprehensionKnownHumanFindings: 0,
+  japaneseComprehensionInventoryTotal: 0,
+  japaneseComprehensionAiAutoGreen: 0,
+  japaneseComprehensionMaterialP0: 0,
+  japaneseComprehensionMaterialP1: 0,
+  japaneseComprehensionMachineGateStatus: 'FAIL',
+  japaneseComprehensionAiReviewStatus: 'PENDING',
+  japaneseComprehensionOverallStatus: 'BLOCKED_MACHINE',
+  japaneseComprehensionNewCurrentFindings: 0,
+  japaneseComprehensionImplementationGatePassed: false,
   candidatePack: null,
 };
 
@@ -886,6 +908,142 @@ function checkSafariMcpGovernance() {
   REPORT.safariMcpGovernanceHooks = hooks;
 }
 
+function checkJapaneseComprehensionBaseline() {
+  const contract = read(CONTRACT_DOC);
+  if (!contract.includes('GLOBAL JAPANESE COMMERCIAL COMPREHENSION')) {
+    fail('japanese.contract', 'commercial quality contract must define GLOBAL JAPANESE COMMERCIAL COMPREHENSION');
+    return;
+  }
+  if (!contract.includes('PENDING_AI_REVIEW')) {
+    fail('japanese.contract', 'contract must require PENDING_AI_REVIEW for missing AI evidence');
+    return;
+  }
+
+  let raw;
+  try {
+    raw = execFileSync(
+      'npx',
+      [
+        'tsx',
+        '-e',
+        [
+          "import { summarizeJapaneseComprehensionBaselineForVerifier } from './lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionBaseline';",
+          'process.stdout.write(JSON.stringify(summarizeJapaneseComprehensionBaselineForVerifier()));',
+        ].join('\n'),
+      ],
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+    );
+  } catch (error) {
+    fail('japanese.execution', `japanese comprehension baseline failed to run: ${error.message}`);
+    return;
+  }
+
+  const jsonStart = raw.indexOf('{');
+  let parsed;
+  try {
+    parsed = JSON.parse(raw.slice(jsonStart));
+  } catch {
+    fail('japanese.execution', 'japanese comprehension baseline produced no parseable report');
+    return;
+  }
+
+  REPORT.japaneseComprehensionBaselinePassed = parsed.durableComprehensionGatePassed === true;
+  REPORT.japaneseComprehensionDurableGatePassed = parsed.durableComprehensionGatePassed === true;
+  REPORT.japaneseComprehensionKnownHumanFindings = parsed.knownHumanFindingsReproduced ?? 0;
+  REPORT.japaneseComprehensionInventoryTotal = parsed.inventoryTotal ?? 0;
+  REPORT.japaneseComprehensionAiAutoGreen = parsed.aiAutoGreenCount ?? 0;
+  REPORT.japaneseComprehensionMaterialP0 = parsed.materialP0Count ?? 0;
+  REPORT.japaneseComprehensionMaterialP1 = parsed.materialP1Count ?? 0;
+  REPORT.japaneseComprehensionMachineGateStatus = parsed.machineGateStatus ?? 'FAIL';
+  REPORT.japaneseComprehensionAiReviewStatus = parsed.aiReviewStatus ?? 'PENDING';
+  REPORT.japaneseComprehensionOverallStatus = parsed.overallComprehensionStatus ?? 'BLOCKED_MACHINE';
+  REPORT.japaneseComprehensionNewCurrentFindings = parsed.newCurrentFindingsNotFrozen ?? 0;
+  REPORT.japaneseComprehensionImplementationIntegrity = parsed.implementationIntegrity ?? 'RED';
+  REPORT.japaneseComprehensionProductGate = parsed.currentProductComprehensionGate ?? 'RED';
+  REPORT.japaneseComprehensionSourceCoverageClosure = parsed.globalSourceCoverageClosure ?? 'RED';
+  REPORT.japaneseComprehensionParentDerivedOptionAxes = parsed.parentDerivedOptionAxes ?? 0;
+  REPORT.japaneseComprehensionPresentUngoverned = parsed.sourceDomainPresentUngoverned ?? 0;
+  REPORT.japaneseComprehensionUnmappedGovernedCopy = parsed.unmappedGovernedCopy ?? 0;
+
+  const implementationGatePassed =
+    parsed.implementationGatePassed === true &&
+    (parsed.structuralFailures ?? []).length === 0 &&
+    (parsed.materialP0Count ?? 0) === 0 &&
+    parsed.knownHumanFindingsReproduced === 4 &&
+    (parsed.aiAutoGreenCount ?? 0) === 0 &&
+    (parsed.unexpectedFindingCount ?? 0) === 0 &&
+    (parsed.sourceDomainMissing ?? 0) === 0 &&
+    (parsed.unregisteredCopy ?? 0) === 0 &&
+    (parsed.unmappedGovernedCopy ?? 0) === 0 &&
+    (parsed.parentDerivedOptionAxes ?? 0) === 0;
+  REPORT.japaneseComprehensionImplementationGatePassed = implementationGatePassed;
+
+  if (!implementationGatePassed) {
+    fail(
+      'japanese.implementation',
+      `implementation gate fail-closed: structural=${(parsed.structuralFailures ?? []).join(',') || 'none'} materialP0=${parsed.materialP0Count ?? '?'} unexpected=${parsed.unexpectedFindingCount ?? '?'} sourceDomainMissing=${parsed.sourceDomainMissing ?? '?'} unregistered=${parsed.unregisteredCopy ?? '?'} unmapped=${parsed.unmappedGovernedCopy ?? '?'} parentDerived=${parsed.parentDerivedOptionAxes ?? '?'}`,
+    );
+  }
+  if (parsed.knownHumanFindingsReproduced !== 4) {
+    fail(
+      'japanese.known_human',
+      `KNOWN_HUMAN_FINDINGS_REPRODUCED must be 4/4 (received ${parsed.knownHumanFindingsReproduced})`,
+    );
+  }
+  if ((parsed.inventoryTotal ?? 0) < 40) {
+    fail('japanese.inventory', `governed copy inventory too small (${parsed.inventoryTotal})`);
+  }
+  if ((parsed.aiAutoGreenCount ?? 0) !== 0) {
+    fail('japanese.ai', `AI auto-GREEN must be 0 (received ${parsed.aiAutoGreenCount})`);
+  }
+  if ((parsed.materialP0Count ?? 0) !== 0) {
+    fail('japanese.material_p0', `material P0 must be 0 (received ${parsed.materialP0Count})`);
+  }
+  if ((parsed.unexpectedFindingCount ?? 0) !== 0) {
+    fail('japanese.unexpected', `unexpected OPEN_BASELINE count must be 0 (received ${parsed.unexpectedFindingCount})`);
+  }
+  if ((parsed.sourceDomainMissing ?? 0) !== 0) {
+    fail('japanese.source_domain', `source domain missing must be 0 (received ${parsed.sourceDomainMissing})`);
+  }
+  if ((parsed.unregisteredCopy ?? 0) !== 0) {
+    fail('japanese.unregistered', `unregistered governed copy must be 0 (received ${parsed.unregisteredCopy})`);
+  }
+  if ((parsed.unmappedGovernedCopy ?? 0) !== 0) {
+    fail('japanese.unmapped', `unmapped governed copy must be 0 (received ${parsed.unmappedGovernedCopy})`);
+  }
+  if ((parsed.parentDerivedOptionAxes ?? 0) !== 0) {
+    fail(
+      'japanese.parent_derived_option_axes',
+      `parent-derived option axes must be 0 (received ${parsed.parentDerivedOptionAxes})`,
+    );
+  }
+  if ((parsed.sourceDomainPresentUngoverned ?? 0) !== 0) {
+    fail(
+      'japanese.source_present_ungoverned',
+      `PRESENT_UNGOVERNED must be 0 for durable global source coverage (received ${parsed.sourceDomainPresentUngoverned})`,
+    );
+  }
+  if (parsed.globalSourceCoverageClosure !== 'GREEN') {
+    fail(
+      'japanese.global_source_coverage',
+      `global source coverage closure must be GREEN for durable acceptance (received ${parsed.globalSourceCoverageClosure ?? 'RED'}; presentUngoverned=${parsed.sourceDomainPresentUngoverned ?? '?'} missing=${parsed.sourceDomainMissing ?? '?'})`,
+    );
+  }
+
+  if (!parsed.durableComprehensionGatePassed) {
+    fail(
+      'japanese.durable_comprehension',
+      `durable comprehension gate fail-closed: materialP1=${parsed.materialP1Count ?? '?'} newCurrentDiagnostic=${parsed.newCurrentFindingsNotFrozen ?? '?'} (diagnostic only; does not waive P1)`,
+    );
+  }
+  if ((parsed.materialP1Count ?? 0) > 0) {
+    fail(
+      'japanese.material_p1',
+      `material P1 must be 0 for durable comprehension gate (received ${parsed.materialP1Count}; diagnostic newCurrent=${parsed.newCurrentFindingsNotFrozen})`,
+    );
+  }
+}
+
 function main() {
   console.log('M55 commercial quality control plane verifier');
   console.log(`root: ${ROOT}`);
@@ -899,6 +1057,7 @@ function main() {
   checkCiWiring();
   checkDurablePolicy();
   checkSafariMcpGovernance();
+  checkJapaneseComprehensionBaseline();
   if (EMIT_CANDIDATE_PACK && FAILURES.length === 0) emitCandidatePack();
 
   console.log('--- report ---');

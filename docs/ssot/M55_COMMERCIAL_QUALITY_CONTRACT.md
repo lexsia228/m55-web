@@ -271,6 +271,36 @@ This contract defines **how any user-visible work in any lane is accepted and cl
 
 When lane contract and this global contract conflict on acceptance standards, **this contract governs closure quality**; lane contracts govern flow and product truth.
 
+## GLOBAL JAPANESE COMMERCIAL COMPREHENSION
+
+Normative scope: all governed commercial user-visible surfaces (HOME, SELF, PAIR, SHARED navigation/support/CTA states). Admin/debug/internal-only copy is excluded.
+
+This section governs **comprehension baseline and control-plane evidence** — not copy remediation. User-visible copy fixes require a separate authorized remediation gate.
+
+### Evidence classes (non-substitutable)
+
+| Class | Owner | May grant `USER_VISIBLE_CLOSED_GREEN` |
+|---|---|---|
+| **A — Deterministic machine evidence** | `lib/commercialQuality/japaneseComprehension*` + M55 adapter inventory/checks | **No** |
+| **B — AI semantic review evidence** | Structured AI review corpus (`PENDING_AI_REVIEW` until independent reviewer records outcome) | **No** |
+| **C — Final Human user-visible approval** | Human commercial judge only | **Yes** |
+
+Machine and AI evidence may record `GREEN`, `P0`, `P1`, `P2`, `REVIEW_REQUIRED`, or `OPEN_BASELINE` findings. They **must never** self-grant final Human commercial approval.
+
+### Fail-closed baseline model
+
+- **OPEN_BASELINE** — known current-product defects with stable `findingId` (e.g. `GCJQ-01`…`GCJQ-04`). Control plane passes structurally while these remain open for later remediation.
+- **FAIL** — unregistered governed copy, structural incompleteness, missing mandatory surface/question/product coverage, or new regression vs registered inventory.
+- **PENDING_AI_REVIEW** — corpus item without independent AI outcome. Never auto-`GREEN`.
+
+### Required machine coverage
+
+Governed copy inventory (`surfaceId`, `runtimeStateId`, `copyId`, `copyRole`, `sourceOwner`, audience/context, text reference). Question answerability metadata (subject, time frame, observation requirement, `NO_OBSERVATION` path). Pair scenario matrix (R1–R6 + mandatory edge scenarios). Option semantic-axis registration. CTA comprehension registry (action, user outcome, destination, commercial role). Paid SKU discoverability registry. Prohibited public terminology checks. Deterministic ambiguity/duplicate/vague/length checks where safely machine-detectable.
+
+### AI semantic review corpus
+
+Independent AI review uses a stable structured corpus. Each unit identifies `copyId`, `surfaceId`, `runtimeStateId`, current text, role/context, and rubric dimensions. Missing AI evidence remains `PENDING_AI_REVIEW`. No external paid LLM dependency in CI; Codex or equivalent may serve as independent reviewer offline.
+
 ## Freeze record
 
 | Field | Value |

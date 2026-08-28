@@ -106,3 +106,9 @@ export async function openPurchasedDevDrawer(
   const path = `/dev/dtr-drawer-preview${query ? `?${query}` : ''}`;
   await safeGotoLocal(page, new URL(path, baseURL).toString());
 }
+
+export const JAPANESE_COMPREHENSION_HOME_VIEWPORTS = [
+  { label: '320' as const, width: 320, height: 640 },
+  { label: '390' as const, width: 390, height: 844 },
+  { label: 'desktop' as const, width: 1280, height: 800 },
+];
