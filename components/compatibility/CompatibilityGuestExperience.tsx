@@ -5,23 +5,23 @@ import { FormEvent, useEffect, useMemo, useState, useTransition } from 'react';
 import { buildGuestCompatibilityResult } from '../../app/synastry/actions';
 import {
   clearLastCompletedPairJourney,
+  persistCompletedPairJourney,
+  purgeUnownedPairGuestSession,
+  readCompatibilityGuestJourneyV3FromSession,
   readLastCompletedPairJourney,
   readProfileBirthDate,
   resolvePairGuestMountBootstrap,
-  writeLastCompletedPairJourney,
 } from '../../lib/m55/compatibility/pairGuestClientStore';
 import {
   backFromGuestQuestionnaire,
   clearGuestRelationStageAnswers,
   clearGuestSessionStorage,
   mergeGuestAnswerSelection,
-  parseSanitizedGuestJourneyV3,
   prepareGuestSubmitAnswers,
   sanitizeGuestSessionAnswers,
 } from '../../lib/m55/compatibility/pairReadingGuestClientSafe';
 import {
   COMPATIBILITY_GUEST_SESSION_KEY,
-  COMPATIBILITY_GUEST_SESSION_KEY_V3,
   isCompleteCompatibilityGuestInput,
   isValidCompatibilityRelationStatusId,
   type CompatibilityGuestInput,
@@ -74,28 +74,9 @@ function restoreLegacyV2DobOnly(): CompatibilityGuestInput | null {
 }
 
 function restoreSessionJourney(): CompatibilityGuestJourneyV3 | null {
-  try {
-    const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
-    if (!raw) return null;
-    return parseSanitizedGuestJourneyV3(raw);
-  } catch {
-    return null;
-  }
-}
-
-function persistCompletedJourney(
-  journey: CompatibilityGuestJourneyV3,
-  clerkUserId: string | null | undefined,
-): void {
-  try {
-    sessionStorage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
-    sessionStorage.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
-  } catch {
-    /* Result remains available even when tab storage is unavailable. */
-  }
-  if (clerkUserId) {
-    writeLastCompletedPairJourney(clerkUserId, journey);
-  }
+  return readCompatibilityGuestJourneyV3FromSession(
+    typeof sessionStorage !== 'undefined' ? sessionStorage : null,
+  );
 }
 
 export default function CompatibilityGuestExperience({
@@ -132,6 +113,12 @@ export default function CompatibilityGuestExperience({
       'compatibility_guest',
       'compatibility-input-view',
     );
+
+    if (userId) {
+      purgeUnownedPairGuestSession(
+        typeof sessionStorage !== 'undefined' ? sessionStorage : null,
+      );
+    }
 
     const bootstrap = resolvePairGuestMountBootstrap({
       clerkUserId: userId ?? null,
@@ -288,7 +275,7 @@ export default function CompatibilityGuestExperience({
         relationStatusId,
         answers: completeAnswers,
       };
-      persistCompletedJourney(journey, userId);
+      persistCompletedPairJourney(sessionStorage, userId, journey);
       setAnswers(completeAnswers);
       setResult(outcome.value);
       setPhase('result');
