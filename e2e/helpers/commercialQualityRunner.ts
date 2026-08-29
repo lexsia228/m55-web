@@ -661,6 +661,15 @@ export async function collectRenderedGovernedCopyEvidence(
   ];
 
   const collected = await page.evaluate((targets) => {
+    const normalizeObservedText = (raw) => raw.replace(/\s+/g, ' ').trim();
+    /** Governed selector binding uses visible rendered text, not raw textContent. */
+    const readVisibleRenderedText = (element) => {
+      if (element instanceof HTMLElement) {
+        return normalizeObservedText(element.innerText ?? '');
+      }
+      return normalizeObservedText(element.textContent ?? '');
+    };
+
     const main = document.querySelector('main');
     const root = main ?? document.body;
     const text = (root.textContent ?? '').replace(/\s+/g, ' ').trim();
@@ -679,7 +688,7 @@ export async function collectRenderedGovernedCopyEvidence(
         if (!element) return null;
         return {
           elementId: target.elementId,
-          text: (element.textContent ?? '').replace(/\s+/g, ' ').trim(),
+          text: readVisibleRenderedText(element),
         };
       })
       .filter((entry): entry is { elementId: string; text: string } => entry !== null);

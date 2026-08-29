@@ -46,6 +46,7 @@ const ADAPTER_FILES = [
   'lib/m55/commercialUx/qualityControl/m55PairScenarioMatrix.ts',
   'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionFrozenBaseline.ts',
   'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionSourceCoverage.ts',
+  'lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionClosureSourceAuthority.ts',
 ];
 const BROWSER_FILES = [
   'e2e/helpers/commercialQualityRunner.ts',

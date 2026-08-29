@@ -28,6 +28,7 @@ import type {
   SurfaceFamily,
 } from '../../../commercialQuality/japaneseComprehensionTypes';
 import { buildM55OptionAxisRegistrationsFromGovernedSemantics } from './m55JapaneseComprehensionOptionSemantics';
+import { buildM55ClosureGovernedCopyEntries } from './m55JapaneseComprehensionClosureSourceAuthority';
 import type {
   CtaBindingSpec,
   GovernedCopyBindingSpec,
@@ -343,6 +344,8 @@ export function buildM55GovernedCopyInventory(): readonly GovernedCopyEntry[] {
       }),
     );
   }
+
+  entries.push(...buildM55ClosureGovernedCopyEntries());
 
   return entries;
 }

@@ -39,7 +39,15 @@ import {
 } from '../m55/commercialUx/qualityControl/m55JapaneseComprehensionOptionSemantics';
 import {
   evaluateSourceDomainCoverage,
+  evaluateSourceIdentityCoverage,
+  M55_CLOSURE_PLACEHOLDER_DOMAIN_IDS,
+  M55_SOURCE_COVERAGE_DOMAINS,
 } from '../m55/commercialUx/qualityControl/m55JapaneseComprehensionSourceCoverage';
+import {
+  assertClosureSourceExtractionIntegrity,
+  buildM55ClosureSourceRegistrations,
+  buildSourceIdentityFingerprint,
+} from '../m55/commercialUx/qualityControl/m55JapaneseComprehensionClosureSourceAuthority';
 import {
   computeQuestionAnswerabilityBaselineFingerprint,
   computeQuestionAnswerabilitySourceFingerprint,
@@ -690,8 +698,8 @@ test('baseline reproduces four known Human findings', () => {
   assert.equal(report.sourceDomainCoverage.missing, 0);
   assert.equal(report.sourceIdentityCoverage.unmappedGovernedCopy, 0);
   assert.equal(report.sourceIdentityCoverage.unexpectedIdentities, 0);
-  assert.ok(report.sourceDomainCoverage.presentUngoverned > 0);
-  assert.equal(report.controlPlaneIntegrity.globalSourceCoverageClosure, 'RED');
+  assert.equal(report.sourceDomainCoverage.presentUngoverned, 0);
+  assert.equal(report.controlPlaneIntegrity.globalSourceCoverageClosure, 'GREEN');
   assert.equal(report.renderedBinding.shortSubstringFalsePositiveTest, 'PASS');
   assert.equal(report.renderedBinding.exactCopyTest, 'FAIL');
   assert.equal(report.optionAxisSummary.relationStageSelectorCovered, true);
@@ -739,7 +747,7 @@ test('novel P1 fails durable verifier acceptance', () => {
   assert.equal(summary.machineGateStatus, 'FAIL');
 
   const verifier = summarizeJapaneseComprehensionBaselineForVerifier();
-  assert.equal(verifier.durableComprehensionGatePassed, false);
+  assert.equal(verifier.durableComprehensionGatePassed, true);
   assert.equal(verifier.materialP1Count, 0);
   assert.equal(verifier.newCurrentFindingsNotFrozen, 0);
   assert.equal(verifier.currentProductComprehensionGate, 'GREEN');
@@ -747,7 +755,7 @@ test('novel P1 fails durable verifier acceptance', () => {
 
 test('durable verifier blocks novel P1 while preserving diagnostic newCurrent count', () => {
   const verifier = summarizeJapaneseComprehensionBaselineForVerifier();
-  assert.equal(verifier.durableComprehensionGatePassed, false);
+  assert.equal(verifier.durableComprehensionGatePassed, true);
   assert.equal(verifier.implementationGatePassed, true);
   assert.equal(verifier.implementationIntegrity, 'GREEN');
   assert.equal(verifier.newCurrentFindingsNotFrozen, 0);
@@ -842,11 +850,11 @@ test('NO_OBSERVATION in one stage does not make another applicable stage safe', 
   );
 });
 
-test('presentUngoverned=1 blocks durable global source coverage gate', () => {
+test('global source coverage closure is GREEN with zero presentUngoverned', () => {
   const verifier = summarizeJapaneseComprehensionBaselineForVerifier();
-  assert.ok(verifier.sourceDomainPresentUngoverned >= 1);
-  assert.equal(verifier.globalSourceCoverageClosure, 'RED');
-  assert.equal(verifier.durableComprehensionGatePassed, false);
+  assert.equal(verifier.sourceDomainPresentUngoverned, 0);
+  assert.equal(verifier.globalSourceCoverageClosure, 'GREEN');
+  assert.equal(verifier.durableComprehensionGatePassed, true);
   assert.equal(verifier.implementationIntegrity, 'GREEN');
 });
 
@@ -859,4 +867,70 @@ test('registry key mismatch is P0', () => {
     },
   });
   assert.ok(findings.some((f) => f.category === 'question_no_observation_registry_key_mismatch' && f.severity === 'P0'));
+});
+
+test('closure domains have non-empty extractors and inventory parity', () => {
+  const inventory = buildM55GovernedCopyInventory();
+  const domainCoverage = evaluateSourceDomainCoverage(inventory);
+  const identityCoverage = evaluateSourceIdentityCoverage(inventory);
+  for (const domainId of M55_CLOSURE_PLACEHOLDER_DOMAIN_IDS) {
+    const spec = M55_SOURCE_COVERAGE_DOMAINS.find((domain) => domain.domainId === domainId);
+    assert.ok(spec, `missing domain spec ${domainId}`);
+    assert.ok(spec!.extractIdentities().length > 0, `empty extractor ${domainId}`);
+    const domainReport = domainCoverage.domains.find((domain) => domain.domainId === domainId);
+    assert.equal(domainReport?.status, 'PRESENT_COVERED', domainId);
+  }
+  assert.equal(domainCoverage.presentUngoverned, 0);
+  assert.equal(domainCoverage.missing, 0);
+  assert.equal(identityCoverage.missingIdentities, 0);
+  assert.equal(identityCoverage.unmappedGovernedCopy, 0);
+  assert.equal(identityCoverage.fingerprintMismatches, 0);
+  assert.equal(identityCoverage.duplicateIdentities, 0);
+});
+
+test('closure source fingerprint changes when governed visible text changes', () => {
+  const [sample] = buildM55ClosureSourceRegistrations();
+  assert.ok(sample);
+  const before = buildSourceIdentityFingerprint({
+    sourceOwner: sample.sourceOwner,
+    sourceExport: sample.sourceExport,
+    sourceItemId: sample.sourceItemId,
+    expectedCopyId: sample.copyId,
+    textRef: sample.textRef,
+    visibleText: sample.visibleText,
+  });
+  const after = buildSourceIdentityFingerprint({
+    sourceOwner: sample.sourceOwner,
+    sourceExport: sample.sourceExport,
+    sourceItemId: sample.sourceItemId,
+    expectedCopyId: sample.copyId,
+    textRef: sample.textRef,
+    visibleText: `${sample.visibleText}変化`,
+  });
+  assert.notEqual(before, after);
+});
+
+test('removing one closure governed inventory registration fails identity coverage', () => {
+  const inventory = buildM55GovernedCopyInventory();
+  const target = buildM55ClosureSourceRegistrations()[0]!.copyId;
+  const reduced = inventory.filter((entry) => entry.copyId !== target);
+  const identityCoverage = evaluateSourceIdentityCoverage(reduced);
+  assert.ok(identityCoverage.missingIdentities > 0);
+  assert.ok(identityCoverage.missingCopyIds.includes(target));
+});
+
+test('closure extraction integrity enforces fail-closed anchors and pair auth distinctness', () => {
+  assert.doesNotThrow(() => assertClosureSourceExtractionIntegrity());
+});
+
+test('former fifteen placeholder domains are explicitly accounted for', () => {
+  const registrations = buildM55ClosureSourceRegistrations();
+  const byDomain = new Map<string, number>();
+  for (const entry of registrations) {
+    byDomain.set(entry.domainId, (byDomain.get(entry.domainId) ?? 0) + 1);
+  }
+  assert.equal(M55_CLOSURE_PLACEHOLDER_DOMAIN_IDS.length, 15);
+  for (const domainId of M55_CLOSURE_PLACEHOLDER_DOMAIN_IDS) {
+    assert.ok((byDomain.get(domainId) ?? 0) > 0, `unaccounted domain ${domainId}`);
+  }
 });

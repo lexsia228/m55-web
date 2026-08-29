@@ -18,6 +18,11 @@ import type {
   UnexpectedIdentityClassification,
   UnexpectedIdentityEntry,
 } from '../../../commercialQuality/japaneseComprehensionTypes';
+import {
+  buildM55ClosureSourceIdentities,
+  buildSourceIdentityFingerprint,
+  M55_CLOSURE_PLACEHOLDER_DOMAIN_IDS,
+} from './m55JapaneseComprehensionClosureSourceAuthority';
 
 export type SourceCopyIdentity = {
   domainId: string;
@@ -52,8 +57,11 @@ function identityFingerprint(parts: {
   textRef: string;
   visibleText?: string;
 }): string {
-  const visiblePart = parts.visibleText ? parts.visibleText.replace(/\s+/g, '').trim() : '';
-  return `${parts.sourceOwner}|${parts.sourceExport}|${parts.sourceItemId}|${parts.expectedCopyId}|${parts.textRef}|${visiblePart}`;
+  return buildSourceIdentityFingerprint(parts);
+}
+
+function closureIdentitiesForDomain(domainId: string): SourceCopyIdentity[] {
+  return buildM55ClosureSourceIdentities().filter((identity) => identity.domainId === domainId);
 }
 
 function inventoryFingerprintForIdentity(entry: GovernedCopyEntry, identity: SourceCopyIdentity): string {
@@ -507,36 +515,36 @@ export const M55_SOURCE_COVERAGE_DOMAINS: readonly SourceDomainSpec[] = [
   { domainId: 'home.entry.hero.discovery', sourceOwner: 'lib/m55/topFreeEntryPublicCopy.ts', extractionStrategy: 'TOP_FREE_ENTRY_PUBLIC_COPY hero/cta', extractIdentities: homeIdentities },
   { domainId: 'self.entry.input', sourceOwner: 'lib/m55/freeResult/questionnaireCopyV1.ts', extractionStrategy: 'FREE questionnaire entry questions', extractIdentities: () => selfQuestionnaireIdentities().filter((i) => i.sourceItemId.startsWith('question.')) },
   { domainId: 'self.questionnaire.answers', sourceOwner: 'lib/m55/freeResult/questionnaireCopyV1.ts', extractionStrategy: 'FREE_QUESTIONNAIRE_COPY_V1', extractIdentities: selfQuestionnaireIdentities },
-  { domainId: 'self.validation.error.empty.loading', sourceOwner: null, extractionStrategy: 'runtime validation/error/empty/loading copy', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'self.auth.transition', sourceOwner: null, extractionStrategy: 'auth transition copy', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'self.free.result', sourceOwner: null, extractionStrategy: 'self free result body copy', userVisibleCopyExists: true, extractIdentities: () => [] },
+  { domainId: 'self.validation.error.empty.loading', sourceOwner: 'lib/m55/freeResult/segmentedDobInputV1.ts', extractionStrategy: 'segmented DOB validation + intake modal errors + flow steps', extractIdentities: () => closureIdentitiesForDomain('self.validation.error.empty.loading') },
+  { domainId: 'self.auth.transition', sourceOwner: 'lib/m55/freeResult/guestFreeJourneyCopyV1.ts', extractionStrategy: 'GUEST_* journey copy', extractIdentities: () => closureIdentitiesForDomain('self.auth.transition') },
+  { domainId: 'self.free.result', sourceOwner: 'lib/m55/freeResult/buildFreeDepthAnalysisV1.ts', extractionStrategy: 'FREE_DEPTH static narrative authorities', extractIdentities: () => closureIdentitiesForDomain('self.free.result') },
   { domainId: 'self.premium.bridge', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'M55_CTA_LABELS bridge states', extractIdentities: selfPremiumBridgeIdentities },
   { domainId: 'self.premium.questionnaire', sourceOwner: 'lib/m55/paidResult/questionnaireCopyV1.ts', extractionStrategy: 'PAID_QUESTIONNAIRE_COPY_V1', extractIdentities: selfPremiumQuestionnaireIdentities },
   { domainId: 'self.premium.merchandise.value', sourceOwner: 'lib/m55/contracts/m55CommercialFunnelContract.ts', extractionStrategy: 'M55_COMMERCIAL_PRODUCTS self premium benefits', extractIdentities: () => productIdentities('self.premium.merchandise.value').filter((i) => i.expectedCopyId.includes('dtr_core_light_v1') || i.expectedCopyId.includes('dtr_core_full_v1')) },
   { domainId: 'self.purchase.confirmation', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'PLAN_SELECTED/PAYMENT_READY CTA labels', extractIdentities: () => sharedCtaIdentities().filter((i) => i.sourceItemId === 'PLAN_SELECTED' || i.sourceItemId === 'PAYMENT_READY') },
-  { domainId: 'self.paid.report', sourceOwner: null, extractionStrategy: 'paid report body copy', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'self.owned.report', sourceOwner: null, extractionStrategy: 'owned report copy', userVisibleCopyExists: true, extractIdentities: () => [] },
+  { domainId: 'self.paid.report', sourceOwner: 'lib/m55/paidDtrProductCopy.ts', extractionStrategy: 'PAID_DTR_* report copy authorities', extractIdentities: () => closureIdentitiesForDomain('self.paid.report') },
+  { domainId: 'self.owned.report', sourceOwner: 'components/dtr/PaidDtrAnalysisLoading.tsx', extractionStrategy: 'owned report loading copy', extractIdentities: () => closureIdentitiesForDomain('self.owned.report') },
   { domainId: 'self.revisit.restore.recovery', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'RETURN_TO_FREE_RESULT CTA', extractIdentities: () => sharedCtaIdentities().filter((i) => i.sourceItemId === 'RETURN_TO_FREE_RESULT') },
   { domainId: 'self.free.share', sourceOwner: 'lib/m55/freeResult/privacySafeShareCardV1.ts', extractionStrategy: 'SHARE_UI_COPY_V1', extractIdentities: selfShareIdentities },
   { domainId: 'pair.entry', sourceOwner: 'lib/m55/compatibility/pairReadingCatalog.v1.ts', extractionStrategy: 'RELATION_STATUS_CATALOG entry labels', extractIdentities: () => pairRelationStageIdentities().slice(0, 1) },
-  { domainId: 'pair.dob.input', sourceOwner: null, extractionStrategy: 'pair DOB input labels', userVisibleCopyExists: true, extractIdentities: () => [] },
+  { domainId: 'pair.dob.input', sourceOwner: 'components/compatibility/CompatibilityGuestExperience.tsx', extractionStrategy: 'pair DOB step labels + public structure', extractIdentities: () => closureIdentitiesForDomain('pair.dob.input') },
   { domainId: 'pair.relation_stage.r1_r6', sourceOwner: 'lib/m55/compatibility/pairReadingCatalog.v1.ts', extractionStrategy: 'RELATION_STATUS_CATALOG R1-R6', extractIdentities: pairRelationStageIdentities },
   { domainId: 'pair.questionnaire.answers', sourceOwner: 'lib/m55/compatibility/currentContextContract.v2.ts', extractionStrategy: 'questionsForRelationStage', extractIdentities: pairQuestionnaireIdentities },
-  { domainId: 'pair.validation.error.empty.loading', sourceOwner: null, extractionStrategy: 'pair validation/error/empty/loading', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'pair.auth.transition', sourceOwner: null, extractionStrategy: 'pair auth transition', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'pair.free.result', sourceOwner: null, extractionStrategy: 'pair free result narrative', userVisibleCopyExists: true, extractIdentities: () => [] },
+  { domainId: 'pair.validation.error.empty.loading', sourceOwner: 'lib/m55/compatibility/pairReadingGuestResult.ts', extractionStrategy: 'pair guest validation outcomes', extractIdentities: () => closureIdentitiesForDomain('pair.validation.error.empty.loading') },
+  { domainId: 'pair.auth.transition', sourceOwner: 'components/compatibility/CompatibilityPurchaseExperience.tsx', extractionStrategy: 'pair purchase auth boundary', extractIdentities: () => closureIdentitiesForDomain('pair.auth.transition') },
+  { domainId: 'pair.free.result', sourceOwner: 'lib/m55/compatibility/pairReadingFragments.v1.ts', extractionStrategy: 'pair free narrative fragments', extractIdentities: () => closureIdentitiesForDomain('pair.free.result') },
   { domainId: 'pair.free.share', sourceOwner: 'lib/m55/compatibility/privacySafePairShare.ts', extractionStrategy: 'PAIR_SHARE_UI_COPY', extractIdentities: pairShareIdentities },
   { domainId: 'pair.premium.bridge', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'pair premium bridge CTA', extractIdentities: () => sharedCtaIdentities().filter((i) => i.sourceItemId === 'FREE_TO_PREMIUM') },
   { domainId: 'pair.premium.merchandise.discovery.value', sourceOwner: 'lib/m55/contracts/m55CommercialFunnelContract.ts', extractionStrategy: 'pair premium product metadata', extractIdentities: () => productIdentities('pair.premium.merchandise.discovery.value').filter((i) => i.expectedCopyId.includes('compatibility_report') || i.expectedCopyId.includes('pair')) },
   { domainId: 'pair.purchase.confirmation', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'pair purchase confirmation CTA', extractIdentities: () => sharedCtaIdentities().filter((i) => i.sourceItemId === 'PLAN_SELECTED' || i.sourceItemId === 'PAYMENT_READY') },
-  { domainId: 'pair.paid.report', sourceOwner: null, extractionStrategy: 'pair paid report narrative', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'pair.owned.report', sourceOwner: null, extractionStrategy: 'pair owned report copy', userVisibleCopyExists: true, extractIdentities: () => [] },
+  { domainId: 'pair.paid.report', sourceOwner: 'lib/m55/compatibility/pairReadingFragments.v1.ts', extractionStrategy: 'pair paid narrative fragments', extractIdentities: () => closureIdentitiesForDomain('pair.paid.report') },
+  { domainId: 'pair.owned.report', sourceOwner: 'components/compatibility/CompatibilityPurchaseExperience.tsx', extractionStrategy: 'pair owned report processing copy', extractIdentities: () => closureIdentitiesForDomain('pair.owned.report') },
   { domainId: 'pair.revisit.restore.recovery', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'pair recovery CTA', extractIdentities: () => sharedCtaIdentities().filter((i) => i.sourceItemId === 'RETURN_TO_FREE_RESULT') },
   { domainId: 'shared.navigation', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'M55_CTA_LABELS navigation', extractIdentities: sharedCtaIdentities },
-  { domainId: 'shared.support.help', sourceOwner: null, extractionStrategy: 'shared support/help copy', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'shared.validation.error', sourceOwner: null, extractionStrategy: 'shared validation/error', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'shared.empty.loading', sourceOwner: null, extractionStrategy: 'shared empty/loading', userVisibleCopyExists: true, extractIdentities: () => [] },
-  { domainId: 'shared.auth', sourceOwner: null, extractionStrategy: 'shared auth copy', userVisibleCopyExists: true, extractIdentities: () => [] },
+  { domainId: 'shared.support.help', sourceOwner: 'app/_components/PublicFooter.tsx', extractionStrategy: 'PublicFooter support/legal + method link', extractIdentities: () => closureIdentitiesForDomain('shared.support.help') },
+  { domainId: 'shared.validation.error', sourceOwner: 'lib/m55/purchaseCheckoutStartedAction.ts', extractionStrategy: 'PURCHASE_CHECKOUT_PUBLIC_ERRORS', extractIdentities: () => closureIdentitiesForDomain('shared.validation.error') },
+  { domainId: 'shared.empty.loading', sourceOwner: 'components/QuietPolling.tsx', extractionStrategy: 'shared loading/empty states', extractIdentities: () => closureIdentitiesForDomain('shared.empty.loading') },
+  { domainId: 'shared.auth', sourceOwner: 'components/PurchaseButton.tsx', extractionStrategy: 'shared purchase auth copy', extractIdentities: () => closureIdentitiesForDomain('shared.auth') },
   { domainId: 'shared.restore.recovery', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'shared recovery CTA', extractIdentities: () => sharedCtaIdentities().filter((i) => i.sourceItemId === 'RETURN_TO_FREE_RESULT') },
   { domainId: 'shared.navigation.commercial_cta', sourceOwner: 'lib/m55/commercialUx/experience/experienceCtaState.ts', extractionStrategy: 'M55_CTA_LABELS commercial CTA', extractIdentities: sharedCtaIdentities },
   { domainId: 'shared.free.product.metadata.value', sourceOwner: 'lib/m55/contracts/m55CommercialFunnelContract.ts', extractionStrategy: 'M55_COMMERCIAL_PRODUCTS self_free_v1 and pair_free_v1 metadata', extractIdentities: freeProductMetadataIdentities },
@@ -705,6 +713,8 @@ export function evaluateSourceIdentityCoverage(
     fingerprintMismatchCopyIds: fingerprintMismatches,
   };
 }
+
+export { M55_CLOSURE_PLACEHOLDER_DOMAIN_IDS };
 
 export function countDiscoveredSourceItems(): number {
   return M55_SOURCE_COVERAGE_DOMAINS.reduce((sum, domain) => sum + domain.extractIdentities().length, 0);
