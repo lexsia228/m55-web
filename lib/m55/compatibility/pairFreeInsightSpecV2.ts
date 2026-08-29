@@ -12,7 +12,12 @@ import type {
   ReturnPatternAnswer,
 } from './currentContextContract.v1';
 import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
-import { resolveFocusAnswer } from './currentContextContract.v2';
+import {
+  isNoObservationDecisionPace,
+  isNoObservationDisagreement,
+  isNoObservationReturnPattern,
+  resolveFocusAnswer,
+} from './currentContextContract.v2';
 import type { PairAxisId, PairDifferenceType, RelationStatusId } from './pairReadingTypes';
 import {
   resolveCivilBirthDimensions,
@@ -42,10 +47,13 @@ export type PairFreeEvidenceQuestionId =
   | 'contactPace'
   | 'reapproachReadiness';
 
+export type PairFreeObservationGapId = 'decisionPace' | 'disagreement' | 'returnPattern';
+
 export type PairFreeInsightSpecV2 = {
   readonly id: string;
   readonly kind: 'pair_free_v2';
   readonly evidenceQuestionIds: readonly PairFreeEvidenceQuestionId[];
+  readonly observationGapQuestionIds?: readonly PairFreeObservationGapId[];
   readonly pairAxisId: PairAxisId;
   readonly pairDifferenceType: PairDifferenceType;
   readonly aBirthEvidence: true;
@@ -85,22 +93,144 @@ type InsightContextAnswers = Omit<CompatibilityCurrentContextAnswers, 'distance'
   distance?: DistanceAnswer;
 };
 
+const NO_OBS_MISMATCH_ENTRY =
+  'まだ二人で何かを決める場面がないため、決める速さの違いは今回の読み取りから除外します。';
+const NO_OBS_MISREAD_LOOP =
+  'まだ意見が違う場面がないため、対立時の動きは今回の読み取りから除外します。';
+const NO_OBS_RESET =
+  'まだすれ違ったあとに戻る場面がないため、戻り方の癖は今回の読み取りから除外します。';
+const NO_OBS_BETWEEN_ALL =
+  '二人の間では、まだ十分な相互作用の履歴がないため、決める速さ・対立時の動き・戻り方は読み取りません。言葉の出方など、いま観察できる範囲だけを入口にします。';
+const NO_OBS_BETWEEN_PARTIAL =
+  '二人の間では、まだ起きていない出来事からは読み取らず、いま観察できる範囲だけを入口にします。';
+
+function isBehavioralDecisionPaceValue(
+  value: CompatibilityCurrentContextAnswersV2['decisionPace'],
+): value is DecisionPaceAnswer {
+  return value === 'decide_now' || value === 'decide_later' || value === 'decide_varies';
+}
+
+function isBehavioralDisagreementValue(
+  value: CompatibilityCurrentContextAnswersV2['disagreement'],
+): value is DisagreementAnswer {
+  return value === 'talk_now' || value === 'take_space' || value === 'one_carries';
+}
+
+function isBehavioralReturnPatternValue(
+  value: CompatibilityCurrentContextAnswersV2['returnPattern'],
+): value is ReturnPatternAnswer {
+  return (
+    value === 'someone_reaches' || value === 'time_restores' || value === 'return_is_hard'
+  );
+}
+
+function resolveLegacyDecisionPace(
+  value: CompatibilityCurrentContextAnswersV2['decisionPace'],
+): DecisionPaceAnswer {
+  if (value === undefined) return 'decide_varies';
+  if (isBehavioralDecisionPaceValue(value)) return value;
+  throw new Error('explicit_no_observation_not_legacy_coercible');
+}
+
+function resolveLegacyDisagreement(
+  value: CompatibilityCurrentContextAnswersV2['disagreement'],
+): DisagreementAnswer {
+  if (value === undefined) return 'take_space';
+  if (isBehavioralDisagreementValue(value)) return value;
+  throw new Error('explicit_no_observation_not_legacy_coercible');
+}
+
+function resolveLegacyReturnPattern(
+  value: CompatibilityCurrentContextAnswersV2['returnPattern'],
+): ReturnPatternAnswer {
+  if (value === undefined) return 'time_restores';
+  if (isBehavioralReturnPatternValue(value)) return value;
+  throw new Error('explicit_no_observation_not_legacy_coercible');
+}
+
 function insightAnswersFromV2(
   answersV2: CompatibilityCurrentContextAnswersV2,
   relationStatusId: RelationStatusId,
 ): InsightContextAnswers {
   const focus = resolveFocusAnswer(relationStatusId, answersV2.focus);
   const base: InsightContextAnswers = {
-    decisionPace: answersV2.decisionPace ?? 'decide_varies',
-    disagreement: answersV2.disagreement ?? 'take_space',
+    decisionPace: resolveLegacyDecisionPace(answersV2.decisionPace),
+    disagreement: resolveLegacyDisagreement(answersV2.disagreement),
     expressionPace: answersV2.expressionPace,
-    returnPattern: answersV2.returnPattern ?? 'time_restores',
+    returnPattern: resolveLegacyReturnPattern(answersV2.returnPattern),
     focus,
   };
   if (answersV2.distance) {
     base.distance = answersV2.distance;
   }
   return base;
+}
+
+function establishedObservationGapIds(
+  answersV2: CompatibilityCurrentContextAnswersV2,
+): readonly PairFreeObservationGapId[] {
+  const gaps: PairFreeObservationGapId[] = [];
+  if (isNoObservationDecisionPace(answersV2.decisionPace)) gaps.push('decisionPace');
+  if (isNoObservationDisagreement(answersV2.disagreement)) gaps.push('disagreement');
+  if (isNoObservationReturnPattern(answersV2.returnPattern)) gaps.push('returnPattern');
+  return Object.freeze(gaps);
+}
+
+function meshMomentFromExpression(
+  expressionPace: ExpressionPaceAnswer,
+  options?: { decisionPaceNoObs?: boolean },
+): string {
+  if (options?.decisionPaceNoObs) {
+    if (expressionPace === 'words_soon') {
+      return '気持ちがすぐ言葉になりやすい日は、言葉の出方の違いが先に見えやすいことがあります。';
+    }
+    if (expressionPace === 'words_later') {
+      return '言葉が遅れて出る日は、言葉が整うまでの時間の見え方が、読み取りのずれとして見えやすいことがあります。';
+    }
+    return 'その日によって言葉の出方が変わるため、いまの温度が読み取りにくくなることがあります。';
+  }
+  if (expressionPace === 'words_soon') {
+    return '気持ちがすぐ言葉になりやすい日は、決める速さとの差が先に見えやすいことがあります。';
+  }
+  if (expressionPace === 'words_later') {
+    return '言葉が遅れて出る日は、結論の置き方との差が先に見えやすいことがあります。';
+  }
+  return 'その日によって言葉の出方が変わるため、同じ場面でも進み方の見え方がずれやすいことがあります。';
+}
+
+function mismatchEntryFromDecisionPace(decisionPace: DecisionPaceAnswer): string {
+  if (decisionPace === 'decide_now') {
+    return 'その場で進めたい動きと、言葉が整うまでの時間差が、読み取りのずれとして見えやすいことがあります。';
+  }
+  if (decisionPace === 'decide_later') {
+    return '結論を置く前に言葉が先に出ると、読み取りのずれとして見えやすいことがあります。';
+  }
+  return '決める速さが場面で変わるため、今日の進み方が読み取りにくくなることがあります。';
+}
+
+function misreadLoopFromDisagreement(disagreement: DisagreementAnswer): string {
+  if (disagreement === 'talk_now') {
+    return '違いをその場の言葉で揃えたい動きと、静かに整えたい動きが逆方向に見えやすいことがあります。受け取り方の差だけを先に見ると、ずれが小さく見えることがあります。';
+  }
+  if (disagreement === 'take_space') {
+    return 'いったん間を取る動きと、先に声をかける動きの意味が、同じ場面でも違って見えやすいことがあります。間の意味を一つに決めずに読むと、ずれが小さく見えることがあります。';
+  }
+  return '話題を引き取る動きと、まだ残っている一点の見え方がずれやすいことがあります。出なかった一点だけを先に見ると、ずれが小さく見えることがあります。';
+}
+
+function resetFromReturnPattern(
+  returnPattern: ReturnPatternAnswer,
+  options?: { decisionPaceNoObs?: boolean },
+): string {
+  if (returnPattern === 'someone_reaches') {
+    return options?.decisionPaceNoObs
+      ? '戻るきっかけの見え方だけが、読み取りのずれとして見えやすいことがあります。'
+      : '戻るきっかけの見え方と、決める速さの差が、読み取りのずれとして見えやすいことがあります。';
+  }
+  if (returnPattern === 'time_restores') {
+    return '自然に戻ったあとの温度差と、言葉の出方の差が、読み取りのずれとして見えやすいことがあります。';
+  }
+  return '戻る入口の重さと、今の間合いの見え方が、読み取りのずれとして見えやすいことがあります。';
 }
 
 function roleLabels(
@@ -477,15 +607,15 @@ function premiumContinuation(
   }
   if (relationStatusId === 'R5') {
     return [
-      '無料では、もう一度近づく前の読み取りのずれまでを読みました。',
-      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、再接近の入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      '無料では、いまの距離の見え方についての読み取りのずれまでを読みました。',
+      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、距離の入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
       `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
     ].join('');
   }
   if (relationStatusId === 'R6') {
     return [
-      '無料では、長く一緒にいることを考える段階で起きやすい読み取りのずれまでを読みました。',
-      '「二人の相性レポート」では、その段階を六つの場面に分け、あなた側と相手側の見え方、進み方のずれの入口、言葉の置き方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+      '無料では、長い付き合いや結婚などで一緒にいる関係で起きやすい読み取りのずれまでを読みました。',
+      '「二人の相性レポート」では、その関係を六つの場面に分け、あなた側と相手側の見え方、進み方のずれの入口、言葉の置き方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
       `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
     ].join('');
   }
@@ -747,6 +877,55 @@ function buildR5FreeInsight(args: {
   const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
   const readiness = args.answersV2.reapproachReadiness ?? 'timing_uncertain';
   const distance = args.answersV2.distance ?? 'go_quiet';
+  if (readiness === 'not_considering_reapproach') {
+    const meshMoment =
+      args.answersV2.expressionPace === 'words_soon'
+        ? '気持ちがすぐ言葉になりやすい日は、言葉の出方の違いが先に見えやすいことがあります。'
+        : args.answersV2.expressionPace === 'words_later'
+          ? '言葉が遅れて出る日は、言葉が整うまでの時間の見え方が、読み取りのずれとして見えやすいことがあります。'
+          : 'その日によって言葉の出方が変わるため、いまの温度が読み取りにくくなることがあります。';
+    const mismatchEntry =
+      distance === 'explain_space'
+        ? '距離の理由は伝わっていても、間合いの見え方がずれやすいことがあります。'
+        : distance === 'go_quiet'
+          ? '静かな間合いのあとでは、言葉の出方の違いが読み取りにくくなることがあります。'
+          : '距離そのものを扱いにくいときは、間合いの見え方が大きく見えやすいことがあります。';
+    const misreadLoop =
+      '相手の気持ちを決めつけずに読むと、いまの距離の見え方だけが先に立ちやすいことがあります。自分が整えたい一点と、間合いの見え方がずれると、読み取りのずれが生じやすいことがあります。';
+    const reset =
+      '今は近づくことを考えていないため、距離の見え方と言葉の出方だけを手がかりにします。';
+    const betweenThem =
+      '二人の間では、以前は近かったがいま離れている状態でも、間合いの見え方と言葉の出方の違いが、読み取りのずれを生みやすいことがあります。';
+    const hit = 'いまの距離の見え方の差が先に立ちやすいことがあります。';
+    return {
+      id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:reapproach:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${readiness}:${distance}:${args.answersV2.expressionPace}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+      kind: 'pair_free_v2',
+      evidenceQuestionIds: EVIDENCE_R5,
+      pairAxisId: args.pairAxisId,
+      pairDifferenceType: differenceType,
+      aBirthEvidence: true,
+      bBirthEvidence: true,
+      pairAnswerEvidence: true,
+      independentAAnswerEvidence: false,
+      independentBAnswerEvidence: false,
+      interactionId: 'default_relationship_loop',
+      confidence: 'medium',
+      personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+      betweenThem,
+      meshMoment,
+      mismatchEntry,
+      misreadLoop,
+      reset,
+      premiumContinuation: [
+        '無料では、いまの距離の見え方についての読み取りのずれまでを読みました。',
+        '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、距離の入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
+        `今いちばん整理したいこと（${args.focusLabel}）から先に読めます。`,
+      ].join(''),
+      manifestationPatternId: `reapproach:${visibleCivil.start}x${inwardCivil.start}:${readiness}:${distance}:${args.answersV2.expressionPace}`,
+      relationshipTriggerJa: hit,
+      relationStatusId: 'R5',
+    };
+  }
   const meshMoment =
     readiness === 'small_step_first'
       ? '小さな接点から始めたいときは、大きな話を先に置きにくいことがあります。'
@@ -817,46 +996,73 @@ function buildEstablishedNativeFreeInsight(args: {
   const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
   const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
   const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
-  const decisionPace = args.answersV2.decisionPace ?? 'decide_later';
-  const disagreement = args.answersV2.disagreement ?? 'talk_now';
+  const observationGapQuestionIds = establishedObservationGapIds(args.answersV2);
+  const decisionPaceNoObs = isNoObservationDecisionPace(args.answersV2.decisionPace);
+  const disagreementNoObs = isNoObservationDisagreement(args.answersV2.disagreement);
+  const returnPatternNoObs = isNoObservationReturnPattern(args.answersV2.returnPattern);
+  const decisionPace = decisionPaceNoObs
+    ? null
+    : isBehavioralDecisionPaceValue(args.answersV2.decisionPace)
+      ? args.answersV2.decisionPace
+      : 'decide_later';
+  const disagreement = disagreementNoObs
+    ? null
+    : isBehavioralDisagreementValue(args.answersV2.disagreement)
+      ? args.answersV2.disagreement
+      : 'talk_now';
   const expressionPace = args.answersV2.expressionPace ?? 'words_soon';
-  const returnPattern = args.answersV2.returnPattern ?? 'someone_reaches';
-  const meshMoment =
-    expressionPace === 'words_soon'
-      ? '気持ちがすぐ言葉になりやすい日は、決める速さとの差が先に見えやすいことがあります。'
-      : expressionPace === 'words_later'
-        ? '言葉が遅れて出る日は、結論の置き方との差が先に見えやすいことがあります。'
-        : 'その日によって言葉の出方が変わるため、同じ場面でも進み方の見え方がずれやすいことがあります。';
-  const mismatchEntry =
-    decisionPace === 'decide_now'
-      ? 'その場で進めたい動きと、言葉が整うまでの時間差が、読み取りのずれとして見えやすいことがあります。'
-      : decisionPace === 'decide_later'
-        ? '結論を置く前に言葉が先に出ると、読み取りのずれとして見えやすいことがあります。'
-        : '決める速さが場面で変わるため、今日の進み方が読み取りにくくなることがあります。';
-  const misreadLoop =
-    disagreement === 'talk_now'
-      ? '違いをその場の言葉で揃えたい動きと、静かに整えたい動きが逆方向に見えやすいことがあります。受け取り方の差だけを先に見ると、ずれが小さく見えることがあります。'
-      : disagreement === 'take_space'
-        ? 'いったん間を取る動きと、先に声をかける動きの意味が、同じ場面でも違って見えやすいことがあります。間の意味を一つに決めずに読むと、ずれが小さく見えることがあります。'
-        : '話題を引き取る動きと、まだ残っている一点の見え方がずれやすいことがあります。出なかった一点だけを先に見ると、ずれが小さく見えることがあります。';
-  const reset =
-    returnPattern === 'someone_reaches'
-      ? '戻るきっかけの見え方と、決める速さの差が、読み取りのずれとして見えやすいことがあります。'
-      : returnPattern === 'time_restores'
-        ? '自然に戻ったあとの温度差と、言葉の出方の差が、読み取りのずれとして見えやすいことがあります。'
-        : '戻る入口の重さと、今の間合いの見え方が、読み取りのずれとして見えやすいことがあります。';
+  const returnPattern = returnPatternNoObs
+    ? null
+    : isBehavioralReturnPatternValue(args.answersV2.returnPattern)
+      ? args.answersV2.returnPattern
+      : 'someone_reaches';
+  const meshMoment = meshMomentFromExpression(expressionPace, { decisionPaceNoObs });
+  const mismatchEntry = decisionPaceNoObs
+    ? NO_OBS_MISMATCH_ENTRY
+    : mismatchEntryFromDecisionPace(decisionPace!);
+  const misreadLoop = disagreementNoObs
+    ? NO_OBS_MISREAD_LOOP
+    : misreadLoopFromDisagreement(disagreement!);
+  const reset = returnPatternNoObs
+    ? NO_OBS_RESET
+    : resetFromReturnPattern(returnPattern!, { decisionPaceNoObs });
   const betweenThem =
-    args.relationStatusId === 'R6'
-      ? '二人の間では、長く一緒にいることを考える段階でも、決める速さと言葉の出方の違いが、読み取りのずれを生みやすいことがあります。'
-      : '二人の間では、関係が続いている場面でも、決める速さと受け止め方の違いが、読み取りのずれを生みやすいことがあります。';
+    observationGapQuestionIds.length === 3
+      ? NO_OBS_BETWEEN_ALL
+      : observationGapQuestionIds.length > 0
+        ? NO_OBS_BETWEEN_PARTIAL
+        : args.relationStatusId === 'R6'
+          ? '二人の間では、長い付き合いや結婚などで一緒にいる場面でも、決める速さと言葉の出方の違いが、読み取りのずれを生みやすいことがあります。'
+          : '二人の間では、関係が続いている場面でも、決める速さと受け止め方の違いが、読み取りのずれを生みやすいことがあります。';
   const hit =
-    args.relationStatusId === 'R6'
-      ? '長く一緒にいることを考える段階では、決める速さの差が先に立ちやすいことがあります。'
-      : '意見の違いより、話し終えたと感じるタイミングの差が先に立ちやすいことがあります。';
+    observationGapQuestionIds.length === 3
+      ? 'まだ十分な相互作用の履歴がないため、決める速さや対立の型からは読み取りません。'
+      : decisionPaceNoObs
+        ? 'まだ決める場面がないため、決める速さの差からは読み取りません。'
+        : disagreementNoObs
+          ? 'まだ意見が違う場面がないため、対立時の動きからは読み取りません。'
+          : returnPatternNoObs
+            ? 'まだ戻る場面がないため、戻り方の癖からは読み取りません。'
+            : args.relationStatusId === 'R6'
+              ? '長い付き合いや結婚などで一緒にいる場面では、決める速さの差が先に立ちやすいことがあります。'
+              : '意見の違いより、話し終えたと感じるタイミングの差が先に立ちやすいことがあります。';
+  const evidenceQuestionIds = EVIDENCE_ESTABLISHED.filter((questionId) => {
+    if (questionId === 'decisionPace' && decisionPaceNoObs) return false;
+    if (questionId === 'disagreement' && disagreementNoObs) return false;
+    if (questionId === 'returnPattern' && returnPatternNoObs) return false;
+    return true;
+  });
+  const answerFingerprint = [
+    args.answersV2.decisionPace ?? 'missing_decisionPace',
+    args.answersV2.disagreement ?? 'missing_disagreement',
+    expressionPace,
+    args.answersV2.returnPattern ?? 'missing_returnPattern',
+  ].join(':');
   return {
-    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:established_native:${args.relationStatusId}:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${decisionPace}:${disagreement}:${expressionPace}:${returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:established_native:${args.relationStatusId}:${args.pairAxisId}:${differenceType}:${visibleCivil.start}-${inwardCivil.start}:${stemDelta}:${answerFingerprint}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
     kind: 'pair_free_v2',
-    evidenceQuestionIds: EVIDENCE_ESTABLISHED,
+    evidenceQuestionIds,
+    ...(observationGapQuestionIds.length > 0 ? { observationGapQuestionIds } : {}),
     pairAxisId: args.pairAxisId,
     pairDifferenceType: differenceType,
     aBirthEvidence: true,
@@ -877,7 +1083,7 @@ function buildEstablishedNativeFreeInsight(args: {
       'default_relationship_loop',
       args.relationStatusId,
     ),
-    manifestationPatternId: `established_native:${args.relationStatusId}:${visibleCivil.start}x${inwardCivil.start}:${decisionPace}:${disagreement}:${expressionPace}:${returnPattern}`,
+    manifestationPatternId: `established_native:${args.relationStatusId}:${visibleCivil.start}x${inwardCivil.start}:${answerFingerprint}`,
     relationshipTriggerJa: hit,
     relationStatusId: args.relationStatusId,
   };

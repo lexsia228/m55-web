@@ -7,7 +7,7 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 
 1. Commercial Funnel SSOT ← **complete**
 2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share **PR #81 MERGED** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` 2026-08-01 — commercial + technical closure complete)
-3. 二人向け無料→有料 — **ACTIVE PAIR LANE (macro)**; Pair Wave-A **USER_VISIBLE_CLOSED_GREEN**; PR #165 **MERGED**; Production **READY** @ product merge SHA; **NEXT** = `PAIR-PREMIUM-ACTIVATION-DECISION`; Pair Premium **NOT_ACTIVATED**
+3. 二人向け無料→有料 — Pair Wave-A **USER_VISIBLE_CLOSED_GREEN**; PR #165 **MERGED**; Production **READY** @ product merge SHA; Pair Premium **ACTIVATED**; macro lane **GLOBAL COMMERCIAL QUALITY**; **CURRENT/NEXT** = `GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE`; Pair real-payment E2E **PAUSED_BEFORE_PAYMENT**
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
@@ -21,10 +21,11 @@ This section records the Human-approved **directional commercial strategy order*
 
 | Order | Future concept | Status |
 |---|---|---|
-| 1 | **PAIR-PREMIUM-ACTIVATION** | current macro priority — executable gate = `PAIR-PREMIUM-ACTIVATION-DECISION` · Pair Premium **NOT_ACTIVATED** |
-| 2 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | future · Personal Free + Pair Free/compatibility share commercial upgrade · **NON-EXECUTABLE** until Pair Premium reaches appropriate commercial closure |
-| 3 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | future · single-tier referral/creator design lane · **TARGET_COMMISSION_RATE = 50%** is **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required · **IMPLEMENTATION NOT AUTHORIZED** |
-| 4 | Referral implementation / provider activation | future · only after independent review and **separate Human GO** |
+| 1 | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** | program identity — macro lane **GLOBAL COMMERCIAL QUALITY** · executable CURRENT/NEXT = `GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE` · Pair Premium **ACTIVATED** · Pair real-payment E2E **PAUSED_BEFORE_PAYMENT** |
+| 2 | **PAIR-PREMIUM-ACTIVATION** | **CLOSED GREEN** — Production commerce switch **ACTIVATED**; real-payment E2E paused pending comprehension remediation |
+| 3 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | future · Personal Free + Pair Free/compatibility share commercial upgrade · **NON-EXECUTABLE** until global commercial Japanese comprehension baseline closes |
+| 4 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | future · single-tier referral/creator design lane · **TARGET_COMMISSION_RATE = 50%** is **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required · **IMPLEMENTATION NOT AUTHORIZED** |
+| 5 | Referral implementation / provider activation | future · only after independent review and **separate Human GO** |
 
 Explicit retainers:
 
@@ -100,9 +101,11 @@ Fixed Pair entrance order:
 14. Human commercial-quality approval — **APPROVED**
 15. PR #165 merge — **MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99`
 16. post-merge Product Production READY observation — **CLOSED GREEN** @ `dpl_8incbWrtaJunn7T3G8wGzozTQG8E`
-17. **PAIR-PREMIUM-ACTIVATION-DECISION** — **NEXT** · decision scope only · **NOT_ACTIVATED**
+17. **PAIR-PREMIUM-ACTIVATION-DECISION** — **CLOSED GREEN** · Pair Premium Production commerce switch **ACTIVATED**
+18. **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** — program identity · Human-approved comprehension program
+19. **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** — **CURRENT/NEXT** · baseline/control-plane implementation **AUTHORIZED** on existing Commercial Quality Control Plane allowlist · user-visible product remediation **NOT YET AUTHORIZED** · commit/push **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization
 
-**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_EXECUTION_STATE.json`. Pair implementation is **COMPLETE**. Pair Premium is **NOT_ACTIVATED**. Pair purchase funnel is **NOT GREEN**.
+**Macro stage only.** Executable **CURRENT EXECUTION GATE** / **NEXT SINGLE ACTION** — sole owner: `docs/ssot/M55_EXECUTION_STATE.json`. Pair implementation is **COMPLETE**. Pair Premium is **ACTIVATED**. Pair Premium activation switch **CLOSED GREEN** · purchase confirmation route **proven/live** · merchandise/discoverability remediation **open** · real payment / fulfillment / owned-report revisit E2E **not GREEN** · latest real-payment E2E **PAUSED_BEFORE_PAYMENT**.
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 

@@ -10,6 +10,13 @@ import { execSync } from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 
+import {
+  bindRenderedCopyToGovernedInventory,
+  type CtaBindingSpec,
+  type GovernedCopyBindingSpec,
+  type RenderedCopyBindingResult,
+} from '../../lib/commercialQuality/japaneseComprehensionRenderedBinding';
+
 import type { CommercialQualityAdapter } from '../../lib/commercialQuality/continuousResponsiveEngine';
 import { stressProfileSpec } from '../../lib/commercialQuality/contentStateStress';
 import { assertProfileSupported } from '../../lib/commercialQuality/setupRegistry';
@@ -595,3 +602,127 @@ export function createM55CommercialQualityAdapter(
 }
 
 export { stressProfileSpec };
+
+export type GovernedCopyViewportLabel = '320' | '390' | 'desktop';
+
+export type RenderedGovernedCopyEvidence = {
+  viewportLabel: GovernedCopyViewportLabel;
+  innerWidth: number;
+  surfaceId: string;
+  runtimeStateId: string;
+  route: string;
+  visibleCopySnippets: string[];
+  ctaLabels: string[];
+  governedTextLength: number;
+  binding: RenderedCopyBindingResult;
+};
+
+const JAPANESE_COMPREHENSION_VIEWPORTS: Readonly<
+  Record<GovernedCopyViewportLabel, { width: number; height: number }>
+> = {
+  '320': { width: 320, height: 640 },
+  '390': { width: 390, height: 844 },
+  desktop: { width: 1280, height: 800 },
+};
+
+/**
+ * Collect rendered governed copy evidence for Japanese comprehension browser binding.
+ * Read-only: does not mutate page content.
+ */
+export async function collectRenderedGovernedCopyEvidence(
+  page: Page,
+  input: {
+    viewportLabel: GovernedCopyViewportLabel;
+    surfaceId: string;
+    runtimeStateId: string;
+    route: string;
+    baseURL: string;
+    label: string;
+    expectedCopy: readonly GovernedCopyBindingSpec[];
+    expectedCtas: readonly CtaBindingSpec[];
+  },
+): Promise<RenderedGovernedCopyEvidence> {
+  requireCleanCaptureEnvironment(input.label);
+  const viewport = JAPANESE_COMPREHENSION_VIEWPORTS[input.viewportLabel];
+  await page.setViewportSize(viewport);
+  await safeGotoLocal(page, new URL(input.route, input.baseURL).toString());
+  await page.waitForLoadState('domcontentloaded');
+  await page.evaluate(() => document.fonts?.ready ?? Promise.resolve());
+  await page.waitForTimeout(90);
+
+  const selectorTargets = [
+    ...input.expectedCopy
+      .filter((spec) => spec.selector)
+      .map((spec) => ({ elementId: spec.selector as string, selector: spec.selector as string })),
+    ...input.expectedCtas
+      .filter((spec) => spec.selector)
+      .filter((spec) => !input.expectedCopy.some((copy) => copy.selector === spec.selector))
+      .map((spec) => ({ elementId: spec.selector as string, selector: spec.selector as string })),
+  ];
+
+  const collected = await page.evaluate((targets) => {
+    const normalizeObservedText = (raw) => raw.replace(/\s+/g, ' ').trim();
+    /** Governed selector binding uses visible rendered text, not raw textContent. */
+    const readVisibleRenderedText = (element) => {
+      if (element instanceof HTMLElement) {
+        return normalizeObservedText(element.innerText ?? '');
+      }
+      return normalizeObservedText(element.textContent ?? '');
+    };
+
+    const main = document.querySelector('main');
+    const root = main ?? document.body;
+    const text = (root.textContent ?? '').replace(/\s+/g, ' ').trim();
+    const snippets = text
+      .split(/(?<=。)|(?<=！)|(?<=？)/)
+      .map((s) => s.trim())
+      .filter((s) => s.length >= 4)
+      .slice(0, 24);
+    const ctaLabels = Array.from(root.querySelectorAll('a[href], button, [role="button"]'))
+      .map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim())
+      .filter((label) => label.length >= 1 && label.length <= 80)
+      .slice(0, 12);
+    const observedElements = targets
+      .map((target) => {
+        const element = document.querySelector(target.selector);
+        if (!element) return null;
+        return {
+          elementId: target.elementId,
+          text: readVisibleRenderedText(element),
+        };
+      })
+      .filter((entry): entry is { elementId: string; text: string } => entry !== null);
+    return {
+      governedTextLength: text.length,
+      visibleCopySnippets: snippets,
+      ctaLabels,
+      observedElements,
+      innerWidth: window.innerWidth,
+    };
+  }, selectorTargets);
+
+  const binding = bindRenderedCopyToGovernedInventory({
+    surfaceId: input.surfaceId,
+    runtimeStateId: input.runtimeStateId,
+    observedElements: collected.observedElements,
+    observedTexts: collected.visibleCopySnippets,
+    observedCtaLabels: collected.ctaLabels,
+    expectedCopy: input.expectedCopy,
+    expectedCtas: input.expectedCtas,
+  });
+
+  return {
+    viewportLabel: input.viewportLabel,
+    innerWidth: collected.innerWidth,
+    surfaceId: input.surfaceId,
+    runtimeStateId: input.runtimeStateId,
+    route: input.route,
+    visibleCopySnippets: collected.visibleCopySnippets,
+    ctaLabels: collected.ctaLabels,
+    governedTextLength: collected.governedTextLength,
+    binding,
+  };
+}
+
+export { bindRenderedCopyToGovernedInventory };
+export type { GovernedCopyBindingSpec, CtaBindingSpec, RenderedCopyBindingResult };

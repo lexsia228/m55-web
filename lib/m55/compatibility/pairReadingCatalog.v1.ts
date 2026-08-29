@@ -29,13 +29,14 @@ export type CatalogEntry<T extends string> = {
   labelJa: string;
 };
 
+/** Observable current relationship context — one selector axis (「今の二人に近いもの」). */
 export const RELATION_STATUS_CATALOG: readonly CatalogEntry<RelationStatusId>[] = [
-  { id: 'R1', key: 'crush', labelJa: '片思い' },
-  { id: 'R2', key: 'in_contact', labelJa: '連絡を取っている' },
+  { id: 'R1', key: 'crush', labelJa: '片思いで、まだ付き合っていない' },
+  { id: 'R2', key: 'in_contact', labelJa: '連絡はあるが、まだ付き合っていない' },
   { id: 'R3', key: 'dating', labelJa: '付き合っている' },
-  { id: 'R4', key: 'distanced', labelJa: '距離ができている' },
-  { id: 'R5', key: 'want_to_reapproach', labelJa: 'もう一度近づきたい' },
-  { id: 'R6', key: 'considering_long_term', labelJa: '長く一緒にいることを考えている' },
+  { id: 'R4', key: 'distanced', labelJa: '付き合っているが、いま距離ができている' },
+  { id: 'R5', key: 'want_to_reapproach', labelJa: '以前は近かったが、いまは離れている' },
+  { id: 'R6', key: 'considering_long_term', labelJa: '長い付き合い・結婚などで一緒にいる' },
 ] as const;
 
 export const PAID_TOPIC_CATALOG: readonly CatalogEntry<PaidTopicId>[] = [

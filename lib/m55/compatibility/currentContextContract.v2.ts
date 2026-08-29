@@ -31,11 +31,27 @@ export type CompatibilityCurrentQuestionIdV2 =
 export type ExpressionPaceAnswerV2 = 'words_soon' | 'words_later' | 'words_vary';
 export type ApproachIntentAnswerV2 = 'wait_for_signal' | 'consider_reaching' | 'unsure_yet';
 export type ContactPaceAnswerV2 = 'light_contact' | 'steady_contact' | 'contact_varies';
-export type DecisionPaceAnswerV2 = 'decide_now' | 'decide_later' | 'decide_varies';
-export type DisagreementAnswerV2 = 'talk_now' | 'take_space' | 'one_carries';
+export type DecisionPaceAnswerV2 =
+  | 'decide_now'
+  | 'decide_later'
+  | 'decide_varies'
+  | 'no_shared_decision_yet';
+export type DisagreementAnswerV2 =
+  | 'talk_now'
+  | 'take_space'
+  | 'one_carries'
+  | 'no_disagreement_yet';
 export type DistanceAnswerV2 = 'explain_space' | 'go_quiet' | 'space_is_hard';
-export type ReturnPatternAnswerV2 = 'someone_reaches' | 'time_restores' | 'return_is_hard';
-export type ReapproachReadinessAnswerV2 = 'small_step_first' | 'need_clarity_first' | 'timing_uncertain';
+export type ReturnPatternAnswerV2 =
+  | 'someone_reaches'
+  | 'time_restores'
+  | 'return_is_hard'
+  | 'no_misalignment_return_yet';
+export type ReapproachReadinessAnswerV2 =
+  | 'small_step_first'
+  | 'need_clarity_first'
+  | 'timing_uncertain'
+  | 'not_considering_reapproach';
 export type CompatibilityFocusAnswerV2 =
   | 'distance_focus'
   | 'conversation_focus'
@@ -112,6 +128,7 @@ const ESTABLISHED_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = 
       { answerId: 'decide_now', label: 'その場で決めることが多い' },
       { answerId: 'decide_later', label: '少し時間を置いて決めることが多い' },
       { answerId: 'decide_varies', label: '状況によって大きく変わる' },
+      { answerId: 'no_shared_decision_yet', label: 'まだ二人で何かを決める場面はない' },
     ],
   },
   {
@@ -121,6 +138,7 @@ const ESTABLISHED_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = 
       { answerId: 'talk_now', label: 'その場で言葉を交わす' },
       { answerId: 'take_space', label: 'いったん距離や時間を置く' },
       { answerId: 'one_carries', label: 'どちらかが話題を引き取る' },
+      { answerId: 'no_disagreement_yet', label: 'まだ意見が違う場面はない' },
     ],
   },
   {
@@ -139,6 +157,7 @@ const ESTABLISHED_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = 
       { answerId: 'someone_reaches', label: 'どちらかが先に声をかける' },
       { answerId: 'time_restores', label: '時間がたつと自然に戻る' },
       { answerId: 'return_is_hard', label: '戻るきっかけを作りにくい' },
+      { answerId: 'no_misalignment_return_yet', label: 'まだ、すれ違ったあとに戻る場面はない' },
     ],
   },
 ];
@@ -167,11 +186,12 @@ const R4_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = [
 const R5_QUESTIONS: readonly CompatibilityCurrentContextQuestionV2[] = [
   {
     questionId: 'reapproachReadiness',
-    question: 'もう一度近づくことを考えるとき、今はどの形に近いですか？',
+    question: 'いまの距離について、あなたはどの立ち位置に近いですか？',
     choices: [
       { answerId: 'small_step_first', label: '小さな接点から始めたい' },
       { answerId: 'need_clarity_first', label: '先に自分の気持ちを整理したい' },
       { answerId: 'timing_uncertain', label: 'タイミングがまだ見えない' },
+      { answerId: 'not_considering_reapproach', label: '今は近づくことを考えていない' },
     ],
   },
   {
@@ -216,11 +236,16 @@ const V2_ANSWER_IDS: Record<CompatibilityCurrentQuestionIdV2, readonly string[]>
   expressionPace: ['words_soon', 'words_later', 'words_vary'],
   approachIntent: ['wait_for_signal', 'consider_reaching', 'unsure_yet'],
   contactPace: ['light_contact', 'steady_contact', 'contact_varies'],
-  decisionPace: ['decide_now', 'decide_later', 'decide_varies'],
-  disagreement: ['talk_now', 'take_space', 'one_carries'],
+  decisionPace: ['decide_now', 'decide_later', 'decide_varies', 'no_shared_decision_yet'],
+  disagreement: ['talk_now', 'take_space', 'one_carries', 'no_disagreement_yet'],
   distance: ['explain_space', 'go_quiet', 'space_is_hard'],
-  returnPattern: ['someone_reaches', 'time_restores', 'return_is_hard'],
-  reapproachReadiness: ['small_step_first', 'need_clarity_first', 'timing_uncertain'],
+  returnPattern: ['someone_reaches', 'time_restores', 'return_is_hard', 'no_misalignment_return_yet'],
+  reapproachReadiness: [
+    'small_step_first',
+    'need_clarity_first',
+    'timing_uncertain',
+    'not_considering_reapproach',
+  ],
   focus: [
     'distance_focus',
     'conversation_focus',
@@ -230,6 +255,54 @@ const V2_ANSWER_IDS: Record<CompatibilityCurrentQuestionIdV2, readonly string[]>
     'skip_focus',
   ],
 };
+
+export function establishedContextIncludesNoObservation(
+  answers: CompatibilityCurrentContextAnswersV2,
+): boolean {
+  return (
+    answers.decisionPace === 'no_shared_decision_yet' ||
+    answers.disagreement === 'no_disagreement_yet' ||
+    answers.returnPattern === 'no_misalignment_return_yet'
+  );
+}
+
+export function isNoObservationDecisionPace(
+  value: DecisionPaceAnswerV2 | undefined,
+): value is 'no_shared_decision_yet' {
+  return value === 'no_shared_decision_yet';
+}
+
+export function isNoObservationDisagreement(
+  value: DisagreementAnswerV2 | undefined,
+): value is 'no_disagreement_yet' {
+  return value === 'no_disagreement_yet';
+}
+
+export function isNoObservationReturnPattern(
+  value: ReturnPatternAnswerV2 | undefined,
+): value is 'no_misalignment_return_yet' {
+  return value === 'no_misalignment_return_yet';
+}
+
+function isBehavioralDecisionPace(
+  value: DecisionPaceAnswerV2 | undefined,
+): value is DecisionPaceAnswer {
+  return value === 'decide_now' || value === 'decide_later' || value === 'decide_varies';
+}
+
+function isBehavioralDisagreement(
+  value: DisagreementAnswerV2 | undefined,
+): value is DisagreementAnswer {
+  return value === 'talk_now' || value === 'take_space' || value === 'one_carries';
+}
+
+function isBehavioralReturnPattern(
+  value: ReturnPatternAnswerV2 | undefined,
+): value is ReturnPatternAnswer {
+  return (
+    value === 'someone_reaches' || value === 'time_restores' || value === 'return_is_hard'
+  );
+}
 
 export function stageSafeFocusOptions(
   relationStatusId: RelationStatusId,
@@ -323,13 +396,17 @@ export function toLegacyCurrentContextAnswers(
   ) {
     throw new Error('legacy_conversion_unsafe_for_stage');
   }
+  if (establishedContextIncludesNoObservation(answers)) {
+    throw new Error('legacy_conversion_unsafe_for_no_observation');
+  }
   const focus = resolveFocusAnswer(relationStatusId, answers.focus);
+  const body = establishedBodyFromV2(answers);
   return {
-    decisionPace: answers.decisionPace ?? 'decide_varies',
-    disagreement: answers.disagreement ?? 'take_space',
+    decisionPace: body.decisionPace,
+    disagreement: body.disagreement,
     distance: answers.distance ?? 'explain_space',
-    expressionPace: answers.expressionPace,
-    returnPattern: answers.returnPattern ?? 'time_restores',
+    expressionPace: body.expressionPace,
+    returnPattern: body.returnPattern,
     focus,
   };
 }
@@ -409,11 +486,21 @@ function establishedBodyFromV2(
   expressionPace: ExpressionPaceAnswer;
   returnPattern: ReturnPatternAnswer;
 } {
+  if (establishedContextIncludesNoObservation(answers)) {
+    throw new Error('established_body_unsafe_for_no_observation');
+  }
+  if (
+    !isBehavioralDecisionPace(answers.decisionPace) ||
+    !isBehavioralDisagreement(answers.disagreement) ||
+    !isBehavioralReturnPattern(answers.returnPattern)
+  ) {
+    throw new Error('established_body_missing_behavioral_answer');
+  }
   return {
-    decisionPace: answers.decisionPace ?? 'decide_varies',
-    disagreement: answers.disagreement ?? 'take_space',
+    decisionPace: answers.decisionPace,
+    disagreement: answers.disagreement,
     expressionPace: answers.expressionPace,
-    returnPattern: answers.returnPattern ?? 'time_restores',
+    returnPattern: answers.returnPattern,
   };
 }
 
@@ -749,6 +836,9 @@ function distanceLoopStep(distance: NonNullable<CompatibilityCurrentContextAnswe
 function reapproachLoopStep(
   readiness: NonNullable<CompatibilityCurrentContextAnswersV2['reapproachReadiness']>,
 ): string {
+  if (readiness === 'not_considering_reapproach') {
+    return '今は近づくことを考えていないため、距離の見え方だけを手がかりにします';
+  }
   return readiness === 'small_step_first'
     ? '小さな接点から始めたいときは、大きな話を先に置きにくいことがあります'
     : readiness === 'need_clarity_first'
@@ -801,6 +891,10 @@ function buildR5CurrentContextDisplay(
   const focus = resolveFocusAnswer('R5', answers.focus);
   const focusMeta = stageFocusDisplay('R5', focus);
   const readiness = answers.reapproachReadiness ?? 'timing_uncertain';
+  const readingGuide =
+    readiness === 'not_considering_reapproach'
+      ? 'いまの距離の見え方と、言葉の出方が手がかりになります。'
+      : focusMeta.readingGuide;
   const distance = answers.distance ?? 'go_quiet';
   const relationshipLoopSteps = Object.freeze([
     reapproachLoopStep(readiness),
@@ -810,16 +904,73 @@ function buildR5CurrentContextDisplay(
   const relationshipLoop = relationshipLoopSteps
     .map((step) => step.replace(/。$/u, ''))
     .join('。') + '。';
+  const currentExpression =
+    readiness === 'not_considering_reapproach'
+      ? '以前は近かった二人のいまの距離では、間合いの見え方と言葉の出方の違いが、読み取りのずれを生みやすいことがあります。'
+      : 'いまの距離について近づくことを考える場面では、再接近のタイミングと今の間合いの見え方が、読み取りのずれを生みやすいことがあります。';
+  return Object.freeze({
+    questionnaireContractVersion:
+      COMPATIBILITY_CURRENT_CONTEXT_VERSION_V2 as CompatibilityCurrentContextDisplay['questionnaireContractVersion'],
+    currentExpression,
+    relationshipLoopSteps,
+    relationshipLoop,
+    glanceLabel:
+      readiness === 'not_considering_reapproach' ? 'いまの距離を見ながら' : '再接近を考える前に',
+    immediateAction:
+      readiness === 'not_considering_reapproach'
+        ? '今は近づくことを考えていないため、距離の見え方と言葉の出方だけを手がかりにします。'
+        : '相手の気持ちを決めつけず、自分が整えたい一点だけを先に確かめたい読み取りのずれが起きやすいことがあります。',
+    focusLabel: focusMeta.label,
+    readingGuide,
+    highlightedChapterKeys: Object.freeze([...focusMeta.chapters]) as readonly [ChapterId, ChapterId],
+    chapterPreview: Object.freeze(
+      (readiness === 'not_considering_reapproach'
+        ? focusMeta.chapters.map((chapterKey, index) =>
+            Object.freeze({
+              chapterKey,
+              reason:
+                chapterKey === 'ch_today_clue'
+                  ? 'いまの距離の見え方を扱う章です。'
+                  : '気になる点を一度に広げない入口を扱う章です。',
+              concreteValue: focusMeta.outcomes[index]!,
+            }),
+          )
+        : focusMeta.chapters.map((chapterKey, index) =>
+            Object.freeze({
+              chapterKey,
+              reason: focusMeta.reasons[index]!,
+              concreteValue: focusMeta.outcomes[index]!,
+            }),
+          )),
+    ),
+  });
+}
+
+function buildEstablishedObservationInsufficientDisplayV2(
+  answers: CompatibilityCurrentContextAnswersV2,
+  relationStatusId: 'R3' | 'R6',
+): CompatibilityCurrentContextDisplay {
+  const focus = resolveFocusAnswer(relationStatusId, answers.focus);
+  const focusMeta = FOCUS_DISPLAY[focus];
+  const expressionLine = ESTABLISHED_EXPRESSION_LINE[answers.expressionPace];
+  const relationshipLoopSteps = Object.freeze([
+    'まだ十分な出来事がないため、過去のやり取りを作り込まずに読む必要があります',
+    expressionLine.replace(/。$/u, ''),
+    '今回は、観察できる範囲だけを入口として扱います',
+  ] as const);
+  const relationshipLoop = relationshipLoopSteps
+    .map((step) => step.replace(/。$/u, ''))
+    .join('。') + '。';
   return Object.freeze({
     questionnaireContractVersion:
       COMPATIBILITY_CURRENT_CONTEXT_VERSION_V2 as CompatibilityCurrentContextDisplay['questionnaireContractVersion'],
     currentExpression:
-      'もう一度近づくことを考える場面では、再接近のタイミングと今の間合いの見え方が、読み取りのずれを生みやすいことがあります。',
+      'まだ十分な出来事がないため、今回は一般的な読み方の入口だけを示します。' + expressionLine,
     relationshipLoopSteps,
     relationshipLoop,
-    glanceLabel: '再接近を考える前に',
+    glanceLabel: '観察できる範囲だけを見ながら',
     immediateAction:
-      '相手の気持ちを決めつけず、自分が整えたい一点だけを先に確かめたい読み取りのずれが起きやすいことがあります。',
+      'まだ起きていない出来事を前提にせず、今の二人で確かめられる範囲だけを扱います。',
     focusLabel: focusMeta.label,
     readingGuide: focusMeta.readingGuide,
     highlightedChapterKeys: Object.freeze([...focusMeta.chapters]) as readonly [ChapterId, ChapterId],
@@ -839,6 +990,9 @@ function buildEstablishedCurrentContextDisplayV2(
   answers: CompatibilityCurrentContextAnswersV2,
   relationStatusId: 'R3' | 'R6',
 ): CompatibilityCurrentContextDisplay {
+  if (establishedContextIncludesNoObservation(answers)) {
+    return buildEstablishedObservationInsufficientDisplayV2(answers, relationStatusId);
+  }
   if (answers.distance) {
     const legacy: CompatibilityCurrentContextAnswers = {
       ...establishedBodyFromV2(answers),
@@ -918,6 +1072,12 @@ export function buildCompatibilityCurrentContextChapterVariationV2(
     return buildV1ChapterVariation(chapterKey, {} as CompatibilityCurrentContextBodyAnswers);
   }
   if (relationStatusId === 'R4' || relationStatusId === 'R5') {
+    return NO_CHAPTER_VARIATION_V2;
+  }
+  if (
+    (relationStatusId === 'R3' || relationStatusId === 'R6') &&
+    establishedContextIncludesNoObservation(answers)
+  ) {
     return NO_CHAPTER_VARIATION_V2;
   }
   if (

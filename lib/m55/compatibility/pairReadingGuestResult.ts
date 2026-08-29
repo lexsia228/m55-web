@@ -19,6 +19,7 @@ import { renderPairReading } from './pairReadingRenderer';
 import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1';
 import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
 import {
+  establishedContextIncludesNoObservation,
   isCompleteCompatibilityCurrentContextV2,
   toLegacyCurrentContextAnswers,
   type CompatibilityCurrentContextAnswersV2,
@@ -128,7 +129,9 @@ export function buildCompatibilityPublicResult(
       ? stripFocusForPublicGuestAnswers(currentContextV2)
       : undefined;
   const legacyAnswers =
-    publicContextV2 && (relationStatusId === 'R3' || relationStatusId === 'R6')
+    publicContextV2 &&
+    (relationStatusId === 'R3' || relationStatusId === 'R6') &&
+    !establishedContextIncludesNoObservation(publicContextV2)
       ? toLegacyCurrentContextAnswers(publicContextV2, relationStatusId)
       : legacyCurrentContext;
 

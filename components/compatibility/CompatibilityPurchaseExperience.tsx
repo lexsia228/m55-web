@@ -1,21 +1,22 @@
 'use client';
 
-import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
-  COMPATIBILITY_GUEST_SESSION_KEY_V3,
-  isCompleteCompatibilityGuestInput,
-  isValidCompatibilityRelationStatusId,
-  type CompatibilityGuestInput,
-  type CompatibilityGuestJourneyV3,
-} from '../../lib/m55/compatibility/pairReadingGuestContract';
-import {
-  buildCompatibilityCurrentContextDisplayV2,
-  isCompleteCompatibilityCurrentContextV2,
-  type CompatibilityCurrentContextAnswersV2,
-} from '../../lib/m55/compatibility/currentContextContract.v2';
-import type { RelationStatusId } from '../../lib/m55/compatibility/pairReadingTypes';
+  capturePreAuthSessionJourneyCandidate,
+  claimPreAuthSessionJourneyForUser,
+  guestJourneyV3ToPurchaseJourney,
+  readCompatibilityGuestJourneyV3FromSession,
+  readLastCompletedPairJourney,
+  resolveSignedInPurchaseHandoff,
+  resolveSignedOutPurchaseHandoff,
+  type CompatibilityPurchaseHandoffResolution,
+  type CompatibilityPurchaseJourney,
+} from '../../lib/m55/compatibility/pairGuestClientStore';
+import type { CompatibilityGuestJourneyV3 } from '../../lib/m55/compatibility/pairReadingGuestContract';
+import { buildCompatibilityCurrentContextDisplayV2 } from '../../lib/m55/compatibility/currentContextContract.v2';
+import type { CompatibilityCurrentContextAnswersV2 } from '../../lib/m55/compatibility/currentContextContract.v2';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -25,41 +26,11 @@ import styles from './CompatibilityPurchaseExperience.module.css';
 
 type PreviewAuthState = 'signed_in' | 'signed_out' | 'redirecting';
 
-type CompatibilityPurchaseJourney = {
-  input: CompatibilityGuestInput;
-  relationStatusId: RelationStatusId;
-  currentContext: CompatibilityCurrentContextAnswersV2;
-};
-
 const PREVIEW_CURRENT_CONTEXT: CompatibilityCurrentContextAnswersV2 = {
   expressionPace: 'words_soon',
   contactPace: 'steady_contact',
   focus: 'conversation_focus',
 };
-
-function readPurchaseInput(): CompatibilityPurchaseJourney | null {
-  try {
-    const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<CompatibilityGuestJourneyV3>;
-    if (
-      parsed.version !== 'journey_v3' ||
-      !parsed.input ||
-      !isCompleteCompatibilityGuestInput(parsed.input) ||
-      !isValidCompatibilityRelationStatusId(parsed.relationStatusId) ||
-      !isCompleteCompatibilityCurrentContextV2(parsed.answers, parsed.relationStatusId)
-    ) {
-      return null;
-    }
-    return {
-      input: parsed.input,
-      relationStatusId: parsed.relationStatusId,
-      currentContext: parsed.answers,
-    };
-  } catch {
-    return null;
-  }
-}
 
 function ProductDetails() {
   return (
@@ -119,6 +90,10 @@ export function CompatibilityPurchaseConfirmation({
   previewAuthState?: PreviewAuthState;
   previewCurrentContext?: CompatibilityCurrentContextAnswersV2;
 }) {
+  const { user, isLoaded } = useUser();
+  const preAuthSessionJourneyRef = useRef<CompatibilityGuestJourneyV3 | null>(null);
+  const preAuthSessionCapturedRef = useRef(false);
+  const preAuthSessionClaimedRef = useRef(false);
   const [journey, setJourney] = useState<CompatibilityPurchaseJourney | null>(
     previewAuthState
       ? {
@@ -127,6 +102,13 @@ export function CompatibilityPurchaseConfirmation({
           currentContext: previewCurrentContext,
         }
       : null,
+  );
+  const [handoff, setHandoff] = useState<CompatibilityPurchaseHandoffResolution | 'pending'>(
+    previewAuthState ? { kind: 'session', journey: {
+      input: { personA: '1990-01-01', personB: '1992-02-02' },
+      relationStatusId: 'R2',
+      currentContext: previewCurrentContext,
+    } } : 'pending',
   );
   const [loading, setLoading] = useState(previewAuthState === 'redirecting');
   const [error, setError] = useState('');
@@ -143,13 +125,58 @@ export function CompatibilityPurchaseConfirmation({
 
   useEffect(() => {
     if (previewAuthState) return;
-    setJourney(readPurchaseInput());
+    if (!isLoaded) return;
+
+    const sessionStorageRef =
+      typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+    const sessionJourneyV3 = readCompatibilityGuestJourneyV3FromSession(sessionStorageRef);
+    const clerkUserId = user?.id ?? null;
+
+    if (!clerkUserId) {
+      if (!preAuthSessionCapturedRef.current) {
+        preAuthSessionJourneyRef.current = capturePreAuthSessionJourneyCandidate(
+          preAuthSessionJourneyRef.current,
+          sessionJourneyV3,
+        );
+        preAuthSessionCapturedRef.current = true;
+      }
+      const resolution = resolveSignedOutPurchaseHandoff({
+        sessionJourney: preAuthSessionJourneyRef.current
+          ? guestJourneyV3ToPurchaseJourney(preAuthSessionJourneyRef.current)
+          : null,
+      });
+      setHandoff(resolution);
+      setJourney(
+        resolution.kind === 'session' ? resolution.journey : null,
+      );
+    } else if (
+      preAuthSessionJourneyRef.current &&
+      !preAuthSessionClaimedRef.current
+    ) {
+      preAuthSessionClaimedRef.current = true;
+      const resolution = claimPreAuthSessionJourneyForUser(
+        clerkUserId,
+        preAuthSessionJourneyRef.current,
+      );
+      setHandoff(resolution);
+      setJourney(resolution.journey);
+    } else {
+      const resolution = resolveSignedInPurchaseHandoff({
+        clerkUserId,
+        persistedJourney: readLastCompletedPairJourney(clerkUserId),
+      });
+      setHandoff(resolution);
+      setJourney(
+        resolution.kind === 'persisted' ? resolution.journey : null,
+      );
+    }
+
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.compatibilityPurchaseView,
       'compatibility_purchase',
       'compatibility-purchase-view',
     );
-  }, [previewAuthState]);
+  }, [previewAuthState, isLoaded, user?.id]);
 
   async function startCheckout() {
     if (!journey || !commerceEnabled || loading) return;
@@ -200,7 +227,9 @@ export function CompatibilityPurchaseConfirmation({
     : null;
   const signedInContent = (
     <div className={styles.actionArea}>
-      {journey ? (
+      {handoff === 'pending' || !isLoaded ? (
+        <p className={styles.inputReady}>購入内容を準備しています…</p>
+      ) : handoff.kind === 'session' || handoff.kind === 'persisted' ? (
         <>
           <div className={styles.personalization}>
             <strong>現在の二人に合わせた6章</strong>
@@ -218,9 +247,13 @@ export function CompatibilityPurchaseConfirmation({
           </button>
         </>
       ) : (
-        <p className={styles.inputMissing} role="alert">
-          このタブに二人分の入力がありません。無料結果へ戻って入力内容を確認してください。
-        </p>
+        <div className={styles.authBoundary} data-testid="compatibility-purchase-recovery">
+          <h2>二人の無料結果を開き直す</h2>
+          <p>購入を続けるには、二人の無料結果が必要です。</p>
+          <Link href="/synastry" className={styles.primary}>
+            二人の無料結果を開き直す
+          </Link>
+        </div>
       )}
       {error && <p className={styles.error} role="alert">{error}</p>}
     </div>

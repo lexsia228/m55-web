@@ -93,11 +93,13 @@ import {
 } from '../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
 import { M55_METHOD_CANONICAL_ROUTE } from '../lib/m55/method/m55MethodAuthority';
 import {
+  collectRenderedGovernedCopyEvidence,
   createM55CommercialQualityAdapter,
   measureCommercialSurface,
   resolveSourceCommit,
 } from './helpers/commercialQualityRunner';
 import { requireCleanCaptureEnvironment } from './helpers/cleanCaptureEnvironment';
+import { JAPANESE_COMPREHENSION_HOME_VIEWPORTS } from './helpers/m55CommercialQualityFixtures';
 import {
   assertMethodLinkAndOrder,
   assertNoRunnerWrittenStateMarker,
@@ -106,6 +108,11 @@ import {
   countResidue,
   resolveSmokeManifestEntry,
 } from './helpers/commercialQualitySmokeEvidence';
+import { runM55JapaneseComprehensionBaseline } from '../lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionBaseline';
+import {
+  buildM55GovernedCopyInventory,
+  buildM55RenderedBindingSpecs,
+} from '../lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionInventory';
 
 const LABEL = 'commercial-quality-control-plane';
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
@@ -816,6 +823,55 @@ test.describe('commercial quality control plane', () => {
           f.code === 'LAYOUT_ROUTE_DRIFT',
       ) || measured.protectedNodes[0]?.textLength === 1,
     ).toBe(true);
+  });
+
+  test('5b. japanese comprehension baseline + home rendered copy evidence', async ({ page }) => {
+    const baseline = runM55JapaneseComprehensionBaseline();
+    expect(baseline.knownHumanFindingsReproduced).toBe(4);
+    expect(baseline.aiAutoGreenCount).toBe(0);
+    expect(baseline.aiStatus.aiReviewStatus).toBe('PENDING');
+    expect(baseline.inventory.totalGovernedCopy).toBeGreaterThan(40);
+
+    const inventory = buildM55GovernedCopyInventory();
+    const { expectedCopy, expectedCtas } = buildM55RenderedBindingSpecs(
+      'm55:public.home',
+      'home.hero',
+      inventory,
+    );
+
+    const homeEvidence = [];
+    for (const viewport of JAPANESE_COMPREHENSION_HOME_VIEWPORTS) {
+      const evidence = await collectRenderedGovernedCopyEvidence(page, {
+        viewportLabel: viewport.label,
+        surfaceId: 'm55:public.home',
+        runtimeStateId: 'home.hero',
+        route: '/home',
+        baseURL: BASE_URL,
+        label: `${LABEL}:japanese-home-${viewport.label}`,
+        expectedCopy,
+        expectedCtas,
+      });
+      const { binding } = evidence;
+      const primaryCta = binding.ctaBindings.find((cta) => cta.ctaId === 'home.cta.primary');
+
+      expect(binding.observedCopyIds).toContain('home.hero.heading');
+      expect(binding.missingCopyIds).not.toContain('home.hero.heading');
+      expect(binding.mismatchedCopyIds).not.toContain('home.hero.heading');
+      expect(binding.pendingCopyIds).not.toContain('home.hero.heading');
+
+      expect(binding.pendingCopyIds).toEqual(['home.hero.body']);
+      expect(binding.missingCopyIds).toEqual([]);
+      expect(binding.mismatchedCopyIds).toEqual([]);
+
+      expect(primaryCta).toBeDefined();
+      expect(primaryCta?.observed).toBe(true);
+      expect(primaryCta?.pending).toBe(false);
+      expect(primaryCta?.superstringMatch).toBe(false);
+
+      expect(binding.passed).toBe(false);
+      homeEvidence.push(evidence);
+    }
+    expect(homeEvidence.map((e) => e.viewportLabel).sort()).toEqual(['320', '390', 'desktop']);
   });
 
   test('6. CTA below visual viewport rejected', async ({ page }) => {

@@ -13,6 +13,16 @@ export const COMPATIBILITY_GUEST_SESSION_KEY = 'm55_compatibility_guest_journey_
 export const COMPATIBILITY_GUEST_SESSION_KEY_V3 =
   'm55_compatibility_guest_journey_v3' as const;
 
+/** Clerk-user-keyed localStorage prefix for last completed Pair free journey. */
+export const PAIR_GUEST_LAST_JOURNEY_KEY_PREFIX =
+  'm55_pair_guest_last_journey_v1_' as const;
+
+export type PairGuestPersistedV1 = {
+  version: 'pair_guest_persisted_v1';
+  ownerUserId: string;
+  journey: CompatibilityGuestJourneyV3;
+};
+
 /** Legacy/test default — public journey must pass explicit relationStatusId. */
 export const COMPATIBILITY_GUEST_DEFAULT_STATE = {
   relationStatusId: 'R2',

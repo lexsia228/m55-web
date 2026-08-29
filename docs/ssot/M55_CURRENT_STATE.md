@@ -17,14 +17,20 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 
 ## PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)
 
+> Legacy parser anchor retained for Control Tower compatibility.
+> Current durable macro lane is **GLOBAL COMMERCIAL QUALITY**;
+> executable authority remains `docs/ssot/M55_EXECUTION_STATE.json`.
+
 **Executable sole owner:** `docs/ssot/M55_EXECUTION_STATE.json` (`legacyExecutionFieldsSuperseded=true`). This section is narrative/history mirror only — it must not compete with the execution-state file for CURRENT/NEXT.
 
 | Field | Value |
 |---|---|
-| Macro lane | **PAIR LANE** |
+| Macro lane | **GLOBAL COMMERCIAL QUALITY** |
+| Program identity | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** — HOME · Self free/questionnaire/result/Premium · Pair free/questionnaire/result/Premium · shared commercial states |
 | Pair Wave-A | **USER_VISIBLE_CLOSED_GREEN** |
 | Pair implementation | **COMPLETE** (`pairImplementation=COMPLETE`) |
-| Pair Premium | **NOT_ACTIVATED** |
+| Pair Premium | **ACTIVATED** — Production commerce switch **CLOSED GREEN** |
+| Pair real-payment E2E | **PAUSED_BEFORE_PAYMENT** — comprehension/discoverability defects found; no payment completed in latest attempt; do **not** mark GREEN |
 | Pair free→paid mapping | **COMPLETE** — `PAIR-FREE-TO-PAID-MAPPING-FIRST` · repeat mapping **PROHIBITED** |
 | Pair minimal implementation | **COMPLETE** — `PAIR-MINIMAL-IMPLEMENTATION` |
 | Pair relation-stage Wave-A source/local implementation | **CLOSED GREEN** |
@@ -38,13 +44,17 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Human commercial-quality approval | **APPROVED** |
 | Accepted nonblocking P2 | **P2-A11Y-RESULT-HEADING-LEVEL** — result top visible heading observed as H2 without observed H1 |
 | Safari evidence invalidated by merge | **NO** — main-delta/product-path intersection = 0 |
-| Pair purchase funnel | **NOT GREEN** — merchandise shelf · checkout · payment · owned report delivery unproven |
+| Pair purchase funnel | Pair Premium activation switch **CLOSED GREEN** · purchase confirmation route **proven/live** · merchandise/discoverability remediation **open** · real payment / fulfillment / owned-report revisit E2E **not GREEN** · latest real-payment E2E **PAUSED_BEFORE_PAYMENT** |
 | Source/browser replay policy | **PROHIBITED** absent dependency invalidation — see `pairWaveAUserVisibleClosureTransition` |
 | Live Git runtime (HEAD · origin/main · divergence · dirty/staged) | **derive via `npm run m55:context`** — not timeless SSOT |
-| CURRENT EXECUTION GATE | **PAIR-PREMIUM-ACTIVATION-DECISION** |
-| NEXT SINGLE ACTION | **PAIR-PREMIUM-ACTIVATION-DECISION** |
-| Product work after control tower | **PAIR-PREMIUM-ACTIVATION-DECISION** |
-| prohibited expansion | replay closed Wave-A findings absent invalidation · Pair Free→Paid remapping · Pair Premium activation without decision gate · benchmark reselection · provider mutation without Human GO |
+| CURRENT EXECUTION GATE | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| NEXT SINGLE ACTION | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| Product work after control tower | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE** |
+| baseline/control-plane implementation | **AUTHORIZED** — extends existing Commercial Quality Control Plane · allowed paths: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` · `lib/commercialQuality/**` · `lib/m55/commercialUx/qualityControl/**` · `e2e/helpers/commercialQualityRunner.ts` · `e2e/helpers/m55CommercialQualityFixtures.ts` · `e2e/commercial-quality-control-plane.spec.ts` · `scripts/verify-m55-commercial-quality-control-plane.mjs` |
+| user-visible product remediation | **NOT YET AUTHORIZED** |
+| commit | **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization |
+| push | **PROHIBITED** until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization |
+| prohibited expansion | replay closed Wave-A findings absent invalidation · Pair Free→Paid remapping · benchmark reselection · provider mutation without Human GO · user-visible product/copy remediation before baseline review · real-payment E2E GREEN claim while PAUSED_BEFORE_PAYMENT |
 
 ### Completed sub-gates (CLOSED — do not replay)
 
@@ -55,6 +65,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 - `PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION` — **CLOSED GREEN**
 - `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` — **CLOSED GREEN**
 - `PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION` — **USER_VISIBLE_CLOSED_GREEN**
+- `PAIR-PREMIUM-ACTIVATION-DECISION` — **CLOSED GREEN** — Pair Premium Production commerce switch **ACTIVATED**
 
 ## PAIR LANE ENTRANCE — WAVE 0 LIVE PAID DTR READABILITY — HISTORICAL SNAPSHOT (SUPERSEDED)
 

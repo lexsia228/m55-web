@@ -333,6 +333,71 @@
   line-height: 1.65;
 }
 
+/* ── Premium product shelf ── */
+.lpProductShelf {
+  composes: lpSection;
+  margin-top: 14px;
+  padding: clamp(18px, 3.5vw, 24px);
+}
+
+.lpProductShelfList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lpProductPairCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.24);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(252, 248, 255, 0.92) 100%);
+  box-shadow: 0 8px 24px rgba(61, 50, 98, 0.05);
+}
+
+.lpProductFamilyMeta {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(60, 50, 86, 0.78);
+  line-height: 1.65;
+}
+
+.lpProductTierName {
+  margin: 0;
+  font-size: clamp(14px, 3.2vw, 15px);
+  font-weight: 800;
+  color: rgba(38, 36, 42, 0.9);
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.lpProductTierPrice {
+  margin: 0;
+  font-size: clamp(15px, 3.4vw, 17px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #121212;
+  line-height: 1.2;
+}
+
+.lpProductValueSentence {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(60, 50, 86, 0.78);
+  line-height: 1.65;
+}
+
+.lpProductPurchaseNote {
+  margin: 0;
+  font-size: 11.5px;
+  color: rgba(60, 50, 86, 0.68);
+  line-height: 1.55;
+}
+
 /* ── CTA hierarchy ── */
 .lpRoot :global(.m55-lp-cta-btn) {
   display: flex !important;
