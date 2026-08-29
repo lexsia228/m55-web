@@ -4,13 +4,17 @@
  */
 
 import { ProfileRepository } from '../../soul/profile';
-import { parseSanitizedGuestJourneyV3 } from './pairReadingGuestClientSafe';
+import {
+  clearGuestSessionStorage,
+  parseSanitizedGuestJourneyV3,
+} from './pairReadingGuestClientSafe';
 import {
   isCompleteCompatibilityCurrentContextV2,
   type CompatibilityCurrentContextAnswersV2,
 } from './currentContextContract.v2';
 import {
   COMPATIBILITY_GUEST_SESSION_KEY_V3,
+  COMPATIBILITY_GUEST_SESSION_KEY,
   isCompleteCompatibilityGuestInput,
   isValidCompatibilityBirthDate,
   isValidCompatibilityRelationStatusId,
@@ -20,6 +24,11 @@ import {
   type PairGuestPersistedV1,
 } from './pairReadingGuestContract';
 import type { RelationStatusId } from './pairReadingTypes';
+
+const COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1 =
+  'm55_compatibility_guest_journey_v3_provenance_v1';
+const COMPATIBILITY_GUEST_SESSION_PROVENANCE_VALUE_V1 =
+  'post_hotfix_signed_out_guest_v1';
 
 export type CompatibilityPurchaseJourney = {
   input: CompatibilityGuestInput;
@@ -64,16 +73,30 @@ function parseCompatibilityGuestJourneyV3FromRaw(
 }
 
 export function readCompatibilityGuestJourneyV3FromSession(
-  storage: Pick<Storage, 'getItem'> | null | undefined,
+  storage: Pick<Storage, 'getItem' | 'removeItem'> | null | undefined,
 ): CompatibilityGuestJourneyV3 | null {
   if (!storage) return null;
-  return parseCompatibilityGuestJourneyV3FromRaw(
-    storage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3),
-  );
+  try {
+    const raw = storage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3);
+    const provenance = storage.getItem(COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1);
+    if (
+      !raw ||
+      provenance !== COMPATIBILITY_GUEST_SESSION_PROVENANCE_VALUE_V1
+    ) {
+      if (raw || provenance) purgeUnownedPairGuestSession(storage);
+      return null;
+    }
+
+    const journey = parseCompatibilityGuestJourneyV3FromRaw(raw);
+    if (!journey) purgeUnownedPairGuestSession(storage);
+    return journey;
+  } catch {
+    return null;
+  }
 }
 
 export function readCompatibilityPurchaseJourneyFromSession(
-  storage: Pick<Storage, 'getItem'> | null | undefined,
+  storage: Pick<Storage, 'getItem' | 'removeItem'> | null | undefined,
 ): CompatibilityPurchaseJourney | null {
   const journey = readCompatibilityGuestJourneyV3FromSession(storage);
   return journey ? guestJourneyV3ToPurchaseJourney(journey) : null;
@@ -96,7 +119,11 @@ export function resolveSignedInPurchaseHandoff(args: {
 /** Signed-out purchase confirm: same-tab session may be held until modal login claims it. */
 export function resolveSignedOutPurchaseHandoff(args: {
   sessionJourney: CompatibilityPurchaseJourney | null;
+  hasObservedSignedInIdentity: boolean;
 }): CompatibilityPurchaseHandoffResolution {
+  if (args.hasObservedSignedInIdentity) {
+    return { kind: 'recovery' };
+  }
   if (args.sessionJourney) {
     return { kind: 'session', journey: args.sessionJourney };
   }
@@ -107,17 +134,59 @@ export function resolveSignedOutPurchaseHandoff(args: {
 export function capturePreAuthSessionJourneyCandidate(
   current: CompatibilityGuestJourneyV3 | null,
   sessionJourney: CompatibilityGuestJourneyV3 | null,
+  hasObservedSignedInIdentity: boolean,
 ): CompatibilityGuestJourneyV3 | null {
+  if (hasObservedSignedInIdentity) return null;
   if (current) return current;
   return sessionJourney;
+}
+
+/** Remove unowned guest state once an authenticated lifecycle owns the tab. */
+export function purgeUnownedPairGuestSession(
+  storage: Pick<Storage, 'removeItem'> | null | undefined,
+): void {
+  try {
+    if (storage) {
+      clearGuestSessionStorage(storage);
+      storage.removeItem(COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1);
+    }
+  } catch {
+    /* Fail closed at resolution boundaries even when tab storage is unavailable. */
+  }
+}
+
+/** Authenticated completions are user-owned only; sessionStorage remains guest-only. */
+export function persistCompletedPairJourney(
+  storage: Pick<Storage, 'removeItem' | 'setItem'> | null | undefined,
+  clerkUserId: string | null | undefined,
+  journey: CompatibilityGuestJourneyV3,
+): void {
+  if (clerkUserId) {
+    purgeUnownedPairGuestSession(storage);
+    writeLastCompletedPairJourney(clerkUserId, journey);
+    return;
+  }
+
+  try {
+    storage?.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
+    storage?.setItem(
+      COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1,
+      COMPATIBILITY_GUEST_SESSION_PROVENANCE_VALUE_V1,
+    );
+    storage?.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
+  } catch {
+    purgeUnownedPairGuestSession(storage);
+  }
 }
 
 /** Guest→login claim: persist the exact held pre-auth journey under the signed-in Clerk user. */
 export function claimPreAuthSessionJourneyForUser(
   clerkUserId: string,
   preAuthJourney: CompatibilityGuestJourneyV3,
+  storage: Pick<Storage, 'removeItem'> | null | undefined,
 ): Extract<CompatibilityPurchaseHandoffResolution, { kind: 'persisted' }> {
   writeLastCompletedPairJourney(clerkUserId, preAuthJourney);
+  purgeUnownedPairGuestSession(storage);
   return {
     kind: 'persisted',
     journey: guestJourneyV3ToPurchaseJourney(preAuthJourney),

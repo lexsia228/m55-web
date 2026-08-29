@@ -7,6 +7,7 @@ import {
   capturePreAuthSessionJourneyCandidate,
   claimPreAuthSessionJourneyForUser,
   guestJourneyV3ToPurchaseJourney,
+  purgeUnownedPairGuestSession,
   readCompatibilityGuestJourneyV3FromSession,
   readLastCompletedPairJourney,
   resolveSignedInPurchaseHandoff,
@@ -94,6 +95,7 @@ export function CompatibilityPurchaseConfirmation({
   const preAuthSessionJourneyRef = useRef<CompatibilityGuestJourneyV3 | null>(null);
   const preAuthSessionCapturedRef = useRef(false);
   const preAuthSessionClaimedRef = useRef(false);
+  const hasObservedSignedInIdentityRef = useRef(false);
   const [journey, setJourney] = useState<CompatibilityPurchaseJourney | null>(
     previewAuthState
       ? {
@@ -137,6 +139,7 @@ export function CompatibilityPurchaseConfirmation({
         preAuthSessionJourneyRef.current = capturePreAuthSessionJourneyCandidate(
           preAuthSessionJourneyRef.current,
           sessionJourneyV3,
+          hasObservedSignedInIdentityRef.current,
         );
         preAuthSessionCapturedRef.current = true;
       }
@@ -144,6 +147,7 @@ export function CompatibilityPurchaseConfirmation({
         sessionJourney: preAuthSessionJourneyRef.current
           ? guestJourneyV3ToPurchaseJourney(preAuthSessionJourneyRef.current)
           : null,
+        hasObservedSignedInIdentity: hasObservedSignedInIdentityRef.current,
       });
       setHandoff(resolution);
       setJourney(
@@ -153,14 +157,19 @@ export function CompatibilityPurchaseConfirmation({
       preAuthSessionJourneyRef.current &&
       !preAuthSessionClaimedRef.current
     ) {
+      hasObservedSignedInIdentityRef.current = true;
       preAuthSessionClaimedRef.current = true;
       const resolution = claimPreAuthSessionJourneyForUser(
         clerkUserId,
         preAuthSessionJourneyRef.current,
+        sessionStorageRef,
       );
+      preAuthSessionJourneyRef.current = null;
       setHandoff(resolution);
       setJourney(resolution.journey);
     } else {
+      hasObservedSignedInIdentityRef.current = true;
+      purgeUnownedPairGuestSession(sessionStorageRef);
       const resolution = resolveSignedInPurchaseHandoff({
         clerkUserId,
         persistedJourney: readLastCompletedPairJourney(clerkUserId),

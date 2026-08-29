@@ -8,6 +8,7 @@ import {
   capturePreAuthSessionJourneyCandidate,
   claimPreAuthSessionJourneyForUser,
   guestJourneyV3ToPurchaseJourney,
+  persistCompletedPairJourney,
   readCompatibilityGuestJourneyV3FromSession,
   readCompatibilityPurchaseJourneyFromSession,
   readLastCompletedPairJourney,
@@ -89,10 +90,13 @@ describe('pair purchase handoff resilience', () => {
   it('uses a valid same-tab session journey on the signed-out purchase path', () => {
     const journey = completeJourney();
     const storage = createMemoryStorage();
-    storage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
+    persistCompletedPairJourney(storage, null, journey);
 
     const sessionJourney = readCompatibilityPurchaseJourneyFromSession(storage);
-    const resolution = resolveSignedOutPurchaseHandoff({ sessionJourney });
+    const resolution = resolveSignedOutPurchaseHandoff({
+      sessionJourney,
+      hasObservedSignedInIdentity: false,
+    });
 
     assert.ok(sessionJourney);
     assert.equal(resolution.kind, 'session');
@@ -199,7 +203,8 @@ describe('pair purchase auth-boundary ownership', () => {
     const storage = createMemoryStorage();
     storage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journeyA));
 
-    assert.ok(readCompatibilityPurchaseJourneyFromSession(storage));
+    assert.equal(readCompatibilityPurchaseJourneyFromSession(storage), null);
+    assert.equal(storage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3), null);
     const resolution = resolveSignedInPurchaseHandoff({
       clerkUserId: USER_B,
       persistedJourney: null,
@@ -216,6 +221,8 @@ describe('pair purchase auth-boundary ownership', () => {
       storage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journeyA));
       writeLastCompletedPairJourney(USER_B, journeyB);
 
+      assert.equal(readCompatibilityPurchaseJourneyFromSession(storage), null);
+
       const resolution = resolveSignedInPurchaseHandoff({
         clerkUserId: USER_B,
         persistedJourney: readLastCompletedPairJourney(USER_B),
@@ -230,15 +237,17 @@ describe('pair purchase auth-boundary ownership', () => {
   it('signed-out initial mount with valid guest session retains pre-auth candidate', () => {
     const journey = completeJourney();
     const storage = createMemoryStorage();
-    storage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
+    persistCompletedPairJourney(storage, null, journey);
 
     const sessionV3 = readCompatibilityGuestJourneyV3FromSession(storage);
-    const captured = capturePreAuthSessionJourneyCandidate(null, sessionV3);
+    const captured = capturePreAuthSessionJourneyCandidate(null, sessionV3, false);
     const resolution = resolveSignedOutPurchaseHandoff({
       sessionJourney: captured ? guestJourneyV3ToPurchaseJourney(captured) : null,
+      hasObservedSignedInIdentity: false,
     });
 
     assert.ok(captured);
+    assert.equal(storage.length, 2);
     assert.deepEqual(captured, journey);
     assert.equal(resolution.kind, 'session');
   });
@@ -246,10 +255,17 @@ describe('pair purchase auth-boundary ownership', () => {
   it('guest pre-auth candidate is explicitly claimed for User B after modal login and purchase continues', () => {
     withLocalStorage(() => {
       const guestJourney = completeJourney('1988-04-04', '1990-08-08');
-      const captured = capturePreAuthSessionJourneyCandidate(null, guestJourney);
+      const session = createMemoryStorage();
+      persistCompletedPairJourney(session, null, guestJourney);
+      assert.equal(session.length, 2);
+      const captured = capturePreAuthSessionJourneyCandidate(
+        null,
+        readCompatibilityGuestJourneyV3FromSession(session),
+        false,
+      );
       assert.ok(captured);
 
-      const resolution = claimPreAuthSessionJourneyForUser(USER_B, captured);
+      const resolution = claimPreAuthSessionJourneyForUser(USER_B, captured, session);
 
       assert.equal(resolution.kind, 'persisted');
       assert.deepEqual(resolution.journey.input, guestJourney.input);
@@ -257,6 +273,16 @@ describe('pair purchase auth-boundary ownership', () => {
       assert.ok(saved);
       assert.deepEqual(saved.input, guestJourney.input);
       assert.deepEqual(saved.answers, guestJourney.answers);
+      assert.equal(readCompatibilityGuestJourneyV3FromSession(session), null);
+      assert.equal(session.length, 0);
+      assert.equal(
+        capturePreAuthSessionJourneyCandidate(
+          null,
+          readCompatibilityGuestJourneyV3FromSession(session),
+          false,
+        ),
+        null,
+      );
     });
   });
 
@@ -264,8 +290,8 @@ describe('pair purchase auth-boundary ownership', () => {
     const original = completeJourney('1988-04-04', '1990-08-08');
     const mutated = completeJourney('2001-12-12', '2003-01-01');
 
-    let held = capturePreAuthSessionJourneyCandidate(null, original);
-    held = capturePreAuthSessionJourneyCandidate(held, mutated);
+    let held = capturePreAuthSessionJourneyCandidate(null, original, false);
+    held = capturePreAuthSessionJourneyCandidate(held, mutated, false);
 
     assert.deepEqual(held, original);
     assert.notDeepEqual(held?.input, mutated.input);
@@ -287,6 +313,131 @@ describe('pair purchase auth-boundary ownership', () => {
     });
   });
 
+  it('signed-in User A completion → sign-out → User B login cannot claim or persist A journey', () => {
+    withLocalStorage(() => {
+      const journeyA = completeJourney('1980-01-01', '1985-05-05');
+      const session = createMemoryStorage();
+
+      persistCompletedPairJourney(session, USER_A, journeyA);
+
+      assert.equal(readCompatibilityGuestJourneyV3FromSession(session), null);
+      assert.equal(session.length, 0);
+      assert.deepEqual(readLastCompletedPairJourney(USER_A), journeyA);
+
+      // The mounted purchase boundary has already observed signed-in User A.
+      // Even a stale session payload appearing after sign-out cannot become guest-owned.
+      session.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journeyA));
+      const capturedAfterSignOut = capturePreAuthSessionJourneyCandidate(
+        null,
+        readCompatibilityGuestJourneyV3FromSession(session),
+        true,
+      );
+      const signedOutResolution = resolveSignedOutPurchaseHandoff({
+        sessionJourney: readCompatibilityPurchaseJourneyFromSession(session),
+        hasObservedSignedInIdentity: true,
+      });
+
+      assert.equal(capturedAfterSignOut, null);
+      assert.equal(signedOutResolution.kind, 'recovery');
+
+      const userBResolution = resolveSignedInPurchaseHandoff({
+        clerkUserId: USER_B,
+        persistedJourney: readLastCompletedPairJourney(USER_B),
+      });
+
+      assert.equal(userBResolution.kind, 'recovery');
+      assert.equal(readLastCompletedPairJourney(USER_B), null);
+    });
+  });
+
+  it('pre-hotfix raw V3 without provenance fails closed on a fresh signed-out purchase mount', () => {
+    const staleJourneyA = completeJourney('1980-01-01', '1985-05-05');
+    const session = createMemoryStorage();
+
+    session.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(staleJourneyA));
+
+    const freshMountCandidate = capturePreAuthSessionJourneyCandidate(
+      null,
+      readCompatibilityGuestJourneyV3FromSession(session),
+      false,
+    );
+    const freshMountResolution = resolveSignedOutPurchaseHandoff({
+      sessionJourney: freshMountCandidate
+        ? guestJourneyV3ToPurchaseJourney(freshMountCandidate)
+        : null,
+      hasObservedSignedInIdentity: false,
+    });
+
+    assert.equal(freshMountCandidate, null);
+    assert.equal(freshMountResolution.kind, 'recovery');
+    assert.equal(session.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3), null);
+    assert.equal(session.length, 0);
+  });
+
+  it('pre-hotfix raw User A session cannot reach User B when A signs out elsewhere', () => {
+    withLocalStorage(() => {
+      const staleJourneyA = completeJourney('1980-01-01', '1985-05-05');
+      const session = createMemoryStorage();
+
+      session.setItem(
+        COMPATIBILITY_GUEST_SESSION_KEY_V3,
+        JSON.stringify(staleJourneyA),
+      );
+
+      // User A signs out elsewhere; no post-hotfix Pair surface observes A first.
+      const freshMountCandidate = capturePreAuthSessionJourneyCandidate(
+        null,
+        readCompatibilityGuestJourneyV3FromSession(session),
+        false,
+      );
+      const freshMountResolution = resolveSignedOutPurchaseHandoff({
+        sessionJourney: freshMountCandidate
+          ? guestJourneyV3ToPurchaseJourney(freshMountCandidate)
+          : null,
+        hasObservedSignedInIdentity: false,
+      });
+
+      assert.equal(freshMountCandidate, null);
+      assert.equal(freshMountResolution.kind, 'recovery');
+      assert.equal(session.length, 0);
+
+      const userBResolution = resolveSignedInPurchaseHandoff({
+        clerkUserId: USER_B,
+        persistedJourney: readLastCompletedPairJourney(USER_B),
+      });
+
+      assert.equal(userBResolution.kind, 'recovery');
+      assert.equal(readLastCompletedPairJourney(USER_B), null);
+    });
+  });
+
+  it('signed-in User A → sign-out → User B uses only B persisted journey', () => {
+    withLocalStorage(() => {
+      const journeyA = completeJourney('1980-01-01', '1985-05-05');
+      const journeyB = completeJourney('1991-03-12', '1993-07-22');
+      const session = createMemoryStorage();
+
+      persistCompletedPairJourney(session, USER_A, journeyA);
+      writeLastCompletedPairJourney(USER_B, journeyB);
+      session.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journeyA));
+
+      const capturedAfterSignOut = capturePreAuthSessionJourneyCandidate(
+        null,
+        readCompatibilityGuestJourneyV3FromSession(session),
+        true,
+      );
+      const userBResolution = resolveSignedInPurchaseHandoff({
+        clerkUserId: USER_B,
+        persistedJourney: readLastCompletedPairJourney(USER_B),
+      });
+
+      assert.equal(capturedAfterSignOut, null);
+      assert.equal(userBResolution.kind, 'persisted');
+      assert.deepEqual(userBResolution.journey.input, journeyB.input);
+      assert.notDeepEqual(userBResolution.journey.input, journeyA.input);
+    });
+  });
+
   it('malformed session remains unusable for signed-out and signed-in paths', () => {
     const storage = createMemoryStorage();
     storage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify({ version: 'journey_v3', bad: true }));
@@ -294,7 +445,10 @@ describe('pair purchase auth-boundary ownership', () => {
     assert.equal(readCompatibilityGuestJourneyV3FromSession(storage), null);
     assert.equal(readCompatibilityPurchaseJourneyFromSession(storage), null);
     assert.equal(
-      resolveSignedOutPurchaseHandoff({ sessionJourney: null }).kind,
+      resolveSignedOutPurchaseHandoff({
+        sessionJourney: null,
+        hasObservedSignedInIdentity: false,
+      }).kind,
       'recovery',
     );
     assert.equal(
