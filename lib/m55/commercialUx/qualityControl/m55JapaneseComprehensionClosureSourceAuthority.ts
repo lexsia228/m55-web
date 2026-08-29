@@ -595,39 +595,36 @@ function fromObjectEntries(
 
 function selfValidationRegistrations(): M55ClosureSourceRegistration[] {
   const owner = 'lib/m55/freeResult/segmentedDobInputV1.ts';
+  const emptyFieldsResult = validateSegmentedDob({ year: '', month: '', day: '' });
+  const nonNumericResult = validateSegmentedDob({ year: 'abcd', month: '01', day: '01' });
+  const yearRangeResult = validateSegmentedDob({ year: '1800', month: '01', day: '01' });
+  const monthRangeResult = validateSegmentedDob({ year: '1990', month: '13', day: '01' });
+  const invalidFormatResult = parseAndValidateDobInput('not-a-date');
   const fixtures: Array<{ sourceItemId: string; textRef: string; errorJa: string }> = [
     {
       sourceItemId: 'validate.empty_fields',
       textRef: 'validateSegmentedDob.empty_fields',
-      errorJa: validateSegmentedDob({ year: '', month: '', day: '' }).ok
-        ? ''
-        : validateSegmentedDob({ year: '', month: '', day: '' }).errorJa,
+      errorJa: emptyFieldsResult.ok ? '' : emptyFieldsResult.errorJa,
     },
     {
       sourceItemId: 'validate.non_numeric',
       textRef: 'validateSegmentedDob.non_numeric',
-      errorJa: validateSegmentedDob({ year: 'abcd', month: '01', day: '01' }).ok
-        ? ''
-        : validateSegmentedDob({ year: 'abcd', month: '01', day: '01' }).errorJa,
+      errorJa: nonNumericResult.ok ? '' : nonNumericResult.errorJa,
     },
     {
       sourceItemId: 'validate.year_range',
       textRef: 'validateSegmentedDob.year_range',
-      errorJa: validateSegmentedDob({ year: '1800', month: '01', day: '01' }).ok
-        ? ''
-        : validateSegmentedDob({ year: '1800', month: '01', day: '01' }).errorJa,
+      errorJa: yearRangeResult.ok ? '' : yearRangeResult.errorJa,
     },
     {
       sourceItemId: 'validate.month_range',
       textRef: 'validateSegmentedDob.month_range',
-      errorJa: validateSegmentedDob({ year: '1990', month: '13', day: '01' }).ok
-        ? ''
-        : validateSegmentedDob({ year: '1990', month: '13', day: '01' }).errorJa,
+      errorJa: monthRangeResult.ok ? '' : monthRangeResult.errorJa,
     },
     {
       sourceItemId: 'parse.invalid_format',
       textRef: 'parseAndValidateDobInput.invalid_format',
-      errorJa: parseAndValidateDobInput('not-a-date').ok ? '' : parseAndValidateDobInput('not-a-date').errorJa,
+      errorJa: invalidFormatResult.ok ? '' : invalidFormatResult.errorJa,
     },
   ];
   for (const fixture of fixtures) {

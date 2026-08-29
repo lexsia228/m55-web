@@ -661,9 +661,10 @@ export async function collectRenderedGovernedCopyEvidence(
   ];
 
   const collected = await page.evaluate((targets) => {
-    const normalizeObservedText = (raw) => raw.replace(/\s+/g, ' ').trim();
+    const normalizeObservedText = (raw: string) =>
+      raw.replace(/\s+/g, ' ').trim();
     /** Governed selector binding uses visible rendered text, not raw textContent. */
-    const readVisibleRenderedText = (element) => {
+    const readVisibleRenderedText = (element: Element) => {
       if (element instanceof HTMLElement) {
         return normalizeObservedText(element.innerText ?? '');
       }
