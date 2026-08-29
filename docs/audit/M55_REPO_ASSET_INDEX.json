@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-29T03:09:31.110210+00:00",
+  "generated_at_utc": "2026-08-29T23:17:53.236142+00:00",
   "count": 706,
   "records": [
     {
@@ -75,7 +75,7 @@
     {
       "path": "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
       "category": "ssot",
-      "bytes": 12338
+      "bytes": 14810
     },
     {
       "path": "docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md",
@@ -90,7 +90,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 100879
+      "bytes": 102787
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -100,7 +100,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 52014
+      "bytes": 55808
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -195,7 +195,7 @@
     {
       "path": "docs/ssot/M55_EXECUTION_STATE.json",
       "category": "ssot",
-      "bytes": 20253
+      "bytes": 24504
     },
     {
       "path": "docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_2026-05-25.md",
@@ -230,7 +230,7 @@
     {
       "path": "docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md",
       "category": "ssot",
-      "bytes": 10592
+      "bytes": 11980
     },
     {
       "path": "docs/ssot/M55_HOME_CLUSTER_SSOT_FREEZE_v2.md",
@@ -3050,7 +3050,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 21004
+      "bytes": 22207
     },
     {
       "path": "docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md",
@@ -3140,7 +3140,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 121279
+      "bytes": 125586
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
