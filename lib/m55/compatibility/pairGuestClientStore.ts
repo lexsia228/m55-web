@@ -6,12 +6,123 @@
 import { ProfileRepository } from '../../soul/profile';
 import { parseSanitizedGuestJourneyV3 } from './pairReadingGuestClientSafe';
 import {
+  isCompleteCompatibilityCurrentContextV2,
+  type CompatibilityCurrentContextAnswersV2,
+} from './currentContextContract.v2';
+import {
+  COMPATIBILITY_GUEST_SESSION_KEY_V3,
+  isCompleteCompatibilityGuestInput,
   isValidCompatibilityBirthDate,
+  isValidCompatibilityRelationStatusId,
   PAIR_GUEST_LAST_JOURNEY_KEY_PREFIX,
   type CompatibilityGuestInput,
   type CompatibilityGuestJourneyV3,
   type PairGuestPersistedV1,
 } from './pairReadingGuestContract';
+import type { RelationStatusId } from './pairReadingTypes';
+
+export type CompatibilityPurchaseJourney = {
+  input: CompatibilityGuestInput;
+  relationStatusId: RelationStatusId;
+  currentContext: CompatibilityCurrentContextAnswersV2;
+};
+
+export type CompatibilityPurchaseHandoffResolution =
+  | { kind: 'session'; journey: CompatibilityPurchaseJourney }
+  | { kind: 'persisted'; journey: CompatibilityPurchaseJourney }
+  | { kind: 'recovery' };
+
+export function guestJourneyV3ToPurchaseJourney(
+  journey: CompatibilityGuestJourneyV3,
+): CompatibilityPurchaseJourney {
+  return {
+    input: journey.input,
+    relationStatusId: journey.relationStatusId,
+    currentContext: journey.answers,
+  };
+}
+
+function parseCompatibilityGuestJourneyV3FromRaw(
+  raw: string | null,
+): CompatibilityGuestJourneyV3 | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Partial<CompatibilityGuestJourneyV3>;
+    if (
+      parsed.version !== 'journey_v3' ||
+      !parsed.input ||
+      !isCompleteCompatibilityGuestInput(parsed.input) ||
+      !isValidCompatibilityRelationStatusId(parsed.relationStatusId) ||
+      !isCompleteCompatibilityCurrentContextV2(parsed.answers, parsed.relationStatusId)
+    ) {
+      return null;
+    }
+    return parsed as CompatibilityGuestJourneyV3;
+  } catch {
+    return null;
+  }
+}
+
+export function readCompatibilityGuestJourneyV3FromSession(
+  storage: Pick<Storage, 'getItem'> | null | undefined,
+): CompatibilityGuestJourneyV3 | null {
+  if (!storage) return null;
+  return parseCompatibilityGuestJourneyV3FromRaw(
+    storage.getItem(COMPATIBILITY_GUEST_SESSION_KEY_V3),
+  );
+}
+
+export function readCompatibilityPurchaseJourneyFromSession(
+  storage: Pick<Storage, 'getItem'> | null | undefined,
+): CompatibilityPurchaseJourney | null {
+  const journey = readCompatibilityGuestJourneyV3FromSession(storage);
+  return journey ? guestJourneyV3ToPurchaseJourney(journey) : null;
+}
+
+/** Signed-in purchase confirm: Clerk-owned saved journey only — never unowned session. */
+export function resolveSignedInPurchaseHandoff(args: {
+  clerkUserId: string;
+  persistedJourney: CompatibilityGuestJourneyV3 | null;
+}): CompatibilityPurchaseHandoffResolution {
+  if (args.persistedJourney) {
+    return {
+      kind: 'persisted',
+      journey: guestJourneyV3ToPurchaseJourney(args.persistedJourney),
+    };
+  }
+  return { kind: 'recovery' };
+}
+
+/** Signed-out purchase confirm: same-tab session may be held until modal login claims it. */
+export function resolveSignedOutPurchaseHandoff(args: {
+  sessionJourney: CompatibilityPurchaseJourney | null;
+}): CompatibilityPurchaseHandoffResolution {
+  if (args.sessionJourney) {
+    return { kind: 'session', journey: args.sessionJourney };
+  }
+  return { kind: 'recovery' };
+}
+
+/** Keep the first validated pre-auth candidate; ignore later session mutations. */
+export function capturePreAuthSessionJourneyCandidate(
+  current: CompatibilityGuestJourneyV3 | null,
+  sessionJourney: CompatibilityGuestJourneyV3 | null,
+): CompatibilityGuestJourneyV3 | null {
+  if (current) return current;
+  return sessionJourney;
+}
+
+/** Guest→login claim: persist the exact held pre-auth journey under the signed-in Clerk user. */
+export function claimPreAuthSessionJourneyForUser(
+  clerkUserId: string,
+  preAuthJourney: CompatibilityGuestJourneyV3,
+): Extract<CompatibilityPurchaseHandoffResolution, { kind: 'persisted' }> {
+  writeLastCompletedPairJourney(clerkUserId, preAuthJourney);
+  return {
+    kind: 'persisted',
+    journey: guestJourneyV3ToPurchaseJourney(preAuthJourney),
+  };
+}
 
 function isClient(): boolean {
   return typeof window !== 'undefined' || typeof localStorage !== 'undefined';
