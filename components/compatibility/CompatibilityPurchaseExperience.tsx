@@ -17,6 +17,10 @@ import {
 } from '../../lib/m55/compatibility/currentContextContract.v2';
 import type { RelationStatusId } from '../../lib/m55/compatibility/pairReadingTypes';
 import {
+  COMPATIBILITY_REPORT_INCLUDED,
+  COMPATIBILITY_REPORT_PRODUCT_AUTHORITY,
+} from '../../lib/m55/compatibility/compatibilityCommerceAuthority';
+import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
   trackFunnelImpressionOnce,
@@ -61,13 +65,45 @@ function readPurchaseInput(): CompatibilityPurchaseJourney | null {
   }
 }
 
+function PurchaseTrustFacts() {
+  return (
+    <div className={styles.purchaseFacts} aria-label="購入条件">
+      <span>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}</span>
+      <span>一回払い</span>
+      <span>自動更新なし</span>
+    </div>
+  );
+}
+
+function PurchaseValueSummary() {
+  return (
+    <section
+      className={styles.valueSummary}
+      aria-labelledby="compatibility-purchase-value-title"
+    >
+      <p className={styles.valueEyebrow}>このレポートで読めること</p>
+      <h2 id="compatibility-purchase-value-title" className={styles.valueTitle}>
+        すれ違いの流れから、戻し方まで
+      </h2>
+      <p className={styles.valueLead}>
+        二人それぞれの視点を整理し、関係を決めつけずに、次に使える読みとして残します。
+      </p>
+      <ul className={styles.includedList}>
+        {COMPATIBILITY_REPORT_INCLUDED.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function ProductDetails() {
   return (
     <>
       <dl className={styles.details}>
-        <div><dt>商品</dt><dd>二人の相性レポート</dd></div>
-        <div><dt>内容</dt><dd>6章レポート1件</dd></div>
-        <div><dt>価格</dt><dd className={styles.price}>¥1,480（税込）</dd></div>
+        <div><dt>商品</dt><dd>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</dd></div>
+        <div><dt>内容</dt><dd>相性レポート{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.reportCount}件</dd></div>
+        <div><dt>価格</dt><dd className={styles.price}>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}</dd></div>
         <div><dt>支払</dt><dd>一回払い</dd></div>
         <div><dt>自動更新</dt><dd>なし</dd></div>
         <div><dt>提供時期</dt><dd>支払い確認後にマイページへ表示</dd></div>
@@ -89,6 +125,7 @@ function SignInBoundary() {
     <div className={styles.authBoundary} data-testid="compatibility-sign-in-boundary">
       <h2>購入にはログインが必要です</h2>
       <p>ログイン後も、このタブに入力状態を残したまま最終確認へ戻れます。</p>
+      <PurchaseTrustFacts />
       <SignInButton mode="modal">
         <button type="button" className={styles.primary}>
           ログインして購入を続ける
@@ -103,6 +140,7 @@ function PreviewSignInBoundary() {
     <div className={styles.authBoundary} data-testid="compatibility-sign-in-boundary">
       <h2>購入にはログインが必要です</h2>
       <p>ログイン後も、このタブに入力状態を残したまま最終確認へ戻れます。</p>
+      <PurchaseTrustFacts />
       <button type="button" className={styles.primary}>ログインして購入を続ける</button>
     </div>
   );
@@ -203,9 +241,9 @@ export function CompatibilityPurchaseConfirmation({
       {journey ? (
         <>
           <div className={styles.personalization}>
-            <strong>現在の二人に合わせた6章</strong>
+            <strong>現在の二人に合わせた読み</strong>
             <span>今のfocus：{contextDisplay?.focusLabel}</span>
-            <small>無料結果で答えた現在の状況を、購入後の6章にも反映します。</small>
+            <small>無料結果で答えた現在の状況を、購入後のレポートにも反映します。</small>
           </div>
           <button
             type="button"
@@ -214,7 +252,7 @@ export function CompatibilityPurchaseConfirmation({
             disabled={loading}
             aria-busy={loading}
           >
-            {loading ? '支払い画面を準備しています…' : '¥1,480で購入手続きへ'}
+            {loading ? '支払い画面を準備しています…' : `${COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}で購入手続きへ`}
           </button>
         </>
       ) : (
@@ -230,13 +268,14 @@ export function CompatibilityPurchaseConfirmation({
     <main className={styles.page} data-testid="compatibility-purchase-confirmation">
       <article className={styles.card}>
         <p className={styles.eyebrow}>支払い前の最終確認</p>
-        <h1>二人の相性レポート</h1>
+        <h1>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</h1>
         <p className={styles.lead}>購入後はマイページから読み返せます。買い切りで、自動更新はありません。</p>
         {cancelled && (
           <p className={styles.cancelled} role="status">
             決済は完了していません。内容を確認して、もう一度進めます。
           </p>
         )}
+        <PurchaseValueSummary />
         <ProductDetails />
         {previewAuthState === 'signed_out' ? (
           <PreviewSignInBoundary />
@@ -270,7 +309,7 @@ export function CompatibilityPurchaseSuccess() {
         <p className={styles.eyebrow}>支払い確認中</p>
         <h1>レポートをマイページへ準備しています</h1>
         <p className={styles.lead}>
-          支払い確認後に6章レポートが表示されます。この画面を閉じても、配送処理は継続します。
+          支払い確認後に{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}が表示されます。この画面を閉じても、配送処理は継続します。
         </p>
         <Link className={styles.primaryLink} href="/my">マイページで確認する</Link>
         <Link className={styles.quietLink} href="/synastry">無料結果へ戻る</Link>
