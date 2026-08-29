@@ -323,6 +323,18 @@
   opacity: 1;
 }
 
+.authButtonLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.authButtonLink:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.50);
+  outline-offset: 2px;
+}
+
 .userButtonWrap {
   display: inline-flex;
   align-items: center;

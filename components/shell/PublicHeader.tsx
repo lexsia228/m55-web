@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import {
+  ClerkFailed,
+  ClerkLoaded,
+  ClerkLoading,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/nextjs';
 import {
   ACCOUNT_DROPDOWN_NAV,
   isHeaderNavActive,
@@ -21,6 +29,26 @@ type DropdownProps = {
   menuId: string;
   aboutDropdown?: boolean;
 };
+
+type AuthFallbackLinkProps = {
+  className: string;
+  testId: string;
+  onNavigate?: () => void;
+};
+
+function AuthFallbackLink({ className, testId, onNavigate }: AuthFallbackLinkProps) {
+  return (
+    <Link
+      href="/sign-in"
+      className={className}
+      aria-label={Nav.loginJa}
+      data-testid={testId}
+      onClick={onNavigate}
+    >
+      {Nav.loginJa}
+    </Link>
+  );
+}
 
 function HeaderDropdown({ triggerLabel, items, pathname, menuId, aboutDropdown }: DropdownProps) {
   const [open, setOpen] = useState(false);
@@ -263,24 +291,38 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
           className={`${styles.desktopAuth} m55-print-hide`}
           data-testid="m55-desktop-auth"
         >
-          <SignedOut>
-            <SignInButton mode="redirect">
-              <button type="button" className={styles.authButton} aria-label={Nav.loginJa}>
-                {Nav.loginJa}
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <HeaderDropdown
-              triggerLabel={Nav.accountJa}
-              items={ACCOUNT_DROPDOWN_NAV}
-              pathname={pathname}
-              menuId={accountMenuId}
+          <ClerkLoading>
+            <AuthFallbackLink
+              className={`${styles.authButton} ${styles.authButtonLink}`}
+              testId="m55-desktop-auth-fallback"
             />
-            <span className={styles.userButtonWrap}>
-              <UserButton afterSignOutUrl="/" />
-            </span>
-          </SignedIn>
+          </ClerkLoading>
+          <ClerkFailed>
+            <AuthFallbackLink
+              className={`${styles.authButton} ${styles.authButtonLink}`}
+              testId="m55-desktop-auth-fallback"
+            />
+          </ClerkFailed>
+          <ClerkLoaded>
+            <SignedOut>
+              <SignInButton mode="redirect">
+                <button type="button" className={styles.authButton} aria-label={Nav.loginJa}>
+                  {Nav.loginJa}
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <HeaderDropdown
+                triggerLabel={Nav.accountJa}
+                items={ACCOUNT_DROPDOWN_NAV}
+                pathname={pathname}
+                menuId={accountMenuId}
+              />
+              <span className={styles.userButtonWrap}>
+                <UserButton afterSignOutUrl="/" />
+              </span>
+            </SignedIn>
+          </ClerkLoaded>
         </div>
 
         <button
@@ -334,21 +376,37 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
             })}
           </SignedIn>
           <div className={styles.mobileMenuAuth}>
-            <SignedOut>
-              <SignInButton mode="redirect">
-                <button type="button" className={styles.mobileMenuAuthButton} onClick={closeMenu}>
-                  {Nav.loginJa}
-                </button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <div className={styles.mobileMenuAccountRow}>
-                <span className={styles.mobileMenuAccountLabel}>{Nav.accountJa}</span>
-                <span className={styles.userButtonWrap}>
-                  <UserButton afterSignOutUrl="/" />
-                </span>
-              </div>
-            </SignedIn>
+            <ClerkLoading>
+              <AuthFallbackLink
+                className={`${styles.mobileMenuAuthButton} ${styles.authButtonLink}`}
+                testId="m55-mobile-auth-fallback"
+                onNavigate={closeMenu}
+              />
+            </ClerkLoading>
+            <ClerkFailed>
+              <AuthFallbackLink
+                className={`${styles.mobileMenuAuthButton} ${styles.authButtonLink}`}
+                testId="m55-mobile-auth-fallback"
+                onNavigate={closeMenu}
+              />
+            </ClerkFailed>
+            <ClerkLoaded>
+              <SignedOut>
+                <SignInButton mode="redirect">
+                  <button type="button" className={styles.mobileMenuAuthButton} onClick={closeMenu}>
+                    {Nav.loginJa}
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <div className={styles.mobileMenuAccountRow}>
+                  <span className={styles.mobileMenuAccountLabel}>{Nav.accountJa}</span>
+                  <span className={styles.userButtonWrap}>
+                    <UserButton afterSignOutUrl="/" />
+                  </span>
+                </div>
+              </SignedIn>
+            </ClerkLoaded>
           </div>
         </nav>
       </div>
