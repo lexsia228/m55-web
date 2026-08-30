@@ -316,11 +316,11 @@ describe('M55 method authority — route consumption contract', () => {
     assert.ok(method >= 0 && bridge > method);
   });
 
-  it('places the /dtr/lp difference before plan selection cards', () => {
+  it('places the /dtr/lp method difference after plan selection cards', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
-    const method = prep.indexOf('<DtrMethodDifference />');
     const cards = prep.indexOf('styles.planStack');
-    assert.ok(method >= 0 && cards > method);
+    const method = prep.indexOf('<DtrMethodDifference />');
+    assert.ok(cards >= 0 && method > cards);
   });
 
   it('mounts the checkout trust link on the checkout preparation branch', () => {
