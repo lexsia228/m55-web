@@ -15,6 +15,8 @@ import { readSelfFunnelStage } from '../../lib/m55/selfFunnel/selfFunnelClientSt
 import {
   isValidBasicInfo,
   resolveFreeCtaLabel,
+  resolveHomeCtaHref,
+  resolveHomeCtaShowsLoginFreeSupport,
   type SelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import { ProfileRepository } from '../../lib/soul/profile';
@@ -46,7 +48,7 @@ function heroDesktopTitleLines(line1: string, line2: string): { line1: string; l
 
 function FreeCtaButton({
   stage,
-  isLoaded,
+  hydrationReady,
   className,
   testIdLoading,
   testIdIntake,
@@ -55,7 +57,7 @@ function FreeCtaButton({
   onOpenIntake,
 }: {
   stage: SelfFunnelStage;
-  isLoaded: boolean;
+  hydrationReady: boolean;
   className: string;
   testIdLoading: string;
   testIdIntake: string;
@@ -63,7 +65,7 @@ function FreeCtaButton({
   label: string;
   onOpenIntake: () => void;
 }) {
-  if (!isLoaded) {
+  if (!hydrationReady) {
     return (
       <button type="button" className={className} data-testid={testIdIntake} onClick={onOpenIntake}>
         {label}
@@ -77,8 +79,9 @@ function FreeCtaButton({
       </button>
     );
   }
+  const href = resolveHomeCtaHref(stage);
   return (
-    <Link href={ctaCopy.coreFreeHref} className={className} data-testid={testIdCore}>
+    <Link href={href} className={className} data-testid={testIdCore}>
       {label}
     </Link>
   );
@@ -89,9 +92,14 @@ export default function HomePanel() {
   const router = useRouter();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
+  const [clientHydrated, setClientHydrated] = useState(false);
   const [birthIntakeOpen, setBirthIntakeOpen] = useState(false);
   const [coreAnalyzing, setCoreAnalyzing] = useState(false);
   const [coreAnalyzeError, setCoreAnalyzeError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setClientHydrated(true);
+  }, []);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
@@ -106,17 +114,24 @@ export default function HomePanel() {
   }, []);
 
   const view = useMemo(() => {
+    if (!clientHydrated) {
+      return { kind: 'no_profile' as const, stage: 'EMPTY' as SelfFunnelStage };
+    }
     const profile = ProfileRepository.get(ownerId);
     if (!isValidBasicInfo(profile)) {
       return { kind: 'no_profile' as const, stage: 'EMPTY' as SelfFunnelStage };
     }
     const stage = readSelfFunnelStage(ownerId);
     return { kind: 'has_profile' as const, stage };
-  }, [isLoaded, ownerId, profileEpoch]);
+  }, [clientHydrated, isLoaded, ownerId, profileEpoch]);
 
+  const hydrationReady = clientHydrated && isLoaded;
   const hasProfile = view.kind === 'has_profile';
   const funnelStage = view.stage;
   const freeCtaLabel = resolveFreeCtaLabel(funnelStage);
+  const homeCtaHref = resolveHomeCtaHref(funnelStage);
+  const showLoginFreeSupport =
+    hydrationReady && resolveHomeCtaShowsLoginFreeSupport(funnelStage);
   const pairLive = isHomePairReadingLivePublic();
   const openIntake = () => setBirthIntakeOpen(true);
   const nicknameHint = (user?.firstName || user?.username || '').trim();
@@ -190,7 +205,7 @@ export default function HomePanel() {
                       settles it renders as a disabled placeholder, matching the
                       loading behaviour of the lower free CTAs.
                     */}
-                    {!hasProfile && (
+                    {(!hydrationReady || !hasProfile) && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}
@@ -201,23 +216,24 @@ export default function HomePanel() {
                         {freeCtaLabel}
                       </button>
                     )}
-                    {hasProfile && (
-                      <button
-                        type="button"
+                    {hydrationReady && hasProfile && (
+                      <Link
+                        href={homeCtaHref}
                         className={styles.posterHeroCta}
                         data-testid="m55-home-has-profile-hero"
                         data-m55-hero-cta="true"
-                        onClick={() => router.push('/core')}
                       >
                         {freeCtaLabel}
-                      </button>
+                      </Link>
                     )}
                     <p className={styles.posterHeroSupport} data-testid="m55-home-hero-support">
                       {homeCopy.heroPosterSupportJa}
                     </p>
-                    <p className={styles.posterHeroTrust} data-testid="m55-home-hero-trust">
-                      {homeCopy.heroTrustJa}
-                    </p>
+                    {showLoginFreeSupport ? (
+                      <p className={styles.posterHeroTrust} data-testid="m55-home-hero-trust">
+                        {homeCopy.heroTrustJa}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -288,7 +304,7 @@ export default function HomePanel() {
           <div className={styles.integratedActions}>
             <FreeCtaButton
               stage={funnelStage}
-              isLoaded={isLoaded}
+              hydrationReady={hydrationReady}
               className={styles.ctaFree}
               testIdLoading="m55-home-free-preview-cta-loading"
               testIdIntake="m55-home-free-preview-intake"
@@ -296,7 +312,9 @@ export default function HomePanel() {
               label={freeCtaLabel}
               onOpenIntake={openIntake}
             />
-            <p className={styles.ctaSupport}>{homeCopy.freeResultSupportJa}</p>
+            {showLoginFreeSupport ? (
+              <p className={styles.ctaSupport}>{homeCopy.freeResultSupportJa}</p>
+            ) : null}
           </div>
           <HomeTenAssetTeaser
             eyebrowJa={homeCopy.tenAssetTeaserEyebrowJa}
@@ -430,7 +448,7 @@ export default function HomePanel() {
           <div className={styles.finalCtaGroup}>
             <FreeCtaButton
               stage={funnelStage}
-              isLoaded={isLoaded}
+              hydrationReady={hydrationReady}
               className={styles.ctaFree}
               testIdLoading="m55-home-final-cta-loading"
               testIdIntake="m55-home-final-cta-intake"

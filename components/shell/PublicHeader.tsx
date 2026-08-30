@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import {
   ClerkFailed,
   ClerkLoaded,
@@ -30,23 +30,26 @@ type DropdownProps = {
   aboutDropdown?: boolean;
 };
 
-type AuthFallbackLinkProps = {
+type AuthLoginButtonProps = {
   className: string;
   testId: string;
   onNavigate?: () => void;
 };
 
-function AuthFallbackLink({ className, testId, onNavigate }: AuthFallbackLinkProps) {
+function AuthLoginButton({ className, testId, onNavigate }: AuthLoginButtonProps) {
   return (
-    <Link
-      href="/sign-in"
+    <button
+      type="button"
       className={className}
       aria-label={Nav.loginJa}
       data-testid={testId}
-      onClick={onNavigate}
+      onClick={() => {
+        onNavigate?.();
+        window.location.assign('/sign-in');
+      }}
     >
       {Nav.loginJa}
-    </Link>
+    </button>
   );
 }
 
@@ -147,15 +150,15 @@ export type PublicHeaderProps = {
   pathname: string;
 };
 
+const ABOUT_MENU_ID = 'm55-public-about-menu';
+const ACCOUNT_MENU_ID = 'm55-public-account-menu';
+
 export function PublicHeader({ state, pathname }: PublicHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null);
   const previousPathnameRef = useRef(pathname);
-  const aboutMenuId = useId();
-  const accountMenuId = useId();
-
   const { contextualPrimaryAction, desktopPrimaryNav, aboutDropdownNav, mobileMenuPublic } = state;
   const showDesktopContextualCta = false;
 
@@ -250,7 +253,7 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
             triggerLabel={T.aboutM55}
             items={aboutDropdownNav}
             pathname={pathname}
-            menuId={aboutMenuId}
+            menuId={ABOUT_MENU_ID}
             aboutDropdown
           />
         </nav>
@@ -292,13 +295,13 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
           data-testid="m55-desktop-auth"
         >
           <ClerkLoading>
-            <AuthFallbackLink
+            <AuthLoginButton
               className={`${styles.authButton} ${styles.authButtonLink}`}
               testId="m55-desktop-auth-fallback"
             />
           </ClerkLoading>
           <ClerkFailed>
-            <AuthFallbackLink
+            <AuthLoginButton
               className={`${styles.authButton} ${styles.authButtonLink}`}
               testId="m55-desktop-auth-fallback"
             />
@@ -316,7 +319,7 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
                 triggerLabel={Nav.accountJa}
                 items={ACCOUNT_DROPDOWN_NAV}
                 pathname={pathname}
-                menuId={accountMenuId}
+                menuId={ACCOUNT_MENU_ID}
               />
               <span className={styles.userButtonWrap}>
                 <UserButton afterSignOutUrl="/" />
@@ -377,14 +380,14 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
           </SignedIn>
           <div className={styles.mobileMenuAuth}>
             <ClerkLoading>
-              <AuthFallbackLink
+              <AuthLoginButton
                 className={`${styles.mobileMenuAuthButton} ${styles.authButtonLink}`}
                 testId="m55-mobile-auth-fallback"
                 onNavigate={closeMenu}
               />
             </ClerkLoading>
             <ClerkFailed>
-              <AuthFallbackLink
+              <AuthLoginButton
                 className={`${styles.mobileMenuAuthButton} ${styles.authButtonLink}`}
                 testId="m55-mobile-auth-fallback"
                 onNavigate={closeMenu}

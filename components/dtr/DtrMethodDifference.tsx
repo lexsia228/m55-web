@@ -13,7 +13,7 @@ import {
 
 /**
  * /dtr/lp placement: what additional information Premium layers on, stated as
- * added scope rather than improved accuracy. Rendered before plan selection.
+ * added scope rather than improved accuracy. Kept secondary to the plan decision.
  */
 export default function DtrMethodDifference() {
   return (

@@ -43,7 +43,7 @@ describe('paid questionnaire decision UX — ids and count', () => {
     );
   });
 
-  it('keeps answer IDs unchanged', () => {
+  it('keeps answer IDs unchanged and universal Q1 copy present', () => {
     const allAnswerIds = PAID_QUESTIONNAIRE_COPY_V1.flatMap((q) =>
       q.choices.map((c) => c.answerId),
     );
@@ -58,29 +58,43 @@ describe('paid questionnaire decision UX — ids and count', () => {
         ...PAID_RESTART_CONDITION_IDS,
       ],
     );
+    const q1 = PAID_QUESTIONNAIRE_COPY_V1[0]!;
+    assert.equal(q1.shortLabelJa, '取り組みの焦点');
+    assert.doesNotMatch(q1.questionJa, /今の仕事で/);
+    assert.match(q1.sceneContextJa, /仕事・学業・家事・活動/);
+    for (const q of PAID_QUESTIONNAIRE_COPY_V1) {
+      assert.ok(q.sceneContextJa.length > 0, `missing sceneContextJa for ${q.questionId}`);
+    }
   });
 });
 
 describe('paid questionnaire decision UX — flow wiring', () => {
   it('question progress / back / next / completion / review are present without entry intro', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
+    const lp = read('app/dtr/lp/page.tsx');
     assert.doesNotMatch(q, /phase === 'entry'/);
     assert.doesNotMatch(q, /あなた向けの4章レポートに仕上げます/);
     assert.doesNotMatch(q, /力が出やすい条件/);
     assert.doesNotMatch(q, /プレミアムレポートの6問を始める/);
     assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);
     assert.match(q, /disabled=\{!selected\}/);
-    assert.match(q, /disabled=\{index === 0\}/);
-    assert.match(q, /回答内容を確認しました/);
-    assert.match(q, /回答を見直す/);
-    assert.match(q, /プランを選ぶ/);
-    assert.match(q, /ctaSupportJa|正解はありません/);
+    assert.match(q, /phase === 'review'/);
+    assert.match(q, /回答内容を確認/);
+    assert.match(q, /この回答でプランを見る/);
+    assert.match(q, /最初から回答し直す/);
+    assert.match(q, /sceneContextJa/);
+    assert.match(q, /m55-premium-scene-context/);
+    assert.match(q, /変更/);
+    assert.match(q, /persistPaidAnswers/);
+    assert.doesNotMatch(q, /今の仕事で/);
+    assert.doesNotMatch(q, /ctaSupportJa/);
     assert.doesNotMatch(q, /無料の6問/);
     assert.doesNotMatch(q, /paid-v1/);
     assert.doesNotMatch(q, FORBIDDEN_CLAIM);
+    assert.doesNotMatch(lp, /PLAN\.upgradeNoteJa/);
   });
 
-  it('plan choice and checkout boundary stay factual', () => {
+  it('plan choice and checkout boundary stay factual with answer review actions', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(prep, /DtrNeedFreeResultGate/);
     assert.match(prep, /PLAN_COMPARISON/);
@@ -91,9 +105,53 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(prep, /DTR_CORE_FULL_V1/);
     assert.match(prep, /PurchaseButton/);
     assert.match(prep, /selectFullCtaJa/);
+    assert.match(prep, /m55-paid-answer-status/);
+    assert.match(prep, /回答を確認・変更/);
+    assert.match(prep, /料金について/);
+    assert.match(prep, /return 'questionnaire'/);
+    assert.doesNotMatch(prep, /paidAnswersAreComplete\(\)\) return 'plans'/);
     assert.doesNotMatch(prep, /FULLを選ぶ/);
     assert.doesNotMatch(prep, FORBIDDEN_CLAIM);
     assert.doesNotMatch(prep, /m55_paid_plan_select|m55_paid_checkout/);
+  });
+
+  it('puts the plan decision before the secondary pricing and method explanation', () => {
+    const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
+    const planSurface = prep.slice(prep.indexOf('data-m55-paid-phase="plans"'));
+    const title = planSurface.indexOf('m55-premium-plans-headline');
+    const comparison = planSurface.indexOf('m55-plan-compare');
+    const cards = planSurface.indexOf(`className={styles.planStack}`);
+    const primaryPlanAction = planSurface.indexOf('selectLightCtaJa');
+    const pricing = planSurface.indexOf('m55-plan-pricing-disclosure');
+    const method = planSurface.indexOf('m55-plan-method-slot');
+
+    assert.ok(title >= 0);
+    assert.ok(title < comparison);
+    assert.ok(comparison < cards);
+    assert.ok(cards < primaryPlanAction);
+    assert.ok(primaryPlanAction < pricing);
+    assert.ok(pricing < method);
+  });
+
+  it('keeps the checkout receipt and primary CTA before the secondary method block', () => {
+    const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
+    const checkoutSurface = prep.slice(
+      prep.indexOf('data-m55-paid-phase="checkout"'),
+      prep.indexOf('data-m55-paid-phase="plans"'),
+    );
+    const receipt = checkoutSurface.indexOf(`className={styles.confirmCard}`);
+    const cluster = checkoutSurface.indexOf('m55-checkout-decision-cluster');
+    const reassurance = checkoutSurface.indexOf(`className={styles.confirmNote}`);
+    const legal = checkoutSurface.indexOf('m55-checkout-legal-links');
+    const primaryAction = checkoutSurface.indexOf('m55-checkout-primary-action');
+    const method = checkoutSurface.indexOf('m55-checkout-method-slot');
+
+    assert.ok(cluster >= 0);
+    assert.ok(cluster < receipt);
+    assert.ok(receipt < reassurance);
+    assert.ok(reassurance < legal);
+    assert.ok(legal < primaryAction);
+    assert.ok(primaryAction < method);
   });
 });
 

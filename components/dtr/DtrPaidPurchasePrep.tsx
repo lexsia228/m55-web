@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import DtrNeedFreeResultGate from './DtrNeedFreeResultGate';
+import DtrPaidJourneyStepRail from './DtrPaidJourneyStepRail';
 import PurchaseButton from '../PurchaseButton';
 import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
@@ -34,6 +35,7 @@ import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
 type PlanKey = 'light' | 'full';
+type ReviewOrigin = 'plans' | 'checkout' | null;
 
 const PURCHASE_RESTORE_KEY = 'm55_dtr_purchase_restore_v1';
 
@@ -41,8 +43,24 @@ function resolveInitialGate(ownerId?: string | null): GatePhase {
   const stage = readSelfFunnelStage(ownerId);
   const gate = resolveDtrLpGate(stage);
   if (gate === 'need_free') return 'need_free';
-  if (gate === 'plan_selection' || paidAnswersAreComplete()) return 'plans';
   return 'questionnaire';
+}
+
+function PaidAnswerStatusRow({ onReview }: { onReview: () => void }) {
+  if (!paidAnswersAreComplete()) return null;
+  return (
+    <div className={styles.answerStatusRow} data-testid="m55-paid-answer-status">
+      <p className={styles.answerStatusText}>プレミアム質問　6 / 6 回答済み</p>
+      <button
+        type="button"
+        className={styles.answerStatusLink}
+        data-testid="m55-paid-answer-review-link"
+        onClick={onReview}
+      >
+        回答を確認・変更
+      </button>
+    </div>
+  );
 }
 
 export default function DtrPaidPurchasePrep() {
@@ -57,6 +75,7 @@ export default function DtrPaidPurchasePrep() {
   const [hydrated, setHydrated] = useState(false);
   const [repurchaseAcknowledged, setRepurchaseAcknowledged] = useState(false);
   const [repurchaseAckRequired, setRepurchaseAckRequired] = useState(false);
+  const [reviewOrigin, setReviewOrigin] = useState<ReviewOrigin>(null);
   const checkoutShellRef = useRef<HTMLElement | null>(null);
   const prevGateRef = useRef<GatePhase | null>(null);
   const plan = PLAN_COMPARISON;
@@ -161,8 +180,12 @@ export default function DtrPaidPurchasePrep() {
         <ExperienceArchetypeSync paidPhase={paidPhase} />
         <DtrPaidQuestionnaireLayer
           onComplete={() => {
-            setSelectedPlan(null);
-            setGate('plans');
+            if (reviewOrigin === 'checkout' && selectedPlan) {
+              setGate('checkout');
+            } else {
+              setGate('plans');
+            }
+            setReviewOrigin(null);
           }}
         />
       </>
@@ -188,6 +211,13 @@ export default function DtrPaidPurchasePrep() {
         >
           <ExperienceArchetypeSync paidPhase="checkout" />
         {statusBanner}
+        <DtrPaidJourneyStepRail activeStep={3} />
+        <PaidAnswerStatusRow
+          onReview={() => {
+            setReviewOrigin('checkout');
+            setGate('questionnaire');
+          }}
+        />
         <p className={styles.overline}>{C.planOverlineJa}</p>
         <h3 className={styles.title}>{C.checkoutTitleJa}</h3>
         {requiresRepurchaseAck ? (
@@ -207,61 +237,63 @@ export default function DtrPaidPurchasePrep() {
             </label>
           </div>
         ) : null}
-        <div className={styles.confirmCard}>
-          <div className={styles.confirmRow}>
-            <span>{C.selectedPlanLabelJa}</span>
-            <strong>{tier.publicName}</strong>
+        <div className={styles.checkoutDecisionCluster} data-testid="m55-checkout-decision-cluster">
+          <div className={styles.confirmCard}>
+            <div className={styles.confirmRow}>
+              <span>{C.selectedPlanLabelJa}</span>
+              <strong>{tier.publicName}</strong>
+            </div>
+            <div className={styles.confirmRow}>
+              <span>{C.priceLabelJa}</span>
+              <strong>{tier.priceLabelJa}</strong>
+            </div>
+            <div className={styles.confirmRow}>
+              <span>{C.paymentLabelJa}</span>
+              <strong>{plan.oneTimeLabelJa}</strong>
+            </div>
+            <div className={styles.confirmRow}>
+              <span>{plan.includedHeadingJa}</span>
+              <strong>{buildIncludedProductSummaryJa(tier)}</strong>
+            </div>
           </div>
-          <div className={styles.confirmRow}>
-            <span>{C.priceLabelJa}</span>
-            <strong>{tier.priceLabelJa}</strong>
-          </div>
-          <div className={styles.confirmRow}>
-            <span>{C.paymentLabelJa}</span>
-            <strong>{plan.oneTimeLabelJa}</strong>
-          </div>
-          <div className={styles.confirmRow}>
-            <span>{plan.includedHeadingJa}</span>
-            <strong>{buildIncludedProductSummaryJa(tier)}</strong>
-          </div>
-        </div>
-        <p className={styles.confirmNote}>{C.checkoutNoteJa}</p>
-        <p className={styles.confirmFuture} data-testid="m55-checkout-future-note">
-          {PAID_DTR_LP.purchaseNotes.checkoutFutureJa}
-        </p>
-        <div className={styles.planMethodSlot} data-testid="m55-checkout-method-slot">
-          <M55MethodTrustLink surface="checkout" />
-        </div>
-        <nav className={styles.legalLinks} aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa} data-testid="m55-checkout-legal-links">
-          {purchaseDecisionLegalLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={styles.legalLink}>
-              {link.labelJa}
-            </Link>
-          ))}
-        </nav>
-        <div className={styles.actions}>
-          <div className={styles.primaryCtaWrap}>
-            <PurchaseButton
-              productId={productId}
-              className="m55-lp-cta-btn"
-              repurchaseAcknowledged={requiresRepurchaseAck ? repurchaseAcknowledged : undefined}
-              purchaseRestoreContext={{ gate: 'checkout', selectedPlan }}
-              disabled={requiresRepurchaseAck && !repurchaseAcknowledged}
-              onRepurchaseAckRequired={() => setRepurchaseAckRequired(true)}
+          <p className={styles.confirmNote}>{C.checkoutNoteJa}</p>
+          <p className={styles.confirmFuture} data-testid="m55-checkout-future-note">
+            {PAID_DTR_LP.purchaseNotes.checkoutFutureJa}
+          </p>
+          <nav className={styles.legalLinks} aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa} data-testid="m55-checkout-legal-links">
+            {purchaseDecisionLegalLinks.map((link) => (
+              <Link key={link.href} href={link.href} className={styles.legalLink}>
+                {link.labelJa}
+              </Link>
+            ))}
+          </nav>
+          <div className={styles.actions}>
+            <div className={styles.primaryCtaWrap} data-testid="m55-checkout-primary-action">
+              <PurchaseButton
+                productId={productId}
+                className="m55-lp-cta-btn"
+                repurchaseAcknowledged={requiresRepurchaseAck ? repurchaseAcknowledged : undefined}
+                purchaseRestoreContext={{ gate: 'checkout', selectedPlan }}
+                disabled={requiresRepurchaseAck && !repurchaseAcknowledged}
+                onRepurchaseAckRequired={() => setRepurchaseAckRequired(true)}
+              >
+                <span>{plan.checkoutProceedCtaJa}</span>
+              </PurchaseButton>
+            </div>
+            <button
+              type="button"
+              className={styles.secondaryBtn}
+              onClick={() => setGate('plans')}
             >
-              <span>{plan.checkoutProceedCtaJa}</span>
-            </PurchaseButton>
+              {C.backToPlansJa}
+            </button>
           </div>
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={() => setGate('plans')}
-          >
-            {C.backToPlansJa}
-          </button>
         </div>
         <div className={styles.planNote}>
           <CheckoutTrustRow />
+        </div>
+        <div className={styles.planMethodSlot} data-testid="m55-checkout-method-slot">
+          <M55MethodTrustLink surface="checkout" />
         </div>
         </section>
         </PremiumDecisionSurface>
@@ -282,6 +314,13 @@ export default function DtrPaidPurchasePrep() {
       >
         <ExperienceArchetypeSync paidPhase="plans" />
       {statusBanner}
+      <DtrPaidJourneyStepRail activeStep={2} />
+      <PaidAnswerStatusRow
+        onReview={() => {
+          setReviewOrigin('plans');
+          setGate('questionnaire');
+        }}
+      />
       {repurchaseMode ? (
         <p className={styles.repurchasePlansLead} role="status" data-testid="m55-repurchase-plans-lead">
           {C.repurchasePlansLeadJa}
@@ -292,9 +331,6 @@ export default function DtrPaidPurchasePrep() {
         {C.planTitleJa}
       </h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
-      <div className={styles.planMethodSlot}>
-        <DtrMethodDifference />
-      </div>
       <div className={styles.planCompare} data-testid="m55-plan-compare">
         <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
         <div className={styles.planCompareGrid}>
@@ -376,7 +412,13 @@ export default function DtrPaidPurchasePrep() {
           </button>
         </article>
       </div>
-      <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
+      <details className={styles.planUpgradeDisclosure} data-testid="m55-plan-pricing-disclosure">
+        <summary className={styles.planUpgradeSummary}>料金について</summary>
+        <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
+      </details>
+      <div className={styles.planMethodSlot} data-testid="m55-plan-method-slot">
+        <DtrMethodDifference />
+      </div>
       </section>
       </PremiumDecisionSurface>
     </>

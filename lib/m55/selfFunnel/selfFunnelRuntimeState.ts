@@ -176,6 +176,36 @@ export function resolveFreeCtaLabel(stage: SelfFunnelStage): string {
   return resolveExperienceCtaLabel({ stage, surface: 'home' });
 }
 
+export const DTR_PAID_QUESTIONNAIRE_HREF = '/dtr/lp#m55-paid-questionnaire' as const;
+
+/** Home primary CTA destination — label and href must resolve from the same stage. */
+export function resolveHomeCtaHref(stage: SelfFunnelStage): string {
+  switch (stage) {
+    case 'PAID_QUESTIONS_IN_PROGRESS':
+    case 'PAID_QUESTIONS_COMPLETE':
+    case 'PLAN_SELECTION':
+      return DTR_PAID_QUESTIONNAIRE_HREF;
+    case 'PURCHASED':
+      return '/dtr/core';
+    case 'FREE_RESULT_READY':
+    case 'BASIC_INFO_COMPLETE':
+    case 'FREE_QUESTIONS_IN_PROGRESS':
+      return '/core';
+    default:
+      return '/core';
+  }
+}
+
+/** Hide free-entry trust copy when the primary CTA is a Premium purchase-state action. */
+export function resolveHomeCtaShowsLoginFreeSupport(stage: SelfFunnelStage): boolean {
+  return !(
+    stage === 'PAID_QUESTIONS_IN_PROGRESS' ||
+    stage === 'PAID_QUESTIONS_COMPLETE' ||
+    stage === 'PLAN_SELECTION' ||
+    stage === 'PURCHASED'
+  );
+}
+
 export const EXPLICIT_RERUN_CTA_JA = '回答を変えて、もう一度見る' as const;
 
 export type CoreRouteView = 'intake' | 'questionnaire' | 'result';

@@ -178,6 +178,16 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
 });
 
 describe('publicHeaderContract — menu accessibility contract', () => {
+  it('uses deterministic semantic dropdown ids across server and client rendering', () => {
+    assert.doesNotMatch(headerSource, /useId/);
+    assert.match(headerSource, /const ABOUT_MENU_ID = 'm55-public-about-menu'/);
+    assert.match(headerSource, /const ACCOUNT_MENU_ID = 'm55-public-account-menu'/);
+    assert.match(headerSource, /menuId=\{ABOUT_MENU_ID\}/);
+    assert.match(headerSource, /menuId=\{ACCOUNT_MENU_ID\}/);
+    assert.match(headerSource, /aria-controls=\{menuId\}/);
+    assert.match(headerSource, /id=\{menuId\}/);
+  });
+
   it('mobile trigger has exact visible text and toggling aria-label', () => {
     assert.match(headerSource, /\{T\.menu\}/);
     assert.match(headerSource, /aria-label=\{menuOpen \? Nav\.menuCloseJa : Nav\.menuOpenJa\}/);
@@ -221,12 +231,43 @@ describe('publicHeaderContract — layout, sizing, and reduced motion', () => {
   });
 });
 
+describe('publicHeaderContract — Clerk auth hydration stability', () => {
+  it('uses button elements for loading, failure, and signed-out login slots', () => {
+    assert.match(headerSource, /function AuthLoginButton/);
+    assert.doesNotMatch(headerSource, /function AuthFallbackLink/);
+    assert.match(headerSource, /window\.location\.assign\('\/sign-in'\)/);
+    const clerkLoadingBlocks = headerSource.match(/<ClerkLoading>[\s\S]*?<\/ClerkLoading>/g) ?? [];
+    const clerkFailedBlocks = headerSource.match(/<ClerkFailed>[\s\S]*?<\/ClerkFailed>/g) ?? [];
+    assert.equal(clerkLoadingBlocks.length, 2);
+    assert.equal(clerkFailedBlocks.length, 2);
+    for (const block of [...clerkLoadingBlocks, ...clerkFailedBlocks]) {
+      assert.match(block, /AuthLoginButton/);
+      assert.doesNotMatch(block, /<Link[^>]*href="\/sign-in"/);
+    }
+    assert.match(headerSource, /function AuthLoginButton[\s\S]*?type="button"/);
+    const signedOutBlocks = headerSource.match(/<SignedOut>[\s\S]*?<\/SignedOut>/g) ?? [];
+    assert.ok(signedOutBlocks.length >= 2);
+    for (const block of signedOutBlocks) {
+      assert.match(block, /type="button"/);
+    }
+  });
+});
+
 describe('publicHeaderContract — Clerk auth and configuration untouched', () => {
   it('imports the same Clerk primitives without adding new auth logic', () => {
-    assert.match(
-      headerSource,
-      /import \{ SignInButton, SignedIn, SignedOut, UserButton \} from '@clerk\/nextjs';/,
-    );
+    const clerkImport = headerSource.match(/import \{[\s\S]*?\} from '@clerk\/nextjs';/)?.[0];
+    assert.ok(clerkImport, 'expected Clerk import block');
+    for (const primitive of [
+      'ClerkFailed',
+      'ClerkLoaded',
+      'ClerkLoading',
+      'SignInButton',
+      'SignedIn',
+      'SignedOut',
+      'UserButton',
+    ]) {
+      assert.match(clerkImport!, new RegExp(`\\b${primitive}\\b`));
+    }
     assert.match(headerSource, /<SignInButton mode="redirect">/);
     assert.equal(headerSource.includes('clerkClient'), false);
     assert.equal(headerSource.includes('process.env'), false);

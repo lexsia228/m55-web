@@ -115,8 +115,8 @@ describe('publicHeaderState contract', () => {
     assert.match(header, /ClerkLoading/);
     assert.match(header, /ClerkFailed/);
     assert.match(header, /ClerkLoaded/);
-    assert.match(header, /function AuthFallbackLink/);
-    assert.match(header, /href="\/sign-in"/);
+    assert.match(header, /function AuthLoginButton/);
+    assert.match(header, /window\.location\.assign\('\/sign-in'\)/);
     assert.match(header, /Nav\.loginJa/);
     assert.match(header, /m55-desktop-auth-fallback/);
     assert.match(header, /m55-mobile-auth-fallback/);
@@ -129,8 +129,9 @@ describe('publicHeaderState contract', () => {
     assert.equal(clerkLoadingBlocks.length, 2);
     assert.equal(clerkFailedBlocks.length, 2);
     for (const block of [...clerkLoadingBlocks, ...clerkFailedBlocks]) {
-      assert.match(block, /AuthFallbackLink/);
+      assert.match(block, /AuthLoginButton/);
     }
+    assert.match(header, /function AuthLoginButton[\s\S]*?type="button"/);
     assert.doesNotMatch(header, /localStorage/);
     assert.doesNotMatch(header, /sessionStorage/);
   });
