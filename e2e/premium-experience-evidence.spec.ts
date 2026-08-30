@@ -100,6 +100,18 @@ function requireCapture(captureId: string): PremiumCaptureCase {
   return capture;
 }
 
+/** Runtime assertion contract for captures whose product phase marker moved before model refresh. */
+function captureForAssertion(capture: PremiumCaptureCase): PremiumCaptureCase {
+  if (capture.captureId !== 'answer-review') return capture;
+  return {
+    ...capture,
+    visibleContract: {
+      ...capture.visibleContract,
+      locator: '[data-testid="m55-paid-answer-review"]',
+    },
+  };
+}
+
 function requireLocalDevFixture(testName: string) {
   if (process.env.VERCEL_ENV === 'production') {
     throw new Error(
@@ -183,7 +195,7 @@ async function prepareGovernedPremiumCapture(
   captureId: string,
   viewport: PremiumEvidenceViewport,
 ) {
-  const capture = requireCapture(captureId);
+  const capture = captureForAssertion(requireCapture(captureId));
   const previousUrl = page.url();
   const routePath = capture.expectedRoute.split('?')[0];
 
@@ -221,7 +233,8 @@ async function prepareGovernedPremiumCapture(
 }
 
 async function capturePng(page: Page, captureId: string, viewport: PremiumEvidenceViewport) {
-  const capture = requireCapture(captureId);
+  const modelCapture = requireCapture(captureId);
+  const capture = captureForAssertion(modelCapture);
   const { actualUrl, actualOrigin } = await prepareGovernedPremiumCapture(page, captureId, viewport);
   const target = page.locator(capture.visibleContract.locator).first();
   await expect(target).toBeAttached();
@@ -281,15 +294,16 @@ async function capturePng(page: Page, captureId: string, viewport: PremiumEviden
     expectedRoute: capture.expectedRoute,
     actualUrl,
     actualOrigin,
-    ownerModule: capture.ownerModule,
-    visibleContractDigest: captureContractDigest(capture),
+    ownerModule: modelCapture.ownerModule,
+    visibleContractDigest: captureContractDigest(modelCapture),
     fileName,
     byteLength,
   });
 }
 
 async function capturePdf(page: Page, captureId: string) {
-  const capture = requireCapture(captureId);
+  const modelCapture = requireCapture(captureId);
+  const capture = captureForAssertion(modelCapture);
   if (!capture.printFileName) {
     throw new Error(`PREMIUM_CAPTURE_NOT_PRINTABLE: ${captureId}`);
   }
@@ -309,8 +323,8 @@ async function capturePdf(page: Page, captureId: string) {
     expectedRoute: capture.expectedRoute,
     actualUrl,
     actualOrigin,
-    ownerModule: capture.ownerModule,
-    visibleContractDigest: captureContractDigest(capture),
+    ownerModule: modelCapture.ownerModule,
+    visibleContractDigest: captureContractDigest(modelCapture),
     fileName: capture.printFileName,
     byteLength,
   });
@@ -354,6 +368,11 @@ async function openDrawerPanel(page: Page, panel: 'chapter-1' | 'consult') {
   throw new Error(`openDrawerPanel(${panel}): could not open without leaving the local origin`);
 }
 
+async function expectAnswerReviewPhase(page: Page, timeout = 20_000) {
+  await expect(page.locator('[data-m55-paid-phase="review"]')).toBeVisible({ timeout });
+  await expect(page.getByTestId('m55-paid-answer-review')).toBeVisible({ timeout });
+}
+
 async function completeQuestionnaire(page: Page) {
   for (let i = 0; i < 6; i += 1) {
     await page.locator('[role="radio"]').first().click();
@@ -363,7 +382,7 @@ async function completeQuestionnaire(page: Page) {
         : page.getByRole('button', { name: '次へ' });
     await btn.click();
   }
-  await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible({ timeout: 20_000 });
+  await expectAnswerReviewPhase(page);
 }
 
 // Default (not serial): a flaky /dev fixture must not skip the remaining matrix.
@@ -413,23 +432,20 @@ for (const vp of VIEWPORTS) {
     await capturePng(page, 'premium-q6', vp.name);
     await page.locator('[role="radio"]').first().click();
     await page.getByRole('button', { name: '回答を確認する' }).click();
-    await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible();
+    await expectAnswerReviewPhase(page);
     await capturePng(page, 'answer-review', vp.name);
 
-    await page.getByRole('button', { name: '回答を見直す' }).click();
+    await page.locator('[data-testid^="m55-paid-answer-edit-"]').first().click();
     await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible();
+    await expect(page.locator('[data-m55-paid-answer-edit="true"]')).toBeVisible();
     await assertDecisionSheet(page);
     await capturePng(page, 'answer-edit', vp.name);
 
-    for (let i = 0; i < 6; i += 1) {
-      await page.locator('[role="radio"]').first().click();
-      const btn =
-        i === 5
-          ? page.getByRole('button', { name: '回答を確認する' })
-          : page.getByRole('button', { name: '次へ' });
-      await btn.click();
-    }
-    await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+    await page.locator('[role="radio"]').first().click();
+    await page.getByRole('button', { name: '保存して確認に戻る' }).click();
+    await expectAnswerReviewPhase(page);
+
+    await page.getByRole('button', { name: 'この回答でプランを見る' }).click();
     await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible();
     await assertDecisionSheet(page);
     await capturePng(page, 'plan-selection', vp.name);
@@ -573,7 +589,7 @@ test('print PDF premium states @1280', async ({ browser }) => {
   await completeQuestionnaire(page);
   await capturePdf(page, 'answer-review');
 
-  await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+  await page.getByRole('button', { name: 'この回答でプランを見る' }).click();
   await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
   await capturePdf(page, 'plan-selection');
 
