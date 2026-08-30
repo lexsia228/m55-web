@@ -22,4 +22,7 @@ export const PREMIUM_FUNNEL_PAGE_CONTENT = {
   loadingJa: '読み込み中…',
   checkoutAriaJa: '支払い前の確認',
   planSelectAriaJa: 'プレミアムレポートのプラン選択',
+  paidAnswersCompleteJa: 'プレミアム質問　6 / 6 回答済み',
+  reviewAnswersJa: '回答を確認・変更',
+  pricingDisclosureJa: '料金について',
 } as const;

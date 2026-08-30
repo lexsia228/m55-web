@@ -50,14 +50,14 @@ function PaidAnswerStatusRow({ onReview }: { onReview: () => void }) {
   if (!paidAnswersAreComplete()) return null;
   return (
     <div className={styles.answerStatusRow} data-testid="m55-paid-answer-status">
-      <p className={styles.answerStatusText}>プレミアム質問　6 / 6 回答済み</p>
+      <p className={styles.answerStatusText}>{C.paidAnswersCompleteJa}</p>
       <button
         type="button"
         className={styles.answerStatusLink}
         data-testid="m55-paid-answer-review-link"
         onClick={onReview}
       >
-        回答を確認・変更
+        {C.reviewAnswersJa}
       </button>
     </div>
   );
@@ -413,7 +413,7 @@ export default function DtrPaidPurchasePrep() {
         </article>
       </div>
       <details className={styles.planUpgradeDisclosure} data-testid="m55-plan-pricing-disclosure">
-        <summary className={styles.planUpgradeSummary}>料金について</summary>
+        <summary className={styles.planUpgradeSummary}>{C.pricingDisclosureJa}</summary>
         <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
       </details>
       <div className={styles.planMethodSlot} data-testid="m55-plan-method-slot">
