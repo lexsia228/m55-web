@@ -1,58 +1,280 @@
 {
+  "schemaVersion": "2.0.0",
   "status": "ACTIVE_HANDOFF_CHECKPOINT",
+  "checkpointPurpose": "Complete cross-thread continuation authority for the active commercial-content-quality incident and remediation lane.",
   "checkpointAt": "2026-08-31T06:35:00Z",
-  "mainMergeSha": "eb825f58be699bb860315ab1c167e385820a53fb",
-  "productionState": "READY",
+  "completedContextReviewAt": "2026-08-31T07:30:00Z",
+  "productCodeBaseline": "eb825f58be699bb860315ab1c167e385820a53fb",
+  "productCodeBaselineMeaning": "PR174 merged product code / Production content incident baseline. Later main commits in this handoff lane are docs-only Control System checkpoints unless separately proven otherwise.",
   "lane": "M55_COMMERCIAL_CONTENT_QUALITY",
+  "worktree": "/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1",
   "branch": "fix/m55-content-integrity-semantic-v1",
   "baseSha": "eb825f58be699bb860315ab1c167e385820a53fb",
+  "localStateAuthority": "LAST_ACCEPTED_ONLY_REOBSERVE_BEFORE_EDIT",
   "localState": "UNCOMMITTED_REMEDIATION_IN_PROGRESS",
-  "incident": "Production content-quality regression reopened commercial release closure after Human found truncated Japanese on seen_vs_actual output.",
-  "phase3StandaloneAudit": {
-    "itemsReviewed": 453,
-    "p0": 0,
-    "p1": 41,
-    "p2": 14,
-    "accepted": 398,
-    "pairPremiumPaidValue": "FAIL",
-    "selfPremiumPaidValue": "FAIL",
-    "selfFreeQuality": "FAIL",
-    "pairFreeQuality": "PASS_WITH_P2",
-    "pairSharePerspective": "PASS",
-    "shareSerialization": "FAIL",
-    "crossProfileDistinctness": "FAIL",
-    "affiliateInfluencerRecommendationSafety": "FAIL",
-    "userPurchaseConfidence": "FAIL",
-    "overallCommercialContent": "FAIL"
+  "commercializationDefinition": {
+    "goal": "User visits, understands value, can try Free with low friction, naturally progresses to Paid, trusts the site enough to pay, can reuse/revisit, and feels comfortable sharing or recommending it.",
+    "qualitySignals": [
+      "clear information architecture and conversion path",
+      "purposeful modern UI / animation rather than decorative complexity",
+      "trust and checkout confidence",
+      "low input burden with resume/prefill where appropriate",
+      "clear Free-to-Paid value progression",
+      "high-quality generated Japanese that does not look broken, generic, templated or cheap",
+      "public share output safe enough for affiliates and influencers to recommend to others"
+    ],
+    "humanRole": "Human is the final brand/commercial judge, not the primary bug/typo finder. Deterministic checks plus independent semantic review must catch obvious content defects before Human review."
   },
-  "remainingSystemicFindings": [
-    "share punctuation and nested-quote defects",
-    "cross-profile duplicate public shares",
-    "Pair Premium chapter template repetition and insufficient paid depth",
-    "Self Premium contradictory/generic/mechanical paid prose",
-    "remaining Self Free broken abstractions",
-    "commercial-quality P2 polish on paid/free explanatory copy"
+  "productStrategy": {
+    "premiumShelf": "New paid products normally join the existing Premium product shelf; adding a product does not require redesigning the whole site every time.",
+    "pairDiscoverability": "Pair is first-class discoverable through HOME/product shelf and deep-link /synastry; global navigation addition is P2/after-revenue unless Human later decides otherwise.",
+    "publicTerminology": "Use current Premium naming authority. 保存版 is internal-only and must not be introduced into public UI/copy.",
+    "benchmarkRoles": {
+      "home": "with + Co-Star",
+      "selfFreeInput": "with",
+      "selfFreeResult": "The Pattern + with",
+      "pairFreeResult": "The Pattern + Paired",
+      "premiumBridgePurchaseConfirmation": "Paired + Co-Star with Stripe + Baymard guardrails",
+      "paidReport": "The Pattern + Paired",
+      "myRevisit": "Paired + with"
+    },
+    "benchmarkRule": "Assimilate hierarchy, CTA, value and trust patterns; do not copy competitor wording."
+  },
+  "releaseHistoryRelevantToThisLane": {
+    "pr174": {
+      "status": "MERGED_AND_PRODUCTION_READY_BEFORE_CONTENT_INCIDENT",
+      "mergeCommit": "eb825f58be699bb860315ab1c167e385820a53fb",
+      "purpose": "Registered-surface/commercial contract reconciliation after DTR commercial UIUX closure.",
+      "technicalCommercialRouteUiGates": "GREEN before the later Human content-quality incident"
+    },
+    "releaseClosure": "REOPENED_FOR_CONTENT_INTEGRITY_AND_SEMANTIC_QUALITY_ONLY",
+    "realPayment": "PAUSED_BEFORE_PAYMENT",
+    "securityDebt": "public.entitlements_current Security Definer View remains separate nonblocking security debt and must not be mixed into this content lane."
+  },
+  "productionContentIncident": {
+    "trigger": "Human manually found malformed Japanese in Production after technical/commercial route/UI gates had passed.",
+    "surface": "Self Free result / seen_vs_actual display and share output",
+    "observedBrokenDisplay": "近い関係で「ここまで」",
+    "authorityFullClause": "近い関係で「ここまで」が見えたところで、自分の中で決めている",
+    "rootCause": "parsePublicCardDisplayV1 used naive regex 「([^」]+)」 and stopped at the first inner closing quote. Authority text and share reconstruction were fuller; display parse truncated the nested quote.",
+    "rootCauseFix": "Depth-aware Japanese quote extraction in presentation parser, without changing scoring/catalog authority semantics.",
+    "processLesson": "Route/state/DOM/layout gates are insufficient if malformed generated copy is accepted as expected data. Full generated-content corpus auditing is now part of commercial-quality closure."
+  },
+  "auditAndRemediationHistory": {
+    "phase1Cursor": {
+      "corpusItems": 449,
+      "deterministicP0": 0,
+      "deterministicP1": 0,
+      "deterministicP2": 0,
+      "importantFixes": [
+        "nested seen_vs_actual display parser root cause",
+        "reusable content-integrity checks for brackets/quotes, truncation, empty text, mojibake, interpolation leaks, share/display divergence, duplicate clauses and incomplete endings"
+      ],
+      "status": "DETERMINISTIC_GREEN_ONLY"
+    },
+    "phase1IndependentCodex": {
+      "reviewed": 449,
+      "p0": 2,
+      "p1": 76,
+      "p2": 49,
+      "accepted": 322,
+      "p0Meaning": "Both P0s were corpus extractor misidentification for Person B, not Production user-facing Person B copy defects.",
+      "majorSystemicFindings": [
+        "Person B corpus extraction misidentification",
+        "Self generated abstraction",
+        "nested Japanese quote serialization",
+        "manual/share actor inversion",
+        "Pair share Self perspective leakage",
+        "Pair manual slot perspective mismatch",
+        "Pair Premium Free restatement and chapter duplication",
+        "Premium share tier collapse",
+        "paid report tone/fragments"
+      ]
+    },
+    "phase2Cursor": {
+      "corpusItems": 453,
+      "deterministicP0": 0,
+      "deterministicP1": 0,
+      "result": "SYSTEMIC_REMEDIATION_IMPLEMENTED_LOCAL_ONLY"
+    },
+    "phase2IndependentCodex": {
+      "reviewed": 453,
+      "p0": 0,
+      "p1": 78,
+      "p2": 58,
+      "accepted": 317,
+      "pairPremiumPaidValue": "FAIL_MATERIAL_P1",
+      "selfPremiumPaidValue": "FAIL_MATERIAL_P1",
+      "pairSharePerspective": "PASS",
+      "shareSerialization": "FAIL"
+    },
+    "phase3Cursor": {
+      "corpusItems": 453,
+      "deterministicP0": 0,
+      "deterministicP1": 0,
+      "focusedTests": "PASS",
+      "typeDelta": "CLEAN_CHANGED_PATHS",
+      "gitDiffCheck": "PASS",
+      "result": "LOCAL_IMPLEMENTATION_GREEN_NOT_SEMANTICALLY_SELF_CERTIFIED"
+    },
+    "phase3StandaloneIndependentAudit": {
+      "itemsReviewed": 453,
+      "p0": 0,
+      "p1": 41,
+      "p2": 14,
+      "accepted": 398,
+      "pairPremiumPaidValue": "FAIL",
+      "selfPremiumPaidValue": "FAIL",
+      "selfFreeQuality": "FAIL",
+      "pairFreeQuality": "PASS_WITH_P2",
+      "pairSharePerspective": "PASS",
+      "shareSerialization": "FAIL",
+      "crossProfileDistinctness": "FAIL",
+      "affiliateInfluencerRecommendationSafety": "FAIL",
+      "userPurchaseConfidence": "FAIL",
+      "overallCommercialContent": "FAIL"
+    }
+  },
+  "currentRemainingSystemicFindings": [
+    "seven Self hidden-spec share posts with doubled Japanese terminal punctuation",
+    "P3 damaged same-bracket nested quotation",
+    "Self P2/P4 and P5/P7 public-share exact collapse",
+    "Pair R1/R2 and R3/R6 share-post collapse plus R2/R5 share-card collapse",
+    "six Pair Premium chapters still visibly template-driven and insufficiently distinct in paid explanatory depth",
+    "Self Premium overloaded takeaway plus contradictory/generic/mechanical paid prose, unsupported flattering generalizations, birth-period filler and fragments",
+    "six Self Free records with remaining broken abstractions",
+    "P2 commercial polish: defensive Free-versus-Paid note, repetitive Pair paid deep summaries, abstract Pair Free long-form prose and awkward repeated まま"
   ],
-  "acceptanceBeforeCommercialContentGreen": [
-    "independent semantic P0=0",
-    "independent semantic P1=0",
-    "Pair Premium paid-value PASS",
-    "Self Premium paid-value PASS",
-    "share serialization PASS",
-    "cross-profile distinctness PASS",
-    "affiliate/influencer recommendation-safety PASS",
-    "user purchase-confidence PASS"
+  "currentAcceptanceContract": {
+    "commercialContentGreenRequires": [
+      "independent semantic P0 = 0",
+      "independent semantic P1 = 0",
+      "Pair Premium paid-value = PASS",
+      "Self Premium paid-value = PASS",
+      "Pair share perspective = PASS",
+      "share serialization = PASS",
+      "cross-profile distinctness = PASS",
+      "affiliate/influencer recommendation-safety = PASS",
+      "user purchase-confidence = PASS"
+    ],
+    "p2Policy": "P2 may remain only when it does not materially reduce purchase confidence, recommendation safety or paid-value credibility.",
+    "browserAfterCorpusGreen": "After corpus semantic GREEN, run representative Free / Premium / Pair / share render smoke only. Do not replay broad 75-surface or full STP matrices without a real visual/runtime invalidator."
+  },
+  "implementationAndReviewRoles": {
+    "Cursor": "Implementation owner: inspect canonical source owners, apply systemic local fixes, add robust deterministic regression contracts, regenerate corpus, run focused/delta validation. Do not self-certify semantic commercial closure.",
+    "Codex": "Independent read-only semantic reviewer over the generated corpus. Use a fresh/standalone review context so prior conclusions do not bias the result. No source edits during independent audit.",
+    "Human": "Final product/brand judgment and explicit mutation authorization; should not be required to manually discover generated-text bugs."
+  },
+  "worktreeIsolation": {
+    "activeContentWorktree": "/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1",
+    "activeContentBranch": "fix/m55-content-integrity-semantic-v1",
+    "doNotTouch": [
+      "/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1 — existing Pair/control-tower dirt must remain untouched",
+      "/Users/lexsia/Documents/M55_WORKTREE-dtr-premium-ux-local — prior DTR lane; do not reuse for cross-product content incident",
+      "separate login/hotfix branch/worktree"
+    ],
+    "prohibitedGitOperationsWithoutExplicitHumanAuthorization": [
+      "reset",
+      "restore",
+      "stash",
+      "rebase",
+      "force push"
+    ]
+  },
+  "lastAcceptedContentWorktreeDirtyOwnership": {
+    "trackedModified": [
+      "components/compatibility/CompatibilityPurchaseExperience.tsx",
+      "lib/m55/commercialUx/qualityControl/m55JapaneseComprehensionClosureSourceAuthority.ts",
+      "lib/m55/compatibility/buildPaidCompatibilityReportV1.ts",
+      "lib/m55/compatibility/pairFreeCommercialCopyV5.test.ts",
+      "lib/m55/compatibility/pairFreeInsightQualityV2.test.ts",
+      "lib/m55/compatibility/pairFreeInsightSpecV2.ts",
+      "lib/m55/compatibility/pairReadingFragments.v1.ts",
+      "lib/m55/dtrEngine.ts",
+      "lib/m55/freeResult/personalFreeFusedInsightSpecV3.ts",
+      "lib/m55/freeResult/personalFreeManifestationV4.ts",
+      "lib/m55/narrative/buildPremiumPurchasedSemanticProjectionV1.ts",
+      "lib/m55/narrative/humanizePrivatePresentationV1.ts",
+      "lib/m55/narrative/pairManualV1.ts",
+      "lib/m55/narrative/projectPublicShareV1.ts",
+      "lib/m55/narrative/publicCardDisplayV1.ts",
+      "lib/m55/narrative/publicCardDisplayV1.test.ts",
+      "lib/m55/narrative/reconstructPublicCardV1.ts"
+    ],
+    "untracked": [
+      "docs/audit/local/M55_CONTENT_INTEGRITY_CORPUS_LOCAL_PHASE2.jsonl",
+      "docs/audit/local/M55_CONTENT_INTEGRITY_CORPUS_LOCAL_PHASE3.jsonl",
+      "lib/commercialQuality/contentIntegrity.test.ts",
+      "lib/commercialQuality/contentIntegrityChecks.ts",
+      "lib/commercialQuality/contentIntegritySemanticChecks.ts",
+      "lib/commercialQuality/contentIntegrityTypes.ts",
+      "lib/m55/commercialUx/qualityControl/m55ContentIntegrityCorpus.ts",
+      "lib/m55/compatibility/paidCompatibilityChapterDepthV1.ts",
+      "lib/m55/narrative/sharePostSerializationV1.ts"
+    ],
+    "freshnessRule": "This list is the last accepted checkpoint, not a claim about current local runtime. Cursor must re-observe worktree, branch, HEAD, staged state and dirty ownership before editing."
+  },
+  "humanBrandJudgmentOnly": [
+    "私の取扱説明書",
+    "二人の取扱説明書",
+    "自分でも知らなかった仕様",
+    "Pair shareの『あなたの二人では、どう出る？』の親しさ",
+    "2人 / 二人の表記統一",
+    "静かに読み返せます / 距離の温度 等の詩的語彙"
   ],
   "humanAuthorization": {
+    "contentIntegrityAndJapaneseSemanticCorpusAudit": "APPROVED_LOCAL_ONLY",
+    "observedShareCardP1Fix": "APPROVED_LOCAL_ONLY",
     "finalSystemicLocalBatch": "APPROVED",
-    "controlSystemCheckpoint": "APPROVED",
-    "commitPushDeployPayment": "NOT_AUTHORIZED"
+    "controlSystemCheckpointAndSupplement": "APPROVED",
+    "commit": "NOT_AUTHORIZED",
+    "push": "NOT_AUTHORIZED",
+    "pr": "NOT_AUTHORIZED",
+    "merge": "NOT_AUTHORIZED",
+    "deploy": "NOT_AUTHORIZED",
+    "payment": "NOT_AUTHORIZED",
+    "providerEnvDbStripeClerkMutation": "NOT_AUTHORIZED"
   },
-  "nextSingleAction": "M55-COMMERCIAL-CONTENT-FINAL-SYSTEMIC-BATCH-LOCAL: fix remaining 41 P1 plus 14 commercial-quality P2 by canonical systemic owner in one local-only batch, regenerate corpus, then run fresh standalone all-item semantic audit.",
-  "noReplay": [
-    "do not repeat PR174 mapping/STP closure",
-    "do not repeat prior 449/453-item audits except the new post-remediation corpus",
-    "new thread is not an invalidator"
-  ],
-  "handoff": "Safe thread boundary. Resume directly from the authorized final systemic local batch. Fold this checkpoint into M55_EXECUTION_STATE.json when post-remediation independent semantic audit is GREEN and atomic commit is ready."
+  "authorityAndNoReplay": {
+    "order": [
+      "latest Human instruction",
+      "this handoff checkpoint for the active commercial-content lane",
+      "AGENTS.md",
+      "current Product Authority / commercial-quality authority",
+      "actual current source/runtime evidence",
+      "fresh Git/PR/CI/Preview/Production evidence",
+      "older chat/reports",
+      "AI inference"
+    ],
+    "staleExecutionStateHandling": "The existing M55_EXECUTION_STATE.json still points at an older DTR gate. For this active lane, that stale field must not block the explicitly Human-authorized read-only semantic audit/local content-remediation checkpoint. Fold this checkpoint into M55_EXECUTION_STATE.json only after post-remediation independent semantic audit is GREEN and an atomic commit is ready.",
+    "noReplay": [
+      "do not repeat broad commercial mapping already closed",
+      "do not replay PR174 mapping/STP/browser closure",
+      "do not replay earlier Phase1/Phase2/Phase3 semantic audits except a fresh audit of the newly regenerated post-remediation corpus",
+      "new thread or absent chat memory is not an invalidator",
+      "do not rerun long browser/STP matrices unless changed rendering/runtime creates a real invalidator"
+    ]
+  },
+  "nextSingleAction": {
+    "gate": "M55-COMMERCIAL-CONTENT-FINAL-SYSTEMIC-BATCH-LOCAL",
+    "instruction": "Fresh-read the active content worktree first. If identity/dirty ownership matches the accepted checkpoint, fix the remaining 41 P1 plus 14 commercial-quality P2 by canonical systemic owner in one local-only batch; regenerate the governed 453-item corpus; run focused/delta validation; then perform exactly one fresh standalone all-item independent semantic audit.",
+    "expectedLocalResultBeforeIndependentAudit": [
+      "corpus count 453 with no silent item loss",
+      "deterministic P0=0",
+      "deterministic P1=0",
+      "focused affected tests PASS",
+      "affected type validation PASS",
+      "git diff --check PASS",
+      "index empty",
+      "no unexpected repository path"
+    ],
+    "doNotClaimBeforeIndependentAudit": [
+      "semantic P1=0",
+      "Pair Premium paid-value PASS",
+      "Self Premium paid-value PASS",
+      "commercial content GREEN"
+    ]
+  },
+  "threadBootstrap": "M55 commercial content qualityの続き。docs/ssot/M55_COMMERCIAL_CONTENT_QUALITY_HANDOFF_20260831.json をactive lane authorityとして読み、fresh local stateを確認して M55-COMMERCIAL-CONTENT-FINAL-SYSTEMIC-BATCH-LOCAL から再開。過去のmapping/semantic auditはreplayしない。",
+  "handoffBoundary": "SAFE_COMPLETE_THREAD_BOUNDARY_AFTER_CONTEXT_SUPPLEMENT"
 }
