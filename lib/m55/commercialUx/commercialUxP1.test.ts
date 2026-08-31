@@ -110,6 +110,32 @@ describe('publicHeaderState contract', () => {
     assert.match(read('components/shell/PublicHeaderContainer.tsx'), /readSelfFunnelStage/);
   });
 
+  it('PublicHeader keeps login visible while Clerk loads or fails', () => {
+    const header = read('components/shell/PublicHeader.tsx');
+    assert.match(header, /ClerkLoading/);
+    assert.match(header, /ClerkFailed/);
+    assert.match(header, /ClerkLoaded/);
+    assert.match(header, /function AuthLoginButton/);
+    assert.match(header, /window\.location\.assign\('\/sign-in'\)/);
+    assert.match(header, /Nav\.loginJa/);
+    assert.match(header, /m55-desktop-auth-fallback/);
+    assert.match(header, /m55-mobile-auth-fallback/);
+    assert.match(header, /<SignedOut>/);
+    assert.match(header, /<SignedIn>/);
+    assert.match(header, /SignInButton/);
+    assert.match(header, /UserButton/);
+    const clerkLoadingBlocks = header.match(/<ClerkLoading>[\s\S]*?<\/ClerkLoading>/g) ?? [];
+    const clerkFailedBlocks = header.match(/<ClerkFailed>[\s\S]*?<\/ClerkFailed>/g) ?? [];
+    assert.equal(clerkLoadingBlocks.length, 2);
+    assert.equal(clerkFailedBlocks.length, 2);
+    for (const block of [...clerkLoadingBlocks, ...clerkFailedBlocks]) {
+      assert.match(block, /AuthLoginButton/);
+    }
+    assert.match(header, /function AuthLoginButton[\s\S]*?type="button"/);
+    assert.doesNotMatch(header, /localStorage/);
+    assert.doesNotMatch(header, /sessionStorage/);
+  });
+
   it('/core active state maps to free entry', () => {
     const state = resolvePublicHeaderState({
       pathname: '/core',

@@ -627,8 +627,8 @@ async function applySetup(page: Page, governedCase: CommercialVisualCase) {
       const label = i === 5 ? '回答を確認する' : '次へ';
       await page.getByRole('button', { name: label }).click();
     }
-    await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible({ timeout: 30_000 });
-    await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+    await expect(page.getByTestId('m55-paid-answer-review')).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId('m55-paid-review-continue').click();
     await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
     // Keep the plan headline below the fixed public header before geometry.
     await page.evaluate(() => {

@@ -71,7 +71,10 @@ function deriveCanonicalObservableStateId(pathname: string): string | null {
     if (has('[data-testid="m55-dtr-plan-selection"]')) {
       return 'ecp:premium.lp.plans:plan_selection';
     }
-    if (has('[data-m55-paid-phase="complete"]')) {
+    if (
+      has('[data-m55-paid-phase="review"]') ||
+      has('[data-testid="m55-paid-answer-review"]')
+    ) {
       return 'ecp:premium.lp.answer_review:answer_review';
     }
     if (has('[data-m55-paid-answer-edit="true"]')) {

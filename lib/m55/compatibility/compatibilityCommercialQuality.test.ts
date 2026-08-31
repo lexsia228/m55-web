@@ -414,6 +414,45 @@ describe('public naming ladder is consistent on compatibility surfaces', () => {
   });
 });
 
+describe('profile-owned personA birth date affordance', () => {
+  it('uses a locked static surface instead of editable date input when profile-owned', () => {
+    const component = read(GUEST);
+    assert.match(component, /personAFromProfile \?/);
+    assert.match(component, /data-testid="compatibility-profile-birthdate-locked"/);
+    assert.match(component, /profileBirthdateLocked/);
+    assert.match(component, /プロフィールの生年月日を使用しています/);
+    assert.match(component, /変更する場合はマイページで編集できます/);
+    assert.match(component, /マイページで変更/);
+    assert.match(component, /href="\/my"/);
+    assert.doesNotMatch(component, /readOnly=\{personAFromProfile\}/);
+    assert.doesNotMatch(component, /aria-readonly=\{personAFromProfile\}/);
+  });
+
+  it('keeps guest personA and personB as editable date inputs', () => {
+    const component = read(GUEST);
+    const dateInputs = component.match(/type="date"/g) ?? [];
+    assert.equal(dateInputs.length, 2);
+    assert.match(component, /updateInput\('personA'/);
+    assert.match(component, /updateInput\('personB'/);
+  });
+
+  it('removes duplicate profile birth-date copy from the signed-in privacy note', () => {
+    const component = read(GUEST);
+    assert.doesNotMatch(component, /あなたの生年月日はプロフィールから読み込んでいます/);
+    assert.match(
+      component,
+      /ログイン中は、この端末に前回の二人の読み解きを保存して再開できます。/,
+    );
+  });
+
+  it('does not regress commerce bridge gating', () => {
+    const component = read(GUEST);
+    assert.match(component, /\{commerceEnabled \? \(/);
+    assert.match(component, /\/synastry\/purchase\/confirm/);
+    assert.match(component, /styles\.bridgePending/);
+  });
+});
+
 describe('personal free result offers a quiet pair continuation', () => {
   it('links to the free pair route only', () => {
     const component = read('components/core/CorePairReadingCrossSell.tsx');

@@ -55,6 +55,12 @@ import styles from './CompatibilityGuestExperience.module.css';
 
 const EMPTY_INPUT: CompatibilityGuestInput = { personA: '', personB: '' };
 
+function formatProfileBirthDateDisplay(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-');
+  if (!year || !month || !day) return isoDate;
+  return `${year}/${month}/${day}`;
+}
+
 type JourneyPhase = 'dob' | 'questions' | 'result';
 type PartialCurrentContext = Partial<CompatibilityCurrentContextAnswersV2>;
 
@@ -378,19 +384,41 @@ export default function CompatibilityGuestExperience({
 
         <form className={styles.form} onSubmit={startRelationStage} noValidate>
           <div className={styles.inputGrid}>
-            <label className={styles.inputCard}>
-              <span className={styles.inputRole}>あなた</span>
-              <span className={styles.inputLabel}>あなたの生年月日</span>
-              <input
-                type="date"
-                required
-                max={today}
-                value={input.personA}
-                readOnly={personAFromProfile}
-                aria-readonly={personAFromProfile}
-                onChange={(event) => updateInput('personA', event.target.value)}
-              />
-            </label>
+            {personAFromProfile ? (
+              <div className={styles.inputCard}>
+                <span className={styles.inputRole}>あなた</span>
+                <span className={styles.inputLabel}>あなたの生年月日</span>
+                <div
+                  className={styles.profileBirthdateLocked}
+                  data-testid="compatibility-profile-birthdate-locked"
+                  aria-label={`あなたの生年月日 ${formatProfileBirthDateDisplay(input.personA)}`}
+                >
+                  <span className={styles.profileBirthdateValue} aria-hidden="true">
+                    {formatProfileBirthDateDisplay(input.personA)}
+                  </span>
+                </div>
+                <p className={styles.profileBirthdateNote}>
+                  プロフィールの生年月日を使用しています。
+                  <br />
+                  変更する場合はマイページで編集できます。
+                </p>
+                <a className={styles.profileBirthdateChangeLink} href="/my">
+                  マイページで変更
+                </a>
+              </div>
+            ) : (
+              <label className={styles.inputCard}>
+                <span className={styles.inputRole}>あなた</span>
+                <span className={styles.inputLabel}>あなたの生年月日</span>
+                <input
+                  type="date"
+                  required
+                  max={today}
+                  value={input.personA}
+                  onChange={(event) => updateInput('personA', event.target.value)}
+                />
+              </label>
+            )}
             <label className={styles.inputCard}>
               <span className={styles.inputRole}>相手</span>
               <span className={styles.inputLabel}>相手の生年月日</span>
@@ -405,7 +433,7 @@ export default function CompatibilityGuestExperience({
           </div>
           <p className={styles.privacyNote}>
             {userId
-              ? 'あなたの生年月日はプロフィールから読み込んでいます。ログイン中は、この端末に前回の二人の読み解きを保存して再開できます。'
+              ? 'ログイン中は、この端末に前回の二人の読み解きを保存して再開できます。'
               : '入力はこの結果の組み立てにだけ使い、このタブを閉じると保持されません。'}
           </p>
           <ul

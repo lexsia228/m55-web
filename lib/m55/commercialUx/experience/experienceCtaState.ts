@@ -70,7 +70,11 @@ export function resolveExperienceCtaState(input: ExperienceCtaResolveInput): M55
 }
 
 export function resolveExperienceCtaLabel(input: ExperienceCtaResolveInput): string {
-  return M55_CTA_LABELS[resolveExperienceCtaState(input)];
+  const state = resolveExperienceCtaState(input);
+  if (input.surface === 'home' && state === 'PREMIUM_COMPLETE') {
+    return '回答を確認してプランを見る';
+  }
+  return M55_CTA_LABELS[state];
 }
 
 /** Deprecated construction phrases that must not appear in action labels. */

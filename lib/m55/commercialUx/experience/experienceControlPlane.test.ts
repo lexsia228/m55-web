@@ -96,6 +96,10 @@ describe('M55 Experience Control Plane v2', () => {
       resolveExperienceCtaLabel({ stage: 'FREE_RESULT_READY', surface: 'home' }),
       '無料結果を開く',
     );
+    assert.equal(
+      resolveExperienceCtaLabel({ stage: 'PAID_QUESTIONS_COMPLETE', surface: 'home' }),
+      '回答を確認してプランを見る',
+    );
     for (const phrase of M55_CTA_FORBIDDEN_PHRASES) {
       for (const label of Object.values(M55_CTA_LABELS)) {
         assert.equal(label.includes(phrase), false, `${label} contains ${phrase}`);

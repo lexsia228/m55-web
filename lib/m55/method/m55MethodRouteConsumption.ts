@@ -95,7 +95,7 @@ export const M55_METHOD_ROUTE_CONSUMPTION: readonly MethodRouteConsumptionPlacem
     ],
     testId: 'm55-method-dtr-difference',
     relativeOrder: {
-      beforeTestId: 'm55-dtr-plan-light',
+      afterTestId: 'm55-dtr-plan-light',
     },
     linkTarget: M55_METHOD_CANONICAL_ROUTE,
     linkTestId: null,

@@ -24,7 +24,7 @@ export const M55_PREMIUM_QUESTION_CONTRACT_V1: readonly PremiumQuestionContract[
     axis: 'work_strength_conditions',
     questionJa: copyFor('paid.work_focus')?.questionJa ?? '',
     optionIds: PAID_WORK_FOCUS_IDS,
-    reviewLabelJa: '仕事の焦点',
+    reviewLabelJa: '取り組みの焦点',
     userInsightPurpose: '仕事や学びで最初に整えたい条件を特定する',
     reportEffect: 'chapter II bias + work theme affinity',
     canonicalAssetKeys: ['individualization.paid_depth', 'individualization.reply_affinity'],

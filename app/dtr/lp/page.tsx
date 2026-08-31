@@ -270,7 +270,6 @@ export default async function DtrLpPage({
             <h2 id="dtr-lp-funnel-heading" className={styles.lpH2}>
               プラン選択・お支払い
             </h2>
-            <p className={styles.lpBody}>{PLAN.upgradeNoteJa}</p>
             <DtrLpPremiumContinuityIntro />
             <DtrPaidPurchasePrep />
           </section>

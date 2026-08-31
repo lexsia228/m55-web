@@ -118,6 +118,54 @@
   outline-offset: 3px;
 }
 
+.profileBirthdateLocked {
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid rgba(55, 45, 70, 0.12);
+  border-radius: 9px;
+  background: #f6f4f2;
+  color: var(--ink);
+  cursor: default;
+  user-select: text;
+}
+
+.profileBirthdateValue {
+  display: block;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.profileBirthdateNote {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.profileBirthdateChangeLink {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 8px;
+  color: var(--plum);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.profileBirthdateChangeLink:hover {
+  text-decoration: underline;
+}
+
+.profileBirthdateChangeLink:focus-visible {
+  outline: 2px solid #725d89;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .privacyNote {
   margin: 14px 2px 0;
   color: var(--muted);

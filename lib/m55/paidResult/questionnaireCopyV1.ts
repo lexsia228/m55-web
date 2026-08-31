@@ -25,9 +25,10 @@ export type PaidQuestionCopy = {
 export const PAID_QUESTIONNAIRE_COPY_V1: readonly PaidQuestionCopy[] = [
   {
     questionId: 'paid.work_focus',
-    shortLabelJa: '仕事の焦点',
-    questionJa: '今の仕事で、最初に整えたいのはどれですか？',
-    sceneContextJa: 'いまの仕事や学びの場面を思い浮かべてください。',
+    shortLabelJa: '取り組みの焦点',
+    questionJa: '今取り組んでいることを進めるとき、最初に整えたいのはどれですか？',
+    sceneContextJa:
+      '仕事・学業・家事・活動など、いま時間を使っていることを思い浮かべてください。',
     choices: [
       { answerId: 'paid.work_focus.priority', labelJa: '優先順位を決める' },
       { answerId: 'paid.work_focus.pace', labelJa: '無理のないペースをつくる' },

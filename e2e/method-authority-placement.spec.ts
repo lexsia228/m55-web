@@ -80,7 +80,8 @@ async function reachPlanSelection(page: Page) {
     await page.locator('[role="radio"]').first().click();
     await page.getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' }).click();
   }
-  await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+  await expect(page.getByTestId('m55-paid-answer-review')).toBeVisible({ timeout: 30_000 });
+  await page.getByTestId('m55-paid-review-continue').click();
   await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
 }
 
@@ -157,7 +158,7 @@ test.describe('M55 method placements', () => {
     await context.close();
   });
 
-  test('plan selection shows the free/Premium difference before the plan cards', async ({ browser }) => {
+  test('plan selection shows the free/Premium difference after the plan cards', async ({ browser }) => {
     const context = await browser.newContext();
     await seedFreeResult(context);
     const page = await context.newPage();
@@ -183,7 +184,7 @@ test.describe('M55 method placements', () => {
     });
     expect(order.method).not.toBeNull();
     expect(order.cards).not.toBeNull();
-    expect(order.cards!).toBeGreaterThan(order.method!);
+    expect(order.method!).toBeGreaterThan(order.cards!);
     await context.close();
   });
 

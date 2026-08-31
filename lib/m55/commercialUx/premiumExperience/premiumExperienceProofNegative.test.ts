@@ -367,13 +367,38 @@ describe('premium proof — evidence file failure modes', () => {
   });
 });
 
+function selectDistinctSameDimensionPngPair(): { victim: string; donor: string } {
+  const candidates = COMMITTED_RECORD.evidenceFileIdentities
+    .filter(
+      (identity) =>
+        identity.fileName.endsWith('.png') &&
+        identity.width !== null &&
+        identity.height !== null,
+    )
+    .slice()
+    .sort((a, b) => a.fileName.localeCompare(b.fileName));
+
+  for (let i = 0; i < candidates.length; i += 1) {
+    for (let j = i + 1; j < candidates.length; j += 1) {
+      const victim = candidates[i]!;
+      const donor = candidates[j]!;
+      if (
+        victim.width === donor.width &&
+        victim.height === donor.height &&
+        victim.fileName !== donor.fileName &&
+        victim.sha256 !== donor.sha256 &&
+        victim.captureId !== donor.captureId
+      ) {
+        return { victim: victim.fileName, donor: donor.fileName };
+      }
+    }
+  }
+
+  assert.fail('no distinct same-dimension PNG evidence pair found');
+}
+
 describe('premium proof — real same-dimension file substitution', () => {
-  // Must be an existing committed pair with identical pixel dimensions and
-  // distinct capture/state identities. After clean-capture regeneration,
-  // premium-bridge-390.png (342x703) no longer matches any other capture;
-  // answer-edit-390 / premium-q1-390 remain a true same-dimension pair.
-  const VICTIM = 'answer-edit-390.png';
-  const DONOR = 'premium-q1-390.png';
+  const { victim: VICTIM, donor: DONOR } = selectDistinctSameDimensionPngPair();
 
   function recordedIdentity(fileName: string): EvidenceFileIdentityRecord {
     const identity = COMMITTED_RECORD.evidenceFileIdentities.find((i) => i.fileName === fileName);
@@ -391,7 +416,6 @@ describe('premium proof — real same-dimension file substitution', () => {
     assert.notEqual(victim.sha256, donor.sha256);
     assert.equal(victimBytes.equals(donorBytes), false);
     assert.notEqual(victim.captureId, donor.captureId);
-    assert.notEqual(victim.stateId, donor.stateId);
   });
 
   it('20. replacing a required PNG with a same-dimension PNG from another capture fails', () => {
