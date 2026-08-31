@@ -596,8 +596,8 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         fixtureId: 'establishCoreResult',
         navigatePath: '/dtr/lp',
-        readySelector: '[data-m55-paid-phase="complete"]',
-        stateMarkerSelector: '[data-m55-paid-phase="complete"]',
+        readySelector: '[data-testid="m55-paid-answer-review"]',
+        stateMarkerSelector: '[data-testid="m55-paid-answer-review"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         setupFn: async (page, baseURL) => {
@@ -608,7 +608,7 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
             await page.locator('[role="radio"]').first().click();
             await page.getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' }).click();
           }
-          await page.locator('[data-m55-paid-phase="complete"]').waitFor({
+          await page.getByTestId('m55-paid-answer-review').waitFor({
             state: 'visible',
             timeout: 20_000,
           });
@@ -861,7 +861,7 @@ function premiumStatePlan(stateId: string): NavigatePlan {
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         setupFn: async (page, baseURL) => {
-          // Answer all six → complete → 「回答を見直す」 → answer_edit.
+          // Answer all six → answer review → per-answer edit control → answer_edit.
           await establishCoreResult(page, baseURL);
           await page.getByTestId('m55-paid-bridge-primary').click();
           await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
@@ -874,11 +874,13 @@ function premiumStatePlan(stateId: string): NavigatePlan {
               .getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' })
               .click();
           }
-          await page.locator('[data-m55-paid-phase="complete"]').waitFor({
+          await page.getByTestId('m55-paid-answer-review').waitFor({
             state: 'visible',
             timeout: 20_000,
           });
-          await page.getByRole('button', { name: '回答を見直す' }).click();
+          const edit = page.locator('[data-testid^="m55-paid-answer-edit-"]').first();
+          await edit.waitFor({ state: 'visible', timeout: 20_000 });
+          await edit.click();
           await page
             .locator('[data-m55-paid-answer-edit="true"]')
             .first()
@@ -889,8 +891,8 @@ function premiumStatePlan(stateId: string): NavigatePlan {
       return {
         fixtureId: 'establishCoreResult',
         navigatePath: '/dtr/lp',
-        readySelector: '[data-m55-paid-phase="complete"]',
-        stateMarkerSelector: '[data-m55-paid-phase="complete"]',
+        readySelector: '[data-testid="m55-paid-answer-review"]',
+        stateMarkerSelector: '[data-testid="m55-paid-answer-review"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         setupFn: async (page, baseURL) => {
@@ -901,7 +903,7 @@ function premiumStatePlan(stateId: string): NavigatePlan {
             await page.locator('[role="radio"]').first().click();
             await page.getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' }).click();
           }
-          await page.locator('[data-m55-paid-phase="complete"]').waitFor({
+          await page.getByTestId('m55-paid-answer-review').waitFor({
             state: 'visible',
             timeout: 20_000,
           });
