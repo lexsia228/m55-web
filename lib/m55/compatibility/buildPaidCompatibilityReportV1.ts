@@ -27,6 +27,7 @@ import {
   type CompatibilityCurrentContextAnswersV2,
 } from './currentContextContract.v2';
 import { resolvePairCanonicalProfileV2, type PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
+import { formatPaidChapterDepthNarrative, paidChapterDepthFor } from './paidCompatibilityChapterDepthV1';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
   'paid_compatibility_report_v1' as const;
@@ -90,15 +91,6 @@ type ChapterFocus = {
   relationshipLoop?: readonly string[];
 };
 
-const STATUS_CONTEXT: Readonly<Record<RelationStatusId, string>> = {
-  R1: '反応の見え方を急いで決めずに扱うこと',
-  R2: '連絡の速さと受け取った温度を分けて扱うこと',
-  R3: '近い関係の中にもある小さな間合いを扱うこと',
-  R4: '距離の理由を一つに決めず、入口を小さく扱うこと',
-  R5: '近づき直す結果より、最初の接点を扱うこと',
-  R6: '特別な日より、日常のリズムを扱うこと',
-};
-
 const TEMPERATURE_CONTEXT: Readonly<Record<TemperatureId, string>> = {
   E0: '今の距離を一つの答えに固定しない',
   E1: '気になる点を一度に広げすぎない',
@@ -126,70 +118,39 @@ function temperatureContextFor(
     : TEMPERATURE_CONTEXT[temperatureId];
 }
 
-type PerspectiveFragmentKind = 'observation_complete' | 'tendency_phrase';
-
-function perspectiveFragmentKind(perspective: string): PerspectiveFragmentKind {
-  const trimmed = perspective.replace(/。$/u, '');
-  if (/見えやすい$|見えます$/u.test(trimmed)) {
-    return 'observation_complete';
-  }
-  return 'tendency_phrase';
-}
-
-function perspectiveWithSuffix(
-  perspective: string,
-  suffix:
-    | 'ことが自然に見えます'
-    | 'ところがあります'
-    | '進め方がなじみます'
-    | '流れが自然です'
-    | '動きが見えます'
-    | 'ことが入口になります',
-): string {
-  const trimmed = perspective.replace(/。$/u, '');
-  if (perspectiveFragmentKind(perspective) === 'observation_complete') {
-    return trimmed;
-  }
-  return `${trimmed}${suffix}`;
-}
-
-function perspectiveAppearanceClause(perspective: string): string {
-  return perspectiveWithSuffix(perspective, '動きが見えます');
-}
-
 function actionMotionPhrase(action: string): string {
   return action.replace(/。$/u, '');
 }
 
 const R1_PARTNER_UNCERTAINTY: readonly string[] = [
-  'B側については、まだ反応材料が少ないため、A側からは意味を決めにくい状態です。',
-  'B側については、まだやり取りがないため、A側からは気持ちの中身までは確かめにくい状態です。',
-  'B側については、近づく前の段階のため、A側からは動きの意図までは読み取りにくい状態です。',
-  'B側については、まだ会話がないため、A側からは扱いたい点の輪郭までは見えにくい状態です。',
-  'B側については、距離の見え方だけでは、A側からは内側の温度までは確かめにくい状態です。',
-  'B側については、最初の接点の前なので、A側からは次の動きまでは決めにくい状態です。',
+  '相手については、まだ反応材料が少ないため、あなたからは意味を決めにくい状態です。',
+  '相手については、まだやり取りがないため、あなたからは気持ちの中身までは確かめにくい状態です。',
+  '相手については、近づく前の段階のため、あなたからは動きの意図までは読み取りにくい状態です。',
+  '相手については、まだ会話がないため、あなたからは扱いたい点の輪郭までは見えにくい状態です。',
+  '相手については、距離の見え方だけでは、あなたからは内側の温度までは確かめにくい状態です。',
+  '相手については、最初の接点の前なので、あなたからは次の動きまでは決めにくい状態です。',
 ];
 
 const R4_PARTNER_UNCERTAINTY: readonly string[] = [
-  'B側については、いまの間合いの見え方だけでは、A側からは内側の動きまでは確かめにくい状態です。',
-  'B側については、連絡の少なさだけでは、A側からは気持ちの中身までは読み取りにくい状態です。',
-  'B側については、距離の理由を一つに決めずに読む必要があり、A側からは動きの意図までは確かめにくい状態です。',
-  'B側については、間合いの見え方だけでは、A側からは扱いたい点の輪郭までは見えにくい状態です。',
-  'B側については、距離がある中でも、A側からは内側の温度までは確かめにくい状態です。',
-  'B側については、今の間合いを整える場面では、A側からは次の動きまでは決めにくい状態です。',
+  '相手については、いまの間合いの見え方だけでは、あなたからは内側の動きまでは確かめにくい状態です。',
+  '相手については、連絡の少なさだけでは、あなたからは気持ちの中身までは読み取りにくい状態です。',
+  '相手については、距離の理由を一つに決めずに読む必要があり、あなたからは動きの意図までは確かめにくい状態です。',
+  '相手については、間合いの見え方だけでは、あなたからは扱いたい点の輪郭までは見えにくい状態です。',
+  '相手については、距離がある中でも、あなたからは内側の温度までは確かめにくい状態です。',
+  '相手については、今の間合いを整える場面では、あなたからは次の動きまでは決めにくい状態です。',
 ];
 
 const R5_PARTNER_UNCERTAINTY: readonly string[] = [
-  'B側については、再接近を望んでいるとは限らず、A側からは間合いの見え方だけを手がかりに読みやすい状態です。',
-  'B側については、再び連絡する意思があるとは限らず、A側からは反応材料が少ない状態です。',
-  'B側については、近づき方の見え方だけでは、A側からは内側の動きまでは確かめにくい状態です。',
-  'B側については、再接近の入口だけでは、A側からは扱いたい点の輪郭までは見えにくい状態です。',
-  'B側については、距離のあとの間合いだけでは、A側からは内側の温度までは確かめにくい状態です。',
-  'B側については、最初の接点を考える場面では、A側からは次の動きまでは決めにくい状態です。',
+  '相手については、再接近を望んでいるとは限らず、あなたからは間合いの見え方だけを手がかりに読みやすい状態です。',
+  '相手については、再び連絡する意思があるとは限らず、あなたからは反応材料が少ない状態です。',
+  '相手については、近づき方の見え方だけでは、あなたからは内側の動きまでは確かめにくい状態です。',
+  '相手については、再接近の入口だけでは、あなたからは扱いたい点の輪郭までは見えにくい状態です。',
+  '相手については、距離のあとの間合いだけでは、あなたからは内側の温度までは確かめにくい状態です。',
+  '相手については、最初の接点を考える場面では、あなたからは次の動きまでは決めにくい状態です。',
 ];
 
 const R1_PARTNER_LOOP_UNCERTAINTY =
-  'B側については、まだ反応材料が少ないため、A側からは意味を決めにくい状態です';
+  '相手については、まだ反応材料が少ないため、あなたからは意味を決めにくい状態です';
 
 const CHAPTER_FOCUS: Readonly<Record<ChapterId, ChapterFocus>> = {
   ch_you_pace: {
@@ -418,83 +379,40 @@ function semanticRoles(
   };
 }
 
-/**
- * Second sentence of each perspective. Splitting it by side keeps A and B from
- * reading as the same generic statement wrapped around a different name, which
- * is visible now that both sides render next to each other in the opening.
- */
-const PERSPECTIVE_TAILS: readonly { readonly first: string; readonly second: string }[] = [
-  {
-    first: '自分が動ける輪郭を、先に確かめたくなる動きが見えやすいことがあります。',
-    second: '決める前に、確かめておきたいことが残りやすく見えることがあります。',
-  },
-  {
-    first: '返事が見えない時間を、そのまま置いておきにくくなることがあります。',
-    second: '返す前に言葉を整える時間を取りたい状態に見えやすいことがあります。',
-  },
-  {
-    first: 'その場で、違いの輪郭をはっきりさせようとする動きが見えやすいことがあります。',
-    second: '話の順序が整うまで、結論を先に置かずにおきたい状態に見えやすいことがあります。',
-  },
-  {
-    first: '話題に入る合図を、自分から先に出しやすくなることがあります。',
-    second: '話題に入る前に、その場の温度を一度確かめたい状態に見えやすいことがあります。',
-  },
-  {
-    first: '$statusContext$を、早めに確かめて先に置こうとする動きが見えやすいことがあります。',
-    second: '$statusContext$を、自分の中で整えてから扱いたい状態に見えやすいことがあります。',
-  },
-  {
-    first: '短い接点を先に一つ置いて、そこから様子を見る動きが見えやすいことがあります。',
-    second: '置かれた接点の重さを見てから、返す幅を決めたい状態に見えやすいことがあります。',
-  },
-];
+function actorLabel(
+  role: 'A' | 'B',
+  viewerIsPersonA: boolean,
+): 'あなた' | '相手' {
+  if (viewerIsPersonA) {
+    return role === 'A' ? 'あなた' : '相手';
+  }
+  return role === 'A' ? '相手' : 'あなた';
+}
 
-const R1_PERSPECTIVE_TAILS: typeof PERSPECTIVE_TAILS = [
-  {
-    first: '自分が動ける輪郭を、先に確かめたくなる動きが見えやすいことがあります。',
-    second: '決める前に、確かめておきたいことが残りやすく見えることがあります。',
-  },
-  {
-    first: '相手の反応が見えない時間を、そのまま置いておきにくくなることがあります。',
-    second: '言葉を整える時間を取りたい状態に見えやすいことがあります。',
-  },
-  {
-    first: 'その場で、違いの輪郭をはっきりさせようとする動きが見えやすいことがあります。',
-    second: '話の順序が整うまで、結論を先に置かずにおきたい状態に見えやすいことがあります。',
-  },
-  {
-    first: '話題に入る合図を、自分から先に出しやすくなることがあります。',
-    second: '話題に入る前に、その場の温度を一度確かめたい状態に見えやすいことがあります。',
-  },
-  {
-    first: '$statusContext$を、早めに確かめて先に置こうとする動きが見えやすいことがあります。',
-    second: '$statusContext$を、自分の中で整えてから扱いたい状態に見えやすいことがあります。',
-  },
-  {
-    first: '短い接点を先に一つ置いて、そこから様子を見る動きが見えやすいことがあります。',
-    second: '短い接点の重さを見てから、動きを選びたい状態に見えやすいことがあります。',
-  },
-];
-
-function perspectiveTailFor(
-  relationStatusId: RelationStatusId,
-  chapterIndex: number,
-  side: 'first' | 'second',
-  statusContext: string,
+function chapterBehaviorPerspective(
+  chapterKey: ChapterId,
+  role: 'A' | 'B',
+  focus: ChapterFocus,
+  roles: ReturnType<typeof semanticRoles>,
+  viewerIsPersonA: boolean,
 ): string {
-  const tails = relationStatusId === 'R1' ? R1_PERSPECTIVE_TAILS : PERSPECTIVE_TAILS;
-  return tails[chapterIndex]![side].replaceAll('$statusContext$', statusContext);
+  const label = actorLabel(role, viewerIsPersonA);
+  const depth = paidChapterDepthFor(chapterKey);
+  const context = depth.trigger;
+  const isFirstSemanticRole = role === roles.first.role;
+  const action = isFirstSemanticRole ? focus.firstAction : focus.secondAction;
+  const readAs = isFirstSemanticRole ? focus.firstReception : focus.secondReception;
+  return `${context}、${label}は${actionMotionPhrase(action)}動きが見えやすいことがあります。${label}には、${actionMotionPhrase(readAs)}ことがあります。`;
 }
 
 function perspectiveText(
+  chapterKey: ChapterId,
   chapterIndex: number,
   role: 'A' | 'B',
-  perspective: string,
-  topicLabel: string,
-  statusContext: string,
-  side: 'first' | 'second',
+  focus: ChapterFocus,
+  roles: ReturnType<typeof semanticRoles>,
   relationStatusId: RelationStatusId,
+  viewerIsPersonA: boolean,
 ): string {
   if (relationStatusId === 'R1' && role === 'B') {
     return R1_PARTNER_UNCERTAINTY[chapterIndex]!;
@@ -505,58 +423,7 @@ function perspectiveText(
   if (relationStatusId === 'R5' && role === 'B') {
     return R5_PARTNER_UNCERTAINTY[chapterIndex]!;
   }
-  const establishedLeads = [
-    `予定を決める場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
-    `反応がまだ見えない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
-    `意見が分かれる場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
-    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
-    `少し距離を置きたくなる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
-    `元の距離へ戻る場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
-  ] as const;
-  const noContactLeads = [
-    `まだ会話が始まっていない場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
-    `相手の反応がまだ見えない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
-    `近づくかどうかを考える場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
-    `気になる点を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
-    `距離を感じる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
-    `最初の接点を考える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
-  ] as const;
-  const earlyContactLeads = [
-    `やり取りのリズムを整える場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
-    `連絡のあと、反応がまだ見えない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
-    `言葉の置き方がずれてきた場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
-    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
-    `間合いを感じる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
-    `次の接点を考える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
-  ] as const;
-  const distancedLeads = [
-    `距離が感じられる場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
-    `連絡が少ない場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
-    `間合いの取り方がずれてきた場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
-    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
-    `距離がある場面では、${role}には${perspectiveAppearanceClause(perspective)}。`,
-    `今の間合いを整える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
-  ] as const;
-  const reapproachLeads = [
-    `もう一度近づくことを考える場面では、${role}には${perspectiveWithSuffix(perspective, 'ことが自然に見えます')}。`,
-    `再び連絡する前の場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ところがあります')}。`,
-    `近づき方がずれてきた場面では、${role}には${perspectiveWithSuffix(perspective, '進め方がなじみます')}。`,
-    `「${topicLabel}」を扱う場面では、${role}からは${perspectiveWithSuffix(perspective, '流れが自然です')}。`,
-    `距離のあと、間合いを確かめる場面では、${role}には${perspectiveWithSuffix(perspective, '動きが見えます')}。`,
-    `最初の接点を考える場面では、${role}から見ると${perspectiveWithSuffix(perspective, 'ことが入口になります')}。`,
-  ] as const;
-  const leads =
-    relationStatusId === 'R1'
-      ? noContactLeads
-      : relationStatusId === 'R2'
-        ? earlyContactLeads
-        : relationStatusId === 'R4'
-          ? distancedLeads
-          : relationStatusId === 'R5'
-            ? reapproachLeads
-            : establishedLeads;
-  const tail = perspectiveTailFor(relationStatusId, chapterIndex, side, statusContext);
-  return `${leads[chapterIndex]!}${tail}`;
+  return chapterBehaviorPerspective(chapterKey, role, focus, roles, viewerIsPersonA);
 }
 
 const R1_SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, string, string, string, string]>> = {
@@ -667,16 +534,6 @@ function chapterPhrase(
   };
 }
 
-function experimentSituationFor(
-  relationStatusId: RelationStatusId,
-  topicSituation: string,
-): string {
-  if (relationStatusId === 'R1') {
-    return 'まだ会話がない状態で気持ちを整理する時間ができたとき';
-  }
-  return topicSituation;
-}
-
 /**
  * ch_about carries the "returning after distance" scene in this report, while the
  * catalog title still names the legacy renderer's disclaimer chapter. Disclaimers
@@ -728,6 +585,7 @@ function buildRelationshipLoop(
   roles: ReturnType<typeof semanticRoles>,
   continuation: string,
   relationStatusId: RelationStatusId,
+  viewerIsPersonA: boolean,
   contextTail?: string,
 ): readonly string[] {
   if (focus.relationshipLoop) {
@@ -737,8 +595,8 @@ function buildRelationshipLoop(
     }
     return Object.freeze(lines);
   }
-  const firstLabel = roles.first.role === 'A' ? 'A側' : 'B側';
-  const secondLabel = roles.second.role === 'A' ? 'A側' : 'B側';
+  const firstLabel = actorLabel(roles.first.role, viewerIsPersonA);
+  const secondLabel = actorLabel(roles.second.role, viewerIsPersonA);
   const partnerLine =
     relationStatusId === 'R4'
       ? `${secondLabel}については、いまの間合いの見え方だけでは内側の動きまでは確かめにくい状態です`
@@ -752,7 +610,7 @@ function buildRelationshipLoop(
     `${secondLabel}の反応がまだ見えにくい場合、${focus.secondReception}`,
     partnerLine,
     `${firstLabel}から見ると、${focus.firstReception}`,
-    `二人の間では、${continuation}傾向が見えやすいことがあります`,
+    `二人の間では、${continuation.endsWith('見えやすい') ? continuation : `${continuation}傾向が見えやすい`}ことがあります`,
   ];
   if (contextTail) {
     lines.push(`今は、${contextTail.replace(/。$/u, '')}`);
@@ -781,10 +639,10 @@ const STAGE_CHAPTER_FOCUS: Partial<
       experimentAction: '相手の反応を想像する前に、自分が言いたい一点を一文で書く',
       reflectionQuestion: 'まだ会話がないとき、自分の中で何が一番引っかかっただろう？',
       relationshipLoop: Object.freeze([
-        'A側から見ると、相手に近づく前に自分の気持ちを言葉にしようとする動きが見えやすいことがあります',
-        'B側の反応がまだ見えにくい場合、Aには関心のなさのように見えやすいことがあります',
+        'あなたから見ると、相手に近づく前に自分の気持ちを言葉にしようとする動きが見えやすいことがあります',
+        '相手の反応がまだ見えにくい場合、Aには関心のなさのように見えやすいことがあります',
         R1_PARTNER_LOOP_UNCERTAINTY,
-        'A側には、相手の反応が見えないこと自体が距離の合図のように受け取られる可能性があります',
+        'あなたには、相手の反応が見えないこと自体が距離の合図のように受け取られる可能性があります',
         '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
       ]),
     },
@@ -799,10 +657,10 @@ const STAGE_CHAPTER_FOCUS: Partial<
       experimentAction: '相手の反応を想像する前に、自分が知りたい一点を一文で書く',
       reflectionQuestion: '相手の反応が見えないとき、自分の中で何が一番重く感じられただろう？',
       relationshipLoop: Object.freeze([
-        'A側から見ると、相手の様子を想像しながら自分の気持ちを確かめようとする動きが見えやすいことがあります',
-        'B側の反応がまだ見えにくい場合、自分だけが考えているように見えやすいことがあります',
+        'あなたから見ると、相手の様子を想像しながら自分の気持ちを確かめようとする動きが見えやすいことがあります',
+        '相手の反応がまだ見えにくい場合、自分だけが考えているように見えやすいことがあります',
         R1_PARTNER_LOOP_UNCERTAINTY,
-        'A側には、相手の反応が見えないこと自体が拒否のように受け取られる可能性があります',
+        'あなたには、相手の反応が見えないこと自体が拒否のように受け取られる可能性があります',
         '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
       ]),
     },
@@ -817,10 +675,10 @@ const STAGE_CHAPTER_FOCUS: Partial<
       experimentAction: '相手の反応を想像する前に、自分が知りたい一点を一文で書く',
       reflectionQuestion: '相手の反応が見えないとき、自分の中で何が一番重く感じられただろう？',
       relationshipLoop: Object.freeze([
-        'A側から見ると、相手の反応を想像しながら自分の気持ちを整理しようとする動きが見えやすいことがあります',
-        'B側の反応がまだ見えにくい場合、自分だけが動こうとしているように見えやすいことがあります',
+        'あなたから見ると、相手の反応を想像しながら自分の気持ちを整理しようとする動きが見えやすいことがあります',
+        '相手の反応がまだ見えにくい場合、自分だけが動こうとしているように見えやすいことがあります',
         R1_PARTNER_LOOP_UNCERTAINTY,
-        'A側には、相手の反応が見えないこと自体が拒否のように受け取られる可能性があります',
+        'あなたには、相手の反応が見えないこと自体が拒否のように受け取られる可能性があります',
         '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
       ]),
     },
@@ -839,10 +697,10 @@ const STAGE_CHAPTER_FOCUS: Partial<
       experimentAction: '相手に伝える前に、自分が整理したい一点を一文で書く',
       reflectionQuestion: 'まだ会話がないとき、何を一番知りたかっただろう？',
       relationshipLoop: Object.freeze([
-        'A側から見ると、気になる点を相手に伝える前に言葉へ置こうとする動きが見えやすいことがあります',
-        'B側の反応がまだ見えにくい場合、自分だけが整理しているように見えやすいことがあります',
+        'あなたから見ると、気になる点を相手に伝える前に言葉へ置こうとする動きが見えやすいことがあります',
+        '相手の反応がまだ見えにくい場合、自分だけが整理しているように見えやすいことがあります',
         R1_PARTNER_LOOP_UNCERTAINTY,
-        'A側には、相手が動いていないことが話題を避けたように受け取られる可能性があります',
+        'あなたには、相手が動いていないことが話題を避けたように受け取られる可能性があります',
         '二人の間では、整理の速さと相手の反応の見えなさが重なりやすい傾向が見えます',
       ]),
     },
@@ -857,10 +715,10 @@ const STAGE_CHAPTER_FOCUS: Partial<
       experimentAction: '相手の反応を想像する前に、自分が感じている距離を一文で書く',
       reflectionQuestion: '会話がなくても感じた距離は、何を整えたかった時間だっただろう？',
       relationshipLoop: Object.freeze([
-        'A側から見ると、相手の様子を想像しながら自分の気持ちを整理しようとする動きが見えやすいことがあります',
-        'B側の反応がまだ見えにくい場合、自分だけが考えているように見えやすいことがあります',
+        'あなたから見ると、相手の様子を想像しながら自分の気持ちを整理しようとする動きが見えやすいことがあります',
+        '相手の反応がまだ見えにくい場合、自分だけが考えているように見えやすいことがあります',
         R1_PARTNER_LOOP_UNCERTAINTY,
-        'A側には、相手の反応が見えないこと自体が距離の合図のように受け取られる可能性があります',
+        'あなたには、相手の反応が見えないこと自体が距離の合図のように受け取られる可能性があります',
         '二人の間では、想像と実際の距離の差が、気持ちの重さを増やしやすい傾向が見えます',
       ]),
     },
@@ -879,10 +737,10 @@ const STAGE_CHAPTER_FOCUS: Partial<
       experimentAction: '相手の反応を想像せず、自分が置ける最小の接点を一つ書き留める',
       reflectionQuestion: '最初の接点で、何を確認したかっただろう？',
       relationshipLoop: Object.freeze([
-        'A側から見ると、どんな言葉で始めるかを何度も考え直す動きが見えやすいことがあります',
-        'B側の反応がまだ見えにくい場合、始め方だけを探しているように見えやすいことがあります',
+        'あなたから見ると、どんな言葉で始めるかを何度も考え直す動きが見えやすいことがあります',
+        '相手の反応がまだ見えにくい場合、始め方だけを探しているように見えやすいことがあります',
         R1_PARTNER_LOOP_UNCERTAINTY,
-        'A側には、相手が動いていないことが関心のなさのように受け取られる可能性があります',
+        'あなたには、相手が動いていないことが関心のなさのように受け取られる可能性があります',
         '二人の間では、始め方の迷いと相手の反応の見えなさが重なりやすい傾向が見えます',
       ]),
     },
@@ -1210,31 +1068,42 @@ function buildChapter(
       ? `${focus.scene}。ここでは、気になる点の入口から見ます`
       : `${focus.scene}。ここでは「${topicLabel}」に場面を絞ります`
     : focus.scene;
+  const chapterDepth = paidChapterDepthFor(key);
   const personA = perspectiveText(
+    key,
     index,
     'A',
-    roles.personA,
-    topicLabel,
-    STATUS_CONTEXT[input.relationStatusId],
-    roles.first.role === 'A' ? 'first' : 'second',
+    focus,
+    roles,
     input.relationStatusId,
+    input.personAUsesFirstPerspective,
   );
   const personB = perspectiveText(
+    key,
     index,
     'B',
-    roles.personB,
-    topicLabel,
-    STATUS_CONTEXT[input.relationStatusId],
-    roles.first.role === 'B' ? 'first' : 'second',
+    focus,
+    roles,
     input.relationStatusId,
+    input.personAUsesFirstPerspective,
   );
   const smallExperiment = [
-    `今週、${experimentSituationFor(input.relationStatusId, topicAction.situation)}に、${focus.experimentAction}。`,
-    '一回分の場面だけを見て、次も続けるかはそのあとで選びます。',
+    `今週、${focus.scene}で、${focus.experimentAction}。`,
+    chapterDepth.experimentClosing,
   ].join('');
   const contextualPhrase = contextVariation?.usablePhrase
     ? `${phrase.text.split('、')[0]?.replace(/[？。]$/u, '') ?? phrase.text}、${contextVariation.usablePhrase}`
     : phrase.text;
+
+  const relationshipLoop = buildRelationshipLoop(
+    focus,
+    roles,
+    focus.continuation,
+    input.relationStatusId,
+    input.personAUsesFirstPerspective,
+    contextVariation?.relationshipLoopTail ?? undefined,
+  );
+  const enrichedLoop = formatPaidChapterDepthNarrative(key, relationshipLoop);
 
   return Object.freeze({
     key,
@@ -1245,13 +1114,7 @@ function buildChapter(
       : topicScene,
     personAPerspective: personA,
     personBPerspective: personB,
-    relationshipLoop: buildRelationshipLoop(
-      focus,
-      roles,
-      focus.continuation,
-      input.relationStatusId,
-      contextVariation?.relationshipLoopTail ?? undefined,
-    ),
+    relationshipLoop: enrichedLoop,
     resetSteps: Object.freeze([...focus.resetSteps]),
     phraseSpeaker: phrase.speaker,
     usablePhrase: contextualPhrase,
@@ -1295,9 +1158,10 @@ export function buildPaidCompatibilityReportV1(
     version: PAID_COMPATIBILITY_REPORT_VERSION,
     reportTitle: '二人の相性レポート',
     relationshipSummary: [
-      authority.overlap,
+      '六つの場面に分けて読むと、',
       authority.difference,
-      `${temperatureContextFor(input.relationStatusId, input.temperatureId)}ことが、六つの場面を読むときの入口です。`,
+      `二人の間では、${authority.dynamicOutcome}。`,
+      `${temperatureContextFor(input.relationStatusId, input.temperatureId)}ことが、各章の入口です。`,
     ].join(''),
     sharedFoundation: authority.overlap,
     differentFoundation: authority.difference,

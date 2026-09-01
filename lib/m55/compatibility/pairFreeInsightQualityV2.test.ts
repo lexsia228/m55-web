@@ -329,16 +329,16 @@ describe('pair free insight quality v2', () => {
     for (const text of texts) {
       assert.equal((text.match(/二人の間では/g) ?? []).length, 2, text);
       assert.match(text, /^二人の間では/u);
-      assert.match(text, /あなた側は/);
-      assert.match(text, /相手側は/);
+      assert.match(text, /あなた(?:側)?は/);
+      assert.match(text, /相手(?:側)?は/);
     }
   });
 
   it('does not assign a generic first-mover role when both sides share a slow tempo', () => {
     const spec = insight(SIMILAR);
     assert.doesNotMatch(spec.betweenThem, /先に動いて見えやすく/);
-    assert.match(spec.betweenThem, /あなた側は/);
-    assert.match(spec.betweenThem, /相手側は/);
+    assert.match(spec.betweenThem, /あなた(?:側)?は/);
+    assert.match(spec.betweenThem, /相手(?:側)?は/);
     assert.match(spec.betweenThem, /そのため二人の間では/);
     assert.equal((spec.betweenThem.match(/二人の間では/g) ?? []).length, 2);
     assert.match(spec.betweenThem, /^二人の間では/u);

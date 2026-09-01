@@ -73,6 +73,7 @@ export type PairFreeInsightSpecV2 = {
   readonly manifestationPatternId: string;
   readonly relationshipTriggerJa: string;
   readonly relationStatusId: RelationStatusId;
+  readonly manualSideTendenciesJa?: { readonly oneJa: string; readonly otherJa: string };
 };
 
 const EVIDENCE_ESTABLISHED = [
@@ -203,7 +204,7 @@ function mismatchEntryFromDecisionPace(decisionPace: DecisionPaceAnswer): string
     return 'その場で進めたい動きと、言葉が整うまでの時間差が、読み取りのずれとして見えやすいことがあります。';
   }
   if (decisionPace === 'decide_later') {
-    return '結論を置く前に言葉が先に出ると、読み取りのずれとして見えやすいことがあります。';
+    return '答えを出す前に言葉が先に出ると、読み取りのずれとして見えやすいことがあります。';
   }
   return '決める速さが場面で変わるため、今日の進み方が読み取りにくくなることがあります。';
 }
@@ -240,6 +241,46 @@ function roleLabels(
   return visibleIsYou
     ? { visible: 'あなた', inward: '相手' }
     : { visible: '相手', inward: 'あなた' };
+}
+
+function parseManualSideTendenciesFromSideLead(
+  sideLeadText: string,
+): { oneJa: string; otherJa: string } | null {
+  const match = /^(.+?)は([^、]+)、(.+?)は(.+)$/.exec(sideLeadText);
+  if (!match) return null;
+  return { oneJa: match[2]!.trim(), otherJa: match[4]!.trim() };
+}
+
+function manualSideTendenciesFromSideLeadAnswers(
+  answersV2: CompatibilityCurrentContextAnswersV2,
+  personAUsesFirstPerspective: boolean,
+  relationStatusId: RelationStatusId,
+): { oneJa: string; otherJa: string } | null {
+  const answers = insightAnswersFromV2(answersV2, relationStatusId);
+  const roles = roleLabels(personAUsesFirstPerspective);
+  return parseManualSideTendenciesFromSideLead(sideLead(answers, roles));
+}
+
+function r2ManualSideTendenciesJa(
+  answersV2: CompatibilityCurrentContextAnswersV2,
+): { oneJa: string; otherJa: string } {
+  const expressionPace = answersV2.expressionPace ?? 'words_soon';
+  if (expressionPace === 'words_later') {
+    return {
+      oneJa: '返す前に言葉を整えたい時間を取りやすい',
+      otherJa: '返事が遅い間を、関心の薄さのように受け取りやすい',
+    };
+  }
+  if (expressionPace === 'words_soon') {
+    return {
+      oneJa: '言葉が先に出やすく、相手の反応を待ちたくなることがある',
+      otherJa: '反応が見えない時間を、関心の薄さのように受け取りやすい',
+    };
+  }
+  return {
+    oneJa: 'その日によって言葉の出方が変わりやすい',
+    otherJa: '同じやり取りでも、受け取り方が分かれやすい',
+  };
 }
 
 function selectInteraction(
@@ -283,7 +324,7 @@ const TEMPO: Readonly<
     },
     words_later: {
       between: '二人がこじれるとしたら、意見そのものより「結論を出す速度」の違いから始まりやすい。その場で進めたい動きと、言葉になるまでの間が逆方向になりやすい。',
-      mesh: '急がない話題では、先に方向だけ置いて、言葉はあとにしてよいと分かっているときに噛み合いやすい。',
+      mesh: '急がない話題では、先に方向だけ置いて、言葉はあとにしてよいと分かっているときに会話が続きやすい。',
       entry: 'その場で決めようとする動きを、言葉が遅い側は「気持ちが離れた／急かされている」と読みやすい。',
     },
     words_vary: {
@@ -305,7 +346,7 @@ const TEMPO: Readonly<
     },
     words_vary: {
       between: '決めるのは置きたいのに、言葉の速さは日によって変わる。今日の余力が見えないと、待つことと黙ることが混線しやすい。',
-      mesh: '急ぐ話か待てる話かを、内容へ入る前にそろえられると噛み合いやすい。',
+      mesh: '急ぐ話か待てる話かを、内容へ入る前にそろえられると返事の温度が揃いやすい。',
       entry: '言葉が出た日を「決めた日」と読むと、まだ置いている側とのずれが始まりやすい。',
     },
   },
@@ -362,7 +403,7 @@ function loopFromConflict(
     };
   }
   return {
-    loop: `違いが出たあとの距離の取り方と、戻るきっかけが噛み合わないと、同じずれが次の会話に残る。${visible}が先に取る動きを、${inward}は別の意味として受け取りやすい。`,
+    loop: `違いが出たあとの距離の取り方と、戻るきっかけが噛み合わないと、同じずれが次の会話に残る。${visible}が先に短い確認を返しても、${inward}は返事の前にもう一度間を取りたくなることがあり、その差が見えやすい。`,
     reset:
       returning === 'someone_reaches'
         ? '次のすれ違いでは、結論ではなく短い声かけを一度だけ置く。'
@@ -378,27 +419,27 @@ function sideLead(
 ): string {
   const { visible, inward } = roles;
   if (answers.decisionPace === 'decide_now' && answers.expressionPace === 'words_later') {
-    return `${visible}側はその場で結論を置こうとしやすく、${inward}側はまだ言葉を整えている途中になりやすい`;
+    return `${visible}はその場で先に答えを出そうとしやすく、${inward}はまだ言葉を整えている途中になりやすい`;
   }
   if (answers.decisionPace === 'decide_later' && answers.expressionPace === 'words_soon') {
-    return `${visible}側は先に言葉で確かめたくなりやすく、${inward}側は結論だけは置いてから出したい`;
+    return `${visible}は先に言葉で確かめたくなりやすく、${inward}は答えを出す前に一度置きたい`;
   }
   if (answers.disagreement === 'talk_now' && answers.distance === 'go_quiet') {
-    return `${visible}側は違いをその場の言葉で揃えようとしやすく、${inward}側は説明より先に静かになりやすい`;
+    return `${visible}は違いをその場の言葉で揃えようとしやすく、${inward}は説明より先に静かになりやすい`;
   }
   if (answers.disagreement === 'one_carries') {
-    return `${visible}側は話題を引き取って進めやすく、${inward}側は出なかった一点を抱えたまま戻りやすい`;
+    return `${visible}は話題を引き取って進めやすく、${inward}は出なかった一点を抱えたまま戻りやすい`;
   }
   if (answers.disagreement === 'take_space' || answers.distance === 'go_quiet') {
-    return `${visible}側はその間を考える時間として使いやすく、${inward}側は同じ間を気持ちが離れた時間と読みやすい`;
+    return `${visible}は返事を急がず考えたいのに、${inward}は先に話を続けようとしやすい`;
   }
   if (
     (answers.decisionPace === 'decide_now' && answers.expressionPace === 'words_soon') ||
     (answers.decisionPace === 'decide_later' && answers.expressionPace === 'words_later')
   ) {
-    return `${visible}側は短い確認で安心しやすく、${inward}側は同じ速さの間に止まりやすい`;
+    return `${visible}は短い確認の返事で安心しやすく、${inward}は返事の前に間を取りたくなる`;
   }
-  return `${visible}側は先に安心の形を取りたくなりやすく、${inward}側は同じ動きを別の意味として受け取りやすい`;
+  return `${visible}は先に次の予定を決めようとしやすく、${inward}は同じ言葉を距離のサインと受け取りやすい`;
 }
 
 function pairOpeningHit(
@@ -428,7 +469,7 @@ function pairOpeningHit(
       return '二人がすれ違うとしたら、意見の違いより「話し終えたと感じるタイミング」の差から始まりやすい。話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。';
     }
     if (_answers.decisionPace === 'decide_later' && _answers.expressionPace === 'words_soon') {
-      return '結論は置いてから出したい側と、先に言葉で確かめたい側が、同じ速さに見えて同時に出やすい。';
+      return '答えを出す前に一度置きたい側と、先に言葉で確かめたい側が、同じ速さに見えて同時に出やすい。';
     }
     return '進み方の速さは近く見えても、話を閉じたい側と、言葉が出るまで置きたい側が同時に出やすい。';
   }
@@ -451,19 +492,25 @@ function birthLead(
   const shared = visible.start === inward.start;
   const closeDates =
     differenceType === 'same_dob_pair' || differenceType === 'near_dob_shift';
-  const stemBit =
+  const replyPace =
     stemDelta === 'same'
-      ? '進み方の土台は近くても'
+      ? '返事の始め方は似ていても'
       : stemDelta === 'near'
-        ? '進み方の土台は少しずれていて'
-        : '進み方の土台が離れていて';
+        ? '返事を出す前の間の取り方が少し違って'
+        : '会話を始める速さが違って';
+  if (stemDelta === 'far') {
+    return `${replyPace}、生まれの基調の差が会話の始め方に先に出やすい`;
+  }
+  if (differenceType === 'near_dob_shift') {
+    return `${replyPace}、生まれの基調は近くても返す速さの差が先に目立ちやすい`;
+  }
   if (shared && closeDates) {
-    return `${stemBit}、いまの進め方の差が目立ちやすい`;
+    return `${replyPace}、生まれの基調が揃っていても進め方の差が目立ちやすい`;
   }
   if (shared) {
-    return `${stemBit}、返す速さの差が二人の間で分かれやすい`;
+    return `${replyPace}、生まれの基調が揃っていても返す速さの差が分かれやすい`;
   }
-  return `${stemBit}、このずれが二人の間で先に立ちやすい`;
+  return `${replyPace}、生まれの基調の差が会話の始め方に先に目立ちやすい`;
 }
 
 function meshFromBirth(
@@ -472,9 +519,9 @@ function meshFromBirth(
   tempoMesh: string,
 ): string {
   if (visible.start !== inward.start) {
-    return '今夜は方向だけ置いて、本題は翌朝にする、と先に言えると噛み合いやすい。';
+    return '今夜は方向だけ置いて、本題は翌朝にする、と先に言えると会話が続きやすい。';
   }
-  return `進み方が近いときは、今の二人の速さだけを先にそろえられると噛み合いやすい。${tempoMesh}`;
+  return tempoMesh;
 }
 
 function pickPairAnswerSupport(
@@ -489,7 +536,7 @@ function pickPairAnswerSupport(
         : '戻るきっかけそのものが重く、空白が続きやすい。';
   const distanceBeat =
     answers.distance === 'explain_space'
-      ? '離れる前に次に話す時点を置けると噛み合いやすい。'
+      ? '離れる前に次に話す時点を置けると、戻りやすい。'
       : answers.distance === 'go_quiet'
         ? '静かになる時間を拒否と読みやすい。'
         : answers.distance === 'space_is_hard'
@@ -543,7 +590,7 @@ function pickPairBirthSupport(
     return '区切りの置き方が違うと、返す速さだけが先に分かれやすい。';
   }
   if (differenceType === 'near_dob_shift') {
-    return '近い生年月日ほど、違いは返す速さに出やすい。';
+    return '生まれの基調は近くても、違いは返す速さに出やすい。';
   }
   if (visible.start !== inward.start) {
     return '始め方がずれていて、同じ速さに見えても戻り方が分かれやすい。';
@@ -586,37 +633,37 @@ function premiumContinuation(
 ): string {
   if (relationStatusId === 'R1') {
     return [
-      '無料では、まだ会話がない状態で起きやすい読み取りのずれまでを読みました。',
-      '「二人の相性レポート」では、同じ流れを六つの場面に分け、自分の中の動き、読み取りがずれる入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+      'まだ会話がない状態では、読み取りのずれが先に目立ちやすいです。',
+      '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の動き、ずれの入口、小さな接点、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+      `いま整理したいこと（${focusLabel}）の章から先に読めます。`,
     ].join('');
   }
   if (relationStatusId === 'R2') {
     return [
-      '無料では、やり取りの速さや受け取り方のずれまでを読みました。',
-      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、受け取りがずれる入口、言葉を置き直す順序、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+      'やり取りが始まったあとでは、返事の速さと受け取り方のずれが先に目立ちやすいです。',
+      '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の見え方、ずれの入口、言葉の置き直し方、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+      `いま整理したいこと（${focusLabel}）の章から先に読めます。`,
     ].join('');
   }
   if (relationStatusId === 'R4') {
     return [
-      '無料では、距離が感じられる場面での読み取りのずれまでを読みました。',
-      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、間合いがずれる入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+      '距離ができている状態では、間合いの見え方と受け取り方のずれが先に目立ちやすいです。',
+      '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の見え方、距離の入口、小さな接点、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+      `いま整理したいこと（${focusLabel}）の章から先に読めます。`,
     ].join('');
   }
   if (relationStatusId === 'R5') {
     return [
-      '無料では、いまの距離の見え方についての読み取りのずれまでを読みました。',
-      '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、距離の入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+      'いま離れている状態では、再接近の速さと受け取り方のずれが先に目立ちやすいです。',
+      '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の見え方、距離の入口、小さな接点、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+      `いま整理したいこと（${focusLabel}）の章から先に読めます。`,
     ].join('');
   }
   if (relationStatusId === 'R6') {
     return [
-      '無料では、長い付き合いや結婚などで一緒にいる関係で起きやすい読み取りのずれまでを読みました。',
-      '「二人の相性レポート」では、その関係を六つの場面に分け、あなた側と相手側の見え方、進み方のずれの入口、言葉の置き方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+      '長く一緒にいる関係では、日常のペース差と受け取り方のずれが先に目立ちやすいです。',
+      '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の見え方、進み方のずれの入口、言葉の置き方、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+      `いま整理したいこと（${focusLabel}）の章から先に読めます。`,
     ].join('');
   }
   const hook =
@@ -632,9 +679,9 @@ function premiumContinuation(
               ? 'いまの進み方が見えにくいこのループが、他の場面ではどう出るか'
               : '話し終えたと感じるタイミングの差が、他の場面ではどう出るか';
   return [
-    `無料では、二人の間で起きやすいこのループまでを読みました。${hook}。`,
-    `「二人の相性レポート」では、同じループを六つの場面に分け、あなた側と相手側の視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。`,
-    `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
+    `このループは、${hook}。`,
+    '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の見え方、ずれの入口、戻し方、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+    `いま整理したいこと（${focusLabel}）の章から先に読めます。`,
   ].join('');
 }
 
@@ -777,6 +824,7 @@ function buildR2FreeInsight(args: {
     manifestationPatternId: `early_contact:${visibleCivil.start}x${inwardCivil.start}:${args.answersV2.expressionPace}:${args.answersV2.contactPace}`,
     relationshipTriggerJa: hit,
     relationStatusId: 'R2',
+    manualSideTendenciesJa: r2ManualSideTendenciesJa(args.answersV2),
   };
 }
 
@@ -877,6 +925,11 @@ function buildR5FreeInsight(args: {
   const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
   const readiness = args.answersV2.reapproachReadiness ?? 'timing_uncertain';
   const distance = args.answersV2.distance ?? 'go_quiet';
+  const manualSideTendenciesJa = manualSideTendenciesFromSideLeadAnswers(
+    args.answersV2,
+    args.personAUsesFirstPerspective,
+    'R5',
+  );
   if (readiness === 'not_considering_reapproach') {
     const meshMoment =
       args.answersV2.expressionPace === 'words_soon'
@@ -917,13 +970,14 @@ function buildR5FreeInsight(args: {
       misreadLoop,
       reset,
       premiumContinuation: [
-        '無料では、いまの距離の見え方についての読み取りのずれまでを読みました。',
-        '「二人の相性レポート」では、同じ流れを六つの場面に分け、あなた側と相手側の見え方、距離の入口、小さな接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-        `今いちばん整理したいこと（${args.focusLabel}）から先に読めます。`,
+        'いま離れている状態では、再接近の速さと受け取り方のずれが先に目立ちやすいです。',
+        '「二人の相性レポート」では、六つの場面ごとに、あなたと相手の見え方、距離の入口、小さな接点、使える一言、試せる実験、振り返りまでを一続きで読めます。',
+        `いま整理したいこと（${args.focusLabel}）の章から先に読めます。`,
       ].join(''),
       manifestationPatternId: `reapproach:${visibleCivil.start}x${inwardCivil.start}:${readiness}:${distance}:${args.answersV2.expressionPace}`,
       relationshipTriggerJa: hit,
       relationStatusId: 'R5',
+      ...(manualSideTendenciesJa ? { manualSideTendenciesJa } : {}),
     };
   }
   const meshMoment =
@@ -969,6 +1023,7 @@ function buildR5FreeInsight(args: {
     manifestationPatternId: `reapproach:${visibleCivil.start}x${inwardCivil.start}:${readiness}:${distance}:${args.answersV2.expressionPace}`,
     relationshipTriggerJa: hit,
     relationStatusId: 'R5',
+    ...(manualSideTendenciesJa ? { manualSideTendenciesJa } : {}),
   };
 }
 
@@ -1086,6 +1141,16 @@ function buildEstablishedNativeFreeInsight(args: {
     manifestationPatternId: `established_native:${args.relationStatusId}:${visibleCivil.start}x${inwardCivil.start}:${answerFingerprint}`,
     relationshipTriggerJa: hit,
     relationStatusId: args.relationStatusId,
+    ...(args.relationStatusId === 'R6'
+      ? (() => {
+          const manualSideTendenciesJa = manualSideTendenciesFromSideLeadAnswers(
+            args.answersV2,
+            args.personAUsesFirstPerspective,
+            'R6',
+          );
+          return manualSideTendenciesJa ? { manualSideTendenciesJa } : {};
+        })()
+      : {}),
   };
 }
 

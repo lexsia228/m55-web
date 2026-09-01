@@ -460,7 +460,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
   '1': {
     headingSuffixJa: 'の自分の形',
     tendencyJa:
-      '{nickname}さんには、ひとつのことを少しずつ良くしていける力があります。完成した瞬間だけではなく、直しながら良くなっていく過程でも力が出やすい形です。',
+      '{nickname}さんは、一つのことを直しながら進めるほど、納得できる形に近づきやすい出方です。完成した瞬間だけでなく、見直しの途中でも手応えが出やすい形として読めます。',
     reasonJa:
       'M55では、この出方を「じっくり向き合うほど、自分らしさが見えやすくなる形」と読み解きました。',
     lifeJa:
@@ -484,7 +484,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
   '3': {
     headingSuffixJa: 'の近い人との向き合い方',
     tendencyJa:
-      '{nickname}さんには、大切な人ほど丁寧に向き合おうとする力があります。軽く流すより、相手の言葉や空気を受け取りながら、ちゃんと分かり合おうとしやすい形です。',
+      '{nickname}さんは、近い人とのやりとりで、言葉の置き方や距離の感覚に気づきやすい出方です。軽く流すより、違和感が出た場面を先に確かめたくなる形として読めます。',
     reasonJa:
       'M55では、この出方を「近い人ほど、言葉と距離に力が入りやすい形」と読み解きました。',
     lifeJa:

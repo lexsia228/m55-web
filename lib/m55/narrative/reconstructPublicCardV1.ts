@@ -13,6 +13,7 @@ import type {
   ChangeTendency,
 } from '../individualization/types';
 import type { PairFreeInteractionId } from '../compatibility/pairFreeInsightSpecV2';
+import type { RelationStatusId } from '../compatibility/pairReadingTypes';
 import type { ShareCandidateVariant } from './m55NarrativeSpecV1';
 import { PUBLIC_DOB_PROVENANCE_CUE_JA } from './narrativeSafetyV1';
 import {
@@ -22,6 +23,12 @@ import {
   selectPublicManualSlotPlan,
   type PublicManualSlotPlanV1,
 } from './publicIdentityFingerprintV1';
+import {
+  buildPairSharePostText,
+  buildPremiumSharePostText,
+  buildSelfSharePostText,
+  normalizeJapaneseTerminalPunctuation,
+} from './sharePostSerializationV1';
 
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
   try: '小さく一つ動かしてから、様子を見る。',
@@ -46,12 +53,12 @@ const RECOVERY_SLOT: Readonly<Record<RecoveryTendency, string>> = {
 const CHANGE_SLOT: Readonly<Record<ChangeTendency, string>> = {
   observe: '変化の直後は、一日様子を見てから動く。',
   adjust: '変わったところだけ、少し直して進める。',
-  rebuild: '前提が変わったら、一度組み直す。',
+  rebuild: '前提が変わったら、段取りを一から見直す。',
 };
 const TALK_HINT: Readonly<Record<DistanceTendency, string>> = {
-  close: '決める前に、今の距離感を一言伝える。',
-  middle: '頻度は変えず、決める話と様子を見る話を分ける。',
-  solo: 'すぐ返さず、一人の時間のあとに続きを置く。',
+  close: '決める前に、今の距離感を一言確認してもらえると続きやすい。',
+  middle: '頻度は変えず、決める話と様子を見る話を分けてもらえると話しやすい。',
+  solo: 'すぐ返事を求めず、一人の時間のあとに返してもらえると話しやすい。',
 };
 
 const FUSED_MISREAD: Readonly<
@@ -80,7 +87,7 @@ const FUSED_ACTUAL: Readonly<
   try: {
     sort: '動かしたあとに、一人で答えを一つに絞る。',
     deadline: '試しながらも、自分の中では「いつまでに決めるか」が先にある。',
-    wait: '動いたあとも、決めたこととしてはまだ置いている。',
+    wait: '動いたあとも、まだ決め切れていないまま動いている。',
   },
   map: {
     sort: '揃ったあとも、比較は一人の時間に残る。',
@@ -90,7 +97,7 @@ const FUSED_ACTUAL: Readonly<
   ask: {
     sort: '最後の判断は、会話が終わって一人になったあと。',
     deadline: '材料を足したあと、「ここまで」が見えたところで自分で決める。',
-    wait: '周囲の視点を集めたあと、結論は置いてから出す。',
+    wait: '周囲の視点を集めたあと、答えを出す前に一度置く。',
   },
 };
 
@@ -129,7 +136,7 @@ const SOCIAL_ACTUAL: Readonly<
   },
   wait: {
     close: '近い会話のあと、一度置いてから返している',
-    middle: '間を置いたまま、決めたこととしてはまだ置いている',
+    middle: '間を置いたまま、まだ決め切れていないまま返している',
     solo: '一人の時間に入ってから、最後の返事を決めている',
   },
 };
@@ -140,7 +147,7 @@ const HIDDEN: Readonly<
   try: {
     sort: '先に手を動かしているのは、決めてもらいたいからではない。動かしたあとに、自分で答えを一つに絞る。',
     deadline: '試し始めているように見えても、自分の中では「いつまでに決めるか」が先にある。',
-    wait: '動いているように見えても、決めたこととしてはまだ置いている。',
+    wait: '動いているように見えても、まだ決め切れていないまま動いている。',
   },
   map: {
     sort: '揃えてから動く人に見えても、揃ったあとも比較が自分の中に残る。',
@@ -150,7 +157,7 @@ const HIDDEN: Readonly<
   ask: {
     sort: '人に聞くのは、決めてもらいたいからではない。最後に自分で決めるための材料を集めている。',
     deadline: '材料を増やしつつ、「ここまで」が見えたところで自分で決める。',
-    wait: '周囲の視点を集めながらも、結論は置いてから出す。',
+    wait: '周囲の視点を集めたあと、答えを出す前に一度置く。',
   },
 };
 
@@ -182,6 +189,35 @@ const PAIR_SAME_ENTRY: Readonly<Record<PairFreeInteractionId, string>> = {
   default_relationship_loop: 'いまの二人の進み方が見えにくく、速さの差が熱量の差に見えやすい。',
 };
 
+const PAIR_RELATION_ENTRY: Readonly<
+  Partial<Record<RelationStatusId, Partial<Record<PairFreeInteractionId, string>>>>
+> = {
+  R1: {
+    tempo_mismatch: 'まだ会話がない段階では、返事の速さより、最初の一言の置き方が先にずれやすい。',
+    default_relationship_loop: 'まだ会話がない段階では、近づく速さの感覚が先にずれやすい。',
+  },
+  R2: {
+    tempo_mismatch: 'やり取りが始まったばかりでは、返事の速さより「ここまで」の感覚が先にずれやすい。',
+    default_relationship_loop:
+      'やり取りの最初のほうでは、一方はその場のやり取りを一区切りにしようとしやすく、もう一方は返す前に言葉を整えたい時間を取りやすいことがあります。',
+  },
+  R3: {
+    tempo_mismatch: '付き合っている日常では、終わらせたい気持ちと置いて考えたい気持ちが同時に出やすい。',
+  },
+  R4: {
+    tempo_mismatch: '距離ができているときは、連絡の間より、再開のタイミングの感覚がずれやすい。',
+    space_misread: '距離があるほど、静かな時間の意味が違う方向に読まれやすい。',
+  },
+  R5: {
+    tempo_mismatch: 'いま離れている間は、連絡の間隔より、再開の速さの感覚がずれやすい。',
+    default_relationship_loop: '離れている間は、速さの差が関心の有無の差に見えやすい。',
+  },
+  R6: {
+    tempo_mismatch: '長く一緒にいるほど、いつもの速さが当たり前になり、変化の合図が見えにくくなりやすい。',
+    space_misread: '長い関係ほど、静かな時間の意味が違う方向に読まれやすい。',
+  },
+};
+
 export type ReconstructedPublicCardV1 = {
   readonly variant: ShareCandidateVariant;
   readonly headline: string;
@@ -192,7 +228,15 @@ export type ReconstructedPublicCardV1 = {
 };
 
 function selectedShareText(titleJa: string, insightJa: string): string {
-  return `M55で「${titleJa}」が出た。\n\n「${insightJa}」\n\nこれ、私っぽい？\nあなたはどう出る？\n#M55`;
+  return buildSelfSharePostText(titleJa, insightJa);
+}
+
+function pairShareText(titleJa: string, insightJa: string): string {
+  return buildPairSharePostText(titleJa, insightJa);
+}
+
+function premiumShareText(insightJa: string): string {
+  return buildPremiumSharePostText(insightJa);
 }
 
 function copyForManualSlot(
@@ -245,6 +289,72 @@ export function recommendPublicShareVariant(input: {
   return 'manual';
 }
 
+function hiddenShareInsight(birth: ExpressionAxes, answer: ExpressionAxes): string {
+  const parts: string[] = [hiddenSpecLine(birth, answer)];
+  const pushUnique = (text: string) => {
+    const clip = text.replace(/。+$/g, '').trim();
+    if (clip.length < 6) return;
+    const prefix = clip.slice(0, 10);
+    if (parts.some((part) => part.includes(prefix))) return;
+    parts.push(`${clip}。`);
+  };
+  if (birth.start !== answer.start) {
+    pushUnique(START_SLOT[answer.start]);
+  } else if (birth.distance !== answer.distance) {
+    pushUnique(
+      answer.distance === 'close'
+        ? '近い関係では、返事の前に距離感を一言確認したくなる'
+        : answer.distance === 'solo'
+          ? '会ったあと、一人の時間を先に取ってから返事を整えたくなる'
+          : '連絡は続けつつ、返事の間だけ自分のペースに戻したくなる',
+    );
+  } else if (birth.change !== answer.change) {
+    pushUnique(CHANGE_SLOT[answer.change]);
+  } else if (birth.recovery !== answer.recovery) {
+    pushUnique(RECOVERY_SLOT[answer.recovery]);
+  } else if (birth.decision !== answer.decision) {
+    pushUnique(DECISION_SLOT[answer.decision]);
+  }
+  return normalizeJapaneseTerminalPunctuation(parts.join(''));
+}
+
+function manualShareInsightJa(
+  plan: readonly PublicManualSlotPlanV1[],
+  rendered: readonly { label: string; body: string }[],
+  answer: ExpressionAxes,
+  birth: ExpressionAxes,
+): string {
+  const bodyFor = (kind: PublicManualSlotPlanV1['kind']) => {
+    const index = plan.findIndex((slot) => slot.kind === kind);
+    return index >= 0 ? rendered[index]!.body : null;
+  };
+  const firstClause = (text: string) => text.split('。')[0]?.trim() ?? text.trim();
+
+  if (birth.start !== answer.start) {
+    const startBody = bodyFor('primary_start');
+    if (startBody) return firstClause(startBody);
+  }
+  if (birth.decision !== answer.decision) {
+    const decisionBody = bodyFor('primary_decision');
+    if (decisionBody) return firstClause(decisionBody);
+  }
+  const distanceBody = bodyFor('social_distance');
+  if (distanceBody) return firstClause(distanceBody);
+  if (birth.change !== answer.change) {
+    const changeBody = bodyFor('change');
+    if (changeBody) return firstClause(changeBody);
+  }
+  if (birth.recovery !== answer.recovery) {
+    const recoveryBody = bodyFor('recover');
+    if (recoveryBody) return firstClause(recoveryBody);
+  }
+  const fusedMisread = bodyFor('fused_misread');
+  if (fusedMisread) return firstClause(fusedMisread);
+  const fusedActual = bodyFor('fused_actual');
+  if (fusedActual) return firstClause(fusedActual);
+  return firstClause(START_SLOT[answer.start]);
+}
+
 function cardCBody(birth: ExpressionAxes, answer: ExpressionAxes): { body: string; insight: string } {
   const insight = hiddenSpecLine(birth, answer);
   let extra = '';
@@ -271,6 +381,7 @@ export function reconstructPersonalPublicCard(input: {
   answerAxes: ExpressionAxes;
   birthAxes: ExpressionAxes;
   hingeAxisId?: ExpressionAxisId;
+  premiumTakeawayJa?: string;
 }): ReconstructedPublicCardV1 | null {
   const answer = input.answerAxes;
   const birth = input.birthAxes;
@@ -281,9 +392,7 @@ export function reconstructPersonalPublicCard(input: {
       body: copyForManualSlot(slot, answer, birth),
     }));
     const body = `${rendered.map((slot) => `${slot.label}：${slot.body}`).join('\n')}\n\n${PUBLIC_DOB_PROVENANCE_CUE_JA}`;
-    const fusedActual = rendered.find((_, index) => plan[index]?.kind === 'fused_actual');
-    const fusedMisread = rendered.find((_, index) => plan[index]?.kind === 'fused_misread');
-    const insight = (fusedActual ?? fusedMisread ?? rendered[0])?.body.split('。')[0] ?? START_SLOT[answer.start];
+    const insight = manualShareInsightJa(plan, rendered, answer, birth);
     return {
       variant: 'manual',
       headline: '私の取扱説明書',
@@ -297,7 +406,7 @@ export function reconstructPersonalPublicCard(input: {
     if (!hasGenuineSeenActualContrast(birth, answer)) return null;
     const seen = SOCIAL_MIRROR[birth.start][birth.distance];
     const actual = SOCIAL_ACTUAL[answer.decision][answer.distance];
-    const insight = `見える私は「${seen}」。実際の私は「${actual}」。`;
+    const insight = `見える私は、${seen}。実際の私は、${actual}。`;
     return {
       variant: 'seen_vs_actual',
       headline: '人から見える私 / 実際の私',
@@ -315,46 +424,88 @@ export function reconstructPersonalPublicCard(input: {
       body: card.body,
       cta: 'あなたはどう出る？',
       insightJa: card.insight,
-      shareTextJa: selectedShareText('自分でも知らなかった仕様', card.insight),
+      shareTextJa: selectedShareText('自分でも知らなかった仕様', hiddenShareInsight(birth, answer)),
     };
   }
   if (input.variant === 'premium_takeaway') {
-    const card = cardCBody(birth, answer);
+    const insight = input.premiumTakeawayJa?.trim() || cardCBody(birth, answer).insight;
     return {
       variant: 'premium_takeaway',
       headline: '今のあなたへ残しておく一文',
-      body: `${card.insight}\n\n${PUBLIC_DOB_PROVENANCE_CUE_JA}`,
+      body: `${insight}\n\n${PUBLIC_DOB_PROVENANCE_CUE_JA}`,
       cta: 'M55 プレミアムレポートから',
-      insightJa: card.insight,
-      shareTextJa: `M55 プレミアムレポートから。\n\n「${card.insight}」\n\nあなたはどう出る？\n#M55`,
+      insightJa: insight,
+      shareTextJa: premiumShareText(insight),
     };
   }
   return null;
 }
 
-export function reconstructPairPublicCard(
+export type ReconstructPairPublicCardInputV1 = {
+  readonly interactionId: PairFreeInteractionId;
+  readonly relationStatusId?: RelationStatusId;
+  readonly visibleStart?: StartTendency;
+  readonly inwardStart?: StartTendency;
+  readonly shareInsightJa?: string;
+};
+
+function pairEntryJa(
   interactionId: PairFreeInteractionId,
+  relationStatusId: RelationStatusId | undefined,
   visibleStart?: StartTendency,
   inwardStart?: StartTendency,
-): ReconstructedPublicCardV1 {
+): string {
   const differentiated =
     visibleStart &&
     inwardStart &&
     visibleStart !== inwardStart;
-  const entryJa = differentiated
-    ? `一方は、${PAIR_SIDE[visibleStart]}。\nもう一方は、${PAIR_SIDE[inwardStart]}。`
-    : PAIR_SAME_ENTRY[interactionId];
+  if (differentiated) {
+    return `一方は、${PAIR_SIDE[visibleStart]}。\nもう一方は、${PAIR_SIDE[inwardStart]}。`;
+  }
+  if (relationStatusId) {
+    const relationEntry = PAIR_RELATION_ENTRY[relationStatusId]?.[interactionId];
+    if (relationEntry) return relationEntry;
+  }
+  return PAIR_SAME_ENTRY[interactionId];
+}
+
+export function reconstructPairPublicCard(
+  interactionOrInput: PairFreeInteractionId | ReconstructPairPublicCardInputV1,
+  visibleStart?: StartTendency,
+  inwardStart?: StartTendency,
+  shareInsightJa?: string,
+): ReconstructedPublicCardV1 {
+  const input: ReconstructPairPublicCardInputV1 =
+    typeof interactionOrInput === 'string'
+      ? {
+          interactionId: interactionOrInput,
+          visibleStart,
+          inwardStart,
+          shareInsightJa,
+        }
+      : interactionOrInput;
+  const entryJa = pairEntryJa(
+    input.interactionId,
+    input.relationStatusId,
+    input.visibleStart,
+    input.inwardStart,
+  );
+  const differentiated =
+    input.visibleStart &&
+    input.inwardStart &&
+    input.visibleStart !== input.inwardStart;
   const body = `すれ違いの入口\n${entryJa}`;
-  const insight = differentiated
-    ? `一方は${PAIR_SIDE[visibleStart!]}。もう一方は${PAIR_SIDE[inwardStart!]}。`
+  const defaultInsight = differentiated
+    ? `一方は${PAIR_SIDE[input.visibleStart!]}。もう一方は${PAIR_SIDE[input.inwardStart!]}。`
     : entryJa;
+  const insight = input.shareInsightJa?.trim() || defaultInsight;
   return {
     variant: 'pair_manual',
     headline: '二人の取扱説明書',
     body,
     cta: 'あなたの二人では、どう出る？',
     insightJa: insight,
-    shareTextJa: selectedShareText('二人の取扱説明書', insight),
+    shareTextJa: pairShareText('二人の取扱説明書', insight),
   };
 }
 
@@ -370,7 +521,7 @@ export function reconstructGenericPublicCard(input: {
       body: insight,
       cta: 'あなたの二人では、どう出る？',
       insightJa: insight,
-      shareTextJa: selectedShareText('二人の相性レポート', insight),
+      shareTextJa: pairShareText('二人の相性レポート', insight),
     };
   }
   const insight = '始める前に、今日はここまでと自分の言葉で決める。';
@@ -380,7 +531,7 @@ export function reconstructGenericPublicCard(input: {
     body: `${insight}\n\n${PUBLIC_DOB_PROVENANCE_CUE_JA}`,
     cta: 'M55 プレミアムレポートから',
     insightJa: insight,
-    shareTextJa: `M55 プレミアムレポートから。\n\n「${insight}」\n\nあなたはどう出る？\n#M55`,
+    shareTextJa: premiumShareText(insight),
   };
 }
 

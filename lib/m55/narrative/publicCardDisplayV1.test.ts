@@ -9,6 +9,7 @@ import { describe, it } from 'node:test';
 import { humanizePrivatePresentationJa } from './humanizePrivatePresentationV1';
 import {
   cardCSupportEligible,
+  extractJapaneseLabelQuoteJa,
   parsePublicCardDisplayV1,
   posterHeroLinesJa,
   shareVariantEnum,
@@ -139,6 +140,32 @@ describe('public card display parse', () => {
     assert.ok(ids.includes('other_tends'));
     assert.equal(manual.slots.find((slot) => slot.id === 'one_tends')?.labelJa, '一方');
     assert.equal(manual.slots.find((slot) => slot.id === 'other_tends')?.labelJa, 'もう一方');
+  });
+
+  it('seen_vs_actual parse preserves nested 「ここまで」 in actualJa', () => {
+    const fixture = PERSONAL_V5_FIXTURES.find((f) => f.id === 'P3');
+    assert.ok(fixture);
+    const ctx = buildPersonalFreeNarrativeShareContextV1(fixture!);
+    assert.equal(ctx.ok, true);
+    if (!ctx.ok) return;
+    const card = reconstructPersonalPublicCard({
+      variant: 'seen_vs_actual',
+      answerAxes: ctx.value.answerAxes,
+      birthAxes: ctx.value.birthAxes,
+      hingeAxisId: ctx.value.hingeAxisId,
+    });
+    assert.ok(card);
+    const display = parsePublicCardDisplayV1({
+      variant: 'seen_vs_actual',
+      headline: card!.headline,
+      body: card!.body,
+      cta: card!.cta,
+    });
+    assert.equal(
+      display.actualJa,
+      '近い関係で「ここまで」が見えたところで、自分の中で決めている',
+    );
+    assert.equal(extractJapaneseLabelQuoteJa(card!.body, '実際の私'), display.actualJa);
   });
 
   it('pair manual public card parse omits return when body has entry only', () => {

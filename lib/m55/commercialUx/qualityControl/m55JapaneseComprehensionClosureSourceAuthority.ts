@@ -289,6 +289,28 @@ function readJsxTextAfterCursor(sourceSlice: string, cursor: number, contextLabe
   throw new Error(`closure jsx text not found after opening tag (${contextLabel})`);
 }
 
+function extractPersonBDobFieldFromScope(
+  dobScope: string,
+  field: 'inputRole' | 'inputLabel',
+  contextLabel: string,
+): string {
+  const personBAnchor = "updateInput('personB'";
+  const anchorIndex = dobScope.indexOf(personBAnchor);
+  if (anchorIndex < 0) {
+    throw new Error(`closure personB input anchor missing (${contextLabel})`);
+  }
+  const labelStart = dobScope.lastIndexOf('<label className={styles.inputCard}>', anchorIndex);
+  if (labelStart < 0) {
+    throw new Error(`closure personB label scope missing (${contextLabel})`);
+  }
+  const labelSlice = dobScope.slice(labelStart, anchorIndex + personBAnchor.length);
+  const openingTagAnchor =
+    field === 'inputRole'
+      ? '<span className={styles.inputRole}>'
+      : '<span className={styles.inputLabel}>';
+  return extractJsxTextAfterOpeningTag(labelSlice, openingTagAnchor, contextLabel);
+}
+
 function extractJsxTextAfterNthOpeningTag(
   sourceSlice: string,
   openingTagAnchor: string,
@@ -1172,20 +1194,18 @@ function pairDobInputRegistrations(): M55ClosureSourceRegistration[] {
     },
     {
       sourceItemId: 'person_b_role',
-      visibleText: extractJsxTextAfterNthOpeningTag(
+      visibleText: extractPersonBDobFieldFromScope(
         dobScope,
-        '<span className={styles.inputRole}>',
-        1,
+        'inputRole',
         'pair.dob.person_b_role',
       ),
       copyRole: 'BODY' as const,
     },
     {
       sourceItemId: 'person_b_label',
-      visibleText: extractJsxTextAfterNthOpeningTag(
+      visibleText: extractPersonBDobFieldFromScope(
         dobScope,
-        '<span className={styles.inputLabel}>',
-        1,
+        'inputLabel',
         'pair.dob.person_b_label',
       ),
       copyRole: 'BODY' as const,
