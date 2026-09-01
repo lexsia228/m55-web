@@ -2,11 +2,11 @@
   "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-09-01T11:01:25Z",
+  "updatedAt": "2026-09-01T14:34:56Z",
   "macroLane": "M55_COMMERCIAL_CONTENT_QUALITY",
-  "currentExecutionGate": "M55-SITEWIDE-COMMERCIAL-UIUX-WAVE1-IMPLEMENTATION",
-  "nextSingleAction": "M55-SITEWIDE-COMMERCIAL-UIUX-WAVE1-IMPLEMENTATION",
-  "productWorkAfterControlTower": "M55-SITEWIDE-COMMERCIAL-UIUX-WAVE1-IMPLEMENTATION",
+  "currentExecutionGate": "M55-COMMERCIAL-CONTROL-TOWER-HARDENING-AND-WAVE2-VISUAL-TRANSFORMATION",
+  "nextSingleAction": "M55-COMMERCIAL-CONTROL-TOWER-HARDENING-AND-WAVE2-VISUAL-TRANSFORMATION",
+  "productWorkAfterControlTower": "M55-COMMERCIAL-CONTROL-TOWER-HARDENING-AND-WAVE2-VISUAL-TRANSFORMATION",
   "pairImplementation": "COMPLETE",
   "pairPremium": "ACTIVATED",
   "pairFreeToPaidMappingAuthorizedNow": true,
@@ -45,7 +45,8 @@
     "M55-COMMERCIAL-CONTENT-POSTSYNC-FEATURE-PUSH-EXECUTION",
     "M55-COMMERCIAL-CONTENT-POSTPUSH-PR-EXECUTION",
     "M55-COMMERCIAL-CONTENT-PR175-MERGE-EXECUTION",
-    "M55-SITEWIDE-COMMERCIAL-UIUX-JAPANESE-RUNTIME-MASTER-AUDIT"
+    "M55-SITEWIDE-COMMERCIAL-UIUX-JAPANESE-RUNTIME-MASTER-AUDIT",
+    "M55-SITEWIDE-COMMERCIAL-UIUX-WAVE1-IMPLEMENTATION"
   ],
   "pairFreeToPaidMapping": {
     "gate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
@@ -586,6 +587,23 @@
     "humanAuthorizedAt": "2026-08-30T05:29:43Z",
     "humanAccepted": true,
     "observedAt": "2026-08-30T07:25:00Z"
+  },
+  "sitewideCommercialUiuxWave1Transition": {
+    "status": "CLOSED_GREEN",
+    "masterAudit": "COMPLETE",
+    "masterBacklog": "FROZEN",
+    "localImplementation": "GREEN",
+    "independentActualDiffReview": "GREEN",
+    "productCommit": "a02971d88d9d3321e1ca0d895ae612c771c22a11",
+    "productCommitSubject": "fix(m55): close sitewide commercial uiux wave1",
+    "productCommitPathCount": 25,
+    "productTree": "ea60288ff0ca5a031fcb8059640fa41724e4380b",
+    "reviewBundleSha256": "ff9c36e5e136b4e96b9acf6f354cee9f1de2c09fdabfd2d52977506e9efc8914",
+    "push": "NOT_PERFORMED",
+    "productionProviderMutation": "NOT_PERFORMED",
+    "wave2Status": "AUTHORIZED_NOT_COMPLETE",
+    "humanAccepted": true,
+    "observedAt": "2026-09-01T14:34:56Z"
   },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,
