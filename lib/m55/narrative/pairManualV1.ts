@@ -66,6 +66,14 @@ const R1_PARTNER_MANUAL_UNCERTAINTY =
 const R1_MANUAL_HANDLING_FORBIDDEN =
   /書き留|試して|一度だけ|次に(話す|連絡)|してください|しなさい|戻りやすい|話すときのヒント/;
 
+function pairSideTendenciesFromBetweenThem(
+  betweenThem: string,
+): { oneJa: string; otherJa: string } | null {
+  const match = /あなた(?:側)?は([^、]+)、相手(?:側)?は([^。]+)/.exec(betweenThem);
+  if (!match) return null;
+  return { oneJa: match[1]!.trim(), otherJa: match[2]!.trim() };
+}
+
 function pairManualRelationSides(
   spec: PairFreeInsightSpecV2,
 ): { oneJa: string; otherJa: string } | null {
@@ -76,7 +84,9 @@ function pairManualRelationSides(
     };
   }
   const starts = pairStartsFromInsight(spec);
-  return pairRelationSidesJa(starts.visibleStart, starts.inwardStart);
+  const relationSides = pairRelationSidesJa(starts.visibleStart, starts.inwardStart);
+  if (relationSides) return relationSides;
+  return pairSideTendenciesFromBetweenThem(spec.betweenThem);
 }
 
 export function buildPairManualV1(input: {
@@ -87,10 +97,11 @@ export function buildPairManualV1(input: {
   const labels = manualSlotLabels(spec.relationStatusId);
   const ids = [spec.interactionId, spec.id];
   const sides = pairManualRelationSides(spec);
+  const otherTendsJa = sides?.otherJa ?? spec.manualSideTendenciesJa?.otherJa;
   const slots: ManualSlotV1[] = [
     slot('one_tends', '一方', sides?.oneJa ?? firstSentenceJa(spec.meshMoment), ids),
-    ...(sides
-      ? [slot('other_tends', 'もう一方', sides.otherJa, ids)]
+    ...(otherTendsJa
+      ? [slot('other_tends', 'もう一方', otherTendsJa, ids)]
       : input.completeness === 'complete' && spec.relationStatusId !== 'R1'
         ? [slot('other_tends', 'もう一方', firstSentenceJa(spec.betweenThem), ids)]
         : []),

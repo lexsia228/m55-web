@@ -312,7 +312,7 @@ export function CompatibilityPurchaseSuccess() {
         <p className={styles.eyebrow}>支払い確認中</p>
         <h1>レポートをマイページへ準備しています</h1>
         <p className={styles.lead}>
-          支払い確認後に6章レポートが表示されます。この画面を閉じても、配送処理は継続します。
+          支払い確認後に6章レポートが表示されます。この画面を閉じても、レポートの準備はこのまま続きます。
         </p>
         <Link className={styles.primaryLink} href="/my">マイページで確認する</Link>
         <Link className={styles.quietLink} href="/synastry">無料結果へ戻る</Link>

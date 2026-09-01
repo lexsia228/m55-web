@@ -46,6 +46,24 @@ function takeawayPartForTheme(theme: ReplyThemeId | undefined): PaidDtrReportPar
   return theme ? THEME_TO_TAKEAWAY_PART[theme] : '1';
 }
 
+export function buildPremiumPublicTakeawayJa(input: {
+  takeawayJa: string;
+  nextActionJa: string;
+  misreadJa: string;
+}): string {
+  const base = input.takeawayJa.trim().replace(/。+$/g, '');
+  const misread = input.misreadJa.trim().replace(/。+$/g, '');
+  const next = input.nextActionJa.trim().replace(/。+$/g, '');
+  const layers = [base];
+  if (misread.length >= 8 && !base.includes(misread.slice(0, 8))) {
+    layers.push(`その場面では、${misread}`);
+  }
+  if (next.length >= 8 && !base.includes(next.slice(0, 8)) && !misread.includes(next.slice(0, 8))) {
+    layers.push(next);
+  }
+  return `${layers.join('。')}。`;
+}
+
 function isPaidSemanticConsequenceId(
   id: PaidChapterEmphasisIdV1,
 ): boolean {
@@ -102,7 +120,7 @@ export function buildPremiumPurchasedSemanticProjectionV1(input: {
   const takeawayPart = takeawayPartForTheme(primaryTheme);
   const takeawayCatalog = PAID_DTR_DEEP_READING_TAKEAWAYS[takeawayPart].itemsJa[2] ?? '';
   const takeawayFromFused = firstSentenceJa(fused.behavioralPrediction);
-  const takeawayJa =
+  const baseTakeawayJa =
     (hiddenSpec?.text && hiddenSpec.text.length >= 8 ? firstSentenceJa(hiddenSpec.text) : '') ||
     (takeawayFromFused.length >= 8 ? takeawayFromFused : '') ||
     firstSentenceJa(takeawayCatalog);
@@ -110,6 +128,11 @@ export function buildPremiumPurchasedSemanticProjectionV1(input: {
   const nextActionJa = firstSentenceJa(
     PAID_DTR_DEEP_READING_TAKEAWAYS[takeawayPart].itemsJa[1] ?? '',
   );
+  const takeawayJa = buildPremiumPublicTakeawayJa({
+    takeawayJa: baseTakeawayJa,
+    nextActionJa,
+    misreadJa: firstSentenceJa(fused.currentExpressionJa),
+  });
   const selectedPaidChapterIds = fingerprint.selectors?.paidChapterEmphasisIds;
   const paidSemanticConsequenceIds = {
     chapter2: (selectedPaidChapterIds?.chapter2 ?? []).filter(

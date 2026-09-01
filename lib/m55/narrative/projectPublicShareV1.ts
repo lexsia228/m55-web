@@ -22,6 +22,7 @@ import {
 } from './reconstructPublicCardV1';
 import type { PairFreeInsightSpecV2 } from '../compatibility/pairFreeInsightSpecV2';
 import type { ExpressionAxisId, ExpressionAxes, StartTendency } from '../individualization/types';
+import { firstSentenceJa } from './narrativeSafetyV1';
 import { recommendPublicShareVariant } from './reconstructPublicCardV1';
 
 function sharePathFor(token: string): string {
@@ -116,16 +117,36 @@ export function pairStartsFromInsight(spec: PairFreeInsightSpecV2): {
   };
 }
 
+import type { RelationStatusId } from '../compatibility/pairReadingTypes';
+
+const PAIR_SHARE_STATUS_LEAD: Readonly<Partial<Record<RelationStatusId, string>>> = {
+  R1: 'まだ会話がない二人では、',
+  R2: 'やり取りが始まった二人では、',
+  R3: '付き合っている二人では、',
+  R4: '距離ができている二人では、',
+  R5: 'いま離れている二人では、',
+  R6: '長く一緒にいる二人では、',
+};
+
 export function projectPairPublicShareV1(input: {
   spec: PairFreeInsightSpecV2;
   origin?: string;
 }): PublicShareSpecV1 {
   const starts = pairStartsFromInsight(input.spec);
-  const card = reconstructPairPublicCard(
-    input.spec.interactionId,
-    starts.visibleStart,
-    starts.inwardStart,
-  );
+  const statusLead = PAIR_SHARE_STATUS_LEAD[input.spec.relationStatusId] ?? '';
+  const mismatch = firstSentenceJa(input.spec.mismatchEntry);
+  const trigger = firstSentenceJa(input.spec.relationshipTriggerJa);
+  const coreInsight = trigger.includes(mismatch.slice(0, Math.min(12, mismatch.length)))
+    ? trigger
+    : mismatch;
+  const shareInsight = `${statusLead}${coreInsight}`;
+  const card = reconstructPairPublicCard({
+    interactionId: input.spec.interactionId,
+    relationStatusId: input.spec.relationStatusId,
+    visibleStart: starts.visibleStart,
+    inwardStart: starts.inwardStart,
+    shareInsightJa: shareInsight,
+  });
   const key: PublicShareKeyV1 = {
     kind: 'pair',
     surface: 'compatibility_free',
@@ -183,6 +204,7 @@ export function projectPremiumPublicShareV1(input: {
   answerAxes?: ExpressionAxes;
   birthAxes?: ExpressionAxes;
   hingeAxisId?: ExpressionAxisId;
+  premiumTakeawayJa?: string;
   origin?: string;
 }): PublicShareSpecV1 {
   if (input.answerAxes && input.birthAxes && input.hingeAxisId) {
@@ -191,6 +213,7 @@ export function projectPremiumPublicShareV1(input: {
       answerAxes: input.answerAxes,
       birthAxes: input.birthAxes,
       hingeAxisId: input.hingeAxisId,
+      premiumTakeawayJa: input.premiumTakeawayJa,
     });
     if (reconstructed) {
       const key: PublicShareKeyV1 = {
@@ -236,11 +259,11 @@ export function resolvePublicShareSpecFromToken(
     });
   }
   if (key.kind === 'pair') {
-    const card = reconstructPairPublicCard(
-      key.interactionId,
-      key.visibleStart,
-      key.inwardStart,
-    );
+    const card = reconstructPairPublicCard({
+      interactionId: key.interactionId,
+      visibleStart: key.visibleStart,
+      inwardStart: key.inwardStart,
+    });
     return specFromCard({
       surface: 'compatibility_free',
       variant: 'pair_manual',

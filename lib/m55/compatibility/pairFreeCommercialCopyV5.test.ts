@@ -103,8 +103,8 @@ describe('pair free commercial copy v5', () => {
       const spec = insight(fixture);
       const blob = completeCopy(fixture);
       assert.match(spec.betweenThem, /^二人の間では/u);
-      assert.match(spec.betweenThem, /あなた側は/);
-      assert.match(spec.betweenThem, /相手側は/);
+      assert.match(spec.betweenThem, /あなた(?:側)?は/);
+      assert.match(spec.betweenThem, /相手(?:側)?は/);
       assert.match(spec.betweenThem, /そのため二人の間では/);
       assert.match(spec.betweenThem, /土台|生まれの基調/);
       assert.match(spec.misreadLoop, /受け取りやすい|見えやすい/);

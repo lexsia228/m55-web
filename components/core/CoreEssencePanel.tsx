@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import {
   DTR_DRAFT_SYNC_USER_COPY,
@@ -86,6 +86,15 @@ type SealedState =
   | { kind: 'locked' }
   | { kind: 'ready'; result: CoreResult; profile: NonNullable<ReturnType<typeof ProfileRepository.get>> }
   | { kind: 'error'; message: string };
+
+/** ShellLayout scrolls inside `<main>` while body overflow stays hidden on mobile. */
+function resetShellLayoutMainScroll(): void {
+  if (typeof document === 'undefined') return;
+  const main = document.querySelector('[data-m55-public-shell] main');
+  if (main instanceof HTMLElement) {
+    main.scrollTop = 0;
+  }
+}
 
 export default function CoreEssencePanel() {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -191,6 +200,11 @@ export default function CoreEssencePanel() {
         'core-self-entry-started',
       );
     }
+  }, [uxPhase]);
+
+  useLayoutEffect(() => {
+    if (uxPhase !== 'REVEALING' && uxPhase !== 'RESULT') return;
+    resetShellLayoutMainScroll();
   }, [uxPhase]);
 
   useEffect(() => {

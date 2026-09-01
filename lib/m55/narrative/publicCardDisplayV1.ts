@@ -63,9 +63,27 @@ function splitCue(body: string): { main: string; cueJa: string } {
   return { main: body.trim(), cueJa: '' };
 }
 
-function quoted(block: string, label: string): string {
-  const match = new RegExp(`${label}\\s*[\\n]?「([^」]+)」`).exec(block);
-  return match?.[1]?.trim() ?? '';
+/**
+ * Extract quoted Japanese after a label, supporting nested 「」 inside the outer pair.
+ * Naive [^」]+ truncation breaks on e.g. 近い関係で「ここまで」が見えたところで…
+ */
+export function extractJapaneseLabelQuoteJa(block: string, label: string): string {
+  const labelIdx = block.indexOf(label);
+  if (labelIdx < 0) return '';
+  const afterLabel = block.slice(labelIdx + label.length);
+  const openRel = afterLabel.search(/\n?「/);
+  if (openRel < 0) return '';
+  let i = openRel + (afterLabel[openRel] === '\n' ? 1 : 0) + 1;
+  let depth = 1;
+  const start = i;
+  while (i < afterLabel.length && depth > 0) {
+    const ch = afterLabel[i];
+    if (ch === '「') depth += 1;
+    else if (ch === '」') depth -= 1;
+    i += 1;
+  }
+  if (depth !== 0) return '';
+  return afterLabel.slice(start, i - 1).trim();
 }
 
 export function parsePublicCardDisplayV1(input: {
@@ -92,8 +110,8 @@ export function parsePublicCardDisplayV1(input: {
     supportJa = cardCSupportEligible(heroJa, extra) ? extra : '';
   }
 
-  const seenJa = quoted(main, '人から見える私');
-  const actualJa = quoted(main, '実際の私');
+  const seenJa = extractJapaneseLabelQuoteJa(main, '人から見える私');
+  const actualJa = extractJapaneseLabelQuoteJa(main, '実際の私');
 
   const entryWithReturnMatch = /すれ違いの入口\n([\s\S]*?)\n\n戻りやすい方法/.exec(main);
   const entryOnlyMatch =
