@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-01T00:36:45.272814+00:00",
+  "generated_at_utc": "2026-09-01T23:17:21.543459+00:00",
   "count": 707,
   "records": [
     {
@@ -200,7 +200,7 @@
     {
       "path": "docs/ssot/M55_EXECUTION_STATE.json",
       "category": "ssot",
-      "bytes": 27222
+      "bytes": 28427
     },
     {
       "path": "docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_2026-05-25.md",
@@ -3145,7 +3145,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 125586
+      "bytes": 127657
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
@@ -3355,12 +3355,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 111475
+      "bytes": 111615
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 74756
+      "bytes": 74844
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
