@@ -32,6 +32,8 @@ import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import DtrMethodDifference from './DtrMethodDifference';
 import M55MethodTrustLink from '../pages/M55MethodTrustLink';
 import styles from './DtrPaidDecisionUx.module.css';
+import { useBoundedReadiness } from '../../lib/m55/commercialUx/boundedAsync';
+import BoundedRecoveryState from '../common/BoundedRecoveryState';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
 type PlanKey = 'light' | 'full';
@@ -79,6 +81,7 @@ export default function DtrPaidPurchasePrep() {
   const checkoutShellRef = useRef<HTMLElement | null>(null);
   const prevGateRef = useRef<GatePhase | null>(null);
   const plan = PLAN_COMPARISON;
+  const authReadiness = useBoundedReadiness(isLoaded);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -152,6 +155,18 @@ export default function DtrPaidPurchasePrep() {
   );
 
   if (!hydrated) {
+    if (authReadiness.timedOut) {
+      return (
+        <BoundedRecoveryState
+          title="購入準備を確認できませんでした"
+          description="ログイン状態の確認に時間がかかっています。もう一度読み込み直すか、自分の無料読み解きへ戻れます。"
+          onRetry={() => window.location.reload()}
+          escapeHref="/core"
+          escapeLabel="自分の無料読み解きへ戻る"
+          support
+        />
+      );
+    }
     return (
       <>
         <PremiumExperienceSync shellPremium />

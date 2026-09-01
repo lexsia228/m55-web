@@ -8,6 +8,7 @@ import type {
 import type { CompatibilityCurrentContextDisplay } from './currentContextContract.v1';
 import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
 import { RELATION_STATUS_IDS } from './pairReadingCatalog.v1';
+import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
 
 export const COMPATIBILITY_GUEST_SESSION_KEY = 'm55_compatibility_guest_journey_v2' as const;
 export const COMPATIBILITY_GUEST_SESSION_KEY_V3 =
@@ -44,6 +45,7 @@ export type CompatibilityGuestJourneyV3 = {
   input: CompatibilityGuestInput;
   relationStatusId: RelationStatusId;
   answers: CompatibilityCurrentContextAnswersV2;
+  displayIdentity?: PairDisplayIdentityV1;
 };
 
 export type CompatibilityPublicChapter = {

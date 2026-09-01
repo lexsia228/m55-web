@@ -10,6 +10,7 @@ import {
   type CompatibilityCurrentContextAnswersV2,
   type CompatibilityCurrentQuestionIdV2,
 } from './currentContextContract.v2';
+import { parsePairDisplayIdentity } from './pairDisplayIdentity';
 
 /** Strip legacy optional focus before primary guest/public projection. Paid snapshots keep focus when passed separately. */
 export function stripFocusForPublicGuestAnswers(
@@ -88,6 +89,10 @@ export function parseSanitizedGuestJourneyV3(raw: string): CompatibilityGuestJou
     return {
       ...value,
       answers: sanitizeGuestSessionAnswers(value.answers),
+      ...(() => {
+        const displayIdentity = parsePairDisplayIdentity(value.displayIdentity);
+        return displayIdentity ? { displayIdentity } : {};
+      })(),
     } as CompatibilityGuestJourneyV3;
   } catch {
     return null;

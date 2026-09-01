@@ -63,7 +63,8 @@ describe('premium product shelf — /dtr/lp compact merchandising', () => {
     const shelf = buildPremiumProductShelfModel();
     assert.equal(shelf.pairProduct.ctaHref, HOME_PAIR_READING_PUBLIC_HREF);
     assert.equal(shelf.pairProduct.ctaHref, '/synastry');
-    assert.equal(shelf.pairProduct.ctaLabelJa, '二人の無料結果から始める');
+    assert.equal(shelf.pairProduct.ctaLabelJa, '二人の無料読み解きを始める');
+    assert.match(shelf.pairProduct.purchaseNoteJa, /無料の読み解き後/);
 
     const shelfComponent = read('app/dtr/lp/DtrPremiumProductShelf.tsx');
     assert.match(shelfComponent, /href=\{shelf\.pairProduct\.ctaHref\}/);

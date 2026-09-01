@@ -682,3 +682,20 @@
     transition: none !important;
   }
 }
+.pairIdentity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1rem;
+  color: var(--m55-pair-ink, #f7efe8);
+  font-weight: 700;
+}
+
+.pairIdentity span {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}

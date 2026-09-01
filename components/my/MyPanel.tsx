@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { fetchJsonWithTimeout, useBoundedReadiness } from '../../lib/m55/commercialUx/boundedAsync';
+import BoundedRecoveryState from '../common/BoundedRecoveryState';
 import { ProfileRepository, BirthProfile } from '../../lib/soul/profile';
 import {
   displayLabelForDtrRightKey,
@@ -159,29 +161,30 @@ export default function MyPanel() {
   const [snapError, setSnapError] = useState(false);
   const [deleteToastVisible, setDeleteToastVisible] = useState(false);
   const profileState = useMyProfileState(user?.id);
+  const authReadiness = useBoundedReadiness(isLoaded);
 
   const entLoading = Boolean(user) && !entLoaded;
 
   const load = useCallback(async () => {
     setEntLoaded(false);
     try {
-      const [entRes, snapRes] = await Promise.all([
-        fetch('/api/me/entitlements', { credentials: 'include', cache: 'no-store' }),
-        fetch('/api/dtr/report-snapshot-ready', { credentials: 'include', cache: 'no-store' }),
+      const [entResult, snapResult] = await Promise.allSettled([
+        fetchJsonWithTimeout<EntitlementsResponse>('/api/me/entitlements', { credentials: 'include', cache: 'no-store' }),
+        fetchJsonWithTimeout<SnapshotReadyResponse>('/api/dtr/report-snapshot-ready', { credentials: 'include', cache: 'no-store' }),
       ]);
-      if (!entRes.ok) {
+      if (entResult.status === 'rejected' || !entResult.value.response.ok) {
         setEntError(true);
         setEnt(null);
       } else {
-        const data = (await entRes.json()) as EntitlementsResponse;
+        const data = entResult.value.data;
         setEnt(data);
         setEntError(false);
       }
-      if (!snapRes.ok) {
+      if (snapResult.status === 'rejected' || !snapResult.value.response.ok) {
         setSnapError(true);
         setSnap(null);
       } else {
-        const s = (await snapRes.json()) as SnapshotReadyResponse;
+        const s = snapResult.value.data;
         setSnap(s);
         setSnapError(false);
       }
@@ -239,6 +242,20 @@ export default function MyPanel() {
   }, [ownedReady]);
 
   if (!isLoaded) {
+    if (authReadiness.timedOut) {
+      return (
+        <div className={styles.wrap}>
+          <BoundedRecoveryState
+            title="マイページを確認できませんでした"
+            description="ログイン状態の確認に時間がかかっています。もう一度確認するか、トップへ戻れます。"
+            onRetry={() => window.location.reload()}
+            escapeHref="/"
+            escapeLabel="トップへ戻る"
+            support
+          />
+        </div>
+      );
+    }
     return (
       <div className={styles.wrap}>
         <p className={styles.muted}>読み込み中…</p>

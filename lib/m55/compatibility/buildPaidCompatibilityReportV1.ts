@@ -28,6 +28,7 @@ import {
 } from './currentContextContract.v2';
 import { resolvePairCanonicalProfileV2, type PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 import { formatPaidChapterDepthNarrative, paidChapterDepthFor } from './paidCompatibilityChapterDepthV1';
+import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
   'paid_compatibility_report_v1' as const;
@@ -42,6 +43,7 @@ export type PaidCompatibilityReportInput = {
   currentContextV2?: CompatibilityCurrentContextAnswersV2;
   personABirthDate?: string;
   personBBirthDate?: string;
+  displayIdentity?: PairDisplayIdentityV1;
 };
 
 export type PaidCompatibilityChapter = {
@@ -69,6 +71,7 @@ export type PaidCompatibilityReportSnapshot = {
   readonly recurringLoop: string;
   readonly highlightedChapterKeys: readonly ChapterId[];
   readonly currentContext?: CompatibilityCurrentContextDisplay;
+  readonly displayIdentity?: PairDisplayIdentityV1;
   readonly chapters: readonly PaidCompatibilityChapter[];
   readonly safetyNote: string;
 };
@@ -1170,6 +1173,7 @@ export function buildPaidCompatibilityReportV1(
       : `二人の間では、${authority.dynamicOutcome}。`,
     highlightedChapterKeys,
     ...(currentContext ? { currentContext } : {}),
+    ...(input.displayIdentity ? { displayIdentity: input.displayIdentity } : {}),
     chapters: Object.freeze(chapters),
     safetyNote:
       'このレポートは、関係や相手の気持ち、これからの結果を決めるものではありません。対話を続けるかどうかも、それぞれが選べます。恐怖や暴力、強制がある場合は、このレポートより安全の確保を優先してください。',

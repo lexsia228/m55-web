@@ -13,6 +13,7 @@ import {
 import PairResultSignature from './PairResultSignature';
 import CompatibilityPaidShareBlock from '../narrative/CompatibilityPaidShareBlock';
 import styles from './PaidCompatibilityReportReader.module.css';
+import { legacyPairDisplayIdentity } from '../../lib/m55/compatibility/pairDisplayIdentity';
 
 type CopyState = {
   chapterKey: string;
@@ -37,6 +38,7 @@ export default function PaidCompatibilityReportReader({
   const leadChapter = snapshot.chapters.find(
     (chapter) => chapter.key === snapshot.highlightedChapterKeys[0],
   );
+  const displayIdentity = snapshot.displayIdentity ?? legacyPairDisplayIdentity();
 
   useEffect(() => {
     if (!analyticsEnabled) return;
@@ -116,6 +118,10 @@ export default function PaidCompatibilityReportReader({
           <p className={styles.ownedChip}>読み返せる二人の相性レポート</p>
         )}
         <h1 id="paid-report-title">{snapshot.reportTitle}</h1>
+        <p className={styles.pairIdentity}>
+          {displayIdentity.selfLabel} × {displayIdentity.partnerLabel}
+          <span>{displayIdentity.relationLabel}</span>
+        </p>
         <p className={styles.subtitle}>6つの場面から、関係の扱い方を読みます</p>
         <PairResultSignature
           tone="night"
@@ -155,11 +161,11 @@ export default function PaidCompatibilityReportReader({
             <h3>その違いが、二人それぞれにどう出ているか</h3>
             <div className={styles.openingGrid}>
               <div data-pair-side="you" aria-label="あなた側">
-                <p className={styles.blockLabel}>Aに出やすい動き</p>
+                <p className={styles.blockLabel}>{displayIdentity.selfLabel}に出やすい動き</p>
                 <p>{leadChapter.personAPerspective}</p>
               </div>
               <div data-pair-side="partner" aria-label="相手側">
-                <p className={styles.blockLabel}>Bに出やすい動き</p>
+                <p className={styles.blockLabel}>{displayIdentity.partnerLabel}に出やすい動き</p>
                 <p>{leadChapter.personBPerspective}</p>
               </div>
             </div>

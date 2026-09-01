@@ -257,3 +257,17 @@
   }
 
 }
+.identityCompletion {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgb(109 85 146 / 22%);
+  border-radius: 16px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.identityCompletion h2,
+.identityCompletion p { margin: 0; }
+.identityCompletion p { color: #655d70; line-height: 1.7; }
+.identityCompletion label { font-weight: 700; }
+.identityCompletion input { min-height: 46px; padding: 10px 12px; border: 1px solid rgb(109 85 146 / 32%); border-radius: 10px; font: inherit; }

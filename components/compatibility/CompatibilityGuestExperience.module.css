@@ -897,3 +897,12 @@
     transition: none !important;
   }
 }
+.pairContext { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 20px; padding: 14px 16px; border: 1px solid rgba(101,79,137,.18); border-radius: 14px; background: rgba(250,247,253,.92); color: #3b3049; }
+.pairContext span { color: #756a7e; font-size: .86rem; }
+@media (max-width: 560px) { .pairContext { align-items: flex-start; flex-direction: column; gap: 4px; } }
+.inputFieldLabel { display: grid; gap: 8px; }
+.partnerLabelPrivacy { color: #756a7e; font-size: .78rem; line-height: 1.65; }
+.partnerLabelCompletion { display: grid; gap: 8px; min-width: min(100%, 260px); }
+.partnerLabelCompletion label { font-weight: 700; }
+.partnerLabelCompletion input { min-height: 44px; padding: 10px 12px; border: 1px solid rgba(101,79,137,.28); border-radius: 10px; font: inherit; }
+.partnerLabelCompletion small { color: #756a7e; line-height: 1.55; }

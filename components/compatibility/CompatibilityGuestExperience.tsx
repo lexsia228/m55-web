@@ -40,6 +40,7 @@ import {
 } from '../../lib/m55/compatibility/currentContextContract.v2';
 import { RELATION_STATUS_CATALOG } from '../../lib/m55/compatibility/pairReadingCatalog.v1';
 import type { RelationStatusId } from '../../lib/m55/compatibility/pairReadingTypes';
+import { buildPairDisplayIdentity, isSpecificPairPartnerLabel } from '../../lib/m55/compatibility/pairDisplayIdentity';
 import { PAIR_READING_FREE_STRUCTURE_ITEMS } from '../../lib/m55/compatibility/pairReadingPublicStructure';
 import {
   M55_FUNNEL_EVENTS,
@@ -98,6 +99,7 @@ export default function CompatibilityGuestExperience({
   );
   const [input, setInput] = useState<CompatibilityGuestInput>(EMPTY_INPUT);
   const [relationStatusId, setRelationStatusId] = useState<RelationStatusId | ''>('');
+  const [partnerLabel, setPartnerLabel] = useState('');
   const [answers, setAnswers] = useState<PartialCurrentContext>({});
   const [phase, setPhase] = useState<JourneyPhase>('dob');
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -138,6 +140,7 @@ export default function CompatibilityGuestExperience({
       const restored = bootstrap.journey;
       setInput(restored.input);
       setRelationStatusId(restored.relationStatusId);
+      setPartnerLabel(restored.displayIdentity?.partnerLabel === '相手' ? '' : (restored.displayIdentity?.partnerLabel ?? ''));
       setAnswers(restored.answers);
       setInQuestionnaire(true);
       startTransition(async () => {
@@ -189,6 +192,10 @@ export default function CompatibilityGuestExperience({
     event.preventDefault();
     if (!complete) {
       setError('二人分の有効な生年月日を入力してください。');
+      return;
+    }
+    if (!isSpecificPairPartnerLabel(partnerLabel)) {
+      setError('この二人を区別するため、相手の短い呼び名を入力してください。');
       return;
     }
     setError('');
@@ -280,6 +287,7 @@ export default function CompatibilityGuestExperience({
         input,
         relationStatusId,
         answers: completeAnswers,
+        displayIdentity: buildPairDisplayIdentity(partnerLabel, relationStatusId),
       };
       persistCompletedPairJourney(sessionStorage, userId, journey);
       setAnswers(completeAnswers);
@@ -419,17 +427,36 @@ export default function CompatibilityGuestExperience({
                 />
               </label>
             )}
-            <label className={styles.inputCard}>
+            <div className={styles.inputCard}>
               <span className={styles.inputRole}>相手</span>
-              <span className={styles.inputLabel}>相手の生年月日</span>
-              <input
-                type="date"
-                required
-                max={today}
-                value={input.personB}
-                onChange={(event) => updateInput('personB', event.target.value)}
-              />
-            </label>
+              <label htmlFor="compatibility-partner-dob" className={styles.inputFieldLabel}>
+                <span className={styles.inputLabel}>相手の生年月日</span>
+                <input
+                  id="compatibility-partner-dob"
+                  type="date"
+                  required
+                  max={today}
+                  value={input.personB}
+                  onChange={(event) => updateInput('personB', event.target.value)}
+                />
+              </label>
+              <label htmlFor="compatibility-partner-label" className={styles.inputFieldLabel}>
+                <span className={styles.inputLabel}>相手の呼び名</span>
+                <input
+                  id="compatibility-partner-label"
+                  type="text"
+                  required
+                  maxLength={24}
+                  value={partnerLabel}
+                  placeholder="例：Aさん、Y"
+                  autoComplete="off"
+                  onChange={(event) => setPartnerLabel(event.target.value)}
+                />
+              </label>
+              <small className={styles.partnerLabelPrivacy}>
+                本名は不要です。この二人とレポートを区別するために使い、購入時は非公開レポートの呼び名として保存します。公開シェアには自動で含めません。
+              </small>
+            </div>
           </div>
           <p className={styles.privacyNote}>
             {userId
@@ -589,6 +616,10 @@ export default function CompatibilityGuestExperience({
 
       {phase === 'result' && result && context ? (
         <div className={styles.result} data-testid="compatibility-personalized-result">
+          <div className={styles.pairContext} data-testid="compatibility-pair-context">
+            <strong>あなた × {buildPairDisplayIdentity(partnerLabel, relationStatusId as RelationStatusId).partnerLabel}</strong>
+            <span>{buildPairDisplayIdentity(partnerLabel, relationStatusId as RelationStatusId).relationLabel}</span>
+          </div>
           <section className={styles.resultHeader} aria-labelledby="result-title">
             <p className={styles.eyebrow}>無料で見えること</p>
             <h2 id="result-title">今の二人の読み解き</h2>
@@ -718,22 +749,50 @@ export default function CompatibilityGuestExperience({
                   <span>¥1,480（税込）・買い切り</span>
                   <small>自動更新はありません。購入後はマイページから読み返せます。</small>
                 </div>
-                <a
-                  className={styles.purchaseLink}
-                  href="/synastry/purchase/confirm"
-                  onClick={() => {
-                    trackFunnelAction(
-                      M55_FUNNEL_EVENTS.compatibilityPaidBridgeClick,
-                      'compatibility_guest',
-                    );
-                    trackFunnelAction(
-                      M55_FUNNEL_EVENTS.compatibilityPersonalizedPaidBridgeClick,
-                      'compatibility_guest',
-                    );
-                  }}
-                >
-                  商品内容と価格を確認する
-                </a>
+                {isSpecificPairPartnerLabel(partnerLabel) ? (
+                  <a
+                    className={styles.purchaseLink}
+                    href="/synastry/purchase/confirm"
+                    onClick={() => {
+                      const displayIdentity = buildPairDisplayIdentity(
+                        partnerLabel,
+                        relationStatusId as RelationStatusId,
+                      );
+                      persistCompletedPairJourney(sessionStorage, userId, {
+                        version: 'journey_v3',
+                        input,
+                        relationStatusId: relationStatusId as RelationStatusId,
+                        answers: answers as CompatibilityCurrentContextAnswersV2,
+                        displayIdentity,
+                      });
+                      trackFunnelAction(
+                        M55_FUNNEL_EVENTS.compatibilityPaidBridgeClick,
+                        'compatibility_guest',
+                      );
+                      trackFunnelAction(
+                        M55_FUNNEL_EVENTS.compatibilityPersonalizedPaidBridgeClick,
+                        'compatibility_guest',
+                      );
+                    }}
+                  >
+                    商品内容と価格を確認する
+                  </a>
+                ) : (
+                  <div className={styles.partnerLabelCompletion}>
+                    <label htmlFor="compatibility-legacy-partner-label">相手の短い呼び名</label>
+                    <input
+                      id="compatibility-legacy-partner-label"
+                      type="text"
+                      required
+                      maxLength={24}
+                      value={partnerLabel}
+                      placeholder="例：Aさん、Y"
+                      autoComplete="off"
+                      onChange={(event) => setPartnerLabel(event.target.value)}
+                    />
+                    <small>本名は不要です。購入した非公開レポートを区別するために保存し、公開シェアには自動で含めません。</small>
+                  </div>
+                )}
               </div>
             ) : (
               <p className={styles.bridgePending}>
