@@ -64,7 +64,10 @@ export type PairFreeInsightSpecV2 = {
   readonly interactionId: PairFreeInteractionId;
   readonly confidence: 'high' | 'medium';
   readonly personAUsesFirstPerspective: boolean;
+  /** Recurring relationship pattern — how the pair difference moves between them. */
   readonly betweenThem: string;
+  /** Scene-specific expression for the current reading moment (distinct from betweenThem). */
+  readonly currentExpressionJa: string;
   readonly meshMoment: string;
   readonly mismatchEntry: string;
   readonly misreadLoop: string;
@@ -104,6 +107,15 @@ const NO_OBS_BETWEEN_ALL =
   '二人の間では、まだ十分な相互作用の履歴がないため、決める速さ・対立時の動き・戻り方は読み取りません。言葉の出方など、いま観察できる範囲だけを入口にします。';
 const NO_OBS_BETWEEN_PARTIAL =
   '二人の間では、まだ起きていない出来事からは読み取らず、いま観察できる範囲だけを入口にします。';
+
+/** Scene-level expression derived from a relationship trigger (not the recurring pattern). */
+function sceneExpressionFromTrigger(trigger: string): string {
+  const trimmed = trigger.replace(/。+$/u, '').trim();
+  if (/^(いま|今日|この|まだ|意見|やり取り|距離|長い)/u.test(trimmed)) {
+    return `${trimmed}。`;
+  }
+  return `いまの二人では、${trimmed}。`;
+}
 
 function isBehavioralDecisionPaceValue(
   value: CompatibilityCurrentContextAnswersV2['decisionPace'],
@@ -626,6 +638,45 @@ function betweenThemLine(
   return `二人の間では、${hit}${answer}。${mechanism}${answerSupport}${birthSupport}そのため二人の間では、${birth}。`;
 }
 
+function splitLegacyBetweenThemLine(input: {
+  answers: InsightContextAnswers;
+  roles: { visible: string; inward: string };
+  birth: string;
+  hit: string;
+  interactionId: PairFreeInteractionId;
+  tempoBetween: string;
+  pairProfile: ReturnType<typeof resolvePairCanonicalProfileV2>;
+  differenceType: PairDifferenceType;
+  visibleCivil: CivilBirthDimensionsV1;
+  inwardCivil: CivilBirthDimensionsV1;
+}): { betweenThem: string; currentExpressionJa: string } {
+  const answer = sideLead(input.answers, input.roles);
+  const answerSupport = pickPairAnswerSupport(input.answers, input.interactionId);
+  const birthSupport =
+    input.interactionId === 'tempo_mismatch' || input.interactionId === 'later_decide_words_soon'
+      ? ''
+      : pickPairBirthSupport(
+          input.pairProfile,
+          input.differenceType,
+          input.visibleCivil,
+          input.inwardCivil,
+        );
+  const mechanism =
+    input.interactionId === 'tempo_mismatch' ||
+    input.interactionId === 'later_decide_words_soon' ||
+    /結論を出す速度/.test(input.tempoBetween) ||
+    input.hit.includes(input.tempoBetween.slice(0, 12))
+      ? ''
+      : input.tempoBetween;
+  const currentExpressionJa = `二人の間では、${input.hit}${answer}。${mechanism}${answerSupport}`.replace(
+    /。{2,}/gu,
+    '。',
+  );
+  const betweenThem =
+    `${birthSupport}そのため二人の間では、${input.birth}。`.replace(/。{2,}/gu, '。');
+  return { betweenThem, currentExpressionJa };
+}
+
 function premiumContinuation(
   focusLabel: string,
   interactionId: PairFreeInteractionId,
@@ -746,6 +797,7 @@ function buildR1FreeInsight(args: {
     confidence: 'medium',
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     betweenThem,
+    currentExpressionJa: sceneExpressionFromTrigger(hit),
     meshMoment,
     mismatchEntry,
     misreadLoop,
@@ -816,6 +868,7 @@ function buildR2FreeInsight(args: {
     confidence: 'medium',
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     betweenThem,
+    currentExpressionJa: sceneExpressionFromTrigger(hit),
     meshMoment,
     mismatchEntry,
     misreadLoop,
@@ -888,6 +941,7 @@ function buildR4FreeInsight(args: {
     confidence: 'medium',
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     betweenThem,
+    currentExpressionJa: sceneExpressionFromTrigger(hit),
     meshMoment,
     mismatchEntry,
     misreadLoop,
@@ -965,6 +1019,7 @@ function buildR5FreeInsight(args: {
       confidence: 'medium',
       personAUsesFirstPerspective: args.personAUsesFirstPerspective,
       betweenThem,
+      currentExpressionJa: sceneExpressionFromTrigger(hit),
       meshMoment,
       mismatchEntry,
       misreadLoop,
@@ -1015,6 +1070,7 @@ function buildR5FreeInsight(args: {
     confidence: 'medium',
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     betweenThem,
+    currentExpressionJa: sceneExpressionFromTrigger(hit),
     meshMoment,
     mismatchEntry,
     misreadLoop,
@@ -1129,6 +1185,7 @@ function buildEstablishedNativeFreeInsight(args: {
     confidence: 'medium',
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     betweenThem,
+    currentExpressionJa: sceneExpressionFromTrigger(hit),
     meshMoment,
     mismatchEntry,
     misreadLoop,
@@ -1238,18 +1295,18 @@ export function buildPairFreeInsightSpecV2(args: {
   );
   const mesh = meshFromBirth(visibleCivil, inwardCivil, tempo.mesh);
   const misreadLoop = conflict.loop.replace(/。{2,}/g, '。');
-  const betweenThem = betweenThemLine(
+  const { betweenThem, currentExpressionJa } = splitLegacyBetweenThemLine({
     answers,
     roles,
     birth,
     hit,
-    selected.interactionId,
-    tempo.between,
+    interactionId: selected.interactionId,
+    tempoBetween: tempo.between,
     pairProfile,
     differenceType,
     visibleCivil,
     inwardCivil,
-  );
+  });
   return {
     id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'l1' : 'l0'}:${answers.decisionPace}-${answers.disagreement}-${answers.distance ?? 'no_distance'}-${answers.expressionPace}-${answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
     kind: 'pair_free_v2',
@@ -1265,6 +1322,7 @@ export function buildPairFreeInsightSpecV2(args: {
     confidence: selected.confidence,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     betweenThem,
+    currentExpressionJa,
     meshMoment: mesh,
     mismatchEntry: tempo.entry,
     misreadLoop,

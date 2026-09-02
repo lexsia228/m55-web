@@ -5,6 +5,7 @@
  */
 import type { Page } from '@playwright/test';
 
+import { MY_SAVED_REPORT_VALUE_TITLE } from '../../dtrProductLabels';
 import {
   AUTH_GATE_FIXTURE_ATTR,
   AUTH_GATE_FIXTURE_SELECTOR,
@@ -284,4 +285,43 @@ export async function establishSignedOutAccountMenu(page: Page, baseURL: string)
   requireLocalhostQualityFixture('signed_out_account_menu');
   await gotoLocal(page, baseURL, '/my');
   await page.locator('main').waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function establishPairGuestResultPreview(page: Page, baseURL: string): Promise<void> {
+  requireLocalhostQualityFixture('pair_guest_result_preview');
+  await gotoLocal(page, baseURL, '/dev/synastry-guest-result-preview');
+  await page
+    .getByTestId('m55-dev-pair-guest-result-preview')
+    .waitFor({ state: 'visible', timeout: 30_000 });
+  await page
+    .getByTestId('compatibility-personalized-result')
+    .waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function establishMyOwnedSelfPreview(page: Page, baseURL: string): Promise<void> {
+  requireLocalhostQualityFixture('my_owned_self_preview');
+  await gotoLocal(page, baseURL, '/dev/my-owned-preview');
+  await page.getByTestId('m55-dev-my-owned-preview').waitFor({ state: 'visible', timeout: 30_000 });
+  await page.getByText(MY_SAVED_REPORT_VALUE_TITLE).waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function establishMyOwnedPairLibraryPreview(page: Page, baseURL: string): Promise<void> {
+  requireLocalhostQualityFixture('my_owned_pair_library_preview');
+  await gotoLocal(page, baseURL, '/dev/my-owned-preview?mode=pair_library');
+  await page.getByTestId('m55-dev-my-owned-preview').waitFor({ state: 'visible', timeout: 30_000 });
+  await page.getByTestId('m55-my-owned-pair-library').waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function establishPairSharePreview(
+  page: Page,
+  baseURL: string,
+  aspectRatio: '1:1' | '4:5' | '9:16' = '4:5',
+): Promise<void> {
+  requireLocalhostQualityFixture('pair_share_preview');
+  await gotoLocal(page, baseURL, '/dev/pair-share-preview');
+  await page.getByTestId('m55-dev-pair-share-preview').waitFor({ state: 'visible', timeout: 30_000 });
+  if (aspectRatio !== '4:5') {
+    await page.getByTestId(`m55-pair-share-preview-aspect-${aspectRatio.replace(':', '-')}`).click();
+  }
+  await page.getByTestId('m55-pair-share').waitFor({ state: 'visible', timeout: 30_000 });
 }

@@ -402,32 +402,28 @@ function validateHomeRegressionTestIds() {
       add(rel(panel), 'REGRESSION GUARD: HomePanel must import and render HomePairFreeSection after self free section');
     }
   }
-  const orderedLowerIds = [
-    'm55-home-product-map',
-    'm55-home-free-preview',
-    'm55-home-mechanism',
-    'm55-home-premium-preview',
-    'm55-home-final-cta',
+  const orderedLowerStages = [
+    { label: 'm55-home-product-map', index: t.indexOf('data-testid="m55-home-product-map"') },
+    { label: 'm55-home-free-preview', index: t.indexOf('data-testid="m55-home-free-preview"') },
+    { label: 'HomePairFreeSection', index: t.indexOf('<HomePairFreeSection') },
+    { label: 'm55-home-premium-preview', index: t.indexOf('data-testid="m55-home-premium-preview"') },
+    { label: 'm55-home-mechanism', index: t.indexOf('data-testid="m55-home-mechanism"') },
+    { label: 'm55-home-final-cta', index: t.indexOf('data-testid="m55-home-final-cta"') },
   ];
-  const orderedIndices = orderedLowerIds.map((id) => t.indexOf(`data-testid="${id}"`));
-  for (const [position, id] of orderedLowerIds.entries()) {
-    if (orderedIndices[position] === -1) {
-      add(rel(panel), `REGRESSION GUARD: HomePanel lower IA missing data-testid="${id}"`);
+  for (const stage of orderedLowerStages) {
+    if (stage.index === -1) {
+      add(rel(panel), `REGRESSION GUARD: HomePanel lower IA missing ${stage.label}`);
     }
   }
-  for (let i = 1; i < orderedIndices.length; i += 1) {
-    if (orderedIndices[i] !== -1 && orderedIndices[i - 1] !== -1 && orderedIndices[i] <= orderedIndices[i - 1]) {
+  for (let i = 1; i < orderedLowerStages.length; i += 1) {
+    const prev = orderedLowerStages[i - 1];
+    const curr = orderedLowerStages[i];
+    if (prev.index !== -1 && curr.index !== -1 && curr.index <= prev.index) {
       add(
         rel(panel),
-        `REGRESSION GUARD: HomePanel lower IA order violation — "${orderedLowerIds[i]}" must render after "${orderedLowerIds[i - 1]}"`,
+        `REGRESSION GUARD: HomePanel lower IA order violation — "${curr.label}" must render after "${prev.label}"`,
       );
     }
-  }
-  const freeIdx = t.indexOf('data-testid="m55-home-free-preview"');
-  const pairMountIdx = t.indexOf('<HomePairFreeSection');
-  const mechanismIdx = t.indexOf('data-testid="m55-home-mechanism"');
-  if (pairMountIdx === -1 || freeIdx === -1 || mechanismIdx === -1 || !(freeIdx < pairMountIdx && pairMountIdx < mechanismIdx)) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomePairFreeSection after self free and before mechanism');
   }
   const copyPath = path.join(ROOT, 'lib', 'm55', 'topFreeEntryPublicCopy.ts');
   if (exists(copyPath)) {

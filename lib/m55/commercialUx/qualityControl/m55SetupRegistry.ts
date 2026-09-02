@@ -38,6 +38,10 @@ import {
   establishLocalAuthGateFixture,
   establishPremiumPlans,
   establishPurchasedReport,
+  establishPairGuestResultPreview,
+  establishMyOwnedSelfPreview,
+  establishMyOwnedPairLibraryPreview,
+  establishPairSharePreview,
   establishSignedOutAccountMenu,
   gotoLocal,
   requireLocalhostQualityFixture,
@@ -678,6 +682,36 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         navigatePath: '/dev/premium-share-preview',
         readySelector: M55_GOVERNED_ROOT_SELECTOR,
         stateMarkerSelector: M55_GOVERNED_ROOT_SELECTOR,
+      };
+    case 'dev.synastry_guest_result_preview':
+      return {
+        fixtureId: 'establishPairGuestResultPreview',
+        navigatePath: '/dev/synastry-guest-result-preview',
+        readySelector: '[data-testid="compatibility-personalized-result"]',
+        stateMarkerSelector: '[data-testid="compatibility-personalized-result"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+        setupFn: establishPairGuestResultPreview,
+      };
+    case 'dev.my_owned_preview':
+      return {
+        fixtureId: 'establishMyOwnedSelfPreview',
+        navigatePath: '/dev/my-owned-preview',
+        readySelector: '[data-testid="m55-dev-my-owned-preview"]',
+        stateMarkerSelector: '[data-testid="m55-dev-my-owned-preview"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+        setupFn: establishMyOwnedSelfPreview,
+      };
+    case 'dev.pair_share_preview':
+      return {
+        fixtureId: 'establishPairSharePreview',
+        navigatePath: '/dev/pair-share-preview',
+        readySelector: '[data-testid="m55-pair-share"]',
+        stateMarkerSelector: '[data-testid="m55-pair-share"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+        setupFn: async (page, baseURL) => establishPairSharePreview(page, baseURL, '4:5'),
       };
     case 'dev.previews':
       return {

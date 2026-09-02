@@ -2,7 +2,10 @@
  * Public share post text serialization — flat quotes, tier-specific CTA voice.
  */
 
-const PAIR_SHARE_CTA_MARKER = 'あなたの二人では、どう出る？';
+/** Canonical Pair share CTA — card and post must import from here. */
+export const PAIR_SHARE_CTA_JA = 'あなたと誰かの関係も、見てみる？' as const;
+
+const PAIR_SHARE_CTA_MARKER = PAIR_SHARE_CTA_JA;
 
 /** Same-bracket nesting: 「…「…」…」 or 『…『…』…』 */
 const NESTED_SAME_BRACKET = /(「[^」\n]*「)|(『[^』\n]*『)/;

@@ -322,26 +322,25 @@ describe('pair free insight quality v2', () => {
   });
 
   it('varies across tempo, space, carry, swapped-pole, and similar-pace fixtures', () => {
-    const texts = [TEMPO, SPACE, CARRIES, TEMPO_SWAPPED_POLES, SIMILAR].map(
-      (answers) => insight(answers).betweenThem,
+    const specs = [TEMPO, SPACE, CARRIES, TEMPO_SWAPPED_POLES, SIMILAR].map((answers) =>
+      insight(answers),
     );
-    assert.equal(new Set(texts).size, 5);
-    for (const text of texts) {
-      assert.equal((text.match(/二人の間では/g) ?? []).length, 2, text);
-      assert.match(text, /^二人の間では/u);
-      assert.match(text, /あなた(?:側)?は/);
-      assert.match(text, /相手(?:側)?は/);
+    const fingerprints = specs.map((spec) => `${spec.betweenThem}|${spec.currentExpressionJa}`);
+    assert.equal(new Set(fingerprints).size, 5);
+    for (const spec of specs) {
+      assert.match(spec.betweenThem, /そのため二人の間では/u);
+      assert.match(`${spec.betweenThem}\n${spec.currentExpressionJa}`, /あなた|相手/u);
+      assert.match(spec.currentExpressionJa, /二人の間では|いまの二人では/u);
+      assert.notEqual(spec.betweenThem, spec.currentExpressionJa);
     }
   });
 
   it('does not assign a generic first-mover role when both sides share a slow tempo', () => {
     const spec = insight(SIMILAR);
     assert.doesNotMatch(spec.betweenThem, /先に動いて見えやすく/);
-    assert.match(spec.betweenThem, /あなた(?:側)?は/);
-    assert.match(spec.betweenThem, /相手(?:側)?は/);
+    assert.doesNotMatch(spec.currentExpressionJa, /先に動いて見えやすく/);
     assert.match(spec.betweenThem, /そのため二人の間では/);
-    assert.equal((spec.betweenThem.match(/二人の間では/g) ?? []).length, 2);
-    assert.match(spec.betweenThem, /^二人の間では/u);
+    assert.notEqual(spec.betweenThem, spec.currentExpressionJa);
   });
 
   it('guest public result overlays synthesis onto free current context only', () => {
@@ -357,8 +356,7 @@ describe('pair free insight quality v2', () => {
     const context = result.value.currentContext;
     assert.ok(context);
     assert.equal(context.relationshipLoopSteps.length, 3);
-    assert.match(context.currentExpression, /二人|速度|間|側/);
-    assert.match(result.value.free.relationshipDynamic, /二人|速度|間|側/);
+    assert.notEqual(context.currentExpression, result.value.free.relationshipDynamic);
     const labels = COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS.flatMap((q) =>
       q.choices.map((c) => c.label),
     );
@@ -367,6 +365,26 @@ describe('pair free insight quality v2', () => {
       if (label.length >= 6 && context.currentExpression.includes(label)) hits += 1;
     }
     assert.equal(hits, 0);
+  });
+
+  it('wires relationshipDynamic to betweenThem and currentExpression to currentExpressionJa', () => {
+    const spec = insight(TEMPO);
+    const result = buildCompatibilityPublicResult(
+      { personA: '1990-01-15', personB: '1992-08-20' },
+      'R3',
+      undefined,
+      undefined,
+      TEMPO,
+    );
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    const context = result.value.currentContext;
+    assert.ok(context);
+    assert.equal(result.value.free.relationshipDynamic, spec.betweenThem);
+    assert.equal(context.currentExpression, spec.currentExpressionJa);
+    assert.notEqual(result.value.free.relationshipDynamic, context.currentExpression);
+    assert.match(result.value.free.relationshipDynamic, /そのため二人の間では|二人の間では/u);
+    assert.match(context.currentExpression, /二人の間では|いまの二人では/u);
   });
 
   it('same answers with different A/B birth signatures change the relationship reading', () => {

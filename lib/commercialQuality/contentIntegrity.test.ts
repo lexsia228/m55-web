@@ -17,8 +17,12 @@ import {
   ACTOR_CONSISTENCY_TALK_HINT_REGRESSION_V1,
   assertPaidChapterComponentUniquenessForFixture,
   assertCrossProfileShareDistinctness,
+  assertPairFreeAdjacentSectionsDistinct,
+  assertPairPaidGeneratorGrammarInvariant,
   assertPremiumShareDiffersFromFreeHiddenSpec,
+  checkPairPaidGeneratorGrammarAcrossVariants,
   hasInvalidSeenVsActualShareNesting,
+  incompatibleNihaActivePerception,
   PERSON_B_DOB_SOURCE_ANCHOR_V1,
 } from './contentIntegritySemanticChecks';
 import {
@@ -33,6 +37,7 @@ import {
   parsePublicCardDisplayV1,
 } from '../m55/narrative/publicCardDisplayV1';
 import { reconstructPersonalPublicCard, reconstructPairPublicCard } from '../m55/narrative/reconstructPublicCardV1';
+import { PAIR_SHARE_CTA_JA } from '../m55/narrative/sharePostSerializationV1';
 import { buildPairManualV1 } from '../m55/narrative/pairManualV1';
 import { buildPairFreeInsightSpecV2 } from '../m55/compatibility/pairFreeInsightSpecV2';
 import { PAIR_V5_FIXTURES } from '../m55/compatibility/pairFreeCommercialCopyV5.test';
@@ -111,7 +116,9 @@ test('Person B DOB source-anchor identity in governed inventory', () => {
 
 test('pair share uses pair perspective CTA not self CTA', () => {
   const card = reconstructPairPublicCard('tempo_mismatch', 'try', 'map');
-  assert.match(card.shareTextJa, /あなたの二人では、どう出る？/);
+  assert.match(card.shareTextJa, new RegExp(PAIR_SHARE_CTA_JA.replace('？', '？')));
+  assert.equal(card.cta, PAIR_SHARE_CTA_JA);
+  assert.doesNotMatch(card.shareTextJa, /あなたの二人/);
   assert.doesNotMatch(card.shareTextJa, /これ、私っぽい/);
 });
 
@@ -180,6 +187,24 @@ test('premium share differs from free hidden_spec for purchase projection', () =
 
 test('pair premium chapters have structural uniqueness', () => {
   assert.doesNotThrow(() => assertPaidChapterComponentUniquenessForFixture());
+});
+
+test('pair free adjacent semantic sections stay distinct', () => {
+  assert.doesNotThrow(() => assertPairFreeAdjacentSectionsDistinct());
+});
+
+test('pair paid generator grammar stays complete across rotating variants', () => {
+  assert.doesNotThrow(() => assertPairPaidGeneratorGrammarInvariant());
+});
+
+test('pair paid perspectives reject incompatible には + active perception predicates', () => {
+  const findings = checkPairPaidGeneratorGrammarAcrossVariants();
+  const subjectParticleFindings = findings.filter((finding) =>
+    finding.deterministicEvidence.includes('incompatible'),
+  );
+  assert.equal(subjectParticleFindings.length, 0, subjectParticleFindings.map((f) => f.semanticText).join('\n'));
+  assert.equal(incompatibleNihaActivePerception('あなたには、距離がさらに広がる合図のように受け取ることがあります'), 'incompatible あなたには + active perception predicate');
+  assert.equal(incompatibleNihaActivePerception('あなたは、距離がさらに広がる合図のように受け取ることがあります'), null);
 });
 
 test('pair premium chapters reject confirmed malformed misread fragments', () => {

@@ -22,8 +22,10 @@
   margin: 0 auto;
   padding: clamp(24px, 4vw, 36px) var(--page-pad-x) clamp(56px, 8vw, 80px);
   font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
-  color: #3d3d3d;
+  color: var(--m55-subsystem-ink, #3d3d3d);
   line-height: 1.75;
+  background:
+    linear-gradient(180deg, var(--m55-subsystem-surface, rgba(241, 232, 214, 0.35)) 0%, transparent 22%);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

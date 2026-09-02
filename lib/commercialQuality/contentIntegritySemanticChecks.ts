@@ -10,7 +10,10 @@ import type {
 } from './contentIntegrityTypes';
 import type { ExpressionAxes } from '../m55/individualization/types';
 import { buildPaidCompatibilityReportV1 } from '../m55/compatibility/buildPaidCompatibilityReportV1';
-import { hasInvalidQuoteNesting } from '../m55/narrative/sharePostSerializationV1';
+import {
+  hasInvalidQuoteNesting,
+  PAIR_SHARE_CTA_JA,
+} from '../m55/narrative/sharePostSerializationV1';
 import { PERSONAL_V5_FIXTURES } from '../m55/freeResult/personalFreeCommercialCopyV5.test';
 import { PAIR_V5_FIXTURES } from '../m55/compatibility/pairFreeCommercialCopyV5.test';
 import { resolveCanonicalBirthProfileV2 } from '../m55/individualization/canonicalBirthProfileV2';
@@ -18,6 +21,7 @@ import { resolveFreeAxes } from '../m55/freeResult/buildFreeFiveViewCompositionV
 import { hiddenSpecLine, reconstructPersonalPublicCard, reconstructPairPublicCard } from '../m55/narrative/reconstructPublicCardV1';
 import { buildPairFreeInsightSpecV2 } from '../m55/compatibility/pairFreeInsightSpecV2';
 import type { RelationStatusId } from '../m55/compatibility/pairReadingTypes';
+import { buildCompatibilityPublicResult } from '../m55/compatibility/pairReadingGuestResult';
 import { projectPairPublicShareV1 } from '../m55/narrative/projectPublicShareV1';
 
 /** Permanent Person-B DOB source-anchor identity (CompatibilityGuestExperience.tsx). */
@@ -38,7 +42,11 @@ export const ACTOR_CONSISTENCY_TALK_HINT_REGRESSION_V1 = {
 } as const;
 
 const SELF_SHARE_CTA_MARKERS = ['これ、私っぽい', 'あなたはどう出る？'] as const;
-const PAIR_SHARE_CTA_MARKER = 'あなたの二人では、どう出る？';
+const PAIR_SHARE_CTA_MARKER = PAIR_SHARE_CTA_JA;
+
+const FORBIDDEN_PAIR_SHARE_PERSPECTIVE = /あなたの二人/;
+const FORBIDDEN_PAIR_BRIDGE_SIDE_LABELS = /あなた側と相手側/;
+const FORBIDDEN_PAIR_ROBOTIC_SIDE_TEMPLATE = /あなた側は|お相手側は|相手側は、/;
 
 const FORBIDDEN_ABSTRACT_FRAGMENTS: readonly RegExp[] = [
   /タイミングを戻す/,
@@ -171,6 +179,18 @@ export function checkSelfGeneratedAbstraction(item: ContentIntegrityCorpusItem):
 export function checkPairShareSelfPerspective(item: ContentIntegrityCorpusItem): ContentIntegrityFinding[] {
   if (!item.surface.startsWith('pair.free.share')) return [];
   const findings: ContentIntegrityFinding[] = [];
+  if (FORBIDDEN_PAIR_SHARE_PERSPECTIVE.test(item.semanticText)) {
+    findings.push(
+      finding(
+        item,
+        'P1',
+        'pair_share_forbidden_perspective',
+        'forbidden=あなたの二人',
+        item.semanticText,
+        PAIR_SHARE_CTA_MARKER,
+      ),
+    );
+  }
   for (const marker of SELF_SHARE_CTA_MARKERS) {
     if (item.semanticText.includes(marker)) {
       findings.push(
@@ -186,6 +206,57 @@ export function checkPairShareSelfPerspective(item: ContentIntegrityCorpusItem):
     }
   }
   return findings;
+}
+
+export function checkPairShareCanonicalCta(item: ContentIntegrityCorpusItem): ContentIntegrityFinding[] {
+  if (item.surface !== 'pair.free.share_post') return [];
+  if (!item.semanticText.includes(PAIR_SHARE_CTA_JA)) {
+    return [
+      finding(
+        item,
+        'P1',
+        'pair_share_cta_missing',
+        'missing canonical pair share CTA',
+        item.semanticText,
+        PAIR_SHARE_CTA_JA,
+      ),
+    ];
+  }
+  return [];
+}
+
+export function checkPairBridgeRoboticLabels(item: ContentIntegrityCorpusItem): ContentIntegrityFinding[] {
+  if (!item.surface.startsWith('pair.free') && item.sourceCategory !== 'governed_inventory') return [];
+  if (!FORBIDDEN_PAIR_BRIDGE_SIDE_LABELS.test(item.semanticText)) return [];
+  return [
+    finding(
+      item,
+      'P1',
+      'pair_bridge_robotic_side_labels',
+      'あなた側と相手側 in pair bridge prose',
+      item.semanticText,
+      'あなたと相手それぞれ',
+    ),
+  ];
+}
+
+export function checkPairPaidRoboticSideTemplate(item: ContentIntegrityCorpusItem): ContentIntegrityFinding[] {
+  const paidSurfaces = new Set([
+    'pair.premium.report',
+    'pair.premium.report.chapter',
+    'static.pair.pair.paid.report.body',
+  ]);
+  if (!paidSurfaces.has(item.surface) && !item.surface.startsWith('pair.premium.report')) return [];
+  if (!FORBIDDEN_PAIR_ROBOTIC_SIDE_TEMPLATE.test(item.semanticText)) return [];
+  return [
+    finding(
+      item,
+      'P1',
+      'pair_paid_robotic_side_template',
+      FORBIDDEN_PAIR_ROBOTIC_SIDE_TEMPLATE.source,
+      item.semanticText,
+    ),
+  ];
 }
 
 export function checkDoubledTerminalPunctuation(item: ContentIntegrityCorpusItem): ContentIntegrityFinding[] {
@@ -607,6 +678,10 @@ export function checkMalformedPaidChapterGrammar(
     /急かしに見えやすい/,
     /追い詰めに見えやすい/,
     /冷たさと読みやすい/,
+    /可能性がある見え方があり/,
+    /しようとする出やすいことがあります/,
+    /可能性があります見え方/,
+    /感じると感じやすい/,
   ];
   for (const pattern of patterns) {
     if (pattern.test(item.semanticText)) {
@@ -767,6 +842,9 @@ export function checkSemanticIntegrityItem(item: ContentIntegrityCorpusItem): Co
     ...checkPersonBSourceAnchorIdentity(item),
     ...checkSelfGeneratedAbstraction(item),
     ...checkPairShareSelfPerspective(item),
+    ...checkPairShareCanonicalCta(item),
+    ...checkPairBridgeRoboticLabels(item),
+    ...checkPairPaidRoboticSideTemplate(item),
     ...checkDoubledTerminalPunctuation(item),
     ...checkNestedQuoteShareSerialization(item),
     ...checkPairFreeBrokenAbstraction(item),
@@ -797,7 +875,268 @@ export function checkSemanticIntegrityCorpus(
   findings.push(...checkCrossProfileShareDuplicate(corpus));
   findings.push(...checkPairPremiumBoilerplateSignature(corpus));
   findings.push(...checkPremiumOpenLoopCollapse(corpus));
+  findings.push(...checkPairFreeAdjacentSectionDuplication());
+  findings.push(...checkPairPaidGeneratorGrammarAcrossVariants());
   return findings;
+}
+
+function normalizeJaSentence(text: string): string {
+  return text.replace(/[\s。．、,]/gu, '').trim();
+}
+
+function extractJaSentences(text: string): string[] {
+  return text
+    .split(/。+/u)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length >= 8);
+}
+
+function sharedNormalizedSentences(left: string, right: string): string[] {
+  const leftSet = new Set(extractJaSentences(left).map(normalizeJaSentence));
+  return extractJaSentences(right)
+    .map(normalizeJaSentence)
+    .filter((sentence) => leftSet.has(sentence));
+}
+
+const PAIR_PAID_GRAMMAR_BANNED = [
+  /可能性がある見え方があり/,
+  /しようとする出やすいことがあります/,
+  /可能性があります見え方/,
+  /感じると感じやすい/,
+] as const;
+
+const PAIR_PAID_ASSEMBLED_PROSE_BANNED = [
+  /動きが見えやすい場面があります/,
+  /受け取る場面があります/,
+  /と感じやすい場面があります/,
+  /場面があります。.*場面があります/,
+] as const;
+
+const PAIR_PAID_ACTIVE_PERCEPTION_PREDICATE =
+  /(?:ように)?(?:受け取る|感じる|捉える|見える)(?:こと)?が(?:あります|ある|ります)|見えやすい(?:こと)?が(?:あります|ある)/u;
+
+export function classifyPairPaidPerspectiveFrames(perspective: string): {
+  subjectFrame: string;
+  predicateFrame: string;
+} {
+  const sentences = extractJaSentences(perspective);
+  const subjectFrames = new Set<string>();
+  const predicateFrames = new Set<string>();
+  for (const sentence of sentences) {
+    const subjectMatch = /^(あなた|相手)(は|には)、/u.exec(sentence);
+    if (subjectMatch) {
+      subjectFrames.add(`${subjectMatch[1]}${subjectMatch[2]}`);
+    } else if (/^相手については、/.test(sentence)) {
+      subjectFrames.add('相手については');
+    }
+    if (PAIR_PAID_ACTIVE_PERCEPTION_PREDICATE.test(sentence)) {
+      predicateFrames.add('active-perception');
+    }
+    if (/(?:受け取られる|感じられる|捉えられる|見られる)(?:こと)?が(?:あります|ある)/.test(sentence)) {
+      predicateFrames.add('passive-perception');
+    }
+    if (/可能性があります/.test(sentence)) {
+      predicateFrames.add('possibility');
+    }
+    if (/しようとすることがあります|したいことがあります|取りたいことがあります/.test(sentence)) {
+      predicateFrames.add('active-action');
+    }
+  }
+  return {
+    subjectFrame: [...subjectFrames].join('|') || 'unknown',
+    predicateFrame: [...predicateFrames].join('|') || 'unknown',
+  };
+}
+
+export function incompatibleNihaActivePerception(perspective: string): string | null {
+  for (const sentence of perspective
+    .split(/。+/u)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0)) {
+    const match = /^(あなた|相手)には、(.+)$/u.exec(sentence);
+    if (!match) continue;
+    const [, actor, clause] = match;
+    if (/可能性があります$/.test(clause)) continue;
+    if (/(?:受け取られる|感じられる|捉えられる|見られる)(?:こと)?が(?:あります|ある)/.test(clause)) {
+      continue;
+    }
+    if (PAIR_PAID_ACTIVE_PERCEPTION_PREDICATE.test(clause)) {
+      return `incompatible ${actor}には + active perception predicate`;
+    }
+  }
+  return null;
+}
+
+function pairPaidPerspectivePassesNaturalness(perspective: string): string | null {
+  const nihaIssue = incompatibleNihaActivePerception(perspective);
+  if (nihaIssue) return nihaIssue;
+  for (const pattern of PAIR_PAID_ASSEMBLED_PROSE_BANNED) {
+    if (pattern.test(perspective)) return pattern.source;
+  }
+  if (!/(あなた|相手)/.test(perspective)) return 'missing clear actor referent';
+  if ((perspective.match(/場面があります/g) ?? []).length > 0) return '場面があります templated ending';
+  if (!/。$/u.test(perspective.trim())) return 'incomplete sentence sequence';
+  return null;
+}
+
+export function checkPairFreeAdjacentSectionDuplication(): ContentIntegrityFinding[] {
+  const findings: ContentIntegrityFinding[] = [];
+  for (const fixture of PAIR_V5_FIXTURES) {
+    const spec = buildPairFreeInsightSpecV2({
+      answers: fixture.answers,
+      answersV2: fixture.answers,
+      pairAxisId: 'A2',
+      personABirthDate: fixture.personA,
+      personBBirthDate: fixture.personB,
+      personAUsesFirstPerspective: true,
+      focusLabel: fixture.focus,
+      relationStatusId: fixture.id as RelationStatusId,
+    });
+    const shared = sharedNormalizedSentences(spec.betweenThem, spec.currentExpressionJa);
+    if (shared.length > 0 || normalizeJaSentence(spec.betweenThem) === normalizeJaSentence(spec.currentExpressionJa)) {
+      const item: ContentIntegrityCorpusItem = {
+        itemId: `pair.free.adjacent.${fixture.id}`,
+        surface: 'pair.free.result',
+        sourceCategory: 'pair_free_insight',
+        variantIdentity: fixture.id,
+        headingLabel: 'betweenThem|currentExpressionJa',
+        semanticText: `${spec.betweenThem}\n---\n${spec.currentExpressionJa}`,
+        sourceOwner: 'lib/m55/compatibility/pairFreeInsightSpecV2.ts',
+      };
+      findings.push(
+        finding(
+          item,
+          'P1',
+          'duplicate_adjacent_prose',
+          shared[0] ?? 'identical adjacent sections',
+          spec.betweenThem,
+        ),
+      );
+    }
+  }
+  const guest = buildCompatibilityPublicResult(
+    { personA: '1990-01-15', personB: '1992-08-20' },
+    'R3',
+    undefined,
+    undefined,
+    PAIR_V5_FIXTURES[0]!.answers,
+  );
+  if (guest.ok && guest.value.currentContext) {
+    const dynamic = guest.value.free.relationshipDynamic;
+    const expression = guest.value.currentContext.currentExpression;
+    const shared = sharedNormalizedSentences(dynamic, expression);
+    if (shared.length > 0 || normalizeJaSentence(dynamic) === normalizeJaSentence(expression)) {
+      const item: ContentIntegrityCorpusItem = {
+        itemId: 'pair.free.adjacent.guest.R3',
+        surface: 'pair.free.result',
+        sourceCategory: 'pair_free_insight',
+        variantIdentity: 'R3.guest',
+        headingLabel: 'relationshipDynamic|currentExpression',
+        semanticText: `${dynamic}\n---\n${expression}`,
+        sourceOwner: 'lib/m55/compatibility/pairReadingGuestResult.ts',
+      };
+      findings.push(
+        finding(
+          item,
+          'P1',
+          'duplicate_adjacent_prose',
+          shared[0] ?? 'identical guest adjacent sections',
+          dynamic,
+        ),
+      );
+    }
+  }
+  return findings;
+}
+
+export function checkPairPaidGeneratorGrammarAcrossVariants(): ContentIntegrityFinding[] {
+  const findings: ContentIntegrityFinding[] = [];
+  const paidTopics = ['T1', 'T2', 'T3'] as const;
+  for (const fixture of PAIR_V5_FIXTURES) {
+    for (const paidTopicId of paidTopics) {
+      const report = buildPaidCompatibilityReportV1({
+        pairAxisId: 'A2',
+        paidTopicId,
+        relationStatusId: fixture.id as RelationStatusId,
+        temperatureId: 'E0',
+        personAUsesFirstPerspective: true,
+        currentContext: fixture.answers,
+        personABirthDate: fixture.personA,
+        personBBirthDate: fixture.personB,
+      });
+      for (const [chapterIndex, chapter] of report.chapters.entries()) {
+        for (const [role, perspective] of [
+          ['A', chapter.personAPerspective],
+          ['B', chapter.personBPerspective],
+        ] as const) {
+          const trimmed = perspective.trim();
+          const item: ContentIntegrityCorpusItem = {
+            itemId: `pair.paid.grammar.${fixture.id}.${paidTopicId}.ch${chapterIndex}.${role}`,
+            surface: 'pair.premium.report.chapter',
+            sourceCategory: 'pair_premium_report',
+            variantIdentity: `${fixture.id}.${paidTopicId}.ch${chapterIndex}`,
+            headingLabel: `chapter${chapterIndex}.${role}`,
+            semanticText: perspective,
+            sourceOwner: 'lib/m55/compatibility/buildPaidCompatibilityReportV1.ts',
+          };
+          if (!/。$/u.test(trimmed)) {
+            findings.push(
+              finding(
+                item,
+                'P1',
+                'pair_premium_chapter_grammar',
+                'incomplete consumer sentence sequence',
+                perspective,
+              ),
+            );
+            continue;
+          }
+          const assembled = pairPaidPerspectivePassesNaturalness(perspective);
+          if (assembled) {
+            findings.push(
+              finding(
+                item,
+                'P1',
+                'pair_premium_chapter_grammar',
+                assembled,
+                perspective,
+              ),
+            );
+            continue;
+          }
+          for (const pattern of PAIR_PAID_GRAMMAR_BANNED) {
+            if (pattern.test(perspective)) {
+              findings.push(
+                finding(
+                  item,
+                  'P1',
+                  'pair_premium_chapter_grammar',
+                  pattern.source,
+                  perspective,
+                ),
+              );
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  return findings;
+}
+
+export function assertPairFreeAdjacentSectionsDistinct(): void {
+  const findings = checkPairFreeAdjacentSectionDuplication();
+  if (findings.length > 0) {
+    throw new Error(findings.map((f) => f.deterministicEvidence).join('; '));
+  }
+}
+
+export function assertPairPaidGeneratorGrammarInvariant(): void {
+  const findings = checkPairPaidGeneratorGrammarAcrossVariants();
+  if (findings.length > 0) {
+    throw new Error(findings.map((f) => f.deterministicEvidence).join('; '));
+  }
 }
 
 export function assertPaidChapterComponentUniquenessForFixture(): void {

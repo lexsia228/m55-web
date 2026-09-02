@@ -29,6 +29,7 @@ export default function CompatibilityPaidShareBlock({
       className={styles.chooser}
       aria-labelledby="pair-paid-share-title"
       data-testid="m55-pair-paid-share"
+      data-m55-share-subsystem="pair"
     >
       <h2 id="pair-paid-share-title" className={styles.headline}>
         共有できる範囲
@@ -37,7 +38,7 @@ export default function CompatibilityPaidShareBlock({
         有料本文・使える一言・実験は公開しません。入口の一文だけを渡せます。
       </p>
       <PairManualBlock manual={narrative.manualSpec} />
-      <PublicShareCardPreview spec={spec} />
+      <PublicShareCardPreview spec={spec} aspectRatio="4:5" shareSubsystem="pair" />
       <NarrativeShareActions spec={spec} surface="compatibility_paid_report" requirePreviewAck />
     </section>
   );

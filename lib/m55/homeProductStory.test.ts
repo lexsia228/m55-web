@@ -113,15 +113,15 @@ describe('homeProductStory — capability map contract', () => {
 });
 
 describe('homeProductStory — pair free dedicated section', () => {
-  it('renders pair section after self free and before mechanism', () => {
+  it('renders pair section after self free and before premium, with premium before mechanism', () => {
     const freeIdx = homePanelSource.indexOf('data-testid="m55-home-free-preview"');
     const pairIdx = homePanelSource.indexOf('<HomePairFreeSection');
-    const mechanismIdx = homePanelSource.indexOf('data-testid="m55-home-mechanism"');
     const premiumIdx = homePanelSource.indexOf('data-testid="m55-home-premium-preview"');
+    const mechanismIdx = homePanelSource.indexOf('data-testid="m55-home-mechanism"');
     const finalIdx = homePanelSource.indexOf('data-testid="m55-home-final-cta"');
-    assert.ok(freeIdx !== -1 && pairIdx !== -1 && mechanismIdx !== -1);
-    assert.ok(freeIdx < pairIdx && pairIdx < mechanismIdx);
-    assert.ok(mechanismIdx < premiumIdx && premiumIdx < finalIdx);
+    assert.ok(freeIdx !== -1 && pairIdx !== -1 && premiumIdx !== -1 && mechanismIdx !== -1 && finalIdx !== -1);
+    assert.ok(freeIdx < pairIdx && pairIdx < premiumIdx, 'Pair Free must follow SELF/free and precede Premium');
+    assert.ok(premiumIdx < mechanismIdx && mechanismIdx < finalIdx, 'Premium must precede mechanism disclosure');
     assert.match(pairFreeSource, /data-testid="m55-home-pair-free"/);
   });
 

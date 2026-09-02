@@ -71,7 +71,10 @@ import {
 } from '../../lib/m55/accountDataControlPublicCopy';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import { buildPostPurchaseRetentionHubModel } from '../../lib/m55/postPurchaseRetentionHub';
-import CompatibilitySavedReportsLibrary from './CompatibilitySavedReportsSection';
+import CompatibilitySavedReportsLibrary, {
+  CompatibilitySavedReportsSection,
+  type CompatibilityReportListItem,
+} from './CompatibilitySavedReportsSection';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -108,6 +111,67 @@ type SavedReportVisualState =
   | 'ready_unpurchased'
   | 'processing'
   | 'owned_ready';
+
+export type MyPanelPreviewMode = 'self_owned' | 'pair_library';
+
+const PREVIEW_OWNED_ENT: EntitlementsResponse = {
+  tier: 'premium',
+  dtr_rights: ['m55_p:core_origin'],
+};
+
+const PREVIEW_OWNED_SNAP: SnapshotReadyResponse = {
+  ready: true,
+  hasOwnership: true,
+  hasPurchaseSnapshot: true,
+  savedReportTier: {
+    hasLight: true,
+    hasFull: false,
+    canUpgradeFromLight: true,
+    reportInstanceId: '11111111-1111-4111-8111-111111111111',
+  },
+  consultWallet: {
+    availableCount: 2,
+    consumedCount: 1,
+    totalGrantedCount: 3,
+    status: 'active',
+  },
+};
+
+const PREVIEW_PAIR_REPORTS: CompatibilityReportListItem[] = [
+  {
+    id: '11111111-1111-4111-8111-111111111111',
+    createdAt: '2026-07-13T09:00:00.000Z',
+    chapterCount: 6,
+    displayIdentity: {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: 'Y',
+      relationLabel: '付き合っている',
+    },
+  },
+  {
+    id: '22222222-2222-4222-8222-222222222222',
+    createdAt: '2026-06-02T09:00:00.000Z',
+    chapterCount: 6,
+    displayIdentity: {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: 'K',
+      relationLabel: '距離がある',
+    },
+  },
+  {
+    id: '33333333-3333-4333-8333-333333333333',
+    createdAt: '2026-05-18T09:00:00.000Z',
+    chapterCount: 6,
+    displayIdentity: {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: 'M',
+      relationLabel: '気になる相手',
+    },
+  },
+];
 
 function computeRows(ent: EntitlementsResponse, snap: SnapshotReadyResponse | null): string[] {
   const rights = ent.dtr_rights ?? [];
@@ -152,7 +216,31 @@ function isOwnedSnapshotReady(
   return ownsAny && snap?.ready === true;
 }
 
-export default function MyPanel() {
+export default function MyPanel({ previewMode }: { previewMode?: MyPanelPreviewMode }) {
+  if (previewMode) {
+    return (
+      <div className={styles.wrap} data-m55-dev-preview="my-owned">
+        <header className={styles.hero}>
+          <h1 className={styles.h1}>{MY_PAGE_TITLE}</h1>
+          <p className={styles.lead}>{MY_PAGE_HERO_BODY}</p>
+        </header>
+        {previewMode === 'self_owned' ? (
+          <SavedReportSection
+            state="owned_ready"
+            ent={PREVIEW_OWNED_ENT}
+            snap={PREVIEW_OWNED_SNAP}
+            onDeleteSuccess={() => undefined}
+            deleteToastVisible={false}
+          />
+        ) : (
+          <div data-testid="m55-my-owned-pair-library">
+            <CompatibilitySavedReportsSection preview reports={PREVIEW_PAIR_REPORTS} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const { user, isLoaded } = useUser();
   const [ent, setEnt] = useState<EntitlementsResponse | null>(null);
   const [entError, setEntError] = useState(false);

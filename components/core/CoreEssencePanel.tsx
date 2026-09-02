@@ -453,6 +453,7 @@ export default function CoreEssencePanel() {
     <div
       className={CoreExperienceStyles.page}
       data-testid="m55-core-essence"
+      data-m55-visual-subsystem="self"
       data-m55-generation-count={generationCount}
       data-m55-ux-phase={uxPhase}
     >
@@ -623,6 +624,9 @@ export default function CoreEssencePanel() {
                 </>
               ) : null}
 
+              <details className={CoreExperienceStyles.freeResultFollowOn}>
+                <summary>この先の読み方とつながり</summary>
+                <div className={CoreExperienceStyles.freeResultFollowOnBody}>
               {!isSignedIn ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>
                   <CoreGuestSaveResultCTA />
@@ -674,6 +678,8 @@ export default function CoreEssencePanel() {
                   ) : null}
                 </div>
               ) : null}
+                </div>
+              </details>
 
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>

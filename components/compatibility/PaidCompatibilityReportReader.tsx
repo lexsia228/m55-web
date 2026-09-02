@@ -109,7 +109,26 @@ export default function PaidCompatibilityReportReader({
   }
 
   return (
-    <article className={styles.reader} aria-labelledby="paid-report-title" data-m55-pair-premium-tone="night">
+    <article className={styles.reader} aria-labelledby="paid-report-title" data-m55-pair-premium-tone="night" data-m55-visual-subsystem="pair">
+      <div
+        className={styles.relationalGrammar}
+        aria-label="二人の関係"
+        data-testid="m55-pair-relational-grammar"
+      >
+        <div className={styles.relNode} data-node="you">
+          <span className={styles.relNodeLabel}>あなた</span>
+          <strong>{displayIdentity.selfLabel}</strong>
+        </div>
+        <div className={styles.relBridge} aria-hidden>
+          <span className={styles.relBridgeLine} />
+          <span className={styles.relBridgeWord}>間</span>
+          <span className={styles.relBridgeLine} />
+        </div>
+        <div className={styles.relNode} data-node="partner">
+          <span className={styles.relNodeLabel}>相手</span>
+          <strong>{displayIdentity.partnerLabel}</strong>
+        </div>
+      </div>
       <header className={styles.reportHeader}>
         <p className={styles.eyebrow}>二人の関係を読み解く</p>
         {owned ? (

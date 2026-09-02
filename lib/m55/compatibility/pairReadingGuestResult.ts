@@ -289,7 +289,7 @@ function overlayPairFreeInsight(
   ] as const);
   return Object.freeze({
     ...base,
-    currentExpression: insight.betweenThem,
+    currentExpression: insight.currentExpressionJa,
     relationshipLoopSteps,
     relationshipLoop: relationshipLoopSteps.map((step) => step.replace(/。$/u, '')).join('。') + '。',
     immediateAction: insight.reset,

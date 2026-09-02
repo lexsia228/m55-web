@@ -21,6 +21,9 @@ const isPublicRoute = createRouteMatcher([
   '/synastry/purchase/confirm',
   '/dev/synastry-paid-report-preview',
   '/dev/synastry-commerce-preview',
+  '/dev/synastry-guest-result-preview',
+  '/dev/my-owned-preview',
+  '/dev/pair-share-preview',
   '/api/stripe/webhook',
   '/api/clerk/webhook',
   '/api/compatibility/checkout',
@@ -38,6 +41,9 @@ const isE2ECleanCaptureDevFixture = createRouteMatcher([
   '/dev/dtr-drawer-preview',
   '/dev/premium-share-preview',
   '/dev/dtr-processing-preview',
+  '/dev/synastry-guest-result-preview',
+  '/dev/my-owned-preview',
+  '/dev/pair-share-preview',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

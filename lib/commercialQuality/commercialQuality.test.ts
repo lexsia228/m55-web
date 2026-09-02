@@ -68,6 +68,18 @@ import {
   type MeasuredSurface,
   type SurfaceManifestEntry,
 } from './types';
+import {
+  COMMERCIAL_SCORECARD_AXES,
+  WAVE1_MASTER_AUDIT_BASELINE,
+  WAVE2_SCORECARD_TARGETS,
+  buildScorecardCandidate,
+  meetsWave2MinimumGreen,
+} from './commercialScorecard';
+import { buildVisionJudgeAttachment } from './visionJudgeAttachment';
+import {
+  buildAffectedDeltaEvidence,
+  workingTreeCandidateIdentity,
+} from './affectedDeltaEvidence';
 
 const GREEN_GATES = { geometryGreen: true, semanticGreen: true, accessibilityGreen: true };
 
@@ -1155,4 +1167,81 @@ test('excluding projection aliases from the canonical resolver fails parity', as
   assert.deepEqual(findDivergentExportedStringResolvers(ids, aliasMap), []);
   assert.equal(source.includes('dualOnlyCanonicalObservableStateIdFor'), false);
   assert.equal(source.includes('export function dualCanonicalObservableStateIdFor'), false);
+});
+
+/* ── Wave 2 scorecard / vision / affected-delta extensions ─────────── */
+
+test('12-axis scorecard has exactly 12 axes with Wave 1 baseline', () => {
+  assert.equal(COMMERCIAL_SCORECARD_AXES.length, 12);
+  assert.equal(WAVE1_MASTER_AUDIT_BASELINE.INFLUENCER_READINESS, 1);
+  assert.equal(WAVE2_SCORECARD_TARGETS.VISUAL_IDENTITY, 5);
+});
+
+test('scorecard candidate rejects implementer == auditor', () => {
+  const result = buildScorecardCandidate({
+    sourceCommit: 'abc123',
+    implementerIdentity: 'cursor',
+    independentAuditorIdentity: 'cursor',
+    after: WAVE2_SCORECARD_TARGETS,
+  });
+  assert.ok('errors' in result);
+});
+
+test('scorecard candidate is never auto-approval', () => {
+  const result = buildScorecardCandidate({
+    sourceCommit: 'abc123',
+    implementerIdentity: 'cursor',
+    after: WAVE2_SCORECARD_TARGETS,
+  });
+  assert.ok(!('errors' in result));
+  if ('errors' in result) return;
+  assert.equal(result.autoApproval, false);
+  assert.equal(result.verdict, 'candidate_only');
+});
+
+test('vision judge attachment cannot auto-approve production or safari green', () => {
+  const result = buildVisionJudgeAttachment({
+    reviewerIdentity: 'gpt-vision',
+    screenshotIdentity: 'shot-001',
+    sourceCommit: 'abc123',
+    scores: WAVE2_SCORECARD_TARGETS,
+  });
+  assert.ok(!('errors' in result));
+  if ('errors' in result) return;
+  assert.ok(result.cannotAutoApprove.includes('safari_independent_green'));
+  assert.ok(result.cannotAutoApprove.includes('merge'));
+  assert.equal(result.candidateVerdict, 'candidate_only');
+});
+
+test('affected delta evidence binds path manifest and rejects same-role audit', () => {
+  const evidence = buildAffectedDeltaEvidence({
+    sourceCommit: 'abc123',
+    dirtyPaths: [{ code: 'M', path: 'components/core/CoreExperience.module.css' }],
+    affectedPathManifest: ['components/core/CoreExperience.module.css'],
+    surfaceId: 'm55:self.core',
+    stateId: 'result',
+    route: '/core',
+    viewport: { width: 390, height: 844 },
+    browserIdentity: 'safari-stp-250',
+    implementerIdentity: 'cursor',
+    independentAuditorIdentity: 'cursor',
+  });
+  assert.ok('errors' in evidence);
+});
+
+test('working tree candidate identity is deterministic', () => {
+  const paths = [{ code: 'M', path: 'a.css' }];
+  const a = workingTreeCandidateIdentity('commit1', paths);
+  const b = workingTreeCandidateIdentity('commit1', paths);
+  const c = workingTreeCandidateIdentity('commit2', paths);
+  assert.equal(a, b);
+  assert.notEqual(a, c);
+});
+
+test('meetsWave2MinimumGreen requires all axes >= 4', () => {
+  assert.equal(meetsWave2MinimumGreen(WAVE2_SCORECARD_TARGETS), true);
+  assert.equal(
+    meetsWave2MinimumGreen({ ...WAVE2_SCORECARD_TARGETS, MOBILE_POLISH: 3 }),
+    false,
+  );
 });

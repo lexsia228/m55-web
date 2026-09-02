@@ -17,7 +17,13 @@ export function ReportBridgeBand({ partId }: { partId: ReportBridgePartId }) {
     <aside
       className={styles.bridge}
       aria-label={`${ROMAN[partId]} 追加読み解きへの橋渡し`}
+      data-m55-report-bridge-part={partId}
     >
+      <div className={styles.bridgeProgress} aria-hidden>
+        <span className={styles.bridgeProgressDot} data-active="true" />
+        <span className={styles.bridgeProgressLine} />
+        <span className={styles.bridgeProgressDot} />
+      </div>
       <p className={styles.bridgeOverline}>追加読み解きで深める</p>
       <h3 className={styles.bridgeHeading}>
         <span className={styles.bridgeRoman} aria-hidden>

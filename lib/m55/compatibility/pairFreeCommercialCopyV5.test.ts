@@ -86,6 +86,7 @@ function completeCopy(fixture: (typeof PAIR_V5_FIXTURES)[number]): string {
   const spec = insight(fixture);
   return [
     spec.betweenThem,
+    spec.currentExpressionJa,
     spec.mismatchEntry,
     spec.misreadLoop,
     spec.reset,
@@ -102,11 +103,10 @@ describe('pair free commercial copy v5', () => {
     for (const fixture of PAIR_V5_FIXTURES) {
       const spec = insight(fixture);
       const blob = completeCopy(fixture);
-      assert.match(spec.betweenThem, /^二人の間では/u);
-      assert.match(spec.betweenThem, /あなた(?:側)?は/);
-      assert.match(spec.betweenThem, /相手(?:側)?は/);
-      assert.match(spec.betweenThem, /そのため二人の間では/);
-      assert.match(spec.betweenThem, /土台|生まれの基調/);
+      assert.match(spec.betweenThem, /そのため二人の間では|二人の間では/u);
+      assert.match(`${spec.betweenThem}\n${spec.currentExpressionJa}`, /あなた|相手/u);
+      assert.match(spec.currentExpressionJa, /二人|いま/u);
+      assert.notEqual(spec.betweenThem, spec.currentExpressionJa);
       assert.match(spec.misreadLoop, /受け取りやすい|見えやすい/);
       assert.ok(spec.reset.length > 8);
       assert.match(spec.premiumContinuation, /六つの場面/);
@@ -121,5 +121,16 @@ describe('pair free commercial copy v5', () => {
     const hitHasFinished = /終わった/.test(r1.relationshipTriggerJa);
     const consequenceHasPace = /結論を出す速度/.test(r1.betweenThem);
     assert.equal(hitHasFinished && consequenceHasPace, false);
+  });
+
+  it('keeps betweenThem and currentExpressionJa semantically distinct across fixtures', () => {
+    for (const fixture of PAIR_V5_FIXTURES) {
+      const spec = insight(fixture);
+      assert.notEqual(spec.betweenThem, spec.currentExpressionJa);
+      assert.doesNotMatch(
+        spec.currentExpressionJa,
+        new RegExp(spec.betweenThem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+      );
+    }
   });
 });

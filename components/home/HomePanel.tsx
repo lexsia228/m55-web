@@ -149,7 +149,11 @@ export default function HomePanel() {
     <div className={styles.wrap}>
 
       {/* §2 — FROZEN POSTER (no changes) */}
-      <section className={`${styles.heroSection} ${styles.posterHeroApprovedRoot}`} data-testid="m55-home-hero">
+      <section
+        className={`${styles.heroSection} ${styles.posterHeroApprovedRoot}`}
+        data-testid="m55-home-hero"
+        data-m55-visual-subsystem="home"
+      >
         <div className={styles.posterStack}>
           <div className={styles.posterMainVisual} data-testid="m55-home-poster-main-visual">
             <div className={styles.posterMainVisualStack} aria-hidden>
@@ -316,12 +320,6 @@ export default function HomePanel() {
               <p className={styles.ctaSupport}>{homeCopy.freeResultSupportJa}</p>
             ) : null}
           </div>
-          <HomeTenAssetTeaser
-            eyebrowJa={homeCopy.tenAssetTeaserEyebrowJa}
-            headlineJa={homeCopy.tenAssetTeaserHeadlineJa}
-            bodyJa={homeCopy.tenAssetTeaserBodyJa}
-            linkJa={homeCopy.tenAssetTeaserLinkJa}
-          />
         </section>
 
         {/* §3a — Pair free (compact dedicated section) */}
@@ -335,42 +333,7 @@ export default function HomePanel() {
           pairLive={pairLive}
         />
 
-        {/* §4 — Mechanism band */}
-        <section
-          className={`${styles.lowerSection} ${styles.mechanismStage}`}
-          data-testid="m55-home-mechanism"
-          aria-labelledby="m55-home-mechanism-title"
-        >
-          <p className={styles.sectionEyebrow}>{homeCopy.mechanismEyebrowJa}</p>
-          <HomeEditorialHeadline
-            id="m55-home-mechanism-title"
-            className={styles.sectionHeadline}
-            textJa={homeCopy.mechanismHeadlineJa}
-          />
-          <p className={styles.sectionBody}>{homeCopy.mechanismBodyJa}</p>
-          <div className={styles.mechanismDiagram} aria-hidden="true">
-            <div className={styles.mechanismDiagramSources}>
-              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource1Ja}</p>
-              <span className={styles.mechanismDiagramPlus}>+</span>
-              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource2Ja}</p>
-            </div>
-            <div className={styles.mechanismDiagramFlow} />
-            <p className={styles.mechanismDiagramOutput}>{homeCopy.mechanismDiagramOutputJa}</p>
-          </div>
-          <p className={styles.sectionSupporting}>{homeCopy.mechanismEthicsJa}</p>
-          <nav className={styles.mechanismLinks} aria-label="M55の読み方リンク">
-            <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
-              {homeCopy.mechanismHowLinkJa}
-            </Link>
-          </nav>
-        </section>
-
-        {/* §4b — Method model: composition frame before the Premium comparison */}
-        <div className={styles.methodModelStage}>
-          <HomeMethodModel />
-        </div>
-
-        {/* §5 — Premium (preview + plan merged) */}
+        {/* §4 — Premium (product comprehension before mechanism depth) */}
         <section
           className={`${styles.lowerSection} ${styles.premiumDarkStage}`}
           data-testid="m55-home-premium-preview"
@@ -432,6 +395,49 @@ export default function HomePanel() {
             {homeCopy.planComparisonCtaJa}
           </Link>
         </section>
+
+        {/* §5 — Mechanism + method (progressive disclosure after product comprehension) */}
+        <details
+          className={`${styles.lowerSection} ${styles.mechanismStage} ${styles.mechanismDisclosure}`}
+          data-testid="m55-home-mechanism"
+        >
+          <summary className={styles.mechanismSummary}>
+            <p className={styles.sectionEyebrow}>{homeCopy.mechanismEyebrowJa}</p>
+            <HomeEditorialHeadline
+              id="m55-home-mechanism-title"
+              className={styles.sectionHeadline}
+              textJa={homeCopy.mechanismHeadlineJa}
+            />
+            <span className={styles.mechanismSummaryHint}>詳しく見る</span>
+          </summary>
+          <div className={styles.mechanismDisclosureBody}>
+          <p className={styles.sectionBody}>{homeCopy.mechanismBodyJa}</p>
+          <div className={styles.mechanismDiagram} aria-hidden="true">
+            <div className={styles.mechanismDiagramSources}>
+              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource1Ja}</p>
+              <span className={styles.mechanismDiagramPlus}>+</span>
+              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource2Ja}</p>
+            </div>
+            <div className={styles.mechanismDiagramFlow} />
+            <p className={styles.mechanismDiagramOutput}>{homeCopy.mechanismDiagramOutputJa}</p>
+          </div>
+          <p className={styles.sectionSupporting}>{homeCopy.mechanismEthicsJa}</p>
+          <nav className={styles.mechanismLinks} aria-label="M55の読み方リンク">
+            <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
+              {homeCopy.mechanismHowLinkJa}
+            </Link>
+          </nav>
+          <div className={styles.methodModelStage}>
+            <HomeMethodModel />
+          </div>
+          <HomeTenAssetTeaser
+            eyebrowJa={homeCopy.tenAssetTeaserEyebrowJa}
+            headlineJa={homeCopy.tenAssetTeaserHeadlineJa}
+            bodyJa={homeCopy.tenAssetTeaserBodyJa}
+            linkJa={homeCopy.tenAssetTeaserLinkJa}
+          />
+          </div>
+        </details>
 
         {/* §6 — Final CTA */}
         <section

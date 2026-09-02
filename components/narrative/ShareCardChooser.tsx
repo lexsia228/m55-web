@@ -14,7 +14,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import { resolvePublicStemDisplay } from '../../lib/m55/publicStemDisplay';
-import PublicShareCardPreview from './PublicShareCardPreview';
+import PublicShareCardPreview, { type ShareAspectRatio } from './PublicShareCardPreview';
 import NarrativeShareActions from './NarrativeShareActions';
 import styles from './NarrativeShare.module.css';
 
@@ -26,8 +26,11 @@ const ROLE_HINT: Readonly<Record<(typeof VARIANTS)[number], string>> = {
   hidden_spec: '意外な一点',
 };
 
+const ASPECT_RATIOS = ['1:1', '4:5', '9:16'] as const satisfies readonly ShareAspectRatio[];
+
 export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }) {
   const [selected, setSelected] = useState<(typeof VARIANTS)[number] | null>(null);
+  const [aspectRatio, setAspectRatio] = useState<ShareAspectRatio>('4:5');
   const context = useMemo(
     () => buildPersonalFreeNarrativeShareContextV1(input),
     [input.birthDate, input.stemLaneIndex, input.freeAnswerSet],
@@ -69,6 +72,7 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
       aria-labelledby="narrative-share-chooser-title"
       data-testid="m55-free-result-share"
       data-m55-share-presentation="free"
+      data-m55-share-subsystem="self"
       id="core-share"
     >
       <span className={styles.optionLabel}>共有</span>
@@ -121,7 +125,26 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
       {spec ? (
         <div className={styles.preview} data-testid="m55-share-preview">
           <p className={styles.optionLabel}>共有される内容</p>
-          <PublicShareCardPreview spec={spec} imagePath={traitImagePath} />
+          <div className={styles.aspectPicker} role="group" aria-label="投稿サイズの見え方">
+            {ASPECT_RATIOS.map((ratio) => (
+              <button
+                key={ratio}
+                type="button"
+                className={styles.aspectButton}
+                data-selected={aspectRatio === ratio ? 'true' : 'false'}
+                data-testid={`m55-share-aspect-${ratio.replace(':', '-')}`}
+                onClick={() => setAspectRatio(ratio)}
+              >
+                {ratio}
+              </button>
+            ))}
+          </div>
+          <PublicShareCardPreview
+            spec={spec}
+            imagePath={traitImagePath}
+            aspectRatio={aspectRatio}
+            shareSubsystem="self"
+          />
           <p className={styles.chooserLead} data-testid="m55-share-preview-text">
             {spec.shareTextJa}
           </p>

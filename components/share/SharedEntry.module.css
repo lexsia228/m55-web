@@ -55,9 +55,10 @@
   gap: 0.65rem;
   overflow: hidden;
   border-radius: 1.2rem;
-  border: 1px solid rgba(107, 95, 168, 0.2);
+  border: 1px solid var(--m55-subsystem-accent-soft, rgba(107, 95, 168, 0.2));
   background: rgba(255, 250, 241, 0.94);
   padding: 0 1.1rem 1.15rem;
+  box-shadow: 0 12px 32px rgba(28, 24, 48, 0.08);
 }
 
 .posterArt {
