@@ -71,7 +71,7 @@ export function validateVisionJudgeAttachment(
     errors.push('missing scores');
   }
 
-  const cannot = attachment.cannotAutoApprove ?? [];
+  const cannot: readonly string[] = attachment.cannotAutoApprove ?? [];
   for (const action of ['merge', 'production', 'commercial_release', 'safari_independent_green']) {
     if (!cannot.includes(action)) {
       errors.push(`cannotAutoApprove must include ${action}`);
