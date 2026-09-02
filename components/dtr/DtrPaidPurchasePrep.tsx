@@ -158,11 +158,11 @@ export default function DtrPaidPurchasePrep() {
     if (authReadiness.timedOut) {
       return (
         <BoundedRecoveryState
-          title="購入準備を確認できませんでした"
-          description="ログイン状態の確認に時間がかかっています。もう一度読み込み直すか、自分の無料読み解きへ戻れます。"
+          title={C.authRecoveryTitleJa}
+          description={C.authRecoveryDescriptionJa}
           onRetry={() => window.location.reload()}
           escapeHref="/core"
-          escapeLabel="自分の無料読み解きへ戻る"
+          escapeLabel={C.authRecoveryEscapeLabelJa}
           support
         />
       );
