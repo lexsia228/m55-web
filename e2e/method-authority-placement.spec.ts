@@ -160,8 +160,20 @@ test.describe('M55 method placements', () => {
     await prepareCleanCapturePage(page);
     await openFreeResult(page);
 
-    await page.getByText('読みの組み立て').click();
-    await expect(page.getByTestId('m55-method-core-free-result')).toBeVisible({ timeout: 30_000 });
+    const methodBlock = page.getByTestId('m55-method-core-free-result');
+    const innerDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
+    const outerDisclosure = methodBlock.locator('xpath=ancestor::details[2]');
+
+    await expect(innerDisclosure).toHaveCount(1);
+    await expect(outerDisclosure).toHaveCount(1);
+
+    await outerDisclosure.locator(':scope > summary').click();
+    await expect(outerDisclosure).toHaveJSProperty('open', true);
+
+    await innerDisclosure.locator(':scope > summary').click();
+    await expect(innerDisclosure).toHaveJSProperty('open', true);
+
+    await expect(methodBlock).toBeVisible({ timeout: 30_000 });
     const order = await page.evaluate(() => {
       const top = (selector: string) => {
         const el = document.querySelector(selector);
