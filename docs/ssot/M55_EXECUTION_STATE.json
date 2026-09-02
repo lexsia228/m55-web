@@ -635,7 +635,10 @@
         "summary": "inverse natural には spontaneous-perception frames are not explicitly regression-tested."
       }
     ],
-    "push": "NOT_PERFORMED",
+    "push": "PERFORMED",
+    "featureBranch": "fix/m55-content-integrity-semantic-v1",
+    "remoteFeatureHeadAtPush": "467b77a419fcd8ecc26f7b57891cadc80454e351",
+    "pushObservedAt": "2026-09-02T15:52:49Z",
     "pr": "NOT_PERFORMED",
     "merge": "NOT_PERFORMED",
     "previewDeploy": "NOT_PERFORMED",
