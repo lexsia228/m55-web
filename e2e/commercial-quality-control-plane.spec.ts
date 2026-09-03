@@ -66,7 +66,9 @@ import {
 } from '../lib/m55/commercialUx/qualityControl/m55SurfaceManifest';
 import {
   authGateFixtureById,
+  imageResponseFixtureById,
   M55_AUTH_GATE_FIXTURE_REGISTRY,
+  M55_IMAGE_RESPONSE_FIXTURE_REGISTRY,
 } from '../lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry';
 import { establishLocalAuthGateFixture } from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
 import {
@@ -172,11 +174,11 @@ test.afterAll(() => {
 test.describe('commercial quality control plane', () => {
   test('1. setup registry — executable vs non-runtime; no fallback mocks', () => {
     const counts = countAuthorityRegistrations();
-    expect(counts.total).toBe(89);
-    expect(counts.executable).toBe(75);
+    expect(counts.total).toBe(90);
+    expect(counts.executable).toBe(76);
     expect(counts.nonRuntime).toBe(14);
-    expect(M55_SETUP_REGISTRY.setups.length).toBe(89);
-    expect(listExecutableSmokeTargets().length).toBe(75);
+    expect(M55_SETUP_REGISTRY.setups.length).toBe(90);
+    expect(listExecutableSmokeTargets().length).toBe(76);
     expect(listNonRuntimeReferenceTargets().length).toBe(14);
 
     const report = verifyM55CommercialQualityRegistration();
@@ -211,9 +213,9 @@ test.describe('commercial quality control plane', () => {
     expect(probeAdapterNegative('setup_wrong_route').some((f) => f.code === 'SETUP_ROUTE_MISMATCH')).toBe(true);
     expect(probeAdapterNegative('setup_wrong_runtime_state').some((f) => f.code === 'SETUP_STATE_MISMATCH')).toBe(true);
     expect(countGenericStateMarkers()).toBe(0);
-    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(75);
+    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(76);
     const ownership = countContractsByOwnership();
-    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(75);
+    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(76);
     const executableTargets = listExecutableSmokeTargets();
     const executableContracts = executableTargets.map((t) =>
       stateDomContractForEntry(resolveSmokeManifestEntry(t)),
@@ -222,11 +224,11 @@ test.describe('commercial quality control plane', () => {
       executableTargets.map((t) => t.runtimeStateId),
     );
     const registrationIds = executableTargets.map((t) => t.runtimeStateId);
-    expect(aliasCounts.executable).toBe(75);
-    expect(aliasCounts.canonical).toBe(42);
+    expect(aliasCounts.executable).toBe(76);
+    expect(aliasCounts.canonical).toBe(43);
     expect(aliasCounts.alias).toBe(33);
-    expect(aliasCounts.mapping).toBe(75);
-    expect(aliasCounts.canonical + aliasCounts.alias).toBe(75);
+    expect(aliasCounts.mapping).toBe(76);
+    expect(aliasCounts.canonical + aliasCounts.alias).toBe(76);
     expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(18);
     expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(15);
     const projections = countProjectionAliases(registrationIds);
@@ -238,13 +240,108 @@ test.describe('commercial quality control plane', () => {
     expect(renamed.parityFailures.length).toBeGreaterThan(0);
     expect(renamed.disallowedExports).toContain('sneakyAlternateCanonicalResolver');
     expect(renamed.divergentExports).toContain('sneakyAlternateCanonicalResolver');
-    expect(countUniqueObservableSignatures(executableContracts)).toBe(42);
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(43);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
       [],
     );
     expect(M55_AUTH_GATE_FIXTURE_REGISTRY.length).toBe(13);
+    expect(M55_IMAGE_RESPONSE_FIXTURE_REGISTRY.length).toBe(2);
     expect(() => authGateFixtureById('auth_gate.DOES_NOT_EXIST')).toThrow(/unknown auth-gate fixture/);
+    expect(() => imageResponseFixtureById('image_response.DOES_NOT_EXIST')).toThrow(
+      /unknown image-response fixture/,
+    );
+    expect(() => imageResponseFixtureById('image_response.shared.unknown')).toThrow(
+      /unknown image-response fixture/,
+    );
+  });
+
+  test('1c. image-response registrations — shared.og and shared.export executable', async ({
+    browser,
+  }) => {
+    test.setTimeout(180_000);
+    const want = new Set(['m55:ecp.shared.og', 'm55:ecp.shared.export']);
+    const targets = listExecutableSmokeTargets().filter((t) => want.has(t.surfaceId));
+    expect(targets.map((t) => t.surfaceId).sort()).toEqual([...want].sort());
+
+    const ogFixture = imageResponseFixtureById('image_response.shared.og');
+    const exportFixture = imageResponseFixtureById('image_response.shared.export');
+    expect(ogFixture.runtimeStateId).toBe('ecp:shared.og:og');
+    expect(exportFixture.runtimeStateId).toBe('ecp:shared.export:export');
+    expect(exportFixture.navigatePath).toContain('aspect=4%3A5');
+    expect(exportFixture.fixtureId).not.toBe(ogFixture.fixtureId);
+
+    const ogEntry = m55SurfaceById('m55:ecp.shared.og');
+    const exportEntry = m55SurfaceById('m55:ecp.shared.export');
+    expect(ogEntry?.outputBehaviour).toEqual({
+      screen: true,
+      print: true,
+      pdf: true,
+      sharedImage: true,
+    });
+    expect(exportEntry?.outputBehaviour).toEqual({
+      screen: true,
+      print: false,
+      pdf: false,
+      sharedImage: true,
+    });
+
+    for (const target of targets) {
+      const setup = m55SetupById(target.setupId);
+      expect(setup, target.setupId).toBeTruthy();
+      expect(setup?.fixtureId?.startsWith('image_response.shared.')).toBe(true);
+      expect(Boolean(setup?.execute)).toBe(true);
+
+      const entry = resolveSmokeManifestEntry(target);
+      const contract = stateDomContractForEntry(entry);
+      expect(contract.ownership).toBe('fixture');
+      expect(entry.protectedElements).toEqual([
+        { selector: 'img', role: 'media', requireText: false },
+      ]);
+      expect(entry.fixedElements).toEqual([]);
+      expect(contract.selector).toContain(contract.expectedAttributeValue ?? '');
+      expect(contract.fixtureId?.startsWith('image_response.shared.')).toBe(true);
+
+      const isolated = await browser.newContext();
+      const active = await isolated.newPage();
+      try {
+        await active.setViewportSize({ width: 390, height: 844 });
+        const ctx = { page: active, baseURL: BASE_URL, label: LABEL };
+        const executed = await setup!.execute(ctx, entry);
+        expect(executed.applied).toBe(true);
+        expect(executed.evidence.imageResponse).toBe(true);
+        expect(executed.evidence.fixtureId).toBe(setup!.fixtureId);
+        expect(String(executed.evidence.observedCanonicalStateId)).toBe(
+          canonicalObservableStateIdFor(entry.runtimeStateId),
+        );
+        expect(String(executed.evidence.runtimeStateId)).toBe(entry.runtimeStateId);
+
+        await expect(active.locator(contract.selector).first()).toBeAttached({ timeout: 30_000 });
+        const evidence = await assertProtectedManifestEvidence(
+          active,
+          entry,
+          planFor(entry),
+          BASE_URL,
+          { imageResponse: true },
+        );
+        expect(evidence.missing).toBe(0);
+        expect(evidence.empty).toBe(0);
+
+        if (target.surfaceId === 'm55:ecp.shared.export') {
+          expect(String(executed.evidence.path)).toContain('aspect=4%3A5');
+          expect(executed.evidence.fixtureId).toBe('image_response.shared.export');
+          expect(executed.evidence.observedCanonicalStateId).not.toBe(ogFixture.runtimeStateId);
+        }
+      } finally {
+        await isolated.close();
+      }
+    }
+
+    const exportSetup = m55SetupById('m55.setup.ecp.shared.export');
+    expect(exportSetup?.fixtureId).toBe('image_response.shared.export');
+    expect(exportSetup?.expectedRuntimeStateId).toBe('ecp:shared.export:export');
+    expect(String(exportSetup?.expectedRoute)).toBe('/r/:token/share-image');
+    expect(exportSetup?.fixtureId).not.toBe('image_response.shared.og');
   });
 
   test('1b. isolated core empty and visual-prerequisite registration smoke', async ({
@@ -299,7 +396,7 @@ test.describe('commercial quality control plane', () => {
   }) => {
     test.setTimeout(1_800_000);
     const targets = listExecutableSmokeTargets();
-    expect(targets.length).toBe(75);
+    expect(targets.length).toBe(76);
 
     const results: { surfaceId: string; ok: boolean; detail: string }[] = [];
     let protectedSelectorAssertionCount = 0;
@@ -449,17 +546,17 @@ test.describe('commercial quality control plane', () => {
 
     const failed = results.filter((r) => !r.ok);
     expect(failed, JSON.stringify(failed, null, 2)).toEqual([]);
-    expect(results.filter((r) => r.ok).length).toBe(75);
-    expect(productionMeasurementCount).toBe(75);
-    expect(fullInvariantAssertionCount).toBe(75);
+    expect(results.filter((r) => r.ok).length).toBe(76);
+    expect(productionMeasurementCount).toBe(76);
+    expect(fullInvariantAssertionCount).toBe(76);
     expect(fullInvariantFailures).toEqual([]);
-    expect(protectedSelectorAssertionCount).toBeGreaterThan(75);
+    expect(protectedSelectorAssertionCount).toBeGreaterThan(76);
     expect(missingProtectedSelectorFailures).toBe(0);
     expect(emptyProtectedSelectorFailures).toBe(0);
     expect(runnerWrittenStateMarkerCount).toBe(0);
     expect(externalRedirectStateAcceptanceCount).toBe(0);
     expect(methodResolvedHrefs.length).toBe(6);
-    expect(Object.keys(perSurfaceProtected).length).toBe(75);
+    expect(Object.keys(perSurfaceProtected).length).toBe(76);
   });
 
   test('3. geometry + governed stress + unsupported stress rejection', async ({ page }) => {

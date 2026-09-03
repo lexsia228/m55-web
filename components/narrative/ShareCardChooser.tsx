@@ -155,7 +155,7 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
           >
             M55の共有ページ
           </p>
-          <NarrativeShareActions spec={spec} surface="core_share" />
+          <NarrativeShareActions spec={spec} surface="core_share" aspectRatio={aspectRatio} />
         </div>
       ) : null}
     </section>

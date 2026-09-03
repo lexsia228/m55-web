@@ -6,7 +6,7 @@
  * Enforces:
  * - ownership boundary (repository-independent engine imports no M55 authority)
  * - manifest schema v1 registration for every imported governed identity
- * - 51 ECP entries / 12 Premium states / 14 Premium captures / 6 visual cases
+ * - 52 ECP entries / 12 Premium states / 14 Premium captures / 6 visual cases
  * - candidate-only approval pack (never a canonical promotion)
  * - locked @axe-core/playwright dependency and CI wiring
  */
@@ -278,13 +278,13 @@ function checkRegistration() {
   REPORT.registrationFailures = report.failures.length;
   REPORT.consolidationPoints = consolidationPoints;
 
-  if (setupCounts.total !== 89) {
-    fail('registration.setup', `setup registry total must be 89 (received ${setupCounts.total})`);
+  if (setupCounts.total !== 90) {
+    fail('registration.setup', `setup registry total must be 90 (received ${setupCounts.total})`);
   }
-  if (setupCounts.executable !== 75) {
+  if (setupCounts.executable !== 76) {
     fail(
       'registration.setup',
-      `setup registry executable count must be 75 (received ${setupCounts.executable})`,
+      `setup registry executable count must be 76 (received ${setupCounts.executable})`,
     );
   }
   if (setupCounts.nonRuntime !== 14) {
@@ -325,8 +325,8 @@ function checkRegistration() {
       );
     }
   }
-  if (report.expectedCounts.ecpEntries !== 51) {
-    fail('registration.coverage', `expected 51 ECP entries, authority reports ${report.expectedCounts.ecpEntries}`);
+  if (report.expectedCounts.ecpEntries !== 52) {
+    fail('registration.coverage', `expected 52 ECP entries, authority reports ${report.expectedCounts.ecpEntries}`);
   }
   if (report.expectedCounts.premiumStates !== 12) {
     fail('registration.coverage', `expected 12 Premium states, authority reports ${report.expectedCounts.premiumStates}`);
@@ -635,7 +635,7 @@ function checkStateIdentityUniqueness() {
           "import { listExecutableSmokeTargets } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry.ts';",
           "import { resolveSmokeManifestEntry } from './e2e/helpers/commercialQualitySmokeEvidence.ts';",
           "import { stateDomContractForEntry, reconcileExecutableStateContracts, countUniqueObservableSignatures, countObservableSignatureCollisions, countGenericStateMarkers } from './lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts';",
-          "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById, IMAGE_RESPONSE_FIXTURE } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
+          "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById, IMAGE_RESPONSE_FIXTURE, M55_IMAGE_RESPONSE_FIXTURE_REGISTRY, imageResponseFixtureById } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
           "import { readFileSync } from 'node:fs';",
           "import * as aliasMap from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
           "import { recomputeCanonicalAliasCounts, M55_OBSERVABLE_STATE_ALIASES, assertAliasMapClosed, canonicalObservableStateIdFor, countProjectionAliases, reconcileResolverParity, probeExcludedProjectionResolverNegative, probeRenamedDivergentResolverNegative, findDisallowedAliasMapFunctionExports, findDivergentExportedStringResolvers } from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
@@ -679,6 +679,8 @@ function checkStateIdentityUniqueness() {
           "  generic: countGenericStateMarkers(),",
           "  authFixtures: M55_AUTH_GATE_FIXTURE_REGISTRY.length,",
           "  imageFixture: IMAGE_RESPONSE_FIXTURE.fixtureId,",
+          "  imageFixtures: M55_IMAGE_RESPONSE_FIXTURE_REGISTRY.map((f) => f.fixtureId),",
+          "  unknownImageFixtureRejected: (() => { let ok = false; try { imageResponseFixtureById('image_response.DOES_NOT_EXIST'); } catch { ok = true; } return ok; })(),",
           "  unknownFixtureRejected: unknownOk,",
           "  crossOwnerRejected,",
           "  failures,",
@@ -693,13 +695,13 @@ function checkStateIdentityUniqueness() {
     REPORT.canonicalObservableStateCount = report.canonical;
     REPORT.registrationAliasCount = report.alias;
     REPORT.fixedAuthGateFixtureCount = report.authFixtures;
-    if (report.executable !== 75) {
-      fail('state_identity.executable', `expected 75 executable contracts, got ${report.executable}`);
+    if (report.executable !== 76) {
+      fail('state_identity.executable', `expected 76 executable contracts, got ${report.executable}`);
     }
-    if (report.canonical !== 42) {
+    if (report.canonical !== 43) {
       fail(
         'state_identity.canonical',
-        `expected 42 canonical observable states (recomputed), got ${report.canonical}`,
+        `expected 43 canonical observable states (recomputed), got ${report.canonical}`,
       );
     }
     if (report.alias !== 33) {
@@ -708,19 +710,19 @@ function checkStateIdentityUniqueness() {
         `expected 33 registration aliases (recomputed), got alias=${report.alias}`,
       );
     }
-    if (report.canonical + report.alias !== 75) {
+    if (report.canonical + report.alias !== 76) {
       fail(
         'state_identity.arithmetic',
-        `canonical+alias must equal 75, got ${report.canonical}+${report.alias}`,
+        `canonical+alias must equal 76, got ${report.canonical}+${report.alias}`,
       );
     }
-    if (report.mapping !== 75) {
-      fail('state_identity.mapping', `expected 75 registration mappings, got ${report.mapping}`);
+    if (report.mapping !== 76) {
+      fail('state_identity.mapping', `expected 76 registration mappings, got ${report.mapping}`);
     }
-    if (report.uniqueSignatures !== 42) {
+    if (report.uniqueSignatures !== 43) {
       fail(
         'state_identity.unique',
-        `expected 42 unique canonical observable signatures, got ${report.uniqueSignatures}`,
+        `expected 43 unique canonical observable signatures, got ${report.uniqueSignatures}`,
       );
     }
     if (report.projectionAliases !== 15 || report.projectionRegistrations !== 15) {
@@ -780,6 +782,19 @@ function checkStateIdentityUniqueness() {
     }
     if (report.imageFixture !== 'image_response.shared.og') {
       fail('state_identity.image_fixture', 'image_response.shared.og fixture contract missing');
+    }
+    if (
+      !Array.isArray(report.imageFixtures) ||
+      !report.imageFixtures.includes('image_response.shared.og') ||
+      !report.imageFixtures.includes('image_response.shared.export')
+    ) {
+      fail(
+        'state_identity.image_fixtures',
+        'closed image-response registry must include shared.og and shared.export',
+      );
+    }
+    if (!report.unknownImageFixtureRejected) {
+      fail('state_identity.unknown_image_fixture', 'unknown image-response fixture ID must reject');
     }
     if (!report.unknownFixtureRejected) {
       fail('state_identity.unknown_fixture', 'unknown auth-gate fixture ID must reject');

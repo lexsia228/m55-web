@@ -173,7 +173,12 @@ async function runNavigateSetup(
     }
     await establishLocalAuthGateFixture(page, baseURL, authDef.fixtureId);
   } else if (plan.imageResponse) {
-    await establishImageResponseFixture(page, baseURL);
+    if (!plan.fixtureId) {
+      throw new Error(
+        `STOP_FIXTURE_SCOPE: image-response setup requires a closed fixture ID for ${entry.runtimeStateId}`,
+      );
+    }
+    await establishImageResponseFixture(page, baseURL, plan.fixtureId);
   } else {
     await gotoLocal(page, baseURL, path);
   }
@@ -549,6 +554,16 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         navigatePath: '/r/cq-smoke-invalid/opengraph-image',
         readySelector: '[data-m55-cq-state-id="ecp:shared.og:og"]',
         stateMarkerSelector: '[data-m55-cq-state-id="ecp:shared.og:og"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+        imageResponse: true,
+      };
+    case 'shared.export':
+      return {
+        fixtureId: 'image_response.shared.export',
+        navigatePath: '/r/cq-smoke-invalid/share-image?aspect=4%3A5',
+        readySelector: '[data-m55-cq-state-id="ecp:shared.export:export"]',
+        stateMarkerSelector: '[data-m55-cq-state-id="ecp:shared.export:export"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         imageResponse: true,

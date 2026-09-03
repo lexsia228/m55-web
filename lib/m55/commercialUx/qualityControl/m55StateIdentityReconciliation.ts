@@ -7,6 +7,8 @@ import type { StateDomContract } from './m55StateDomContracts';
 import {
   M55_AUTH_GATE_FIXTURE_REGISTRY,
   authGateFixtureById,
+  imageResponseFixtureById,
+  isRegisteredImageResponseFixtureId,
 } from './m55AuthGateFixtureRegistry';
 import {
   assertAliasMapClosed,
@@ -49,7 +51,11 @@ export type StateIdentityReconciliationFailure = {
 };
 
 function isSelectorOnly(contract: StateDomContract): boolean {
-  return !contract.stateAttribute && !contract.expectedText && contract.fixtureId !== 'image_response.shared.og' && contract.fixtureId !== 'image_response';
+  return (
+    !contract.stateAttribute &&
+    !contract.expectedText &&
+    !isRegisteredImageResponseFixtureId(contract.fixtureId)
+  );
 }
 
 /**
@@ -178,6 +184,23 @@ export function reconcileExecutableStateContracts(
       }
     }
 
+    if (contract.fixtureId?.startsWith('image_response.')) {
+      try {
+        const def = imageResponseFixtureById(contract.fixtureId);
+        if (def.runtimeStateId !== contract.runtimeStateId) {
+          failures.push({
+            code: 'SETUP_STATE_MISMATCH',
+            detail: `${contract.surfaceId} fixture ${contract.fixtureId} owns ${def.runtimeStateId} not ${contract.runtimeStateId}`,
+          });
+        }
+      } catch (error) {
+        failures.push({
+          code: 'STOP_FIXTURE_SCOPE',
+          detail: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
     const setupFixture = options.setupFixtureIdBySurfaceId?.get(contract.surfaceId);
     if (
       typeof setupFixture === 'string' &&
@@ -223,7 +246,10 @@ export function reconcileExecutableStateContracts(
     fixtureToStates.set(contract.fixtureId, set);
   }
   for (const [fixtureId, states] of fixtureToStates) {
-    if (states.size > 1 && fixtureId.startsWith('auth_gate.')) {
+    if (
+      states.size > 1 &&
+      (fixtureId.startsWith('auth_gate.') || fixtureId.startsWith('image_response.'))
+    ) {
       failures.push({
         code: 'STATE_CONTRACT_AMBIGUOUS',
         detail: `fixture ${fixtureId} reused for incompatible canonical states ${[...states].join(',')}`,
