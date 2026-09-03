@@ -130,6 +130,7 @@ export default function PairFreeShareCTA({
           spec={publicSpec}
           surface="compatibility_guest"
           requirePreviewAck
+          aspectRatio={activeAspectRatio}
         />
       </section>
     );

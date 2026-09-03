@@ -10,8 +10,8 @@ import type { Page } from '@playwright/test';
 import type { SurfaceManifestEntry } from '../../../commercialQuality/types';
 import { M55_METHOD_ROUTE_CONSUMPTION } from '../../method/m55MethodRouteConsumption';
 import {
-  IMAGE_RESPONSE_FIXTURE,
   authGateFixtureByRuntimeStateId,
+  imageResponseFixtureByRuntimeStateId,
   AUTH_GATE_STATE_ATTR,
 } from './m55AuthGateFixtureRegistry';
 import { canonicalObservableStateIdFor } from './m55ObservableStateAliasMap';
@@ -70,19 +70,20 @@ function buildContract(
     };
   }
 
-  if (runtimeStateId === IMAGE_RESPONSE_FIXTURE.runtimeStateId) {
+  const image = imageResponseFixtureByRuntimeStateId(runtimeStateId);
+  if (image) {
     return {
       surfaceId,
       runtimeStateId,
-      canonicalObservableStateId: IMAGE_RESPONSE_FIXTURE.expectedAttributeValue,
+      canonicalObservableStateId: image.expectedAttributeValue,
       setupId,
       route,
-      selector: stateIdSelector(IMAGE_RESPONSE_FIXTURE.expectedAttributeValue),
+      selector: stateIdSelector(image.expectedAttributeValue),
       ownership: 'fixture',
       stateAttribute: STATE_CONTRACT_ATTR,
-      expectedAttributeValue: IMAGE_RESPONSE_FIXTURE.expectedAttributeValue,
+      expectedAttributeValue: image.expectedAttributeValue,
       expectedText: null,
-      fixtureId: IMAGE_RESPONSE_FIXTURE.fixtureId,
+      fixtureId: image.fixtureId,
       teardown: 'none',
     };
   }

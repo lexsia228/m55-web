@@ -216,7 +216,7 @@ Machine enforcement of this contract runs through a shared control plane. It **p
 
 Schema version **1**. Every governed user-visible surface registers a project-qualified surface ID, a stable runtime-state ID, authority references, a deterministic setup identity, a viewport range with width step and breakpoint neighbourhoods, protected elements, critical CTA authority, fixed/sticky elements, section boundaries, state variants, content stress profiles, output behaviour, and source owner files.
 
-Registration coverage is enforced for **51/51** ECP page entries, **12/12** Premium runtime states, **14/14** Premium capture cases and **7/7** commercial visual cases.
+Registration coverage is enforced for **52/52** ECP page entries, **12/12** Premium runtime states, **14/14** Premium capture cases and **7/7** commercial visual cases.
 
 ### Canonical baseline status
 

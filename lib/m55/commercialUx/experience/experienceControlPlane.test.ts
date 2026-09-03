@@ -19,6 +19,7 @@ import {
   TRAIT_IDENTITY_CATALOG,
   assertTraitIdentityCatalogComplete,
 } from '../traitIdentityCatalog';
+import { M55_ASSET_ROUTE_CONSUMPTION } from '../assetLedger/assetRouteConsumption';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../terminology';
 
 const ROOT = join(import.meta.dirname, '../../../..');
@@ -150,5 +151,32 @@ describe('M55 Experience Control Plane v2', () => {
     assert.match(locked, /T\.freeStart/);
     assert.match(needFree, /T\.freeStart/);
     assert.match(guest, /T\.freeStart/);
+  });
+
+  it('registers shared export route and updated free share ownership', () => {
+    const exportRoute = M55_EXPERIENCE_CONTROL_PLANE.routeRegistry.find((e) => e.id === 'shared.export');
+    assert.ok(exportRoute);
+    assert.equal(exportRoute!.pattern, '/r/:token/share-image');
+    assert.equal(exportRoute!.state, 'export');
+    assert.equal(exportRoute!.archetype, 'SHARED_SOCIAL_ENTRY');
+    assert.equal(exportRoute!.privacy, 'privacy_safe_share');
+    assert.deepEqual(exportRoute!.ownerFiles, [
+      'app/r/[token]/share-image/route.ts',
+      'lib/m55/narrative/publicShareImageV1.tsx',
+    ]);
+
+    const shareRoute = M55_EXPERIENCE_CONTROL_PLANE.routeRegistry.find((e) => e.id === 'free.core.share');
+    assert.ok(shareRoute);
+    assert.ok(shareRoute!.ownerFiles.includes('components/narrative/ShareCardChooser.tsx'));
+    assert.ok(shareRoute!.ownerFiles.includes('components/narrative/NarrativeShareActions.tsx'));
+    assert.ok(shareRoute!.ownerFiles.includes('lib/m55/narrative/projectPublicShareV1.ts'));
+    assert.ok(shareRoute!.ownerFiles.includes('lib/m55/freeResult/privacySafeShareCardV1.ts'));
+
+    assert.equal(resolveExperienceArchetype({ pathname: '/r/abc/share-image' }), 'SHARED_SOCIAL_ENTRY');
+
+    assert.deepEqual(M55_ASSET_ROUTE_CONSUMPTION['shared.export'], [
+      'share.card',
+      'trait.identity',
+    ]);
   });
 });

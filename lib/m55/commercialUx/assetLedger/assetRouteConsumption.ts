@@ -28,6 +28,7 @@ export const M55_ASSET_ROUTE_CONSUMPTION: Readonly<Record<string, readonly strin
   'shared.entry': ['share.card', 'trait.identity', 'fence.free'],
   'shared.entry.invalid': ['share.card', 'terminology.core'],
   'shared.og': ['share.card', 'trait.identity'],
+  'shared.export': ['share.card', 'trait.identity'],
   'premium.dtr_index': ['premium.funnel', 'fence.premium', 'premium.experience.home_editorial_sample_v1'],
   'premium.lp.intro': ['fence.premium', 'trait.identity', 'bridge.locked_preview', 'premium.experience.home_editorial_sample_v1'],
   'premium.lp.need_free': ['free.funnel', 'fence.premium', 'premium.experience.home_editorial_sample_v1'],

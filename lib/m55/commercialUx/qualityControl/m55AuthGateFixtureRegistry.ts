@@ -152,25 +152,99 @@ ${mainInner}
 </html>`;
 }
 
-/** Fixed image-response fixture identity (not auth-gate). */
-export const IMAGE_RESPONSE_FIXTURE = {
-  fixtureId: 'image_response.shared.og',
-  route: '/r/:token/opengraph-image',
-  runtimeStateId: 'ecp:shared.og:og',
-  selector: `img[${AUTH_GATE_STATE_ATTR}="ecp:shared.og:og"]`,
-  stateAttribute: AUTH_GATE_STATE_ATTR,
-  expectedAttributeValue: 'ecp:shared.og:og',
-  teardown: 'none' as const,
+export type ImageResponseFixtureDefinition = {
+  fixtureId: string;
+  route: string;
+  runtimeStateId: string;
+  selector: string;
+  stateAttribute: typeof AUTH_GATE_STATE_ATTR;
+  expectedAttributeValue: string;
+  /** Deterministic localhost navigate path (includes required query params). */
+  navigatePath: string;
+  /** Intercept only matching local image-response requests. */
+  urlMatchPattern: RegExp;
+  teardown: 'none';
 };
 
-export function renderImageResponseFixtureHtml(): string {
-  const id = IMAGE_RESPONSE_FIXTURE.runtimeStateId;
+const IMAGE_RESPONSE_DEFS = [
+  {
+    fixtureId: 'image_response.shared.og',
+    route: '/r/:token/opengraph-image',
+    runtimeStateId: 'ecp:shared.og:og',
+    navigatePath: '/r/cq-smoke-invalid/opengraph-image',
+    urlMatchPattern: /opengraph-image/i,
+    alt: 'og',
+  },
+  {
+    fixtureId: 'image_response.shared.export',
+    route: '/r/:token/share-image',
+    runtimeStateId: 'ecp:shared.export:export',
+    navigatePath: '/r/cq-smoke-invalid/share-image?aspect=4%3A5',
+    urlMatchPattern: /share-image/i,
+    alt: 'export',
+  },
+] as const;
+
+function toImageResponseDefinition(
+  def: (typeof IMAGE_RESPONSE_DEFS)[number],
+): ImageResponseFixtureDefinition {
+  return {
+    fixtureId: def.fixtureId,
+    route: def.route,
+    runtimeStateId: def.runtimeStateId,
+    selector: `img[${AUTH_GATE_STATE_ATTR}="${def.runtimeStateId}"]`,
+    stateAttribute: AUTH_GATE_STATE_ATTR,
+    expectedAttributeValue: def.runtimeStateId,
+    navigatePath: def.navigatePath,
+    urlMatchPattern: def.urlMatchPattern,
+    teardown: 'none',
+  };
+}
+
+export const M55_IMAGE_RESPONSE_FIXTURE_REGISTRY: readonly ImageResponseFixtureDefinition[] =
+  IMAGE_RESPONSE_DEFS.map(toImageResponseDefinition);
+
+const IMAGE_BY_ID = new Map(
+  M55_IMAGE_RESPONSE_FIXTURE_REGISTRY.map((d) => [d.fixtureId, d] as const),
+);
+
+const IMAGE_BY_RUNTIME = new Map(
+  M55_IMAGE_RESPONSE_FIXTURE_REGISTRY.map((d) => [d.runtimeStateId, d] as const),
+);
+
+/** OG image-response fixture — preserved alias for existing imports. */
+export const IMAGE_RESPONSE_FIXTURE: ImageResponseFixtureDefinition =
+  imageResponseFixtureById('image_response.shared.og');
+
+export function imageResponseFixtureById(fixtureId: string): ImageResponseFixtureDefinition {
+  const found = IMAGE_BY_ID.get(fixtureId);
+  if (!found) {
+    throw new Error(`STOP_FIXTURE_SCOPE: unknown image-response fixture ID ${fixtureId}`);
+  }
+  return found;
+}
+
+export function imageResponseFixtureByRuntimeStateId(
+  runtimeStateId: string,
+): ImageResponseFixtureDefinition | undefined {
+  return IMAGE_BY_RUNTIME.get(runtimeStateId);
+}
+
+export function isRegisteredImageResponseFixtureId(fixtureId: string | null | undefined): boolean {
+  return Boolean(fixtureId && IMAGE_BY_ID.has(fixtureId));
+}
+
+export function renderImageResponseFixtureHtml(
+  definition: ImageResponseFixtureDefinition = IMAGE_RESPONSE_FIXTURE,
+): string {
+  const id = definition.runtimeStateId;
+  const alt = definition.fixtureId.endsWith('.export') ? 'export' : 'og';
   // 1x1 PNG
   const png =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
   return `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><title>M55 OG fixture</title></head>
-<body data-m55-cq-fixture="image_response">
-<img src="data:image/png;base64,${png}" alt="og" data-m55-cq-state-id="${id}" />
+<html lang="ja"><head><meta charset="utf-8"><title>M55 image-response fixture</title></head>
+<body data-m55-cq-fixture="image_response" data-m55-cq-fixture-id="${definition.fixtureId}">
+<img src="data:image/png;base64,${png}" alt="${alt}" data-m55-cq-state-id="${id}" />
 </body></html>`;
 }

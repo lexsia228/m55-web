@@ -75,12 +75,16 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
 
   if (narrative) {
     const art = resolvePublicShareArtworkFromToken(narrative.token) ?? undefined;
+    const shareSubsystem =
+      narrative.variant === 'pair_manual' || narrative.variant === 'pair_generic'
+        ? 'pair'
+        : 'self';
     return (
       <div
         className={`${styles.shell} m55-exp-reading`}
         data-testid="m55-shared-entry"
         data-m55-experience-surface="SHARED_SOCIAL_ENTRY"
-        data-m55-share-subsystem="pair"
+        data-m55-share-subsystem={shareSubsystem}
         data-m55-share-art={art ? 'true' : 'false'}
       >
         <p className={styles.brand}>M55</p>

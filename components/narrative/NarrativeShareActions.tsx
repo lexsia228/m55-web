@@ -13,18 +13,25 @@ import { buildXShareIntentUrl } from '../../lib/m55/narrative/xShareIntentV1';
 import { shareVariantEnum } from '../../lib/m55/narrative/publicCardDisplayV1';
 import { sanitizeVisibleShareFallbackText } from '../core/useCoreShareActions';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
+import type { ShareAspectRatio } from './PublicShareCardPreview';
 import styles from './NarrativeShare.module.css';
 
 type Status = 'idle' | 'copied' | 'cancelled' | 'error';
+
+function buildUserShareImagePath(sharePath: string, aspect: ShareAspectRatio): string {
+  return `${sharePath}/share-image?aspect=${encodeURIComponent(aspect)}`;
+}
 
 export default function NarrativeShareActions({
   spec,
   surface,
   requirePreviewAck = false,
+  aspectRatio,
 }: {
   spec: PublicShareSpecV1;
   surface: 'core_share' | 'compatibility_guest' | 'compatibility_paid_report' | 'dtr_saved_report';
   requirePreviewAck?: boolean;
+  aspectRatio?: ShareAspectRatio;
 }) {
   const [status, setStatus] = useState<Status>('idle');
   const [nativeAvailable, setNativeAvailable] = useState(false);
@@ -132,7 +139,10 @@ export default function NarrativeShareActions({
     setStatus('idle');
     try {
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      const imageUrl = `${origin}${spec.imageSpec.path}`;
+      const imagePath = aspectRatio
+        ? buildUserShareImagePath(spec.sharePath, aspectRatio)
+        : spec.imageSpec.path;
+      const imageUrl = `${origin}${imagePath}`;
       const res = await fetch(imageUrl);
       if (!res.ok) throw new Error('image fetch failed');
       const blob = await res.blob();

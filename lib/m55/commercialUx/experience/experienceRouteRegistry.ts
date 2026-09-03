@@ -365,7 +365,12 @@ export const M55_EXPERIENCE_ROUTE_REGISTRY: readonly ExperienceRouteEntry[] = [
     privacy: 'privacy_safe_share',
     productTruth: 'trait_identity',
     migration: 'ecp_v2_active',
-    ownerFiles: ['lib/m55/freeResult/privacySafeShareCardV1.ts'],
+    ownerFiles: [
+      'components/narrative/ShareCardChooser.tsx',
+      'components/narrative/NarrativeShareActions.tsx',
+      'lib/m55/narrative/projectPublicShareV1.ts',
+      'lib/m55/freeResult/privacySafeShareCardV1.ts',
+    ],
   },
 
   // SHARED
@@ -412,6 +417,24 @@ export const M55_EXPERIENCE_ROUTE_REGISTRY: readonly ExperienceRouteEntry[] = [
     productTruth: 'trait_identity',
     migration: 'ecp_v2_active',
     ownerFiles: ['app/r/[token]/opengraph-image.tsx'],
+  },
+  {
+    id: 'shared.export',
+    pattern: '/r/:token/share-image',
+    state: 'export',
+    archetype: 'SHARED_SOCIAL_ENTRY',
+    shell: 'public',
+    primaryCtaState: 'NONE',
+    headerMode: 'none',
+    footerMode: 'none',
+    printMode: 'privacy_safe',
+    privacy: 'privacy_safe_share',
+    productTruth: 'trait_identity',
+    migration: 'ecp_v2_active',
+    ownerFiles: [
+      'app/r/[token]/share-image/route.ts',
+      'lib/m55/narrative/publicShareImageV1.tsx',
+    ],
   },
 
   // PREMIUM

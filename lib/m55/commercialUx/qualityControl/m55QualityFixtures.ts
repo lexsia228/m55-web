@@ -9,8 +9,8 @@ import { MY_SAVED_REPORT_VALUE_TITLE } from '../../dtrProductLabels';
 import {
   AUTH_GATE_FIXTURE_ATTR,
   AUTH_GATE_FIXTURE_SELECTOR,
-  IMAGE_RESPONSE_FIXTURE,
   authGateFixtureById,
+  imageResponseFixtureById,
   renderAuthGateFixtureHtml,
   renderImageResponseFixtureHtml,
   type AuthGateFixtureMode,
@@ -103,19 +103,21 @@ export async function establishLocalAuthGateFixture(
   }
 }
 
-/** Fixed image-response fixture — identity owned by IMAGE_RESPONSE_FIXTURE. */
+/** Fixed image-response fixture — identity owned by closed registry definition. */
 export async function establishImageResponseFixture(
   page: Page,
   baseURL: string,
+  fixtureId: string,
 ): Promise<void> {
   requireLocalhostQualityFixture('image_response');
+  const definition = imageResponseFixtureById(fixtureId);
   const origin = new URL(baseURL).origin;
-  const targetUrl = new URL('/r/cq-smoke-invalid/opengraph-image', baseURL).toString();
-  const body = renderImageResponseFixtureHtml();
+  const targetUrl = new URL(definition.navigatePath, baseURL).toString();
+  const body = renderImageResponseFixtureHtml(definition);
 
   await page.route('**/*', async (route) => {
     const reqUrl = route.request().url();
-    if (reqUrl.startsWith(origin) && /opengraph-image/i.test(reqUrl)) {
+    if (reqUrl.startsWith(origin) && definition.urlMatchPattern.test(reqUrl)) {
       await route.fulfill({
         status: 200,
         contentType: 'text/html; charset=utf-8',
@@ -128,7 +130,7 @@ export async function establishImageResponseFixture(
 
   await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
   await page
-    .locator(`[data-m55-cq-state-id="${IMAGE_RESPONSE_FIXTURE.runtimeStateId}"]`)
+    .locator(`[data-m55-cq-state-id="${definition.runtimeStateId}"]`)
     .waitFor({ state: 'attached', timeout: 10_000 });
 }
 

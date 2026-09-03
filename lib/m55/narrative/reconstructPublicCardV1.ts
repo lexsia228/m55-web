@@ -331,6 +331,11 @@ function manualShareInsightJa(
   };
   const firstClause = (text: string) => text.split('。')[0]?.trim() ?? text.trim();
 
+  const fusedMisread = bodyFor('fused_misread');
+  if (fusedMisread) return firstClause(fusedMisread);
+  const fusedActual = bodyFor('fused_actual');
+  if (fusedActual) return firstClause(fusedActual);
+
   if (birth.start !== answer.start) {
     const startBody = bodyFor('primary_start');
     if (startBody) return firstClause(startBody);
@@ -349,10 +354,6 @@ function manualShareInsightJa(
     const recoveryBody = bodyFor('recover');
     if (recoveryBody) return firstClause(recoveryBody);
   }
-  const fusedMisread = bodyFor('fused_misread');
-  if (fusedMisread) return firstClause(fusedMisread);
-  const fusedActual = bodyFor('fused_actual');
-  if (fusedActual) return firstClause(fusedActual);
   return firstClause(START_SLOT[answer.start]);
 }
 

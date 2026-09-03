@@ -214,7 +214,11 @@ export function isDeferredAccessibilityFinding(
   });
 }
 
-/* ── ECP page surfaces (51) ────────────────────────────────────────── */
+/* ── ECP page surfaces (52) ────────────────────────────────────────── */
+
+function isImageResponseEcpEntry(entry: ExperienceRouteEntry): boolean {
+  return entry.id === 'shared.og' || entry.id === 'shared.export';
+}
 
 function ecpEntryToSurface(entry: ExperienceRouteEntry): SurfaceManifestEntry {
   const references: AuthorityReference[] = [
@@ -249,17 +253,15 @@ function ecpEntryToSurface(entry: ExperienceRouteEntry): SurfaceManifestEntry {
     ],
     authorityReferences: references,
     viewport: VIEWPORT_RANGE,
-    protectedElements:
-      entry.id === 'shared.og'
-        ? [{ selector: 'img', role: 'media', requireText: false }]
-        : [{ selector: M55_GOVERNED_ROOT_SELECTOR, role: 'container', requireText: true }],
+    protectedElements: isImageResponseEcpEntry(entry)
+      ? [{ selector: 'img', role: 'media', requireText: false }]
+      : [{ selector: M55_GOVERNED_ROOT_SELECTOR, role: 'container', requireText: true }],
     criticalCta: null,
-    fixedElements:
-      entry.id === 'shared.og'
-        ? []
-        : entry.shell === 'public'
-          ? [PUBLIC_FIXED_HEADER_SELECTOR]
-          : [],
+    fixedElements: isImageResponseEcpEntry(entry)
+      ? []
+      : entry.shell === 'public'
+        ? [PUBLIC_FIXED_HEADER_SELECTOR]
+        : [],
     sectionBoundaries: [],
     stateVariants: variants,
     contentStressProfiles: stress,
@@ -269,12 +271,16 @@ function ecpEntryToSurface(entry: ExperienceRouteEntry): SurfaceManifestEntry {
         : ['default', 'reduced_motion'],
     // Every ECP archetype declares a paged print mode, so screen + paged output
     // are both governed; a privacy-safe route additionally emits a shared image.
-    outputBehaviour: {
-      screen: true,
-      print: true,
-      pdf: true,
-      sharedImage: entry.privacy === 'privacy_safe_share',
-    },
+    // Binary export image endpoints govern screen + sharedImage only — not print/pdf.
+    outputBehaviour:
+      entry.id === 'shared.export'
+        ? { screen: true, print: false, pdf: false, sharedImage: true }
+        : {
+            screen: true,
+            print: true,
+            pdf: true,
+            sharedImage: entry.privacy === 'privacy_safe_share',
+          },
     canonicalBaseline: 'none',
     baselineApproval: null,
     sourceOwnerFiles: entry.ownerFiles,
