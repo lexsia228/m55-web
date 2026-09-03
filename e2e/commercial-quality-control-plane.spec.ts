@@ -728,6 +728,11 @@ test.describe('commercial quality control plane', () => {
       expect(await page.locator('[data-m55-cq-state-id]').count()).toBe(1);
 
       // Real client-side navigation via the HOME mechanism link.
+      const mechanism = page.getByTestId('m55-home-mechanism');
+      await expect(mechanism).toHaveCount(1);
+      await mechanism.locator(':scope > summary').click();
+      await expect(mechanism).toHaveJSProperty('open', true);
+
       const methodLink = page.getByTestId('m55-home-mechanism-link');
       await expect(methodLink).toBeVisible({ timeout: 15_000 });
       await methodLink.click();

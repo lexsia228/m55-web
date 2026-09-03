@@ -1100,6 +1100,29 @@ function methodPlacementPlan(placementId: string): NavigatePlan {
         stateMarkerSelector: '[data-testid="m55-method-home"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
+        setupFn: async (page, baseURL) => {
+          const disclosureTimeoutMs = 15_000;
+          await gotoLocal(page, baseURL, '/home');
+
+          const mechanism = page.getByTestId('m55-home-mechanism');
+          const mechanismCount = await mechanism.count();
+          if (mechanismCount !== 1) {
+            throw new Error(
+              `SETUP_STATE_MISMATCH: expected exactly one home mechanism disclosure, found ${mechanismCount}`,
+            );
+          }
+
+          await mechanism.locator(':scope > summary').click({ timeout: disclosureTimeoutMs });
+          if ((await mechanism.getAttribute('open')) === null) {
+            throw new Error(
+              'SETUP_STATE_MISMATCH: home method mechanism disclosure did not open',
+            );
+          }
+
+          await page
+            .getByTestId('m55-method-home')
+            .waitFor({ state: 'visible', timeout: disclosureTimeoutMs });
+        },
       };
     case 'core_free_result':
       return {
@@ -1110,8 +1133,30 @@ function methodPlacementPlan(placementId: string): NavigatePlan {
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         setupFn: async (page, baseURL) => {
+          const disclosureTimeoutMs = 15_000;
           await establishCoreResult(page, baseURL);
-          await page.getByText('読みの組み立て').click();
+          const methodBlock = page.getByTestId('m55-method-core-free-result');
+          const innerDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
+          const outerDisclosure = methodBlock.locator('xpath=ancestor::details[2]');
+          if ((await outerDisclosure.count()) !== 1) {
+            throw new Error(
+              'SETUP_STATE_MISMATCH: expected one outer method disclosure for m55-method-core-free-result',
+            );
+          }
+          if ((await innerDisclosure.count()) !== 1) {
+            throw new Error(
+              'SETUP_STATE_MISMATCH: expected one inner method disclosure for m55-method-core-free-result',
+            );
+          }
+          await outerDisclosure.locator(':scope > summary').click({ timeout: disclosureTimeoutMs });
+          if ((await outerDisclosure.getAttribute('open')) === null) {
+            throw new Error('SETUP_STATE_MISMATCH: outer method disclosure did not open');
+          }
+          await innerDisclosure.locator(':scope > summary').click({ timeout: disclosureTimeoutMs });
+          if ((await innerDisclosure.getAttribute('open')) === null) {
+            throw new Error('SETUP_STATE_MISMATCH: inner method disclosure did not open');
+          }
+          await methodBlock.waitFor({ state: 'visible', timeout: disclosureTimeoutMs });
         },
       };
     case 'dtr_lp':
