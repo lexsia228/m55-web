@@ -5,6 +5,7 @@
  * identity must still be reobserved by the caller when required.
  */
 
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,6 +43,7 @@ const REQUIRED_CONTROL_TOWER_FILES = [
   'docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md',
   'lib/m55/contracts/m55CommercialFunnelContract.ts',
   'scripts/m55-control-tower-context.mjs',
+  'scripts/m55-control-tower-handoff.mjs',
   'scripts/m55-control-tower-semantic.mjs',
 ];
 
@@ -193,7 +195,38 @@ function expectValidationFail(label, state, expectedSubstring) {
   }
 }
 
+function checkMandatoryAuditGateWiring() {
+  const controlTowerSource = read('scripts/verify-m55-control-tower.mjs');
+  const auditGateSource = read('scripts/audit_gate.mjs');
+  if (!/function runMandatoryAuditGate\(/.test(controlTowerSource)) {
+    fail('verify-m55-control-tower must define runMandatoryAuditGate');
+  }
+  if (!/scripts\/audit_gate\.mjs/.test(controlTowerSource)) {
+    fail('verify-m55-control-tower must invoke scripts/audit_gate.mjs');
+  }
+  if (/verify-m55-control-tower|verify:m55-control-tower/.test(auditGateSource)) {
+    fail('CONTROL_TOWER_AUDIT_RECURSION_DETECTED: audit_gate must not invoke verify-m55-control-tower');
+  }
+}
+
+function runMandatoryAuditGate() {
+  console.log('verify:m55-control-tower:audit_gate:START');
+  const result = spawnSync(process.execPath, ['scripts/audit_gate.mjs'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  if (result.status !== 0) {
+    fail(`mandatory audit_gate failed with exit code ${result.status ?? 'unknown'}`);
+    return;
+  }
+  console.log('verify:m55-control-tower:audit_gate:PASS');
+}
+
 function runSemanticSelfTests() {
+  checkMandatoryAuditGateWiring();
   expectValidationPass('pending mechanism revalidation', buildFixtureState());
 
   expectValidationPass(
@@ -323,6 +356,9 @@ function checkPackageContextScript() {
   const pkg = read('package.json');
   if (!/"m55:context"\s*:\s*"node scripts\/m55-control-tower-context\.mjs"/.test(pkg)) {
     fail('package.json missing m55:context script');
+  }
+  if (!/"m55:handoff"\s*:\s*"node scripts\/m55-control-tower-handoff\.mjs"/.test(pkg)) {
+    fail('package.json missing m55:handoff script');
   }
 }
 function checkExecutionState() {
@@ -1882,6 +1918,7 @@ function main() {
   runSharedChromeSourceNegativeSelfTests();
   checkLedger();
   checkCommercialSkuOwnersInContract();
+  runMandatoryAuditGate();
 
   if (FAILURES.length > 0) {
     console.error('verify:m55-control-tower:FAIL');

@@ -129,4 +129,60 @@ export const EXPERIENCE_CSS_VAR_ALLOWLIST = [
   '--m55-read-width',
   '--m55-card-shadow',
   '--m55-sticky-height',
+  '--m55-subsystem-accent',
+  '--m55-subsystem-accent-soft',
+  '--m55-subsystem-ink',
+  '--m55-subsystem-surface',
 ] as const;
+
+/** Wave 2 visual subsystems — distinct grammar, shared M55 DNA. */
+export const M55_VISUAL_SUBSYSTEMS = ['master', 'self', 'pair', 'premium', 'share'] as const;
+export type M55VisualSubsystem = (typeof M55_VISUAL_SUBSYSTEMS)[number];
+
+export const M55_SUBSYSTEM_TOKENS: Record<
+  M55VisualSubsystem,
+  { accent: string; accentSoft: string; ink: string; surface: string }
+> = {
+  master: {
+    accent: EXPERIENCE_COLOR.deepNavy,
+    accentSoft: EXPERIENCE_COLOR.deepNavySoft,
+    ink: EXPERIENCE_COLOR.textStrong,
+    surface: EXPERIENCE_COLOR.warmIvory,
+  },
+  self: {
+    accent: '#4a5f8c',
+    accentSoft: 'rgba(74, 95, 140, 0.12)',
+    ink: '#1a2438',
+    surface: '#f7f5f2',
+  },
+  pair: {
+    accent: '#5c3d6e',
+    accentSoft: 'rgba(92, 61, 110, 0.14)',
+    ink: '#292535',
+    surface: '#f8f4f7',
+  },
+  premium: {
+    accent: '#c46e5a',
+    accentSoft: 'rgba(196, 110, 90, 0.14)',
+    ink: '#0b1a2b',
+    surface: '#f1e8d6',
+  },
+  share: {
+    accent: '#6b5fa8',
+    accentSoft: 'rgba(107, 95, 168, 0.16)',
+    ink: '#1c1830',
+    surface: '#f0ebe3',
+  },
+};
+
+/** Resolve visual subsystem from pathname (derived, not authority). */
+export function resolveVisualSubsystem(pathname: string): M55VisualSubsystem {
+  const path = pathname.split('?')[0] ?? '/';
+  if (path === '/home' || path === '/') return 'master';
+  if (path === '/core' || path.startsWith('/core/')) return 'self';
+  if (path.startsWith('/synastry')) return 'pair';
+  if (path.startsWith('/dtr')) return 'premium';
+  if (path.startsWith('/r/')) return 'share';
+  if (path === '/my' || path.startsWith('/my/')) return 'master';
+  return 'master';
+}

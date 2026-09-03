@@ -28,6 +28,7 @@ import {
   buildPremiumSharePostText,
   buildSelfSharePostText,
   normalizeJapaneseTerminalPunctuation,
+  PAIR_SHARE_CTA_JA,
 } from './sharePostSerializationV1';
 
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
@@ -503,7 +504,7 @@ export function reconstructPairPublicCard(
     variant: 'pair_manual',
     headline: '二人の取扱説明書',
     body,
-    cta: 'あなたの二人では、どう出る？',
+    cta: PAIR_SHARE_CTA_JA,
     insightJa: insight,
     shareTextJa: pairShareText('二人の取扱説明書', insight),
   };
@@ -519,7 +520,7 @@ export function reconstructGenericPublicCard(input: {
       variant: 'pair_generic',
       headline: '二人の相性レポートを読みました',
       body: insight,
-      cta: 'あなたの二人では、どう出る？',
+      cta: PAIR_SHARE_CTA_JA,
       insightJa: insight,
       shareTextJa: pairShareText('二人の相性レポート', insight),
     };

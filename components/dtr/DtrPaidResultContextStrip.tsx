@@ -66,9 +66,10 @@ export default function DtrPaidResultContextStrip() {
       className={styles.contextStrip}
       data-testid="m55-paid-result-context"
       aria-label="無料結果からの続き"
+      data-m55-visual-subsystem="self"
     >
       <p className={styles.contextTrait}>
-        資質 <strong>{view.traitName}</strong>
+        あなたの資質 <strong>{view.traitName}</strong>
       </p>
       <p className={styles.contextSentence}>{view.sentenceJa}</p>
       <p className={styles.contextEffort}>{STATIC_FREE_TO_PAID_BRIDGE.effortJa}</p>

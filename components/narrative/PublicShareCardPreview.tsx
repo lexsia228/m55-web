@@ -4,18 +4,27 @@ import type { PublicShareSpecV1 } from '../../lib/m55/narrative/publicShareSpecV
 import { parsePublicCardDisplayV1, posterHeroLinesJa } from '../../lib/m55/narrative/publicCardDisplayV1';
 import styles from './NarrativeShare.module.css';
 
+export type ShareAspectRatio = '1:1' | '4:5' | '9:16';
+
 export default function PublicShareCardPreview({
   spec,
   premiumMark = false,
   imagePath,
+  aspectRatio = '4:5',
+  shareSubsystem,
 }: {
   spec: PublicShareSpecV1;
   premiumMark?: boolean;
   imagePath?: string;
+  aspectRatio?: ShareAspectRatio;
+  shareSubsystem?: 'self' | 'pair';
 }) {
   const display = parsePublicCardDisplayV1(spec);
   const variant = spec.variant;
   const art = imagePath?.trim() ?? '';
+  const subsystem =
+    shareSubsystem ??
+    (variant === 'pair_manual' || variant === 'pair_generic' ? 'pair' : 'self');
 
   return (
     <article
@@ -25,6 +34,8 @@ export default function PublicShareCardPreview({
       data-card-variant={variant}
       data-share-path={spec.sharePath}
       data-share-art={art ? 'true' : 'false'}
+      data-share-aspect={aspectRatio}
+      data-m55-share-subsystem={subsystem}
       aria-label={`M55の共有カード：${spec.headline}`}
     >
       {art ? (

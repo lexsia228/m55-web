@@ -32,9 +32,9 @@ export function buildPremiumProductShelfModel(): PremiumProductShelfModel {
       priceLabelJa: pairAuthority.priceLabel,
       oneTimeNoteJa: '買い切り・自動更新なし',
       valueSentenceJa: '二人の違いやすれ違いの流れを、理由と扱い方まで深く読み解きます。',
-      ctaLabelJa: '二人の無料結果から始める',
+      ctaLabelJa: '二人の無料読み解きを始める',
       ctaHref: HOME_PAIR_READING_PUBLIC_HREF,
-      purchaseNoteJa: '無料結果のあとに二人の相性レポートを選べます',
+      purchaseNoteJa: '無料の読み解き後に、二人の相性レポートへ進めます',
     },
   };
 }

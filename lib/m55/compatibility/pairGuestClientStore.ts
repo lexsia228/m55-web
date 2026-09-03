@@ -24,6 +24,7 @@ import {
   type PairGuestPersistedV1,
 } from './pairReadingGuestContract';
 import type { RelationStatusId } from './pairReadingTypes';
+import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
 
 const COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1 =
   'm55_compatibility_guest_journey_v3_provenance_v1';
@@ -34,6 +35,7 @@ export type CompatibilityPurchaseJourney = {
   input: CompatibilityGuestInput;
   relationStatusId: RelationStatusId;
   currentContext: CompatibilityCurrentContextAnswersV2;
+  displayIdentity?: PairDisplayIdentityV1;
 };
 
 export type CompatibilityPurchaseHandoffResolution =
@@ -48,6 +50,7 @@ export function guestJourneyV3ToPurchaseJourney(
     input: journey.input,
     relationStatusId: journey.relationStatusId,
     currentContext: journey.answers,
+    displayIdentity: journey.displayIdentity,
   };
 }
 

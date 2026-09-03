@@ -60,7 +60,7 @@ export const M55_METHOD_ROUTE_CONSUMPTION: readonly MethodRouteConsumptionPlacem
     testId: 'm55-method-home',
     relativeOrder: {
       afterTestId: 'm55-home-mechanism',
-      beforeTestId: 'm55-home-premium-preview',
+      beforeTestId: 'm55-home-final-cta',
     },
     linkTarget: M55_METHOD_CANONICAL_ROUTE,
     linkTestId: null,

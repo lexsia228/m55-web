@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { fetchJsonWithTimeout, useBoundedReadiness } from '../../lib/m55/commercialUx/boundedAsync';
+import BoundedRecoveryState from '../common/BoundedRecoveryState';
 import { ProfileRepository, BirthProfile } from '../../lib/soul/profile';
 import {
   displayLabelForDtrRightKey,
@@ -69,7 +71,10 @@ import {
 } from '../../lib/m55/accountDataControlPublicCopy';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import { buildPostPurchaseRetentionHubModel } from '../../lib/m55/postPurchaseRetentionHub';
-import CompatibilitySavedReportsLibrary from './CompatibilitySavedReportsSection';
+import CompatibilitySavedReportsLibrary, {
+  CompatibilitySavedReportsSection,
+  type CompatibilityReportListItem,
+} from './CompatibilitySavedReportsSection';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -106,6 +111,67 @@ type SavedReportVisualState =
   | 'ready_unpurchased'
   | 'processing'
   | 'owned_ready';
+
+export type MyPanelPreviewMode = 'self_owned' | 'pair_library';
+
+const PREVIEW_OWNED_ENT: EntitlementsResponse = {
+  tier: 'premium',
+  dtr_rights: ['m55_p:core_origin'],
+};
+
+const PREVIEW_OWNED_SNAP: SnapshotReadyResponse = {
+  ready: true,
+  hasOwnership: true,
+  hasPurchaseSnapshot: true,
+  savedReportTier: {
+    hasLight: true,
+    hasFull: false,
+    canUpgradeFromLight: true,
+    reportInstanceId: '11111111-1111-4111-8111-111111111111',
+  },
+  consultWallet: {
+    availableCount: 2,
+    consumedCount: 1,
+    totalGrantedCount: 3,
+    status: 'active',
+  },
+};
+
+const PREVIEW_PAIR_REPORTS: CompatibilityReportListItem[] = [
+  {
+    id: '11111111-1111-4111-8111-111111111111',
+    createdAt: '2026-07-13T09:00:00.000Z',
+    chapterCount: 6,
+    displayIdentity: {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: 'Y',
+      relationLabel: '付き合っている',
+    },
+  },
+  {
+    id: '22222222-2222-4222-8222-222222222222',
+    createdAt: '2026-06-02T09:00:00.000Z',
+    chapterCount: 6,
+    displayIdentity: {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: 'K',
+      relationLabel: '距離がある',
+    },
+  },
+  {
+    id: '33333333-3333-4333-8333-333333333333',
+    createdAt: '2026-05-18T09:00:00.000Z',
+    chapterCount: 6,
+    displayIdentity: {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: 'M',
+      relationLabel: '気になる相手',
+    },
+  },
+];
 
 function computeRows(ent: EntitlementsResponse, snap: SnapshotReadyResponse | null): string[] {
   const rights = ent.dtr_rights ?? [];
@@ -150,7 +216,31 @@ function isOwnedSnapshotReady(
   return ownsAny && snap?.ready === true;
 }
 
-export default function MyPanel() {
+export default function MyPanel({ previewMode }: { previewMode?: MyPanelPreviewMode }) {
+  if (previewMode) {
+    return (
+      <div className={styles.wrap} data-m55-dev-preview="my-owned">
+        <header className={styles.hero}>
+          <h1 className={styles.h1}>{MY_PAGE_TITLE}</h1>
+          <p className={styles.lead}>{MY_PAGE_HERO_BODY}</p>
+        </header>
+        {previewMode === 'self_owned' ? (
+          <SavedReportSection
+            state="owned_ready"
+            ent={PREVIEW_OWNED_ENT}
+            snap={PREVIEW_OWNED_SNAP}
+            onDeleteSuccess={() => undefined}
+            deleteToastVisible={false}
+          />
+        ) : (
+          <div data-testid="m55-my-owned-pair-library">
+            <CompatibilitySavedReportsSection preview reports={PREVIEW_PAIR_REPORTS} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const { user, isLoaded } = useUser();
   const [ent, setEnt] = useState<EntitlementsResponse | null>(null);
   const [entError, setEntError] = useState(false);
@@ -159,29 +249,30 @@ export default function MyPanel() {
   const [snapError, setSnapError] = useState(false);
   const [deleteToastVisible, setDeleteToastVisible] = useState(false);
   const profileState = useMyProfileState(user?.id);
+  const authReadiness = useBoundedReadiness(isLoaded);
 
   const entLoading = Boolean(user) && !entLoaded;
 
   const load = useCallback(async () => {
     setEntLoaded(false);
     try {
-      const [entRes, snapRes] = await Promise.all([
-        fetch('/api/me/entitlements', { credentials: 'include', cache: 'no-store' }),
-        fetch('/api/dtr/report-snapshot-ready', { credentials: 'include', cache: 'no-store' }),
+      const [entResult, snapResult] = await Promise.allSettled([
+        fetchJsonWithTimeout<EntitlementsResponse>('/api/me/entitlements', { credentials: 'include', cache: 'no-store' }),
+        fetchJsonWithTimeout<SnapshotReadyResponse>('/api/dtr/report-snapshot-ready', { credentials: 'include', cache: 'no-store' }),
       ]);
-      if (!entRes.ok) {
+      if (entResult.status === 'rejected' || !entResult.value.response.ok) {
         setEntError(true);
         setEnt(null);
       } else {
-        const data = (await entRes.json()) as EntitlementsResponse;
+        const data = entResult.value.data;
         setEnt(data);
         setEntError(false);
       }
-      if (!snapRes.ok) {
+      if (snapResult.status === 'rejected' || !snapResult.value.response.ok) {
         setSnapError(true);
         setSnap(null);
       } else {
-        const s = (await snapRes.json()) as SnapshotReadyResponse;
+        const s = snapResult.value.data;
         setSnap(s);
         setSnapError(false);
       }
@@ -239,6 +330,20 @@ export default function MyPanel() {
   }, [ownedReady]);
 
   if (!isLoaded) {
+    if (authReadiness.timedOut) {
+      return (
+        <div className={styles.wrap}>
+          <BoundedRecoveryState
+            title="マイページを確認できませんでした"
+            description="ログイン状態の確認に時間がかかっています。もう一度確認するか、トップへ戻れます。"
+            onRetry={() => window.location.reload()}
+            escapeHref="/"
+            escapeLabel="トップへ戻る"
+            support
+          />
+        </div>
+      );
+    }
     return (
       <div className={styles.wrap}>
         <p className={styles.muted}>読み込み中…</p>

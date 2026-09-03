@@ -66,21 +66,21 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
     assert.match(home.heroSupportJa, /自己理解の入口です/);
   });
 
-  it('renders exactly one runtime-visible Hero action via mutually exclusive state-aware buttons, no anchor/Link', () => {
+  it('renders exactly one runtime-visible Hero action via mutually exclusive hydration-aware branches', () => {
     const noProfileBranch = heroSource.match(
-      /\{isLoaded && !hasProfile && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
+      /\{\(!hydrationReady \|\| !hasProfile\) && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
     )?.[0];
     const hasProfileBranch = heroSource.match(
-      /\{isLoaded && hasProfile && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
+      /\{hydrationReady && hasProfile && \(\s*<Link[\s\S]*?<\/Link>\s*\)\}/,
     )?.[0];
-    assert.ok(noProfileBranch, 'expected an isLoaded && !hasProfile hero CTA branch');
-    assert.ok(hasProfileBranch, 'expected an isLoaded && hasProfile hero CTA branch');
+    assert.ok(noProfileBranch, 'expected a (!hydrationReady || !hasProfile) hero button branch');
+    assert.ok(hasProfileBranch, 'expected a hydrationReady && hasProfile hero Link branch');
 
-    const withoutGatedButtons = heroSource
+    const withoutGatedActions = heroSource
       .replace(noProfileBranch!, '')
       .replace(hasProfileBranch!, '');
-    assert.equal((withoutGatedButtons.match(/<(a|button|Link)(?=[\s/>])/g) ?? []).length, 0);
-    assert.equal((withoutGatedButtons.match(/role=["']button["']/g) ?? []).length, 0);
+    assert.equal((withoutGatedActions.match(/<(a|button|Link)(?=[\s/>])/g) ?? []).length, 0);
+    assert.equal((withoutGatedActions.match(/role=["']button["']/g) ?? []).length, 0);
 
     assert.match(noProfileBranch!, /type="button"/);
     assert.match(noProfileBranch!, /data-testid="m55-home-open-birth-intake"/);
@@ -88,14 +88,13 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
     assert.match(noProfileBranch!, /onClick=\{openIntake\}/);
     assert.match(noProfileBranch!, /\{freeCtaLabel\}/);
 
-    assert.match(hasProfileBranch!, /type="button"/);
+    assert.match(hasProfileBranch!, /href=\{homeCtaHref\}/);
     assert.match(hasProfileBranch!, /data-testid="m55-home-has-profile-hero"/);
     assert.match(hasProfileBranch!, /className=\{styles\.posterHeroCta\}/);
-    assert.match(hasProfileBranch!, /onClick=\{\(\) => router\.push\('\/core'\)\}/);
     assert.match(hasProfileBranch!, /\{freeCtaLabel\}/);
 
     assert.equal((heroSource.match(/<a[\s/>]/g) ?? []).length, 0);
-    assert.equal((heroSource.match(/<Link[\s/>]/g) ?? []).length, 0);
+    assert.equal((heroSource.match(/<Link[\s/>]/g) ?? []).length, 1);
     assert.match(heroSource, /\{homeCopy\.heroPosterSupportJa\}/);
     assert.match(heroSource, /\{homeCopy\.heroTrustJa\}/);
     assert.match(heroSource, />M55<\/p>/);
@@ -116,8 +115,8 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
       assert.equal(existsSync(join(repoRoot, 'public', path)), true);
     }
     assert.match(heroSource, /<picture/);
-    assert.match(heroSource, /width="4320"/);
-    assert.match(heroSource, /height="3000"/);
+    assert.match(heroSource, /width="1440"/);
+    assert.match(heroSource, /height="1000"/);
     assert.match(heroSource, /alt=""/);
     assert.match(heroSource, /loading="eager"/);
     assert.match(heroSource, /fetchPriority="high"/);
@@ -130,24 +129,23 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
 
 describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () => {
   it('renders lower sections in exact SSOT order', () => {
-    const testIds = [
-      'm55-home-product-map',
-      'm55-home-free-preview',
-      'm55-home-mechanism',
-      'm55-home-premium-preview',
-      'm55-home-final-cta',
+    const stages = [
+      { label: 'm55-home-product-map', index: lowerSource.indexOf('data-testid="m55-home-product-map"') },
+      { label: 'm55-home-free-preview', index: lowerSource.indexOf('data-testid="m55-home-free-preview"') },
+      { label: 'HomePairFreeSection', index: lowerSource.indexOf('<HomePairFreeSection') },
+      { label: 'm55-home-premium-preview', index: lowerSource.indexOf('data-testid="m55-home-premium-preview"') },
+      { label: 'm55-home-mechanism', index: lowerSource.indexOf('data-testid="m55-home-mechanism"') },
+      { label: 'm55-home-final-cta', index: lowerSource.indexOf('data-testid="m55-home-final-cta"') },
     ] as const;
-    const indices = testIds.map((id) => lowerSource.indexOf(`data-testid="${id}"`));
-    for (const [position, id] of testIds.entries()) {
-      assert.notEqual(indices[position], -1, `missing lower HOME section: ${id}`);
+    for (const stage of stages) {
+      assert.notEqual(stage.index, -1, `missing lower HOME section: ${stage.label}`);
     }
-    for (let i = 1; i < indices.length; i += 1) {
-      assert.ok(indices[i] > indices[i - 1], `${testIds[i]} must render after ${testIds[i - 1]}`);
+    for (let i = 1; i < stages.length; i += 1) {
+      assert.ok(
+        stages[i].index > stages[i - 1].index,
+        `${stages[i].label} must render after ${stages[i - 1].label}`,
+      );
     }
-    const freeIdx = lowerSource.indexOf('data-testid="m55-home-free-preview"');
-    const pairIdx = lowerSource.indexOf('<HomePairFreeSection');
-    const mechanismIdx = lowerSource.indexOf('data-testid="m55-home-mechanism"');
-    assert.ok(pairIdx !== -1 && freeIdx < pairIdx && pairIdx < mechanismIdx);
   });
 
   it('removes merged-away and legacy lower HOME sections', () => {
@@ -173,7 +171,6 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
       'uniquenessChips',
       'paidPlanUniquenessChipsJa',
       'paidPlanSavedPreviewChaptersJa',
-      '<details',
       'm55-home-plan-comparison-cta',
       'm55-home-existing-report',
       'm55-home-existing-my',
@@ -264,12 +261,27 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.match(homePanelCss, /\.pairStructureIndexTitle[\s\S]*word-break:\s*keep-all/);
   });
 
-  it('implements short mechanism band with how link only and no accordion/panels', () => {
+  it('implements mechanism progressive disclosure with how link and nested method model', () => {
     assert.doesNotMatch(homePanelSource, /HomeMechanismPanels/);
     assert.match(homePanelSource, /data-testid="m55-home-mechanism-link"/);
     assert.match(homePanelSource, /mechanismDiagram/);
     assert.doesNotMatch(homePanelSource, /data-testid="m55-home-ten-views-link"/);
-    assert.doesNotMatch(lowerSource, /<details/);
+
+    const mechanismDetailsStart = lowerSource.lastIndexOf(
+      '<details',
+      lowerSource.indexOf('data-testid="m55-home-mechanism"'),
+    );
+    const mechanismEnd = lowerSource.indexOf('</details>', mechanismDetailsStart);
+    const mechanismBlock = lowerSource.slice(mechanismDetailsStart, mechanismEnd);
+    assert.ok(mechanismDetailsStart !== -1 && mechanismEnd !== -1);
+    assert.match(mechanismBlock, /<details[\s\S]*data-testid="m55-home-mechanism"/);
+    assert.match(mechanismBlock, /<summary className=\{styles\.mechanismSummary\}/);
+    assert.match(mechanismBlock, /mechanismSummaryHint/);
+    assert.match(mechanismBlock, /mechanismDisclosureBody/);
+    assert.match(mechanismBlock, /<HomeMethodModel \/>/);
+
+    const premiumIdx = lowerSource.indexOf('data-testid="m55-home-premium-preview"');
+    assert.ok(premiumIdx !== -1 && premiumIdx < mechanismDetailsStart, 'Premium must precede mechanism disclosure');
   });
 
   it('uses a single primary paid CTA in the premium section and a secondary text link in final CTA', () => {

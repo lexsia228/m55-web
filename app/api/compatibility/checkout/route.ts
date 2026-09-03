@@ -24,12 +24,14 @@ import {
   type CompatibilityGuestInput,
 } from '../../../../lib/m55/compatibility/pairReadingGuestContract';
 import type { RelationStatusId } from '../../../../lib/m55/compatibility/pairReadingTypes';
+import { buildPairDisplayIdentity, parsePairDisplayIdentity, type PairDisplayIdentityV1 } from '../../../../lib/m55/compatibility/pairDisplayIdentity';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const CHECKOUT_INPUT_KEYS = [
   'currentContext',
+  'displayIdentity',
   'personA',
   'personB',
   'relationStatusId',
@@ -65,6 +67,7 @@ export async function POST(req: NextRequest) {
   let input: CompatibilityGuestInput;
   let currentContext: CompatibilityCurrentContextAnswersV2;
   let relationStatusId: RelationStatusId;
+  let displayIdentity: PairDisplayIdentityV1;
   try {
     const body = (await req.json()) as Record<string, unknown>;
     if (
@@ -80,6 +83,14 @@ export async function POST(req: NextRequest) {
     relationStatusId = isValidCompatibilityRelationStatusId(body.relationStatusId)
       ? body.relationStatusId
       : ('' as RelationStatusId);
+    const parsedDisplayIdentity = parsePairDisplayIdentity(body.displayIdentity);
+    if (!parsedDisplayIdentity) {
+      return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
+    }
+    displayIdentity = buildPairDisplayIdentity(
+      parsedDisplayIdentity.partnerLabel,
+      relationStatusId,
+    );
     const rawContext =
       body.currentContext &&
       typeof body.currentContext === 'object' &&
@@ -101,6 +112,7 @@ export async function POST(req: NextRequest) {
     input,
     relationStatusId,
     currentContext,
+    displayIdentity,
   );
   if (!built.ok) {
     return NextResponse.json({ error: 'invalid_input' }, { status: 400 });

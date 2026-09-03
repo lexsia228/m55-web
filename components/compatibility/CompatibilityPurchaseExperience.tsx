@@ -8,6 +8,7 @@ import {
   claimPreAuthSessionJourneyForUser,
   guestJourneyV3ToPurchaseJourney,
   purgeUnownedPairGuestSession,
+  persistCompletedPairJourney,
   readCompatibilityGuestJourneyV3FromSession,
   readLastCompletedPairJourney,
   resolveSignedInPurchaseHandoff,
@@ -24,6 +25,9 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './CompatibilityPurchaseExperience.module.css';
+import { fetchJsonWithTimeout, useBoundedReadiness } from '../../lib/m55/commercialUx/boundedAsync';
+import BoundedRecoveryState from '../common/BoundedRecoveryState';
+import { buildPairDisplayIdentity, isSpecificPairPartnerLabel } from '../../lib/m55/compatibility/pairDisplayIdentity';
 
 type PreviewAuthState = 'signed_in' | 'signed_out' | 'redirecting';
 
@@ -114,6 +118,8 @@ export function CompatibilityPurchaseConfirmation({
   );
   const [loading, setLoading] = useState(previewAuthState === 'redirecting');
   const [error, setError] = useState('');
+  const [legacyPartnerLabel, setLegacyPartnerLabel] = useState('');
+  const authReadiness = useBoundedReadiness(Boolean(previewAuthState) || isLoaded);
 
   useEffect(() => {
     if (!previewAuthState) return;
@@ -189,6 +195,10 @@ export function CompatibilityPurchaseConfirmation({
 
   async function startCheckout() {
     if (!journey || !commerceEnabled || loading) return;
+    if (!isSpecificPairPartnerLabel(journey.displayIdentity?.partnerLabel)) {
+      setError('購入する二人を区別するため、相手の短い呼び名を入力してください。');
+      return;
+    }
     if (previewAuthState) {
       setLoading(true);
       return;
@@ -200,7 +210,7 @@ export function CompatibilityPurchaseConfirmation({
       'compatibility_purchase',
     );
     try {
-      const response = await fetch('/api/compatibility/checkout', {
+      const { response, data } = await fetchJsonWithTimeout<{ url?: unknown }>('/api/compatibility/checkout', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -209,9 +219,10 @@ export function CompatibilityPurchaseConfirmation({
           personB: journey.input.personB,
           relationStatusId: journey.relationStatusId,
           currentContext: journey.currentContext,
+          displayIdentity: journey.displayIdentity
+            ?? buildPairDisplayIdentity('', journey.relationStatusId),
         }),
       });
-      const data = (await response.json()) as { url?: unknown };
       if (!response.ok || typeof data.url !== 'string') {
         throw new Error('checkout unavailable');
       }
@@ -226,6 +237,27 @@ export function CompatibilityPurchaseConfirmation({
     }
   }
 
+  function completeLegacyPairIdentity() {
+    if (!journey || !user?.id || !isSpecificPairPartnerLabel(legacyPartnerLabel)) {
+      setError('本名ではなくても大丈夫です。相手を区別できる短い呼び名を入力してください。');
+      return;
+    }
+    const displayIdentity = buildPairDisplayIdentity(
+      legacyPartnerLabel,
+      journey.relationStatusId,
+    );
+    const completedJourney = { ...journey, displayIdentity };
+    persistCompletedPairJourney(sessionStorage, user.id, {
+      version: 'journey_v3',
+      input: completedJourney.input,
+      relationStatusId: completedJourney.relationStatusId,
+      answers: completedJourney.currentContext,
+      displayIdentity,
+    });
+    setJourney(completedJourney);
+    setError('');
+  }
+
   if (!commerceEnabled) return null;
 
   const contextDisplay = journey
@@ -234,15 +266,47 @@ export function CompatibilityPurchaseConfirmation({
       journey.relationStatusId,
     )
     : null;
+  const purchaseIdentity = journey
+    ? journey.displayIdentity ?? buildPairDisplayIdentity('', journey.relationStatusId)
+    : null;
   const signedInContent = (
     <div className={styles.actionArea}>
-      {handoff === 'pending' || !isLoaded ? (
+      {authReadiness.timedOut ? (
+        <BoundedRecoveryState
+          title="購入内容を確認できませんでした"
+          description="ログイン状態の確認に時間がかかっています。もう一度確認するか、無料結果へ戻れます。"
+          onRetry={() => window.location.reload()}
+          escapeHref="/synastry"
+          escapeLabel="無料結果へ戻る"
+        />
+      ) : handoff === 'pending' || !isLoaded ? (
         <p className={styles.inputReady}>購入内容を準備しています…</p>
       ) : handoff.kind === 'session' || handoff.kind === 'persisted' ? (
+        !isSpecificPairPartnerLabel(journey?.displayIdentity?.partnerLabel) ? (
+          <div className={styles.identityCompletion} data-testid="compatibility-purchase-identity-completion">
+            <h2>このレポートの相手を区別する</h2>
+            <p>本名は不要です。短い呼び名は購入した非公開レポートに保存され、公開シェアには自動で含まれません。</p>
+            <label htmlFor="compatibility-purchase-partner-label">相手の呼び名</label>
+            <input
+              id="compatibility-purchase-partner-label"
+              type="text"
+              required
+              maxLength={24}
+              value={legacyPartnerLabel}
+              placeholder="例：Aさん、Y"
+              autoComplete="off"
+              onChange={(event) => setLegacyPartnerLabel(event.target.value)}
+            />
+            <button type="button" className={styles.primary} onClick={completeLegacyPairIdentity}>
+              この呼び名で購入内容を確認する
+            </button>
+          </div>
+        ) : (
         <>
           <div className={styles.personalization}>
-            <strong>現在の二人に合わせた6章</strong>
-            <span>今のfocus：{contextDisplay?.focusLabel}</span>
+            <strong>{purchaseIdentity?.selfLabel} × {purchaseIdentity?.partnerLabel}</strong>
+            <span>現在の二人に合わせた6章 · {purchaseIdentity?.relationLabel}</span>
+            <span>今の焦点：{contextDisplay?.focusLabel}</span>
             <small>無料結果で答えた現在の状況を、購入後の6章にも反映します。</small>
           </div>
           <button
@@ -255,6 +319,7 @@ export function CompatibilityPurchaseConfirmation({
             {loading ? '支払い画面を準備しています…' : '¥1,480で購入手続きへ'}
           </button>
         </>
+        )
       ) : (
         <div className={styles.authBoundary} data-testid="compatibility-purchase-recovery">
           <h2>二人の無料結果を開き直す</h2>
@@ -312,10 +377,16 @@ export function CompatibilityPurchaseSuccess() {
         <p className={styles.eyebrow}>支払い確認中</p>
         <h1>レポートをマイページへ準備しています</h1>
         <p className={styles.lead}>
-          支払い確認後に6章レポートが表示されます。この画面を閉じても、レポートの準備はこのまま続きます。
+          決済サービスからの確認が届き次第、6章レポートをマイページに表示します。この画面を閉じても確認処理は続きます。
         </p>
+        <div className={styles.personalization} role="status">
+          <strong>現在：支払い情報を確認しています</strong>
+          <span>マイページに表示された時点で、レポートを開けます。</span>
+          <small>すぐに表示されない場合は、少し待ってからマイページでもう一度確認してください。</small>
+        </div>
         <Link className={styles.primaryLink} href="/my">マイページで確認する</Link>
         <Link className={styles.quietLink} href="/synastry">無料結果へ戻る</Link>
+        <Link className={styles.quietLink} href="/support">確認が続く場合はサポートへ</Link>
       </article>
     </main>
   );

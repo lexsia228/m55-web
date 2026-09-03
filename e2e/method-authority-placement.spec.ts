@@ -102,14 +102,11 @@ test.describe('M55 method placements', () => {
     }
   });
 
-  test('HOME shows the four-step model between value explanation and Premium comparison', async ({
+  test('HOME keeps Premium before mechanism and reveals method inside mechanism disclosure', async ({
     page,
   }) => {
     await prepareCleanCapturePage(page);
     await page.goto('/home', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    const methodBlock = page.getByTestId('m55-method-home');
-    await expect(methodBlock).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId('m55-method-steps').locator('li')).toHaveCount(4);
 
     const order = await page.evaluate(() => {
       const top = (selector: string) => {
@@ -118,16 +115,42 @@ test.describe('M55 method placements', () => {
         return el.getBoundingClientRect().top + window.scrollY;
       };
       return {
-        mechanism: top('[data-testid="m55-home-mechanism"]'),
-        method: top('[data-testid="m55-method-home"]'),
         premium: top('[data-testid="m55-home-premium-preview"]'),
+        mechanism: top('[data-testid="m55-home-mechanism"]'),
+        finalCta: top('[data-testid="m55-home-final-cta"]'),
       };
     });
-    expect(order.mechanism).not.toBeNull();
-    expect(order.method).not.toBeNull();
     expect(order.premium).not.toBeNull();
-    expect(order.method!).toBeGreaterThan(order.mechanism!);
-    expect(order.premium!).toBeGreaterThan(order.method!);
+    expect(order.mechanism).not.toBeNull();
+    expect(order.finalCta).not.toBeNull();
+    expect(order.premium!).toBeLessThan(order.mechanism!);
+    expect(order.mechanism!).toBeLessThan(order.finalCta!);
+
+    const mechanism = page.getByTestId('m55-home-mechanism');
+    await expect(mechanism).toHaveJSProperty('open', false);
+    await expect(page.getByTestId('m55-method-home')).toBeHidden();
+
+    await mechanism.locator('summary').click();
+    await expect(mechanism).toHaveJSProperty('open', true);
+    const methodBlock = page.getByTestId('m55-method-home');
+    await expect(methodBlock).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('m55-method-steps').locator('li')).toHaveCount(4);
+
+    const disclosedOrder = await page.evaluate(() => {
+      const top = (selector: string) => {
+        const el = document.querySelector(selector);
+        if (!el) return null;
+        return el.getBoundingClientRect().top + window.scrollY;
+      };
+      return {
+        mechanism: top('[data-testid="m55-home-mechanism"]'),
+        method: top('[data-testid="m55-method-home"]'),
+        finalCta: top('[data-testid="m55-home-final-cta"]'),
+      };
+    });
+    expect(disclosedOrder.method).not.toBeNull();
+    expect(disclosedOrder.method!).toBeGreaterThan(disclosedOrder.mechanism!);
+    expect(disclosedOrder.finalCta!).toBeGreaterThan(disclosedOrder.method!);
   });
 
   test('free result shows the compact composition before the Premium bridge', async ({ browser }) => {
@@ -137,8 +160,20 @@ test.describe('M55 method placements', () => {
     await prepareCleanCapturePage(page);
     await openFreeResult(page);
 
-    await page.getByText('読みの組み立て').click();
-    await expect(page.getByTestId('m55-method-core-free-result')).toBeVisible({ timeout: 30_000 });
+    const methodBlock = page.getByTestId('m55-method-core-free-result');
+    const innerDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
+    const outerDisclosure = methodBlock.locator('xpath=ancestor::details[2]');
+
+    await expect(innerDisclosure).toHaveCount(1);
+    await expect(outerDisclosure).toHaveCount(1);
+
+    await outerDisclosure.locator(':scope > summary').click();
+    await expect(outerDisclosure).toHaveJSProperty('open', true);
+
+    await innerDisclosure.locator(':scope > summary').click();
+    await expect(innerDisclosure).toHaveJSProperty('open', true);
+
+    await expect(methodBlock).toBeVisible({ timeout: 30_000 });
     const order = await page.evaluate(() => {
       const top = (selector: string) => {
         const el = document.querySelector(selector);

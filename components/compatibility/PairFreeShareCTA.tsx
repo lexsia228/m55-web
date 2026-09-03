@@ -11,23 +11,30 @@ import {
   M55_FUNNEL_EVENTS,
   trackFunnelActionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
-import PublicShareCardPreview from '../narrative/PublicShareCardPreview';
+import PublicShareCardPreview, { type ShareAspectRatio } from '../narrative/PublicShareCardPreview';
 import NarrativeShareActions from '../narrative/NarrativeShareActions';
+import narrativeStyles from '../narrative/NarrativeShare.module.css';
 import styles from './PairFreeShareCTA.module.css';
 
 type ShareStatus = 'idle' | 'copied' | 'cancelled' | 'error';
 
+const ASPECT_RATIOS = ['1:1', '4:5', '9:16'] as const satisfies readonly ShareAspectRatio[];
+
 export default function PairFreeShareCTA({
   insight,
+  previewAspectRatio,
 }: {
   insight?: PairFreeInsightSpecV2 | null;
+  previewAspectRatio?: ShareAspectRatio;
 }) {
   const [status, setStatus] = useState<ShareStatus>('idle');
   const [nativeAvailable, setNativeAvailable] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<ShareAspectRatio>(previewAspectRatio ?? '4:5');
   const busyRef = useRef(false);
   const copy = PAIR_SHARE_UI_COPY;
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const publicSpec = insight ? projectPairPublicShareV1({ spec: insight, origin }) : null;
+  const activeAspectRatio = previewAspectRatio ?? aspectRatio;
 
   useEffect(() => {
     setNativeAvailable(
@@ -94,10 +101,31 @@ export default function PairFreeShareCTA({
         className={styles.share}
         aria-labelledby="pair-share-title"
         data-testid="m55-pair-share"
+        data-m55-share-subsystem="pair"
       >
         <h3 id="pair-share-title">二人の取扱説明書を共有する</h3>
         <p>生年月日・回答・相手の身元は含まれません。公開前に内容を確認できます。</p>
-        <PublicShareCardPreview spec={publicSpec} />
+        {!previewAspectRatio ? (
+          <div className={narrativeStyles.aspectPicker} role="group" aria-label="投稿サイズの見え方">
+            {ASPECT_RATIOS.map((ratio) => (
+              <button
+                key={ratio}
+                type="button"
+                className={narrativeStyles.aspectButton}
+                data-selected={activeAspectRatio === ratio ? 'true' : 'false'}
+                data-testid={`m55-pair-share-aspect-${ratio.replace(':', '-')}`}
+                onClick={() => setAspectRatio(ratio)}
+              >
+                {ratio}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <PublicShareCardPreview
+          spec={publicSpec}
+          aspectRatio={activeAspectRatio}
+          shareSubsystem="pair"
+        />
         <NarrativeShareActions
           spec={publicSpec}
           surface="compatibility_guest"

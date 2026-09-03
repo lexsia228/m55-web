@@ -8,15 +8,15 @@
   width: 100%;
   /* Keep plan/checkout first content below the fixed public header on scroll. */
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
-  --m55-paid-ink: rgba(28, 24, 48, 0.94);
+  --m55-paid-ink: var(--m55-subsystem-ink, rgba(28, 24, 48, 0.94));
   --m55-paid-meta: rgba(55, 48, 82, 0.62);
-  --m55-paid-accent: rgba(196, 110, 90, 0.88);
+  --m55-paid-accent: var(--m55-subsystem-accent, rgba(196, 110, 90, 0.88));
   --m55-paid-progress-track: rgba(107, 95, 168, 0.14);
-  --m55-paid-progress-fill: rgba(107, 95, 168, 0.72);
-  --m55-paid-card-bg: rgba(255, 255, 255, 0.72);
-  --m55-paid-card-border: rgba(107, 95, 168, 0.22);
-  --m55-paid-card-selected: rgba(107, 95, 168, 0.1);
-  --m55-paid-primary-bg: rgba(28, 24, 48, 0.94);
+  --m55-paid-progress-fill: var(--m55-subsystem-accent, rgba(196, 110, 90, 0.72));
+  --m55-paid-card-bg: rgba(255, 255, 255, 0.78);
+  --m55-paid-card-border: var(--m55-subsystem-accent-soft, rgba(107, 95, 168, 0.22));
+  --m55-paid-card-selected: var(--m55-subsystem-accent-soft, rgba(196, 110, 90, 0.1));
+  --m55-paid-primary-bg: var(--m55-subsystem-ink, rgba(28, 24, 48, 0.94));
   --m55-paid-primary-fg: #fffaf1;
 }
 

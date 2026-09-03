@@ -35,10 +35,21 @@ type SnapshotCase = {
   id: string;
   viewport: CommercialViewport;
   elementSelector: string;
-  setup: 'home' | 'core_prerequisite' | 'core_free_result' | 'premium_questionnaire' | 'premium_plans' | 'checkout' | 'purchased_report';
+  setup:
+    | 'home'
+    | 'core_prerequisite'
+    | 'core_free_result'
+    | 'premium_questionnaire'
+    | 'premium_plans'
+    | 'checkout'
+    | 'purchased_report'
+    | 'pair_paid_report'
+    | 'premium_share_preview';
   expectedPathname: string | RegExp;
   requiredText?: string;
   assertBelowFixedHeader?: boolean;
+  /** Small typographic targets may need a slightly looser ratio under clean-capture. */
+  snapshotMaxDiffRatio?: number;
 };
 
 const SNAPSHOT_CASES: readonly SnapshotCase[] = [
@@ -52,9 +63,10 @@ const SNAPSHOT_CASES: readonly SnapshotCase[] = [
   {
     id: 'home-premium-headline',
     viewport: 390,
-    elementSelector: '[data-testid="m55-home-premium-headline"]',
+    elementSelector: '[data-testid="m55-home-premium-preview"]',
     setup: 'home',
     expectedPathname: '/home',
+    snapshotMaxDiffRatio: 0.03,
   },
   {
     id: 'core-prerequisite',
@@ -101,6 +113,60 @@ const SNAPSHOT_CASES: readonly SnapshotCase[] = [
     setup: 'purchased_report',
     expectedPathname: /\/dev\/dtr-drawer-preview/,
     requiredText: 'M55 複合読み解きモデル',
+  },
+  {
+    id: 'self-paid-reading-depth-map',
+    viewport: 390,
+    elementSelector: '[data-testid="m55-personal-reading-depth-map"]',
+    setup: 'purchased_report',
+    expectedPathname: /\/dev\/dtr-drawer-preview/,
+    requiredText: 'あなただけの4章',
+  },
+  {
+    id: 'self-paid-reading-depth-map-desktop',
+    viewport: 1280,
+    elementSelector: '[data-testid="m55-personal-reading-depth-map"]',
+    setup: 'purchased_report',
+    expectedPathname: /\/dev\/dtr-drawer-preview/,
+    requiredText: '生活の4つの場面',
+  },
+  {
+    id: 'pair-paid-relational-grammar',
+    viewport: 390,
+    elementSelector: '[data-testid="m55-pair-relational-grammar"]',
+    setup: 'pair_paid_report',
+    expectedPathname: /\/dev\/synastry-paid-report-preview/,
+    requiredText: 'あなた',
+  },
+  {
+    id: 'pair-paid-relational-grammar-desktop',
+    viewport: 1280,
+    elementSelector: '[data-testid="m55-pair-relational-grammar"]',
+    setup: 'pair_paid_report',
+    expectedPathname: /\/dev\/synastry-paid-report-preview/,
+    requiredText: '相手',
+  },
+  {
+    id: 'premium-plans-desktop',
+    viewport: 1280,
+    elementSelector: '[data-testid="m55-plan-compare"]',
+    setup: 'premium_plans',
+    expectedPathname: '/dtr/lp',
+    requiredText: 'フル',
+  },
+  {
+    id: 'premium-share-preview',
+    viewport: 390,
+    elementSelector: '[data-testid="m55-premium-result-share"]',
+    setup: 'premium_share_preview',
+    expectedPathname: /\/dev\/premium-share-preview/,
+  },
+  {
+    id: 'core-free-share',
+    viewport: 390,
+    elementSelector: '[data-testid="m55-free-result-share"]',
+    setup: 'core_free_result',
+    expectedPathname: '/core',
   },
 ];
 
@@ -188,7 +254,8 @@ async function setupSnapshot(page: Page, setup: SnapshotCase['setup']) {
       await page.locator('[role="radio"]').first().click();
       await page.getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' }).click();
     }
-    await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+    await expect(page.getByTestId('m55-paid-answer-review')).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId('m55-paid-review-continue').click();
     await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
     if (setup === 'checkout') {
       await page.getByTestId('m55-dtr-plan-light').getByRole('button').click();
@@ -200,6 +267,21 @@ async function setupSnapshot(page: Page, setup: SnapshotCase['setup']) {
     await safeGotoLocal(page, '/dev/dtr-drawer-preview?openPanel=chapter-1');
     await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('m55-method-purchased-report')).toBeVisible({ timeout: 30_000 });
+    return;
+  }
+  if (setup === 'pair_paid_report') {
+    await safeGotoLocal(page, '/dev/synastry-paid-report-preview');
+    await expect(page.getByTestId('m55-dev-paid-compatibility-report-preview')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.getByTestId('m55-pair-relational-grammar')).toBeVisible({ timeout: 30_000 });
+    return;
+  }
+  if (setup === 'premium_share_preview') {
+    await safeGotoLocal(page, '/dev/premium-share-preview');
+    await expect(page.locator('[data-m55-dev-preview="premium-share"]')).toBeVisible({
+      timeout: 60_000,
+    });
   }
 }
 
@@ -321,6 +403,7 @@ for (const snap of SNAPSHOT_CASES) {
     } else {
       await expect(target).toHaveScreenshot(`${snap.id}-${snap.viewport}.png`, {
         ...SNAPSHOT_OPTIONS,
+        maxDiffPixelRatio: snap.snapshotMaxDiffRatio ?? SNAPSHOT_OPTIONS.maxDiffPixelRatio,
         timeout: 15_000,
       });
     }

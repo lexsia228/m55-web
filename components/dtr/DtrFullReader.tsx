@@ -491,6 +491,7 @@ function PremiumIntroValueBand({
     <div
       className={styles.premiumIntroValueBand}
       aria-label={`${PAID_DTR_INTRO_PANEL_01.overlineJa}の説明`}
+      data-m55-visual-subsystem="self"
     >
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
@@ -821,6 +822,57 @@ function ChapterConsultNextAction({
   );
 }
 
+/** Four-part depth ladder — personal reading map before drawer hub opens. */
+function PersonalReadingDepthMap({
+  nickname,
+  onSelectPart,
+}: {
+  nickname: string;
+  onSelectPart: (panel: DrawerHubPanelId) => void;
+}) {
+  const displayName = nickname.trim() || 'あなた';
+  const roman: Record<PaidDtrReportPartId, string> = { '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', '4': 'Ⅳ' };
+  const partIds: PaidDtrReportPartId[] = ['1', '2', '3', '4'];
+
+  return (
+    <nav
+      className={styles.personalReadingDepthMap}
+      aria-label={`${displayName}の読みの地図`}
+      data-testid="m55-personal-reading-depth-map"
+      data-m55-visual-subsystem="self"
+    >
+      <p className={styles.personalReadingDepthOverline}>あなただけの4章</p>
+      <p className={styles.personalReadingDepthLead}>
+        {displayName}の資質を、生活の4つの場面で読み返せます。
+      </p>
+      <ol className={styles.personalReadingDepthList}>
+        {partIds.map((partId) => {
+          const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partId];
+          const panel = `chapter-${partId}` as DrawerHubPanelId;
+          return (
+            <li key={partId}>
+              <button
+                type="button"
+                className={styles.personalReadingDepthStep}
+                onClick={() => onSelectPart(panel)}
+              >
+                <span className={styles.personalReadingDepthRoman} aria-hidden>
+                  {roman[partId]}
+                </span>
+                <span className={styles.personalReadingDepthCopy}>
+                  <span className={styles.personalReadingDepthLabel}>{intro.hubLabelJa}</span>
+                  <span className={styles.personalReadingDepthSublabel}>{intro.hubSublabelJa}</span>
+                </span>
+                <ReportPartMotif partId={partId} />
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    A. Premium hero — two-column feel: left copy stack + right type image (absolute).
    v0-inspired: brand line, badge row, Blueprint h1, inset type card, dense meta grid.
@@ -906,6 +958,8 @@ function PremiumHero({
       </div>
 
       <PremiumIntroValueBand stemIdx={stemIdx} nickname={nickname} relationBody={relationBody} />
+
+      <PersonalReadingDepthMap nickname={nickname} onSelectPart={onSelectPanel} />
 
       <PremiumDrawerHub
         openPanel={openPanel}

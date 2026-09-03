@@ -657,6 +657,37 @@
   border-top: 1px solid rgba(11, 26, 43, 0.1);
 }
 
+.mechanismDisclosure {
+  border: 0;
+}
+
+.mechanismSummary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.mechanismSummary::-webkit-details-marker {
+  display: none;
+}
+
+.mechanismSummaryHint {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: rgba(78, 68, 128, 0.82);
+}
+
+.mechanismDisclosureBody {
+  margin-top: 14px;
+}
+
+.mechanismDisclosureBody .methodModelStage {
+  margin-top: 24px;
+  padding-top: 0;
+  border-top: 1px solid rgba(11, 26, 43, 0.08);
+}
+
 .pairFreeStage {
   background: #efeae0;
   padding: 40px 20px 44px;
@@ -1060,6 +1091,17 @@
 .productMapItem {
   padding: 16px 0 18px;
   border-bottom: 1px solid rgba(11, 26, 43, 0.1);
+  border-left: 3px solid transparent;
+  padding-left: 12px;
+  transition: border-color 120ms ease;
+}
+
+.productMapItem:first-child {
+  border-left-color: var(--m55-subsystem-accent, rgba(74, 95, 140, 0.55));
+}
+
+.productMapItem:nth-child(2) {
+  border-left-color: rgba(92, 61, 110, 0.55);
 }
 
 .productMapTitle {
@@ -2669,8 +2711,8 @@
 
 .posterHeroApprovedRoot .posterHeroReadabilityVeil {
   background:
-    linear-gradient(90deg, rgba(11, 26, 43, 0.32) 0%, rgba(11, 26, 43, 0.18) 39%, rgba(11, 26, 43, 0) 68%),
-    linear-gradient(180deg, rgba(11, 26, 43, 0.05) 58%, rgba(11, 26, 43, 0.18) 82%, rgba(241, 232, 214, 0.22) 100%);
+    linear-gradient(90deg, rgba(11, 26, 43, 0.36) 0%, rgba(11, 26, 43, 0.2) 39%, rgba(11, 26, 43, 0) 68%),
+    linear-gradient(180deg, rgba(11, 26, 43, 0.06) 52%, rgba(11, 26, 43, 0.22) 78%, rgba(241, 232, 214, 0.28) 100%);
 }
 
 /*
@@ -2695,6 +2737,18 @@
 @media (max-width: 639px) {
   .posterHeroApprovedRoot .posterMainVisual {
     min-height: 0;
+  }
+
+  .freeStage,
+  .productMapStage,
+  .mechanismStage,
+  .pairFreeStage {
+    padding-top: 28px;
+    padding-bottom: 30px;
+  }
+
+  .outcomeEditorialItem:nth-child(n + 3) {
+    display: none;
   }
 
   .posterHeroApprovedRoot .posterHeroOverlay {
@@ -2769,9 +2823,9 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 38px;
+  width: 44px;
   height: 2px;
-  background: rgba(196, 110, 90, 0.88);
+  background: linear-gradient(90deg, rgba(107, 95, 168, 0.88), rgba(125, 168, 164, 0.88));
   content: "";
 }
 
@@ -2848,7 +2902,11 @@
 .posterHeroApprovedRoot .posterHeroBottomStack {
   align-self: stretch;
   width: min(100%, 24rem);
-  margin-top: clamp(26px, 3vw, 40px);
+  margin-top: clamp(28px, 3.2vw, 44px);
+  display: grid;
+  gap: 0.35rem;
+  padding-top: clamp(10px, 1.4vw, 14px);
+  border-top: 1px solid rgba(241, 232, 214, 0.22);
 }
 
 .posterHeroApprovedRoot .posterHeroCta {
@@ -2856,21 +2914,26 @@
   box-sizing: border-box;
   width: min(100%, 20rem);
   min-width: 44px;
-  min-height: 56px;
-  padding: 14px 24px;
-  border: 1px solid rgba(11, 26, 43, 0.16);
+  min-height: 58px;
+  padding: 15px 26px;
+  border: 1px solid rgba(11, 26, 43, 0.18);
   border-radius: 8px;
   background: #f1e8d6;
   color: #0b1a2b;
   font-size: 15px;
+  font-weight: 650;
   line-height: 1.35;
-  box-shadow: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 10px 28px rgba(11, 26, 43, 0.18);
 }
 
 .posterHeroApprovedRoot .posterHeroCta:hover {
-  border-color: rgba(11, 26, 43, 0.28);
+  border-color: rgba(107, 95, 168, 0.34);
   background: #fff8ea;
-  box-shadow: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 12px 30px rgba(11, 26, 43, 0.22);
 }
 
 .posterHeroApprovedRoot .posterHeroCta:focus-visible {
@@ -2878,18 +2941,18 @@
 }
 
 .posterHeroApprovedRoot .posterHeroSupport {
-  margin: 22px 0 0;
-  color: rgba(241, 232, 214, 0.92);
+  margin: 18px 0 0;
+  color: rgba(241, 232, 214, 0.94);
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 500;
-  line-height: 1.75;
+  line-height: 1.78;
   white-space: pre-line;
 }
 
 .posterHeroApprovedRoot .posterHeroTrust {
   max-width: none;
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   color: rgba(125, 168, 164, 0.98);
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;

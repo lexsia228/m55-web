@@ -19,6 +19,11 @@ import {
   questionsForRelationStage,
 } from './currentContextContract.v2';
 import { COMPATIBILITY_REPORT_FULL_PRODUCT_KEY } from './compatibilityCommerceAuthority';
+import {
+  legacyPairDisplayIdentity,
+  parsePairDisplayIdentity,
+  type PairDisplayIdentityV1,
+} from './pairDisplayIdentity';
 
 type DbClient = ReturnType<typeof getSupabaseAdmin>;
 
@@ -37,6 +42,7 @@ export type CompatibilityOwnedReportSummary = {
   id: string;
   createdAt: string;
   chapterCount: 6;
+  displayIdentity: PairDisplayIdentityV1;
 };
 
 export type CompatibilityOwnedReport = CompatibilityOwnedReportSummary & {
@@ -85,6 +91,7 @@ const PAID_SNAPSHOT_TOP_LEVEL_KEYS = [
   'recurringLoop',
   'highlightedChapterKeys',
   'currentContext',
+  'displayIdentity',
   'chapters',
   'safetyNote',
 ] as const;
@@ -177,13 +184,14 @@ export function isPaidCompatibilityReportSnapshot(
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const snapshot = value as Record<string, unknown>;
   const optionalCurrentContext = snapshot.currentContext === undefined;
+  const optionalDisplayIdentity = snapshot.displayIdentity === undefined;
+  const expectedKeys = PAID_SNAPSHOT_TOP_LEVEL_KEYS.filter(
+    (key) =>
+      !(optionalCurrentContext && key === 'currentContext') &&
+      !(optionalDisplayIdentity && key === 'displayIdentity'),
+  );
   if (
-    !hasExactKeys(
-      snapshot,
-      optionalCurrentContext
-        ? PAID_SNAPSHOT_TOP_LEVEL_KEYS.filter((key) => key !== 'currentContext')
-        : [...PAID_SNAPSHOT_TOP_LEVEL_KEYS],
-    )
+    !hasExactKeys(snapshot, expectedKeys)
   ) {
     return false;
   }
@@ -200,7 +208,9 @@ export function isPaidCompatibilityReportSnapshot(
     !Array.isArray(typedSnapshot.chapters) ||
     typedSnapshot.chapters.length !== CHAPTER_IDS.length ||
     (typedSnapshot.currentContext !== undefined &&
-      !isDisplaySafeCurrentContext(typedSnapshot.currentContext))
+      !isDisplaySafeCurrentContext(typedSnapshot.currentContext)) ||
+    (typedSnapshot.displayIdentity !== undefined &&
+      !parsePairDisplayIdentity(typedSnapshot.displayIdentity))
   ) {
     return false;
   }
@@ -370,7 +380,7 @@ export async function listOwnedCompatibilityReports(
 }> {
   const { data, error } = await (db as any)
     .from('compatibility_owned_reports')
-    .select('id, created_at')
+    .select('id, created_at, snapshot')
     .eq('owner_user_id', ownerUserId)
     .eq('product_key', COMPATIBILITY_REPORT_FULL_PRODUCT_KEY)
     .order('created_at', { ascending: false });
@@ -381,7 +391,14 @@ export async function listOwnedCompatibilityReports(
     available: true,
     reports: data.flatMap((row) =>
       isOpaqueCompatibilityId(row.id) && isNonEmptyString(row.created_at)
-        ? [{ id: row.id, createdAt: row.created_at, chapterCount: 6 as const }]
+        ? [{
+            id: row.id,
+            createdAt: row.created_at,
+            chapterCount: 6 as const,
+            displayIdentity: isPaidCompatibilityReportSnapshot(row.snapshot)
+              ? row.snapshot.displayIdentity ?? legacyPairDisplayIdentity()
+              : legacyPairDisplayIdentity(),
+          }]
         : [],
     ),
   };
@@ -413,6 +430,7 @@ export async function getOwnedCompatibilityReport(
     id: data.id,
     createdAt: data.created_at,
     chapterCount: 6,
+    displayIdentity: data.snapshot.displayIdentity ?? legacyPairDisplayIdentity(),
     snapshot: data.snapshot,
   };
 }

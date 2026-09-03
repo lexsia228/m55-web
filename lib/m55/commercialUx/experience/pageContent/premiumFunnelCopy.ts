@@ -25,4 +25,8 @@ export const PREMIUM_FUNNEL_PAGE_CONTENT = {
   paidAnswersCompleteJa: 'プレミアム質問　6 / 6 回答済み',
   reviewAnswersJa: '回答を確認・変更',
   pricingDisclosureJa: '料金について',
+  authRecoveryTitleJa: '購入準備を確認できませんでした',
+  authRecoveryDescriptionJa:
+    'ログイン状態の確認に時間がかかっています。もう一度読み込み直すか、自分の無料読み解きへ戻れます。',
+  authRecoveryEscapeLabelJa: '自分の無料読み解きへ戻る',
 } as const;

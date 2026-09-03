@@ -38,6 +38,11 @@ import type {
   RelationStatusId,
   TemperatureId,
 } from './pairReadingTypes';
+import {
+  buildPairDisplayIdentity,
+  legacyPairDisplayIdentity,
+  sanitizePairPartnerLabel,
+} from './pairDisplayIdentity';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const FORWARD = { personA: '1982-02-28', personB: '1997-06-15' };
@@ -61,6 +66,7 @@ function completeJourney(
     input,
     relationStatusId,
     answers,
+    displayIdentity: buildPairDisplayIdentity('ゆう', relationStatusId),
   };
 }
 
@@ -300,8 +306,9 @@ describe('compatibility privacy and runtime wiring', () => {
     const store = read('lib/m55/compatibility/pairGuestClientStore.ts');
     assert.doesNotMatch(component, /localStorage|inputHash|outputHash|pairHash|dobHash|proofHash/i);
     assert.doesNotMatch(action + builder, /console\.|logger|log\(/);
-    assert.match(component, /persistCompletedJourney/);
+    assert.match(component, /persistCompletedPairJourney/);
     assert.match(store, /localStorage\.setItem/);
+    assert.doesNotMatch(component, /trackFunnel(?:Action|ImpressionOnce)\([^)]*partnerLabel/s);
   });
 
   it('uses the analytics allowlist and requested compatibility events', () => {
@@ -383,6 +390,31 @@ describe('pair guest resume store', () => {
     assert.equal(bootstrap.kind, 'restore_result');
     if (bootstrap.kind !== 'restore_result') return;
     assert.equal(bootstrap.journey.input.personB, journey.input.personB);
+    assert.deepEqual(bootstrap.journey.displayIdentity, journey.displayIdentity);
+  });
+
+  it('keeps display identity privacy-safe, bounded, and legacy compatible', () => {
+    const sanitized = sanitizePairPartnerLabel(`  ゆう\u0000  ${'長'.repeat(40)}`);
+    assert.equal(sanitized.includes('\u0000'), false);
+    assert.ok(sanitized.length <= 24);
+    assert.equal(sanitized.includes(FORWARD.personB), false);
+
+    const legacyJourney: CompatibilityGuestJourneyV3 = {
+      version: 'journey_v3',
+      input: FORWARD,
+      relationStatusId: 'R2',
+      answers: COMPLETE_R2_ANSWERS,
+    };
+    withLocalStorage(() => {
+      writeLastCompletedPairJourney(USER_A, legacyJourney);
+      assert.deepEqual(readLastCompletedPairJourney(USER_A), legacyJourney);
+    });
+    assert.deepEqual(legacyPairDisplayIdentity(), {
+      version: 'pair_display_identity_v1',
+      selfLabel: 'あなた',
+      partnerLabel: '相手',
+      relationLabel: '二人の関係',
+    });
   });
 
   it('does not restore user A journey for user B', () => {

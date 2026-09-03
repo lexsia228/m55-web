@@ -28,6 +28,7 @@ import {
 } from './currentContextContract.v2';
 import { resolvePairCanonicalProfileV2, type PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 import { formatPaidChapterDepthNarrative, paidChapterDepthFor } from './paidCompatibilityChapterDepthV1';
+import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
   'paid_compatibility_report_v1' as const;
@@ -42,6 +43,7 @@ export type PaidCompatibilityReportInput = {
   currentContextV2?: CompatibilityCurrentContextAnswersV2;
   personABirthDate?: string;
   personBBirthDate?: string;
+  displayIdentity?: PairDisplayIdentityV1;
 };
 
 export type PaidCompatibilityChapter = {
@@ -69,6 +71,7 @@ export type PaidCompatibilityReportSnapshot = {
   readonly recurringLoop: string;
   readonly highlightedChapterKeys: readonly ChapterId[];
   readonly currentContext?: CompatibilityCurrentContextDisplay;
+  readonly displayIdentity?: PairDisplayIdentityV1;
   readonly chapters: readonly PaidCompatibilityChapter[];
   readonly safetyNote: string;
 };
@@ -389,8 +392,201 @@ function actorLabel(
   return role === 'A' ? '相手' : 'あなた';
 }
 
+function paidReceptionSentence(label: string, reception: string): string {
+  return naturalPaidReception(label, reception);
+}
+
+function paidActionSentence(label: string, action: string): string {
+  return naturalPaidAction(label, action);
+}
+
+const NATURAL_PAID_ACTION_JA: Readonly<Record<string, string>> = Object.freeze({
+  '先に予定の輪郭を置こうとする': 'まず次の予定をはっきりさせようとすることがあります',
+  '考えるために返事の間を取る': '考えを整理するために、返事まで少し間を置くことがあります',
+  '受け取った合図を早めに確かめようとする': '受け取った合図を、早めに確かめようとすることがあります',
+  '言葉を選ぶために表の反応を小さくする': '言葉を選ぶために、表の反応を小さくすることがあります',
+  '理由を足して違いを整理しようとする': '理由を足しながら、違いを整理しようとすることがあります',
+  '安心できるまで話から少し距離を取る': '安心できるまで、話から少し距離を置くことがあります',
+  '気になる点を早めに言葉へ置こうとする': '気になる点を、早めに言葉にしようとすることがあります',
+  '場面を見直すために反応を控える': '場面を見直すために、反応を控えることがあります',
+  '今の温度を確かめるために接点を増やそうとする': '今の温度を確かめるために、接点を増やそうとすることがあります',
+  '自分のペースを戻すために接点を減らす': '自分のペースを戻すために、接点を減らすことがあります',
+  '関係の意味を確かめてから戻ろうとする': '関係の意味を確かめてから戻ろうとすることがあります',
+  '負担の小さい日常の接点から戻ろうとする': '負担の小さい日常の接点から戻ろうとすることがあります',
+  '相手に近づく前に、自分の気持ちを言葉にしようとする':
+    '相手に近づく前に、自分の気持ちを言葉にしようとすることがあります',
+  '相手の様子を想像して、自分の気持ちを確かめようとする':
+    '相手の様子を想像しながら、自分の気持ちを確かめようとすることがあります',
+  '相手の反応を想像して、自分の気持ちを整理しようとする':
+    '相手の反応を想像しながら、自分の気持ちを整理しようとすることがあります',
+  '気になる点を、相手に伝える前に言葉へ置こうとする':
+    '気になる点を、相手に伝える前に言葉にしようとすることがあります',
+  'どんな言葉で始めるかを、何度も考え直す': 'どんな言葉で始めるかを、何度も考え直すことがあります',
+  '次の連絡のタイミングを先に置こうとする': '次の連絡のタイミングを先に決めようとすることがあります',
+  '返す前に言葉を整える時間を取りたい': '返す前に、言葉を整える時間を取りたいことがあります',
+  '相手の反応を確かめようとする': '相手の反応を確かめようとすることがあります',
+  '返事を整えるために間を取りたい': '返事を整えるために、少し間を取りたいことがあります',
+  '場面を見直すために反応を控えたい': '場面を見直すために、反応を控えたいことがあります',
+  '自分のペースを戻すために接点を減らしたい': '自分のペースを戻すために、接点を減らしたいことがあります',
+  '次の連絡の形を確かめてから動こうとする': '次の連絡の形を確かめてから動こうとすることがあります',
+  '負担の小さい短い接点から続けたい': '負担の小さい短い接点から続けたいことがあります',
+  '今の間合いを確かめようとする': '今の間合いを確かめようとすることがあります',
+  '負担の小さい間合いを保ちたい': '負担の小さい間合いを保ちたいことがあります',
+  '短い合図を先に置こうとする': '短い合図を先に置こうとすることがあります',
+  '返す前に間合いを整える時間を取りたい': '返す前に、間合いを整える時間を取りたいことがあります',
+  '今の間合いを言葉で確かめようとする': '今の間合いを言葉で確かめようとすることがあります',
+  '距離の意味を確かめようとする': '距離の意味を確かめようとすることがあります',
+  '動きを止めたい': 'あまり動きたくないことがあります',
+});
+
+const NATURAL_PAID_RECEPTION_JA: Readonly<Record<string, string>> = Object.freeze({
+  '関心が薄いか、話が止まったように受け取る':
+    '関心が薄れたように感じたり、話が止まったように受け取ったりすることがあります',
+  'まだ整っていないところへ話が進んだように受け取る':
+    'まだ整っていないところへ話が進んだように受け取ることがあります',
+  '話が届いていないか、避けられたように受け取る':
+    '話が届いていないように感じたり、避けられたように受け取ったりすることがあります',
+  '考えている途中に反応を求められたように受け取る':
+    '考えている途中に、反応を求められたように受け取ることがあります',
+  '説明を拒まれ、論点が離れたように受け取る':
+    '説明を拒まれたように感じたり、論点が離れたように受け取ったりすることがあります',
+  '自分の受け取りが後回しになったように感じる':
+    '自分の受け取りが後回しになったように感じることがあります',
+  'まだ輪郭のないことに答えを求められたように受け取る':
+    'まだ輪郭のないことに、答えを求められたように受け取ることがあります',
+  '話題そのものを避けられたように受け取る': '話題そのものを避けられたように受け取ることがあります',
+  '距離がさらに広がる合図のように受け取る': '距離がさらに広がる合図のように受け取ることがあります',
+  '落ち着くための間が狭くなったように受け取る': '落ち着くための間が狭くなったように受け取ることがあります',
+  '大切な話を避けたまま進めるように受け取る':
+    '大切な話を避けたまま進めようとされているように受け取ることがあります',
+  '戻る前に大きな答えを求められたように受け取る':
+    '戻る前に、大きな答えを求められたように受け取ることがあります',
+  '関心のなさのように見えやすい': '関心のなさのように見えやすいことがあります',
+  '自分だけが考えているように見えやすい': '自分だけが考えているように見えやすいことがあります',
+  '自分だけが動こうとしているように見えやすい': '自分だけが動こうとしているように見えやすいことがあります',
+  '自分だけが整理しているように見えやすい': '自分だけが整理しているように見えやすいことがあります',
+  '始め方だけを探しているように見えやすい': '始め方だけを探しているように見えやすいことがあります',
+  'まだ整っていないところへ話が進んだように見える':
+    'まだ整っていないところへ話が進んだように見えることがあります',
+  '関心が薄いか、やり取りが止まったように見えやすい':
+    '関心が薄れたように見えたり、やり取りが止まったように見えたりすることがあります',
+  '考えている途中に反応を求められたように見える':
+    '考えている途中に、反応を求められたように見えることがあります',
+  'やり取りが届いていないか、避けられたように見えやすい':
+    'やり取りが届いていないように見えたり、避けられたように見えたりすることがあります',
+  'まだ輪郭のないことに答えを求められたように見える':
+    'まだ輪郭のないことに、答えを求められたように見えることがあります',
+  '話題そのものを避けられたように見えやすい': '話題そのものを避けられたように見えやすいことがあります',
+  '落ち着くための間が狭くなったように見える': '落ち着くための間が狭くなったように見えることがあります',
+  '距離がさらに広がる合図のように見えやすい': '距離がさらに広がる合図のように見えやすいことがあります',
+  '大きな答えを求められたように見える': '大きな答えを求められたように見えることがあります',
+  '大切な話を避けたまま進めるように見えやすい': '大切な話を避けたまま進めるように見えやすいことがあります',
+  '距離の理由を一つに決められたように見える': '距離の理由を一つに決められたように見えることがあります',
+  '急いで近づこうとしているように見えやすい': '急いで近づこうとしているように見えやすいことがあります',
+  '急いで距離を縮めようとされたように見える': '急いで距離を縮めようとされたように見えることがあります',
+  '関心が薄いか、距離が広がる合図のように見えやすい':
+    '関心が薄れたように見えたり、距離が広がる合図のように見えたりすることがあります',
+  '大切な話を避けたまま距離を置くように見えやすい':
+    '大切な話を避けたまま距離を置こうとしているように見えやすいことがあります',
+});
+
+function ensureTerminalPeriod(sentence: string): string {
+  const trimmed = sentence.trim();
+  return /。$/u.test(trimmed) ? trimmed : `${trimmed}。`;
+}
+
+function paidReceptionSubjectParticle(clause: string): 'は' | 'には' {
+  if (/可能性があります$/.test(clause)) return 'には';
+  if (
+    /(?:受け取られる|感じられる|捉えられる|見られる)(?:こと)?が(?:あります|ある)/.test(clause) &&
+    !/(?:受け取る|感じる|捉える|見える)(?:こと)?が(?:あります|ある)/.test(clause)
+  ) {
+    return 'には';
+  }
+  return 'は';
+}
+
+function formatPaidReceptionSentence(label: string, clause: string): string {
+  const particle = paidReceptionSubjectParticle(clause);
+  return ensureTerminalPeriod(`${label}${particle}、${clause}`);
+}
+
+function naturalPaidAction(label: string, raw: string): string {
+  const action = raw.replace(/。$/u, '').trim();
+  const mapped = NATURAL_PAID_ACTION_JA[action];
+  if (mapped) return ensureTerminalPeriod(`${label}は、${mapped}`);
+  if (/しようとする$/.test(action)) {
+    const stem = action.replace(/しようとする$/, '');
+    return ensureTerminalPeriod(`${label}は、${stem}しようとすることがあります`);
+  }
+  if (/したい$/.test(action)) {
+    const stem = action.replace(/したい$/, '');
+    return ensureTerminalPeriod(`${label}は、${stem}たいことがあります`);
+  }
+  if (/取りたい$/.test(action)) {
+    const stem = action.replace(/取りたい$/, '');
+    return ensureTerminalPeriod(`${label}は、${stem}取りたいことがあります`);
+  }
+  return ensureTerminalPeriod(`${label}は、${action}ことがあります`);
+}
+
+function naturalPaidReception(label: string, raw: string): string {
+  const reception = raw.replace(/。$/u, '').trim();
+  const mapped = NATURAL_PAID_RECEPTION_JA[reception];
+  if (mapped) return formatPaidReceptionSentence(label, mapped);
+
+  if (/可能性がある$/.test(reception)) {
+    return formatPaidReceptionSentence(
+      label,
+      reception.replace(/可能性がある$/, '可能性があります'),
+    );
+  }
+
+  const orReceive = /^(.+?)か、(.+?)ように受け取る$/u.exec(reception);
+  if (orReceive) {
+    const [, left, right] = orReceive;
+    const leftPhrase = /薄い$/.test(left) ? left.replace(/薄い$/, '薄れた') : left;
+    return ensureTerminalPeriod(
+      `${label}は、${leftPhrase}ように感じたり、${right}ように受け取ったりすることがあります`,
+    );
+  }
+
+  const orPerceive = /^(.+?)か、(.+?)ように見えやすい$/u.exec(reception);
+  if (orPerceive) {
+    const [, left, right] = orPerceive;
+    const leftPhrase = /薄い$/.test(left) ? left.replace(/薄い$/, '薄れた') : left;
+    return ensureTerminalPeriod(
+      `${label}は、${leftPhrase}ように見えたり、${right}ように見えたりすることがあります`,
+    );
+  }
+
+  if (/ように受け取る$/.test(reception)) {
+    return formatPaidReceptionSentence(
+      label,
+      reception.replace(/ように受け取る$/, 'ように受け取ることがあります'),
+    );
+  }
+  if (/ように感じる$/.test(reception)) {
+    return formatPaidReceptionSentence(
+      label,
+      reception.replace(/ように感じる$/, 'ように感じることがあります'),
+    );
+  }
+  if (/ように見える$/.test(reception)) {
+    return formatPaidReceptionSentence(
+      label,
+      reception.replace(/ように見える$/, 'ように見えることがあります'),
+    );
+  }
+  if (/見えやすい$/.test(reception)) {
+    return formatPaidReceptionSentence(label, `${reception}ことがあります`);
+  }
+  return formatPaidReceptionSentence(label, `${reception}と感じやすいことがあります`);
+}
+
 function chapterBehaviorPerspective(
   chapterKey: ChapterId,
+  chapterIndex: number,
   role: 'A' | 'B',
   focus: ChapterFocus,
   roles: ReturnType<typeof semanticRoles>,
@@ -398,11 +594,20 @@ function chapterBehaviorPerspective(
 ): string {
   const label = actorLabel(role, viewerIsPersonA);
   const depth = paidChapterDepthFor(chapterKey);
-  const context = depth.trigger;
+  const context = depth.trigger.replace(/。$/u, '');
   const isFirstSemanticRole = role === roles.first.role;
   const action = isFirstSemanticRole ? focus.firstAction : focus.secondAction;
   const readAs = isFirstSemanticRole ? focus.firstReception : focus.secondReception;
-  return `${context}、${label}は${actionMotionPhrase(action)}動きが見えやすいことがあります。${label}には、${actionMotionPhrase(readAs)}ことがあります。`;
+  const variant = chapterIndex % 3;
+  const perception = paidReceptionSentence(label, readAs);
+  const motion = paidActionSentence(label, action);
+  if (variant === 0) {
+    return `${context}。${perception}${motion}`;
+  }
+  if (variant === 1) {
+    return `${context}では、${motion}${perception}`;
+  }
+  return `${context}。${perception} 同時に、${motion}`;
 }
 
 function perspectiveText(
@@ -423,7 +628,7 @@ function perspectiveText(
   if (relationStatusId === 'R5' && role === 'B') {
     return R5_PARTNER_UNCERTAINTY[chapterIndex]!;
   }
-  return chapterBehaviorPerspective(chapterKey, role, focus, roles, viewerIsPersonA);
+  return chapterBehaviorPerspective(chapterKey, chapterIndex, role, focus, roles, viewerIsPersonA);
 }
 
 const R1_SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, string, string, string, string]>> = {
@@ -1170,6 +1375,7 @@ export function buildPaidCompatibilityReportV1(
       : `二人の間では、${authority.dynamicOutcome}。`,
     highlightedChapterKeys,
     ...(currentContext ? { currentContext } : {}),
+    ...(input.displayIdentity ? { displayIdentity: input.displayIdentity } : {}),
     chapters: Object.freeze(chapters),
     safetyNote:
       'このレポートは、関係や相手の気持ち、これからの結果を決めるものではありません。対話を続けるかどうかも、それぞれが選べます。恐怖や暴力、強制がある場合は、このレポートより安全の確保を優先してください。',

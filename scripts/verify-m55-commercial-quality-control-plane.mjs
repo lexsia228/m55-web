@@ -33,6 +33,9 @@ const ENGINE_FILES = [
   'lib/commercialQuality/japaneseComprehension.test.ts',
   'lib/commercialQuality/japaneseComprehensionBaselinePolicy.ts',
   'lib/commercialQuality/japaneseComprehensionRenderedBinding.ts',
+  'lib/commercialQuality/commercialScorecard.ts',
+  'lib/commercialQuality/visionJudgeAttachment.ts',
+  'lib/commercialQuality/affectedDeltaEvidence.ts',
 ];
 const ADAPTER_FILES = [
   'lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts',

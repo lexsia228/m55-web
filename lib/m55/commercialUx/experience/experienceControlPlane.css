@@ -187,3 +187,81 @@
     transition: none !important;
   }
 }
+
+/* ── Wave 2 visual subsystems (SELF / PAIR / PREMIUM / SHARE) ───────── */
+
+[data-m55-pathname='/core'],
+[data-m55-pathname^='/core/'],
+[data-m55-visual-subsystem='self'] {
+  --m55-subsystem-accent: #4a5f8c;
+  --m55-subsystem-accent-soft: rgba(74, 95, 140, 0.12);
+  --m55-subsystem-ink: #1a2438;
+  --m55-subsystem-surface: #f7f5f2;
+  --m55-read-width: 48rem;
+}
+
+[data-m55-pathname^='/synastry'],
+[data-m55-visual-subsystem='pair'] {
+  --m55-subsystem-accent: #5c3d6e;
+  --m55-subsystem-accent-soft: rgba(92, 61, 110, 0.14);
+  --m55-subsystem-ink: #292535;
+  --m55-subsystem-surface: #f8f4f7;
+  --m55-read-width: 52rem;
+}
+
+[data-m55-pathname^='/dtr'],
+[data-m55-visual-subsystem='premium'] {
+  --m55-subsystem-accent: #c46e5a;
+  --m55-subsystem-accent-soft: rgba(196, 110, 90, 0.14);
+  --m55-subsystem-ink: #0b1a2b;
+  --m55-subsystem-surface: #f1e8d6;
+}
+
+[data-m55-pathname^='/r/'],
+[data-m55-share-subsystem='self'],
+[data-m55-share-subsystem='pair'] {
+  --m55-subsystem-accent: #6b5fa8;
+  --m55-subsystem-accent-soft: rgba(107, 95, 168, 0.16);
+  --m55-subsystem-ink: #1c1830;
+  --m55-subsystem-surface: #f0ebe3;
+  --m55-read-width: 36rem;
+}
+
+[data-m55-share-subsystem='pair'] {
+  --m55-subsystem-accent: #725d89;
+  --m55-subsystem-accent-soft: rgba(114, 93, 137, 0.18);
+}
+
+[data-m55-pathname='/home'] {
+  --m55-subsystem-accent: var(--m55-navy);
+  --m55-subsystem-accent-soft: var(--m55-navy-soft);
+  --m55-subsystem-ink: var(--m55-text-strong);
+  --m55-subsystem-surface: var(--m55-ivory);
+  --m55-read-width: 100%;
+}
+
+/* SELF: personal orbit anchor — one inner system */
+[data-m55-visual-subsystem='self'] .m55-exp-result-identity,
+[data-m55-pathname='/core'] [data-testid='m55-free-result-lead'] {
+  border-left: 3px solid var(--m55-subsystem-accent);
+  padding-left: var(--m55-space-md);
+}
+
+/* PAIR: two-node relationship grammar */
+[data-m55-visual-subsystem='pair'] [data-testid='m55-pair-result-signature'],
+[data-m55-pathname^='/synastry'] [data-testid='m55-pair-result-signature'] {
+  border-color: var(--m55-subsystem-accent-soft);
+  box-shadow: 0 14px 36px rgba(92, 61, 110, 0.08);
+}
+
+/* SHARE: postable artifact framing */
+[data-m55-share-subsystem='self'] .m55-exp-reading [data-testid='m55-shared-entry'] article,
+[data-m55-share-subsystem='self'] [data-testid='m55-shared-entry'] .poster {
+  border-top: 3px solid var(--m55-subsystem-accent);
+}
+
+[data-m55-share-subsystem='pair'] [data-testid='m55-shared-entry'] {
+  background:
+    radial-gradient(90% 60% at 12% 0%, var(--m55-subsystem-accent-soft), transparent 58%),
+    linear-gradient(180deg, var(--m55-subsystem-surface) 0%, #ebe4da 100%);
+}

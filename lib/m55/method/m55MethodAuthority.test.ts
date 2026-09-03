@@ -301,12 +301,14 @@ describe('M55 method authority — route consumption contract', () => {
     }
   });
 
-  it('places the HOME model between the value explanation and the Premium comparison', () => {
+  it('places Premium before mechanism disclosure and consumes method inside mechanism', () => {
     const home = read('components/home/HomePanel.tsx');
+    const premium = home.indexOf('m55-home-premium-preview"');
     const mechanism = home.indexOf('m55-home-mechanism"');
     const method = home.indexOf('<HomeMethodModel />');
-    const premium = home.indexOf('m55-home-premium-preview"');
-    assert.ok(mechanism >= 0 && method > mechanism && premium > method);
+    const finalCta = home.indexOf('m55-home-final-cta"');
+    assert.ok(premium >= 0 && mechanism > premium, 'Premium must precede mechanism disclosure');
+    assert.ok(method > mechanism && method < finalCta, 'method must render inside mechanism disclosure');
   });
 
   it('places the /core compact block before the Premium bridge', () => {

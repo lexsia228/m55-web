@@ -8,11 +8,15 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './CompatibilitySavedReportsSection.module.css';
+import { legacyPairDisplayIdentity, type PairDisplayIdentityV1 } from '../../lib/m55/compatibility/pairDisplayIdentity';
+import { fetchJsonWithTimeout } from '../../lib/m55/commercialUx/boundedAsync';
+import BoundedRecoveryState from '../common/BoundedRecoveryState';
 
 export type CompatibilityReportListItem = {
   id: string;
   createdAt: string;
   chapterCount: 6;
+  displayIdentity?: PairDisplayIdentityV1;
 };
 
 export function CompatibilitySavedReportsSection({
@@ -45,7 +49,13 @@ export function CompatibilitySavedReportsSection({
       <h2 id="compatibility-saved-reports-title">二人の相性レポート</h2>
       {loading ? <p className={styles.body}>購入済みレポートを確認しています…</p> : null}
       {error ? (
-        <p className={styles.muted}>レポートを確認できませんでした。時間をおいて再度お試しください。</p>
+        <BoundedRecoveryState
+          title="レポートを確認できませんでした"
+          description="通信状態を確認して、もう一度読み込んでください。"
+          onRetry={() => window.location.reload()}
+          escapeHref="/synastry"
+          escapeLabel="二人の無料読み解きへ"
+        />
       ) : null}
       {!loading && !error && reports.length === 0 ? (
         <>
@@ -57,10 +67,13 @@ export function CompatibilitySavedReportsSection({
       ) : null}
       {!loading && !error && reports.length > 0 ? (
         <ul className={styles.list}>
-          {reports.map((report) => (
+          {reports.map((report) => {
+            const identity = report.displayIdentity ?? legacyPairDisplayIdentity();
+            return (
             <li key={report.id} className={styles.item}>
               <div>
-                <strong>二人の相性レポート</strong>
+                <strong>{identity.selfLabel} × {identity.partnerLabel}</strong>
+                <span>{identity.relationLabel} · 二人の相性レポート</span>
                 <span>
                   購入日 {new Intl.DateTimeFormat('ja-JP', {
                     year: 'numeric',
@@ -85,7 +98,8 @@ export function CompatibilitySavedReportsSection({
                 レポートを開く
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       ) : null}
     </section>
@@ -102,15 +116,14 @@ export default function CompatibilitySavedReportsLibrary() {
     let active = true;
     void (async () => {
       try {
-        const response = await fetch('/api/compatibility/reports', {
+        const { response, data } = await fetchJsonWithTimeout<{
+          reports?: CompatibilityReportListItem[];
+          available?: boolean;
+        }>('/api/compatibility/reports', {
           credentials: 'include',
           cache: 'no-store',
         });
         if (!response.ok) throw new Error('request failed');
-        const data = (await response.json()) as {
-          reports?: CompatibilityReportListItem[];
-          available?: boolean;
-        };
         if (active) {
           setReports(Array.isArray(data.reports) ? data.reports : []);
           setAvailable(data.available !== false);

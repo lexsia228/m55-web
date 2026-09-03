@@ -7,6 +7,43 @@
   border: 1px solid rgba(155, 135, 225, 0.14);
   background: linear-gradient(165deg, rgba(32, 26, 48, 0.55) 0%, rgba(24, 20, 38, 0.42) 100%);
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.bridge::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, rgba(196, 168, 232, 0.7), rgba(155, 135, 225, 0.15));
+}
+
+.bridgeProgress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.bridgeProgressDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 168, 232, 0.45);
+  background: rgba(32, 26, 48, 0.8);
+}
+
+.bridgeProgressDot[data-active='true'] {
+  background: rgba(196, 168, 232, 0.85);
+  border-color: rgba(196, 168, 232, 0.95);
+  box-shadow: 0 0 0 3px rgba(196, 168, 232, 0.12);
+}
+
+.bridgeProgressLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(196, 168, 232, 0.55), rgba(155, 135, 225, 0.12));
 }
 
 .bridgeOverline {

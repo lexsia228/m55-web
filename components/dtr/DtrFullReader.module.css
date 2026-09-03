@@ -2743,6 +2743,103 @@
   box-sizing: border-box;
 }
 
+.personalReadingDepthMap {
+  margin: 0 0 clamp(12px, 2.2vw, 18px);
+  padding: clamp(16px, 2.8vw, 22px);
+  border-radius: 18px;
+  border: 1px solid rgba(196, 168, 232, 0.22);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(155, 135, 225, 0.14), transparent 55%),
+    linear-gradient(165deg, rgba(28, 22, 42, 0.96), rgba(20, 16, 32, 0.92));
+  box-sizing: border-box;
+}
+
+.personalReadingDepthOverline {
+  margin: 0 0 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dtr-accent, #c4a8e8);
+}
+
+.personalReadingDepthLead {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(235, 228, 250, 0.88);
+  max-width: 36rem;
+}
+
+.personalReadingDepthList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 720px) {
+  .personalReadingDepthList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+.personalReadingDepthStep {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid rgba(160, 140, 220, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(250, 247, 255, 0.94);
+  font: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.personalReadingDepthStep:hover {
+  border-color: rgba(196, 168, 232, 0.38);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.personalReadingDepthStep:focus-visible {
+  outline: 2px solid rgba(196, 168, 232, 0.65);
+  outline-offset: 2px;
+}
+
+.personalReadingDepthRoman {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--dtr-accent, #c4a8e8);
+  flex-shrink: 0;
+}
+
+.personalReadingDepthCopy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.personalReadingDepthLabel {
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.personalReadingDepthSublabel {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgba(200, 190, 225, 0.72);
+}
+
 /* Included-features band ?Equiet premium strip between hero and narrative */
 .premiumIncludedBand {
   margin: clamp(10px, 2vw, 16px) 0 clamp(14px, 2.5vw, 18px);

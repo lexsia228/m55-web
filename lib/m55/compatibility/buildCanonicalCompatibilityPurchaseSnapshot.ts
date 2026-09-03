@@ -20,6 +20,7 @@ import {
   buildPaidCompatibilityReportV1,
   type PaidCompatibilityReportSnapshot,
 } from './buildPaidCompatibilityReportV1';
+import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
 
 export type CanonicalCompatibilityPurchaseSnapshotResult =
   | { ok: true; snapshot: PaidCompatibilityReportSnapshot }
@@ -33,6 +34,7 @@ export function buildCanonicalCompatibilityPurchaseSnapshot(
   input: CompatibilityGuestInput,
   relationStatusId: RelationStatusId,
   currentContext: CompatibilityCurrentContextAnswersV2,
+  displayIdentity?: PairDisplayIdentityV1,
 ): CanonicalCompatibilityPurchaseSnapshotResult {
   if (
     !isCompleteCompatibilityGuestInput(input) ||
@@ -76,6 +78,7 @@ export function buildCanonicalCompatibilityPurchaseSnapshot(
       currentContextV2: currentContext,
       personABirthDate: input.personA,
       personBBirthDate: input.personB,
+      displayIdentity,
     }),
   };
 }

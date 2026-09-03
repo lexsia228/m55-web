@@ -500,22 +500,22 @@ export function buildCompatibilityFreeResultFragments(args: {
     perspectives: { personA, personB },
     relationshipDynamic:
       args.relationStatusId === 'R1'
-        ? `あなた側は、${personA}傾向があります。相手側については、${R1_PARTNER_FREE_UNCERTAINTY}。そのため二人の間では、${axis.dynamicOutcome}。`
-        : `あなた側は、${personA}傾向があります。相手側は、${personB}傾向があります。そのため二人の間では、${axis.dynamicOutcome}。`,
+        ? `あなたには、${personA}傾向が見えやすい。相手については、${R1_PARTNER_FREE_UNCERTAINTY}。二人の間では、${axis.dynamicOutcome}`
+        : `あなたには、${personA}傾向が見えやすい。相手には、${personB}傾向が見えやすい。二人の間では、${axis.dynamicOutcome}`,
     immediateAction,
   };
 }
 
 export const PERSON_A_BODY =
   [
-    'あなた側は、反応やペースが「間合いの取り方」として出やすい傾向があります。',
+    'あなたには、反応やペースが「間合いの取り方」として出やすい傾向があります。',
     '強さの話というより、安心するまでの時間や、先に動く／整えてから動く、の差として見えやすいです。',
-    'ここでの自己理解は、良し悪しの断定ではなく、自分側に出やすい動き方を一つ見つけることです。',
+    'ここでの自己理解は、良し悪しの断定ではなく、自分に出やすい動き方を一つ見つけることです。',
   ].join('\n\n');
 
 export const PERSON_B_BODY =
   [
-    'お相手側は、反応の出方が「言葉ですぐ返す／返す前に間を取る」の差として見えやすい傾向があります。',
+    '相手には、反応の出方が「言葉ですぐ返す／返す前に間を取る」の差として見えやすい傾向があります。',
     '好き嫌いの判定ではなく、同じ場面でも返事の出方が違って見えやすい、という整理です。',
     'ここでの手がかりは、お相手の気持ちを断定することではなく、返事の出方の違いを一つ見つけることです。',
   ].join('\n\n');

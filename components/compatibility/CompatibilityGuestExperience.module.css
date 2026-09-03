@@ -1,13 +1,16 @@
 .page {
-  --ink: #292535;
+  --ink: var(--m55-subsystem-ink, #292535);
   --muted: #6d6876;
-  --line: rgba(55, 45, 70, 0.14);
-  --plum: #4b3b60;
+  --line: var(--m55-subsystem-accent-soft, rgba(55, 45, 70, 0.14));
+  --plum: var(--m55-subsystem-accent, #4b3b60);
   width: min(100%, 1040px);
   margin: 0 auto;
   padding: clamp(32px, 6vw, 72px) clamp(18px, 4vw, 40px) 88px;
   box-sizing: border-box;
   color: var(--ink);
+  background:
+    radial-gradient(80% 50% at 8% 0%, var(--m55-subsystem-accent-soft, rgba(92, 61, 110, 0.1)), transparent 55%),
+    var(--m55-subsystem-surface, transparent);
 }
 
 .intro,
@@ -80,6 +83,10 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #fff;
+}
+
+.inputCardMarker {
+  display: none;
 }
 
 .inputRole {
@@ -369,6 +376,8 @@
 .resultHeader {
   max-width: 720px;
   margin-bottom: 28px;
+  padding-left: 14px;
+  border-left: 3px solid var(--plum);
 }
 
 .resultHeader h2 {
@@ -386,10 +395,35 @@
 }
 
 .baselineSection {
-  padding: clamp(22px, 4vw, 34px);
-  border: 1px solid var(--line);
+  margin-top: 8px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid rgba(101, 79, 137, 0.16);
+  border-radius: 16px;
+  background: rgba(250, 247, 253, 0.72);
+}
+
+.relationalReadingStack {
+  display: grid;
+  gap: 0;
+  margin-top: 14px;
+  border: 1px solid rgba(101, 79, 137, 0.18);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.76);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.relationalReadingStack .expressionCard,
+.relationalReadingStack .loopCard {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.relationalReadingStack .expressionCard {
+  border-bottom: 1px solid rgba(101, 79, 137, 0.1);
+  background: rgba(244, 238, 250, 0.45);
 }
 
 .expressionCard {
@@ -897,3 +931,44 @@
     transition: none !important;
   }
 }
+.pairContext { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 20px; padding: 14px 16px; border: 1px solid rgba(101,79,137,.18); border-radius: 14px; background: rgba(250,247,253,.92); color: #3b3049; }
+.pairContext span { color: #756a7e; font-size: .86rem; }
+.pairRelationalBanner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(101, 79, 137, 0.24);
+  background:
+    radial-gradient(100% 120% at 0% 0%, rgba(155, 135, 225, 0.16), transparent 58%),
+    linear-gradient(165deg, rgba(250, 247, 253, 0.98), rgba(236, 228, 248, 0.92));
+  box-shadow: 0 10px 28px rgba(75, 59, 96, 0.08);
+}
+.pairRelNode {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(101, 79, 137, 0.14);
+}
+.pairRelNode[data-node='you'] { border-left: 3px solid rgba(107, 95, 168, 0.65); }
+.pairRelNode[data-node='partner'] { border-left: 3px dashed rgba(155, 135, 225, 0.65); }
+.pairRelNode span { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: #756a7e; }
+.pairRelNode strong { font-size: 0.95rem; line-height: 1.35; color: #3b3049; word-break: break-word; }
+.pairRelBridge { font-size: 1rem; font-weight: 700; color: rgba(107, 95, 168, 0.72); padding: 0 4px; }
+@media (max-width: 560px) {
+  .pairContext { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .pairRelationalBanner { grid-template-columns: 1fr; justify-items: stretch; }
+  .pairRelBridge { justify-self: center; }
+}
+.inputFieldLabel { display: grid; gap: 8px; }
+.partnerLabelPrivacy { color: #756a7e; font-size: .78rem; line-height: 1.65; }
+.partnerLabelCompletion { display: grid; gap: 8px; min-width: min(100%, 260px); }
+.partnerLabelCompletion label { font-weight: 700; }
+.partnerLabelCompletion input { min-height: 44px; padding: 10px 12px; border: 1px solid rgba(101,79,137,.28); border-radius: 10px; font: inherit; }
+.partnerLabelCompletion small { color: #756a7e; line-height: 1.55; }

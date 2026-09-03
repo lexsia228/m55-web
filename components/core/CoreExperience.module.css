@@ -6,7 +6,9 @@
   /* /core 全体のコンテンツ基準線（ヒーロー〜各セクションで共通） */
   --core-page-pad-x: 12px;
   --m55-sticky-cta-height: 0px;
-  color: #3d3d3d;
+  --m55-self-orbit: var(--m55-subsystem-accent, #4a5f8c);
+  --m55-self-orbit-soft: var(--m55-subsystem-accent-soft, rgba(74, 95, 140, 0.12));
+  color: var(--m55-subsystem-ink, #3d3d3d);
   font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
   line-height: 1.75;
   max-width: min(56rem, calc(100vw - 2 * var(--core-page-pad-x)));
@@ -14,7 +16,7 @@
   min-height: min(72vh, 42rem);
   padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x)
     calc(72px + var(--m55-sticky-cta-height) + env(safe-area-inset-bottom, 0px));
-  background: #f9f7f5;
+  background: var(--m55-subsystem-surface, #f9f7f5);
 }
 
 /* Fallback only — CorePremiumStickyCta overwrites with measured height. */
@@ -4401,6 +4403,8 @@
   position: relative;
   overflow: hidden;
   padding: 0;
+  border: 1px solid var(--m55-self-orbit-soft);
+  box-shadow: 0 16px 44px rgba(26, 36, 56, 0.07);
 }
 
 @media (max-width: 899px) {
@@ -4608,6 +4612,43 @@
   cursor: pointer;
   font-size: 0.9rem;
   color: rgba(55, 48, 82, 0.78);
+}
+
+.freeResultFollowOn {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0 0;
+}
+
+.freeResultFollowOn summary {
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: rgba(55, 48, 82, 0.82);
+  list-style: none;
+}
+
+.freeResultFollowOn summary::-webkit-details-marker {
+  display: none;
+}
+
+.freeResultFollowOnBody {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 639px) {
+  .section {
+    margin-top: 28px;
+  }
+
+  .coreSectionSurface {
+    padding: clamp(16px, 4vw, 22px);
+  }
+
+  .freeResultRevealItem + .freeResultRevealItem {
+    margin-top: 0.15rem;
+  }
 }
 
 .freeDepthConditionGrid {

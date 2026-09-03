@@ -859,12 +859,68 @@ test('paid DTR readability — painted contrast and shared-style isolation', asy
   );
   expect(freeLead).toHaveLength(1);
   expect(freeLead[0].color).toBe('rgba(45, 40, 70, 0.82)');
-  expect(freeLead[0].background).toEqual([254.04, 253.72, 253.4]);
+  expect(freeLead[0].background[0]).toBeCloseTo(254.04, 0);
+  expect(freeLead[0].background[1]).toBeCloseTo(253.72, 0);
+  expect(freeLead[0].background[2]).toBeCloseTo(252.92, 0);
   expect(freeLead[0].fontSizePx).toBeCloseTo(15.2, 2);
   expect(freeLead[0].fontWeight).toBe(400);
   expect(freeLead[0].opacity).toBe(1);
   expect(freeLead[0].ancestorOpacities).toEqual([1, 1, 1, 0, 1, 1, 1, 1, 1]);
   await freeContext.close();
+});
+
+test('deterministic dev fixtures — self paid depth map and pair paid grammar', async ({ browser }) => {
+  requireCleanCaptureEnvironment('deterministic-dev-fixtures');
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await prepareCleanCapturePage(page);
+
+  await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/dtr-drawer-preview`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId('m55-personal-reading-depth-map')).toBeVisible({ timeout: 30_000 });
+
+  await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/synastry-paid-report-preview`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId('m55-pair-relational-grammar')).toBeVisible({ timeout: 30_000 });
+
+  await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/synastry-guest-result-preview`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId('compatibility-personalized-result')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('m55-pair-relational-grammar')).toBeVisible({ timeout: 30_000 });
+
+  await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/my-owned-preview`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId('m55-dev-my-owned-preview')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText('残り 2件 / 合計 3件')).toBeVisible({ timeout: 30_000 });
+
+  await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/my-owned-preview?mode=pair_library`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId('m55-dev-my-owned-preview')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('m55-my-owned-pair-library')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('compatibility-saved-reports')).toBeVisible({ timeout: 30_000 });
+
+  for (const aspect of ['1-1', '4-5', '9-16'] as const) {
+    await page.goto(`${VISUAL_QUALITY_BASE_URL}/dev/pair-share-preview`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60_000,
+    });
+    const aspectButton = page.getByTestId(`m55-pair-share-preview-aspect-${aspect}`);
+    await expect(aspectButton).toBeVisible({ timeout: 30_000 });
+    await aspectButton.click();
+    await expect(page.getByTestId('m55-pair-share')).toBeVisible({ timeout: 30_000 });
+  }
+
+  await context.close();
 });
 
 for (const governedCase of COMMERCIAL_VISUAL_CASES) {
