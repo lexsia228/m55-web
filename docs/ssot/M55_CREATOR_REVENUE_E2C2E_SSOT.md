@@ -6,6 +6,33 @@ Status: **ACTIVE / HUMAN-APPROVED ROADMAP CONTRACT**
 
 Sole executable CURRENT/NEXT authority remains `docs/ssot/M55_EXECUTION_STATE.json`. This document is the durable planning contract for the Creator Revenue program.
 
+Machine-first compliance / payout architecture annex: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
+
+---
+
+## A-0. Revenue decision no-regression policy (Human-approved 2026-09-06)
+
+`M55_REVENUE_DECISION_NO_REGRESSION = TRUE`
+
+Human-approved/frozen revenue decisions must **not** be re-opened, re-optimized, replaced, or reverted merely because:
+
+- a new chat starts
+- a new agent prefers another design
+- reassurance is requested
+- a previously reviewed competitor remains different
+- implementation begins
+
+A frozen decision may be reopened only by a real invalidator such as:
+
+- applicable law/regulation conflict
+- Stripe/provider incompatibility
+- security/fraud defect
+- actual measured negative unit economics
+- material product-truth conflict
+- Human explicitly changes the decision
+
+**New chat/session is NOT an invalidator.**
+
 ---
 
 ## A. E2C2E term
@@ -23,7 +50,7 @@ Normative conceptual flow:
 `SHARE_READY`
 → `DIRECT_ATTRIBUTION_RECORDED`
 → `ELIGIBLE_PURCHASE_CONFIRMED`
-→ `COMMISSION_PENDING`
+→ `COMMISSION_PENDING_COMPLIANCE_REVIEW`
 → optional `COMMISSION_HOLD_REVIEW`
 → `COMMISSION_PAYABLE`
 → `PAYOUT_REQUESTED`
@@ -96,9 +123,9 @@ M55 owns commission eligibility/accounting state.
 At eligible Stripe-confirmed purchase:
 
 - create idempotent internal commission event
-- status initially `PENDING`
+- status initially `COMMISSION_PENDING_COMPLIANCE_REVIEW` (family alias: `COMMISSION_PENDING`)
 
-`PENDING` does **not** mean money has been paid or irrevocably earned.
+`COMMISSION_PENDING` / `PENDING` does **not** mean money has been paid or irrevocably earned.
 
 Only after:
 
@@ -108,7 +135,7 @@ Only after:
 - attribution checks
 - chargeback state as defined by policy
 
-may it become: `PAYABLE` / `VESTED`.
+may it become: `COMMISSION_PAYABLE` / `PAYABLE` / `VESTED`.
 
 Only `PAYABLE` amounts may enter payout execution.
 
@@ -149,11 +176,34 @@ It is:
 - cash payout = **PROHIBITED**
 - cash-equivalent transferable balance = **PROHIBITED**
 - open MLM / referral-income language = **PROHIBITED**
-- general-user benefit design remains **R2-E** work
-- do **not** freeze a 10% discount, specific coupon amount, or specific unlock value yet
-- candidate benefit forms include: referred-user first-purchase discount, referrer digital M55 unlock, Pair-specific unlock, reciprocal / double-sided M55 experience benefit
-- exact benefit/value/trigger remains **unresolved until R2-E**
 - Premium purchase must **not** automatically be a prerequisite for the ability to share/refer unless later legal review explicitly authorizes the exact mechanic
+
+**Launch MVP frozen (2026-09-06):**
+
+`GENERAL_USER_PRIMARY_V1 = FREE_COMPLETION_DIGITAL_UNLOCK`
+
+Flow:
+
+1. direct invite
+2. distinct referred account
+3. valid meaningful **Self Free** or **Pair Free** completion
+4. abuse checks
+5. bounded non-cash M55 digital unlock to referrer
+
+Constraints:
+
+- no purchase required
+- no cash
+- no transferable balance
+- no generic points wallet
+- no Premium chapter/content leakage
+- no fixed 10% discount
+
+Exact unlock content remains a later minimal product-boundary micro-spec.
+
+`PAIR_INVITE_MUTUAL_ARTIFACT` / Shared Relationship Artifact = **`FUTURE_OPTIMIZATION_CANDIDATE`**
+
+Do **not** make mutual Pair collaboration semantics a v1 requirement. Do **not** reopen CLOSED GREEN Pair architecture merely to implement v1 referral.
 
 General User motivation principle: ordinary users should want to share because M55 creates self-expression, curiosity, relationship utility, reciprocity, useful/private personal insight, and polished shareable artifacts — **not** because they are promised cash income.
 
@@ -197,7 +247,13 @@ Hard rules:
 - **no** automatic MLM / downstream / volume-tree rates
 - **no** retroactive reduction of already **PAYABLE** commission
 - **PENDING** commission remains reversible according to refund, chargeback, fraud and eligibility rules
-- recording **50%** in this SSOT does **not** make it live without R2-D cohort budget / stop-loss closure
+- recording **50%** in this SSOT does **not** make it live without R2-B2 external confirmation and Human launch authority
+
+**Founding cohort (frozen 2026-09-06):** initial cohort = **20** manually approved creators.
+
+Do **not** freeze an invented absolute program cash-exposure cap. Future absolute cash-exposure cap requires actual Human launch-budget authority. Performance-based Creator commission is itself acquisition cost; a successful positive-contribution Creator must **not** be automatically stopped merely because cumulative sales become large.
+
+**Launch cash bonus:** `BONUS_NOT_NEEDED_AT_LAUNCH` — 50% for six months is already the headline acquisition economics.
 
 ---
 
@@ -266,7 +322,7 @@ Creator cash infrastructure remains: **NOT_IMPLEMENTED**
 
 ---
 
-## L. Program stop-loss (Human-approved 2026-09-06)
+## L. Program stop-loss (Human-approved 2026-09-06, corrected)
 
 M55 must **not** solve an uneconomic cohort by retroactively cutting the promised rate window for already approved compliant creators.
 
@@ -280,20 +336,35 @@ If economics become unsafe, M55 may:
 
 Existing creator commissions remain subject to fraud, self-referral, circular referral, refund, chargeback, eligibility, claims/disclosure violations, and partnership suspension rules. Those are safety/enforcement rules — **not** arbitrary retroactive rate cuts.
 
-Still unresolved before activation:
+### Corrected stop-loss principles (not arbitrary percentage matrix)
 
-- Founding cohort size
-- program-level total CAC budget cap
-- stop-loss numeric threshold
-- provider payout cost
+| Event | Action |
+|---|---|
+| `CONFIRMED_SELF_REFERRAL` | objective rejection |
+| `CONFIRMED_CIRCULAR_REFERRAL` | objective rejection / creator pause as policy permits |
+| `CONFIRMED_DUPLICATE_COMMISSION` | objective cancellation |
+| refund/chargeback on related transaction | reversal/cancellation per state/policy |
+| Stripe/provider risk warning | immediate automated payout/referral **PAUSE** + review |
+| **first observed chargeback** in small launch cohort | **HUMAN REVIEW** — do not wait for 2% threshold |
+| creator concentration > **35%** | diversification/dependency **REVIEW** only |
+| creator-attributed contribution margin ≤ **0** after required variable costs | program economic **HARD STOP** |
+| positive but materially deteriorating contribution | **HUMAN REVIEW** / future cohort admission pause |
+
+High concentration alone is **not** misconduct. A creator producing >50% of attributable revenue must **not** be automatically stopped when fraud is absent, claims compliance is GREEN, refund/dispute quality is acceptable, and contribution remains positive.
+
+Still externally/open operationally before activation:
+
+- actual Human absolute cash-exposure budget if desired
+- provider payout costs
+- legal/tax deadlines
+- provider supportability
 - refund/fraud reserve assumptions
 - payout threshold/cadence
-- exact provider supportability
-- tax/legal execution mechanics
+- exact statistically meaningful rate thresholds (after sufficient volume)
 
 Therefore **50%** must **NOT** become live merely because this SSOT records it.
 
-**R2-D** must freeze cohort budget and stop-loss before activation.
+**R2-B2** must close account-specific supportability before cash infrastructure activation.
 
 ---
 
@@ -380,16 +451,38 @@ Prohibited claims:
 
 ---
 
-## N. R2 sub-gates (planning contract)
+## N. R2 sub-gates (planning contract — updated 2026-09-06)
 
 | Sub-gate | Scope | Status |
 |---|---|---|
-| **R2-A** `COMPETITIVE_REWARD_BENCHMARK` | one-time Japan/competitor research input | **ONE-TIME RESEARCH COMPLETE / REUSE** — do not repeat absent invalidator |
-| **R2-B1** `JAPAN_LEGAL_STRIPE_PREFLIGHT` | official-source issue mapping and STOP conditions | open |
-| **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General non-cash / Approved Creator cash split | contract direction frozen here; implementation future |
-| **R2-D** `FOUNDING_CREATOR_ECONOMICS` | rate schedule **NOW FROZEN**: 50% days 0–180 · 40% days 181–365 · 30% day 366+ · no conversion-count cliffs; remaining: cohort size, total CAC budget cap, stop-loss numeric threshold, provider payout cost, refund/fraud reserve | open (budget/stop-loss only) |
-| **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | select strongest non-cash viral benefit without leaking Premium value or increasing legal/payment complexity | open |
-| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | only after M55 converges to one final model: Stripe account-specific confirmation plus necessary Japan legal/tax professional confirmation | blocked until R2-C/D/E convergence |
+| **R2-A** `COMPETITIVE_REWARD_BENCHMARK` | one-time Japan/competitor research input | **CLOSED / REUSE** — do not repeat absent invalidator |
+| **R2-B1** `JAPAN_LEGAL_STRIPE_PREFLIGHT` | official-source issue mapping and STOP conditions | **INTERNAL PREFLIGHT / ISSUE MAPPING COMPLETE** — external professional/account-specific confirmation remains R2-B2 |
+| **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General User non-cash / Approved Creator cash split | **INTERNAL TWO-LANE CONTRACT FROZEN** |
+| **R2-D** `FOUNDING_CREATOR_ECONOMICS` | 50% days 0–180 · 40% days 181–365 · 30% day 366+ · no conversion cliffs · cohort **20** · no extra launch cash bonus · machine-first compliance architecture · 30-day review model · corrected stop-loss principles | **INTERNAL ECONOMICS FROZEN** — actual Human absolute cash-exposure budget / provider costs / legal deadlines remain external |
+| **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | `GENERAL_USER_PRIMARY_V1 = FREE_COMPLETION_DIGITAL_UNLOCK` · Pair mutual artifact deferred | **INTERNAL LAUNCH MVP FROZEN** |
+| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe/provider + Japan legal/tax confirmation | **NEXT REMAINING R2 BLOCKER BEFORE CASH INFRASTRUCTURE ACTIVATION** |
+
+Machine-first compliance / payout detail: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
+
+### R2 implementation order (no skipping)
+
+1. R2 durable SSOT freeze — complete
+2. R2-B2 supportability confirmation packet
+3. account-specific Stripe/provider confirmation
+4. required Japan legal/tax confirmation
+5. close R2 / explicit Human acceptance
+6. R3 launch-readiness audit per canonical roadmap
+7. R4 Creator Distribution Foundation
+8. R5 Attribution + Compliance implementation
+9. R6 Commission Ledger
+10. R7 Creator Dashboard / exception queue
+11. R8 Payout + Settlement automation
+12. independent Creator infra audit
+13. invite-only beta
+14. revenue-ready
+15. controlled scale
+
+Do **not** implement payout before attribution/compliance/ledger. Do **not** implement a Human-per-payout workflow as interim architecture.
 
 Do not decide yet whether 50% is before/after tax, Stripe fees, refunds, or other contract adjustments beyond the **COMMISSIONABLE_REVENUE** definition until unit economics / provider / legal gate closes.
 

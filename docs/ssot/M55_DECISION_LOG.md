@@ -840,3 +840,26 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 | R2-A research | one-time Japan/competitor benchmark remains reusable · **no repeat** absent invalidator |
 | Provider / payout | **UNSELECTED** · creator cash infrastructure **NOT_IMPLEMENTED** |
 | `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · Founding Creator introductory acquisition rate · not permanent standard · not activation authority |
+
+### 2026-09-06 — Machine-first revenue safety architecture freeze
+
+**Status:** Human **APPROVED** · durable business/architecture freeze · local commit only · push/PR/deploy **NOT AUTHORIZED** in this gate
+
+| Decision | Value |
+|---|---|
+| No-regression policy | `M55_REVENUE_DECISION_NO_REGRESSION = TRUE` — new chat/session is not an invalidator |
+| Machine-first operation | `HUMAN_DOES_NOT_APPROVE_EVERY_PAYOUT = TRUE` — normal commissions auto-resolve; Human only for ambiguous/material exceptions |
+| 30-day review model | `STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS = 30` · initial state `COMMISSION_PENDING_COMPLIANCE_REVIEW` · **not** escrow |
+| PAYABLE automation | machine transition to `COMMISSION_PAYABLE` when objective checks pass — no Human button for normal case |
+| Payout direction | `TARGET_PAYOUT_EXECUTION = STRIPE_NATIVE_AUTOMATED_PAYOUT` · `STRIPE_CONNECT_FIRST_CANDIDATE` · provider **UNSELECTED** |
+| Payout aggregation | never one purchase = one bank payout |
+| Content compliance | registered/attributable promotional content must have durable machine-auditable evidence |
+| AI role | semantic risk classification / HOLD only — not unlimited legal authority · no AI-only forfeiture for ambiguous legal judgment |
+| Violation scope | blanket historical forfeiture rejected — violations affect related evidence-supported commission set |
+| General User MVP | `GENERAL_USER_PRIMARY_V1 = FREE_COMPLETION_DIGITAL_UNLOCK` |
+| Pair mutual artifact | `FUTURE_OPTIMIZATION_CANDIDATE` — not v1 requirement |
+| Founding cohort | **20** manually approved creators |
+| Absolute program cap | invented ¥500,000 cap **rejected** — future cap requires Human launch-budget authority |
+| Stop-loss correction | first chargeback → Human review in small cohort; concentration >35% → review not hard stop; winner with positive contribution not auto-stopped |
+| R2-B2 | next remaining R2 blocker before cash infrastructure activation |
+| Annex | `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` created as normative architecture contract |
