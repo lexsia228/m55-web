@@ -271,32 +271,58 @@ function deriveSitewideJapaneseEditorialQuality(integrity) {
   };
 }
 
-function deriveInfluencerPlatformReadiness(integrity) {
-  const foundationGreen = integrity?.unresolvedP0 === 0 && integrity?.unresolvedP1 === 0;
+function deriveCreatorRevenueHandoff(state) {
+  const authority = state?.creatorRevenueRoadmapAuthority ?? {};
+  const stages = authority.stages ?? [];
+  const currentStage = authority.currentStage ?? null;
+  const currentIndex = currentStage ? stages.indexOf(currentStage) : -1;
+  const nextStage = currentIndex >= 0 && currentIndex < stages.length - 1 ? stages[currentIndex + 1] : null;
   return {
     isAuthority: false,
-    platformPolicyVersion: 'INFLUENCER_PLATFORM_v1',
-    creatorQualityFoundationStatus: foundationGreen
-      ? 'LOCAL_CANDIDATE_READY_FOR_INDEPENDENT_REAUDIT'
-      : 'P1_OPEN_WAVE2',
-    sharePostabilityStatus: foundationGreen
-      ? 'LOCAL_CANDIDATE_READY_FOR_INDEPENDENT_REAUDIT'
-      : 'PENDING_PAIR_SHARE_CLOSURE',
-    screenRecordStatus: foundationGreen
-      ? 'LOCAL_CANDIDATE_READY_FOR_INDEPENDENT_REAUDIT'
-      : 'PENDING_AFFECTED_EVIDENCE',
-    creatorReferralStatus: 'NOT_IMPLEMENTED',
-    attributionStatus: 'COARSE_ONLY_SESSION_STORAGE',
+    contractReference: authority.contractReference ?? null,
+    currentStage,
+    nextStage,
+    productWorkAfterControlTower: state?.productWorkAfterControlTower ?? null,
+    fourSurfaceCreatorReadiness: authority.fourSurfaceCreatorReadiness ?? null,
+    socialShareClosure: authority.socialShareClosure ?? null,
+    creatorReferralStatus: authority.creatorReferralStatus ?? 'NOT_IMPLEMENTED',
+    attributionStatus: authority.attributionStatus ?? 'NOT_IMPLEMENTED',
+    commissionLedgerStatus: authority.commissionLedgerStatus ?? 'NOT_IMPLEMENTED',
+    creatorDashboardStatus: authority.creatorDashboardStatus ?? 'NOT_IMPLEMENTED',
+    payoutSettlementStatus: authority.payoutSettlementStatus ?? 'NOT_IMPLEMENTED',
+    stripePayoutProviderStatus: authority.stripePayoutProviderStatus ?? 'UNSELECTED',
+    stages,
+    criticalPath: authority.criticalPath ?? [],
+    targetCommissionRateHumanTargetOnly: true,
+    antiMlmDirectSingleTierOnly: true,
+    e2c2eAcronymExpansionInvented: false,
+    nextDelta: state?.productWorkAfterControlTower ?? currentStage ?? 'UNKNOWN',
+  };
+}
+
+function deriveInfluencerPlatformReadiness(state) {
+  const creator = deriveCreatorRevenueHandoff(state);
+  return {
+    isAuthority: false,
+    platformPolicyVersion: 'CREATOR_REVENUE_E2C2E_v1',
+    creatorQualityFoundationStatus: creator.fourSurfaceCreatorReadiness,
+    sharePostabilityStatus: creator.socialShareClosure,
+    screenRecordStatus: creator.fourSurfaceCreatorReadiness,
+    creatorReferralStatus: creator.creatorReferralStatus,
+    attributionStatus: creator.attributionStatus,
     creatorContentInfrastructureStatus: 'PARTIAL_SHARE_ARCHITECTURE',
-    creatorDashboardStatus: 'NOT_IMPLEMENTED',
-    rewardInfrastructureStatus: 'POLICY_ONLY',
+    creatorDashboardStatus: creator.creatorDashboardStatus,
+    rewardInfrastructureStatus: creator.payoutSettlementStatus,
+    commissionLedgerStatus: creator.commissionLedgerStatus,
+    stripePayoutProviderStatus: creator.stripePayoutProviderStatus,
     privacyStatus: 'GREEN_EXISTING_CONTRACTS',
     fraudGuardrailStatus: 'POLICY_ONLY',
     independentAuditStatus: 'PENDING_CODEX_AFFECTED_DELTA_REAUDIT',
     humanEconomicApprovalStatus: 'NOT_GRANTED',
-    nextDelta: foundationGreen
-      ? 'CODEX_AFFECTED_DELTA_REAUDIT_THEN_SOCIAL_SHARE_EXPERIENCE'
-      : 'CLOSE_WAVE2_CREATOR_QUALITY_FOUNDATION',
+    contractReference: creator.contractReference,
+    currentStage: creator.currentStage,
+    nextStage: creator.nextStage,
+    nextDelta: creator.nextDelta,
   };
 }
 
@@ -376,7 +402,8 @@ export function buildHandoff(options = {}) {
     semanticValidationErrors: validationErrors,
     contentIntegritySummary: integrity,
     SITEWIDE_JAPANESE_EDITORIAL_QUALITY: deriveSitewideJapaneseEditorialQuality(integrity),
-    INFLUENCER_PLATFORM_READINESS: deriveInfluencerPlatformReadiness(integrity),
+    CREATOR_REVENUE_E2C2E: deriveCreatorRevenueHandoff(state),
+    INFLUENCER_PLATFORM_READINESS: deriveInfluencerPlatformReadiness(state),
     isAuthority: false,
     note: 'Derived observation only. Sole executable authority remains docs/ssot/M55_EXECUTION_STATE.json.',
   };

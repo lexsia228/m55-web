@@ -779,3 +779,21 @@ The completed reconciliation pass did **not** authorize:
 - commit / push (that reconciliation pass)
 
 The authorized **NEXT** action is baseline/control-plane implementation on the existing Commercial Quality Control Plane allowlist only — see `implementationAllowedPaths` in `M55_EXECUTION_STATE.json`. Commit and push remain **PROHIBITED** during the CURRENT gate until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization.
+
+### 2026-09-05 — Creator Revenue / E2C2E staged roadmap settlement
+
+**Status:** Human **APPROVED** · governance settlement after R1 `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** · local commit only · push/PR/deploy **NOT AUTHORIZED**
+
+| Decision | Value |
+|---|---|
+| R1 closure | `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** · commit `4aafc4a3eeb37c1ab72e948b1b02bb3b22242c60` · 38-path candidate |
+| Staged roadmap authority | `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` supersedes monolithic `M55-REFERRAL-CREATOR-COMMERCE-DESIGN` sequencing for active planning |
+| Internal ledger architecture | approved planning contract: `PENDING` → eligibility/fraud/refund checks → `PAYABLE` → payout execution only after `PAYABLE` |
+| Stripe payout preference | **STRIPE-NATIVE** desired boundary · actual provider product **UNDECIDED** until fresh Japan account/country/business-model verification |
+| Stripe escrow | **prohibited claim** — do not represent Connect/Global Payouts as M55 escrow |
+| `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · not provider/legal/tax/final accounting basis |
+| Compensation model | direct single-tier only · **no multi-level compensation** |
+| Product work after Control Tower | `REVENUE_SAFETY_E2E` |
+| Control Tower | `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` required because handoff mechanism changed |
+| Creator cash infrastructure | **NOT IMPLEMENTED** · referral/attribution/ledger/dashboard/payout all **NOT_IMPLEMENTED** |
+| Stripe Connect / Global Payouts | **NOT** implemented or selected |

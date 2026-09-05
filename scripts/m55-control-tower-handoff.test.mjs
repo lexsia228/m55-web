@@ -60,8 +60,42 @@ test('fresh session recovers active gate and NEXT from execution state owner', (
 test('fresh session recovers current Wave from sitewide transition', () => {
   const handoff = buildHandoff();
   assert.equal(handoff.currentWave, 2);
-  assert.equal(handoff.currentWaveStatus, 'AUTHORIZED_NOT_COMPLETE');
+  assert.equal(handoff.currentWaveStatus, 'CLOSED_GREEN');
   assert.ok(handoff.wave1ProductCommit);
+});
+
+test('fresh session recovers Creator Revenue / E2C2E contract from execution state', () => {
+  const state = readExecutionState();
+  const handoff = buildHandoff();
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.isAuthority, false);
+  assert.equal(
+    handoff.CREATOR_REVENUE_E2C2E.contractReference,
+    'docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md',
+  );
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.fourSurfaceCreatorReadiness, 'CLOSED_GREEN');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.productWorkAfterControlTower, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.currentStage, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.creatorReferralStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.attributionStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.commissionLedgerStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.creatorDashboardStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.payoutSettlementStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.stripePayoutProviderStatus, 'UNSELECTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, 'REVENUE_SAFETY_E2E');
+  assert.ok(state.completedSubGates.includes('FOUR_SURFACE_CREATOR_READINESS'));
+  assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('FOUR_SURFACE_CREATOR_READINESS'));
+  assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('REVENUE_SAFETY_E2E'));
+  assert.ok(
+    handoff.CREATOR_REVENUE_E2C2E.stages.includes('M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT'),
+  );
+  assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('PAYOUT_AND_SETTLEMENT'));
+});
+
+test('fresh session does not expose stale Social Share nextDelta in influencer readiness', () => {
+  const handoff = buildHandoff();
+  assert.notEqual(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'CODEX_AFFECTED_DELTA_REAUDIT_THEN_SOCIAL_SHARE_EXPERIENCE');
+  assert.notEqual(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'CLOSE_WAVE2_CREATOR_QUALITY_FOUNDATION');
+  assert.equal(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'REVENUE_SAFETY_E2E');
 });
 
 test('fresh session recovers dirty/index state', () => {

@@ -167,6 +167,21 @@ function main() {
     highCostRerunPolicy: RERUN_POLICY,
     developmentGateRerunPolicy: DEV_GATE_RERUN_POLICY,
     remoteProductionReobservationRequired: true,
+    creatorRevenue: {
+      contractReference: state?.creatorRevenueRoadmapAuthority?.contractReference ?? null,
+      currentStage: state?.creatorRevenueRoadmapAuthority?.currentStage ?? null,
+      fourSurfaceCreatorReadiness:
+        state?.creatorRevenueRoadmapAuthority?.fourSurfaceCreatorReadiness ?? null,
+      nextProductGate: state?.productWorkAfterControlTower ?? null,
+      creatorReferralStatus: state?.creatorRevenueRoadmapAuthority?.creatorReferralStatus ?? null,
+      attributionStatus: state?.creatorRevenueRoadmapAuthority?.attributionStatus ?? null,
+      commissionLedgerStatus: state?.creatorRevenueRoadmapAuthority?.commissionLedgerStatus ?? null,
+      creatorDashboardStatus: state?.creatorRevenueRoadmapAuthority?.creatorDashboardStatus ?? null,
+      payoutSettlementStatus: state?.creatorRevenueRoadmapAuthority?.payoutSettlementStatus ?? null,
+      stripePayoutProviderStatus:
+        state?.creatorRevenueRoadmapAuthority?.stripePayoutProviderStatus ?? null,
+      stages: state?.creatorRevenueRoadmapAuthority?.stages ?? [],
+    },
     semanticValidationErrors: errors,
     note: 'This command does not git fetch. Run git fetch origin first when local network is authorized. Remote-only GPT must declare LOCAL_RUNTIME_UNAVAILABLE instead of fabricating local facts.',
   };
@@ -192,6 +207,9 @@ function main() {
   console.log(`current gate: ${context.semantic.currentGate ?? 'unknown'}`);
   console.log(`NEXT SINGLE ACTION: ${context.semantic.nextSingleAction ?? 'unknown'}`);
   console.log(`product after control tower: ${context.semantic.productWorkAfterControlTower ?? 'unknown'}`);
+  console.log(`creator revenue contract: ${context.creatorRevenue.contractReference ?? 'unknown'}`);
+  console.log(`creator revenue stage: ${context.creatorRevenue.currentStage ?? 'unknown'}`);
+  console.log(`R1 four-surface readiness: ${context.creatorRevenue.fourSurfaceCreatorReadiness ?? 'unknown'}`);
   console.log(`Pair mapping authorized now: ${context.semantic.pairFreeToPaidMappingAuthorizedNow}`);
   console.log(`legacy CURRENT_STATE drift detected: ${context.legacyNarrativeState.driftDetected}`);
   console.log(`Phase-B feature contained in origin/main: ${context.phaseBTransition.featureContainedInLocalOriginMain}`);

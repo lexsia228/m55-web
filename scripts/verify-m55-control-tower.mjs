@@ -28,6 +28,18 @@ function exists(rel) { return fs.existsSync(path.join(ROOT, rel)); }
 
 const BENCHMARK_STACK_PATH = 'docs/ssot/M55_UX_BENCHMARK_STACK.md';
 const COMMERCIAL_QUALITY_PATH = 'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md';
+const CREATOR_REVENUE_SSOT_PATH = 'docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md';
+
+const REQUIRED_CREATOR_ROADMAP_STAGES = [
+  'FOUR_SURFACE_CREATOR_READINESS',
+  'REVENUE_SAFETY_E2E',
+  'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
+  'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+  'ATTRIBUTION_AND_COMPLIANCE',
+  'COMMISSION_LEDGER',
+  'CREATOR_DASHBOARD',
+  'PAYOUT_AND_SETTLEMENT',
+];
 
 const REQUIRED_CONTROL_TOWER_FILES = [
   'AGENTS.md',
@@ -41,6 +53,7 @@ const REQUIRED_CONTROL_TOWER_FILES = [
   'docs/ssot/M55_WORKTREE_REGISTRY.md',
   'docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md',
   'docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md',
+  CREATOR_REVENUE_SSOT_PATH,
   'lib/m55/contracts/m55CommercialFunnelContract.ts',
   'scripts/m55-control-tower-context.mjs',
   'scripts/m55-control-tower-handoff.mjs',
@@ -361,6 +374,73 @@ function checkPackageContextScript() {
     fail('package.json missing m55:handoff script');
   }
 }
+function checkCreatorRevenueContract() {
+  const src = read(CREATOR_REVENUE_SSOT_PATH);
+  for (const token of [
+    'CREATOR CASH INFRASTRUCTURE **NOT IMPLEMENTED**',
+    'E2C2E',
+    'Do **not** invent or freeze an acronym expansion',
+    'single-tier **DIRECT** referral only',
+    'COMMISSION_PENDING',
+    'COMMISSION_PAYABLE',
+    'STRIPE-NATIVE',
+    'UNSELECTED',
+    'TARGET_COMMISSION_RATE = 50%',
+    'HUMAN TARGET ONLY',
+    'FOUR_SURFACE_CREATOR_READINESS',
+    'REVENUE_SAFETY_E2E',
+  ]) {
+    if (!src.includes(token)) fail(`creator revenue SSOT missing: ${token}`);
+  }
+}
+
+function checkCreatorRevenueExecutionState(state) {
+  const authority = state?.creatorRevenueRoadmapAuthority;
+  if (!authority) fail('execution state missing creatorRevenueRoadmapAuthority');
+  if (authority.contractReference !== CREATOR_REVENUE_SSOT_PATH) {
+    fail(`creatorRevenueRoadmapAuthority.contractReference must be ${CREATOR_REVENUE_SSOT_PATH}`);
+  }
+  if (!state.completedSubGates?.includes('FOUR_SURFACE_CREATOR_READINESS')) {
+    fail('FOUR_SURFACE_CREATOR_READINESS must be in completedSubGates');
+  }
+  if (state.currentExecutionGate === 'FOUR_SURFACE_CREATOR_READINESS') {
+    fail('FOUR_SURFACE_CREATOR_READINESS must not equal CURRENT EXECUTION GATE after closure');
+  }
+  if (state.nextSingleAction === 'FOUR_SURFACE_CREATOR_READINESS') {
+    fail('FOUR_SURFACE_CREATOR_READINESS must not equal NEXT SINGLE ACTION after closure');
+  }
+  if (state.productWorkAfterControlTower !== 'REVENUE_SAFETY_E2E') {
+    fail('productWorkAfterControlTower must be REVENUE_SAFETY_E2E');
+  }
+  for (const stage of REQUIRED_CREATOR_ROADMAP_STAGES) {
+    if (!authority.stages?.includes(stage)) {
+      fail(`creatorRevenueRoadmapAuthority.stages missing required stage: ${stage}`);
+    }
+  }
+  for (const [field, expected] of [
+    ['creatorReferralStatus', 'NOT_IMPLEMENTED'],
+    ['attributionStatus', 'NOT_IMPLEMENTED'],
+    ['commissionLedgerStatus', 'NOT_IMPLEMENTED'],
+    ['creatorDashboardStatus', 'NOT_IMPLEMENTED'],
+    ['payoutSettlementStatus', 'NOT_IMPLEMENTED'],
+    ['stripePayoutProviderStatus', 'UNSELECTED'],
+    ['fourSurfaceCreatorReadiness', 'CLOSED_GREEN'],
+  ]) {
+    if (authority[field] !== expected) {
+      fail(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
+    }
+  }
+  if (state.acceptance?.revalidationRequired !== true) {
+    fail('acceptance.revalidationRequired must be true after creator handoff settlement');
+  }
+  if (state.acceptance?.latestResult !== 'PENDING_REVALIDATION') {
+    fail('acceptance.latestResult must be PENDING_REVALIDATION after creator handoff settlement');
+  }
+  if (!state.fourSurfaceCreatorReadinessTransition?.status?.includes('GREEN')) {
+    fail('fourSurfaceCreatorReadinessTransition must record CLOSED_GREEN');
+  }
+}
+
 function checkExecutionState() {
   const src = read(EXECUTION_STATE_PATH);
   const current = read('docs/ssot/M55_CURRENT_STATE.md');
@@ -368,6 +448,7 @@ function checkExecutionState() {
   for (const message of errors) fail(message);
   if (!state) return;
   for (const message of verifyExecutionStatePolicy(state)) fail(message);
+  checkCreatorRevenueExecutionState(state);
 
   const legacy = detectLegacyExecutionDrift(state, current);
   if (legacy.drift && state.legacyExecutionFieldsSuperseded !== true) {
@@ -1711,6 +1792,9 @@ function checkAgents() {
   if (!src.includes('LOCAL_RUNTIME_UNAVAILABLE')) fail('AGENTS.md missing remote-only GPT fallback');
   if (!src.includes('RERUN_PROHIBITED')) fail('AGENTS.md missing RERUN_PROHIBITED');
   if (!src.includes('npm run m55:context')) fail('AGENTS.md missing m55:context');
+  if (!src.includes(CREATOR_REVENUE_SSOT_PATH)) {
+    fail('AGENTS.md missing M55_CREATOR_REVENUE_E2C2E_SSOT.md');
+  }
 }
 function checkCursorRule() {
   const src = read('.cursor/rules/m55-control-tower.mdc');
@@ -1721,6 +1805,9 @@ function checkCursorRule() {
     if (!src.includes(owner)) fail(`Cursor rule missing ${owner} reference`);
   }
   if (!src.includes('RERUN_PROHIBITED')) fail('Cursor rule missing rerun prohibition');
+  if (!src.includes(CREATOR_REVENUE_SSOT_PATH)) {
+    fail('Cursor rule missing M55_CREATOR_REVENUE_E2C2E_SSOT.md');
+  }
 }
 function checkColdStartContract() {
   const src = read('docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md');
@@ -1781,6 +1868,14 @@ function checkColdStartContract() {
     'known composite route/state benchmark bindings',
     'PRODUCT_DECISION',
     'must FAIL',
+    CREATOR_REVENUE_SSOT_PATH,
+    'FOUR_SURFACE_CREATOR_READINESS',
+    'REVENUE_SAFETY_E2E',
+    'NOT_IMPLEMENTED',
+    'UNSELECTED',
+    'HUMAN TARGET ONLY',
+    'anti-MLM',
+    'PENDING_REVALIDATION',
   ]) {
     if (!src.includes(required)) fail(`cold-start contract missing: ${required}`);
   }
@@ -1908,6 +2003,7 @@ function main() {
   checkRequiredFiles();
   checkPackageContextScript();
   checkExecutionState();
+  checkCreatorRevenueContract();
   checkAgents();
   checkCursorRule();
   checkColdStartContract();

@@ -21,18 +21,40 @@ This section records the Human-approved **directional commercial strategy order*
 
 | Order | Future concept | Status |
 |---|---|---|
-| 1 | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** | program identity — macro lane **GLOBAL COMMERCIAL QUALITY** · executable CURRENT/NEXT = `GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE` · Pair Premium **ACTIVATED** · Pair real-payment E2E **PAUSED_BEFORE_PAYMENT** |
+| 1 | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** | program identity — macro lane **GLOBAL COMMERCIAL QUALITY** · Pair Premium **ACTIVATED** · Pair real-payment E2E **PAUSED_BEFORE_PAYMENT** |
 | 2 | **PAIR-PREMIUM-ACTIVATION** | **CLOSED GREEN** — Production commerce switch **ACTIVATED**; real-payment E2E paused pending comprehension remediation |
-| 3 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | future · Personal Free + Pair Free/compatibility share commercial upgrade · **NON-EXECUTABLE** until global commercial Japanese comprehension baseline closes |
-| 4 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | future · single-tier referral/creator design lane · **TARGET_COMMISSION_RATE = 50%** is **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required · **IMPLEMENTATION NOT AUTHORIZED** |
+| 3 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | **CLOSED GREEN** |
+| 4 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | **historical/subordinate** — superseded by staged Creator Revenue/E2C2E roadmap in `M55_CREATOR_REVENUE_E2C2E_SSOT.md` |
 | 5 | Referral implementation / provider activation | future · only after independent review and **separate Human GO** |
 
-Explicit retainers:
+## Current Creator Revenue / E2C2E program (authoritative staged sequence)
 
-- Do **not** promote items 2–4 into CURRENT / NEXT
-- Pair Free→Paid mapping remains **HUMAN_APPROVED_COMPLETE** · `repeatMapping` = **PROHIBITED**
-- Multi-level / recruitment-only compensation **prohibited**
-- No share implementation · no referral implementation · no provider mutation from this recording
+**Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md`
+
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. While `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` is active, product mutation is prohibited.
+
+| Stage | Gate | Status |
+|---|---|---|
+| R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
+| R2 | `REVENUE_SAFETY_E2E` | **NEXT PRODUCT WORK** after Control Tower revalidation |
+| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | future |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | future |
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
+| R6 | `COMMISSION_LEDGER` | future |
+| R7 | `CREATOR_DASHBOARD` | future |
+| R8 | `PAYOUT_AND_SETTLEMENT` | future |
+| — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
+| — | `INVITE_ONLY_CREATOR_BETA` | future |
+| — | `M55_CREATOR_REVENUE_READY` | future |
+| — | `CONTROLLED_SCALE` | future |
+
+Retain:
+
+- **TARGET_COMMISSION_RATE = 50%** — **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required
+- direct single-tier referral only
+- anti-MLM / no recursive compensation
+- creator cash infrastructure **NOT IMPLEMENTED**
+- Stripe payout provider **UNSELECTED**
 
 ## Active commercial priority
 

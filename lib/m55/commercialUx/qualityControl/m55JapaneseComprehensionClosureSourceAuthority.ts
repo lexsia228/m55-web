@@ -299,11 +299,18 @@ function extractPersonBDobFieldFromScope(
   if (anchorIndex < 0) {
     throw new Error(`closure personB input anchor missing (${contextLabel})`);
   }
-  const labelStart = dobScope.lastIndexOf('<label className={styles.inputCard}>', anchorIndex);
-  if (labelStart < 0) {
+  const personBCardMarker = 'data-testid="compatibility-person-b-card"';
+  const markerIndex = dobScope.indexOf(personBCardMarker);
+  const legacyLabelStart = dobScope.lastIndexOf('<label className={styles.inputCard}>', anchorIndex);
+  const segmentedCardStart =
+    markerIndex >= 0 && markerIndex < anchorIndex
+      ? dobScope.lastIndexOf('<div className={styles.inputCard}>', markerIndex)
+      : -1;
+  const scopeStart = segmentedCardStart >= 0 ? segmentedCardStart : legacyLabelStart;
+  if (scopeStart < 0) {
     throw new Error(`closure personB label scope missing (${contextLabel})`);
   }
-  const labelSlice = dobScope.slice(labelStart, anchorIndex + personBAnchor.length);
+  const labelSlice = dobScope.slice(scopeStart, anchorIndex + personBAnchor.length);
   const openingTagAnchor =
     field === 'inputRole'
       ? '<span className={styles.inputRole}>'

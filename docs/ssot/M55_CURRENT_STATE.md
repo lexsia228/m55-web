@@ -1059,6 +1059,23 @@ documented post-merge transition remains recorded for WT-001 historical context.
 | Product Authority Pack (PR #79) | **GREEN** — completed infrastructure |
 | Self funnel Growth / share (PR #81, 2026-08-01) | **GREEN** — MERGED to Production @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; commercial + technical closure complete |
 
+## 2026-09-05 — R1 Four-Surface Creator Readiness closure
+
+| Field | Value |
+|---|---|
+| Gate | `FOUR_SURFACE_CREATOR_READINESS` |
+| Status | **CLOSED GREEN** |
+| Commit | `4aafc4a3eeb37c1ab72e948b1b02bb3b22242c60` |
+| Branch | `feat/m55-four-surface-creator-readiness-v1` |
+| Candidate paths | 38 |
+| Exact Playwright | `Pair R1 and R3 relation grammar 390/430` — **1/1 PASS** |
+| Semantic safety | **259/259 PASS** |
+| Global TSC | **RED_PREEXISTING_101_DIAGNOSTICS** — TSC PASS **not claimed** |
+| Control Tower | `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` pending after governance settlement |
+| Product work after Control Tower | `REVENUE_SAFETY_E2E` |
+| Creator cash infrastructure | **NOT IMPLEMENTED** |
+| Creator Revenue SSOT | `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` |
+
 ## Runtime vs target (scope separation — verifier preserved)
 
 **HISTORICAL CURRENT (2026-08-01; superseded for lane and Git-main identity 2026-08-03):** Share / OG / viral return was recorded as merged to Production @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level GREEN only; does not itself prove payment/webhook/DB correctness). Pair premium remains `NOT_LIVE`; no Pair implementation is authorized. WT-011 remains COMPLETED and retained temporarily only.
