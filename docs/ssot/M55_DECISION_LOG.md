@@ -800,7 +800,7 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 
 ### 2026-09-05 — Founding Creator reward economics freeze + R2 advance
 
-**Status:** Human **APPROVED** · local commits only · push/PR/deploy **NOT AUTHORIZED**
+**Status:** Human **APPROVED** · local commits only · **SUPERSEDED** by 2026-09-06 six-month economics decision before remote publication
 
 | Decision | Value |
 |---|---|
@@ -812,13 +812,31 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 | General referral Premium requirement | **prohibited** unless later legal review explicitly approves |
 | Approved Creator cash | requires application, M55 approval, direct single-tier attribution, disclosure, Product Truth compliance, refund/fraud/chargeback review |
 | `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · Founding Creator **introductory acquisition rate only** · **not** permanent standard |
-| Founding Boost Rate | **50%** until earlier of 10 eligible conversions or 90 days after approval |
-| Founding Transition Rate | **40%** until earlier of 50 cumulative eligible conversions or 180 days after approval |
-| Founding Legacy Rate | **35%** for Founding cohort after transition · not irrevocable lifetime guarantee |
-| Standard Approved Creator Rate | **30%** for post-Founding cohort unless later Human campaign overrides |
+| Provisional schedule (SUPERSEDED) | ~~50% until 10 conversions / 90 days → 40% until 50 conversions / 180 days → 35% Founding Legacy → 30% Standard~~ |
 | COMMISSIONABLE_REVENUE | collected amount after discounts · excludes tax · excludes refunded/charged-back/ineligible amounts · M55 bears processing fees |
 | Payout rule | aggregate by period/threshold · never once-per-purchase · only **PAYABLE** enters payout execution |
 | R2-A competitive research | one-time Japan/competitor Codex audit accepted · **no repeat** absent real invalidator |
 | Provider / payout | **UNSELECTED** · creator cash infrastructure **NOT_IMPLEMENTED** |
 | Activation guard | **50% must not go live** without R2-D cohort budget / stop-loss closure |
 | Prohibited external claims | guaranteed income · easy money · unlimited income · passive-income guarantee · recruitment reward · MLM wording |
+
+### 2026-09-06 — Six-month Founding Creator economics supersession (canonical)
+
+**Status:** Human **APPROVED** · supersedes provisional 2026-09-05 rate schedule before remote publication · local commits only · push/PR/deploy **NOT AUTHORIZED**
+
+| Decision | Value |
+|---|---|
+| Supersession | Human superseded earlier provisional same-day economics before remote publication |
+| Canonical schedule | **50%** days 0–180 → **40%** days 181–365 → **30%** day 366+ |
+| Conversion cliffs | **removed** — no conversion-count-triggered rate downgrade |
+| Founding Legacy 35% | **removed** as automatic tier |
+| Strategic Creator | **35%–40%** may be Human-approved after first year · not automatic · not recruitment/downline based |
+| Rate clock | tenure begins at `CREATOR_APPROVED_AT` · rate locked at eligible purchase event · not reduced while **PENDING** merely because tenure crosses day 180/365 |
+| PAYABLE protection | **no retroactive rate reduction** once **PAYABLE** |
+| Program stop-loss | may stop new Founding Creators / close future cohorts / change future terms — **not** arbitrary retroactive rate cuts for compliant approved creators |
+| General User | cash payout **prohibited** · viral benefit remains **R2-E** |
+| Solo-builder advantage | low payroll overhead is legitimate acquisition advantage — not permission for unlimited subsidy |
+| Creator moat | economics + conversion + attribution + UI/UX + compliant share assets — not percentage alone |
+| R2-A research | one-time Japan/competitor benchmark remains reusable · **no repeat** absent invalidator |
+| Provider / payout | **UNSELECTED** · creator cash infrastructure **NOT_IMPLEMENTED** |
+| `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · Founding Creator introductory acquisition rate · not permanent standard · not activation authority |

@@ -130,21 +130,32 @@ Exact duration, payout threshold, payout cadence, and final commission calculati
 - **NOT** final accounting basis
 - **NOT** the permanent standard rate
 
-Normative meaning after Human freeze (2026-09-05): `TARGET_COMMISSION_RATE = 50%` names the **FOUNDING CREATOR INTRODUCTORY ACQUISITION RATE** only.
+Normative meaning after Human freeze (2026-09-06): `TARGET_COMMISSION_RATE = 50%` names the Human-approved **Founding Creator introductory acquisition rate** (`FOUNDING_CREATOR_INITIAL_RATE`).
+
+It is:
+
+- **not** the permanent standard rate
+- **not** provider approval
+- **not** legal/tax approval
+- **not** payout-provider selection
+- **not** authorization to activate creator cash infrastructure
 
 ---
 
-## H. Two-lane reward architecture (Human-approved 2026-09-05)
+## H. Two-lane reward architecture (Human-approved)
 
 ### General User lane
 
-- cash payout **prohibited**
-- cash-equivalent transferable balance **prohibited**
+- cash payout = **PROHIBITED**
+- cash-equivalent transferable balance = **PROHIBITED**
+- open MLM / referral-income language = **PROHIBITED**
 - general-user benefit design remains **R2-E** work
-- do **not** freeze a 10% discount yet
-- candidate benefit forms include: referred-user discount, M55 digital unlock, Pair-specific unlock
+- do **not** freeze a 10% discount, specific coupon amount, or specific unlock value yet
+- candidate benefit forms include: referred-user first-purchase discount, referrer digital M55 unlock, Pair-specific unlock, reciprocal / double-sided M55 experience benefit
 - exact benefit/value/trigger remains **unresolved until R2-E**
-- general referral must **not** require the referrer to be a Premium purchaser unless later legal review explicitly approves that structure
+- Premium purchase must **not** automatically be a prerequisite for the ability to share/refer unless later legal review explicitly authorizes the exact mechanic
+
+General User motivation principle: ordinary users should want to share because M55 creates self-expression, curiosity, relationship utility, reciprocity, useful/private personal insight, and polished shareable artifacts — **not** because they are promised cash income.
 
 ### Approved Creator lane
 
@@ -161,33 +172,79 @@ No open cash-affiliate lane without approval.
 
 ---
 
-## I. Frozen creator rate schedule (Human-approved 2026-09-05)
+## I. Canonical creator rate schedule (Human-approved 2026-09-06)
 
-Preserve the literal verifier-required tokens above. Normative schedule:
+**Supersession notice:** The earlier same-day provisional schedule (50% until 10 conversions / 90 days → 40% until 50 conversions / 180 days → 35% Founding Legacy → 30% Standard) is **SUPERSEDED BEFORE REMOTE PUBLICATION**. It must not be treated as a current active rule. Historical Decision Log entries may reference it only when clearly marked **SUPERSEDED**.
 
-| Rate name | Percent | Applies when |
+Preserve the literal verifier-required tokens above. Canonical active schedule:
+
+| Rate name | Percent | Period |
 |---|---|---|
-| **FOUNDING BOOST RATE** | **50%** | Until the earlier of: first **10** eligible conversions **or** **90** days after creator approval |
-| **FOUNDING TRANSITION RATE** | **40%** | After Founding Boost until the earlier of: **50** cumulative eligible conversions **or** **180** days after creator approval |
-| **FOUNDING LEGACY RATE** | **35%** | After Founding Transition for creators admitted into the Founding Creator cohort, subject to continued compliance and the active program contract — **not** described as irrevocably guaranteed for life |
-| **STANDARD APPROVED CREATOR RATE** | **30%** | Approved Creators admitted **after** the Founding Creator cohort unless a later Human-approved campaign explicitly overrides |
+| **FOUNDING_CREATOR_INITIAL_RATE** | **50%** | Day **0** through day **180** after creator approval |
+| **FOUNDING_CREATOR_TRANSITION_RATE** | **40%** | Day **181** through day **365** after creator approval |
+| **STANDARD_APPROVED_CREATOR_RATE** | **30%** | Day **366** onward unless a separately Human-approved Strategic Creator agreement applies |
+
+Removed from active rules:
+
+- first-10-conversion rate downgrade
+- 50-conversion rate downgrade
+- 90-day 50% end condition
+- automatic **35%** Founding Legacy tier
 
 Hard rules:
 
-- no automatic MLM / downstream / volume-tree rates
-- no retroactive reduction of already **PAYABLE** commission
+- **no** conversion-count-triggered rate downgrade
+- **no** automatic MLM / downstream / volume-tree rates
+- **no** retroactive reduction of already **PAYABLE** commission
 - **PENDING** commission remains reversible according to refund, chargeback, fraud and eligibility rules
 - recording **50%** in this SSOT does **not** make it live without R2-D cohort budget / stop-loss closure
 
 ---
 
+## I-b. Rate determination rule (Human-approved 2026-09-06)
+
+Creator tenure begins at **`CREATOR_APPROVED_AT`**.
+
+For each eligible purchase, the commission percentage is determined by the creator tenure at the **eligible purchase event** — use the Stripe-confirmed eligible purchase event / authoritative internal purchase event time once implemented, **not** the later payout date.
+
+A commission may remain **PENDING** during refund/fraud review. The rate must **not** decrease merely because the creator crosses day 180 or day 365 while that existing commission is **PENDING**.
+
+**PENDING** may still be reversed, canceled, held, or declined for refund, chargeback, fraud, attribution, or eligibility reasons.
+
+Once a commission is **PAYABLE**: **NO RETROACTIVE RATE REDUCTION**.
+
+---
+
+## I-c. Strategic Creator exception (Human-approved 2026-09-06)
+
+After the first **365** days, a creator may receive a separately Human-approved **Strategic Creator** agreement.
+
+Target range: **35%–40%**.
+
+This is **NOT**:
+
+- automatic
+- guaranteed
+- lifetime
+- based on number of recruited creators
+- based on downline sales
+- MLM hierarchy
+
+Possible future Human review inputs: incremental eligible sales, conversion quality, refund rate, chargeback rate, fraud history, claims/disclosure compliance, audience-product fit, brand safety, creator collaboration quality.
+
+Recruitment / downline / network-tree activity must **never** improve rate.
+
+Default after day 365 remains: **30%**.
+
+---
+
 ## J. COMMISSIONABLE_REVENUE (commission base)
 
-**COMMISSIONABLE_REVENUE** means the eligible customer amount actually collected after discounts, excluding consumption tax and excluding refunded, charged-back, reversed or otherwise ineligible amounts.
+**COMMISSIONABLE_REVENUE** means the eligible customer amount actually collected after discounts, excluding consumption tax, excluding refunded amounts, excluding charged-back amounts, and excluding reversed or otherwise ineligible amounts.
 
 Creator percentage is calculated against **COMMISSIONABLE_REVENUE**.
 
-Payment-processing fees are borne by M55 and are **not** deducted from the Creator commission base.
+M55 bears ordinary payment-processing fees. Do **not** silently deduct Stripe processing fees from the advertised creator percentage base.
 
 Any legally required withholding/tax treatment on creator payout is a separate payout/tax obligation and does **not** redefine the commercial percentage.
 
@@ -209,13 +266,26 @@ Creator cash infrastructure remains: **NOT_IMPLEMENTED**
 
 ---
 
-## L. Founding program stop-loss (unresolved before activation)
+## L. Program stop-loss (Human-approved 2026-09-06)
 
-Rate schedule is frozen by this decision. Still unresolved before activation:
+M55 must **not** solve an uneconomic cohort by retroactively cutting the promised rate window for already approved compliant creators.
+
+If economics become unsafe, M55 may:
+
+- stop admitting **new** Founding Creators
+- close a future cohort
+- pause future campaigns
+- change terms for **future** approvals
+- reduce future cohort rates after Human approval
+
+Existing creator commissions remain subject to fraud, self-referral, circular referral, refund, chargeback, eligibility, claims/disclosure violations, and partnership suspension rules. Those are safety/enforcement rules — **not** arbitrary retroactive rate cuts.
+
+Still unresolved before activation:
 
 - Founding cohort size
-- program-level total acquisition budget cap
-- launch dates
+- program-level total CAC budget cap
+- stop-loss numeric threshold
+- provider payout cost
 - refund/fraud reserve assumptions
 - payout threshold/cadence
 - exact provider supportability
@@ -224,6 +294,64 @@ Rate schedule is frozen by this decision. Still unresolved before activation:
 Therefore **50%** must **NOT** become live merely because this SSOT records it.
 
 **R2-D** must freeze cohort budget and stop-loss before activation.
+
+---
+
+## L-b. Solo-builder economic advantage (Human-approved 2026-09-06)
+
+M55 is solo-built / extremely low payroll-overhead compared with a conventional organization. This is a legitimate structural advantage.
+
+M55 should use it to:
+
+- keep fixed acquisition overhead low
+- allocate more contribution margin to performance-based Creator CAC
+- maintain unusually strong Creator economics during launch
+- invest in UI/UX and creator-safe share assets
+- iterate quickly
+- stop bad experiments quickly
+- concentrate spend on proven incremental acquisition
+
+This does **NOT** mean: infinite free money, permanent uneconomic subsidy, reckless discounting, lowering product quality, or misleading earnings claims.
+
+Strategic objective: **RAPID LEGITIMATE MARKET-SHARE ACQUISITION WITH CAPPED DOWNSIDE AND REVERSIBLE EXPERIMENTS.**
+
+---
+
+## L-c. Why six months at 50% (Human-approved 2026-09-06)
+
+A one-time 2026-09-05/06 market benchmark found current major affiliate programs using aggressive introductory / first-year economics, including high first-month/first-period rates and a current 50% first-year SaaS example.
+
+These external program rates are **DATED RESEARCH EVIDENCE** — **NOT** timeless SSOT facts.
+
+M55 chooses six months at 50% because:
+
+- 50% is commercially conspicuous enough for launch
+- M55 has low fixed payroll overhead
+- M55 current paid products are relatively low-priced one-time digital purchases rather than high-LTV recurring SaaS
+- six months gives strong creator incentive without committing an unvalidated first-year 50% subsidy
+- successful creators should not be punished by conversion-count rate cliffs
+- months 7–12 at 40% retain strong economics while providing an evidence-based normalization path
+- year 2 default 30% creates a sustainable standard program baseline
+
+---
+
+## L-d. Creator product experience principle (Human-approved 2026-09-06)
+
+Creator acquisition must **not** compete on percentage alone.
+
+M55's creator advantage should combine:
+
+- strong launch economics
+- believable product conversion
+- reliable attribution
+- transparent PENDING / PAYABLE / reversal state
+- polished Japanese share assets
+- compliant claims templates
+- clear disclosure guidance
+- high-quality UI/UX
+- rapid founder feedback / iteration
+
+The long-term moat is **not** merely "a bigger percentage".
 
 ---
 
@@ -237,7 +365,7 @@ Final public terms must clearly disclose:
 
 - limited eligibility
 - approval requirement
-- time/conversion limits
+- time/tenure limits (not conversion-count cliffs)
 - commission base
 - pending/reversal rules
 
@@ -259,7 +387,7 @@ Prohibited claims:
 | **R2-A** `COMPETITIVE_REWARD_BENCHMARK` | one-time Japan/competitor research input | **ONE-TIME RESEARCH COMPLETE / REUSE** — do not repeat absent invalidator |
 | **R2-B1** `JAPAN_LEGAL_STRIPE_PREFLIGHT` | official-source issue mapping and STOP conditions | open |
 | **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General non-cash / Approved Creator cash split | contract direction frozen here; implementation future |
-| **R2-D** `FOUNDING_CREATOR_ECONOMICS` | rate schedule frozen by this decision; remaining: cohort size, total budget cap, stop-loss, provider-cost confirmation | open |
+| **R2-D** `FOUNDING_CREATOR_ECONOMICS` | rate schedule **NOW FROZEN**: 50% days 0–180 · 40% days 181–365 · 30% day 366+ · no conversion-count cliffs; remaining: cohort size, total CAC budget cap, stop-loss numeric threshold, provider payout cost, refund/fraud reserve | open (budget/stop-loss only) |
 | **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | select strongest non-cash viral benefit without leaking Premium value or increasing legal/payment complexity | open |
 | **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | only after M55 converges to one final model: Stripe account-specific confirmation plus necessary Japan legal/tax professional confirmation | blocked until R2-C/D/E convergence |
 
