@@ -18,22 +18,40 @@ export function publicShareArtworkPathFromStemLane(stemLaneIndex: number): strin
 export function resolvePublicShareArtworkFromToken(
   token: string | null | undefined,
 ): string | null {
-  if (!token) return null;
+  const paths = resolvePublicShareArtworkPathsFromToken(token);
+  return paths.length === 1 ? paths[0]! : null;
+}
+
+export function resolvePublicShareArtworkPathsFromToken(
+  token: string | null | undefined,
+): readonly string[] {
+  if (!token) return [];
   const narrative = decodePublicShareToken(token);
   if (narrative) {
+    if (narrative.kind === 'pair') {
+      const laneA = narrative.personAStemLaneIndex;
+      const laneB = narrative.personBStemLaneIndex;
+      if (typeof laneA === 'number' && typeof laneB === 'number') {
+        return [
+          publicShareArtworkPathFromStemLane(laneA),
+          publicShareArtworkPathFromStemLane(laneB),
+        ];
+      }
+      return [];
+    }
     if (narrative.kind === 'personal') {
-      return publicShareArtworkPathFromStemLane(narrative.stemLaneIndex);
+      return [publicShareArtworkPathFromStemLane(narrative.stemLaneIndex)];
     }
     if (
       narrative.kind === 'generic' &&
       typeof narrative.stemLaneIndex === 'number' &&
       Number.isFinite(narrative.stemLaneIndex)
     ) {
-      return publicShareArtworkPathFromStemLane(narrative.stemLaneIndex);
+      return [publicShareArtworkPathFromStemLane(narrative.stemLaneIndex)];
     }
-    return null;
+    return [];
   }
   const lane = decodeShareToken(token);
-  if (lane == null) return null;
-  return publicShareArtworkPathFromStemLane(lane);
+  if (lane == null) return [];
+  return [publicShareArtworkPathFromStemLane(lane)];
 }

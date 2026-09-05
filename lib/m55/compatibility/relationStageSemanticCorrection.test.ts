@@ -284,7 +284,7 @@ const FREE_HANDLING_FORBIDDEN =
   /書き留めて|確かめてください|確かめます|先に(置いて|書いて|伝えて|選んで|返して)|一度だけ(置|試)|返せる時間を|試してみ|やってみて|次に(話す|連絡)|短い一文を(書|送)|接点を(増や|提案)|結論ではなく.*(伝え|選んで|決め)|読んでください/;
 const R4_SCENE_FORBIDDEN = /すれ違ったあと|意見が分かれ|二人で予定や次の動きを決めよう/;
 const R5_SCENE_REQUIRED = /もう一度近づく|再接近|最初の接点/;
-const R6_LONG_TERM_MARK = /長く一緒にいることを考える/;
+const R6_LONG_TERM_MARK = /長い付き合い|結婚|一緒にいる|長く一緒|日常/;
 
 const EQUIVALENT_ESTABLISHED_ANSWERS: CompatibilityCurrentContextAnswersV2 = {
   decisionPace: 'decide_later',
@@ -651,28 +651,32 @@ describe('relation stage semantic correction wave A', () => {
     }
   });
 
-  it('keeps R1 premium bridge free of established-interaction assumptions', () => {
-    const bridge = stagePremiumBridgeCopy('R1');
-    const blob = [
-      bridge.deliverableLead,
-      ...bridge.toolkitTiles.map((tile) => `${tile.title} ${tile.body}`),
-      ...bridge.useCases,
-    ].join('\n');
-    assert.doesNotMatch(blob, /二人で次を決める速さ|すれ違い|戻し方|相手.*傾向/);
-    for (const tile of bridge.toolkitTiles) {
-      assert.ok(tile.title.length > 0);
-      assert.ok(tile.body.length > 0);
+  it('keeps R1-R6 premium promises distinct, concrete, and stage-safe', () => {
+    const stages = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'] as const;
+    const bridges = stages.map((stage) => stagePremiumBridgeCopy(stage));
+    for (const bridge of bridges) {
+      assert.ok(bridge.unresolvedQuestion.endsWith('。'));
+      assert.equal(bridge.groupedOutcomes.length, 3);
+      assert.deepEqual(bridge.groupedOutcomes.map((item) => item.title), ['見立て', '戻し方', '試し方']);
+      assert.equal(bridge.useCases.length, 2);
+      const blob = [
+        bridge.unresolvedQuestion,
+        bridge.deliverableLead,
+        ...bridge.groupedOutcomes.map((item) => item.body),
+        ...bridge.useCases,
+      ].join('\n');
+      assert.match(blob, /二人それぞれの視点/);
+      assert.match(blob, /場面/);
+      assert.match(blob, /順序/);
+      assert.match(blob, /一言/);
+      assert.match(blob, /実験/);
+      assert.match(blob, /振り返/);
+      assert.doesNotMatch(blob, /相手は.*思って|相手の本音|購入できます|今すぐ購入/);
     }
-  });
-
-  it('keeps R2 premium bridge labels stage-safe', () => {
-    const bridge = stagePremiumBridgeCopy('R2');
-    const blob = [
-      bridge.deliverableLead,
-      ...bridge.toolkitTiles.map((tile) => `${tile.title} ${tile.body}`),
-      ...bridge.useCases,
-    ].join('\n');
-    assert.doesNotMatch(blob, /二人で次を決める速さ|すれ違いのあと|戻し方/);
+    assert.notEqual(bridges[2].deliverableLead, bridges[5].deliverableLead, 'R3 and R6');
+    assert.notEqual(bridges[3].unresolvedQuestion, bridges[4].unresolvedQuestion, 'R4 and R5');
+    assert.doesNotMatch(bridges[0].deliverableLead, /交際中|以前の近さ|日常の判断/);
+    assert.doesNotMatch(bridges[1].deliverableLead, /離れた後|長く一緒/);
   });
 
   it('keeps paid reader chrome stage-neutral', () => {
@@ -1168,7 +1172,10 @@ describe('relation stage semantic correction wave A', () => {
     for (const chapter of snapshot.chapters) {
       assert.doesNotMatch(chapter.personBPerspective, PARTNER_INNER_STATE, chapter.key);
       assert.doesNotMatch(chapter.personBPerspective, /見えやすい状態に見え|控えたい状態/);
-      assert.match(chapter.personBPerspective, /B側については|確かめにくい|決めにくい/);
+      assert.match(
+        chapter.personBPerspective,
+        /相手については.*(?:読み取りにくい|確かめにくい|決めにくい|見えにくい)/,
+      );
     }
   });
 
@@ -1762,7 +1769,8 @@ describe('hidden-focus P1 patch-2 — chapter bridge and session lifecycle', () 
 
   it('wires production guest component to shared lifecycle helpers', () => {
     const component = readFileSync(GUEST_COMPONENT, 'utf8');
-    assert.match(component, /parseSanitizedGuestJourneyV3/);
+    assert.match(component, /readCompatibilityGuestJourneyV3FromSession/);
+    assert.match(component, /resolvePairGuestMountBootstrap/);
     assert.match(component, /sanitizeGuestSessionAnswers/);
     assert.match(component, /prepareGuestSubmitAnswers/);
     assert.match(component, /mergeGuestAnswerSelection/);

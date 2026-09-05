@@ -30,6 +30,10 @@ type Props = {
   premiumTitleJa: string;
   premiumBodyJa: string;
   premiumLinkJa: string;
+  pairPremiumTitleJa: string;
+  pairPremiumBodyJa: string;
+  pairPremiumStatusJa: string;
+  pairPremiumCtaJa: string;
   freeCta: FreeCtaProps;
 };
 
@@ -88,6 +92,10 @@ export default function HomeProductMap({
   premiumTitleJa,
   premiumBodyJa,
   premiumLinkJa,
+  pairPremiumTitleJa,
+  pairPremiumBodyJa,
+  pairPremiumStatusJa,
+  pairPremiumCtaJa,
   freeCta,
 }: Props) {
   const pairLive = isHomePairReadingLivePublic();
@@ -141,6 +149,18 @@ export default function HomeProductMap({
           >
             {premiumLinkJa}
           </a>
+        </li>
+        <li className={styles.productMapItem} data-testid="m55-home-product-map-pair-premium">
+          <p className={styles.productMapTitle}>{pairPremiumTitleJa}</p>
+          <p className={styles.productMapBody}>{pairPremiumBodyJa}</p>
+          <p className={styles.productMapStatus}>{pairPremiumStatusJa}</p>
+          <Link
+            href={HOME_PAIR_READING_PUBLIC_HREF}
+            className={styles.productMapActionLink}
+            data-testid="m55-home-product-map-pair-premium-link"
+          >
+            {pairPremiumCtaJa}
+          </Link>
         </li>
       </ul>
     </div>

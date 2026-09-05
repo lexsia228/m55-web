@@ -271,6 +271,10 @@ export default function HomePanel() {
             premiumTitleJa={homeCopy.productMapPremiumTitleJa}
             premiumBodyJa={homeCopy.productMapPremiumBodyJa}
             premiumLinkJa={homeCopy.productMapPremiumLinkJa}
+            pairPremiumTitleJa={homeCopy.productMapPairPremiumTitleJa}
+            pairPremiumBodyJa={homeCopy.productMapPairPremiumBodyJa}
+            pairPremiumStatusJa={homeCopy.productMapPairPremiumStatusJa}
+            pairPremiumCtaJa={homeCopy.productMapPairPremiumCtaJa}
             freeCta={{
               hasProfile,
               isLoaded,

@@ -54,6 +54,11 @@ function SegmentedDobFieldsInline({
   }
 
   function syncValidDate(parts: SegmentedDobParts) {
+    if (parts.year.length !== 4 || parts.month.length !== 2 || parts.day.length !== 2) {
+      onBirthDateChange('');
+      setErrorJa(null);
+      return;
+    }
     const result = validateSegmentedDob(parts);
     if (result.ok) {
       setErrorJa(null);

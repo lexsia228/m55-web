@@ -371,7 +371,7 @@ export function buildM55CtaComprehensionRegistry(): readonly CtaComprehensionEnt
       surfaceId: 'm55:pair.free.result',
       runtimeStateId: 'pair.free.share',
       action: PAIR_SHARE_UI_COPY.nativeShareJa,
-      userOutcome: 'privacy_safe_link_only',
+      userOutcome: 'motivation_pair_review_together_privacy_safe',
       destinationSuccessState: '/synastry',
       commercialRole: 'SHARE_TO_PARTNER',
       sourceOwner: 'lib/m55/compatibility/privacySafePairShare.ts',
@@ -433,6 +433,13 @@ export function buildM55ProductDiscoverabilityRegistry(
     }
   }
 
+  const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+  const pairPremiumHomePreviewPresent =
+    Boolean(home.productMapPairPremiumTitleJa?.trim()) &&
+    Boolean(home.productMapPairPremiumBodyJa?.trim()) &&
+    Boolean(home.productMapPairPremiumStatusJa?.trim()) &&
+    Boolean(home.productMapPairPremiumCtaJa?.trim());
+
   return Object.values(M55_COMMERCIAL_PRODUCTS).map((product) => {
     const isPairPremium = product.productKey === M55_COMMERCIAL_PRODUCTS.pairPremium.productKey;
     const discoverySurfaces: string[] = [];
@@ -443,7 +450,9 @@ export function buildM55ProductDiscoverabilityRegistry(
       discoverySurfaces.push('m55:ecp.premium_full', 'm55:public.home');
     }
     if (isPairPremium) {
-      if (!M55_CURRENT_RUNTIME_STATE.pairPremium.homePaidCtaVisible) {
+      if (pairPremiumHomePreviewPresent) {
+        discoverySurfaces.push('m55:public.home.pair_premium_preview', 'm55:pair.bridge_only');
+      } else if (!M55_CURRENT_RUNTIME_STATE.pairPremium.homePaidCtaVisible) {
         discoverySurfaces.push('m55:pair.bridge_only');
       } else {
         discoverySurfaces.push('m55:public.home', 'm55:pair.merchandise');
@@ -468,7 +477,8 @@ export function buildM55ProductDiscoverabilityRegistry(
       nextAction: discoverySurfaces[0] ?? null,
       contextualPrerequisiteRequired: isPairPremium,
       firstClassMerchandise: isPairPremium
-        ? product.showHomePaidCta && M55_CURRENT_RUNTIME_STATE.pairPremium.homePaidCtaVisible
+        ? pairPremiumHomePreviewPresent ||
+          (product.showHomePaidCta && M55_CURRENT_RUNTIME_STATE.pairPremium.homePaidCtaVisible)
         : discoverySurfaces.length > 0,
     };
   });

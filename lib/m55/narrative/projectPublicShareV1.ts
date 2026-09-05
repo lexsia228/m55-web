@@ -131,6 +131,8 @@ const PAIR_SHARE_STATUS_LEAD: Readonly<Partial<Record<RelationStatusId, string>>
 export function projectPairPublicShareV1(input: {
   spec: PairFreeInsightSpecV2;
   origin?: string;
+  personAStemLaneIndex?: number;
+  personBStemLaneIndex?: number;
 }): PublicShareSpecV1 {
   const starts = pairStartsFromInsight(input.spec);
   const statusLead = PAIR_SHARE_STATUS_LEAD[input.spec.relationStatusId] ?? '';
@@ -154,6 +156,13 @@ export function projectPairPublicShareV1(input: {
     interactionId: input.spec.interactionId,
     visibleStart: starts.visibleStart,
     inwardStart: starts.inwardStart,
+    ...(typeof input.personAStemLaneIndex === 'number' &&
+    typeof input.personBStemLaneIndex === 'number'
+      ? {
+          personAStemLaneIndex: input.personAStemLaneIndex,
+          personBStemLaneIndex: input.personBStemLaneIndex,
+        }
+      : {}),
   };
   return specFromCard({
     surface: 'compatibility_free',

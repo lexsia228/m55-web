@@ -609,6 +609,19 @@ export default function CoreEssencePanel() {
                 <a href="#core-paid">プレミアム</a>
                 <a href="#core-share">共有</a>
               </nav>
+              <div className={CoreExperienceStyles.freeResultRevealItem} data-m55-print-hide>
+                <button
+                  type="button"
+                  className={CoreExperienceStyles.freeQuestionnaireSecondaryBtn}
+                  onClick={handleRequestProfileEdit}
+                  data-testid="m55-free-result-edit-dob"
+                >
+                  生年月日を変更する
+                </button>
+                <p className={CoreExperienceStyles.sectionLead}>
+                  入力を間違えた場合はこちらから変更できます。
+                </p>
+              </div>
 
               {depthAnalysis ? (
                 <>

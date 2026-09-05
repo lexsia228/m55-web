@@ -86,3 +86,43 @@ test('new and legacy Pair journeys require a specific private label before purch
   assert.match(purchase, /persistCompletedPairJourney/);
   assert.match(purchase, /isSpecificPairPartnerLabel\(journey\.displayIdentity\?\.partnerLabel\)/);
 });
+
+test('Pair guest DOB step uses segmented fields instead of native date inputs', () => {
+  const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
+  const dobStep = guest.match(/data-testid="compatibility-dob-step"[\s\S]*?<\/form>/)?.[0] ?? '';
+  assert.ok(dobStep.length > 0, 'DOB step must exist');
+  assert.doesNotMatch(dobStep, /type="date"/);
+  assert.match(guest, /PairSegmentedDobFields/);
+  assert.match(guest, /ariaLabelPrefix="あなたの生年月日"/);
+  assert.match(guest, /ariaLabelPrefix="相手の生年月日"/);
+  assert.match(guest, /onIsoDateChange=\{\(value\) => updateInput\('personA', value\)\}/);
+  assert.match(guest, /onIsoDateChange=\{\(value\) => updateInput\('personB', value\)\}/);
+  assert.match(guest, /compatibility-profile-birthdate-locked/);
+  assert.match(guest, /isCompleteCompatibilityGuestInput/);
+  const segmentedUsages = dobStep.match(/<PairSegmentedDobFields/g) ?? [];
+  assert.equal(segmentedUsages.length, 2, 'DOB step must use exactly two PairSegmentedDobFields');
+  assert.doesNotMatch(
+    dobStep,
+    /<label className=\{styles\.inputCard\}>[\s\S]*?<PairSegmentedDobFields/,
+    'DOB segmented fields must not be nested inside an outer inputCard label',
+  );
+  assert.match(dobStep, /id="compatibility-partner-dob"/);
+  assert.match(dobStep, /ariaLabelPrefix="相手の生年月日"/);
+});
+
+test('Pair Free and Premium bridge expose the compact HV-09 commercial architecture', () => {
+  const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
+  const endpointAt = guest.indexOf('無料で読めるのは、ここまでです');
+  const questionAt = guest.indexOf('compatibility-premium-unresolved-question');
+  const leadAt = guest.indexOf('styles.deliverableLead');
+  assert.ok(endpointAt > 0 && questionAt > endpointAt && leadAt > questionAt);
+  assert.match(guest, /pairTraitIdentity\.pairLabel/);
+  assert.match(guest, /<PairManualBlock manual=\{pairNarrative\.manualSpec\} compact/);
+  assert.match(guest, /premiumBridge\?\.groupedOutcomes/);
+  assert.match(guest, /result\.mappedChapters\.slice\(0, 1\)/);
+  assert.match(guest, /このレポートは現在準備中です。無料の読み解きは、このままお使いいただけます。/);
+  assert.doesNotMatch(guest, /購入できます|今すぐ購入/);
+  const authority = read('lib/m55/compatibility/currentContextContract.v2.ts');
+  assert.match(authority, /readonly groupedOutcomes: readonly \[/);
+  assert.match(authority, /readonly useCases: readonly \[string, string\]/);
+});

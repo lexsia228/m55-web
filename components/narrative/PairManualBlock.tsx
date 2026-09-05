@@ -3,7 +3,13 @@
 import type { ManualSpecV1 } from '../../lib/m55/narrative/m55NarrativeSpecV1';
 import styles from './NarrativeShare.module.css';
 
-export default function PairManualBlock({ manual }: { manual: ManualSpecV1 }) {
+export default function PairManualBlock({
+  manual,
+  compact = false,
+}: {
+  manual: ManualSpecV1;
+  compact?: boolean;
+}) {
   const entry = manual.slots.find((slot) => slot.id === 'mismatch_entry');
   const one = manual.slots.find((slot) => slot.id === 'one_tends');
   const other = manual.slots.find((slot) => slot.id === 'other_tends');
@@ -43,20 +49,20 @@ export default function PairManualBlock({ manual }: { manual: ManualSpecV1 }) {
             <p className={styles.relationBody}>{other.bodyJa}</p>
           </div>
         ) : null}
-        {entry ? (
+        {!compact && entry ? (
           <div className={styles.relationSide}>
             <span className={styles.relationLabel}>{entry.labelJa}</span>
             <p className={styles.relationBody}>{entry.bodyJa}</p>
           </div>
         ) : null}
-        {ret ? (
+        {!compact && ret ? (
           <div className={styles.relationReturn}>
             <span className={styles.relationLabel}>{ret.labelJa}</span>
             <p className={styles.relationBody}>{ret.bodyJa}</p>
           </div>
         ) : null}
       </div>
-      {rest.length > 0 ? (
+      {!compact && rest.length > 0 ? (
         <ul className={styles.slotList}>
           {rest.map((slot) => (
             <li key={slot.id} className={styles.slot}>

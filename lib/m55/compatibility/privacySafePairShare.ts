@@ -13,12 +13,24 @@ export const PAIR_SHARE_ENTRY_PATH = '/synastry' as const;
 
 export const PAIR_SHARE_UI_COPY = {
   titleJa: 'M55の二人読み解きを共有する',
+  motivationJa: 'あとで二人のことを一緒に見たり、話すきっかけにできます。',
   bodyJa: 'この二人の読み解き本文は含まれません。入口のページだけを渡せます。',
   nativeShareJa: '共有する',
   copyLinkJa: 'リンクをコピー',
   copiedJa: 'リンクをコピーしました',
   cancelledJa: '共有をキャンセルしました',
   unavailableJa: '共有できませんでした。下のリンクをコピーしてください。',
+  imageSharePrimaryJa: '画像で共有する',
+  imageSaveJa: '画像を保存',
+  linkShareJa: 'リンクで共有する',
+  linkCopyJa: 'リンクをコピー',
+  xLinkPostJa: 'Xにリンクで投稿',
+  imageShapeToggleJa: '画像の形を変える',
+  imageShapeLabelJa: '共有画像の形',
+  aspectSquareJa: '正方形',
+  aspectPortraitJa: '縦長',
+  aspectPortraitRecommendedJa: 'おすすめ',
+  aspectStoryJa: 'ストーリー向け',
 } as const;
 
 export const PAIR_SHARE_PAYLOAD_TEXT_JA =

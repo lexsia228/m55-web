@@ -125,6 +125,86 @@ describe('public share sanitization', () => {
   });
 });
 
+describe('pair public token trait lanes', () => {
+  it('round-trips old pair tokens without trait lanes', () => {
+    const oldToken = 'n1cmtmam';
+    const decoded = decodePublicShareToken(oldToken);
+    assert.ok(decoded);
+    assert.equal(decoded!.kind, 'pair');
+    assert.equal('personAStemLaneIndex' in decoded!, false);
+    assert.equal(encodePublicShareToken(decoded!), oldToken);
+  });
+
+  it('round-trips new pair tokens with public-safe stem lanes', () => {
+    const spec = pairSpec(PAIR_V5_FIXTURES[0]!);
+    const publicSpec = projectPairPublicShareV1({
+      spec,
+      personAStemLaneIndex: 9,
+      personBStemLaneIndex: 1,
+    });
+    assert.match(publicSpec.token, /x91$/);
+    const decoded = decodePublicShareToken(publicSpec.token);
+    assert.ok(decoded);
+    assert.equal(decoded!.kind, 'pair');
+    if (decoded!.kind !== 'pair') throw new Error('pair expected');
+    assert.equal(decoded.personAStemLaneIndex, 9);
+    assert.equal(decoded.personBStemLaneIndex, 1);
+    assert.equal(encodePublicShareToken(decoded), publicSpec.token);
+    assert.doesNotMatch(publicSpec.token, /\d{4}-\d{2}-\d{2}/);
+    const landing = resolvePublicShareSpecFromToken(publicSpec.token);
+    assert.ok(landing);
+    assert.equal(landing!.token, publicSpec.token);
+  });
+
+  it('rejects malformed partial lane suffixes', () => {
+    assert.equal(decodePublicShareToken('n1cmtmx'), null);
+    assert.equal(decodePublicShareToken('n1cmtmx9'), null);
+  });
+
+  it('round-trips integer boundary lanes 0 and 9 only', () => {
+    const base = decodePublicShareToken('n1cmtmam');
+    assert.ok(base);
+    assert.equal(base!.kind, 'pair');
+    if (base!.kind !== 'pair') throw new Error('pair expected');
+    const boundaryKey = {
+      ...base,
+      personAStemLaneIndex: 0,
+      personBStemLaneIndex: 9,
+    };
+    const token = encodePublicShareToken(boundaryKey);
+    assert.match(token, /x09$/);
+    const decoded = decodePublicShareToken(token);
+    assert.ok(decoded);
+    assert.equal(decoded!.kind, 'pair');
+    if (decoded!.kind !== 'pair') throw new Error('pair expected');
+    assert.equal(decoded.personAStemLaneIndex, 0);
+    assert.equal(decoded.personBStemLaneIndex, 9);
+    assert.equal(encodePublicShareToken(decoded), token);
+  });
+
+  it('does not emit Pair lane suffix for fractional lane values', () => {
+    const base = decodePublicShareToken('n1cmtmam');
+    assert.ok(base);
+    assert.equal(base!.kind, 'pair');
+    if (base!.kind !== 'pair') throw new Error('pair expected');
+    const withoutLanes = encodePublicShareToken(base);
+    const fractionalA = encodePublicShareToken({
+      ...base,
+      personAStemLaneIndex: 1.5,
+      personBStemLaneIndex: 1,
+    });
+    const fractionalB = encodePublicShareToken({
+      ...base,
+      personAStemLaneIndex: 1,
+      personBStemLaneIndex: 2.5,
+    });
+    assert.equal(fractionalA, withoutLanes);
+    assert.equal(fractionalB, withoutLanes);
+    assert.doesNotMatch(fractionalA, /x[0-9][0-9]$/);
+    assert.doesNotMatch(fractionalB, /x[0-9][0-9]$/);
+  });
+});
+
 describe('pair privacy and A/B semantics', () => {
   it('five private readings map to public-safe cards without partner identity', () => {
     for (const fixture of PAIR_V5_FIXTURES.slice(0, 5)) {

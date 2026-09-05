@@ -1122,9 +1122,14 @@ export function relationshipLoopStepLabelsFor(
 }
 
 export type StagePremiumBridgeCopy = {
+  readonly unresolvedQuestion: string;
   readonly deliverableLead: string;
-  readonly toolkitTiles: readonly { readonly title: string; readonly body: string }[];
-  readonly useCases: readonly string[];
+  readonly groupedOutcomes: readonly [
+    { readonly title: '見立て'; readonly body: string },
+    { readonly title: '戻し方'; readonly body: string },
+    { readonly title: '試し方'; readonly body: string },
+  ];
+  readonly useCases: readonly [string, string];
 };
 
 export function stagePremiumBridgeCopy(
@@ -1132,81 +1137,78 @@ export function stagePremiumBridgeCopy(
 ): StagePremiumBridgeCopy {
   if (relationStatusId === 'R1') {
     return Object.freeze({
+      unresolvedQuestion:
+        'では、反応がまだ見えない二人はどこから読み違え、どんな一言なら決めつけずに接点を置けるのでしょうか。',
       deliverableLead:
-        '無料では、まだ会話がない状態で起きやすい読み取りのずれまでを読みました。「二人の相性レポート」では、同じ流れを六つの場面に分け、あなたと相手それぞれの見え方、接点の考え方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      toolkitTiles: Object.freeze([
-        { title: '自分の中の動き', body: 'まだ会話がない状態で、自分の中で何が起きやすいか' },
-        { title: '読み取りがずれる入口', body: '相手の反応が見えないときに、意味を置きやすい場面' },
-        { title: '小さな接点の考え方', body: '近づくかどうかを決めずに、置ける形を探す順序' },
-        { title: 'そのまま使える一言', body: '相手の気持ちを決めつけずに書き始める短い言葉' },
-        { title: '今週一度だけ試すこと', body: '連絡の前に、自分の中で整理できる一歩' },
-        { title: 'あとで振り返る一問', body: '何が引っかかったかを見直すための問い' },
-      ]),
-      useCases: Object.freeze([
-        '連絡する前に読む',
-        '言葉を整えたい時に読む',
-        '自分の中を整理したい時に読む',
-        'あとで振り返る',
-      ]),
+        '続きでは、会話前の二人それぞれの見え方から、近づき方を決めつけずに整えます。',
+      groupedOutcomes: Object.freeze([
+        { title: '見立て', body: '二人それぞれの視点と、読み違いが始まる場面' },
+        { title: '戻し方', body: '接点を置く順序と、そのまま使える短い言葉' },
+        { title: '試し方', body: '連絡前の小さな実験と、あとで振り返る一問' },
+      ] as const),
+      useCases: Object.freeze(['連絡する前に読む', '言葉を置くか迷う時に読む'] as const),
     });
   }
   if (relationStatusId === 'R2') {
     return Object.freeze({
+      unresolvedQuestion:
+        'では、返事の速さや量を意味に変える前に、どこを確かめ、どう言葉を置き直せばよいのでしょうか。',
       deliverableLead:
-        '無料では、やり取りの速さや受け取り方のずれまでを読みました。「二人の相性レポート」では、同じ流れを六つの場面に分け、あなたと相手それぞれの見え方、言葉の置き方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-      toolkitTiles: Object.freeze([
-        { title: '二人それぞれの動き', body: '同じやり取りで、あなたと相手に何が見えやすいか' },
-        { title: '受け取りがずれる入口', body: '反応の量や速さから、意味を読み取りやすい場面' },
-        { title: '言葉を置き直す手順', body: 'やり取りの速さを責めずに、次の接点を整える順序' },
-        { title: 'そのまま使える一言', body: '責めずに話を始めるための短い言葉' },
-        { title: '今週一度だけ試すこと', body: '負担を増やさず、今の二人で試せる一歩' },
-        { title: 'あとで振り返る一問', body: '何が変わったかを見直すための問い' },
-      ]),
-      useCases: Object.freeze([
-        '会話の前に読む',
-        '返事の意味が気になる時に読む',
-        'やり取りの速さを整えたい時に読む',
-        'あとで振り返る',
-      ]),
+        '続きでは、現在のやり取りを二人の視点に分け、受け取り方を整えます。',
+      groupedOutcomes: Object.freeze([
+        { title: '見立て', body: '二人それぞれの視点と、返事の解釈が分かれる場面' },
+        { title: '戻し方', body: '会話を置き直す順序と、そのまま使える一言' },
+        { title: '試し方', body: '負担の小さい実験と、変化を振り返る一問' },
+      ] as const),
+      useCases: Object.freeze(['返事の意味が気になる時に読む', 'やり取りの速さを整えたい時に読む'] as const),
     });
   }
-  if (relationStatusId === 'R4' || relationStatusId === 'R5') {
-    const distanceWord = relationStatusId === 'R5' ? '再接近' : '距離';
+  if (relationStatusId === 'R3') {
     return Object.freeze({
+      unresolvedQuestion:
+        'では、意見が分かれた場面で何が連鎖を始め、どの順序なら二人は会話へ戻れるのでしょうか。',
       deliverableLead:
-        `無料では、いまの距離感の読み取りのずれまでを読みました。「二人の相性レポート」では、同じ流れを六つの場面に分け、あなたと相手それぞれの見え方、間合いの入口、${distanceWord}を扱う順序、使える一言、小さな実験、振り返りまでを一つの流れとして残します。`,
-      toolkitTiles: Object.freeze([
-        { title: '二人それぞれの動き', body: '距離がある状態で、あなたと相手に何が見えやすいか' },
-        { title: '間合いがずれる入口', body: '距離の理由を一つに決めずに、読み取りがずれやすい場面' },
-        { title: '間合いを整える手順', body: '大きな答えを求めず、今の間合いを扱う順序' },
-        { title: 'そのまま使える一言', body: '負担の小さい接点を置くための短い言葉' },
-        { title: '今週一度だけ試すこと', body: '結果を決めずに、一度だけ試せる一歩' },
-        { title: 'あとで振り返る一問', body: '何が変わったかを見直すための問い' },
-      ]),
-      useCases: Object.freeze([
-        '間合いを整えたい時に読む',
-        '距離の意味が気になる時に読む',
-        relationStatusId === 'R5' ? '再接近を考える時に読む' : '今の距離を扱う時に読む',
-        'あとで振り返る',
-      ]),
+        '続きでは、交際中の具体的な場面を二人の視点と戻る順序に分けます。',
+      groupedOutcomes: Object.freeze([
+        { title: '見立て', body: '二人それぞれの視点と、意見の違いが連鎖に変わる場面' },
+        { title: '戻し方', body: '会話へ戻る順序と、そのまま使える一言' },
+        { title: '試し方', body: '日常で試す小さな実験と、振り返る一問' },
+      ] as const),
+      useCases: Object.freeze(['意見が分かれた後に読む', '会話へ戻りたい時に読む'] as const),
+    });
+  }
+  if (relationStatusId === 'R4') {
+    return Object.freeze({
+      unresolvedQuestion: 'では、今の距離を急いで埋めずに、間合いがずれた地点からどう整え直せばよいのでしょうか。',
+      deliverableLead: '続きでは、現在の距離を二人がどう見ているかと、間合いを扱う順序を読みます。',
+      groupedOutcomes: Object.freeze([
+        { title: '見立て', body: '二人それぞれの視点と、距離が広がり始めた場面' },
+        { title: '戻し方', body: '今の間合いを扱う順序と、負担を増やさない一言' },
+        { title: '試し方', body: '距離を急変させない実験と、振り返る一問' },
+      ] as const),
+      useCases: Object.freeze(['距離の意味が気になる時に読む', '今の間合いを整えたい時に読む'] as const),
+    });
+  }
+  if (relationStatusId === 'R5') {
+    return Object.freeze({
+      unresolvedQuestion: 'では、以前の近さを答えにせず、再接近できる余地をどこから確かめればよいのでしょうか。',
+      deliverableLead: '続きでは、離れた後の二人の見え方と、小さな接点を置く順序を読みます。',
+      groupedOutcomes: Object.freeze([
+        { title: '見立て', body: '二人それぞれの視点と、再接近をためらう場面' },
+        { title: '戻し方', body: '接点を置く順序と、結果を迫らない一言' },
+        { title: '試し方', body: '一度だけ試せる小さな実験と、振り返る一問' },
+      ] as const),
+      useCases: Object.freeze(['再接近を考える時に読む', '接点を置くか迷う時に読む'] as const),
     });
   }
   return Object.freeze({
-    deliverableLead:
-      '無料では、二人の間で回りやすい基本のループまでを読みました。「二人の相性レポート」では、同じループを六つの場面に分け、あなたと相手それぞれの視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。',
-    toolkitTiles: Object.freeze([
-      { title: '二人それぞれの動き', body: '同じ場面で、あなたと相手に何が起きているか' },
-      { title: 'すれ違いが始まる場面', body: 'どこから連鎖に変わるのかの順番' },
-      { title: '場面から戻る手順', body: 'すれ違いのあとに戻る、小さな順序' },
-      { title: 'そのまま使える一言', body: '責めずに話を始めるための短い言葉' },
-      { title: '今週一度だけ試すこと', body: '負担を増やさず、今の二人で試せる一歩' },
-      { title: 'あとで振り返る一問', body: '何が変わったかを見直すための問い' },
-    ]),
-    useCases: Object.freeze([
-      '会話の前に読む',
-      'すれ違った時に読む',
-      '距離を戻したい時に読む',
-      'あとで振り返る',
-    ]),
+    unresolvedQuestion: 'では、日常の決め方がずれた時、二人はどの順序なら無理なく元のリズムへ戻れるのでしょうか。',
+    deliverableLead: '続きでは、長く一緒にいる二人の日常的な判断と戻り方を場面ごとに読みます。',
+    groupedOutcomes: Object.freeze([
+      { title: '見立て', body: '二人それぞれの視点と、日常の判断がずれる場面' },
+      { title: '戻し方', body: '普段のリズムへ戻る順序と、そのまま使える一言' },
+      { title: '試し方', body: '生活の中で試す小さな実験と、振り返る一問' },
+    ] as const),
+    useCases: Object.freeze(['日常の決め方がずれた時に読む', 'いつものリズムへ戻りたい時に読む'] as const),
   });
 }

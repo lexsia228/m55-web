@@ -590,10 +590,11 @@ function chapterBehaviorPerspective(
   role: 'A' | 'B',
   focus: ChapterFocus,
   roles: ReturnType<typeof semanticRoles>,
+  relationStatusId: RelationStatusId,
   viewerIsPersonA: boolean,
 ): string {
   const label = actorLabel(role, viewerIsPersonA);
-  const depth = paidChapterDepthFor(chapterKey);
+  const depth = paidChapterDepthFor(chapterKey, relationStatusId);
   const context = depth.trigger.replace(/。$/u, '');
   const isFirstSemanticRole = role === roles.first.role;
   const action = isFirstSemanticRole ? focus.firstAction : focus.secondAction;
@@ -628,7 +629,15 @@ function perspectiveText(
   if (relationStatusId === 'R5' && role === 'B') {
     return R5_PARTNER_UNCERTAINTY[chapterIndex]!;
   }
-  return chapterBehaviorPerspective(chapterKey, chapterIndex, role, focus, roles, viewerIsPersonA);
+  return chapterBehaviorPerspective(
+    chapterKey,
+    chapterIndex,
+    role,
+    focus,
+    roles,
+    relationStatusId,
+    viewerIsPersonA,
+  );
 }
 
 const R1_SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, string, string, string, string]>> = {
@@ -1273,7 +1282,7 @@ function buildChapter(
       ? `${focus.scene}。ここでは、気になる点の入口から見ます`
       : `${focus.scene}。ここでは「${topicLabel}」に場面を絞ります`
     : focus.scene;
-  const chapterDepth = paidChapterDepthFor(key);
+  const chapterDepth = paidChapterDepthFor(key, input.relationStatusId);
   const personA = perspectiveText(
     key,
     index,
@@ -1308,7 +1317,11 @@ function buildChapter(
     input.personAUsesFirstPerspective,
     contextVariation?.relationshipLoopTail ?? undefined,
   );
-  const enrichedLoop = formatPaidChapterDepthNarrative(key, relationshipLoop);
+  const enrichedLoop = formatPaidChapterDepthNarrative(
+    key,
+    relationshipLoop,
+    input.relationStatusId,
+  );
 
   return Object.freeze({
     key,

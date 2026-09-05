@@ -48,9 +48,11 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import PairFreeShareCTA from './PairFreeShareCTA';
+import PairSegmentedDobFields from './PairSegmentedDobFields';
 import PairResultSignature from './PairResultSignature';
 import PairManualBlock from '../narrative/PairManualBlock';
 import { buildPairFreeInsightSpecV2 } from '../../lib/m55/compatibility/pairFreeInsightSpecV2';
+import { resolvePairTraitIdentityV1 } from '../../lib/m55/compatibility/pairTraitIdentityV1';
 import { projectCompatibilityFreeNarrativeV1 } from '../../lib/m55/narrative/projectCompatibilityFreeNarrativeV1';
 import styles from './CompatibilityGuestExperience.module.css';
 
@@ -338,6 +340,12 @@ export default function CompatibilityGuestExperience({
     setError('');
   }
 
+  function handleEditDob() {
+    setResult(null);
+    setPhase('dob');
+    setError('');
+  }
+
   function resetJourney() {
     try {
       clearGuestSessionStorage(sessionStorage);
@@ -390,6 +398,14 @@ export default function CompatibilityGuestExperience({
     ? relationshipLoopStepLabelsFor(relationStatusId)
     : RELATIONSHIP_LOOP_STEP_LABELS_V2;
   const premiumBridge = relationStatusId ? stagePremiumBridgeCopy(relationStatusId) : null;
+  const pairTraitIdentity = useMemo(() => {
+    if (!complete) return null;
+    try {
+      return resolvePairTraitIdentityV1(input.personA, input.personB);
+    } catch {
+      return null;
+    }
+  }, [complete, input.personA, input.personB]);
 
   return (
     <div
@@ -434,32 +450,31 @@ export default function CompatibilityGuestExperience({
                 </a>
               </div>
             ) : (
-              <label className={styles.inputCard}>
+              <div className={styles.inputCard}>
                 <span data-testid="compatibility-person-a-card" className={styles.inputCardMarker} aria-hidden="true" />
                 <span className={styles.inputRole}>あなた</span>
                 <span className={styles.inputLabel}>あなたの生年月日</span>
-                <input
-                  type="date"
-                  required
-                  max={today}
-                  value={input.personA}
-                  onChange={(event) => updateInput('personA', event.target.value)}
+                <PairSegmentedDobFields
+                  isoDate={input.personA}
+                  onIsoDateChange={(value) => updateInput('personA', value)}
+                  ariaLabelPrefix="あなたの生年月日"
+                  maxIso={today}
+                  enableBirthdayAutocomplete
                 />
-              </label>
+              </div>
             )}
-            <label className={styles.inputCard}>
+            <div className={styles.inputCard}>
               <span data-testid="compatibility-person-b-card" className={styles.inputCardMarker} aria-hidden="true" />
               <span className={styles.inputRole}>相手</span>
               <span className={styles.inputLabel}>相手の生年月日</span>
-              <input
+              <PairSegmentedDobFields
                 id="compatibility-partner-dob"
-                type="date"
-                required
-                max={today}
-                value={input.personB}
-                onChange={(event) => updateInput('personB', event.target.value)}
+                isoDate={input.personB}
+                onIsoDateChange={(value) => updateInput('personB', value)}
+                ariaLabelPrefix="相手の生年月日"
+                maxIso={today}
               />
-            </label>
+            </div>
             <div className={styles.inputCard} data-testid="compatibility-partner-name-card">
               <span className={styles.inputLabel}>相手の呼び名</span>
               <input
@@ -636,6 +651,47 @@ export default function CompatibilityGuestExperience({
 
       {phase === 'result' && result && context ? (
         <div className={styles.result} data-testid="compatibility-personalized-result">
+          {pairTraitIdentity ? (
+            <section
+              className={styles.pairTraitHero}
+              data-testid="m55-pair-trait-hero"
+              aria-labelledby="pair-trait-title"
+            >
+              <p className={styles.pairTraitEyebrow}>M55の資質の組み合わせ</p>
+              <h2 id="pair-trait-title" className={styles.pairTraitHeadline} data-testid="m55-pair-trait-label">
+                {pairTraitIdentity.pairLabel}
+              </h2>
+              <div className={styles.pairTraitVisuals}>
+                <article className={styles.pairTraitCard} data-testid="m55-pair-trait-a">
+                  <div className={styles.pairTraitImageWrap}>
+                    <img
+                      className={styles.pairTraitImage}
+                      src={pairTraitIdentity.personA.imagePath}
+                      alt=""
+                      decoding="async"
+                    />
+                  </div>
+                  <p className={styles.pairTraitSideLabel}>あなた</p>
+                  <p className={styles.pairTraitName}>{pairTraitIdentity.personA.traitName}</p>
+                  <p className={styles.pairTraitIdentityLine}>{pairTraitIdentity.personA.identityLine}</p>
+                </article>
+                <article className={styles.pairTraitCard} data-testid="m55-pair-trait-b">
+                  <div className={styles.pairTraitImageWrap}>
+                    <img
+                      className={styles.pairTraitImage}
+                      src={pairTraitIdentity.personB.imagePath}
+                      alt=""
+                      decoding="async"
+                    />
+                  </div>
+                  <p className={styles.pairTraitSideLabel}>相手</p>
+                  <p className={styles.pairTraitName}>{pairTraitIdentity.personB.traitName}</p>
+                  <p className={styles.pairTraitIdentityLine}>{pairTraitIdentity.personB.identityLine}</p>
+                </article>
+              </div>
+              <p className={styles.pairTraitTransition}>この二つの資質が、今の二人ではどう動くか</p>
+            </section>
+          ) : null}
           <div className={styles.pairRelationalBanner} data-testid="m55-pair-relational-grammar" aria-label="二人の関係">
             <div className={styles.pairRelNode} data-node="you">
               <span>あなた</span>
@@ -655,23 +711,16 @@ export default function CompatibilityGuestExperience({
           </div>
           <section className={styles.resultHeader} aria-labelledby="result-title">
             <p className={styles.eyebrow}>無料で見えること</p>
-            <h2 id="result-title">今の二人の読み解き</h2>
-            <p>この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。</p>
+            <h2 id="result-title">
+              {pairTraitIdentity ? `${pairTraitIdentity.pairLabel}の二人に起きやすいこと` : '今の二人の読み解き'}
+            </h2>
+            <p>資質の違いと、今回の回答から見える今の関係を重ねて読みます。</p>
           </section>
 
           <PairResultSignature
             overlap={result.free.overlap}
             difference={result.free.difference}
           />
-
-          <section className={styles.baselineSection} aria-labelledby="baseline-title">
-            <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[0].index}</p>
-            <h3 id="baseline-title">{PAIR_READING_FREE_STRUCTURE_ITEMS[0].titleJa}</h3>
-          <div className={styles.dynamicBlock} data-testid="compatibility-relationship-dynamic">
-            <h4>この違いが、二人の間でどう動くか</h4>
-            <p>{result.free.relationshipDynamic}</p>
-          </div>
-          </section>
 
           <div className={styles.relationalReadingStack}>
           <section
@@ -702,11 +751,10 @@ export default function CompatibilityGuestExperience({
           </section>
           </div>
 
-          {pairNarrative ? <PairManualBlock manual={pairNarrative.manualSpec} /> : null}
+          {pairNarrative ? <PairManualBlock manual={pairNarrative.manualSpec} compact /> : null}
 
           <p className={styles.contextNote}>
-            土台は生年月日、表れ方と連鎖は今の回答を重ねています。
-            相手本人が回答したものではありません。
+            相手本人が回答したものではなく、相手の気持ちを断定する読みでもありません。
           </p>
 
           <section
@@ -721,18 +769,18 @@ export default function CompatibilityGuestExperience({
 
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
             <h3 id="paid-bridge-title">この二人の続きとして読めること</h3>
+            <p className={styles.unresolvedQuestion} data-testid="compatibility-premium-unresolved-question">
+              {premiumBridge?.unresolvedQuestion}
+            </p>
             <p className={styles.deliverableLead}>
               {premiumBridge?.deliverableLead ??
-                '無料では、二人の間で回りやすい基本のループまでを読みました。「二人の相性レポート」では、同じループを六つの場面に分け、あなたと相手それぞれの視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。'}
+                '続きでは、二人それぞれの見え方から、ズレの入口と戻し方を場面ごとに読みます。'}
             </p>
             <ul className={styles.toolkitTiles} aria-label="レポートで受け取れるもの">
-              {(premiumBridge?.toolkitTiles ?? [
-                { title: '二人それぞれの動き', body: '同じ場面で、あなたと相手に何が起きているか' },
-                { title: 'すれ違いが始まる場面', body: 'どこから連鎖に変わるのかの順番' },
-                { title: '場面から戻る手順', body: 'すれ違いのあとに戻る、小さな順序' },
-                { title: 'そのまま使える一言', body: '責めずに話を始めるための短い言葉' },
-                { title: '今週一度だけ試すこと', body: '負担を増やさず、今の二人で試せる一歩' },
-                { title: 'あとで振り返る一問', body: '何が変わったかを見直すための問い' },
+              {(premiumBridge?.groupedOutcomes ?? [
+                { title: '見立て', body: '二人それぞれの視点と、すれ違いが始まる場面' },
+                { title: '戻し方', body: '戻る順序と、そのまま使える短い言葉' },
+                { title: '試し方', body: '小さな実験と、あとで振り返る一問' },
               ]).map((tile) => (
                 <li key={tile.title}>
                   <strong>{tile.title}</strong>
@@ -745,7 +793,7 @@ export default function CompatibilityGuestExperience({
               className={styles.mappedChapters}
               id="compatibility-mapped-chapters"
             >
-              {result.mappedChapters.map((chapter) => (
+              {result.mappedChapters.slice(0, 1).map((chapter) => (
                 <article key={chapter.chapterId}>
                   <h4>{chapter.chapterTitle}</h4>
                   <p className={styles.connectionLabel}>今の二人とつながる理由</p>
@@ -758,12 +806,7 @@ export default function CompatibilityGuestExperience({
 
             <h4 className={styles.sixTitle} id="compatibility-six-chapters">読み返せる場面</h4>
             <div className={styles.useCases}>
-              {(premiumBridge?.useCases ?? [
-                '会話の前に読む',
-                'すれ違った時に読む',
-                '距離を戻したい時に読む',
-                'あとで振り返る',
-              ]).map((label) => (
+              {(premiumBridge?.useCases ?? ['会話の前に読む', 'あとで振り返る']).map((label) => (
                 <span key={label}>{label}</span>
               ))}
             </div>
@@ -826,7 +869,11 @@ export default function CompatibilityGuestExperience({
             )}
           </section>
 
-          <PairFreeShareCTA insight={pairInsight} />
+          <PairFreeShareCTA
+            insight={pairInsight}
+            personAStemLaneIndex={pairTraitIdentity?.personA.stemLaneIndex}
+            personBStemLaneIndex={pairTraitIdentity?.personB.stemLaneIndex}
+          />
 
           <p className={styles.revisitNote}>
             {userId
@@ -834,6 +881,14 @@ export default function CompatibilityGuestExperience({
               : 'この結果は、タブを開いている間は同じ内容で読み返せます。'}
           </p>
           <div className={styles.questionActions}>
+            <button
+              type="button"
+              className={styles.backButton}
+              onClick={handleEditDob}
+              data-testid="m55-pair-edit-dob"
+            >
+              二人の生年月日を変更する
+            </button>
             <button type="button" className={styles.nextButton} onClick={updateCurrentPair}>
               今の二人を更新する
             </button>

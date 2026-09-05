@@ -4,7 +4,7 @@ import {
   parseShareExportAspectRatio,
   renderPublicShareExportImage,
 } from '../../../../lib/m55/narrative/publicShareImageV1';
-import { resolvePublicShareArtworkFromToken } from '../../../../lib/m55/narrative/resolvePublicShareArtworkV1';
+import { resolvePublicShareArtworkPathsFromToken } from '../../../../lib/m55/narrative/resolvePublicShareArtworkV1';
 
 export const runtime = 'edge';
 
@@ -26,7 +26,10 @@ export async function GET(request: Request, context: RouteContext): Promise<Resp
     return new Response('Not found', { status: 404 });
   }
 
-  const artPath = resolvePublicShareArtworkFromToken(token);
-  const artUrl = artPath ? `${CANONICAL_PRODUCTION_ORIGIN}${artPath}` : null;
-  return renderPublicShareExportImage(spec, aspect, artUrl);
+  const artPaths = resolvePublicShareArtworkPathsFromToken(token);
+  const artUrls =
+    artPaths.length > 0
+      ? artPaths.map((path) => `${CANONICAL_PRODUCTION_ORIGIN}${path}`)
+      : null;
+  return renderPublicShareExportImage(spec, aspect, artUrls);
 }
