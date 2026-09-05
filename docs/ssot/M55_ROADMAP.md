@@ -69,12 +69,26 @@ Retain:
 - Founding cohort = **20** manually approved creators · no invented absolute program cap
 - General User launch MVP = **FREE_COMPLETION_DIGITAL_UNLOCK**
 - Machine-first creator compliance / payout operation — Human does **not** approve every commission/payout at scale
+- `CREATOR_EARNINGS_TRANSPARENCY = REQUIRED` · immutable append-only ledger · Stripe-hosted onboarding preferred · payout destination security hold
 - **COMMISSIONABLE_REVENUE** base defined in creator SSOT
 - General User cash payout **prohibited**
 - direct single-tier referral only
 - anti-MLM / no recursive compensation
 - creator cash infrastructure **NOT IMPLEMENTED**
 - Stripe payout provider **UNSELECTED**
+
+### Creator Revenue stage ownership — R5 through R8 (frozen 2026-09-06)
+
+Canonical stage order unchanged. Runtime implementation remains future; detailed contracts in `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` §AT.
+
+| Stage | Owns |
+|---|---|
+| **R5** `ATTRIBUTION_AND_COMPLIANCE` | attribution evidence · conflict precedence · self/circular fraud · content registry · compliance machine · appeal intake |
+| **R6** `COMMISSION_LEDGER` | append-only ledger · calculation versioning · rounding contract · `release_at` · adjustments |
+| **R7** `CREATOR_DASHBOARD` | earnings transparency · per-commission explainability · payout visibility · appeal UX · export |
+| **R8** `PAYOUT_AND_SETTLEMENT` | Stripe-hosted onboarding · payout readiness · batching · idempotency · security hold · webhook reconciliation |
+
+Do **not** pull R6–R8 runtime implementation into R2.
 
 ## Active commercial priority
 

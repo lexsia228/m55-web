@@ -8,6 +8,16 @@ Sole executable CURRENT/NEXT authority remains `docs/ssot/M55_EXECUTION_STATE.js
 
 Machine-first compliance / payout architecture annex: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
 
+**Trust / ledger / payout control detail lives in the annex.** This parent SSOT retains economics, lane contracts, and roadmap authority only.
+
+`CREATOR_EARNINGS_TRANSPARENCY = REQUIRED`
+
+`CREATOR_COMMISSION_LEDGER_APPEND_ONLY = TRUE`
+
+`STRIPE_HOSTED_PAYOUT_ONBOARDING_PREFERRED = TRUE` (subject to R2-B2)
+
+`SELF_REFERRAL_AND_CIRCULAR_ABUSE_MACHINE_BLOCK = REQUIRED`
+
 ---
 
 ## A-0. Revenue decision no-regression policy (Human-approved 2026-09-06)
@@ -119,6 +129,10 @@ Creator must **not** need to handle customer card details or recipient banking s
 ## E. Internal commission ledger — required architecture
 
 M55 owns commission eligibility/accounting state.
+
+`CREATOR_COMMISSION_LEDGER_APPEND_ONLY = TRUE`
+
+Do **not** rewrite historical commission facts. Corrections use immutable adjustment entries (refund, chargeback, payout correction) referencing the originating commission/event.
 
 At eligible Stripe-confirmed purchase:
 

@@ -863,3 +863,25 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 | Stop-loss correction | first chargeback → Human review in small cohort; concentration >35% → review not hard stop; winner with positive contribution not auto-stopped |
 | R2-B2 | next remaining R2 blocker before cash infrastructure activation |
 | Annex | `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` created as normative architecture contract |
+
+### 2026-09-06 — Creator trust / ledger / payout control hardening
+
+**Status:** Human **APPROVED** · bounded SSOT hardening · local commit only · no push in this gate
+
+| Decision | Value |
+|---|---|
+| Comparable mapping | exhaustive bounded mapping complete — architecture validated — no second broad Codex rerun |
+| Earnings transparency | `CREATOR_EARNINGS_TRANSPARENCY = REQUIRED` — Creator must reconcile amounts/status independently |
+| Customer privacy | creator dashboard hides customer PII — anonymous references only |
+| Orthogonal states | commission eligibility ≠ payout readiness — `COMMISSION_PAYABLE` + `PAYOUT_BLOCKED_KYC` valid |
+| Immutable ledger | `CREATOR_COMMISSION_LEDGER_APPEND_ONLY = TRUE` — adjustments not silent rewrites |
+| Post-payout recovery | chargebacks → explicit negative adjustments — not retroactive rate reduction |
+| Stripe onboarding | `STRIPE_HOSTED_PAYOUT_ONBOARDING_PREFERRED = TRUE` · `M55_DOES_NOT_STORE_FULL_CREATOR_BANK_ACCOUNT_DETAILS = TRUE` |
+| Destination security | `PAYOUT_DESTINATION_CHANGE_SECURITY_HOLD = REQUIRED` · initial default **5 calendar days** |
+| Self/circular abuse | `SELF_REFERRAL_AND_CIRCULAR_ABUSE_MACHINE_BLOCK = REQUIRED` — IP/device alone not auto-forfeiture |
+| Attribution | durable evidence graph — locked attribution not silently overwritten |
+| Appeal path | `CREATOR_DISCREPANCY_AND_APPEAL_PATH = REQUIRED` |
+| Dashboard | R7 is trust/control surface — not cosmetic analytics |
+| Payout ops | batch statements · `PAYOUT_INSTRUCTION_IDEMPOTENCY = REQUIRED` · dead-letter/replay-safe |
+| Unresolved semantics | rounding · attribution window · payout threshold/cadence · appeal SLA — must block implementation, not be silently invented |
+| Frozen economics | all prior 50/40/30 · cohort 20 · General User v1 · machine-first · 30-day review preserved |

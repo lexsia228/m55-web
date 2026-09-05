@@ -410,3 +410,450 @@ Implementation order is defined in `docs/ssot/M55_ROADMAP.md` and `docs/ssot/M55
 Do **not** implement payout before attribution/compliance/ledger.
 
 Do **not** implement a Human-per-payout workflow as interim architecture.
+
+---
+
+## P. Comparable-platform supporting research (dated 2026-09-06)
+
+**DATED SUPPORTING RESEARCH — NOT timeless M55 authority.** Incorporates existing Codex competitive automation audit plus bounded official-source mapping. Do **not** repeat another broad market or commission-rate audit.
+
+Mature comparable systems consistently combine:
+
+- Pending / review states
+- automatic normal release
+- hold / fraud exceptions
+- reversible pre-final commission states
+- separate Payable states
+- aggregated payout cycles
+- creator-visible commission statuses
+- earnings / sales / conversion reporting
+- payout account/KYC readiness gates
+- payout holds after security-sensitive account changes
+- appeal/dispute paths
+- immutable or traceable adjustments/reversals
+
+| Platform | Supporting pattern (research summary) | Primary source |
+|---|---|---|
+| Shopify Collabs | ~30-day default hold, automatic payment, creator performance/payout visibility | https://help.shopify.com/en/manual/promoting-marketing/collabs/creators/payments |
+| PartnerStack | automatic eligible commission approval, fraud holds, creator-visible statuses | https://docs.partnerstack.com/docs/commissions |
+| impact.com | pending → locking → approved/payout lifecycle and reversals | https://help.impact.com/en/support/solutions/articles/48001235263 |
+| Awin | pending review → approved → payable, auto-validation, transaction reporting | https://success.awin.com/s/article/Transaction-statuses |
+| TikTok Shop | commission base, estimated commission, payout visibility/export | https://seller-us.tiktok.com/university/essay?knowledge_id=10011495 |
+| YouTube / AdSense | invalid-traffic automation, holds, appeal/human review path | https://support.google.com/youtube/answer/1311392 |
+| Patreon | 5-day payout-method-change hold precedent | https://support.patreon.com/hc/en-us/articles/360042152791 |
+| Stripe Connect | hosted onboarding, payout readiness, webhook reconciliation, refund/dispute liability; Japan negative-balance recovery requires account-specific confirmation | https://docs.stripe.com/connect/onboarding · https://docs.stripe.com/connect/payouts |
+
+This supports the existing M55 machine-first architecture. Do **not** copy competitor-specific product complexity.
+
+---
+
+## Q. Creator earnings transparency (frozen)
+
+`CREATOR_EARNINGS_TRANSPARENCY = REQUIRED`
+
+Creator must independently understand:
+
+- traffic attributed to them
+- valid Free completions where applicable
+- eligible paid conversions
+- conversion rate
+- attributed sales
+- estimated commission
+- `PENDING` / `HOLD` / `PAYABLE`
+- payout processing / posted payout
+- refund/reversal adjustments
+- next expected payout/release status
+
+Future aggregate analytics (no unsupported vanity metrics as financial truth):
+
+`unique_tracked_visits` · `valid_Free_completions` · `eligible_purchases` · `conversion_rate` · `attributed_gross_collected` · `commissionable_revenue` · `estimated_commission` · `payable_commission` · `paid_commission` · `refund_reversal_totals`
+
+---
+
+## R. Per-commission explainability (frozen)
+
+Every creator-attributed commission must be explainable without Human contact for ordinary cases.
+
+Future anonymized transaction row minimum:
+
+- `purchase_reference` (creator-safe)
+- purchase event timestamp
+- product key / public product name
+- customer amount actually collected
+- `COMMISSIONABLE_REVENUE`
+- rate applied
+- calculated commission
+- commission status
+- payout status
+- `release_at` / estimated release
+- adjustment amount if any
+- reason code
+- payout batch reference if applicable
+
+Creator must be able to answer: **"Why is this commission this amount and this status?"**
+
+---
+
+## S. Customer privacy boundary (frozen)
+
+Creator dashboard must **NOT** expose:
+
+- customer full name, email, DOB
+- questionnaire answers
+- private M55 reading content
+- payment card/bank data
+- raw device identity
+- raw fraud graph data
+
+Use anonymous transaction / attribution references only. Creator transparency must **not** become customer surveillance.
+
+---
+
+## T. Estimated vs final earnings (frozen)
+
+Before `COMMISSION_PAYABLE`: creator-facing amount is **ESTIMATED / PENDING COMMISSION** — not guaranteed payment.
+
+After `COMMISSION_PAYABLE`: commercial rate and commission amount are fixed except for separately recorded valid adjustments (refund/chargeback per contract).
+
+Do **not** silently rewrite previously displayed history.
+
+---
+
+## U. Orthogonal commission and payout states (frozen)
+
+Commission eligibility and payout readiness are **separate dimensions**.
+
+**Commission states:**
+
+`COMMISSION_PENDING_COMPLIANCE_REVIEW` · `COMMISSION_HOLD` · `COMMISSION_PAYABLE` · `COMMISSION_REVERSED` · `COMMISSION_ADJUSTED`
+
+**Payout states:**
+
+`PAYOUT_NOT_READY` · `PAYOUT_BLOCKED_KYC` · `PAYOUT_BLOCKED_PROVIDER` · `PAYOUT_BLOCKED_SECURITY` · `PAYOUT_QUEUED` · `PAYOUT_PROCESSING` · `PAYOUT_POSTED` · `PAYOUT_FAILED` · `PAYOUT_RETURNED`
+
+KYC failure must **NOT** erase a valid commission. A creator may have `COMMISSION_PAYABLE` + `PAYOUT_BLOCKED_KYC` until payout readiness is restored.
+
+---
+
+## V. Immutable ledger (frozen)
+
+`CREATOR_COMMISSION_LEDGER_APPEND_ONLY = TRUE`
+
+Required model: original commission entry + immutable adjustment entries.
+
+Examples:
+
+- refund after commission → negative adjustment
+- chargeback after `PAYABLE` → negative adjustment
+- payout correction → explicit correction entry
+
+Never silently mutate historical ¥673 into ¥0. Every adjustment references its originating commission/event.
+
+---
+
+## W. Calculation reproducibility (frozen)
+
+Every commission must persist enough data to reproduce the calculation.
+
+Future record minimum bindings:
+
+`calculation_version` · `rate_schedule_version` · `commission_rate` · `currency` · `customer_amount_collected` · discount amount/state · tax exclusion inputs · `COMMISSIONABLE_REVENUE` · commission amount · purchase event time · `CREATOR_APPROVED_AT` · attribution policy version
+
+- No floating-point money arithmetic in implementation
+- Integer minor units / exact decimal-safe representation preferred
+- For JPY, integer yen storage preferred where contract allows
+
+**`MUST_RESOLVE_BEFORE_COMMISSION_LEDGER_IMPLEMENTATION`:** exact tax-base rounding and final commission rounding rule. R6 is blocked until one deterministic rounding rule is Human/legal/accounting approved. Do **not** invent rounding silently.
+
+---
+
+## X. Policy / terms version pinning (frozen)
+
+Each creator and each commission must bind the policy versions that governed it:
+
+`creator_terms_version` · `rate_schedule_version` · `attribution_policy_version` · `commission_policy_version` · `claims_policy_version` · `payout_policy_version`
+
+Later terms must **not** silently rewrite historical commission eligibility.
+
+---
+
+## Y. Event-specific release_at (frozen)
+
+`STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS = 30` remains the **default**.
+
+`release_at` is a **per-commission** controlled value.
+
+Release may extend beyond day 30 while legitimate unresolved conditions exist: refund/cancellation, dispute/chargeback, fraud investigation, content compliance `HOLD`, provider risk `HOLD`, attribution dispute.
+
+Day 30 alone must **never** auto-release an unresolved `HOLD`. No arbitrary indefinite hold — reason, created time, and review state must be visible/auditable.
+
+Mandatory legal payment deadlines override internal convenience.
+
+---
+
+## Z. Post-payable / post-payout adjustments (frozen)
+
+30-day review does **not** eliminate later chargebacks.
+
+Architecture:
+
+- original `PAYABLE`/`POSTED` record remains historical fact
+- later valid refund/chargeback → separate `NEGATIVE_ADJUSTMENT`
+- this is **not** a retroactive rate reduction
+
+Future recovery priority:
+
+1. unbatched related `PAYABLE` where legally/contractually permitted
+2. future creator `PAYABLE` offset where legally/contractually permitted
+3. reserve / debt handling per approved policy
+4. Human/legal exception if material
+
+Do **not** assume Stripe can automatically debit a Japanese creator bank account for negative balance recovery. Provider behavior remains R2-B2 evidence.
+
+---
+
+## AA. Stripe-hosted payout onboarding (frozen)
+
+`STRIPE_HOSTED_PAYOUT_ONBOARDING_PREFERRED = TRUE` — subject to R2-B2 confirming actual Connect configuration.
+
+Preferred future flow:
+
+1. M55 Creator approved
+2. create/associate Stripe connected account
+3. Stripe-hosted or Stripe-embedded onboarding
+4. Creator provides identity/KYC and payout bank data **to Stripe**
+5. M55 receives provider IDs/status
+6. payout only when provider readiness is GREEN
+
+`M55_DOES_NOT_STORE_FULL_CREATOR_BANK_ACCOUNT_DETAILS = TRUE` unless unavoidable approved provider contract requires otherwise.
+
+M55 stores minimum provider metadata only: `creator_id` · `stripe_connected_account_id` · onboarding status · requirements status · `payouts_enabled` equivalent · provider status timestamps · provider-safe masked metadata when genuinely necessary
+
+---
+
+## AB. Provider readiness monitoring
+
+Stripe onboarding return does **not** itself mean payout-ready.
+
+Future integration must monitor: `payouts_enabled` · `requirements.currently_due` · `requirements.past_due` · `requirements.pending_verification` · disabled reason · relevant capability state · `account.updated` / provider equivalents
+
+Commission eligibility and payout eligibility stay separate.
+
+---
+
+## AC. Payout destination security (frozen)
+
+`PAYOUT_DESTINATION_CHANGE_SECURITY_HOLD = REQUIRED`
+
+Initial M55 security default: **5 full calendar days** after payout destination / bank payout method is added or materially changed (subject to provider/legal constraints).
+
+During hold:
+
+- future payout execution = **blocked**
+- commission accrual = **continues**
+- valid `PAYABLE` balance = **preserved**
+
+Before release: step-up authentication where available · provider re-verification · risk check · creator notification · no unresolved takeover signal
+
+Provider may impose a longer hold. Mandatory legal payment deadlines must be respected.
+
+---
+
+## AD. Creator account takeover protection
+
+High-risk profile actions: payout destination change · identity/KYC change · email/account recovery · 2FA/security method reset · sudden payout request after profile change
+
+→ `PAYOUT_BLOCKED_SECURITY` / `AUTO_HOLD` when risk rules require.
+
+Creator must receive security notification. Never rely solely on one session cookie for payout destination changes.
+
+---
+
+## AE. Self-referral / circular abuse machine block (frozen)
+
+`SELF_REFERRAL_AND_CIRCULAR_ABUSE_MACHINE_BLOCK = REQUIRED`
+
+**Objective `AUTO_CANCEL` candidates:**
+
+- creator account == purchaser account
+- confirmed identical payment identity
+- duplicate commission for same eligible purchase
+- confirmed A→B→A circular abuse
+- non-existent/failed payment
+- confirmed prohibited self-purchase attribution
+
+**Risk signals only (NOT automatic forfeiture alone):** same IP · same device · same address · same surname · high velocity · account creation burst · device cluster · payment cluster · unusual geographic pattern
+
+Multiple risk signals → `AUTO_HOLD` → machine investigation → Human only if unresolved/material. Avoid simplistic IP-only banning.
+
+---
+
+## AF. Fraud graph / attribution evidence
+
+Future fraud system must support graph relationships among:
+
+creator account · referrer link · click/session · buyer account · device cluster · payment identity · purchase · commission
+
+Attribution evidence must be durable. Required concepts:
+
+`tracking_link_id` (signed/unguessable) · `click_event_id` · `creator_id` · attribution source · attribution timestamps · policy version · eligibility lock time
+
+Once eligible purchase attribution is locked, later unrelated clicks must **not** silently steal/overwrite it. Exact attribution window = R5 contract item unless frozen elsewhere.
+
+---
+
+## AG. Attribution conflict contract (R5 pre-freeze)
+
+Before R5 implementation, publish deterministic precedence for:
+
+- multiple creator touches
+- creator link vs General User invite
+- cookie vs signed link evidence
+- same-device conflicting account evidence
+- late click after eligibility lock
+
+Conflict resolution: deterministic policy where possible → exception only when genuinely ambiguous. Database race order must **not** decide financial attribution.
+
+---
+
+## AH. Creator discrepancy / appeal path (frozen)
+
+`CREATOR_DISCREPANCY_AND_APPEAL_PATH = REQUIRED`
+
+Creator may challenge: missing attribution · incorrect amount · incorrect `HOLD`/`DECLINE` reason · fraud false positive · content compliance false positive · payout failure status
+
+Future case record: `case_id` · `creator_id` · affected commission(s) · reason · creator evidence · machine evidence · `opened_at` · status · decision · decision reason · `resolved_at`
+
+AI semantic `HOLD` must have correction/appeal path.
+
+**`MUST_RESOLVE_BEFORE_BETA_TERMS_FREEZE`:** exact appeal submission deadline and Human SLA. Do **not** invent a legal SLA in this docs gate.
+
+---
+
+## AI. Content version / rescan
+
+Registry must preserve: original snapshot · content fingerprint · platform/source · observed version · disclosure state · claim scan result · last scan · deletion observation when relevant
+
+Material content change → re-scan. Disclosure disappearance → `AUTO_HOLD` affected pending scope as policy permits. Do not erase prior compliant snapshots.
+
+Periodic scan cadence: `DEFER_UNTIL_BETA_DATA` / implementation calibration.
+
+---
+
+## AJ. Creator Dashboard contract — R7 (frozen)
+
+R7 is **not** cosmetic. Minimum trust contract:
+
+**PERFORMANCE:** unique visits · valid Free completions · eligible paid conversions · conversion rate · attributed sales
+
+**EARNINGS:** estimated commission · `PENDING` · `HOLD` · `PAYABLE` · `POSTED` · adjustments
+
+**PAYOUT:** next eligible payout/release · blocked reason · payout batch status · failed/returned resolution path
+
+**COMPLIANCE:** registered content · compliance state · required correction · appeal/discrepancy state
+
+**EXPORT:** machine-readable statement suitable for reconciliation (exact tax-document format = legal/tax confirmation)
+
+---
+
+## AK. Payout statement
+
+Every posted payout batch must be explainable.
+
+Future statement minimum: batch ID · covered commission IDs/count · gross eligible commission · adjustments · withholding/tax deductions if legally required · provider fees if creator-borne under final contract · net payout · currency · payout date · provider payout reference · status
+
+Commercial commission rate must remain distinguishable from tax or other legally required payout deductions.
+
+---
+
+## AL. Payout idempotency (frozen)
+
+`PAYOUT_INSTRUCTION_IDEMPOTENCY = REQUIRED`
+
+Deterministic uniqueness required for: commission creation · adjustment creation · payout batch creation · provider transfer instruction · provider payout event ingestion · webhook replay
+
+Duplicate webhook or retry must **never** create duplicate creator money. Provider external IDs must bind durably to internal instructions.
+
+---
+
+## AM. Payout failure / returned
+
+Future provider lifecycle must ingest: created · processing/in_transit · paid · failed · returned/canceled
+
+On failure: do **not** mark commission unpaid/invalid. Use `PAYOUT_FAILED` or `PAYOUT_RETURNED`, preserve `PAYABLE` economics, block further payout if destination invalid, prompt provider re-onboarding/update, retry idempotently after resolution.
+
+---
+
+## AN. Termination / creator pause
+
+Termination separates: future attribution · pending commissions · payable commissions · historical paid commissions
+
+Severe violation may immediately stop **future** attribution. Must **not** automatically erase unrelated historical earnings. Each affected `PENDING` commission adjudicated under governing policy/evidence. `PAYABLE` protected except explicit lawful adjustment/recovery events.
+
+---
+
+## AO. Operational observability
+
+Machine-first requires machine observability. Future operations must detect:
+
+`PENDING` beyond expected `release_at` · `HOLD` without owner/reason · `PAYABLE` stuck outside batch · payout batch stuck · provider webhook mismatch · failed/returned payouts · duplicate event attempts · provider/KYC regressions · security holds · unresolved appeals
+
+Use exception queues and alerting. No Human daily spreadsheet reconciliation workflow.
+
+---
+
+## AP. Dead-letter / replay (frozen)
+
+External provider/webhook processing must be replay-safe. Failed processing → durable retry/dead-letter path. Replaying an event must reproduce the same financial result. No silent event loss.
+
+---
+
+## AQ. Human workload principle (reinforced)
+
+`HUMAN_DOES_NOT_APPROVE_EVERY_PAYOUT = TRUE`
+
+Normal financial reconciliation must **not** create proportional Human workload. Creator count must **not** directly determine Human workload. **Exception volume** determines Human workload.
+
+---
+
+## AR. R2-B2 checklist hardening
+
+Before payout implementation, R2-B2 must confirm at minimum:
+
+M55 Japan Stripe account supportability · actual connected-account configuration · who bears negative balances · Connect charge/transfer model · payout control capabilities · Japan creator payout availability · JPY/cross-border constraints · KYC requirements · tax/reporting responsibilities · payout fees · refund mechanics · dispute mechanics · transfer reversal mechanics · negative balance recovery in Japan · payout schedule constraints · bank/payout destination update behavior · provider-required holds · data handling boundary
+
+Until then: `stripePayoutProviderStatus = UNSELECTED`
+
+---
+
+## AS. Explicit unresolved blockers
+
+Do **not** disguise unresolved questions as decisions:
+
+| Blocker | Owning gate |
+|---|---|
+| exact commission rounding | R6 |
+| exact tax-base rounding | R6 |
+| exact attribution expiry/window | R5 |
+| exact payout threshold | R8 / R2-B2 |
+| exact payout cadence | R8 / R2-B2 |
+| exact appeal submission period/SLA | beta terms freeze |
+| post-payout reserve amount/policy | R8 / R2-B2 |
+| cross-border creator support | R2-B2 |
+| final tax/withholding mechanics | R2-B2 |
+| final Connect configuration | R2-B2 |
+
+No implementation may silently choose financial semantics.
+
+---
+
+## AT. Stage ownership — R5 / R6 / R7 / R8
+
+| Stage | Owns |
+|---|---|
+| **R5** `ATTRIBUTION_AND_COMPLIANCE` | attribution evidence · conflict precedence · self/circular fraud controls · content registry enforcement · compliance machine · appeal/correction intake |
+| **R6** `COMMISSION_LEDGER` | immutable ledger · calculation versioning · rounding contract · `release_at` · adjustments · reconciliation-safe commission state |
+| **R7** `CREATOR_DASHBOARD` | earnings transparency · performance metrics · per-commission explainability · payout visibility · discrepancy/appeal UX · export |
+| **R8** `PAYOUT_AND_SETTLEMENT` | Stripe/provider onboarding · payout readiness states · batching · idempotent provider instructions · destination-change security hold · provider webhook reconciliation · failed/returned recovery |
+
+Do **not** pull R6–R8 runtime implementation into R2.
