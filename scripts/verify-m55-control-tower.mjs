@@ -30,7 +30,7 @@ const BENCHMARK_STACK_PATH = 'docs/ssot/M55_UX_BENCHMARK_STACK.md';
 const COMMERCIAL_QUALITY_PATH = 'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md';
 const CREATOR_REVENUE_SSOT_PATH = 'docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md';
 
-const REQUIRED_CREATOR_ROADMAP_STAGES = [
+const CANONICAL_CREATOR_REVENUE_STAGES = [
   'FOUR_SURFACE_CREATOR_READINESS',
   'REVENUE_SAFETY_E2E',
   'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
@@ -39,6 +39,20 @@ const REQUIRED_CREATOR_ROADMAP_STAGES = [
   'COMMISSION_LEDGER',
   'CREATOR_DASHBOARD',
   'PAYOUT_AND_SETTLEMENT',
+  'M55-CODEX-CREATOR-INFRA-AUDIT',
+  'INVITE_ONLY_CREATOR_BETA',
+  'M55_CREATOR_REVENUE_READY',
+  'CONTROLLED_SCALE',
+];
+
+const REQUIRED_CREATOR_CAPABILITY_ASSERTIONS = [
+  ['creatorReferralStatus', 'NOT_IMPLEMENTED'],
+  ['attributionStatus', 'NOT_IMPLEMENTED'],
+  ['commissionLedgerStatus', 'NOT_IMPLEMENTED'],
+  ['creatorDashboardStatus', 'NOT_IMPLEMENTED'],
+  ['payoutSettlementStatus', 'NOT_IMPLEMENTED'],
+  ['stripePayoutProviderStatus', 'UNSELECTED'],
+  ['fourSurfaceCreatorReadiness', 'CLOSED_GREEN'],
 ];
 
 const REQUIRED_CONTROL_TOWER_FILES = [
@@ -358,6 +372,121 @@ function runSemanticSelfTests() {
     '[]',
     'must contain a JSON object execution state',
   );
+
+  const expectCreatorPolicyPass = (label, state) => {
+    const errors = collectCreatorRevenueExecutionStateErrors(state);
+    if (errors.length > 0) {
+      fail(`creator policy self-test expected pass for ${label}: ${errors.join('; ')}`);
+    }
+  };
+
+  const expectCreatorPolicyFail = (label, state, expectedSubstring) => {
+    const errors = collectCreatorRevenueExecutionStateErrors(state);
+    if (errors.length === 0) {
+      fail(`creator policy self-test expected fail for ${label}`);
+      return;
+    }
+    if (!errors.some((message) => message.includes(expectedSubstring))) {
+      fail(
+        `creator policy self-test ${label} expected substring "${expectedSubstring}" in ${errors.join('; ')}`,
+      );
+    }
+  };
+
+  if (exists(EXECUTION_STATE_PATH)) {
+    const liveCreatorState = JSON.parse(read(EXECUTION_STATE_PATH));
+    if (liveCreatorState.creatorRevenueRoadmapAuthority) {
+      expectCreatorPolicyPass('creator pending cold-start revalidation state', liveCreatorState);
+      expectValidationPass('creator pending cold-start revalidation state', liveCreatorState);
+
+      const humanAcceptedCreatorState = {
+        ...liveCreatorState,
+        currentExecutionGate: 'REVENUE_SAFETY_E2E',
+        nextSingleAction: 'REVENUE_SAFETY_E2E',
+        acceptance: {
+          ...liveCreatorState.acceptance,
+          revalidationRequired: false,
+          latestResult: 'HANDOFF_COLD_START_PASS',
+          latestResultAcceptedByHuman: true,
+          latestResultAcceptedAt: '2026-09-05T14:00:00Z',
+          latestResultAcceptedBy: 'Human',
+        },
+        creatorRevenueRoadmapAuthority: {
+          ...liveCreatorState.creatorRevenueRoadmapAuthority,
+          currentStage: 'REVENUE_SAFETY_E2E',
+        },
+      };
+      expectCreatorPolicyPass('creator human-accepted REVENUE_SAFETY_E2E progression', humanAcceptedCreatorState);
+      expectValidationPass('creator human-accepted REVENUE_SAFETY_E2E progression', humanAcceptedCreatorState);
+
+      const laterCreatorGate = 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT';
+      const laterCreatorGateState = {
+        ...humanAcceptedCreatorState,
+        productWorkAfterControlTower: laterCreatorGate,
+        currentExecutionGate: laterCreatorGate,
+        nextSingleAction: laterCreatorGate,
+        creatorRevenueRoadmapAuthority: {
+          ...humanAcceptedCreatorState.creatorRevenueRoadmapAuthority,
+          currentStage: laterCreatorGate,
+        },
+      };
+      expectCreatorPolicyPass('creator later gate progression without verifier edit', laterCreatorGateState);
+      expectValidationPass('creator later gate progression without verifier edit', laterCreatorGateState);
+
+      expectCreatorPolicyFail(
+        'creator currentStage must equal productWorkAfterControlTower',
+        {
+          ...liveCreatorState,
+          creatorRevenueRoadmapAuthority: {
+            ...liveCreatorState.creatorRevenueRoadmapAuthority,
+            currentStage: 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
+          },
+        },
+        'currentStage must equal productWorkAfterControlTower',
+      );
+
+      expectCreatorPolicyFail(
+        'creator stages must preserve canonical order',
+        {
+          ...liveCreatorState,
+          creatorRevenueRoadmapAuthority: {
+            ...liveCreatorState.creatorRevenueRoadmapAuthority,
+            stages: [
+              'REVENUE_SAFETY_E2E',
+              ...CANONICAL_CREATOR_REVENUE_STAGES.filter((stage) => stage !== 'REVENUE_SAFETY_E2E'),
+            ],
+          },
+        },
+        'must exactly match canonical Creator Revenue stage order',
+      );
+
+      expectCreatorPolicyFail(
+        'creator stages must include every canonical stage',
+        {
+          ...liveCreatorState,
+          creatorRevenueRoadmapAuthority: {
+            ...liveCreatorState.creatorRevenueRoadmapAuthority,
+            stages: CANONICAL_CREATOR_REVENUE_STAGES.filter((stage) => stage !== 'CONTROLLED_SCALE'),
+          },
+        },
+        'must exactly match canonical Creator Revenue stage order',
+      );
+
+      expectValidationFail(
+        'creator mixed acceptance state rejected by shared semantic validator',
+        {
+          ...liveCreatorState,
+          acceptance: {
+            ...liveCreatorState.acceptance,
+            revalidationRequired: false,
+            latestResult: 'PENDING_REVALIDATION',
+            latestResultAcceptedByHuman: false,
+          },
+        },
+        'latestResult=HANDOFF_COLD_START_PASS',
+      );
+    }
+  }
 }
 
 function checkRequiredFiles() {
@@ -394,50 +523,62 @@ function checkCreatorRevenueContract() {
   }
 }
 
-function checkCreatorRevenueExecutionState(state) {
+function creatorStagesExactlyEqual(stages) {
+  return (
+    Array.isArray(stages)
+    && stages.length === CANONICAL_CREATOR_REVENUE_STAGES.length
+    && stages.every((stage, index) => stage === CANONICAL_CREATOR_REVENUE_STAGES[index])
+  );
+}
+
+function collectCreatorRevenueExecutionStateErrors(state) {
+  const errors = [];
   const authority = state?.creatorRevenueRoadmapAuthority;
-  if (!authority) fail('execution state missing creatorRevenueRoadmapAuthority');
+  if (!authority) {
+    errors.push('execution state missing creatorRevenueRoadmapAuthority');
+    return errors;
+  }
   if (authority.contractReference !== CREATOR_REVENUE_SSOT_PATH) {
-    fail(`creatorRevenueRoadmapAuthority.contractReference must be ${CREATOR_REVENUE_SSOT_PATH}`);
+    errors.push(`creatorRevenueRoadmapAuthority.contractReference must be ${CREATOR_REVENUE_SSOT_PATH}`);
   }
   if (!state.completedSubGates?.includes('FOUR_SURFACE_CREATOR_READINESS')) {
-    fail('FOUR_SURFACE_CREATOR_READINESS must be in completedSubGates');
+    errors.push('FOUR_SURFACE_CREATOR_READINESS must be in completedSubGates');
   }
   if (state.currentExecutionGate === 'FOUR_SURFACE_CREATOR_READINESS') {
-    fail('FOUR_SURFACE_CREATOR_READINESS must not equal CURRENT EXECUTION GATE after closure');
+    errors.push('FOUR_SURFACE_CREATOR_READINESS must not equal CURRENT EXECUTION GATE after closure');
   }
   if (state.nextSingleAction === 'FOUR_SURFACE_CREATOR_READINESS') {
-    fail('FOUR_SURFACE_CREATOR_READINESS must not equal NEXT SINGLE ACTION after closure');
+    errors.push('FOUR_SURFACE_CREATOR_READINESS must not equal NEXT SINGLE ACTION after closure');
   }
-  if (state.productWorkAfterControlTower !== 'REVENUE_SAFETY_E2E') {
-    fail('productWorkAfterControlTower must be REVENUE_SAFETY_E2E');
+  if (!creatorStagesExactlyEqual(authority.stages)) {
+    errors.push('creatorRevenueRoadmapAuthority.stages must exactly match canonical Creator Revenue stage order');
   }
-  for (const stage of REQUIRED_CREATOR_ROADMAP_STAGES) {
-    if (!authority.stages?.includes(stage)) {
-      fail(`creatorRevenueRoadmapAuthority.stages missing required stage: ${stage}`);
+  const currentStage = authority.currentStage;
+  if (!currentStage || typeof currentStage !== 'string') {
+    errors.push('creatorRevenueRoadmapAuthority.currentStage is required');
+  } else {
+    const stageOccurrences = authority.stages?.filter((stage) => stage === currentStage).length ?? 0;
+    if (stageOccurrences !== 1) {
+      errors.push('creatorRevenueRoadmapAuthority.currentStage must exist exactly once in stages');
+    }
+    if (currentStage !== state.productWorkAfterControlTower) {
+      errors.push('creatorRevenueRoadmapAuthority.currentStage must equal productWorkAfterControlTower');
     }
   }
-  for (const [field, expected] of [
-    ['creatorReferralStatus', 'NOT_IMPLEMENTED'],
-    ['attributionStatus', 'NOT_IMPLEMENTED'],
-    ['commissionLedgerStatus', 'NOT_IMPLEMENTED'],
-    ['creatorDashboardStatus', 'NOT_IMPLEMENTED'],
-    ['payoutSettlementStatus', 'NOT_IMPLEMENTED'],
-    ['stripePayoutProviderStatus', 'UNSELECTED'],
-    ['fourSurfaceCreatorReadiness', 'CLOSED_GREEN'],
-  ]) {
+  for (const [field, expected] of REQUIRED_CREATOR_CAPABILITY_ASSERTIONS) {
     if (authority[field] !== expected) {
-      fail(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
+      errors.push(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
     }
-  }
-  if (state.acceptance?.revalidationRequired !== true) {
-    fail('acceptance.revalidationRequired must be true after creator handoff settlement');
-  }
-  if (state.acceptance?.latestResult !== 'PENDING_REVALIDATION') {
-    fail('acceptance.latestResult must be PENDING_REVALIDATION after creator handoff settlement');
   }
   if (!state.fourSurfaceCreatorReadinessTransition?.status?.includes('GREEN')) {
-    fail('fourSurfaceCreatorReadinessTransition must record CLOSED_GREEN');
+    errors.push('fourSurfaceCreatorReadinessTransition must record CLOSED_GREEN');
+  }
+  return errors;
+}
+
+function checkCreatorRevenueExecutionState(state) {
+  for (const message of collectCreatorRevenueExecutionStateErrors(state)) {
+    fail(message);
   }
 }
 

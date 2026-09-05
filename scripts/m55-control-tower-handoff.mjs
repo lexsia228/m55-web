@@ -13,6 +13,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   EXECUTION_STATE_PATH,
+  COLD_START_GATE,
   validateExecutionState,
   detectLegacyExecutionDrift,
 } from './m55-control-tower-semantic.mjs';
@@ -99,7 +100,40 @@ function resolveMasterBacklogStatus(state) {
   return wave1?.masterBacklog ?? 'UNKNOWN';
 }
 
-function resolveRequiredNextEvidence(state) {
+const REVENUE_SAFETY_E2E_GATE = 'REVENUE_SAFETY_E2E';
+
+const COLD_START_REQUIRED_EVIDENCE = [
+  'zero_memory_execution_state_reconstruction',
+  'creator_revenue_e2c2e_contract_invariants',
+  'handoff_cold_start_pass_without_mutation',
+  'control_tower_authority_boundary',
+];
+
+const R2_REVENUE_SAFETY_REQUIRED_EVIDENCE = [
+  'current_product_description_price_billing_type',
+  'deliverable_mapping',
+  'refund_conditions',
+  'support_contact_route',
+  'post_purchase_recovery',
+  'stripe_revenue_path_continuity',
+  'entitlement_continuity',
+  'reuse_closed_green_payment_checkout_webhook_fulfillment_evidence',
+  'invalidating_dependency_check_before_replay',
+  'separate_human_go_before_real_payment',
+];
+
+const GENERIC_CREATOR_GATE_REQUIRED_EVIDENCE = [
+  'read_current_creator_gate_contract',
+  'preserve_closed_gate_no_replay',
+  'require_explicit_authority_before_mutation',
+];
+
+const LEGACY_NON_CREATOR_REQUIRED_EVIDENCE = [
+  'control_tower_hardening_green',
+  'cold_start_handoff_pass',
+];
+
+export function resolveRequiredNextEvidence(state) {
   const gate = state?.currentExecutionGate ?? '';
   if (gate.includes('WAVE2')) {
     return [
@@ -109,7 +143,17 @@ function resolveRequiredNextEvidence(state) {
       'human_commercial_visual_approval',
     ];
   }
-  return ['control_tower_hardening_green', 'cold_start_handoff_pass'];
+  if (gate === COLD_START_GATE) {
+    return [...COLD_START_REQUIRED_EVIDENCE];
+  }
+  if (gate === REVENUE_SAFETY_E2E_GATE) {
+    return [...R2_REVENUE_SAFETY_REQUIRED_EVIDENCE];
+  }
+  const stages = state?.creatorRevenueRoadmapAuthority?.stages ?? [];
+  if (stages.includes(gate)) {
+    return [...GENERIC_CREATOR_GATE_REQUIRED_EVIDENCE];
+  }
+  return [...LEGACY_NON_CREATOR_REQUIRED_EVIDENCE];
 }
 
 function resolveKnownEvidenceLimitations() {
