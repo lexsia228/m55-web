@@ -797,3 +797,28 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 | Control Tower | `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` required because handoff mechanism changed |
 | Creator cash infrastructure | **NOT IMPLEMENTED** · referral/attribution/ledger/dashboard/payout all **NOT_IMPLEMENTED** |
 | Stripe Connect / Global Payouts | **NOT** implemented or selected |
+
+### 2026-09-05 — Founding Creator reward economics freeze + R2 advance
+
+**Status:** Human **APPROVED** · local commits only · push/PR/deploy **NOT AUTHORIZED**
+
+| Decision | Value |
+|---|---|
+| Cold-start acceptance | `HANDOFF_COLD_START_PASS` accepted without rerun in this action |
+| R2 advance | `currentExecutionGate` / `nextSingleAction` → `REVENUE_SAFETY_E2E` |
+| Two-lane strategy | **adopted** — General User non-cash lane + Approved Creator cash lane |
+| General User cash | **prohibited** · cash-equivalent transferable balance **prohibited** |
+| General User benefit | remains **R2-E** · do **not** freeze 10% discount yet |
+| General referral Premium requirement | **prohibited** unless later legal review explicitly approves |
+| Approved Creator cash | requires application, M55 approval, direct single-tier attribution, disclosure, Product Truth compliance, refund/fraud/chargeback review |
+| `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · Founding Creator **introductory acquisition rate only** · **not** permanent standard |
+| Founding Boost Rate | **50%** until earlier of 10 eligible conversions or 90 days after approval |
+| Founding Transition Rate | **40%** until earlier of 50 cumulative eligible conversions or 180 days after approval |
+| Founding Legacy Rate | **35%** for Founding cohort after transition · not irrevocable lifetime guarantee |
+| Standard Approved Creator Rate | **30%** for post-Founding cohort unless later Human campaign overrides |
+| COMMISSIONABLE_REVENUE | collected amount after discounts · excludes tax · excludes refunded/charged-back/ineligible amounts · M55 bears processing fees |
+| Payout rule | aggregate by period/threshold · never once-per-purchase · only **PAYABLE** enters payout execution |
+| R2-A competitive research | one-time Japan/competitor Codex audit accepted · **no repeat** absent real invalidator |
+| Provider / payout | **UNSELECTED** · creator cash infrastructure **NOT_IMPLEMENTED** |
+| Activation guard | **50% must not go live** without R2-D cohort budget / stop-loss closure |
+| Prohibited external claims | guaranteed income · easy money · unlimited income · passive-income guarantee · recruitment reward · MLM wording |

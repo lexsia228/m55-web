@@ -31,12 +31,12 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md`
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. While `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` is active, product mutation is prohibited.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `REVENUE_SAFETY_E2E`.
 
 | Stage | Gate | Status |
 |---|---|---|
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
-| R2 | `REVENUE_SAFETY_E2E` | **NEXT PRODUCT WORK** after Control Tower revalidation |
+| R2 | `REVENUE_SAFETY_E2E` | **ACTIVE** — Human-accepted cold-start PASS 2026-09-05 |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | future |
 | R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | future |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
@@ -48,9 +48,23 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. While
 | — | `M55_CREATOR_REVENUE_READY` | future |
 | — | `CONTROLLED_SCALE` | future |
 
+### R2 sub-gates (Human-approved 2026-09-05)
+
+| Sub-gate | Scope | Status |
+|---|---|---|
+| **R2-A** `COMPETITIVE_REWARD_BENCHMARK` | one-time Japan/competitor Codex audit as research input | **ONE-TIME RESEARCH COMPLETE / REUSE** — do not repeat absent invalidator |
+| **R2-B1** `JAPAN_LEGAL_STRIPE_PREFLIGHT` | official-source issue mapping and STOP conditions | open |
+| **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General non-cash / Approved Creator cash split | direction frozen in `M55_CREATOR_REVENUE_E2C2E_SSOT.md` |
+| **R2-D** `FOUNDING_CREATOR_ECONOMICS` | rate schedule frozen; remaining: cohort size, total budget cap, stop-loss, provider-cost confirmation | open |
+| **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | strongest non-cash viral benefit without leaking Premium value or increasing legal/payment complexity | open |
+| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | Stripe account-specific + Japan legal/tax professional confirmation after one final model converges | blocked until R2-C/D/E convergence |
+
 Retain:
 
-- **TARGET_COMMISSION_RATE = 50%** — **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required
+- **TARGET_COMMISSION_RATE = 50%** — **HUMAN TARGET ONLY** · names Founding Creator introductory acquisition rate only · **not** permanent standard rate
+- Founding schedule frozen: **50% → 40% → 35%** (Founding cohort) · Standard Approved Creator **30%**
+- **COMMISSIONABLE_REVENUE** base defined in creator SSOT
+- General User cash payout **prohibited** · general benefit remains **R2-E**
 - direct single-tier referral only
 - anti-MLM / no recursive compensation
 - creator cash infrastructure **NOT IMPLEMENTED**
