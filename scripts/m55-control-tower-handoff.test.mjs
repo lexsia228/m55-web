@@ -141,11 +141,18 @@ test('fresh session recovers required next evidence', () => {
   const handoff = buildHandoff();
   assert.ok(handoff.knownEvidenceLimitations.length > 0);
   assert.deepEqual(handoff.requiredNextEvidence, resolveRequiredNextEvidence(state));
-  assert.ok(handoff.requiredNextEvidence.includes('zero_memory_execution_state_reconstruction'));
-  assert.ok(handoff.requiredNextEvidence.includes('creator_revenue_e2c2e_contract_invariants'));
-  assert.ok(handoff.requiredNextEvidence.includes('control_tower_authority_boundary'));
-  assert.equal(handoff.requiredNextEvidence.includes('control_tower_hardening_green'), false);
-  assert.equal(handoff.requiredNextEvidence.includes('cold_start_handoff_pass'), false);
+  if (state.currentExecutionGate === COLD_START_GATE) {
+    assert.ok(handoff.requiredNextEvidence.includes('zero_memory_execution_state_reconstruction'));
+    assert.ok(handoff.requiredNextEvidence.includes('creator_revenue_e2c2e_contract_invariants'));
+    assert.ok(handoff.requiredNextEvidence.includes('control_tower_authority_boundary'));
+    assert.equal(handoff.requiredNextEvidence.includes('control_tower_hardening_green'), false);
+    assert.equal(handoff.requiredNextEvidence.includes('cold_start_handoff_pass'), false);
+  } else if (state.currentExecutionGate === 'REVENUE_SAFETY_E2E') {
+    assert.ok(handoff.requiredNextEvidence.includes('current_product_description_price_billing_type'));
+    assert.ok(handoff.requiredNextEvidence.includes('separate_human_go_before_real_payment'));
+    assert.equal(handoff.requiredNextEvidence.includes('control_tower_hardening_green'), false);
+    assert.equal(handoff.requiredNextEvidence.includes('cold_start_handoff_pass'), false);
+  }
 });
 
 test('resolveRequiredNextEvidence returns R2 revenue-safety categories without stale cold-start evidence', () => {
@@ -204,8 +211,8 @@ test('CREATOR_REVENUE_E2C2E handoff fields remain derived from execution state',
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.currentStage, authority.currentStage);
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.productWorkAfterControlTower, state.productWorkAfterControlTower);
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, state.productWorkAfterControlTower);
-  assert.equal(handoff.currentGate, COLD_START_GATE);
-  assert.equal(state.currentExecutionGate, COLD_START_GATE);
+  assert.equal(handoff.currentGate, state.currentExecutionGate);
+  assert.equal(handoff.nextSingleAction, state.nextSingleAction);
 });
 
 test('handoff is explicitly not authority', () => {
