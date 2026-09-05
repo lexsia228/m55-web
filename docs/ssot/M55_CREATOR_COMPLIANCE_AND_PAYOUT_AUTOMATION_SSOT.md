@@ -847,13 +847,153 @@ No implementation may silently choose financial semantics.
 
 ---
 
-## AT. Stage ownership — R5 / R6 / R7 / R8
+Do **not** pull R6–R8 runtime implementation into R2.
 
-| Stage | Owns |
+---
+
+## AU. External audit disposition (dated 2026-09-06)
+
+Latest external audit (including Gemini) is **SUPPORTING EVIDENCE ONLY**. Do **not** create implementation authority from audit opinion alone. External audit alone is **not** an invalidator for frozen decisions.
+
+**Absorbed:**
+
+| Token | Meaning |
 |---|---|
-| **R5** `ATTRIBUTION_AND_COMPLIANCE` | attribution evidence · conflict precedence · self/circular fraud controls · content registry enforcement · compliance machine · appeal/correction intake |
-| **R6** `COMMISSION_LEDGER` | immutable ledger · calculation versioning · rounding contract · `release_at` · adjustments · reconciliation-safe commission state |
-| **R7** `CREATOR_DASHBOARD` | earnings transparency · performance metrics · per-commission explainability · payout visibility · discrepancy/appeal UX · export |
-| **R8** `PAYOUT_AND_SETTLEMENT` | Stripe/provider onboarding · payout readiness states · batching · idempotent provider instructions · destination-change security hold · provider webhook reconciliation · failed/returned recovery |
+| `CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE` | §AV |
+| `FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST` | §AW |
+| `EARNINGS_TRANSPARENCY_IS_A_CREATOR_ACQUISITION_ASSET` | §AX |
+
+**Rejected absolute/unsafe language:**
+
+- 完全勝利 · 絶対的な信頼 · リスクを完全に潰す
+- Creator money is "safely stored"
+- escrow-like wording
+- competitors are exploitative
+- Human-less means zero operational risk
+
+**Not frozen from external audit alone:**
+
+- universal 10.21% withholding rule
+- specific tax/commission rounding convention
+- unsupported legal conclusions
+
+Tax/withholding and rounding remain explicit future blockers (§AS).
+
+---
+
+## AV. Actionable payout-block UX (frozen)
+
+`CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE = TRUE`
+
+Whenever payout is blocked, Creator-facing UX must answer:
+
+1. Is the commission itself still valid?
+2. Why is payout blocked?
+3. What must the Creator do?
+4. What will M55/Stripe do automatically next?
+5. Is there an expected review/retry state?
+6. Where can the Creator challenge an incorrect block?
+
+**Example — `COMMISSION_PAYABLE` + `PAYOUT_BLOCKED_KYC`:**
+
+- commission remains valid
+- payout cannot proceed until Stripe/provider verification completes
+- Creator sees required onboarding/verification steps
+- system monitors provider readiness automatically
+- appeal/discrepancy route available if block is incorrect
+
+**Do NOT present as:** money confiscated · commission canceled · escrow · funds guaranteed safe
+
+---
+
+## AW. High-trust exception review — founding cohort (frozen)
+
+`FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST = TRUE`
+
+For the initial **20** Creator cohort, risk signals alone must **not** become automatic forfeiture:
+
+- same device · same IP · velocity anomaly · device/payment cluster · content semantic flag
+
+**Normal flow:**
+
+```
+risk signal → AUTO_HOLD → machine evidence → correction/evidence submission
+→ machine re-scan → Human only if unresolved/material → explicit decision reason
+```
+
+Creator must understand why the case was held. No silent rejection.
+
+---
+
+## AX. Transparency as acquisition value (frozen)
+
+`EARNINGS_TRANSPARENCY_IS_A_CREATOR_ACQUISITION_ASSET = TRUE`
+
+Does **not** change commission economics.
+
+Creator launch messaging may accurately emphasize:
+
+- attributable performance is visible
+- commission calculation is explainable
+- status/reason codes are visible
+- adjustments are traceable
+- Creator can reconcile/export their own earnings data
+- normal payouts do not depend on arbitrary per-payout Human approval
+
+Public/Creator-facing copy must remain factual.
+
+**Do NOT claim:** perfect attribution · zero mistakes · guaranteed earnings · guaranteed payout · absolute fraud prevention
+
+---
+
+## AY. R3 ownership — launch-readiness audit
+
+R3 `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` validates (does **not** implement R7):
+
+- Creator onboarding comprehension
+- Creator-facing Product Truth
+- commission and 50/40/30 explanation
+- `PENDING` / `HOLD` / `PAYABLE` comprehension
+- KYC/payout block explanation (actionable framing)
+- PR/disclosure clarity
+- prohibited claims / no misleading earnings language
+- refund/reversal explanation
+- Creator support/dispute route
+- earnings transparency positioning without guarantees
+- Founder/Founding Creator narrative
+
+---
+
+## AZ. Expanded stage ownership — R5 / R6 / R7 / R8
+
+### R5 `ATTRIBUTION_AND_COMPLIANCE`
+
+Direct attribution evidence · one-purchase/one-Creator rule · multiple-touch precedence · General invite vs Creator attribution · signed tracking IDs · eligibility lock · self-referral · circular referral · duplicate attribution · fraud graph · content registry · content snapshots · content re-scan · disclosure checks · claims checks · `AUTO_PASS` · `AUTO_CANCEL_OBJECTIVE` · `AUTO_HOLD` · Human exception routing · Creator correction · appeal/discrepancy intake. **No payout execution.**
+
+### R6 `COMMISSION_LEDGER`
+
+Append-only commission ledger · immutable adjustments · `calculation_version` · `rate_schedule_version` · terms/policy versions · `COMMISSIONABLE_REVENUE` calculation · integer/exact money · rounding contract · purchase-event rate lock · `release_at` · `PENDING` · `HOLD` · `PAYABLE` · `REVERSED` · `ADJUSTED` · post-`PAYABLE` adjustment accounting · idempotent commission creation · financial replay safety. **Must not silently choose unresolved rounding/tax semantics.**
+
+### R7 `CREATOR_DASHBOARD`
+
+Creator trust/control UX surfaces:
+
+**PERFORMANCE:** unique tracked visits · valid Free completions · eligible paid conversions · conversion rate · attributed sales
+
+**EARNINGS:** estimated commission · `PENDING` · `HOLD` · `PAYABLE` · `POSTED` · adjustments
+
+**PER-COMMISSION:** anonymous purchase reference · product · purchase time · amount collected · commissionable base · rate · commission · `release_at` · reason code · payout status
+
+**PAYOUT BLOCK UX:** KYC/provider/security reason · commission still valid or not · exact Creator next action · automatic system next action
+
+**COMPLIANCE:** registered content status · correction required · appeal/discrepancy status
+
+**EXPORT:** machine-readable reconciliation export
+
+Customer PII remains hidden. **Trust surface — not cosmetic analytics.**
+
+### R8 `PAYOUT_AND_SETTLEMENT`
+
+Stripe/provider account integration · hosted onboarding · KYC readiness · `payouts_enabled`/equivalent · provider requirements sync · commission/payout state separation · payout batching · threshold/cadence · payout instruction idempotency · provider transfer IDs · payout processing · posted · failed · returned · re-onboarding · destination-change security hold · account-takeover controls · provider webhook processing · dead-letter/replay · negative balance handling · refund/chargeback post-payout reconciliation · payout statement. **No bank account details stored directly by M55 unless later unavoidable and explicitly approved.**
 
 Do **not** pull R6–R8 runtime implementation into R2.

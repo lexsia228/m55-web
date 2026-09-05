@@ -18,6 +18,14 @@ Machine-first compliance / payout architecture annex: `docs/ssot/M55_CREATOR_COM
 
 `SELF_REFERRAL_AND_CIRCULAR_ABUSE_MACHINE_BLOCK = REQUIRED`
 
+`CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE = TRUE`
+
+`FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST = TRUE`
+
+`EARNINGS_TRANSPARENCY_IS_A_CREATOR_ACQUISITION_ASSET = TRUE`
+
+Zero-omission traceability matrix and canonical development order: `docs/ssot/M55_ROADMAP.md`
+
 ---
 
 ## A-0. Revenue decision no-regression policy (Human-approved 2026-09-06)
@@ -123,6 +131,22 @@ Before creator revenue launch, creator must be able to understand:
 - dispute/support route
 
 Creator must **not** need to handle customer card details or recipient banking secrets directly when Stripe-hosted collection is available.
+
+### D-b. Creator trust UX principles (Human-approved 2026-09-06)
+
+External audit findings are **supporting evidence only**. Absorbed principles:
+
+| Principle | Meaning |
+|---|---|
+| `CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE` | blocked payout UX must explain commission validity, block reason, Creator next action, automatic system next action, expected review/retry, and appeal route |
+| `FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST` | founding cohort risk signals → `AUTO_HOLD` → evidence → correction → machine re-scan → Human only if unresolved/material — no silent rejection |
+| `EARNINGS_TRANSPARENCY_IS_A_CREATOR_ACQUISITION_ASSET` | factual launch messaging may emphasize explainable performance/earnings — does **not** change economics or permit guarantee claims |
+
+**Rejected external overclaims (do not adopt):** 完全勝利 · 絶対的な信頼 · リスクを完全に潰す · "money safely stored" · escrow-like wording · exploitative competitor framing · Human-less = zero operational risk.
+
+Product Truth / no-guarantee / no-escrow boundaries remain mandatory.
+
+Detail: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` §AU–§AX.
 
 ---
 
@@ -597,19 +621,64 @@ Evidence/mapping-first. Must:
 
 ### R3 boundary — influencer launch-readiness
 
-Before cash infrastructure. Must validate:
+R3 `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` validates Creator-facing trust UX and Product Truth **before** cash infrastructure. R3 does **not** build R7 Dashboard.
 
+Must validate:
+
+- Creator onboarding comprehension
+- Creator-facing Product Truth
+- commission explanation and 50/40/30 explanation
+- `PENDING` / `HOLD` / `PAYABLE` comprehension
+- KYC/payout block explanation (actionable, not confiscation framing)
+- PR/disclosure clarity
+- prohibited claims and no misleading earnings language
+- refund/reversal explanation
+- Creator support/dispute route
+- earnings transparency positioning without guarantees
+- Founder/Founding Creator narrative
 - approved recommendation/claim language
 - disclosure material
-- creator trust/onboarding
 - product/refund/support clarity
 - privacy
 - safe share assets
-- no misleading earnings claims
-- no prohibited recruitment framing
+- no recruitment framing
 - no unsupported product/relationship/fortune certainty claims
 
 Creator cash infrastructure remains prohibited until the relevant readiness gates close.
+
+### R5 boundary — attribution and compliance
+
+Owns attribution evidence, one-purchase/one-Creator rule, conflict precedence, General invite vs Creator attribution, signed tracking IDs, eligibility lock, self/circular fraud, content registry/snapshots/re-scan, disclosure/claims checks, `AUTO_PASS` / `AUTO_CANCEL_OBJECTIVE` / `AUTO_HOLD`, Human exception routing, correction/appeal intake. **No payout execution in R5.**
+
+### R6 boundary — commission ledger
+
+Owns append-only ledger, immutable adjustments, calculation/policy versioning, `COMMISSIONABLE_REVENUE`, integer/exact money, rounding contract, purchase-event rate lock, `release_at`, commission states, post-`PAYABLE` adjustments, idempotent commission creation, financial replay safety. **Must not silently choose unresolved rounding/tax semantics.**
+
+### R7 boundary — creator dashboard
+
+Owns Creator trust/control UX: performance, earnings, per-commission explainability, actionable payout-block UX, compliance visibility, export. Customer PII hidden. **Trust surface — not cosmetic analytics.**
+
+### R8 boundary — payout and settlement
+
+Owns Stripe/provider integration, hosted onboarding, KYC readiness, payout batching/threshold/cadence, idempotency, provider lifecycle, destination-change security hold, account-takeover controls, webhook/dead-letter/replay, negative-balance handling, post-payout reconciliation, payout statements. **No full bank details stored by M55 unless later unavoidable and explicitly approved.**
+
+### Stage exit criteria (frozen 2026-09-06)
+
+| Stage | Exits only when |
+|---|---|
+| **R2-B2** | Stripe account-specific supportability classified · provider configuration known or explicit STOP · Japan legal/tax unresolved items classified · no invented financial semantics |
+| **R2 final** | explicit Human acceptance after R2-B2 closure |
+| **R3** | Creator-facing Product Truth and trust UX are safe/comprehensible |
+| **R4** | approved Creator identity/terms/distribution foundation exists |
+| **R5** | attribution/compliance/fraud/appeal machine contract is executable |
+| **R6** | every commission is deterministic, reproducible, and adjustment-safe |
+| **R7** | Creator can independently reconcile earnings/status without normal Human help |
+| **R8** | provider onboarding and payout lifecycle are automated/reconciled/fail-closed |
+| **Creator Infra Audit** | cross-stage invariants and failure modes pass independent review |
+| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects |
+| **Revenue Ready** | explicit Human GO |
+
+Do **not** reorder stages without a real dependency invalidator + Human approval.
 
 ---
 

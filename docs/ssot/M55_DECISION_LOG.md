@@ -885,3 +885,23 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 | Payout ops | batch statements · `PAYOUT_INSTRUCTION_IDEMPOTENCY = REQUIRED` · dead-letter/replay-safe |
 | Unresolved semantics | rounding · attribution window · payout threshold/cadence · appeal SLA — must block implementation, not be silently invented |
 | Frozen economics | all prior 50/40/30 · cohort 20 · General User v1 · machine-first · 30-day review preserved |
+
+### 2026-09-06 — Zero-omission revenue roadmap + Creator trust UX absorption
+
+**Status:** Human **APPROVED** · docs/governance only · local commit · no push in this gate
+
+| Decision | Value |
+|---|---|
+| External audit | supporting evidence only — no new commit authority from Gemini alone |
+| Payout block UX | `CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE = TRUE` |
+| Founding exception review | `FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST = TRUE` — risk signals → AUTO_HOLD, not auto-forfeiture |
+| Transparency acquisition | `EARNINGS_TRANSPARENCY_IS_A_CREATOR_ACQUISITION_ASSET = TRUE` — factual messaging only |
+| Rejected overclaims | no 完全勝利/絶対的な信頼/escrow/safely-stored/guarantee language |
+| Traceability | zero-omission matrix in `M55_ROADMAP.md` — every frozen requirement has owner gate |
+| Canonical order | R2-B2 → R2 closure → R3 → R4 → R5 → R6 → R7 → R8 → Infra Audit → Beta → Revenue Ready → Controlled Scale |
+| Stage reorder | prohibited absent real invalidator + Human approval |
+| R3 ownership | launch-readiness trust UX/Product Truth — does not build R7 |
+| R5–R8 ownership | expanded in roadmap + automation annex §AZ |
+| Stage exit criteria | frozen per stage — see `M55_ROADMAP.md` |
+| No research loop | R2-A · competitor mapping · R1 · Pair mapping · cold-start — do not repeat |
+| Future GPTs | execute frozen architecture — do not re-research |

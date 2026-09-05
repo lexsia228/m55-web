@@ -77,18 +77,94 @@ Retain:
 - creator cash infrastructure **NOT IMPLEMENTED**
 - Stripe payout provider **UNSELECTED**
 
-### Creator Revenue stage ownership — R5 through R8 (frozen 2026-09-06)
+Do **not** pull R6–R8 runtime implementation into R2.
 
-Canonical stage order unchanged. Runtime implementation remains future; detailed contracts in `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` §AT.
+### Canonical development order (frozen 2026-09-06 — no reorder without invalidator + Human approval)
+
+```
+R2-B2 EXTERNAL_SUPPORTABILITY_CONFIRMATION
+→ R2 FINAL CLOSURE / HUMAN ACCEPTANCE
+→ R3 M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT
+→ R4 M55-CREATOR-DISTRIBUTION-FOUNDATION
+→ R5 ATTRIBUTION_AND_COMPLIANCE
+→ R6 COMMISSION_LEDGER
+→ R7 CREATOR_DASHBOARD
+→ R8 PAYOUT_AND_SETTLEMENT
+→ M55-CODEX-CREATOR-INFRA-AUDIT
+→ INVITE_ONLY_CREATOR_BETA
+→ M55_CREATOR_REVENUE_READY
+→ CONTROLLED_SCALE
+```
+
+Do **not** repeat: R2-A competitor reward research · creator automation competitor mapping · R1 · Pair mapping · cold-start acceptance — unless a direct invalidating dependency changes. External audit opinion alone is **not** an invalidator.
+
+### Creator Revenue stage ownership — R3 and R5 through R8 (frozen 2026-09-06)
 
 | Stage | Owns |
 |---|---|
-| **R5** `ATTRIBUTION_AND_COMPLIANCE` | attribution evidence · conflict precedence · self/circular fraud · content registry · compliance machine · appeal intake |
-| **R6** `COMMISSION_LEDGER` | append-only ledger · calculation versioning · rounding contract · `release_at` · adjustments |
-| **R7** `CREATOR_DASHBOARD` | earnings transparency · per-commission explainability · payout visibility · appeal UX · export |
-| **R8** `PAYOUT_AND_SETTLEMENT` | Stripe-hosted onboarding · payout readiness · batching · idempotency · security hold · webhook reconciliation |
+| **R3** `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | Creator onboarding comprehension · Product Truth · commission/50-40-30 explanation · PENDING/HOLD/PAYABLE comprehension · actionable KYC/payout-block explanation · PR/disclosure · prohibited claims · refund/reversal · support/dispute route · earnings transparency positioning without guarantees · Founder narrative — **does not build R7** |
+| **R5** `ATTRIBUTION_AND_COMPLIANCE` | direct attribution · one buyer→one creator · conflict precedence · General invite vs Creator · signed tracking IDs · eligibility lock · self/circular fraud · fraud graph · content registry/snapshots/re-scan · disclosure/claims · AUTO_PASS/AUTO_CANCEL/AUTO_HOLD · appeal intake — **no payout execution** |
+| **R6** `COMMISSION_LEDGER` | append-only ledger · adjustments · calculation/policy versioning · COMMISSIONABLE_REVENUE · integer money · rounding contract · release_at · commission states · idempotent creation · replay safety — **no silent rounding/tax choice** |
+| **R7** `CREATOR_DASHBOARD` | performance · earnings · per-commission explainability · actionable payout-block UX · compliance · export — **trust surface, not cosmetic analytics** |
+| **R8** `PAYOUT_AND_SETTLEMENT` | Stripe/provider onboarding · KYC readiness · batching · idempotency · security hold · webhooks/dead-letter · failed/returned · negative balance · payout statements — **no M55 bank storage unless unavoidable** |
 
-Do **not** pull R6–R8 runtime implementation into R2.
+Detailed contracts: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` §AU–§AZ.
+
+### Stage exit criteria (frozen 2026-09-06)
+
+| Stage | Exits only when |
+|---|---|
+| **R2-B2** | Stripe account-specific supportability classified · provider configuration known or explicit STOP · Japan legal/tax unresolved items classified · no invented financial semantics |
+| **R2 final** | explicit Human acceptance after R2-B2 closure |
+| **R3** | Creator-facing Product Truth and trust UX are safe/comprehensible |
+| **R4** | approved Creator identity/terms/distribution foundation exists |
+| **R5** | attribution/compliance/fraud/appeal machine contract is executable |
+| **R6** | every commission is deterministic, reproducible, and adjustment-safe |
+| **R7** | Creator can independently reconcile earnings/status without normal Human help |
+| **R8** | provider onboarding and payout lifecycle are automated/reconciled/fail-closed |
+| **Creator Infra Audit** | cross-stage invariants and failure modes pass independent review |
+| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects |
+| **Revenue Ready** | explicit Human GO |
+
+### Zero-omission traceability matrix (frozen 2026-09-06)
+
+Nothing may have `OWNER = UNKNOWN`. Unresolved semantics name their owning future gate.
+
+| FROZEN REQUIREMENT | OWNER GATE | IMPLEMENTATION STATUS | REQUIRED ACCEPTANCE EVIDENCE | DO-NOT-REOPEN RULE |
+|---|---|---|---|---|
+| 50/40/30 economics | R2-D (frozen) · R6 (rate lock) | **FROZEN / NOT_IMPLEMENTED** | SSOT + R6 deterministic rate-at-purchase proof | no conversion cliffs · no retroactive PAYABLE cuts |
+| 20 Creator cohort | R2-D · R4 | **FROZEN / NOT_IMPLEMENTED** | cohort registry + manual approval evidence | no invented ¥500k cap |
+| General User non-cash | R2-C · R2-E | **FROZEN / NOT_IMPLEMENTED** | two-lane contract + General User v1 proof | cash prohibited for General User |
+| Free Completion Digital Unlock | R2-E · R4 | **FROZEN / NOT_IMPLEMENTED** | General User v1 fulfillment proof | Pair mutual artifact deferred |
+| Direct attribution | R5 | **NOT_IMPLEMENTED** | signed link + click/event durable evidence | no MLM/recursive compensation |
+| One buyer → one creator | R5 | **NOT_IMPLEMENTED** | eligibility lock + conflict precedence tests | no database race attribution |
+| Self/circular fraud | R5 | **NOT_IMPLEMENTED** | AUTO_CANCEL/HOLD machine tests | IP/device alone ≠ forfeiture |
+| Content compliance | R5 · R3 | **NOT_IMPLEMENTED** | registry + snapshot + scan evidence | disclosure disappearance → HOLD |
+| Appeal/correction | R5 · R7 | **NOT_IMPLEMENTED** | case record + Creator intake UX | no silent rejection |
+| 30-day standard review | R6 | **NOT_IMPLEMENTED** | `STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS=30` proof | not escrow |
+| Event-specific release_at | R6 | **NOT_IMPLEMENTED** | per-commission `release_at` + HOLD extension rules | day 30 ≠ auto-release unresolved HOLD |
+| Append-only ledger | R6 | **NOT_IMPLEMENTED** | original + adjustment entry tests | no silent history rewrite |
+| Rounding contract | R6 | **BLOCKED** | Human/legal approved deterministic rule | `MUST_RESOLVE_BEFORE_COMMISSION_LEDGER_IMPLEMENTATION` |
+| Policy versioning | R6 | **NOT_IMPLEMENTED** | terms/rate/attribution version binding | later terms ≠ retroactive rewrite |
+| Post-payout adjustment | R6 · R8 | **NOT_IMPLEMENTED** | negative adjustment + recovery priority proof | not retroactive rate reduction |
+| Creator earnings transparency | R7 · R3 | **NOT_IMPLEMENTED** | Creator reconciliation without Human help | `CREATOR_EARNINGS_TRANSPARENCY = REQUIRED` |
+| Customer privacy | R7 | **NOT_IMPLEMENTED** | no PII in dashboard audit | anonymous references only |
+| Actionable payout-block UX | R7 · R3 | **NOT_IMPLEMENTED** | 6-question block UX acceptance | `CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE` |
+| Creator export | R7 | **NOT_IMPLEMENTED** | machine-readable reconciliation export | tax doc format = legal confirmation |
+| Stripe-hosted onboarding | R8 · R2-B2 | **NOT_IMPLEMENTED** | hosted/embedded onboarding proof | provider UNSELECTED until R2-B2 |
+| KYC separation | R8 · R7 | **NOT_IMPLEMENTED** | PAYABLE + PAYOUT_BLOCKED_KYC UX proof | KYC failure ≠ erase commission |
+| Payout batching | R8 | **NOT_IMPLEMENTED** | batch statement + never 1:1 purchase:payout | aggregation required |
+| Destination security hold | R8 | **NOT_IMPLEMENTED** | 5-day default hold + accrual continues proof | `PAYOUT_DESTINATION_CHANGE_SECURITY_HOLD` |
+| Account takeover protection | R8 | **NOT_IMPLEMENTED** | step-up auth + security notification proof | no session-cookie-only destination change |
+| Idempotency | R6 · R8 | **NOT_IMPLEMENTED** | duplicate webhook/retry tests | `PAYOUT_INSTRUCTION_IDEMPOTENCY` |
+| Webhook replay/dead-letter | R8 | **NOT_IMPLEMENTED** | replay-safe financial result proof | no silent event loss |
+| Failed/returned payout | R8 | **NOT_IMPLEMENTED** | PAYOUT_FAILED/RETURNED lifecycle proof | preserve PAYABLE economics |
+| Negative-balance handling | R8 · R2-B2 | **BLOCKED** | Japan recovery model evidence | no assumed auto-debit |
+| Tax/withholding | R2-B2 · R8 | **BLOCKED** | legal/tax confirmation | no universal 10.21% freeze from audit |
+| Provider supportability | R2-B2 | **NEXT BLOCKER** | account-specific Stripe confirmation | provider UNSELECTED |
+| No Human-per-payout operation | R2 (frozen) · R8 | **FROZEN / NOT_IMPLEMENTED** | machine-first ops observability | `HUMAN_DOES_NOT_APPROVE_EVERY_PAYOUT` |
+| High-trust founding exception review | R5 · R7 · R3 | **NOT_IMPLEMENTED** | AUTO_HOLD → evidence → appeal flow proof | `FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST` |
+| Transparency as acquisition asset | R3 · R7 | **NOT_IMPLEMENTED** | factual launch copy audit | no guarantee/escrow claims |
 
 ## Active commercial priority
 
