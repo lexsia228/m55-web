@@ -905,3 +905,25 @@ The authorized **NEXT** action is baseline/control-plane implementation on the e
 | Stage exit criteria | frozen per stage — see `M55_ROADMAP.md` |
 | No research loop | R2-A · competitor mapping · R1 · Pair mapping · cold-start — do not repeat |
 | Future GPTs | execute frozen architecture — do not re-research |
+
+### 2026-09-06 — R2-B2 Stripe feasibility P0 evidence reconciliation (Human-approved)
+
+**Status:** Human **APPROVED** · docs/governance only · local commit · no push · no runtime/Stripe/DB/Clerk/env mutation · no roadmap reorder · no Creator cash implementation
+
+| Decision | Value |
+|---|---|
+| External evidence | Human accepts dated Stripe support response as external evidence — do not paraphrase into stronger approval than received |
+| P0-1 business classification | `R2_B2_STRIPE_P0_1_BUSINESS_CLASSIFICATION = GREEN_WITH_CONDITION` — described business does not appear to fall under Japan prohibited "Psychic services and fortune tellers"; `M55_ACCOUNT_FINAL_STRIPE_APPROVAL = NOT_YET_CONFIRMED` pending specialist account review |
+| P0-2 JP creator commission | `R2_B2_STRIPE_P0_2_JP_CREATOR_COMMISSION = GREEN` — Japan platform → Japan resident Creator connected account → affiliate commission as part of product sales supported in principle |
+| P0-3 30-day transfer model | `R2_B2_STRIPE_P0_3_30_DAY_TRANSFER_MODEL = GREEN` — purchase → ~30-day internal eligibility/compliance review → commission PAYABLE → later Creator transfer allowed for Japan platform + Japan connected account |
+| Stripe flow direction | Stripe support recommended `SEPARATE_CHARGES_AND_TRANSFERS` and used `EXPRESS_CONNECTED_ACCOUNT` wording — candidate flow only; exact account/configuration model remains OPEN |
+| Core architecture | `R2_B2_CORE_STRIPE_ARCHITECTURE_FEASIBLE = TRUE` · `STRIPE_CONNECT = VALIDATED_LEADING_PROVIDER_CANDIDATE` · `SEPARATE_CHARGES_AND_TRANSFERS = STRIPE_SUPPORTED_M55_FLOW_CANDIDATE` |
+| Provider selection | `stripePayoutProviderStatus = UNSELECTED` — final selection requires remaining R2-B2 confirmation + R2 Final Human acceptance |
+| Creator cash | **NOT IMPLEMENTED** — partial P0 confirmation does not authorize implementation |
+| Residual Stripe A–D | connected-account implementation model · negative-balance/losses responsibility · M55WEB formal account review · Connect pricing model — remain OPEN |
+| 30-day separation | `STRIPE_30_DAY_REVIEW_COMPATIBILITY = GREEN` (provider) · `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN` (legal/tax) |
+| Ownership correction | R2-B2 **classifies** Japan/provider recovery model + Japan legal/tax classification; R6 owns rounding; R8 owns runtime negative-balance handling + payout/tax operational implementation |
+| Parallel quality lane | `SELF_PREMIUM_PUBLICATION_QUALITY_CLOSURE` may proceed in parallel — does not change CURRENT/NEXT |
+| Executable authority | CURRENT/NEXT remains `REVENUE_SAFETY_E2E` per `M55_EXECUTION_STATE.json` — **not modified** in this gate |
+| Research prohibition | no broad Stripe/competitor research replay · no implementation based solely on partial P0 confirmation |
+| R2-B2 closure | **NOT CLOSED** — residual account/legal/tax classification remains before R2 Final Human acceptance |

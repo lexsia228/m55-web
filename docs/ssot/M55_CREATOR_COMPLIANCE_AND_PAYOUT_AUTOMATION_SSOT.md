@@ -173,6 +173,15 @@ Human approval is **not** required for every corrected low-risk case.
 
 Subject to mandatory applicable payment-deadline law and final R2-B2 professional confirmation.
 
+**Provider vs legal separation (Human-approved 2026-09-06):**
+
+| Token | Status |
+|---|---|
+| `STRIPE_30_DAY_REVIEW_COMPATIBILITY` | **GREEN** — Stripe support confirmed provider compatibility for ~30-day review → PAYABLE → later transfer (Japan platform + Japan connected account) |
+| `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY` | **OPEN** — Freelance Act applicability · mandatory payment deadline · Creator contract treatment · tax/withholding not resolved by Stripe response alone |
+
+Stripe provider compatibility does **not** itself resolve Japanese mandatory-law questions. If law creates direct incompatibility → `REAL_INVALIDATOR` → Human architecture review. Do **not** silently change 30 days.
+
 At eligible purchase:
 
 1. create idempotent commission event
@@ -248,20 +257,38 @@ Possible candidate implementation pattern:
 
 Separate Charges and Transfers or another Stripe-directed supported architecture may satisfy this pattern.
 
+Stripe support (dated external evidence 2026-09-06) confirmed the described JP→JP M55 affiliate model can use delayed transfer after approximately 30-day review and identified **Separate Charges and Transfers** as the applicable flow. Stripe used **Express connected account** wording.
+
+This does **NOT** prove:
+
+- final M55WEB account approval (`M55_ACCOUNT_FINAL_STRIPE_APPROVAL = NOT_YET_CONFIRMED`)
+- final connected-account API/configuration model (Express legacy type vs current configuration — OPEN)
+- `losses_collector` / negative-balance responsibility (OPEN)
+- final Connect pricing model (OPEN)
+- legal/tax approval
+- cash activation
+
 Preserve:
 
 - `stripePayoutProviderStatus = UNSELECTED`
+- `R2_B2_CORE_STRIPE_ARCHITECTURE_FEASIBLE = TRUE`
+- `STRIPE_CONNECT = VALIDATED_LEADING_PROVIDER_CANDIDATE`
+- `SEPARATE_CHARGES_AND_TRANSFERS = STRIPE_SUPPORTED_M55_FLOW_CANDIDATE`
 
 Do **not** assert:
 
 - Connect selected
 - Connect approved
 - Global Payouts available
-- Separate Charges and Transfers approved for the M55 account/model
 - Stripe account approval obtained
 - escrow
+- M55WEB fully approved
+- Creator payout activated
+- final account model frozen
+- final negative-balance liability frozen
+- final pricing model frozen
 
-Final provider/flow selection requires R2-B2 account-specific confirmation.
+Final provider/flow selection requires remaining R2-B2 confirmation + R2 Final Human acceptance.
 
 ---
 
@@ -608,7 +635,15 @@ Future recovery priority:
 3. reserve / debt handling per approved policy
 4. Human/legal exception if material
 
-Do **not** assume Stripe can automatically debit a Japanese creator bank account for negative balance recovery. Provider behavior remains R2-B2 evidence.
+Do **not** assume Stripe can automatically debit a Japanese creator bank account for negative balance recovery.
+
+**Ownership (Human-approved 2026-09-06):**
+
+| Topic | R2-B2 | R8 |
+|---|---|---|
+| `NEGATIVE_BALANCE` | Japan/provider recovery-model **classification** | runtime handling / reconciliation **implementation** |
+
+R2-B2 must classify who bears Creator connected-account negative balances before R2 closure. R8 implements recovery/reconciliation after classification. No Japan bank auto-debit assumption.
 
 ---
 
@@ -818,11 +853,32 @@ Normal financial reconciliation must **not** create proportional Human workload.
 
 ## AR. R2-B2 checklist hardening
 
-Before payout implementation, R2-B2 must confirm at minimum:
+### P0 evidence received (Human-approved 2026-09-06)
 
-M55 Japan Stripe account supportability · actual connected-account configuration · who bears negative balances · Connect charge/transfer model · payout control capabilities · Japan creator payout availability · JPY/cross-border constraints · KYC requirements · tax/reporting responsibilities · payout fees · refund mechanics · dispute mechanics · transfer reversal mechanics · negative balance recovery in Japan · payout schedule constraints · bank/payout destination update behavior · provider-required holds · data handling boundary
+| Classification | Status |
+|---|---|
+| `R2_B2_STRIPE_P0_1_BUSINESS_CLASSIFICATION` | **GREEN_WITH_CONDITION** |
+| `R2_B2_STRIPE_P0_2_JP_CREATOR_COMMISSION` | **GREEN** |
+| `R2_B2_STRIPE_P0_3_30_DAY_TRANSFER_MODEL` | **GREEN** |
+| `R2_B2_CORE_STRIPE_ARCHITECTURE_FEASIBLE` | **TRUE** |
 
-Until then: `stripePayoutProviderStatus = UNSELECTED`
+### Residual confirmation required (`R2_B2_STRIPE_RESIDUAL_CONFIRMATION`)
+
+Before payout implementation and before provider final selection, R2-B2 must still confirm:
+
+- **A.** Current recommended connected-account implementation model — Stripe said "Express"; exact configuration remains OPEN
+- **B.** Negative-balance / losses responsibility — who bears Creator connected-account negative balances
+- **C.** M55WEB formal account review — process/timing/evidence for specialist supportability review
+- **D.** M55WEB Connect pricing model — account-specific applicable pricing model
+
+Plus remaining Japan legal/tax classification:
+
+- Japan legal/payment-deadline compatibility (`JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN`)
+- Japan tax/withholding classification sufficient for R2 closure
+
+Full checklist (non-exhaustive): M55 Japan Stripe account supportability · actual connected-account configuration · who bears negative balances · Connect charge/transfer model · payout control capabilities · Japan creator payout availability · JPY/cross-border constraints · KYC requirements · tax/reporting responsibilities · payout fees · refund mechanics · dispute mechanics · transfer reversal mechanics · negative balance recovery in Japan · payout schedule constraints · bank/payout destination update behavior · provider-required holds · data handling boundary
+
+Until R2-B2 closure + R2 Final Human acceptance: `stripePayoutProviderStatus = UNSELECTED`
 
 ---
 
@@ -835,13 +891,16 @@ Do **not** disguise unresolved questions as decisions:
 | exact commission rounding | R6 |
 | exact tax-base rounding | R6 |
 | exact attribution expiry/window | R5 |
-| exact payout threshold | R8 / R2-B2 |
-| exact payout cadence | R8 / R2-B2 |
+| exact payout threshold | R8 |
+| exact payout cadence | R8 |
 | exact appeal submission period/SLA | beta terms freeze |
-| post-payout reserve amount/policy | R8 / R2-B2 |
+| post-payout reserve amount/policy | R8 |
 | cross-border creator support | R2-B2 |
-| final tax/withholding mechanics | R2-B2 |
+| Japan tax/withholding classification | R2-B2 (classify) · R8 (implement) |
+| negative-balance recovery model | R2-B2 (classify) · R8 (implement) |
 | final Connect configuration | R2-B2 |
+
+**R2-B2 CLASSIFIES · R6/R8 IMPLEMENT** — do not solve rounding in R2-B2; do not implement negative-balance/tax runtime in R2-B2.
 
 No implementation may silently choose financial semantics.
 
@@ -877,7 +936,7 @@ Latest external audit (including Gemini) is **SUPPORTING EVIDENCE ONLY**. Do **n
 - specific tax/commission rounding convention
 - unsupported legal conclusions
 
-Tax/withholding and rounding remain explicit future blockers (§AS).
+Tax/withholding classification remains R2-B2 work; payout/tax operational implementation remains R8. Rounding remains R6 (§AS).
 
 ---
 
