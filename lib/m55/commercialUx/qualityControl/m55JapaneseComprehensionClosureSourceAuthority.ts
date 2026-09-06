@@ -25,7 +25,6 @@ import {
   PAID_DTR_BENEFITS_HEADING,
   PAID_DTR_BENEFIT_BULLETS,
   PAID_DTR_CHAPTERS,
-  PAID_DTR_CHAPTER_OPENING_COPY,
   PAID_DTR_DRAWER_HUB,
   PAID_DTR_FREE_VS_PAID,
   PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
@@ -977,12 +976,6 @@ function selfPaidReportRegistrations(): M55ClosureSourceRegistration[] {
       }),
     );
   }
-  const PART_ID_BY_CHAPTER = {
-    outline: '1',
-    structure: '2',
-    strain: '3',
-    ease: '4',
-  } as const;
   for (const chapter of PAID_DTR_CHAPTERS) {
     entries.push(
       reg({
@@ -1011,22 +1004,18 @@ function selfPaidReportRegistrations(): M55ClosureSourceRegistration[] {
         textRef: `PAID_DTR_CHAPTERS.${chapter.id}.helpsUnderstandJa`,
         visibleText: chapter.helpsUnderstandJa,
       }),
-    );
-    const partId = PART_ID_BY_CHAPTER[chapter.id];
-    const opening = PAID_DTR_CHAPTER_OPENING_COPY[partId];
-    entries.push(
       reg({
         domainId: 'self.paid.report',
-        copyId: `self.paid.report.chapter.${chapter.id}.opening.tendencyJa`,
+        copyId: `self.paid.report.chapter.${chapter.id}.readerDescJa`,
         surfaceId: 'm55:self.paid.report',
         runtimeStateId: 'self.paid.report.body',
         surfaceFamily: 'SELF',
         copyRole: 'BODY',
         sourceOwner: owner,
-        sourceExport: 'PAID_DTR_CHAPTER_OPENING_COPY',
-        sourceItemId: `${partId}.tendencyJa`,
-        textRef: `PAID_DTR_CHAPTER_OPENING_COPY.${partId}.tendencyJa`,
-        visibleText: opening.tendencyJa,
+        sourceExport: 'PAID_DTR_CHAPTERS',
+        sourceItemId: `${chapter.id}.readerDescJa`,
+        textRef: `PAID_DTR_CHAPTERS.${chapter.id}.readerDescJa`,
+        visibleText: chapter.readerDescJa,
       }),
     );
   }

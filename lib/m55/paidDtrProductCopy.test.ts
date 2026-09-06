@@ -1,5 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   PAID_DTR_CHAPTERS,
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
@@ -387,5 +389,22 @@ describe('paidDtrProductCopy SSOT', () => {
       '距離や言葉が重いときは、Ⅲ「無理を知る」へ。',
       '疲れや生活の余白が重いときは、Ⅳ「楽に扱う」へ。',
     ]);
+  });
+
+  it('Q2-B.1: chapter opening registry removed from product copy SSOT', () => {
+    const copySource = readFileSync(join(process.cwd(), 'lib/m55/paidDtrProductCopy.ts'), 'utf8');
+    assert.equal(copySource.includes('PAID_DTR_CHAPTER_OPENING_COPY'), false);
+    assert.equal(copySource.includes('PaidDtrChapterOpeningCopy'), false);
+  });
+
+  it('Q2-B.1: report chapter drawer intro remains canonical orientation', () => {
+    const partIds = ['1', '2', '3', '4'] as const;
+    for (let i = 0; i < PAID_DTR_CHAPTERS.length; i++) {
+      const ch = PAID_DTR_CHAPTERS[i]!;
+      const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partIds[i]!];
+      assert.equal(intro.hubLabelJa, ch.title);
+      assert.equal(intro.hubSublabelJa, ch.readerDescJa);
+      assert.equal(intro.hubSublabelJa.includes('お金'), false);
+    }
   });
 });

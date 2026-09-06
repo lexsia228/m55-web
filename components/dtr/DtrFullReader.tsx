@@ -48,7 +48,6 @@ import {
   PAID_DTR_BENEFITS_HEADING,
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
   PAID_DTR_CHAPTER_BRIDGE_COPY,
-  PAID_DTR_CHAPTER_OPENING_COPY,
   PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA,
   PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA,
   PAID_DTR_CHAPTER_DRAWER_INTRO,
@@ -688,25 +687,6 @@ function GraphCaption({ id }: { id: PaidDtrChapterGraphCaptionId }) {
   );
 }
 
-function ChapterPersonalHeading({
-  partId,
-  nickname,
-}: {
-  partId: PaidDtrReportPartId;
-  nickname?: string;
-}) {
-  const suffix = PAID_DTR_CHAPTER_DRAWER_INTRO[partId].personalHeadingSuffixJa;
-  const nick = nickname?.trim();
-  const label = nick
-    ? `${clampDisplayNick(stripTrailingHonorific(nick) || nick, 20)}さん${suffix}`
-    : `あなた${suffix}`;
-  return <h2 className={styles.chapterPersonalHeading}>{label}</h2>;
-}
-
-function ChapterOpeningLede({ text }: { text: string }) {
-  return <p className={styles.chapterOpeningLede}>{text}</p>;
-}
-
 /** Drawer chapter band — canonical title primary; legacy title in aria only when distinct. */
 function ReportPartBand({ partId }: { partId: PaidDtrReportPartId }) {
   const part = REPORT_PARTS.find((p) => p.partId === partId);
@@ -740,53 +720,6 @@ function ReportPartBand({ partId }: { partId: PaidDtrReportPartId }) {
           </div>
           <p className={styles.reportPartBandSublabel}>{intro.hubSublabelJa}</p>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function DrawerChapterPersonalLead({
-  partId,
-  nickname,
-}: {
-  partId: PaidDtrReportPartId;
-  nickname?: string;
-}) {
-  const copy = PAID_DTR_CHAPTER_OPENING_COPY[partId];
-  const nick = nickname?.trim();
-  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
-  const heading = `${displayName}さん${copy.headingSuffixJa}`;
-  const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
-  return (
-    <div
-      className={
-        partId === '4'
-          ? `${styles.drawerChapterPersonalLead} ${styles.chapterLeadCompressed}`
-          : styles.drawerChapterPersonalLead
-      }
-    >
-      <h2 className={styles.chapterPersonalHeading} data-testid="m55-report-chapter-heading">
-        {heading}
-      </h2>
-      <ChapterOpeningLede text={tendencyLine} />
-      {copy.reasonJa ? <ChapterOpeningLede text={copy.reasonJa} /> : null}
-      <ChapterOpeningLede text={copy.lifeJa} />
-      <ChapterOpeningLede text={copy.actionJa} />
-      {copy.moneyScopeJa ? <ChapterOpeningLede text={copy.moneyScopeJa} /> : null}
-      {copy.moneyHabitJa ? <ChapterOpeningLede text={copy.moneyHabitJa} /> : null}
-      <div
-        className={styles.chapterOpeningPoints}
-        aria-label={
-          partId === '1' || partId === '2' || partId === '3' || partId === '4'
-            ? 'この章で出ている特徴'
-            : '見るポイント'
-        }
-      >
-        {copy.pointsJa.map((point) => (
-          <p key={point} className={styles.chapterOpeningPoint}>
-            {point}
-          </p>
-        ))}
       </div>
     </div>
   );
@@ -1207,42 +1140,8 @@ function isHybridAiDisplayedSnapshot(mode?: DisplayedEnvelopeReadMode): boolean 
   return mode === 'stored_v2_hybrid_ai';
 }
 
-/**
- * hybrid_ai visible chapter (Ⅰ–Ⅳ / part 1–4) → stored AI section id.
- * Display-only mapping; envelope storage unchanged.
- */
-const HYBRID_AI_VISIBLE_CHAPTER_SECTION: Record<PaidDtrReportPartId, string> = {
-  '1': 's1_identity',
-  '2': 's2_composition',
-  /** s3 only when relationship semantic guard passes; else s5/s6 deterministic */
-  '3': 's3_essence',
-  '4': 's4_strengths',
-};
-
 function hybridAiChapter3UsesPrimaryBody(body: string): boolean {
   return hasSnapshotBody(body) && hybridAiChapter3PrimaryEligible(body);
-}
-
-/** hybrid_ai s1–s4: suppress PAID_DTR_CHAPTER_OPENING_COPY template lead before stored AI body. */
-function shouldSuppressDrawerChapterOpeningLead(
-  mode: DisplayedEnvelopeReadMode | undefined,
-  partId: PaidDtrReportPartId,
-  sections: {
-    s1?: DtrSection | null;
-    s2?: DtrSection | null;
-    s3?: DtrSection | null;
-    s4?: DtrSection | null;
-  },
-): boolean {
-  if (!isHybridAiDisplayedSnapshot(mode)) return false;
-  if (partId === '3') {
-    return Boolean(sections.s3 && hybridAiChapter3UsesPrimaryBody(sections.s3.body));
-  }
-  const section =
-    partId === '1' ? sections.s1 :
-    partId === '2' ? sections.s2 :
-    sections.s4;
-  return Boolean(section && hasSnapshotBody(section.body));
 }
 
 function hybridAiPrimarySectionBody(
@@ -3198,7 +3097,6 @@ function DtrFullReaderCore({
   const s2 = sec('s2_composition');
   const s3 = sec('s3_essence');
   const hybridAiVisible = isHybridAiDisplayedSnapshot(displayedEnvelopeReadMode);
-  const hybridLeadSections = { s1, s2, s3, s4: gridS4 };
 
   const renderDrawerPanelBody = (panel: DrawerHubPanelId): ReactNode => {
     switch (panel) {
@@ -3215,14 +3113,6 @@ function DtrFullReaderCore({
               <div className={styles.savedWideStack}>
                 <DtrMethodReportNote />
                 <ReportPartBand partId="1" />
-                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections) ? (
-                  <VisualRole role="thesis" semanticRole="foundation">
-                    <DrawerChapterPersonalLead
-                      partId="1"
-                      nickname={view.nickname}
-                    />
-                  </VisualRole>
-                ) : null}
                 {s1 ? (
                   <IdentityArticleWithBlueprint
                     section={s1}
@@ -3300,14 +3190,6 @@ function DtrFullReaderCore({
             >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="2" />
-                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', hybridLeadSections) ? (
-                  <VisualRole role="thesis" semanticRole="current_paid_analysis">
-                    <DrawerChapterPersonalLead
-                      partId="2"
-                      nickname={view.nickname}
-                    />
-                  </VisualRole>
-                ) : null}
                 {hybridAiVisible && s2 ? (
                   <CompositionArticleWithViz
                     section={s2}
@@ -3386,14 +3268,6 @@ function DtrFullReaderCore({
               aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['3'].hubLabelJa}
             >
               <ReportPartBand partId="3" />
-              {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '3', hybridLeadSections) ? (
-                <VisualRole role="thesis" semanticRole="current_paid_analysis">
-                  <DrawerChapterPersonalLead
-                    partId="3"
-                    nickname={view.nickname}
-                  />
-                </VisualRole>
-              ) : null}
               {hybridAiVisible && s3 && hybridAiChapter3UsesPrimaryBody(s3.body) ? (
                 <HybridAiRelationshipNarrativeArticle section={s3} />
               ) : null}
@@ -3475,14 +3349,6 @@ function DtrFullReaderCore({
           <>
             <div className={styles.drawerChapterLead}>
               <ReportPartBand partId="4" />
-              {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '4', hybridLeadSections) ? (
-                <VisualRole role="thesis" semanticRole="current_paid_analysis">
-                  <DrawerChapterPersonalLead
-                    partId="4"
-                    nickname={view.nickname}
-                  />
-                </VisualRole>
-              ) : null}
               {hybridCh4 && gridS4 ? (
                 <GridArticleStrengthsViz
                   section={gridS4}

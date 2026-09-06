@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import {
   PAID_DTR_CHAPTER_BRIDGE_COPY,
-  PAID_DTR_CHAPTER_OPENING_COPY,
   PAID_DTR_DEEP_READING_TAKEAWAYS,
   type PaidDtrReportPartId,
 } from './paidDtrProductCopy';
@@ -69,15 +68,10 @@ describe('paid report semantic dedupe — chapter IV hierarchy', () => {
 });
 
 describe('paid report semantic dedupe — chapter II action family', () => {
-  it('does not push 順番 / 一つに絞る through opening, takeaway, and bridge together', () => {
-    const opening = PAID_DTR_CHAPTER_OPENING_COPY['2'];
+  it('does not push 順番 / 一つに絞る through takeaway and bridge together', () => {
     const takeaways = PAID_DTR_DEEP_READING_TAKEAWAYS['2'].itemsJa.join('\n');
     const bridge = PAID_DTR_CHAPTER_BRIDGE_COPY['2'];
     const blob = [
-      opening.tendencyJa,
-      opening.reasonJa ?? '',
-      opening.lifeJa,
-      opening.actionJa,
       takeaways,
       bridge.tendencyJa,
       bridge.lifeJa,
@@ -85,6 +79,14 @@ describe('paid report semantic dedupe — chapter II action family', () => {
     ].join('\n');
     assert.doesNotMatch(blob, /順番/);
     assert.doesNotMatch(blob, /一つに絞/);
+  });
+});
+
+describe('paid report semantic dedupe — no pseudo-personalized chapter opening', () => {
+  it('does not render a universal nickname-prefixed chapter orientation before paid body', () => {
+    assert.equal(READER_SRC.includes('function DrawerChapterPersonalLead'), false);
+    assert.equal(READER_SRC.includes('PAID_DTR_CHAPTER_OPENING_COPY'), false);
+    assert.equal(READER_SRC.includes('{nickname}さんは'), false);
   });
 });
 

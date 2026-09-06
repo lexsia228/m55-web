@@ -6,7 +6,6 @@ import { essenceStabilityVizForStem } from './dtrEngine';
 import { buildPaidDtrS3IndividualizationPrefix } from './dtrPaidIndividualization';
 import {
   PAID_DTR_CHAPTER_BRIDGE_COPY,
-  PAID_DTR_CHAPTER_OPENING_COPY,
   PAID_DTR_DEEP_READING_TAKEAWAYS,
   type PaidDtrReportPartId,
 } from './paidDtrProductCopy';
@@ -18,17 +17,11 @@ const READER_SRC = readFileSync(
   'utf8',
 );
 
-/** Everything the chapter-2 display copy contributes to one rendered chapter. */
+/** Chapter-2 display copy after Q2-B.1: band → body → takeaways → bridge. */
 function chapter2DisplayCopy(): string[] {
-  const opening = PAID_DTR_CHAPTER_OPENING_COPY['2'];
   const bridge = PAID_DTR_CHAPTER_BRIDGE_COPY['2'];
   const takeaways = PAID_DTR_DEEP_READING_TAKEAWAYS['2'];
   return [
-    opening.tendencyJa,
-    opening.reasonJa ?? '',
-    opening.lifeJa,
-    opening.actionJa,
-    ...opening.pointsJa,
     takeaways.closedLeadJa,
     ...takeaways.itemsJa,
     bridge.tendencyJa,
@@ -84,41 +77,27 @@ describe('paid chapter copy — no line is rendered twice in one chapter', () =>
   });
 });
 
-describe('paid chapter copy — chapter 2 specificity', () => {
-  it('opens on an observed contrast rather than a bare affirmation', () => {
-    const tendency = PAID_DTR_CHAPTER_OPENING_COPY['2'].tendencyJa;
-    assert.doesNotMatch(tendency, /ひとつずつ整えながら前に進める力があります/);
-    assert.match(tendency, /\{nickname\}/);
-    assert.match(tendency, /止まりやすい/);
+describe('paid chapter copy — Q2-B.1 reader opening architecture', () => {
+  it('does not render pseudo-personalized chapter opening chrome', () => {
+    assert.equal(READER_SRC.includes('function DrawerChapterPersonalLead'), false);
+    assert.equal(READER_SRC.includes('PAID_DTR_CHAPTER_OPENING_COPY'), false);
+    assert.equal(READER_SRC.includes('function shouldSuppressDrawerChapterOpeningLead'), false);
   });
 
-  it('states what the chapter shows instead of promising to look somewhere', () => {
-    const action = PAID_DTR_CHAPTER_OPENING_COPY['2'].actionJa;
-    assert.doesNotMatch(action, /^まずは、/);
-    assert.match(action, /どこで崩れやすいか/);
+  it('flows from ReportPartBand directly into chapter body components', () => {
+    assert.ok(READER_SRC.includes('function ReportPartBand'));
+    assert.ok(READER_SRC.includes('<ReportPartBand partId="1" />'));
+    assert.ok(READER_SRC.includes('IdentityArticleWithBlueprint'));
+    assert.ok(READER_SRC.includes('CompositionArticleWithViz'));
+    assert.ok(READER_SRC.includes('EssenceArticleWithViz'));
+    assert.ok(READER_SRC.includes('GridArticleStrengthsViz'));
   });
 
-  it('stops repeating 先に整える場所 across the chapter copy', () => {
+  it('stops repeating 先に整える場所 across chapter-2 tail copy', () => {
     const occurrences = chapter2DisplayCopy().filter((line) =>
       line.includes('先に整える場所'),
     );
     assert.deepEqual(occurrences, []);
-  });
-
-  it('keeps the chapter opening at full depth', () => {
-    const opening = PAID_DTR_CHAPTER_OPENING_COPY['2'];
-    assert.ok(opening.reasonJa);
-    assert.ok(opening.lifeJa.length > 0);
-    assert.equal(opening.pointsJa.length, 3);
-  });
-});
-
-describe('paid chapter copy — Japanese naturalness', () => {
-  it('drops the doubled causal marker in every chapter opening', () => {
-    for (const partId of PART_IDS) {
-      const life = PAID_DTR_CHAPTER_OPENING_COPY[partId].lifeJa;
-      assert.doesNotMatch(life, /理由は、[\s\S]*ためです/, `chapter ${partId}: ${life}`);
-    }
   });
 });
 
@@ -138,12 +117,6 @@ describe('paid report — strong passages stay in place', () => {
 });
 
 describe('本質リズム block — density is bounded by the frozen catalog', () => {
-  /**
-   * The s3 body still renders as one paragraph on a phone. Splitting it needs the s3 prefix
-   * or the base catalog to change, and both are pinned by the cross-surface parity audit
-   * freeze (golden s3_essence fingerprints). This locks in the current shape so the blocker
-   * stays visible until that gate reopens.
-   */
   it('is still a single reading unit, pending the catalog gate', () => {
     const prefix = buildPaidDtrS3IndividualizationPrefix({
       essenceRhythmNote: '冬の入り口に近い時期の生まれです。',

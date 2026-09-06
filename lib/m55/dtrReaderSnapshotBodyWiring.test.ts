@@ -246,54 +246,34 @@ describe('dtrReader snapshot body wiring', () => {
     assert.ok(readerSource.includes("mode === 'stored_v2_hybrid_ai'"));
   });
 
-  it('shouldSuppressDrawerChapterOpeningLead helper is defined', () => {
-    assert.ok(readerSource.includes('function shouldSuppressDrawerChapterOpeningLead('));
-  });
-
-  it('HYBRID_AI_VISIBLE_CHAPTER_SECTION maps Ⅰ–Ⅳ to s1–s4', () => {
-    assert.ok(readerSource.includes('HYBRID_AI_VISIBLE_CHAPTER_SECTION'));
-    assert.ok(readerSource.includes("'1': 's1_identity'"));
-    assert.ok(readerSource.includes("'2': 's2_composition'"));
-    assert.ok(readerSource.includes("'3': 's3_essence'"));
-    assert.ok(readerSource.includes("'4': 's4_strengths'"));
-  });
-
-  it('chapter-1 suppresses DrawerChapterPersonalLead when hybrid_ai s1 body present', () => {
-    assert.ok(
-      readerSource.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections)"),
-    );
+  it('chapter-1 uses hybrid_ai s1 body when present', () => {
     assert.ok(readerSource.includes('hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s1.body)'));
     assert.ok(readerSource.includes('!hybridAiVisible && s2'));
   });
 
   it('chapter-2 shows s2 for hybrid_ai and s3/s4 for legacy', () => {
-    assert.ok(
-      readerSource.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', hybridLeadSections)"),
-    );
     assert.ok(readerSource.includes('hybridAiVisible && s2'));
     assert.ok(readerSource.includes('!hybridAiVisible && s3'));
     assert.ok(readerSource.includes('!hybridAiVisible && gridS4'));
   });
 
-  it('chapter-3 suppresses DrawerChapterPersonalLead and shows s3 for hybrid_ai', () => {
+  it('chapter-3 shows s3 narrative for hybrid_ai when eligible', () => {
     const renderBlockStart = readerSource.indexOf('const renderDrawerPanelBody');
     const chapter3 = readerSource.indexOf("case 'chapter-3':", renderBlockStart);
     const chapter4 = readerSource.indexOf("case 'chapter-4':", renderBlockStart);
     assert.ok(chapter3 >= 0 && chapter4 >= 0);
     const ch3Slice = readerSource.slice(chapter3, chapter4);
-    assert.ok(ch3Slice.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '3', hybridLeadSections)"));
     assert.ok(ch3Slice.includes('hybridAiChapter3UsesPrimaryBody(s3.body)'));
     assert.ok(ch3Slice.includes('HybridAiRelationshipNarrativeArticle'));
     assert.equal(ch3Slice.includes('EssenceArticleWithViz'), false);
   });
 
-  it('chapter-4 suppresses DrawerChapterPersonalLead and shows s4 for hybrid_ai', () => {
+  it('chapter-4 shows s4 strengths for hybrid_ai when present', () => {
     const renderBlockStart = readerSource.indexOf('const renderDrawerPanelBody');
     const chapter4 = readerSource.indexOf("case 'chapter-4':", renderBlockStart);
     const consult = readerSource.indexOf("case 'consult':", renderBlockStart);
     assert.ok(chapter4 >= 0);
     const ch4Slice = readerSource.slice(chapter4, consult >= 0 ? consult : chapter4 + 2000);
-    assert.ok(ch4Slice.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '4', hybridLeadSections)"));
     assert.ok(ch4Slice.includes('hybridCh4 && gridS4'));
     assert.ok(ch4Slice.includes('!hybridAiVisible && sec(\'s7_work\')'));
   });

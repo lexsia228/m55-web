@@ -22,7 +22,7 @@ import { join } from 'node:path';
 import { buildV2FulfillmentSnapshotFromFields } from './compositeStem/buildV2FulfillmentSnapshot';
 import { identityDesignVizForStem, STEM_SEED_BODIES } from './dtrEngine';
 import { parseBlockItems, firstSentence } from './dtrPaidModules';
-import { PAID_DTR_BENEFIT_BULLETS, PAID_DTR_CHAPTER_BRIDGE_COPY } from './paidDtrProductCopy';
+import { PAID_DTR_BENEFIT_BULLETS, PAID_DTR_CHAPTER_BRIDGE_COPY, PAID_DTR_CHAPTER_DRAWER_INTRO } from './paidDtrProductCopy';
 
 // ── Fixture profile (stem 9 / 癸 — アナリスト) ──────────────────────────────
 const PREVIEW_PROFILE = {
@@ -267,6 +267,13 @@ describe('Forbidden terms absent from key copy surfaces', () => {
     const joined = PAID_DTR_BENEFIT_BULLETS.join(' ');
     const forbidden = /診断|予測|保証|スコア|相性スコア|ランキング|おすすめ度|成功率/;
     assert.ok(!forbidden.test(joined), `Benefit bullets must not contain forbidden terms; got: ${joined}`);
+  });
+
+  it('chapter drawer intro does not promise financial analysis (Q2-B)', () => {
+    const blob = Object.values(PAID_DTR_CHAPTER_DRAWER_INTRO)
+      .flatMap((intro) => [intro.hubLabelJa, intro.hubSublabelJa, intro.personalHeadingSuffixJa])
+      .join('\n');
+    assert.equal(/お金|家計|投資|収入|支出|金運/.test(blob), false, `drawer intro: ${blob}`);
   });
 
   it('chapter bridge copy does not contain backend/internal terminology', () => {

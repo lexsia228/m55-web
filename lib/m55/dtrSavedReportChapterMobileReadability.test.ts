@@ -45,6 +45,16 @@ describe('dtrSavedReportChapterMobileReadability', () => {
     );
   });
 
+  it('Q2-B.1: chapter path has no pseudo-personalized opening chrome', () => {
+    const reader = readFileSync(join(process.cwd(), 'components/dtr/DtrFullReader.tsx'), 'utf8');
+    assert.equal(reader.includes('function DrawerChapterPersonalLead'), false);
+    assert.equal(reader.includes('PAID_DTR_CHAPTER_OPENING_COPY'), false);
+    assert.equal(reader.includes('function shouldSuppressDrawerChapterOpeningLead'), false);
+    assert.equal(reader.includes('function ChapterPersonalHeading'), false);
+    assert.ok(reader.includes('function ReportPartBand'));
+    assert.ok(reader.includes('<ReportPartBand partId="1" />'));
+  });
+
   it('DtrFullReader.module.css defines chapter mobile readability rhythm', () => {
     const css = readFileSync(READER_CSS, 'utf8');
     for (const selector of [
