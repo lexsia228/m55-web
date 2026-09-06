@@ -75,15 +75,25 @@ async function seedPair(
   answers: Record<string, string>,
   personA: string,
   personB: string,
+  relationStatusId: 'R1' | 'R3',
 ) {
   await context.addInitScript(
-    ({ answers: next, personA: a, personB: b }) => {
+    ({ answers: next, personA: a, personB: b, relationStatusId: stage }) => {
       sessionStorage.setItem(
-        'm55_compatibility_guest_journey_v2',
-        JSON.stringify({ input: { personA: a, personB: b }, answers: next }),
+        'm55_compatibility_guest_journey_v3',
+        JSON.stringify({
+          version: 'journey_v3',
+          input: { personA: a, personB: b },
+          relationStatusId: stage,
+          answers: next,
+        }),
+      );
+      sessionStorage.setItem(
+        'm55_compatibility_guest_journey_v3_provenance_v1',
+        'post_hotfix_signed_out_guest_v1',
       );
     },
-    { answers, personA, personB },
+    { answers, personA, personB, relationStatusId },
   );
 }
 
@@ -219,29 +229,260 @@ test.describe('Narrative share current-head final proof', () => {
     await recipient.close();
   });
 
+  test('Pair DOB segmented input auto-advances at 390', async ({ browser }) => {
+    mkdirSync(OUT, { recursive: true });
+    const context = await cleanContext(browser);
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/synastry');
+    const dobStep = page.getByTestId('compatibility-dob-step');
+    await expect(dobStep).toBeVisible({ timeout: 25_000 });
+    await expect(dobStep.locator('label label')).toHaveCount(0);
+
+    const selfYear = page.getByLabel('あなたの生年月日 年');
+    const selfMonth = page.getByLabel('あなたの生年月日 月');
+    const selfDay = page.getByLabel('あなたの生年月日 日');
+    const partnerYear = page.getByLabel('相手の生年月日 年');
+    const partnerMonth = page.getByLabel('相手の生年月日 月');
+    const partnerDay = page.getByLabel('相手の生年月日 日');
+
+    await selfYear.click();
+    await page.keyboard.type('1983');
+    await expect(selfYear).toHaveValue('1983');
+    await expect(selfMonth).toBeFocused();
+    await page.keyboard.type('02');
+    await expect(selfMonth).toHaveValue('02');
+    await expect(selfDay).toBeFocused();
+    await page.keyboard.type('2');
+    await expect(selfDay).toHaveValue('2');
+    await page.keyboard.type('8');
+    await expect(selfDay).toHaveValue('28');
+
+    await partnerYear.click();
+    await page.keyboard.type('1992');
+    await expect(partnerYear).toHaveValue('1992');
+    await expect(partnerMonth).toBeFocused();
+    await page.keyboard.type('12');
+    await expect(partnerMonth).toHaveValue('12');
+    await expect(partnerDay).toBeFocused();
+    await page.keyboard.type('1');
+    await expect(partnerDay).toHaveValue('1');
+    await page.keyboard.type('9');
+    await expect(partnerDay).toHaveValue('19');
+    await expect(dobStep.locator('input[type="date"]')).toHaveCount(0);
+    const overflow = await dobStep.getByTestId('m55-pair-segmented-dob-row').first().evaluate((el) => {
+      return el.scrollWidth > el.clientWidth + 1;
+    });
+    expect(overflow, 'DOB segmented row horizontal overflow').toBe(false);
+    await context.close();
+  });
+
   test('Pair R1 and R3 relation grammar 390/430', async ({ browser }) => {
     mkdirSync(OUT, { recursive: true });
+
+    type BoxRect = { x: number; y: number; width: number; height: number };
+
+    function rectsIntersect(a: BoxRect, b: BoxRect, tolerance = 1): boolean {
+      const aRight = a.x + a.width;
+      const aBottom = a.y + a.height;
+      const bRight = b.x + b.width;
+      const bBottom = b.y + b.height;
+      return (
+        a.x < bRight - tolerance &&
+        aRight > b.x + tolerance &&
+        a.y < bBottom - tolerance &&
+        aBottom > b.y + tolerance
+      );
+    }
+
+    function rectInside(inner: BoxRect, outer: BoxRect, tolerance = 1): boolean {
+      return (
+        inner.x >= outer.x - tolerance &&
+        inner.y >= outer.y - tolerance &&
+        inner.x + inner.width <= outer.x + outer.width + tolerance &&
+        inner.y + inner.height <= outer.y + outer.height + tolerance
+      );
+    }
+
+    async function openShapeOptions(page: Page) {
+      const toggle = page.getByTestId('m55-pair-share-shape-toggle');
+      await expect(toggle).toBeVisible();
+      const options = page.getByTestId('m55-pair-share-shape-options');
+      if (!(await options.isVisible())) {
+        await toggle.click();
+      }
+      await expect(options).toBeVisible();
+    }
+
+    async function assertPairAspectGeometry(
+      page: Page,
+      shareCard: ReturnType<Page['getByTestId']>,
+      aspect: '1:1' | '4:5' | '9:16',
+      prefix: string,
+    ) {
+      const aspectToken = aspect.replace(':', '-');
+      await openShapeOptions(page);
+      await page.getByTestId(`m55-pair-share-aspect-${aspectToken}`).click();
+      await expect(shareCard).toHaveAttribute('data-share-aspect', aspect);
+
+      const boxes = await shareCard.evaluate((card) => {
+        const ids = [
+          'm55-pair-share-trait-hero',
+          'm55-pair-share-header',
+          'm55-pair-share-trait-label',
+          'm55-pair-share-relation',
+          'm55-pair-share-relation-combined',
+          'm55-pair-share-relation-a',
+          'm55-pair-share-arrow',
+          'm55-pair-share-relation-b',
+          'm55-pair-share-cue',
+          'm55-pair-share-card-cta',
+        ];
+        const rect = (el: Element) => {
+          const box = el.getBoundingClientRect();
+          const style = getComputedStyle(el);
+          return {
+            id: el.getAttribute('data-testid') ?? '',
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            clientWidth: el.clientWidth,
+            clientHeight: el.clientHeight,
+            scrollWidth: el.scrollWidth,
+            scrollHeight: el.scrollHeight,
+            fontSize: Number.parseFloat(style.fontSize),
+          };
+        };
+        const cardRect = card.getBoundingClientRect();
+        const regions = ids
+          .map((id) => card.querySelector(`[data-testid="${id}"]`))
+          .filter((element): element is Element => Boolean(element))
+          .map(rect);
+        const text = Array.from(card.querySelectorAll('p,h1,h2,h3,h4,span'))
+          .filter((element) => element.textContent?.trim())
+          .map(rect);
+        return {
+          card: { x: cardRect.x, y: cardRect.y, width: cardRect.width, height: cardRect.height },
+          regions,
+          text,
+          widthOk: card.scrollWidth <= card.clientWidth + 1,
+          heightOk: card.scrollHeight <= card.clientHeight + 1,
+          heroCount: card.querySelectorAll('[data-testid="m55-pair-share-trait-hero"] img[src*="/ten-views/"]').length,
+          heroLoaded: Array.from(card.querySelectorAll<HTMLImageElement>('[data-testid="m55-pair-share-trait-hero"] img'))
+            .every((image) => image.complete && image.naturalWidth > 0),
+        };
+      });
+      const required = ['m55-pair-share-trait-hero', 'm55-pair-share-header', 'm55-pair-share-trait-label', 'm55-pair-share-relation', 'm55-pair-share-card-cta'];
+      for (const id of required) {
+        const region = boxes.regions.find((item) => item.id === id);
+        expect(region, `${prefix} ${aspect} ${id} present`).toBeTruthy();
+        expect(region!.width > 0 && region!.height > 0, `${prefix} ${aspect} ${id} nonzero`).toBe(true);
+        expect(rectInside(region!, boxes.card), `${prefix} ${aspect} ${id} contained`).toBe(true);
+        expect(region!.scrollWidth <= region!.clientWidth + 1, `${prefix} ${aspect} ${id} horizontal fit`).toBe(true);
+        expect(region!.scrollHeight <= region!.clientHeight + 1, `${prefix} ${aspect} ${id} vertical fit`).toBe(true);
+      }
+      for (const item of boxes.text) {
+        expect(item.scrollWidth <= item.clientWidth + 1, `${prefix} ${aspect} text horizontal fit`).toBe(true);
+        expect(item.scrollHeight <= item.clientHeight + 1, `${prefix} ${aspect} text vertical fit`).toBe(true);
+      }
+      const hero = boxes.regions.find((item) => item.id === 'm55-pair-share-trait-hero')!;
+      const header = boxes.regions.find((item) => item.id === 'm55-pair-share-header')!;
+      const relation = boxes.regions.find((item) => item.id === 'm55-pair-share-relation')!;
+      const cta = boxes.regions.find((item) => item.id === 'm55-pair-share-card-cta')!;
+      expect(rectsIntersect(hero, header), `${prefix} ${aspect} hero/header collision`).toBe(false);
+      expect(rectsIntersect(relation, cta), `${prefix} ${aspect} relation/CTA collision`).toBe(false);
+      expect(boxes.heroCount).toBe(2);
+      expect(boxes.heroLoaded).toBe(true);
+      const pairLabel = boxes.regions.find((item) => item.id === 'm55-pair-share-trait-label')!;
+      expect(pairLabel.fontSize).toBeGreaterThanOrEqual(16);
+      const brand = boxes.text.find((item) => item.id === '' && item.fontSize <= 14);
+      if (aspect === '1:1' && brand) expect(brand.fontSize).toBeGreaterThanOrEqual(12);
+      const relationText = aspect === '1:1'
+        ? boxes.regions.find((item) => item.id === 'm55-pair-share-relation-combined')
+        : boxes.text.find((item) => item.y >= relation.y && item.y < relation.y + relation.height && item.fontSize >= 13);
+      expect(relationText?.fontSize ?? 0).toBeGreaterThanOrEqual(14);
+      expect(boxes.widthOk, `${prefix} ${aspect} outer horizontal geometry`).toBe(true);
+      expect(boxes.heightOk, `${prefix} ${aspect} outer vertical geometry`).toBe(true);
+
+      await shareCard.screenshot({
+        path: join(OUT, `${prefix}-share-${aspectToken}-390.png`),
+        animations: 'disabled',
+      });
+    }
+
     async function capturePair(
       answers: Record<string, string>,
       personA: string,
       personB: string,
+      relationStatusId: 'R1' | 'R3',
       prefix: string,
     ) {
       const context = await cleanContext(browser);
-      await seedPair(context, answers, personA, personB);
+      await seedPair(context, answers, personA, personB, relationStatusId);
       const page = await context.newPage();
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto('/synastry');
+      const traitHero = page.getByTestId('m55-pair-trait-hero');
+      await expect(traitHero).toBeVisible({ timeout: 25_000 });
+      await expect(page.getByTestId('m55-pair-trait-label')).toContainText('×');
+      await expect(page.getByTestId('m55-pair-trait-a')).toBeVisible();
+      await expect(page.getByTestId('m55-pair-trait-b')).toBeVisible();
+      const heroImages = traitHero.locator('img[src*="/ten-views/"]');
+      await expect(heroImages).toHaveCount(2);
+      await traitHero.screenshot({
+        path: join(OUT, `${prefix}-trait-hero-390.png`),
+        animations: 'disabled',
+      });
       const manual = page.getByTestId('m55-pair-manual');
       await expect(manual).toBeVisible({ timeout: 25_000 });
       const text = await manual.innerText();
       expect(text).toMatch(/一方/);
-      expect(text).toMatch(/もう一方|すれ違い/);
-      expect(text).toMatch(/戻り/);
+      expect(text).toMatch(/もう一方/);
+      if (relationStatusId === 'R1') {
+        expect(text).not.toMatch(
+          /連絡のあと|会話のあと|返事|会話を続け|すれ違ったあと|戻る/,
+        );
+      }
       expect(text).not.toMatch(/1983-02-28|1997-06-15|1955-03-01/);
       await manual.screenshot({ path: join(OUT, `${prefix}-manual-390.png`), animations: 'disabled' });
       await page.getByTestId('m55-pair-share').scrollIntoViewIfNeeded();
+      const shareCard = page.getByTestId('m55-narrative-share-card');
+      await expect(shareCard).toHaveAttribute('data-share-aspect', '4:5');
+      await expect(page.getByTestId('m55-pair-share-trait-label')).toContainText('×');
+      const shareTraitImages = shareCard.locator('img[src*="/ten-views/"]');
+      await expect(shareTraitImages.first()).toBeVisible();
+      const shareText = await shareCard.innerText();
+      expect(shareText).not.toMatch(/1983-02-28|1997-06-15|1955-03-01|mimi/);
+      await expect(page.getByTestId('m55-pair-share-shape-toggle')).toBeVisible();
+      await expect(page.getByTestId('m55-pair-share-shape-options')).toHaveCount(0);
+      await expect(page.getByTestId('m55-pair-share-aspect-1-1')).toHaveCount(0);
+      await expect(page.getByTestId('m55-pair-share-aspect-4-5')).toHaveCount(0);
+      await expect(page.getByTestId('m55-pair-share-aspect-9-16')).toHaveCount(0);
       await expect(page.getByTestId('m55-share-preview-ack')).toBeVisible();
+      await page.getByTestId('m55-share-preview-ack').click();
+      const primaryImageAction = page.getByTestId('m55-share-image-primary');
+      await expect(primaryImageAction).toBeVisible();
+      const primaryLabel = await primaryImageAction.innerText();
+      expect(primaryLabel === '画像で共有する' || primaryLabel === '画像を保存').toBe(true);
+      const linkNative = page.getByTestId('m55-share-link-native');
+      if (await linkNative.count()) {
+        await expect(linkNative).toContainText('リンクで共有する');
+      }
+      await expect(page.getByTestId('m55-share-copy')).toContainText('リンクをコピー');
+      await expect(page.getByTestId('m55-share-x')).toContainText('Xにリンクで投稿');
+      await openShapeOptions(page);
+      await expect(page.getByText('共有画像の形')).toBeVisible();
+      await expect(page.getByTestId('m55-pair-share-aspect-1-1')).toContainText('正方形');
+      await expect(page.getByTestId('m55-pair-share-aspect-1-1')).toContainText('1:1');
+      await expect(page.getByTestId('m55-pair-share-aspect-4-5')).toContainText('縦長');
+      await expect(page.getByTestId('m55-pair-share-aspect-4-5')).toContainText('おすすめ');
+      await expect(page.getByTestId('m55-pair-share-aspect-4-5')).toContainText('4:5');
+      await expect(page.getByTestId('m55-pair-share-aspect-9-16')).toContainText('ストーリー向け');
+      await expect(page.getByTestId('m55-pair-share-aspect-9-16')).toContainText('9:16');
+      await assertPairAspectGeometry(page, shareCard, '1:1', prefix);
+      await assertPairAspectGeometry(page, shareCard, '4:5', prefix);
+      await assertPairAspectGeometry(page, shareCard, '9:16', prefix);
       await page.getByTestId('m55-pair-share').screenshot({
         path: join(OUT, `${prefix}-share-390.png`),
         animations: 'disabled',
@@ -256,33 +497,37 @@ test.describe('Narrative share current-head final proof', () => {
           path: join(OUT, `${prefix}-share-430.png`),
           animations: 'disabled',
         });
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.getByTestId('m55-pair-edit-dob').click();
+        await expect(page.getByTestId('compatibility-dob-step')).toBeVisible();
+        await expect(page.getByTestId('m55-pair-trait-hero')).toHaveCount(0);
+        await expect(page.getByLabel('あなたの生年月日 年')).toHaveValue('1983');
+        await expect(page.getByLabel('相手の生年月日 年')).toHaveValue('1997');
       }
       await context.close();
     }
     await capturePair(
       {
-        decisionPace: 'decide_now',
-        disagreement: 'talk_now',
-        distance: 'go_quiet',
         expressionPace: 'words_later',
-        returnPattern: 'someone_reaches',
+        approachIntent: 'unsure_yet',
         focus: 'conversation_focus',
       },
       '1983-02-28',
       '1997-06-15',
+      'R1',
       'pair-r1',
     );
     await capturePair(
       {
         decisionPace: 'decide_later',
-        disagreement: 'take_space',
-        distance: 'go_quiet',
-        expressionPace: 'words_later',
+        disagreement: 'talk_now',
+        expressionPace: 'words_soon',
         returnPattern: 'return_is_hard',
         focus: 'return_focus',
       },
       '1955-03-01',
       '1997-06-15',
+      'R3',
       'pair-r3',
     );
   });

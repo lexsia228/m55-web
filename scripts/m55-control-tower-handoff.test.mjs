@@ -15,10 +15,11 @@ import {
   buildHandoff,
   deriveContentIntegritySummary,
   rejectsNewChatAsInvalidation,
+  resolveRequiredNextEvidence,
   resolveTsxLoaderImport,
   validateHandoffAgainstRuntime,
 } from './m55-control-tower-handoff.mjs';
-import { EXECUTION_STATE_PATH } from './m55-control-tower-semantic.mjs';
+import { COLD_START_GATE, EXECUTION_STATE_PATH } from './m55-control-tower-semantic.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
@@ -60,8 +61,42 @@ test('fresh session recovers active gate and NEXT from execution state owner', (
 test('fresh session recovers current Wave from sitewide transition', () => {
   const handoff = buildHandoff();
   assert.equal(handoff.currentWave, 2);
-  assert.equal(handoff.currentWaveStatus, 'AUTHORIZED_NOT_COMPLETE');
+  assert.equal(handoff.currentWaveStatus, 'CLOSED_GREEN');
   assert.ok(handoff.wave1ProductCommit);
+});
+
+test('fresh session recovers Creator Revenue / E2C2E contract from execution state', () => {
+  const state = readExecutionState();
+  const handoff = buildHandoff();
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.isAuthority, false);
+  assert.equal(
+    handoff.CREATOR_REVENUE_E2C2E.contractReference,
+    'docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md',
+  );
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.fourSurfaceCreatorReadiness, 'CLOSED_GREEN');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.productWorkAfterControlTower, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.currentStage, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.creatorReferralStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.attributionStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.commissionLedgerStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.creatorDashboardStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.payoutSettlementStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.stripePayoutProviderStatus, 'UNSELECTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, 'REVENUE_SAFETY_E2E');
+  assert.ok(state.completedSubGates.includes('FOUR_SURFACE_CREATOR_READINESS'));
+  assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('FOUR_SURFACE_CREATOR_READINESS'));
+  assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('REVENUE_SAFETY_E2E'));
+  assert.ok(
+    handoff.CREATOR_REVENUE_E2C2E.stages.includes('M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT'),
+  );
+  assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('PAYOUT_AND_SETTLEMENT'));
+});
+
+test('fresh session does not expose stale Social Share nextDelta in influencer readiness', () => {
+  const handoff = buildHandoff();
+  assert.notEqual(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'CODEX_AFFECTED_DELTA_REAUDIT_THEN_SOCIAL_SHARE_EXPERIENCE');
+  assert.notEqual(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'CLOSE_WAVE2_CREATOR_QUALITY_FOUNDATION');
+  assert.equal(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'REVENUE_SAFETY_E2E');
 });
 
 test('fresh session recovers dirty/index state', () => {
@@ -102,9 +137,82 @@ test('fresh session recovers benchmark authority paths', () => {
 });
 
 test('fresh session recovers required next evidence', () => {
+  const state = readExecutionState();
   const handoff = buildHandoff();
-  assert.ok(handoff.requiredNextEvidence.length > 0);
   assert.ok(handoff.knownEvidenceLimitations.length > 0);
+  assert.deepEqual(handoff.requiredNextEvidence, resolveRequiredNextEvidence(state));
+  if (state.currentExecutionGate === COLD_START_GATE) {
+    assert.ok(handoff.requiredNextEvidence.includes('zero_memory_execution_state_reconstruction'));
+    assert.ok(handoff.requiredNextEvidence.includes('creator_revenue_e2c2e_contract_invariants'));
+    assert.ok(handoff.requiredNextEvidence.includes('control_tower_authority_boundary'));
+    assert.equal(handoff.requiredNextEvidence.includes('control_tower_hardening_green'), false);
+    assert.equal(handoff.requiredNextEvidence.includes('cold_start_handoff_pass'), false);
+  } else if (state.currentExecutionGate === 'REVENUE_SAFETY_E2E') {
+    assert.ok(handoff.requiredNextEvidence.includes('current_product_description_price_billing_type'));
+    assert.ok(handoff.requiredNextEvidence.includes('separate_human_go_before_real_payment'));
+    assert.equal(handoff.requiredNextEvidence.includes('control_tower_hardening_green'), false);
+    assert.equal(handoff.requiredNextEvidence.includes('cold_start_handoff_pass'), false);
+  }
+});
+
+test('resolveRequiredNextEvidence returns R2 revenue-safety categories without stale cold-start evidence', () => {
+  const state = readExecutionState();
+  const r2State = {
+    ...state,
+    currentExecutionGate: 'REVENUE_SAFETY_E2E',
+    nextSingleAction: 'REVENUE_SAFETY_E2E',
+    productWorkAfterControlTower: 'REVENUE_SAFETY_E2E',
+    creatorRevenueRoadmapAuthority: {
+      ...state.creatorRevenueRoadmapAuthority,
+      currentStage: 'REVENUE_SAFETY_E2E',
+    },
+  };
+  const evidence = resolveRequiredNextEvidence(r2State);
+  assert.ok(evidence.includes('current_product_description_price_billing_type'));
+  assert.ok(evidence.includes('deliverable_mapping'));
+  assert.ok(evidence.includes('refund_conditions'));
+  assert.ok(evidence.includes('support_contact_route'));
+  assert.ok(evidence.includes('post_purchase_recovery'));
+  assert.ok(evidence.includes('stripe_revenue_path_continuity'));
+  assert.ok(evidence.includes('entitlement_continuity'));
+  assert.ok(evidence.includes('reuse_closed_green_payment_checkout_webhook_fulfillment_evidence'));
+  assert.ok(evidence.includes('invalidating_dependency_check_before_replay'));
+  assert.ok(evidence.includes('separate_human_go_before_real_payment'));
+  assert.equal(evidence.includes('control_tower_hardening_green'), false);
+  assert.equal(evidence.includes('cold_start_handoff_pass'), false);
+  assert.equal(evidence.includes('creator_revenue_e2c2e_contract_invariants'), false);
+});
+
+test('resolveRequiredNextEvidence returns generic creator-gate contract for later creator stages', () => {
+  const state = readExecutionState();
+  const laterGate = 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT';
+  const laterState = {
+    ...state,
+    currentExecutionGate: laterGate,
+    nextSingleAction: laterGate,
+    productWorkAfterControlTower: laterGate,
+    creatorRevenueRoadmapAuthority: {
+      ...state.creatorRevenueRoadmapAuthority,
+      currentStage: laterGate,
+    },
+  };
+  const evidence = resolveRequiredNextEvidence(laterState);
+  assert.deepEqual(evidence, [
+    'read_current_creator_gate_contract',
+    'preserve_closed_gate_no_replay',
+    'require_explicit_authority_before_mutation',
+  ]);
+});
+
+test('CREATOR_REVENUE_E2C2E handoff fields remain derived from execution state', () => {
+  const state = readExecutionState();
+  const handoff = buildHandoff();
+  const authority = state.creatorRevenueRoadmapAuthority;
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.currentStage, authority.currentStage);
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.productWorkAfterControlTower, state.productWorkAfterControlTower);
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, state.productWorkAfterControlTower);
+  assert.equal(handoff.currentGate, state.currentExecutionGate);
+  assert.equal(handoff.nextSingleAction, state.nextSingleAction);
 });
 
 test('handoff is explicitly not authority', () => {

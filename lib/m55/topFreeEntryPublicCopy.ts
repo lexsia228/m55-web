@@ -1,7 +1,12 @@
 import { PAID_DTR_LP, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { COMPATIBILITY_REPORT_PRODUCT_AUTHORITY } from './compatibility/compatibilityCommerceAuthority';
+import { M55_COMMERCIAL_PRODUCTS } from './contracts/m55CommercialFunnelContract';
 
 /** Shared public nav label — HOME IA SSOT (2026-07-19). */
 export const PUBLIC_NAV_TEN_VIEWS_LABEL_JA = '10の資質' as const;
+
+const pairPremiumProduct = M55_COMMERCIAL_PRODUCTS.pairPremium;
+const pairPremiumCommerce = COMPATIBILITY_REPORT_PRODUCT_AUTHORITY;
 
 function formatHomePlanLightSpecJa(includedReplyCount: number): string {
   return `追加読み解き ${includedReplyCount}件`;
@@ -100,6 +105,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     productMapPremiumBodyJa:
       '無料で見えた自分の入口をもとに、\n動き方、人との距離感、負担が重なり始める流れ、\n整え方まで詳しく整理します。',
     productMapPremiumLinkJa: 'プレミアムの内容を見る',
+    productMapPairPremiumTitleJa: pairPremiumCommerce.publicName,
+    productMapPairPremiumBodyJa:
+      `無料で見えた二人の流れをもとに、\n${pairPremiumProduct.reportChapters}章のレポートで、二人の違い、すれ違いの順番、\n戻し方、次に試せることまで整理します。`,
+    productMapPairPremiumStatusJa:
+      `提供準備中・${pairPremiumCommerce.priceLabel}・買い切り・自動更新なし`,
+    productMapPairPremiumCtaJa: 'まず二人の無料結果を見る',
 
     /* §3a — Pair free (compact dedicated section, after self free) */
     pairFreeEyebrowJa: '二人の関係を見る',

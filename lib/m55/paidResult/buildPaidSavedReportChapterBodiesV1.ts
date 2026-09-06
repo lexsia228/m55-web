@@ -2,17 +2,31 @@
  * Deterministic paid saved-report chapter bodies from individualization selectors-v1.
  * Uses paidChapterEmphasisIds as composition authority (not chapterBias).
  * Production path — never uses test/fake chapter body generator.
+ *
+ * Q1 editorial progression:
+ *   s1 portrait → s2 mechanism/conditions → s3 expression/load → s4 handling/return
  */
 import type { IndividualizationDraft } from '../individualization/types';
 import type { PaidChapterEmphasisIdV1 } from '../individualization/individualizationSelectorTypesV1';
 import type { ChapterMaterialPack } from '../dtrPaidChapterMaterialPack';
 import type { PaidDtrGeneratedChapterBodies } from '../dtrEngine';
-import { PAID_CHAPTER_EMPHASIS_COPY_V1 } from './paidChapterEmphasisCopyV1';
+import {
+  PAID_CHAPTER_EMPHASIS_COPY_V1,
+  PAID_CHAPTER_EMPHASIS_EXPLANATION_V1,
+} from './paidChapterEmphasisCopyV1';
 
-function emphasisParagraphs(
-  ids: readonly PaidChapterEmphasisIdV1[],
-): string {
+function selectorBoundSubstance(ids: readonly PaidChapterEmphasisIdV1[]): string {
+  const paragraphs = ids
+    .map((id) => PAID_CHAPTER_EMPHASIS_EXPLANATION_V1[id])
+    .filter((text): text is string => Boolean(text?.trim()));
+  if (!paragraphs.length) return '';
+  return `\n\n${paragraphs.join('\n\n')}`;
+}
+
+/** Fallback only — skip when substantive explanation already covers this ID. */
+function consequenceTail(ids: readonly PaidChapterEmphasisIdV1[]): string {
   const lines = ids
+    .filter((id) => !PAID_CHAPTER_EMPHASIS_EXPLANATION_V1[id]?.trim())
     .map((id) => PAID_CHAPTER_EMPHASIS_COPY_V1[id])
     .filter(Boolean);
   if (!lines.length) return '';
@@ -29,24 +43,28 @@ const AXIS_LABEL_JA: Readonly<Record<ExpressionAxisId, string>> = {
   change: '変化への向き合い方',
 };
 
+/** Portrait layer — one compact align/diverge read (chapter I only). */
 function alignDivergeParagraph(draft: IndividualizationDraft): string {
   const align = draft.fingerprint.alignItems[0];
   const diverge = draft.fingerprint.divergeItems[0];
-  const parts: string[] = [];
+  if (!align && !diverge) return '';
+
+  const cues: string[] = [];
   if (align) {
-    parts.push(
-      `土台と今が重なりやすいのは、${AXIS_LABEL_JA[align.axisId]}の視点です。`,
-    );
+    cues.push(`${AXIS_LABEL_JA[align.axisId]}の視点では重なりやすい`);
   }
   if (diverge) {
-    parts.push(
-      `少し異なるのは、${AXIS_LABEL_JA[diverge.axisId]}の視点です。良し悪しではなく、いまの表れ方の差として見てください。`,
-    );
+    cues.push(`${AXIS_LABEL_JA[diverge.axisId]}の視点では少しずれる`);
   }
-  if (!parts.length) return '';
-  return `\n\n${parts.join('\n')}`;
+  const cueText =
+    cues.length === 2
+      ? `${cues[0]}一方、${cues[1]}`
+      : cues[0] ?? '';
+
+  return `\n\nこのレポートで生年月日から置く基調と、今の回答を分けて見ると、${cueText}ことが手がかりになります。`;
 }
 
+/** Portrait layer — primary theme entry point (chapter I only). */
 function themeParagraph(draft: IndividualizationDraft): string {
   const primary = draft.fingerprint.freeExpression.primaryReplyTheme;
   const map: Record<string, string> = {
@@ -54,10 +72,10 @@ function themeParagraph(draft: IndividualizationDraft): string {
     relation: '人との関係',
     fatigue: '疲れ・生活のリズム',
     tendency: '自分の傾向の読み方',
-    report: 'あとでじっくり読み返せる形',
+    report_preview: '全体の整理',
   };
-  const label = primary != null ? (map[primary] ?? 'いまの読みの入口') : 'いまの読みの入口';
-  return `\n\nいまの読みの入口は、「${label}」に近いところです。`;
+  const label = primary != null ? (map[primary] ?? 'いまの読み') : 'いまの読み';
+  return `\n\nいまの入口は、「${label}」に近いところです。`;
 }
 
 function chapterDomainBody(
@@ -75,19 +93,25 @@ function chapterDomainBody(
   if (sectionId === 's2_composition' && materialPack.compositionStructureViz.patternCaption) {
     domainNotes.push(`\n\n${materialPack.compositionStructureViz.patternCaption}`);
   }
-  if (sectionId === 's3_essence') {
-    if (materialPack.essenceRhythmNote) {
-      domainNotes.push(`\n\n${materialPack.essenceRhythmNote}`);
-    }
-    if (materialPack.essenceStabilityViz.stabilize) {
-      domainNotes.push(`\n\n${materialPack.essenceStabilityViz.stabilize}`);
-    }
+  if (sectionId === 's3_essence' && materialPack.essenceStabilityViz.stabilize) {
+    domainNotes.push(`\n\n${materialPack.essenceStabilityViz.stabilize}`);
   }
   if (sectionId === 's4_strengths' && materialPack.handlingHint) {
     domainNotes.push(`\n\n${materialPack.handlingHint}`);
   }
 
   return domainNotes.join('');
+}
+
+/** Chapter I — portrait bridge only; no ch1 catalog explanation/tail blocks. */
+function chapterPortraitEditorialLayer(draft: IndividualizationDraft): string {
+  return alignDivergeParagraph(draft) + themeParagraph(draft);
+}
+
+function chapterEditorialLayer(ids: readonly PaidChapterEmphasisIdV1[]): string {
+  const substance = selectorBoundSubstance(ids);
+  const tail = consequenceTail(ids);
+  return substance + tail;
 }
 
 /**
@@ -103,24 +127,16 @@ export function buildPaidSavedReportChapterBodiesV1(params: {
   }
   const emphasis = selectors.paidChapterEmphasisIds;
 
-  const baseS1 = chapterDomainBody(params.materialPack, 's1_identity');
-  const baseS2 = chapterDomainBody(params.materialPack, 's2_composition');
-  const baseS3 = chapterDomainBody(params.materialPack, 's3_essence');
-  const baseS4 = chapterDomainBody(params.materialPack, 's4_strengths');
-
-  const bridge = alignDivergeParagraph(params.draft) + themeParagraph(params.draft);
+  const portraitBase = chapterDomainBody(params.materialPack, 's1_identity');
+  const mechanismBase = chapterDomainBody(params.materialPack, 's2_composition');
+  const expressionBase = chapterDomainBody(params.materialPack, 's3_essence');
+  const handlingBase = chapterDomainBody(params.materialPack, 's4_strengths');
 
   return {
-    s1_identity:
-      baseS1 +
-      emphasisParagraphs(emphasis.chapter1) +
-      bridge,
-    s2_composition:
-      baseS2 + emphasisParagraphs(emphasis.chapter2),
-    s3_essence:
-      baseS3 + emphasisParagraphs(emphasis.chapter3),
-    s4_strengths:
-      baseS4 + emphasisParagraphs(emphasis.chapter4),
+    s1_identity: portraitBase + chapterPortraitEditorialLayer(params.draft),
+    s2_composition: mechanismBase + chapterEditorialLayer(emphasis.chapter2),
+    s3_essence: expressionBase + chapterEditorialLayer(emphasis.chapter3),
+    s4_strengths: handlingBase + chapterEditorialLayer(emphasis.chapter4),
   };
 }
 
@@ -134,4 +150,11 @@ export function hashChapterBodiesForEquality(
     bodies.s4_strengths ?? '',
   ];
   return parts.join('\u001f');
+}
+
+/** Test/export helper — substantive selector-bound paragraphs for a chapter emphasis set. */
+export function collectSelectorBoundSubstanceText(
+  ids: readonly PaidChapterEmphasisIdV1[],
+): string {
+  return selectorBoundSubstance(ids).replace(/^\n+/, '');
 }

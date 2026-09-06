@@ -3,7 +3,7 @@
  * Existing s1-{0-9} tokens remain valid via privacySafeShareCardV1.
  *
  * Personal: n1{p|r}{variant}{stem}{answer5}{birth5}{hinge}
- * Pair:     n1c{variant}{interactionCode}
+ * Pair:     n1c{variant}{interactionCode}{starts?}{xAB?}
  * Generic:  n1g{variant}{stem?}
  */
 
@@ -152,6 +152,8 @@ export type PairPublicShareKeyV1 = {
   readonly interactionId: PairFreeInteractionId;
   readonly visibleStart?: StartTendency;
   readonly inwardStart?: StartTendency;
+  readonly personAStemLaneIndex?: number;
+  readonly personBStemLaneIndex?: number;
 };
 
 export type GenericPublicShareKeyV1 = {
@@ -176,7 +178,20 @@ export function encodePublicShareToken(key: PublicShareKeyV1): string {
       key.visibleStart && key.inwardStart
         ? `${START_CODE[key.visibleStart]}${START_CODE[key.inwardStart]}`
         : '';
-    return `${PUBLIC_SHARE_TOKEN_VERSION}c${VARIANT_CODE[key.variant]}${PAIR_INTERACTION_CODE[key.interactionId]}${starts}`;
+    const laneA = key.personAStemLaneIndex;
+    const laneB = key.personBStemLaneIndex;
+    const lanes =
+      typeof laneA === 'number' &&
+      Number.isInteger(laneA) &&
+      laneA >= 0 &&
+      laneA <= 9 &&
+      typeof laneB === 'number' &&
+      Number.isInteger(laneB) &&
+      laneB >= 0 &&
+      laneB <= 9
+        ? `x${laneA}${laneB}`
+        : '';
+    return `${PUBLIC_SHARE_TOKEN_VERSION}c${VARIANT_CODE[key.variant]}${PAIR_INTERACTION_CODE[key.interactionId]}${starts}${lanes}`;
   }
   return [
     PUBLIC_SHARE_TOKEN_VERSION,
@@ -208,13 +223,15 @@ export function decodePublicShareToken(raw: string | null | undefined): PublicSh
   }
 
   const pair = new RegExp(
-    `^${PUBLIC_SHARE_TOKEN_VERSION}c([mg])(tm|sm|oc|tq|ld|hr|df)([mta][mta])?$`,
+    `^${PUBLIC_SHARE_TOKEN_VERSION}c([mg])(tm|sm|oc|tq|ld|hr|df)([mta][mta])?(?:x([0-9])([0-9]))?$`,
   ).exec(token);
   if (pair) {
     const variant = VARIANT_FROM[pair[1]!];
     const interactionId = PAIR_INTERACTION_FROM[pair[2]!];
     if (!variant || !interactionId) return null;
     const starts = pair[3];
+    const laneA = pair[4] !== undefined ? Number(pair[4]) : undefined;
+    const laneB = pair[5] !== undefined ? Number(pair[5]) : undefined;
     return {
       kind: 'pair',
       surface: 'compatibility_free',
@@ -222,6 +239,9 @@ export function decodePublicShareToken(raw: string | null | undefined): PublicSh
       interactionId,
       visibleStart: starts ? START_FROM[starts[0]!] : undefined,
       inwardStart: starts ? START_FROM[starts[1]!] : undefined,
+      ...(laneA !== undefined && laneB !== undefined
+        ? { personAStemLaneIndex: laneA, personBStemLaneIndex: laneB }
+        : {}),
     };
   }
 

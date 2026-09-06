@@ -128,7 +128,7 @@ const SNAPSHOT_CASES: readonly SnapshotCase[] = [
     elementSelector: '[data-testid="m55-personal-reading-depth-map"]',
     setup: 'purchased_report',
     expectedPathname: /\/dev\/dtr-drawer-preview/,
-    requiredText: '生活の4つの場面',
+    requiredText: '4章の流れ',
   },
   {
     id: 'pair-paid-relational-grammar',

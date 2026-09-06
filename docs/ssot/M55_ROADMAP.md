@@ -21,18 +21,215 @@ This section records the Human-approved **directional commercial strategy order*
 
 | Order | Future concept | Status |
 |---|---|---|
-| 1 | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** | program identity — macro lane **GLOBAL COMMERCIAL QUALITY** · executable CURRENT/NEXT = `GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-BASELINE-AND-CONTROL-PLANE` · Pair Premium **ACTIVATED** · Pair real-payment E2E **PAUSED_BEFORE_PAYMENT** |
+| 1 | **GLOBAL-COMMERCIAL-JAPANESE-COMPREHENSION-QUALITY** | program identity — macro lane **GLOBAL COMMERCIAL QUALITY** · Pair Premium **ACTIVATED** · Pair real-payment E2E **PAUSED_BEFORE_PAYMENT** |
 | 2 | **PAIR-PREMIUM-ACTIVATION** | **CLOSED GREEN** — Production commerce switch **ACTIVATED**; real-payment E2E paused pending comprehension remediation |
-| 3 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | future · Personal Free + Pair Free/compatibility share commercial upgrade · **NON-EXECUTABLE** until global commercial Japanese comprehension baseline closes |
-| 4 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | future · single-tier referral/creator design lane · **TARGET_COMMISSION_RATE = 50%** is **HUMAN TARGET ONLY** · provider/legal/tax/fraud validation still required · **IMPLEMENTATION NOT AUTHORIZED** |
+| 3 | **M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE** | **CLOSED GREEN** |
+| 4 | **M55-REFERRAL-CREATOR-COMMERCE-DESIGN** | **historical/subordinate** — superseded by staged Creator Revenue/E2C2E roadmap in `M55_CREATOR_REVENUE_E2C2E_SSOT.md` |
 | 5 | Referral implementation / provider activation | future · only after independent review and **separate Human GO** |
 
-Explicit retainers:
+## Current Creator Revenue / E2C2E program (authoritative staged sequence)
 
-- Do **not** promote items 2–4 into CURRENT / NEXT
-- Pair Free→Paid mapping remains **HUMAN_APPROVED_COMPLETE** · `repeatMapping` = **PROHIBITED**
-- Multi-level / recruitment-only compensation **prohibited**
-- No share implementation · no referral implementation · no provider mutation from this recording
+**Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md`
+
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `REVENUE_SAFETY_E2E`.
+
+| Stage | Gate | Status |
+|---|---|---|
+| R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
+| R2 | `REVENUE_SAFETY_E2E` | **ACTIVE** — Human-accepted cold-start PASS 2026-09-05 |
+| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | future |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | future |
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
+| R6 | `COMMISSION_LEDGER` | future |
+| R7 | `CREATOR_DASHBOARD` | future |
+| R8 | `PAYOUT_AND_SETTLEMENT` | future |
+| — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
+| — | `INVITE_ONLY_CREATOR_BETA` | future |
+| — | `M55_CREATOR_REVENUE_READY` | future |
+| — | `CONTROLLED_SCALE` | future |
+
+### R2 sub-gates (Human-approved 2026-09-06 — machine-first freeze)
+
+| Sub-gate | Scope | Status |
+|---|---|---|
+| **R2-A** `COMPETITIVE_REWARD_BENCHMARK` | one-time Japan/competitor Codex audit as research input | **CLOSED / REUSE** — do not repeat absent invalidator |
+| **R2-B1** `JAPAN_LEGAL_STRIPE_PREFLIGHT` | official-source issue mapping and STOP conditions | **INTERNAL PREFLIGHT / ISSUE MAPPING COMPLETE** — external confirmation remains R2-B2 |
+| **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General User non-cash / Approved Creator cash split | **INTERNAL TWO-LANE CONTRACT FROZEN** |
+| **R2-D** `FOUNDING_CREATOR_ECONOMICS` | 50/40/30 · cohort 20 · machine-first compliance · 30-day review · corrected stop-loss | **INTERNAL ECONOMICS FROZEN** |
+| **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | `FREE_COMPLETION_DIGITAL_UNLOCK` v1 · Pair mutual artifact deferred | **INTERNAL LAUNCH MVP FROZEN** |
+| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe + Japan legal/tax confirmation | **ACTIVE** — **CORE STRIPE FEASIBILITY CONFIRMED** / **RESIDUAL CLASSIFICATION OPEN** · P0-1 `GREEN_WITH_CONDITION` · P0-2 `GREEN` · P0-3 `GREEN` · **NOT CLOSED** |
+
+Compliance/payout automation annex: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
+
+Retain:
+
+- `M55_REVENUE_DECISION_NO_REGRESSION = TRUE`
+- **TARGET_COMMISSION_RATE = 50%** — **HUMAN TARGET ONLY** · names Founding Creator introductory acquisition rate only · **not** permanent standard rate · **not** provider/legal/payout activation
+- Canonical schedule frozen (2026-09-06): **50% days 0–180 → 40% days 181–365 → 30% day 366+** · no conversion-count cliffs · Strategic Creator 35–40% only by separate Human agreement after year 1
+- Founding cohort = **20** manually approved creators · no invented absolute program cap
+- General User launch MVP = **FREE_COMPLETION_DIGITAL_UNLOCK**
+- Machine-first creator compliance / payout operation — Human does **not** approve every commission/payout at scale
+- `CREATOR_EARNINGS_TRANSPARENCY = REQUIRED` · immutable append-only ledger · Stripe-hosted onboarding preferred · payout destination security hold
+- **COMMISSIONABLE_REVENUE** base defined in creator SSOT
+- General User cash payout **prohibited**
+- direct single-tier referral only
+- anti-MLM / no recursive compensation
+- creator cash infrastructure **NOT IMPLEMENTED**
+- Stripe payout provider **UNSELECTED**
+
+Do **not** pull R6–R8 runtime implementation into R2.
+
+### R2-B2 Stripe P0 evidence (Human-approved 2026-09-06)
+
+Dated external evidence from Stripe support — do not paraphrase into stronger approval than received.
+
+| Classification | Status | Meaning |
+|---|---|---|
+| `R2_B2_STRIPE_P0_1_BUSINESS_CLASSIFICATION` | **GREEN_WITH_CONDITION** | Described business does not appear to fall under Japan prohibited "Psychic services and fortune tellers"; `M55_ACCOUNT_FINAL_STRIPE_APPROVAL = NOT_YET_CONFIRMED` pending specialist account review |
+| `R2_B2_STRIPE_P0_2_JP_CREATOR_COMMISSION` | **GREEN** | Japan platform → Japan resident Creator connected account → affiliate commission as part of product sales supported in principle |
+| `R2_B2_STRIPE_P0_3_30_DAY_TRANSFER_MODEL` | **GREEN** | Purchase → ~30-day internal review → commission PAYABLE → later Creator transfer allowed for Japan platform + Japan connected account |
+| `R2_B2_CORE_STRIPE_ARCHITECTURE_FEASIBLE` | **TRUE** | Core Stripe Connect affiliate architecture is feasible as leading candidate |
+| `STRIPE_CONNECT` | **VALIDATED_LEADING_PROVIDER_CANDIDATE** | Not final selection |
+| `SEPARATE_CHARGES_AND_TRANSFERS` | **STRIPE_SUPPORTED_M55_FLOW_CANDIDATE** | Stripe support recommended this flow; not final account approval |
+| `stripePayoutProviderStatus` | **UNSELECTED** | Final selection requires remaining R2-B2 confirmation + R2 Final Human acceptance |
+
+**Residual Stripe confirmation (`R2_B2_STRIPE_RESIDUAL_CONFIRMATION`):**
+
+- **A.** Current recommended connected-account implementation model — Stripe support said "Express"; exact legacy vs current configuration model remains OPEN until Stripe clarifies
+- **B.** Negative-balance / losses responsibility — who bears Creator connected-account negative balances; no Japan bank auto-debit assumption
+- **C.** M55WEB formal account review — exact process/timing/evidence for specialist supportability review
+- **D.** M55WEB Connect pricing model — which Connect pricing model applies to this account
+
+**30-day review separation:**
+
+- `STRIPE_30_DAY_REVIEW_COMPATIBILITY = GREEN` (provider compatibility only)
+- `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN` (Freelance Act, mandatory payment deadline, Creator contract, tax/withholding)
+- `STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS = 30` remains frozen design subject to Japanese mandatory-law confirmation
+
+**R2-B2 vs R6/R8 ownership:**
+
+| Topic | R2-B2 owns | R6/R8 owns |
+|---|---|---|
+| Negative balance | Japan/provider recovery-model **classification** | R8: runtime handling / reconciliation **implementation** |
+| Tax/withholding | Japan legal/tax **classification** sufficient for R2 closure | R8: payout/tax operational **implementation** |
+| Rounding | — | R6: deterministic financial calculation rule — **do not solve in R2-B2** |
+
+Principle: **R2-B2 CLASSIFIES · R6/R8 IMPLEMENT**
+
+### Parallel non-Stripe quality lane (Human-approved 2026-09-06)
+
+`PARALLEL_NON_STRIPE_QUALITY_LANE = SELF_PREMIUM_PUBLICATION_QUALITY_CLOSURE`
+
+| Sub-item | Status |
+|---|---|
+| Q1 Self Premium editorial depth | **CLOSED / NO REPLAY** |
+| Q2-A chapter identity | **IMPLEMENTATION GREEN / LOCAL** |
+| Q2-B Promise → Delivery | **IMPLEMENTATION GREEN / LOCAL** |
+| Final visual evidence | Cursor/STP candidate **GREEN** |
+| Remaining before user-visible closure | independent artifact verification · Human commercial visual acceptance · feature publication/push authorization |
+
+This lane does **not** change Creator Revenue CURRENT/NEXT · does **not** authorize Stripe/provider mutation · does **not** reorder R2→R8 · does **not** reopen Q1. Local SHA evidence is `OBSERVED_AT` / candidate only — not timeless authority.
+
+### Pair Premium semantic guard (Human-approved 2026-09-06)
+
+Future GPTs must **not** collapse these distinct states:
+
+| Token | Status |
+|---|---|
+| `PAIR_PREMIUM_COMMERCE_SWITCH` | **ACTIVATED** |
+| `PAIR_PREMIUM_CONTROL_PLANE_DECISION` | **CLOSED GREEN** |
+| `PAIR_PREMIUM_PRODUCT_FULLY_LIVE` | **≠ implied by ACTIVATED** |
+| `REAL_PAYMENT_E2E` | **PAUSED_BEFORE_PAYMENT / NOT GREEN** |
+| `FULFILLMENT + OWNED REPORT REVISIT E2E` | **NOT GREEN** unless separately proven |
+
+`ACTIVATED` ≠ `LIVE` ≠ `PAYMENT_E2E_GREEN` ≠ `FULFILLMENT_E2E_GREEN`
+
+### Canonical development order (frozen 2026-09-06 — no reorder without invalidator + Human approval)
+
+```
+R2-B2 EXTERNAL_SUPPORTABILITY_CONFIRMATION
+→ R2 FINAL CLOSURE / HUMAN ACCEPTANCE
+→ R3 M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT
+→ R4 M55-CREATOR-DISTRIBUTION-FOUNDATION
+→ R5 ATTRIBUTION_AND_COMPLIANCE
+→ R6 COMMISSION_LEDGER
+→ R7 CREATOR_DASHBOARD
+→ R8 PAYOUT_AND_SETTLEMENT
+→ M55-CODEX-CREATOR-INFRA-AUDIT
+→ INVITE_ONLY_CREATOR_BETA
+→ M55_CREATOR_REVENUE_READY
+→ CONTROLLED_SCALE
+```
+
+Do **not** repeat: R2-A competitor reward research · creator automation competitor mapping · R1 · Pair mapping · cold-start acceptance — unless a direct invalidating dependency changes. External audit opinion alone is **not** an invalidator.
+
+### Creator Revenue stage ownership — R3 and R5 through R8 (frozen 2026-09-06)
+
+| Stage | Owns |
+|---|---|
+| **R3** `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | Creator onboarding comprehension · Product Truth · commission/50-40-30 explanation · PENDING/HOLD/PAYABLE comprehension · actionable KYC/payout-block explanation · PR/disclosure · prohibited claims · refund/reversal · support/dispute route · earnings transparency positioning without guarantees · Founder narrative — **does not build R7** |
+| **R5** `ATTRIBUTION_AND_COMPLIANCE` | direct attribution · one buyer→one creator · conflict precedence · General invite vs Creator · signed tracking IDs · eligibility lock · self/circular fraud · fraud graph · content registry/snapshots/re-scan · disclosure/claims · AUTO_PASS/AUTO_CANCEL/AUTO_HOLD · appeal intake — **no payout execution** |
+| **R6** `COMMISSION_LEDGER` | append-only ledger · adjustments · calculation/policy versioning · COMMISSIONABLE_REVENUE · integer money · rounding contract · release_at · commission states · idempotent creation · replay safety — **no silent rounding/tax choice** |
+| **R7** `CREATOR_DASHBOARD` | performance · earnings · per-commission explainability · actionable payout-block UX · compliance · export — **trust surface, not cosmetic analytics** |
+| **R8** `PAYOUT_AND_SETTLEMENT` | Stripe/provider onboarding · KYC readiness · batching · idempotency · security hold · webhooks/dead-letter · failed/returned · negative balance · payout statements — **no M55 bank storage unless unavoidable** |
+
+Detailed contracts: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` §AU–§AZ.
+
+### Stage exit criteria (frozen 2026-09-06)
+
+| Stage | Exits only when |
+|---|---|
+| **R2-B2** | (1) M55 Stripe account supportability classified · (2) current Connect account/configuration model classified · (3) negative-balance/loss responsibility classified · (4) applicable Connect pricing model classified · (5) Japan legal/payment-deadline issues classified · (6) Japan tax/withholding issues classified · (7) no invented financial semantics · (8) no unsupported escrow claim · (9) provider final-selection packet ready for Human decision |
+| **R2 final** | explicit Human acceptance after R2-B2 closure |
+| **R3** | Creator-facing Product Truth and trust UX are safe/comprehensible |
+| **R4** | approved Creator identity/terms/distribution foundation exists |
+| **R5** | attribution/compliance/fraud/appeal machine contract is executable |
+| **R6** | every commission is deterministic, reproducible, and adjustment-safe |
+| **R7** | Creator can independently reconcile earnings/status without normal Human help |
+| **R8** | provider onboarding and payout lifecycle are automated/reconciled/fail-closed |
+| **Creator Infra Audit** | cross-stage invariants and failure modes pass independent review |
+| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects |
+| **Revenue Ready** | explicit Human GO |
+
+### Zero-omission traceability matrix (frozen 2026-09-06)
+
+Nothing may have `OWNER = UNKNOWN`. Unresolved semantics name their owning future gate.
+
+| FROZEN REQUIREMENT | OWNER GATE | IMPLEMENTATION STATUS | REQUIRED ACCEPTANCE EVIDENCE | DO-NOT-REOPEN RULE |
+|---|---|---|---|---|
+| 50/40/30 economics | R2-D (frozen) · R6 (rate lock) | **FROZEN / NOT_IMPLEMENTED** | SSOT + R6 deterministic rate-at-purchase proof | no conversion cliffs · no retroactive PAYABLE cuts |
+| 20 Creator cohort | R2-D · R4 | **FROZEN / NOT_IMPLEMENTED** | cohort registry + manual approval evidence | no invented ¥500k cap |
+| General User non-cash | R2-C · R2-E | **FROZEN / NOT_IMPLEMENTED** | two-lane contract + General User v1 proof | cash prohibited for General User |
+| Free Completion Digital Unlock | R2-E · R4 | **FROZEN / NOT_IMPLEMENTED** | General User v1 fulfillment proof | Pair mutual artifact deferred |
+| Direct attribution | R5 | **NOT_IMPLEMENTED** | signed link + click/event durable evidence | no MLM/recursive compensation |
+| One buyer → one creator | R5 | **NOT_IMPLEMENTED** | eligibility lock + conflict precedence tests | no database race attribution |
+| Self/circular fraud | R5 | **NOT_IMPLEMENTED** | AUTO_CANCEL/HOLD machine tests | IP/device alone ≠ forfeiture |
+| Content compliance | R5 · R3 | **NOT_IMPLEMENTED** | registry + snapshot + scan evidence | disclosure disappearance → HOLD |
+| Appeal/correction | R5 · R7 | **NOT_IMPLEMENTED** | case record + Creator intake UX | no silent rejection |
+| 30-day standard review | R6 | **NOT_IMPLEMENTED** · `STRIPE_30_DAY_REVIEW_COMPATIBILITY = GREEN` | `STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS=30` proof · legal condition `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN` | not escrow · do not silently change 30 days |
+| Event-specific release_at | R6 | **NOT_IMPLEMENTED** | per-commission `release_at` + HOLD extension rules | day 30 ≠ auto-release unresolved HOLD |
+| Append-only ledger | R6 | **NOT_IMPLEMENTED** | original + adjustment entry tests | no silent history rewrite |
+| Rounding contract | R6 | **BLOCKED** | Human/legal approved deterministic rule | `MUST_RESOLVE_BEFORE_COMMISSION_LEDGER_IMPLEMENTATION` |
+| Policy versioning | R6 | **NOT_IMPLEMENTED** | terms/rate/attribution version binding | later terms ≠ retroactive rewrite |
+| Post-payout adjustment | R6 · R8 | **NOT_IMPLEMENTED** | negative adjustment + recovery priority proof | not retroactive rate reduction |
+| Creator earnings transparency | R7 · R3 | **NOT_IMPLEMENTED** | Creator reconciliation without Human help | `CREATOR_EARNINGS_TRANSPARENCY = REQUIRED` |
+| Customer privacy | R7 | **NOT_IMPLEMENTED** | no PII in dashboard audit | anonymous references only |
+| Actionable payout-block UX | R7 · R3 | **NOT_IMPLEMENTED** | 6-question block UX acceptance | `CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE` |
+| Creator export | R7 | **NOT_IMPLEMENTED** | machine-readable reconciliation export | tax doc format = legal confirmation |
+| Stripe-hosted onboarding | R8 · R2-B2 | **STRIPE CONNECT DIRECTION SUPPORTED / EXACT ACCOUNT CONFIG OPEN / NOT_IMPLEMENTED** | hosted/embedded onboarding proof | provider UNSELECTED · Express vs current config OPEN |
+| KYC separation | R8 · R7 | **NOT_IMPLEMENTED** | PAYABLE + PAYOUT_BLOCKED_KYC UX proof | KYC failure ≠ erase commission |
+| Payout batching | R8 | **NOT_IMPLEMENTED** | batch statement + never 1:1 purchase:payout | aggregation required |
+| Destination security hold | R8 | **NOT_IMPLEMENTED** | 5-day default hold + accrual continues proof | `PAYOUT_DESTINATION_CHANGE_SECURITY_HOLD` |
+| Account takeover protection | R8 | **NOT_IMPLEMENTED** | step-up auth + security notification proof | no session-cookie-only destination change |
+| Idempotency | R6 · R8 | **NOT_IMPLEMENTED** | duplicate webhook/retry tests | `PAYOUT_INSTRUCTION_IDEMPOTENCY` |
+| Webhook replay/dead-letter | R8 | **NOT_IMPLEMENTED** | replay-safe financial result proof | no silent event loss |
+| Failed/returned payout | R8 | **NOT_IMPLEMENTED** | PAYOUT_FAILED/RETURNED lifecycle proof | preserve PAYABLE economics |
+| Negative-balance handling | R8 · R2-B2 | **R2-B2 EXTERNAL CLASSIFICATION OPEN / R8 NOT_IMPLEMENTED** | Japan recovery model evidence | R2-B2 classifies · R8 implements · no assumed auto-debit |
+| Tax/withholding | R2-B2 · R8 | **R2-B2 LEGAL/TAX CLASSIFICATION OPEN / R8 NOT_IMPLEMENTED** | legal/tax confirmation | R2-B2 classifies · R8 implements · no universal 10.21% freeze |
+| Provider supportability | R2-B2 | **PARTIAL GREEN / CORE FEASIBILITY CONFIRMED / RESIDUAL ACCOUNT CONFIRMATION OPEN** | P0 evidence + residual A–D account confirmation | provider UNSELECTED |
+| No Human-per-payout operation | R2 (frozen) · R8 | **FROZEN / NOT_IMPLEMENTED** | machine-first ops observability | `HUMAN_DOES_NOT_APPROVE_EVERY_PAYOUT` |
+| High-trust founding exception review | R5 · R7 · R3 | **NOT_IMPLEMENTED** | AUTO_HOLD → evidence → appeal flow proof | `FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST` |
+| Transparency as acquisition asset | R3 · R7 | **NOT_IMPLEMENTED** | factual launch copy audit | no guarantee/escrow claims |
 
 ## Active commercial priority
 

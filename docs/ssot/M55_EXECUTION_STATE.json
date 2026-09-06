@@ -2,11 +2,11 @@
   "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-09-03T17:50:59Z",
+  "updatedAt": "2026-09-05T15:29:51Z",
   "macroLane": "M55_COMMERCIAL_CONTENT_QUALITY",
-  "currentExecutionGate": "FOUR_SURFACE_CREATOR_READINESS",
-  "nextSingleAction": "FOUR_SURFACE_CREATOR_READINESS",
-  "productWorkAfterControlTower": "FOUR_SURFACE_CREATOR_READINESS",
+  "currentExecutionGate": "REVENUE_SAFETY_E2E",
+  "nextSingleAction": "REVENUE_SAFETY_E2E",
+  "productWorkAfterControlTower": "REVENUE_SAFETY_E2E",
   "pairImplementation": "COMPLETE",
   "pairPremium": "ACTIVATED",
   "pairFreeToPaidMappingAuthorizedNow": true,
@@ -24,7 +24,6 @@
     "PAIR-MINIMAL-IMPLEMENTATION",
     "PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-LOCAL-PREFLIGHT",
     "PAIR-RELATION-STAGE-SEMANTIC-CORRECTION-WAVE-A-LOCAL-IMPLEMENTATION",
-    "CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN",
     "PAIR-WAVE-A-ACTUAL-BROWSER-COMMERCIAL-QUALITY-VERIFICATION",
     "PAIR-PREMIUM-ACTIVATION-DECISION",
     "M55-COMMERCIAL-CONTENT-FINAL-3-P1-MINIMAL-CLOSURE",
@@ -48,7 +47,8 @@
     "M55-SITEWIDE-COMMERCIAL-UIUX-JAPANESE-RUNTIME-MASTER-AUDIT",
     "M55-SITEWIDE-COMMERCIAL-UIUX-WAVE1-IMPLEMENTATION",
     "M55-COMMERCIAL-CONTROL-TOWER-HARDENING-AND-WAVE2-VISUAL-TRANSFORMATION",
-    "M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE"
+    "M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE",
+    "FOUR_SURFACE_CREATOR_READINESS"
   ],
   "pairFreeToPaidMapping": {
     "gate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
@@ -686,6 +686,42 @@
     "providerMutationDuringReconciliation": false,
     "observedAt": "2026-09-03T05:58:56Z"
   },
+  "fourSurfaceCreatorReadinessTransition": {
+    "status": "CLOSED_GREEN",
+    "gate": "FOUR_SURFACE_CREATOR_READINESS",
+    "sourceCommit": "4aafc4a3eeb37c1ab72e948b1b02bb3b22242c60",
+    "candidatePathCount": 38,
+    "exactPlaywrightTitle": "Pair R1 and R3 relation grammar 390/430",
+    "exactPlaywrightResult": "1/1 PASS",
+    "semanticSafety": "259/259 PASS",
+    "globalTscStatus": "RED_PREEXISTING_101_DIAGNOSTICS",
+    "tscPassClaimed": false,
+    "artifactHashes": {
+      "trackedPatchSha256": "3d81a317ae48759729bdf11e9f9d67c1c9625a867271b2809eedfbea3fb7f120",
+      "completeArchiveSha256": "46db362742e417d5f0742a9c5378a1bb2e8c551dee9dacd114e42992d9a0ca48",
+      "machineEvidenceSha256": "8a949b2d7ea51a0908edc65373dcc20c3274e5d26b671e0a1da93f510122f1c0"
+    },
+    "humanApproved": true,
+    "noReplay": true,
+    "noReplayPolicy": {
+      "summary": "Dependency-scoped invalidation only — new chat, missing screenshot, or reassurance request is not invalidation",
+      "prohibitedAbsentInvalidation": [
+        "semantic 259/259 replay",
+        "exact Playwright Pair R1/R3 relation grammar replay",
+        "HV-08/HV-09 export parity replay",
+        "global TSC rerun for reassurance",
+        "browser QA replay for reassurance"
+      ]
+    },
+    "invalidatingDependencies": [
+      "components/narrative/NarrativeShare.module.css",
+      "components/narrative/PublicShareCardPreview.tsx",
+      "e2e/narrative-share-final-proof.spec.ts",
+      "lib/m55/narrative/pairSharePresentationV1.ts",
+      "lib/m55/compatibility/pairTraitIdentityV1.ts"
+    ],
+    "observedAt": "2026-09-05T13:15:00Z"
+  },
   "socialShareCommercialExperiencePostMergeTransition": {
     "status": "CLOSED_GREEN",
     "gate": "M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE",
@@ -712,11 +748,18 @@
   "creatorRevenueRoadmapAuthority": {
     "status": "ACTIVE",
     "humanApproved": true,
-    "currentStage": "FOUR_SURFACE_CREATOR_READINESS",
+    "contractReference": "docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md",
+    "currentStage": "REVENUE_SAFETY_E2E",
     "socialShareClosure": "CLOSED_GREEN",
-    "implementationBoundary": "R1_READINESS_MAPPING_FIRST",
+    "fourSurfaceCreatorReadiness": "CLOSED_GREEN",
+    "implementationBoundary": "R2_REVENUE_SAFETY_E2E_AFTER_COLD_START_REVALIDATION",
+    "creatorReferralStatus": "NOT_IMPLEMENTED",
+    "attributionStatus": "NOT_IMPLEMENTED",
+    "commissionLedgerStatus": "NOT_IMPLEMENTED",
+    "creatorDashboardStatus": "NOT_IMPLEMENTED",
+    "payoutSettlementStatus": "NOT_IMPLEMENTED",
+    "stripePayoutProviderStatus": "UNSELECTED",
     "stages": [
-      "M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE",
       "FOUR_SURFACE_CREATOR_READINESS",
       "REVENUE_SAFETY_E2E",
       "M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT",
@@ -731,7 +774,6 @@
       "CONTROLLED_SCALE"
     ],
     "criticalPath": [
-      "M55-SOCIAL-SHARE-COMMERCIAL-EXPERIENCE",
       "FOUR_SURFACE_CREATOR_READINESS",
       "REVENUE_SAFETY_E2E",
       "M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT",
@@ -750,9 +792,11 @@
       "commission ledger implementation",
       "creator dashboard implementation",
       "payout/settlement implementation",
-      "Stripe Connect/KYC/tax implementation"
+      "Stripe Connect/KYC/tax implementation",
+      "Stripe Global Payouts activation",
+      "Stripe escrow representation"
     ],
-    "observedAt": "2026-09-03T17:50:59Z"
+    "observedAt": "2026-09-05T13:15:00Z"
   },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,
@@ -773,10 +817,10 @@
     "previousLocalRuntimeHandlingCorrect": true,
     "previousMutationsObserved": 0,
     "revalidationRequired": false,
-    "revalidationReason": "Pair Wave-A zero-memory cold-start PASS accepted by Human; revalidation complete.",
+    "revalidationReason": "Creator Revenue / E2C2E durable contract, roadmap and handoff semantics added after R1 closure; zero-memory reconstruction must be revalidated before R2 mutation.",
     "latestResult": "HANDOFF_COLD_START_PASS",
     "latestResultAcceptedByHuman": true,
-    "acceptedAt": "2026-08-27T01:47:41Z",
+    "acceptedAt": "2026-09-05T15:29:51Z",
     "zeroMemoryOnePrompt": true,
     "localRuntimeHandlingCorrect": true,
     "mutationsObserved": 0,

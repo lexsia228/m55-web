@@ -23,6 +23,8 @@ import {
   resolveShareSubsystemFromVariant,
   shareExportDimensions,
 } from './publicShareImageV1';
+import { resolvePublicShareArtworkPathsFromToken } from './resolvePublicShareArtworkV1';
+import { buildPairSharePresentationV1 } from './pairSharePresentationV1';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -44,7 +46,7 @@ function personalSpec(variant: 'manual' | 'seen_vs_actual' | 'hidden_spec' = 'ma
   return spec!;
 }
 
-function pairManualSpec() {
+function pairManualSpec(lanes?: { personAStemLaneIndex: number; personBStemLaneIndex: number }) {
   const fixture = PAIR_V5_FIXTURES[0]!;
   const insight = buildPairFreeInsightSpecV2({
     answers: fixture.answers,
@@ -55,7 +57,7 @@ function pairManualSpec() {
     focusLabel: fixture.focus,
     relationStatusId: 'R3',
   });
-  return projectPairPublicShareV1({ spec: insight });
+  return projectPairPublicShareV1({ spec: insight, ...lanes });
 }
 
 describe('share export aspect parsing', () => {
@@ -178,6 +180,29 @@ describe('aspect selection wiring parity', () => {
   });
 });
 
+describe('pair image-first share action contract', () => {
+  it('keeps opt-in imageFirst default false and wires Pair caller only', () => {
+    const actions = readFileSync(join(ROOT, 'components/narrative/NarrativeShareActions.tsx'), 'utf8');
+    const pairCta = readFileSync(join(ROOT, 'components/compatibility/PairFreeShareCTA.tsx'), 'utf8');
+    const chooser = readFileSync(join(ROOT, 'components/narrative/ShareCardChooser.tsx'), 'utf8');
+    assert.match(actions, /imageFirst = false/);
+    assert.match(pairCta, /imageFirst/);
+    assert.doesNotMatch(chooser, /imageFirst/);
+  });
+
+  it('uses generated share-image export for image-first primary and explicit save', () => {
+    const actions = readFileSync(join(ROOT, 'components/narrative/NarrativeShareActions.tsx'), 'utf8');
+    assert.match(actions, /async function fetchShareImageFile/);
+    assert.match(actions, /buildUserShareImagePath\(spec\.sharePath, aspectRatio\)/);
+    assert.match(actions, /m55-share\.png/);
+    assert.match(actions, /handleImagePrimary/);
+    assert.match(actions, /imageFileShareAvailable \? pairCopy\.imageSharePrimaryJa : pairCopy\.imageSaveJa/);
+    assert.match(actions, /pairCopy\.linkShareJa/);
+    assert.match(actions, /pairCopy\.xLinkPostJa/);
+    assert.doesNotMatch(actions, /from ['"].*publicShareImageV1['"]/);
+  });
+});
+
 describe('manual preview/export parity', () => {
   it('export renderer keeps all manual rows that preview displays', () => {
     const spec = personalSpec('manual');
@@ -207,6 +232,69 @@ describe('manual preview/export parity', () => {
       /小さく一つ動かしてから、様子を見る。候補を並べてから閉じる/,
     );
     assert.match(spec.body, /誤解されやすいところ|自分に出やすい傾向/);
+  });
+});
+
+describe('pair trait artwork export parity', () => {
+  it('resolves dual canonical hero paths for trait-bearing pair tokens', () => {
+    const spec = pairManualSpec({ personAStemLaneIndex: 9, personBStemLaneIndex: 1 });
+    const paths = resolvePublicShareArtworkPathsFromToken(spec.token);
+    assert.equal(paths.length, 2);
+    assert.match(paths[0]!, /^\/ten-views\//);
+    assert.match(paths[1]!, /^\/ten-views\//);
+    const renderer = readFileSync(join(ROOT, 'lib/m55/narrative/publicShareImageV1.tsx'), 'utf8');
+    assert.match(renderer, /artUrls\.length === 2/);
+    assert.match(renderer, /buildPairSharePresentationV1/);
+  });
+
+  it('keeps old pair tokens on existing no-art fallback', () => {
+    const spec = pairManualSpec();
+    assert.equal(resolvePublicShareArtworkPathsFromToken(spec.token).length, 0);
+  });
+});
+
+describe('Pair aspect presentation authority', () => {
+  const spec = pairManualSpec({ personAStemLaneIndex: 9, personBStemLaneIndex: 1 });
+
+  it('prioritizes one combined contrast in 1:1', () => {
+    const model = buildPairSharePresentationV1(spec, '1:1');
+    assert.ok(model);
+    assert.equal(model.hierarchy, 'square-priority');
+    assert.equal(model.showGenericHeadline, false);
+    assert.equal(model.relationMode, 'combined');
+    assert.match(model.pairLabel, / × /);
+    assert.ok(model.combinedRelationJa.length > 0);
+  });
+
+  it('keeps the richest two-side hierarchy in 4:5', () => {
+    const model = buildPairSharePresentationV1(spec, '4:5');
+    assert.ok(model);
+    assert.equal(model.hierarchy, 'portrait-rich');
+    assert.equal(model.relationMode, 'two-column');
+    assert.ok(model.sideAJa.length > 0);
+    assert.ok(model.sideBJa.length > 0);
+  });
+
+  it('uses a vertical relation stack in 9:16', () => {
+    const model = buildPairSharePresentationV1(spec, '9:16');
+    assert.ok(model);
+    assert.equal(model.hierarchy, 'story-stack');
+    assert.equal(model.relationMode, 'vertical');
+    assert.deepEqual(buildPublicShareImageExportModel(spec, '9:16').dimensions, {
+      width: 1080,
+      height: 1920,
+    });
+  });
+
+  it('derives only from the public spec and retains privacy', () => {
+    for (const aspect of ['1:1', '4:5', '9:16'] as const) {
+      const blob = JSON.stringify(buildPairSharePresentationV1(spec, aspect));
+      assert.doesNotMatch(blob, /\d{4}-\d{2}-\d{2}|nickname|answer|private|session|provider/i);
+    }
+    const preview = readFileSync(join(ROOT, 'components/narrative/PublicShareCardPreview.tsx'), 'utf8');
+    const renderer = readFileSync(join(ROOT, 'lib/m55/narrative/publicShareImageV1.tsx'), 'utf8');
+    assert.match(preview, /buildPairSharePresentationV1/);
+    assert.match(renderer, /buildPairSharePresentationV1/);
   });
 });
 

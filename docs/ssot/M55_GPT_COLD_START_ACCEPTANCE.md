@@ -94,8 +94,18 @@ A fresh conversation may return `HANDOFF_COLD_START_PASS` only when all of the f
 - if source Header/Footer inventory has added or removed capability that SSOT does not reflect, **STOP / HANDOFF_COLD_START_FAIL**;
 - it recognizes that cross-site chrome changes belong in the shared owner, not duplicated components;
 - mutation count is zero.
+- it reconstructs R1 `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** with dependency-scoped no-replay from `docs/ssot/M55_EXECUTION_STATE.json` and `M55_HIGH_COST_EVIDENCE_LEDGER.md`;
+- it reconstructs `productWorkAfterControlTower = REVENUE_SAFETY_E2E` while CURRENT/NEXT remain `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`;
+- it reconstructs the complete staged Creator Revenue sequence R1→R8 from `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` and `creatorRevenueRoadmapAuthority` in execution state;
+- it does **not** falsely claim creator referral, attribution, commission ledger, creator dashboard, or payout/settlement are implemented;
+- it reconstructs direct single-tier / anti-MLM rules and prohibits recursive or recruitment-only compensation;
+- it reconstructs the internal `PENDING` → eligibility/fraud/refund checks → `PAYABLE` → payout-only-after-payable commission lifecycle;
+- it reconstructs Stripe-native payout preference with provider product **UNSELECTED** and does not invent Connect/Global Payouts availability or Stripe escrow;
+- it reconstructs `TARGET_COMMISSION_RATE = 50%` as **HUMAN TARGET ONLY**;
+- it does **not** invent an E2C2E acronym expansion;
+- it does not authorize real-payment rerun without an invalidating dependency and explicit authority.
 
-A model that reconstructs CURRENT/NEXT correctly but misses these commercial handoff invariants must **not** return `HANDOFF_COLD_START_PASS`.
+A model that reconstructs CURRENT/NEXT correctly but misses these Creator Revenue invariants must **not** return `HANDOFF_COLD_START_PASS`.
 
 Any authority conflict, unexplained branch movement, unverifiable required identity, attempted high-cost replay, or mutation during the acceptance test is FAIL/STOP.
 
@@ -131,6 +141,6 @@ Rerun is required only when a real handoff-mechanism invalidating dependency cha
 
 Use a completely new GPT conversation and provide only the repository identity plus this instruction:
 
-> Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Reconstruct the sole executable NEXT, the fixed commercial UX benchmark/reference system and frozen surface mapping, known composite route/state benchmark bindings where explicit mapping is state/section scoped, complete shared Header/Footer capability inventory (including exact contextual primary-action pairs, desktop vs mobile auth capabilities, method utility, and support/legal navigation vs canonical content-owner distinction), complete user-visible benchmark coverage with archetype fallback mapping, exact source-vs-SSOT inventory equality rules, unmapped-surface fail-closed rules, and valid benchmark reselection invalidators. Cross-check shared chrome inventory against actual shell/header/footer source owners. Return PASS only if you can preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed and READ-ONLY.
+> Perform the M55 cold-start acceptance from repository authority only. Read `AGENTS.md` first. Do not use prior chat memory. Do not mutate anything. Reobserve GitHub and Vercel when available. If local runtime is unavailable, report `LOCAL_RUNTIME_UNAVAILABLE` instead of inferring local facts. Reconstruct the sole executable NEXT, the fixed commercial UX benchmark/reference system and frozen surface mapping, known composite route/state benchmark bindings where explicit mapping is state/section scoped, complete shared Header/Footer capability inventory (including exact contextual primary-action pairs, desktop vs mobile auth capabilities, method utility, and support/legal navigation vs canonical content-owner distinction), complete user-visible benchmark coverage with archetype fallback mapping, exact source-vs-SSOT inventory equality rules, unmapped-surface fail-closed rules, valid benchmark reselection invalidators, and the Creator Revenue / E2C2E staged roadmap contract including R1 closure/no-replay, R2 next product work, anti-MLM rules, internal pending-to-payable ledger model, and NOT_IMPLEMENTED creator cash infrastructure. Cross-check shared chrome inventory against actual shell/header/footer source owners. Return PASS only if you can preserve rerun prohibitions, detect stale subordinate snapshots, and remain fail-closed and READ-ONLY.
 
 There is intentionally no expected gate token or benchmark name list in the prompt. A fresh model must discover CURRENT/NEXT and commercial handoff invariants from repository authority.

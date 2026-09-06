@@ -4,7 +4,15 @@
  * stored_v2 rows normalize user-facing copy from current DTR catalog at read-time.
  */
 import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
-import { runDtrEngine, type DtrEnvelope } from '../dtrEngine';
+import { buildPaidDtrChapterMaterialPack } from '../dtrPaidChapterMaterialPack';
+import { runDtrEngine, type DtrEnvelope, type PaidDtrGeneratedChapterBodies } from '../dtrEngine';
+import { buildPaidSavedReportChapterBodiesV1 } from '../paidResult/buildPaidSavedReportChapterBodiesV1';
+import {
+  buildPurchaseInputSnapshotV1,
+  readPurchaseInputSnapshotV1,
+  type PurchaseInputSnapshotV1,
+} from '../paidResult/purchaseInputSnapshotV1';
+import { hashOpaqueUserRef } from '../paidResult/stripeOpaqueCheckoutRefs';
 import { ENGINE_VERSION_V2 } from './constants';
 import type { EngineContextJson } from './buildV2FulfillmentSnapshot';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
@@ -116,10 +124,96 @@ function buildRawMeta(
   };
 }
 
+function readFrozenPurchaseInputFromDraftSnapshot(
+  draftSnapshot: Record<string, unknown> | null | undefined,
+): PurchaseInputSnapshotV1 | null {
+  if (!draftSnapshot || typeof draftSnapshot !== 'object') return null;
+  const extra = draftSnapshot.extra_json;
+  if (!extra || typeof extra !== 'object' || Array.isArray(extra)) return null;
+  return readPurchaseInputSnapshotV1(extra as Record<string, unknown>);
+}
+
+function normalizeStoredReadBirthDate(birthDate: string): string {
+  return birthDate.trim().slice(0, 10);
+}
+
+/**
+ * Fail-safe binding gate for deterministic stored_v2 Q1 recomposition.
+ * Returns null when any owner/product/profile/stem-integrity check fails.
+ */
+export function resolveBoundPurchaseInputForStoredV2Display(
+  row: DtrReportSnapshotReadRow,
+  profile: { nickname: string; birthDate: string },
+  engineContext: EngineContextJson,
+  purchaseInput: PurchaseInputSnapshotV1,
+): PurchaseInputSnapshotV1 | null {
+  if (purchaseInput.ownerRef !== hashOpaqueUserRef(row.user_id)) {
+    return null;
+  }
+  if (purchaseInput.productId !== row.product_id) {
+    return null;
+  }
+  const frozenNickname = purchaseInput.normalizedProfile.nickname?.trim();
+  const readNickname = profile.nickname.trim();
+  if (!frozenNickname || frozenNickname !== readNickname) {
+    return null;
+  }
+  const frozenBirthDate = normalizeStoredReadBirthDate(
+    purchaseInput.normalizedProfile.birthDate ?? '',
+  );
+  const readBirthDate = normalizeStoredReadBirthDate(profile.birthDate);
+  if (!frozenBirthDate || frozenBirthDate !== readBirthDate) {
+    return null;
+  }
+  if (
+    purchaseInput.questionnaireVersions.free !== 'free-v1' ||
+    purchaseInput.questionnaireVersions.paid !== 'paid-v1'
+  ) {
+    return null;
+  }
+
+  const rebuilt = buildPurchaseInputSnapshotV1({
+    userId: row.user_id,
+    productId: row.product_id,
+    profile: purchaseInput.normalizedProfile,
+    freeAnswerSet: purchaseInput.freeAnswerSet,
+    paidAnswerSet: purchaseInput.paidAnswerSet,
+    stemLaneIndex: engineContext.stemLaneIndex,
+    createdAt: purchaseInput.createdAt,
+  });
+  if (!rebuilt.ok) {
+    return null;
+  }
+  if (
+    rebuilt.value.individualization.audit.outputHash !==
+    purchaseInput.individualization.audit.outputHash
+  ) {
+    return null;
+  }
+
+  return purchaseInput;
+}
+
+function buildQ1DeterministicChapterBodies(
+  engineContext: EngineContextJson,
+  purchaseInput: PurchaseInputSnapshotV1,
+): PaidDtrGeneratedChapterBodies {
+  const paidIndividualization = composePaidIndividualizationFromEngineContext(engineContext);
+  const materialPack = buildPaidDtrChapterMaterialPack(
+    engineContext,
+    paidIndividualization,
+  );
+  return buildPaidSavedReportChapterBodiesV1({
+    draft: purchaseInput.individualization,
+    materialPack,
+  });
+}
+
 function resolveStoredV2DisplayEnvelope(
   storedEnvelope: DtrEnvelope,
   profile: { nickname: string; birthDate: string },
   engineContext: EngineContextJson,
+  row: DtrReportSnapshotReadRow,
 ): { ok: true; envelope: DtrEnvelope } | { ok: false; reason: string } {
   const storedLane = storedEnvelope.auditMeta.stemLaneIndex;
   const derivation = storedEnvelope.auditMeta.derivation ?? 'm55_composite_stem_v2_p_lunar';
@@ -129,6 +223,18 @@ function resolveStoredV2DisplayEnvelope(
   }
 
   const paidIndividualization = composePaidIndividualizationFromEngineContext(engineContext);
+  const rawPurchaseInput = readFrozenPurchaseInputFromDraftSnapshot(row.draft_snapshot);
+  const boundPurchaseInput = rawPurchaseInput
+    ? resolveBoundPurchaseInputForStoredV2Display(
+        row,
+        profile,
+        engineContext,
+        rawPurchaseInput,
+      )
+    : null;
+  const generatedChapterBodies = boundPurchaseInput
+    ? buildQ1DeterministicChapterBodies(engineContext, boundPurchaseInput)
+    : undefined;
 
   const displayEnvelope = runDtrEngine(
     {
@@ -143,6 +249,7 @@ function resolveStoredV2DisplayEnvelope(
       derivation,
       contractVersion: 'v2',
       paidIndividualization,
+      generatedChapterBodies,
     },
   );
 
@@ -236,6 +343,7 @@ export function resolveDisplayedDtrEnvelope(
       storedRead.envelope,
       storedRead.profile,
       engineContext,
+      row,
     );
     if (!display.ok) {
       return { ok: false, reason: display.reason };

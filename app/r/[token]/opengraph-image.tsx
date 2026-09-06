@@ -3,7 +3,8 @@ import { CANONICAL_PRODUCTION_ORIGIN, resolveSharedEntryFromToken } from '../../
 import { resolveTraitIdentity } from '../../../lib/m55/commercialUx/traitIdentityCatalog';
 import { resolvePublicShareSpecFromToken } from '../../../lib/m55/narrative/projectPublicShareV1';
 import { parsePublicCardDisplayV1, posterHeroLinesJa } from '../../../lib/m55/narrative/publicCardDisplayV1';
-import { resolvePublicShareArtworkFromToken } from '../../../lib/m55/narrative/resolvePublicShareArtworkV1';
+import { resolvePublicShareArtworkPathsFromToken } from '../../../lib/m55/narrative/resolvePublicShareArtworkV1';
+import { decodePublicShareToken } from '../../../lib/m55/narrative/publicShareTokenV1';
 
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
@@ -25,8 +26,8 @@ const SHELL = {
 
 export default async function Image({ params }: Props) {
   const { token } = await params;
-  const artPath = resolvePublicShareArtworkFromToken(token);
-  const artUrl = artPath ? `${CANONICAL_PRODUCTION_ORIGIN}${artPath}` : null;
+  const artPaths = resolvePublicShareArtworkPathsFromToken(token);
+  const artUrls = artPaths.map((path) => `${CANONICAL_PRODUCTION_ORIGIN}${path}`);
   const narrative = resolvePublicShareSpecFromToken(token);
   if (narrative) {
     const display = parsePublicCardDisplayV1(narrative);
@@ -34,6 +35,18 @@ export default async function Image({ params }: Props) {
       narrative.variant === 'hidden_spec' || narrative.variant === 'premium_takeaway';
     const isMirror = narrative.variant === 'seen_vs_actual';
     const isPair = narrative.variant === 'pair_manual';
+    const pairKey = decodePublicShareToken(token);
+    const pairTraitLabel =
+      isPair &&
+      pairKey?.kind === 'pair' &&
+      typeof pairKey.personAStemLaneIndex === 'number' &&
+      typeof pairKey.personBStemLaneIndex === 'number'
+        ? (() => {
+            const traitA = resolveTraitIdentity(pairKey.personAStemLaneIndex);
+            const traitB = resolveTraitIdentity(pairKey.personBStemLaneIndex);
+            return traitA && traitB ? `${traitA.traitName} × ${traitB.traitName}` : null;
+          })()
+        : null;
     const bg = isPoster
       ? 'linear-gradient(165deg, #1c1830 0%, #4e4480 100%)'
       : isMirror
@@ -45,9 +58,26 @@ export default async function Image({ params }: Props) {
     return new ImageResponse(
       (
         <div style={{ ...SHELL, flexDirection: 'row', padding: 0, background: bg, color: ink }}>
-          {artUrl ? (
+          {artUrls.length === 2 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', width: 520, height: 630 }}>
+              <img
+                src={artUrls[0]}
+                width={520}
+                height={315}
+                alt=""
+                style={{ width: 520, height: 315, objectFit: 'cover' }}
+              />
+              <img
+                src={artUrls[1]}
+                width={520}
+                height={315}
+                alt=""
+                style={{ width: 520, height: 315, objectFit: 'cover' }}
+              />
+            </div>
+          ) : artUrls.length === 1 ? (
             <img
-              src={artUrl}
+              src={artUrls[0]}
               width={520}
               height={630}
               alt=""
@@ -79,6 +109,11 @@ export default async function Image({ params }: Props) {
               <div style={{ display: 'flex', fontSize: 32, fontWeight: 700, lineHeight: 1.2 }}>
                 {narrative.headline}
               </div>
+              {isPair && pairTraitLabel ? (
+                <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, lineHeight: 1.25 }}>
+                  {pairTraitLabel}
+                </div>
+              ) : null}
               {isPoster
                 ? posterHeroLinesJa(display.heroJa).map((line) => (
                     <div
@@ -139,6 +174,7 @@ export default async function Image({ params }: Props) {
   const trait = identity?.traitName ?? card?.traitNameJa ?? 'M55';
   const phrase = identity?.canonicalTagline ?? card?.traitPhraseJa ?? '自分の動き方を、無料で見てみる';
   const invite = card?.inviteJa ?? '無料で自分の取扱説明書を見る';
+  const legacyArtUrl = artUrls[0] ?? null;
 
   return new ImageResponse(
     (
@@ -151,9 +187,9 @@ export default async function Image({ params }: Props) {
           color: '#fffaf1',
         }}
       >
-        {artUrl ? (
+        {legacyArtUrl ? (
           <img
-            src={artUrl}
+            src={legacyArtUrl}
             width={520}
             height={630}
             alt=""

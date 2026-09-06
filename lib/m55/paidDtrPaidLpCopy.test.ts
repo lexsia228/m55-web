@@ -164,7 +164,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.ok(blob.includes(PAID_DTR_LP.purchaseNotes.sectionTitleJa));
   });
 
-  it('uses reader-aligned chapter titles from PAID_DTR_DRAWER_CHAPTER_ENTRIES', () => {
+  it('uses canonical chapter titles from PAID_DTR_DRAWER_CHAPTER_ENTRIES', () => {
     assert.equal(PAID_DTR_LP.chapters.items.length, 4);
     assert.deepEqual(
       PAID_DTR_LP.chapters.items.map((c) => c.titleJa),
@@ -174,9 +174,13 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
       PAID_DTR_LP.chapters.items.map((c) => c.introJa),
       PAID_DTR_DRAWER_CHAPTER_ENTRIES.map((entry) => entry.sublabelJa),
     );
-    assert.notDeepEqual(
+    assert.deepEqual(
       PAID_DTR_LP.chapters.items.map((c) => c.titleJa),
       PAID_DTR_CHAPTERS.map((c) => c.title),
+    );
+    assert.deepEqual(
+      PAID_DTR_LP.chapters.items.map((c) => `${c.roman} ${c.titleJa}`),
+      PAID_DTR_CHAPTERS.map((c) => `${c.roman} ${c.title}`),
     );
   });
 

@@ -31,8 +31,10 @@ import {
   M55_FROZEN_OPEN_BASELINE_ENTRIES,
 } from '../m55/commercialUx/qualityControl/m55JapaneseComprehensionFrozenBaseline';
 import {
+  buildM55CtaComprehensionRegistry,
   buildM55GovernedCopyInventory,
   buildM55OptionAxisRegistrations,
+  buildM55ProductDiscoverabilityRegistry,
 } from '../m55/commercialUx/qualityControl/m55JapaneseComprehensionInventory';
 import {
   buildM55OptionAxisRegistrationsFromGovernedSemantics,
@@ -690,7 +692,7 @@ test('baseline reproduces four known Human findings', () => {
   const report = runM55JapaneseComprehensionBaseline();
   assert.equal(report.knownHumanRegressionFixturesCovered, 4);
   assert.equal(report.knownHumanFindingsReproduced, 4);
-  assert.deepEqual(report.currentActiveKnownHumanFindingIds, ['GCJQ-03', 'GCJQ-04']);
+  assert.deepEqual(report.currentActiveKnownHumanFindingIds, []);
   assert.equal(report.aiAutoGreenCount, 0);
   assert.equal(report.frozenBaseline.dynamicSourceDerivedEntries, 0);
   assert.equal(report.frozenBaseline.questionSourceFingerprintBound, true);
@@ -710,6 +712,29 @@ test('baseline reproduces four known Human findings', () => {
   assert.equal(report.currentProductFindings.autoFrozenCount, 0);
   assert.equal(report.controlPlaneIntegrity.currentProductComprehensionGate, 'GREEN');
   assert.equal(report.controlPlaneIntegrity.implementationIntegrity, 'GREEN');
+});
+
+test('GCJQ-03 and GCJQ-04 remediation closes active Human findings without novel P1', () => {
+  const report = runM55JapaneseComprehensionBaseline();
+  const inventory = buildM55GovernedCopyInventory();
+  const products = buildM55ProductDiscoverabilityRegistry(inventory);
+  const ctas = buildM55CtaComprehensionRegistry();
+
+  assert.ok(!report.currentActiveKnownHumanFindingIds.includes('GCJQ-03'));
+  assert.ok(!report.currentActiveKnownHumanFindingIds.includes('GCJQ-04'));
+  assert.equal(report.currentActiveKnownHumanFindingIds.length, 0);
+
+  const pairShare = ctas.find((c) => c.ctaId === 'pair.share.native');
+  assert.equal(pairShare?.userOutcome, 'motivation_pair_review_together_privacy_safe');
+
+  const pairPremium = products.find((p) => p.productKey === 'compatibility_report_full_v1');
+  assert.equal(pairPremium?.firstClassMerchandise, true);
+  assert.ok(pairPremium?.discoverySurfaces.includes('m55:public.home.pair_premium_preview'));
+  assert.ok(pairPremium?.discoverySurfaces.includes('m55:pair.bridge_only'));
+  assert.equal(pairPremium?.contextualPrerequisiteRequired, true);
+
+  assert.equal(report.materialP0Count, 0);
+  assert.equal(report.materialP1Count, 0);
 });
 
 test('pair scenario matrix covers mandatory scenarios', () => {

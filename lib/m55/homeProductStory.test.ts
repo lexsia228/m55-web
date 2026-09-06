@@ -13,6 +13,8 @@ import {
   PAIR_READING_FREE_STRUCTURE_ITEMS,
   PAIR_READING_GUEST_SUPPORT_LINES,
 } from './compatibility/pairReadingPublicStructure';
+import { COMPATIBILITY_REPORT_PRODUCT_AUTHORITY } from './compatibility/compatibilityCommerceAuthority';
+import { M55_COMMERCIAL_PRODUCTS } from './contracts/m55CommercialFunnelContract';
 
 const testDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(testDir, '../..');
@@ -109,6 +111,47 @@ describe('homeProductStory — capability map contract', () => {
     assert.match(productMapSource, /m55-home-product-map-pair-link/);
     assert.match(productMapSource, /HOME_PAIR_READING_PUBLIC_HREF/);
     assert.match(productMapSource, /m55-home-product-map-pair-preparing/);
+  });
+
+  it('renders Pair Premium preview as fourth product-map item with truthful copy', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    const pairPremiumProduct = M55_COMMERCIAL_PRODUCTS.pairPremium;
+    const pairPremiumCommerce = COMPATIBILITY_REPORT_PRODUCT_AUTHORITY;
+
+    assert.equal(pairPremiumProduct.status, 'NOT_LIVE');
+    assert.equal(pairPremiumProduct.availability, 'ENV_GATED_SANDBOX_ONLY');
+
+    assert.equal(home.productMapPairPremiumTitleJa, pairPremiumCommerce.publicName);
+    assert.match(
+      home.productMapPairPremiumBodyJa,
+      new RegExp(`${pairPremiumProduct.reportChapters}章`),
+    );
+    assert.match(home.productMapPairPremiumStatusJa, new RegExp(pairPremiumCommerce.priceLabel));
+
+    assert.match(home.productMapPairPremiumStatusJa, /提供準備中/);
+    assert.equal(
+      home.productMapPairPremiumStatusJa,
+      '提供準備中・¥1,480（税込）・買い切り・自動更新なし',
+    );
+
+    assert.equal(pairPremiumCommerce.billing, 'one_time');
+    assert.equal(pairPremiumCommerce.subscription, false);
+
+    assert.equal(
+      home.productMapPairPremiumBodyJa,
+      '無料で見えた二人の流れをもとに、\n6章のレポートで、二人の違い、すれ違いの順番、\n戻し方、次に試せることまで整理します。',
+    );
+    assert.equal(home.productMapPairPremiumTitleJa, '二人の相性レポート');
+    assert.equal(home.productMapPairPremiumCtaJa, 'まず二人の無料結果を見る');
+    assert.match(productMapSource, /m55-home-product-map-pair-premium/);
+    assert.match(productMapSource, /m55-home-product-map-pair-premium-link/);
+    assert.match(productMapSource, /HOME_PAIR_READING_PUBLIC_HREF/);
+    assert.doesNotMatch(productMapSource, /isCompatibilityCommerceEnabled/);
+    assert.doesNotMatch(productMapSource, /\/api\/compatibility\/checkout/);
+    assert.doesNotMatch(productMapSource, /\/synastry\/purchase\/confirm/);
+    assert.equal(home.productMapPairPremiumCtaJa.includes('購入'), false);
+    assert.equal(home.productMapPairPremiumStatusJa.includes('販売中'), false);
+    assert.equal(HOME_PAIR_READING_PUBLIC_HREF, '/synastry');
   });
 });
 
@@ -293,14 +336,16 @@ describe('homeProductStory — HOME terminology contract', () => {
 });
 
 describe('homeProductStory — final CTA and product facts', () => {
-  it('keeps a single paid primary CTA and exactly two pair CTAs (map + pair section)', () => {
+  it('keeps a single paid primary CTA and exactly three pair CTAs (map + pair section + premium preview)', () => {
     const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
     assert.equal(paidSolidCount, 1);
     assert.equal(homePanelSource.includes('m55-home-final-cta-pair'), false);
     assert.equal(homePanelSource.includes('finalCtaPairSecondaryJa'), false);
     const mapPairCount = (productMapSource.match(/m55-home-product-map-pair-link/g) ?? []).length;
+    const mapPairPremiumCount = (productMapSource.match(/m55-home-product-map-pair-premium-link/g) ?? []).length;
     const sectionPairCount = (pairFreeSource.match(/m55-home-pair-free-cta/g) ?? []).length;
     assert.equal(mapPairCount, 1);
+    assert.equal(mapPairPremiumCount, 1);
     assert.equal(sectionPairCount, 1);
     assert.match(productMapSource, /HOME_PAIR_READING_PUBLIC_HREF/);
     assert.match(pairFreeSource, /HOME_PAIR_READING_PUBLIC_HREF/);

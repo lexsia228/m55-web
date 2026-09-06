@@ -1,13 +1,18 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   PAID_DTR_CHAPTERS,
+  PAID_DTR_CHAPTER1_PILOT_GUIDE,
+  PAID_DTR_CHAPTER_DRAWER_INTRO,
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
   PAID_DTR_DRAWER_HUB,
+  PAID_DTR_DRAWER_CHAPTER_ENTRIES,
   PAID_DTR_DRAWER_THEME_ENTRIES,
   PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET,
   PAID_DTR_SAVED_REPORT_PRICING,
@@ -318,6 +323,88 @@ describe('paidDtrProductCopy SSOT', () => {
     ] as const;
     for (const term of forbidden) {
       assert.equal(corpus.includes(term), false, `corpus must not include: ${term}`);
+    }
+  });
+
+  it('Q2-A: four canonical chapter titles are exact and ordered', () => {
+    assert.deepEqual(
+      PAID_DTR_CHAPTERS.map((c) => `${c.roman} ${c.title}`),
+      ['Ⅰ 輪郭を見る', 'Ⅱ 構造を読む', 'Ⅲ 無理を知る', 'Ⅳ 楽に扱う']
+    );
+    assert.deepEqual(
+      PAID_DTR_CHAPTERS.map((c) => c.title),
+      ['輪郭を見る', '構造を読む', '無理を知る', '楽に扱う']
+    );
+  });
+
+  it('Q2-A: drawer chapter rows use canonical title and readerDescJa scent', () => {
+    assert.equal(PAID_DTR_DRAWER_CHAPTER_ENTRIES.length, 4);
+    for (let i = 0; i < PAID_DTR_CHAPTERS.length; i++) {
+      const ch = PAID_DTR_CHAPTERS[i]!;
+      const entry = PAID_DTR_DRAWER_CHAPTER_ENTRIES[i]!;
+      assert.equal(entry.pillLabelJa, ch.roman);
+      assert.equal(entry.labelJa, ch.title);
+      assert.equal(entry.primaryChapterJa, `${ch.roman} ${ch.title}`);
+      assert.equal(entry.sublabelJa, ch.readerDescJa);
+    }
+  });
+
+  it('Q2-A: reader drawer intro aligns with canonical identity', () => {
+    const partIds = ['1', '2', '3', '4'] as const;
+    for (let i = 0; i < PAID_DTR_CHAPTERS.length; i++) {
+      const ch = PAID_DTR_CHAPTERS[i]!;
+      const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partIds[i]!];
+      assert.equal(intro.hubLabelJa, ch.title);
+      assert.equal(intro.hubSublabelJa, ch.readerDescJa);
+      assert.equal(intro.legacyChapterTitleJa, ch.title);
+    }
+  });
+
+  it('Q2-A: report-chapter labels omit 恋人 and お金', () => {
+    const reportChapterBlob = [
+      ...PAID_DTR_DRAWER_CHAPTER_ENTRIES.flatMap((e) => [e.labelJa, e.sublabelJa, e.primaryChapterJa]),
+      ...Object.values(PAID_DTR_CHAPTER_DRAWER_INTRO).flatMap((i) => [
+        i.hubLabelJa,
+        i.hubSublabelJa,
+        i.personalHeadingSuffixJa,
+      ]),
+    ].join('\n');
+    assert.equal(/恋人/.test(reportChapterBlob), false);
+    assert.equal(/お金/.test(reportChapterBlob), false);
+  });
+
+  it('Q2-A: consult theme catalog remains theme-led (unchanged)', () => {
+    assert.deepEqual(PAID_DTR_CONSULT_REPLY.themeExamplesJa, [
+      '仕事・これからの進め方',
+      'これからの動き方',
+      '恋人・近い人との向き合い方',
+      'お金・生活・疲れの整え方',
+      '疲れたときの戻り方',
+    ]);
+  });
+
+  it('Q2-A.1: chapter-1 pilot guide uses quoted canonical chapter refs', () => {
+    assert.deepEqual([...PAID_DTR_CHAPTER1_PILOT_GUIDE.branchItemsJa], [
+      '進め方が重いときは、Ⅱ「構造を読む」へ。',
+      '距離や言葉が重いときは、Ⅲ「無理を知る」へ。',
+      '疲れや生活の余白が重いときは、Ⅳ「楽に扱う」へ。',
+    ]);
+  });
+
+  it('Q2-B.1: chapter opening registry removed from product copy SSOT', () => {
+    const copySource = readFileSync(join(process.cwd(), 'lib/m55/paidDtrProductCopy.ts'), 'utf8');
+    assert.equal(copySource.includes('PAID_DTR_CHAPTER_OPENING_COPY'), false);
+    assert.equal(copySource.includes('PaidDtrChapterOpeningCopy'), false);
+  });
+
+  it('Q2-B.1: report chapter drawer intro remains canonical orientation', () => {
+    const partIds = ['1', '2', '3', '4'] as const;
+    for (let i = 0; i < PAID_DTR_CHAPTERS.length; i++) {
+      const ch = PAID_DTR_CHAPTERS[i]!;
+      const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partIds[i]!];
+      assert.equal(intro.hubLabelJa, ch.title);
+      assert.equal(intro.hubSublabelJa, ch.readerDescJa);
+      assert.equal(intro.hubSublabelJa.includes('お金'), false);
     }
   });
 });

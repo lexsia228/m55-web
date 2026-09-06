@@ -7,7 +7,7 @@
  * CHAPTER_NARRATIVE formatters emit them verbatim — no appended predicate tails.
  */
 
-import type { ChapterId } from './pairReadingTypes';
+import type { ChapterId, RelationStatusId } from './pairReadingTypes';
 
 export type PaidChapterDepthV1 = {
   readonly chapterQuestion: string;
@@ -76,6 +76,71 @@ const DEPTH: Readonly<Record<ChapterId, PaidChapterDepthV1>> = {
   },
 };
 
+const R1_DEPTH: Readonly<Record<ChapterId, PaidChapterDepthV1>> = {
+  ch_you_pace: {
+    chapterQuestion: 'まだやり取りがなく、自分から先に動こうとするとき、何を確かめたくなる？',
+    trigger: 'まだ会話がなく、近づくかどうかを考えている場面',
+    misread:
+      'ここで起きやすい誤読は、自分だけが先に動こうとしているように見え、相手の反応がまだ見えないこと自体が距離の合図のように受け取られることがあります。',
+    failureCondition: '反応の見えなさだけで関心の有無を決めてしまうと、意味づけが早くなりやすい。',
+    handlingGuidance: '結論の前に、自分が知りたい一点だけを一文で書き留める。',
+    successSignal: 'そのあと、自分の中で置いた意味が一点に絞れたかどうかを見る。',
+    experimentClosing: '反応の見えなさだけで関心の有無を決めず、一回だけ試す。',
+  },
+  ch_other_pace: {
+    chapterQuestion: '相手の反応がまだ見えないとき、あなたは何を確かめたくなる？',
+    trigger: 'まだやり取りがなく、相手の反応が見えない場面',
+    misread: '誤読の入口は、相手の静けさを拒否と読みやすい。',
+    failureCondition: '見えない時間を、関係の終わりと決めてしまうと、読み取りが一方向に寄りやすい。',
+    handlingGuidance: '意味を一つに決めず、自分が知りたい一点だけを書き留める。',
+    successSignal: '自分の中で、一点だけ整理できた余白が残る。',
+    experimentClosing: '自分の中で一点だけ整理できたかを見る。',
+  },
+  ch_pair_gap: {
+    chapterQuestion: '近づく前に、言葉の置き方の違いを想像するとき、どこで詰まりやすい？',
+    trigger: 'まだ会話が始まっていない場面で、近づくかどうかを考えるとき',
+    misread: '見落としやすい誤読は、自分の中だけで差を先に決めてしまうことがあります。',
+    failureCondition: '違いを一つの正解にまとめようとすると、自分の中だけで重くなりやすい。',
+    handlingGuidance: '自分が知りたい一点だけを、先に一文で書き留める。',
+    successSignal: '一点に絞れたあと、自分の中の迷いが少し整理される。',
+    experimentClosing: '一点に絞ったあと、自分の中の迷いが整理されたかを見る。',
+  },
+  ch_topic_deep: {
+    chapterQuestion: '気になる点について、何を先に確かめたい？',
+    trigger: 'まだ言葉になっていない気になる点を、自分の中で整理する場面',
+    misread: '自分の中だけで整理を重ねるほど、一点が広がりやすい。',
+    failureCondition: '答えを急ぎ、話題の入口を広げすぎると、扱う点が散りやすい。',
+    handlingGuidance: '一つだけ選んで、自分が知りたい一点を一文で書き留める。',
+    successSignal: '一点に絞れたあと、自分の中の入口が一つに整う。',
+    experimentClosing: '入口を一つに絞ったあと、自分の中が整ったかを見る。',
+  },
+  ch_today_clue: {
+    chapterQuestion: '今の気持ちの重さで、何が引っかかった？',
+    trigger: 'まだ会話がないのに、距離や気持ちの重さを感じる場面',
+    misread: '今日の誤読は、見えない反応を、冷たさのサインだと受け取りやすくなります。',
+    failureCondition: '今の一点だけで、これからを決めてしまうと、見えにくくなる。',
+    handlingGuidance: '今の一点だけメモし、自分の中に小さく残す。',
+    successSignal: '一点だけ書き留めたあと、自分の中の重さが少し整理される。',
+    experimentClosing: '一点だけ書き留めたあと、自分の中の重さが整理されたかを見る。',
+  },
+  ch_about: {
+    chapterQuestion: '最初の接点を考えるとき、何を確認したい？',
+    trigger: '話しかける言葉を何度も書き直している場面',
+    misread: '完璧な一言を待つあまり、接点自体を作れない。',
+    failureCondition: '大きな答えを一度に求めると、短い接点を置きにくくなる。',
+    handlingGuidance: '短い一言だけ候補にし、反応はあとで見る。',
+    successSignal: '小さな一文を候補にしたあと、次に整えやすい形だけ決まる。',
+    experimentClosing: '候補にした一文のあと、整えやすい形だけ決まったかを見る。',
+  },
+};
+
+function depthFor(key: ChapterId, relationStatusId?: RelationStatusId): PaidChapterDepthV1 {
+  if (relationStatusId === 'R1') {
+    return R1_DEPTH[key];
+  }
+  return DEPTH[key];
+}
+
 type DepthFormatter = (
   depth: PaidChapterDepthV1,
   relationshipLoop: readonly string[],
@@ -120,15 +185,19 @@ const CHAPTER_NARRATIVE: Readonly<Record<ChapterId, DepthFormatter>> = {
   ],
 };
 
-export function paidChapterDepthFor(key: ChapterId): PaidChapterDepthV1 {
-  return DEPTH[key];
+export function paidChapterDepthFor(
+  key: ChapterId,
+  relationStatusId?: RelationStatusId,
+): PaidChapterDepthV1 {
+  return depthFor(key, relationStatusId);
 }
 
 export function formatPaidChapterDepthNarrative(
   key: ChapterId,
   relationshipLoop: readonly string[],
+  relationStatusId?: RelationStatusId,
 ): readonly string[] {
-  const depth = DEPTH[key];
+  const depth = depthFor(key, relationStatusId);
   const formatter = CHAPTER_NARRATIVE[key];
   return Object.freeze(
     formatter(depth, relationshipLoop).map((line) => line.trim()).filter((line) => line.length >= 8),

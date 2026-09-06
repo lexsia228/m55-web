@@ -14,6 +14,7 @@ Machine truth: `lib/m55/contracts/m55CommercialFunnelContract.ts`
 | E | `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` | State, worktrees, sequence, decisions |
 | E+ | `M55_CONTROL_TOWER_OPERATIONS_MAP.md` | GitHub / Vercel / Clerk / Supabase / Stripe ops map · boot cross-reference |
 | E++ | `M55_HIGH_COST_EVIDENCE_LEDGER.md` | Closed high-cost test evidence · rerun prohibition · invalidation rules |
+| E+++ | `M55_CREATOR_REVENUE_E2C2E_SSOT.md` | Creator Revenue / E2C2E staged roadmap contract · anti-MLM · ledger lifecycle · Stripe boundary |
 | — | `M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` | Safari MCP canonical actual-browser observation adapter · subordinate to commercial quality contract |
 | — | `docs/runbooks/M55_SAFARI_MCP_LOCAL_READINESS_RUNBOOK.md` | Subordinate STP/MCP local readiness steps · not authority |
 | — | `M55_PRODUCT_TRUTH.md` | Human-readable product truth (references machine contract) |

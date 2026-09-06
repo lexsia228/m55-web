@@ -119,10 +119,86 @@
 }
 
 .inputCard input:focus-visible,
+.segmentedDobInputYear:focus-visible,
+.segmentedDobInputMonth:focus-visible,
+.segmentedDobInputDay:focus-visible,
 .submit:focus-visible,
 .purchaseLink:focus-visible {
   outline: 2px solid #725d89;
   outline-offset: 3px;
+}
+
+.segmentedDobRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+.segmentedDobField {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.segmentedDobInputYear,
+.segmentedDobInputMonth,
+.segmentedDobInputDay {
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 9px 6px;
+  border: 1px solid rgba(55, 45, 70, 0.2);
+  border-radius: 9px;
+  background: #fcfbfa;
+  color: var(--ink);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.segmentedDobInputYear {
+  width: 4rem;
+  flex: 1 1 3.6rem;
+  min-width: 0;
+  max-width: 4.4rem;
+}
+
+.segmentedDobInputMonth,
+.segmentedDobInputDay {
+  width: 2.6rem;
+  flex: 1 1 2.2rem;
+  min-width: 0;
+  max-width: 2.85rem;
+}
+
+.segmentedDobUnit {
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.segmentedDobError {
+  margin: 6px 0 0;
+  color: #7c3434;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .profileBirthdateLocked {
@@ -657,8 +733,17 @@
 }
 
 .paidBridge {
-  margin-top: 48px;
+  margin-top: 32px;
   padding: clamp(22px, 5vw, 42px);
+}
+
+.unresolvedQuestion {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: var(--ink);
+  font-size: clamp(17px, 3.5vw, 21px);
+  font-weight: 700;
+  line-height: 1.65;
 }
 
 .deliverableLead {
@@ -675,6 +760,10 @@
   margin: 22px 0 0;
   padding: 0;
   list-style: none;
+}
+
+.mappedChapters {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .toolkitTiles li {
@@ -932,6 +1021,81 @@
   }
 }
 .pairContext { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 20px; padding: 14px 16px; border: 1px solid rgba(101,79,137,.18); border-radius: 14px; background: rgba(250,247,253,.92); color: #3b3049; }
+.pairTraitHero {
+  margin: 0 0 20px;
+  padding: 18px 16px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(101, 79, 137, 0.22);
+  background:
+    radial-gradient(100% 120% at 0% 0%, rgba(155, 135, 225, 0.14), transparent 58%),
+    linear-gradient(165deg, rgba(250, 247, 253, 0.98), rgba(236, 228, 248, 0.92));
+}
+.pairTraitEyebrow {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #756a7e;
+}
+.pairTraitHeadline {
+  margin: 0 0 14px;
+  font-size: 1.35rem;
+  line-height: 1.3;
+  color: #3b3049;
+}
+.pairTraitVisuals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.pairTraitCard {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(101, 79, 137, 0.14);
+}
+.pairTraitImageWrap {
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 4 / 5;
+  min-height: 7rem;
+}
+.pairTraitImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+}
+.pairTraitSideLabel {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #756a7e;
+}
+.pairTraitName {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #3b3049;
+}
+.pairTraitIdentityLine {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #5f536f;
+}
+.pairTraitTransition {
+  margin: 14px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #5f536f;
+}
 .pairContext span { color: #756a7e; font-size: .86rem; }
 .pairRelationalBanner {
   display: grid;
@@ -965,6 +1129,8 @@
   .pairContext { align-items: flex-start; flex-direction: column; gap: 4px; }
   .pairRelationalBanner { grid-template-columns: 1fr; justify-items: stretch; }
   .pairRelBridge { justify-self: center; }
+  .pairTraitVisuals { grid-template-columns: 1fr; }
+  .pairTraitImageWrap { min-height: 9rem; }
 }
 .inputFieldLabel { display: grid; gap: 8px; }
 .partnerLabelPrivacy { color: #756a7e; font-size: .78rem; line-height: 1.65; }

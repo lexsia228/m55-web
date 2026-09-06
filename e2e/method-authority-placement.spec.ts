@@ -255,7 +255,7 @@ test.describe('M55 method placements', () => {
     );
   });
 
-  test('purchased report shows the composition note before the chapter heading', async ({ page }) => {
+  test('purchased report shows the composition note before the chapter band', async ({ page }) => {
     await prepareCleanCapturePage(page);
     // openPanel fixture avoids Clerk keyless click → accounts.dev navigation.
     await page.goto('/dev/dtr-drawer-preview?openPanel=chapter-1', {
@@ -272,6 +272,13 @@ test.describe('M55 method placements', () => {
     await expect(note).not.toContainText('1983-02-28');
     await expect(note).not.toContainText('fp-v1');
 
+    const chapterBand = page.locator(
+      '[data-testid="m55-purchased-report-body"] [data-part="1"]',
+    );
+    await expect(chapterBand).toBeVisible();
+    await expect(chapterBand).toHaveAttribute('aria-label', '第1章 輪郭を見る');
+    await expect(chapterBand).toContainText('輪郭を見る');
+
     const order = await page.evaluate(() => {
       const top = (selector: string) => {
         const el = document.querySelector(selector);
@@ -282,11 +289,11 @@ test.describe('M55 method placements', () => {
       };
       return {
         method: top('[data-testid="m55-method-purchased-report"]'),
-        chapter: top('[data-testid="m55-report-chapter-heading"]'),
+        chapterBand: top('[data-testid="m55-purchased-report-body"] [data-part="1"]'),
       };
     });
     expect(order.method).not.toBeNull();
-    expect(order.chapter).not.toBeNull();
-    expect(order.chapter!).toBeGreaterThan(order.method!);
+    expect(order.chapterBand).not.toBeNull();
+    expect(order.chapterBand!).toBeGreaterThan(order.method!);
   });
 });

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { PAID_DTR_CHAPTER_DRAWER_INTRO } from './paidDtrProductCopy';
+import { PAID_DTR_CHAPTER_DRAWER_INTRO, PAID_DTR_CHAPTERS } from './paidDtrProductCopy';
 
 const READER_CSS = join(process.cwd(), 'components/dtr/DtrFullReader.module.css');
 const HUB_CSS = join(process.cwd(), 'components/dtr/PremiumDrawerHub.module.css');
@@ -15,10 +15,44 @@ const PAID_COPY = join(process.cwd(), 'lib/m55/paidDtrProductCopy.ts');
 
 describe('dtrSavedReportChapterMobileReadability', () => {
   it('keeps chapter drawer labels in paidDtrProductCopy SSOT', () => {
-    assert.equal(PAID_DTR_CHAPTER_DRAWER_INTRO['1'].hubLabelJa, '自分の形を知る');
-    assert.equal(PAID_DTR_CHAPTER_DRAWER_INTRO['2'].hubLabelJa, '仕事・これからの進め方');
-    assert.equal(PAID_DTR_CHAPTER_DRAWER_INTRO['3'].hubLabelJa, '恋人・近い人との向き合い方');
-    assert.equal(PAID_DTR_CHAPTER_DRAWER_INTRO['4'].hubLabelJa, 'お金・生活・疲れの整え方');
+    const partIds = ['1', '2', '3', '4'] as const;
+    for (let i = 0; i < PAID_DTR_CHAPTERS.length; i++) {
+      const ch = PAID_DTR_CHAPTERS[i]!;
+      const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partIds[i]!];
+      assert.equal(intro.hubLabelJa, ch.title);
+      assert.equal(intro.hubSublabelJa.includes('恋人'), false);
+      assert.equal(intro.hubSublabelJa.includes('お金'), false);
+    }
+  });
+
+  it('DtrFullReader renders canonical chapter title from drawer intro SSOT', () => {
+    const reader = readFileSync(join(process.cwd(), 'components/dtr/DtrFullReader.tsx'), 'utf8');
+    assert.ok(reader.includes('PAID_DTR_CHAPTER_DRAWER_INTRO'));
+    assert.ok(reader.includes('intro.hubLabelJa'));
+    assert.ok(reader.includes('reportPartBandTitle'));
+  });
+
+  it('DtrFullReader avoids duplicate canonical title in chapter band aria', () => {
+    const reader = readFileSync(join(process.cwd(), 'components/dtr/DtrFullReader.tsx'), 'utf8');
+    assert.equal(reader.includes('生活の4つの場面で読み返せます'), false);
+    assert.ok(reader.includes('4章の流れで読み返せます'));
+    assert.ok(reader.includes('legacyTitle !== intro.hubLabelJa'));
+    assert.ok(reader.includes('第${partId}章'));
+    assert.equal(reader.includes('第${partId}部'), false);
+    assert.equal(
+      reader.includes('`第${partId}部 ${intro.hubLabelJa}。${intro.legacyChapterTitleJa}`'),
+      false
+    );
+  });
+
+  it('Q2-B.1: chapter path has no pseudo-personalized opening chrome', () => {
+    const reader = readFileSync(join(process.cwd(), 'components/dtr/DtrFullReader.tsx'), 'utf8');
+    assert.equal(reader.includes('function DrawerChapterPersonalLead'), false);
+    assert.equal(reader.includes('PAID_DTR_CHAPTER_OPENING_COPY'), false);
+    assert.equal(reader.includes('function shouldSuppressDrawerChapterOpeningLead'), false);
+    assert.equal(reader.includes('function ChapterPersonalHeading'), false);
+    assert.ok(reader.includes('function ReportPartBand'));
+    assert.ok(reader.includes('<ReportPartBand partId="1" />'));
   });
 
   it('DtrFullReader.module.css defines chapter mobile readability rhythm', () => {

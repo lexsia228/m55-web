@@ -102,14 +102,25 @@ function requireCapture(captureId: string): PremiumCaptureCase {
 
 /** Runtime assertion contract for captures whose product phase marker moved before model refresh. */
 function captureForAssertion(capture: PremiumCaptureCase): PremiumCaptureCase {
-  if (capture.captureId !== 'answer-review') return capture;
-  return {
-    ...capture,
-    visibleContract: {
-      ...capture.visibleContract,
-      locator: '[data-testid="m55-paid-answer-review"]',
-    },
-  };
+  if (capture.captureId === 'answer-review') {
+    return {
+      ...capture,
+      visibleContract: {
+        ...capture.visibleContract,
+        locator: '[data-testid="m55-paid-answer-review"]',
+      },
+    };
+  }
+  if (capture.captureId === 'purchased-report-body') {
+    return {
+      ...capture,
+      visibleContract: {
+        ...capture.visibleContract,
+        requiredTexts: ['輪郭を見る'],
+      },
+    };
+  }
+  return capture;
 }
 
 function requireLocalDevFixture(testName: string) {
@@ -511,7 +522,10 @@ for (const vp of VIEWPORTS) {
       await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
       const bodyLocator = page.getByTestId('m55-purchased-report-body');
       await expect(bodyLocator).toBeVisible({ timeout: 30_000 });
-      await expect(bodyLocator.getByTestId('m55-report-chapter-heading')).toContainText('の自分の形');
+      const chapterBand = bodyLocator.locator('[data-part="1"]');
+      await expect(chapterBand).toHaveAttribute('aria-label', '第1章 輪郭を見る');
+      await expect(chapterBand).toContainText('輪郭を見る');
+      await expect(bodyLocator.locator('[data-visual-role="thesis"]').first()).toBeVisible();
       await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
       await expect(bodyLocator.getByTestId('m55-method-purchased-report')).toBeVisible();
       await capturePng(page, 'purchased-report-body', vp.name);

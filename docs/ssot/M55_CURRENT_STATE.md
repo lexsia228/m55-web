@@ -13,6 +13,23 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
+## CURRENT EXECUTION OVERLAY — 2026-09-06
+
+Human-approved durable overlay. When this section conflicts with older narrative `(CURRENT)` labels below, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `REVENUE_SAFETY_E2E` |
+| ACTIVE MACRO | **CREATOR REVENUE R2** |
+| R2-B2 | **CORE STRIPE FEASIBILITY CONFIRMED** / **RESIDUAL CLASSIFICATION OPEN** |
+| PARALLEL QUALITY LANE | **SELF PREMIUM PUBLICATION CLOSURE** — non-Stripe · does not replace CURRENT/NEXT |
+| CREATOR CASH | **NOT IMPLEMENTED** |
+| PAYOUT PROVIDER | **UNSELECTED** |
+| PAIR PREMIUM | commerce switch **ACTIVATED** · control-plane decision **CLOSED GREEN** · real-payment E2E **not GREEN** · fulfillment + owned-report revisit E2E **not GREEN** unless separately proven |
+
+All older `CURRENT` narrative sections below are **historical mirrors** when they conflict with this overlay or `M55_EXECUTION_STATE.json`.
+
 Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three); **updated 2026-08-17** (Human Final Commercial Acceptance Audit · bounded pre-SELL correction lane · local commit on WT-034 · durable authority reconciliation); **updated 2026-08-17** (authority reconciliation exact-review correction micro-patch REV1); **updated 2026-08-18** (PATCH-3 post-Codex-review finalization · evidence review CLOSED GREEN · commit authorization not yet granted); **updated 2026-08-18** (PR #135 **MERGED** · Production/main aligned @ `a6ddfd7…` · Human Preview + Production visual acceptance **GREEN** · post-SELL commercial-growth control-plane reconciliation); **updated 2026-08-18** (PR #137 **MERGED** · G1 Revenue Outcome Observability **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (PR #139 **MERGED** · G2 Public Terminology Long-Tail **CLOSED GREEN** · documented post-merge Tier-E reconciliation); **updated 2026-08-18** (G3-02 owned-report signed-out deep-return · PR #141 **OPEN** · Tier-E active-lane reconciliation); **updated 2026-08-19** (PR #141 **MERGED** · G3-02 **CLOSED GREEN** · post-merge Tier-E reconciliation); **updated 2026-08-19** (Safari TP 27.0 MERGE_HOLD @ `339e7b296171077ddbc9357daeb6372deadb83a6` · P1 visual closure on PR #144 · USER_VISIBLE_CLOSED_GREEN **HOLD**); **updated 2026-08-19** (PR #144 **MERGED** · commercial quality consolidation **CLOSED GREEN** · Production `dpl_8CvJAXiT84GYvU1NUdEds8XnZLpg` **READY** · post-merge Tier-E settlement); **updated 2026-08-19** (G3-03 WT-044 implementation + runtime proof · **CLOSED GREEN** self-closing on G3-03 PR merge); **updated 2026-08-20** (G3-04 Today/Weekly KEEP_REJECTED de-exposure · **G3 REVISIT / RETENTION LOOP CLOSED GREEN** self-closing on G3-04 PR merge); **updated 2026-08-20** (G4 ORGANIC DISCOVERY Wave 1+2 · **CLOSED GREEN** self-closing on this PR merge); **updated 2026-08-21** (PR #149 MERGED · G5 Wave 1 CLOSED GREEN · Pair lane entrance Wave 0 readability mapping activated); **updated 2026-08-22** (Control Tower static/dynamic separation · semantic execution authority · completed-gate dedup).
 
 ## PAIR LANE — SEMANTIC EXECUTION AUTHORITY (CURRENT)
@@ -1058,6 +1075,23 @@ documented post-merge transition remains recorded for WT-001 historical context.
 | Self funnel operational baseline (PR #80) | **GREEN** — OPERATIONAL_BASELINE on Production |
 | Product Authority Pack (PR #79) | **GREEN** — completed infrastructure |
 | Self funnel Growth / share (PR #81, 2026-08-01) | **GREEN** — MERGED to Production @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; commercial + technical closure complete |
+
+## 2026-09-05 — R1 Four-Surface Creator Readiness closure
+
+| Field | Value |
+|---|---|
+| Gate | `FOUR_SURFACE_CREATOR_READINESS` |
+| Status | **CLOSED GREEN** |
+| Commit | `4aafc4a3eeb37c1ab72e948b1b02bb3b22242c60` |
+| Branch | `feat/m55-four-surface-creator-readiness-v1` |
+| Candidate paths | 38 |
+| Exact Playwright | `Pair R1 and R3 relation grammar 390/430` — **1/1 PASS** |
+| Semantic safety | **259/259 PASS** |
+| Global TSC | **RED_PREEXISTING_101_DIAGNOSTICS** — TSC PASS **not claimed** |
+| Control Tower | `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` pending after governance settlement |
+| Product work after Control Tower | `REVENUE_SAFETY_E2E` |
+| Creator cash infrastructure | **NOT IMPLEMENTED** |
+| Creator Revenue SSOT | `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` |
 
 ## Runtime vs target (scope separation — verifier preserved)
 

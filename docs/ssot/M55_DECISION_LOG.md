@@ -779,3 +779,151 @@ The completed reconciliation pass did **not** authorize:
 - commit / push (that reconciliation pass)
 
 The authorized **NEXT** action is baseline/control-plane implementation on the existing Commercial Quality Control Plane allowlist only — see `implementationAllowedPaths` in `M55_EXECUTION_STATE.json`. Commit and push remain **PROHIBITED** during the CURRENT gate until Control Tower actual-diff review GREEN + Codex independent review GREEN + subsequent explicit commit authorization.
+
+### 2026-09-05 — Creator Revenue / E2C2E staged roadmap settlement
+
+**Status:** Human **APPROVED** · governance settlement after R1 `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** · local commit only · push/PR/deploy **NOT AUTHORIZED**
+
+| Decision | Value |
+|---|---|
+| R1 closure | `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** · commit `4aafc4a3eeb37c1ab72e948b1b02bb3b22242c60` · 38-path candidate |
+| Staged roadmap authority | `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` supersedes monolithic `M55-REFERRAL-CREATOR-COMMERCE-DESIGN` sequencing for active planning |
+| Internal ledger architecture | approved planning contract: `PENDING` → eligibility/fraud/refund checks → `PAYABLE` → payout execution only after `PAYABLE` |
+| Stripe payout preference | **STRIPE-NATIVE** desired boundary · actual provider product **UNDECIDED** until fresh Japan account/country/business-model verification |
+| Stripe escrow | **prohibited claim** — do not represent Connect/Global Payouts as M55 escrow |
+| `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · not provider/legal/tax/final accounting basis |
+| Compensation model | direct single-tier only · **no multi-level compensation** |
+| Product work after Control Tower | `REVENUE_SAFETY_E2E` |
+| Control Tower | `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` required because handoff mechanism changed |
+| Creator cash infrastructure | **NOT IMPLEMENTED** · referral/attribution/ledger/dashboard/payout all **NOT_IMPLEMENTED** |
+| Stripe Connect / Global Payouts | **NOT** implemented or selected |
+
+### 2026-09-05 — Founding Creator reward economics freeze + R2 advance
+
+**Status:** Human **APPROVED** · local commits only · **SUPERSEDED** by 2026-09-06 six-month economics decision before remote publication
+
+| Decision | Value |
+|---|---|
+| Cold-start acceptance | `HANDOFF_COLD_START_PASS` accepted without rerun in this action |
+| R2 advance | `currentExecutionGate` / `nextSingleAction` → `REVENUE_SAFETY_E2E` |
+| Two-lane strategy | **adopted** — General User non-cash lane + Approved Creator cash lane |
+| General User cash | **prohibited** · cash-equivalent transferable balance **prohibited** |
+| General User benefit | remains **R2-E** · do **not** freeze 10% discount yet |
+| General referral Premium requirement | **prohibited** unless later legal review explicitly approves |
+| Approved Creator cash | requires application, M55 approval, direct single-tier attribution, disclosure, Product Truth compliance, refund/fraud/chargeback review |
+| `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · Founding Creator **introductory acquisition rate only** · **not** permanent standard |
+| Provisional schedule (SUPERSEDED) | ~~50% until 10 conversions / 90 days → 40% until 50 conversions / 180 days → 35% Founding Legacy → 30% Standard~~ |
+| COMMISSIONABLE_REVENUE | collected amount after discounts · excludes tax · excludes refunded/charged-back/ineligible amounts · M55 bears processing fees |
+| Payout rule | aggregate by period/threshold · never once-per-purchase · only **PAYABLE** enters payout execution |
+| R2-A competitive research | one-time Japan/competitor Codex audit accepted · **no repeat** absent real invalidator |
+| Provider / payout | **UNSELECTED** · creator cash infrastructure **NOT_IMPLEMENTED** |
+| Activation guard | **50% must not go live** without R2-D cohort budget / stop-loss closure |
+| Prohibited external claims | guaranteed income · easy money · unlimited income · passive-income guarantee · recruitment reward · MLM wording |
+
+### 2026-09-06 — Six-month Founding Creator economics supersession (canonical)
+
+**Status:** Human **APPROVED** · supersedes provisional 2026-09-05 rate schedule before remote publication · local commits only · push/PR/deploy **NOT AUTHORIZED**
+
+| Decision | Value |
+|---|---|
+| Supersession | Human superseded earlier provisional same-day economics before remote publication |
+| Canonical schedule | **50%** days 0–180 → **40%** days 181–365 → **30%** day 366+ |
+| Conversion cliffs | **removed** — no conversion-count-triggered rate downgrade |
+| Founding Legacy 35% | **removed** as automatic tier |
+| Strategic Creator | **35%–40%** may be Human-approved after first year · not automatic · not recruitment/downline based |
+| Rate clock | tenure begins at `CREATOR_APPROVED_AT` · rate locked at eligible purchase event · not reduced while **PENDING** merely because tenure crosses day 180/365 |
+| PAYABLE protection | **no retroactive rate reduction** once **PAYABLE** |
+| Program stop-loss | may stop new Founding Creators / close future cohorts / change future terms — **not** arbitrary retroactive rate cuts for compliant approved creators |
+| General User | cash payout **prohibited** · viral benefit remains **R2-E** |
+| Solo-builder advantage | low payroll overhead is legitimate acquisition advantage — not permission for unlimited subsidy |
+| Creator moat | economics + conversion + attribution + UI/UX + compliant share assets — not percentage alone |
+| R2-A research | one-time Japan/competitor benchmark remains reusable · **no repeat** absent invalidator |
+| Provider / payout | **UNSELECTED** · creator cash infrastructure **NOT_IMPLEMENTED** |
+| `TARGET_COMMISSION_RATE = 50%` | **HUMAN TARGET ONLY** · Founding Creator introductory acquisition rate · not permanent standard · not activation authority |
+
+### 2026-09-06 — Machine-first revenue safety architecture freeze
+
+**Status:** Human **APPROVED** · durable business/architecture freeze · local commit only · push/PR/deploy **NOT AUTHORIZED** in this gate
+
+| Decision | Value |
+|---|---|
+| No-regression policy | `M55_REVENUE_DECISION_NO_REGRESSION = TRUE` — new chat/session is not an invalidator |
+| Machine-first operation | `HUMAN_DOES_NOT_APPROVE_EVERY_PAYOUT = TRUE` — normal commissions auto-resolve; Human only for ambiguous/material exceptions |
+| 30-day review model | `STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS = 30` · initial state `COMMISSION_PENDING_COMPLIANCE_REVIEW` · **not** escrow |
+| PAYABLE automation | machine transition to `COMMISSION_PAYABLE` when objective checks pass — no Human button for normal case |
+| Payout direction | `TARGET_PAYOUT_EXECUTION = STRIPE_NATIVE_AUTOMATED_PAYOUT` · `STRIPE_CONNECT_FIRST_CANDIDATE` · provider **UNSELECTED** |
+| Payout aggregation | never one purchase = one bank payout |
+| Content compliance | registered/attributable promotional content must have durable machine-auditable evidence |
+| AI role | semantic risk classification / HOLD only — not unlimited legal authority · no AI-only forfeiture for ambiguous legal judgment |
+| Violation scope | blanket historical forfeiture rejected — violations affect related evidence-supported commission set |
+| General User MVP | `GENERAL_USER_PRIMARY_V1 = FREE_COMPLETION_DIGITAL_UNLOCK` |
+| Pair mutual artifact | `FUTURE_OPTIMIZATION_CANDIDATE` — not v1 requirement |
+| Founding cohort | **20** manually approved creators |
+| Absolute program cap | invented ¥500,000 cap **rejected** — future cap requires Human launch-budget authority |
+| Stop-loss correction | first chargeback → Human review in small cohort; concentration >35% → review not hard stop; winner with positive contribution not auto-stopped |
+| R2-B2 | next remaining R2 blocker before cash infrastructure activation |
+| Annex | `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md` created as normative architecture contract |
+
+### 2026-09-06 — Creator trust / ledger / payout control hardening
+
+**Status:** Human **APPROVED** · bounded SSOT hardening · local commit only · no push in this gate
+
+| Decision | Value |
+|---|---|
+| Comparable mapping | exhaustive bounded mapping complete — architecture validated — no second broad Codex rerun |
+| Earnings transparency | `CREATOR_EARNINGS_TRANSPARENCY = REQUIRED` — Creator must reconcile amounts/status independently |
+| Customer privacy | creator dashboard hides customer PII — anonymous references only |
+| Orthogonal states | commission eligibility ≠ payout readiness — `COMMISSION_PAYABLE` + `PAYOUT_BLOCKED_KYC` valid |
+| Immutable ledger | `CREATOR_COMMISSION_LEDGER_APPEND_ONLY = TRUE` — adjustments not silent rewrites |
+| Post-payout recovery | chargebacks → explicit negative adjustments — not retroactive rate reduction |
+| Stripe onboarding | `STRIPE_HOSTED_PAYOUT_ONBOARDING_PREFERRED = TRUE` · `M55_DOES_NOT_STORE_FULL_CREATOR_BANK_ACCOUNT_DETAILS = TRUE` |
+| Destination security | `PAYOUT_DESTINATION_CHANGE_SECURITY_HOLD = REQUIRED` · initial default **5 calendar days** |
+| Self/circular abuse | `SELF_REFERRAL_AND_CIRCULAR_ABUSE_MACHINE_BLOCK = REQUIRED` — IP/device alone not auto-forfeiture |
+| Attribution | durable evidence graph — locked attribution not silently overwritten |
+| Appeal path | `CREATOR_DISCREPANCY_AND_APPEAL_PATH = REQUIRED` |
+| Dashboard | R7 is trust/control surface — not cosmetic analytics |
+| Payout ops | batch statements · `PAYOUT_INSTRUCTION_IDEMPOTENCY = REQUIRED` · dead-letter/replay-safe |
+| Unresolved semantics | rounding · attribution window · payout threshold/cadence · appeal SLA — must block implementation, not be silently invented |
+| Frozen economics | all prior 50/40/30 · cohort 20 · General User v1 · machine-first · 30-day review preserved |
+
+### 2026-09-06 — Zero-omission revenue roadmap + Creator trust UX absorption
+
+**Status:** Human **APPROVED** · docs/governance only · local commit · no push in this gate
+
+| Decision | Value |
+|---|---|
+| External audit | supporting evidence only — no new commit authority from Gemini alone |
+| Payout block UX | `CREATOR_PAYOUT_BLOCK_REASON_MUST_BE_ACTIONABLE = TRUE` |
+| Founding exception review | `FOUNDING_CREATOR_EXCEPTION_REVIEW_MUST_BE_HIGH_TRUST = TRUE` — risk signals → AUTO_HOLD, not auto-forfeiture |
+| Transparency acquisition | `EARNINGS_TRANSPARENCY_IS_A_CREATOR_ACQUISITION_ASSET = TRUE` — factual messaging only |
+| Rejected overclaims | no 完全勝利/絶対的な信頼/escrow/safely-stored/guarantee language |
+| Traceability | zero-omission matrix in `M55_ROADMAP.md` — every frozen requirement has owner gate |
+| Canonical order | R2-B2 → R2 closure → R3 → R4 → R5 → R6 → R7 → R8 → Infra Audit → Beta → Revenue Ready → Controlled Scale |
+| Stage reorder | prohibited absent real invalidator + Human approval |
+| R3 ownership | launch-readiness trust UX/Product Truth — does not build R7 |
+| R5–R8 ownership | expanded in roadmap + automation annex §AZ |
+| Stage exit criteria | frozen per stage — see `M55_ROADMAP.md` |
+| No research loop | R2-A · competitor mapping · R1 · Pair mapping · cold-start — do not repeat |
+| Future GPTs | execute frozen architecture — do not re-research |
+
+### 2026-09-06 — R2-B2 Stripe feasibility P0 evidence reconciliation (Human-approved)
+
+**Status:** Human **APPROVED** · docs/governance only · local commit · no push · no runtime/Stripe/DB/Clerk/env mutation · no roadmap reorder · no Creator cash implementation
+
+| Decision | Value |
+|---|---|
+| External evidence | Human accepts dated Stripe support response as external evidence — do not paraphrase into stronger approval than received |
+| P0-1 business classification | `R2_B2_STRIPE_P0_1_BUSINESS_CLASSIFICATION = GREEN_WITH_CONDITION` — described business does not appear to fall under Japan prohibited "Psychic services and fortune tellers"; `M55_ACCOUNT_FINAL_STRIPE_APPROVAL = NOT_YET_CONFIRMED` pending specialist account review |
+| P0-2 JP creator commission | `R2_B2_STRIPE_P0_2_JP_CREATOR_COMMISSION = GREEN` — Japan platform → Japan resident Creator connected account → affiliate commission as part of product sales supported in principle |
+| P0-3 30-day transfer model | `R2_B2_STRIPE_P0_3_30_DAY_TRANSFER_MODEL = GREEN` — purchase → ~30-day internal eligibility/compliance review → commission PAYABLE → later Creator transfer allowed for Japan platform + Japan connected account |
+| Stripe flow direction | Stripe support recommended `SEPARATE_CHARGES_AND_TRANSFERS` and used `EXPRESS_CONNECTED_ACCOUNT` wording — candidate flow only; exact account/configuration model remains OPEN |
+| Core architecture | `R2_B2_CORE_STRIPE_ARCHITECTURE_FEASIBLE = TRUE` · `STRIPE_CONNECT = VALIDATED_LEADING_PROVIDER_CANDIDATE` · `SEPARATE_CHARGES_AND_TRANSFERS = STRIPE_SUPPORTED_M55_FLOW_CANDIDATE` |
+| Provider selection | `stripePayoutProviderStatus = UNSELECTED` — final selection requires remaining R2-B2 confirmation + R2 Final Human acceptance |
+| Creator cash | **NOT IMPLEMENTED** — partial P0 confirmation does not authorize implementation |
+| Residual Stripe A–D | connected-account implementation model · negative-balance/losses responsibility · M55WEB formal account review · Connect pricing model — remain OPEN |
+| 30-day separation | `STRIPE_30_DAY_REVIEW_COMPATIBILITY = GREEN` (provider) · `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN` (legal/tax) |
+| Ownership correction | R2-B2 **classifies** Japan/provider recovery model + Japan legal/tax classification; R6 owns rounding; R8 owns runtime negative-balance handling + payout/tax operational implementation |
+| Parallel quality lane | `SELF_PREMIUM_PUBLICATION_QUALITY_CLOSURE` may proceed in parallel — does not change CURRENT/NEXT |
+| Executable authority | CURRENT/NEXT remains `REVENUE_SAFETY_E2E` per `M55_EXECUTION_STATE.json` — **not modified** in this gate |
+| Research prohibition | no broad Stripe/competitor research replay · no implementation based solely on partial P0 confirmation |
+| R2-B2 closure | **NOT CLOSED** — residual account/legal/tax classification remains before R2 Final Human acceptance |

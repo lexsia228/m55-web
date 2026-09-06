@@ -75,14 +75,16 @@ Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` (always apply). **Do not
 6. `docs/ssot/M55_WORKTREE_REGISTRY.md`
 7. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
 8. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
-9. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
+9. `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` — **mandatory while Creator Revenue program is active**
+10. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
 10. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
 11. `docs/ssot/M55_UX_BENCHMARK_STACK.md` — **mandatory before any user-visible implementation or review**
 12. `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` — **mandatory before any Safari MCP actual-browser gate or ACTUAL-BROWSER GREEN claim**
-13. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-14. `docs/ssot/M55_DECISION_LOG.md`
-15. `docs/ssot/M55_ROADMAP.md`
-16. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
+13. `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` — **mandatory while Creator Revenue program is active**; reconstruct creator roadmap stage, direct-only anti-MLM rules, provider implementation status, and R1 no-replay state
+14. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+15. `docs/ssot/M55_DECISION_LOG.md`
+16. `docs/ssot/M55_ROADMAP.md`
+17. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts and subordinate to `M55_EXECUTION_STATE.json` for executable gate/NEXT.
 
@@ -103,6 +105,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **Safari actual-browser gates** — before claiming ACTUAL-BROWSER GREEN or running Safari MCP observation, read `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md`; SOURCE REVIEW GREEN does not equal ACTUAL-BROWSER GREEN; implementer cannot self-certify independent Safari audit GREEN.
 - **Shared public chrome** — before creating or modifying page-local Header, Footer, legal, support, privacy, or refund navigation, inspect `PublicShell` / `PublicHeaderContainer` / `PublicHeader` / `PublicFooter` ownership and reuse or update the shared owner. Duplicate shared chrome is prohibited unless an explicit route-specific contract requires it and the reason is stated before mutation.
 - **Cold-start acceptance** — while NEXT is `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation and Pair mapping are prohibited. Human approval is required after PASS to advance the execution state.
+- **Creator Revenue program** — while active, read `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` and reconstruct: R1 `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** / no-replay; `productWorkAfterControlTower = REVENUE_SAFETY_E2E`; staged R1→R8 sequence; creator referral/ledger/dashboard/payout **NOT_IMPLEMENTED**; Stripe payout provider **UNSELECTED**; direct single-tier anti-MLM; `TARGET_COMMISSION_RATE = 50%` is Human target only; do not invent E2C2E acronym expansion.
 
 ## Authority hierarchy (summary)
 

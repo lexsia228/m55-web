@@ -13,6 +13,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   EXECUTION_STATE_PATH,
+  COLD_START_GATE,
   validateExecutionState,
   detectLegacyExecutionDrift,
 } from './m55-control-tower-semantic.mjs';
@@ -99,7 +100,40 @@ function resolveMasterBacklogStatus(state) {
   return wave1?.masterBacklog ?? 'UNKNOWN';
 }
 
-function resolveRequiredNextEvidence(state) {
+const REVENUE_SAFETY_E2E_GATE = 'REVENUE_SAFETY_E2E';
+
+const COLD_START_REQUIRED_EVIDENCE = [
+  'zero_memory_execution_state_reconstruction',
+  'creator_revenue_e2c2e_contract_invariants',
+  'handoff_cold_start_pass_without_mutation',
+  'control_tower_authority_boundary',
+];
+
+const R2_REVENUE_SAFETY_REQUIRED_EVIDENCE = [
+  'current_product_description_price_billing_type',
+  'deliverable_mapping',
+  'refund_conditions',
+  'support_contact_route',
+  'post_purchase_recovery',
+  'stripe_revenue_path_continuity',
+  'entitlement_continuity',
+  'reuse_closed_green_payment_checkout_webhook_fulfillment_evidence',
+  'invalidating_dependency_check_before_replay',
+  'separate_human_go_before_real_payment',
+];
+
+const GENERIC_CREATOR_GATE_REQUIRED_EVIDENCE = [
+  'read_current_creator_gate_contract',
+  'preserve_closed_gate_no_replay',
+  'require_explicit_authority_before_mutation',
+];
+
+const LEGACY_NON_CREATOR_REQUIRED_EVIDENCE = [
+  'control_tower_hardening_green',
+  'cold_start_handoff_pass',
+];
+
+export function resolveRequiredNextEvidence(state) {
   const gate = state?.currentExecutionGate ?? '';
   if (gate.includes('WAVE2')) {
     return [
@@ -109,7 +143,17 @@ function resolveRequiredNextEvidence(state) {
       'human_commercial_visual_approval',
     ];
   }
-  return ['control_tower_hardening_green', 'cold_start_handoff_pass'];
+  if (gate === COLD_START_GATE) {
+    return [...COLD_START_REQUIRED_EVIDENCE];
+  }
+  if (gate === REVENUE_SAFETY_E2E_GATE) {
+    return [...R2_REVENUE_SAFETY_REQUIRED_EVIDENCE];
+  }
+  const stages = state?.creatorRevenueRoadmapAuthority?.stages ?? [];
+  if (stages.includes(gate)) {
+    return [...GENERIC_CREATOR_GATE_REQUIRED_EVIDENCE];
+  }
+  return [...LEGACY_NON_CREATOR_REQUIRED_EVIDENCE];
 }
 
 function resolveKnownEvidenceLimitations() {
@@ -271,32 +315,58 @@ function deriveSitewideJapaneseEditorialQuality(integrity) {
   };
 }
 
-function deriveInfluencerPlatformReadiness(integrity) {
-  const foundationGreen = integrity?.unresolvedP0 === 0 && integrity?.unresolvedP1 === 0;
+function deriveCreatorRevenueHandoff(state) {
+  const authority = state?.creatorRevenueRoadmapAuthority ?? {};
+  const stages = authority.stages ?? [];
+  const currentStage = authority.currentStage ?? null;
+  const currentIndex = currentStage ? stages.indexOf(currentStage) : -1;
+  const nextStage = currentIndex >= 0 && currentIndex < stages.length - 1 ? stages[currentIndex + 1] : null;
   return {
     isAuthority: false,
-    platformPolicyVersion: 'INFLUENCER_PLATFORM_v1',
-    creatorQualityFoundationStatus: foundationGreen
-      ? 'LOCAL_CANDIDATE_READY_FOR_INDEPENDENT_REAUDIT'
-      : 'P1_OPEN_WAVE2',
-    sharePostabilityStatus: foundationGreen
-      ? 'LOCAL_CANDIDATE_READY_FOR_INDEPENDENT_REAUDIT'
-      : 'PENDING_PAIR_SHARE_CLOSURE',
-    screenRecordStatus: foundationGreen
-      ? 'LOCAL_CANDIDATE_READY_FOR_INDEPENDENT_REAUDIT'
-      : 'PENDING_AFFECTED_EVIDENCE',
-    creatorReferralStatus: 'NOT_IMPLEMENTED',
-    attributionStatus: 'COARSE_ONLY_SESSION_STORAGE',
+    contractReference: authority.contractReference ?? null,
+    currentStage,
+    nextStage,
+    productWorkAfterControlTower: state?.productWorkAfterControlTower ?? null,
+    fourSurfaceCreatorReadiness: authority.fourSurfaceCreatorReadiness ?? null,
+    socialShareClosure: authority.socialShareClosure ?? null,
+    creatorReferralStatus: authority.creatorReferralStatus ?? 'NOT_IMPLEMENTED',
+    attributionStatus: authority.attributionStatus ?? 'NOT_IMPLEMENTED',
+    commissionLedgerStatus: authority.commissionLedgerStatus ?? 'NOT_IMPLEMENTED',
+    creatorDashboardStatus: authority.creatorDashboardStatus ?? 'NOT_IMPLEMENTED',
+    payoutSettlementStatus: authority.payoutSettlementStatus ?? 'NOT_IMPLEMENTED',
+    stripePayoutProviderStatus: authority.stripePayoutProviderStatus ?? 'UNSELECTED',
+    stages,
+    criticalPath: authority.criticalPath ?? [],
+    targetCommissionRateHumanTargetOnly: true,
+    antiMlmDirectSingleTierOnly: true,
+    e2c2eAcronymExpansionInvented: false,
+    nextDelta: state?.productWorkAfterControlTower ?? currentStage ?? 'UNKNOWN',
+  };
+}
+
+function deriveInfluencerPlatformReadiness(state) {
+  const creator = deriveCreatorRevenueHandoff(state);
+  return {
+    isAuthority: false,
+    platformPolicyVersion: 'CREATOR_REVENUE_E2C2E_v1',
+    creatorQualityFoundationStatus: creator.fourSurfaceCreatorReadiness,
+    sharePostabilityStatus: creator.socialShareClosure,
+    screenRecordStatus: creator.fourSurfaceCreatorReadiness,
+    creatorReferralStatus: creator.creatorReferralStatus,
+    attributionStatus: creator.attributionStatus,
     creatorContentInfrastructureStatus: 'PARTIAL_SHARE_ARCHITECTURE',
-    creatorDashboardStatus: 'NOT_IMPLEMENTED',
-    rewardInfrastructureStatus: 'POLICY_ONLY',
+    creatorDashboardStatus: creator.creatorDashboardStatus,
+    rewardInfrastructureStatus: creator.payoutSettlementStatus,
+    commissionLedgerStatus: creator.commissionLedgerStatus,
+    stripePayoutProviderStatus: creator.stripePayoutProviderStatus,
     privacyStatus: 'GREEN_EXISTING_CONTRACTS',
     fraudGuardrailStatus: 'POLICY_ONLY',
     independentAuditStatus: 'PENDING_CODEX_AFFECTED_DELTA_REAUDIT',
     humanEconomicApprovalStatus: 'NOT_GRANTED',
-    nextDelta: foundationGreen
-      ? 'CODEX_AFFECTED_DELTA_REAUDIT_THEN_SOCIAL_SHARE_EXPERIENCE'
-      : 'CLOSE_WAVE2_CREATOR_QUALITY_FOUNDATION',
+    contractReference: creator.contractReference,
+    currentStage: creator.currentStage,
+    nextStage: creator.nextStage,
+    nextDelta: creator.nextDelta,
   };
 }
 
@@ -376,7 +446,8 @@ export function buildHandoff(options = {}) {
     semanticValidationErrors: validationErrors,
     contentIntegritySummary: integrity,
     SITEWIDE_JAPANESE_EDITORIAL_QUALITY: deriveSitewideJapaneseEditorialQuality(integrity),
-    INFLUENCER_PLATFORM_READINESS: deriveInfluencerPlatformReadiness(integrity),
+    CREATOR_REVENUE_E2C2E: deriveCreatorRevenueHandoff(state),
+    INFLUENCER_PLATFORM_READINESS: deriveInfluencerPlatformReadiness(state),
     isAuthority: false,
     note: 'Derived observation only. Sole executable authority remains docs/ssot/M55_EXECUTION_STATE.json.',
   };

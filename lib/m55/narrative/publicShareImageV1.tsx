@@ -4,6 +4,7 @@
  */
 import { ImageResponse } from 'next/og';
 import type { ShareCandidateVariant } from './m55NarrativeSpecV1';
+import { buildPairSharePresentationV1, type PairSharePresentationV1 } from './pairSharePresentationV1';
 import { parsePublicCardDisplayV1, posterHeroLinesJa } from './publicCardDisplayV1';
 import type { PublicShareSpecV1 } from './publicShareSpecV1';
 
@@ -57,6 +58,7 @@ export type PublicShareImageExportModel = {
   dimensions: { width: number; height: number };
   spec: PublicShareSpecV1;
   display: ReturnType<typeof parsePublicCardDisplayV1>;
+  pairPresentation: PairSharePresentationV1 | null;
 };
 
 export function buildPublicShareImageExportModel(
@@ -69,6 +71,7 @@ export function buildPublicShareImageExportModel(
     dimensions: shareExportDimensions(aspect),
     spec,
     display: parsePublicCardDisplayV1(spec),
+    pairPresentation: buildPairSharePresentationV1(spec, aspect),
   };
 }
 
@@ -109,16 +112,23 @@ function scaleFont(totalHeight: number, base: number): number {
   return Math.round(base * (totalHeight / 1350));
 }
 
+function normalizeArtUrls(artUrl: string | readonly string[] | null): readonly string[] {
+  if (!artUrl) return [];
+  return Array.isArray(artUrl) ? artUrl : [artUrl];
+}
+
 export function renderPublicShareExportImage(
   spec: PublicShareSpecV1,
   aspect: ShareExportAspectRatio,
-  artUrl: string | null,
+  artUrl: string | readonly string[] | null,
 ): ImageResponse {
   const model = buildPublicShareImageExportModel(spec, aspect);
   const { width, height } = model.dimensions;
   const display = model.display;
   const palette = variantPalette(spec.variant);
-  const artHeight = artUrl ? artBandHeight(aspect, height) : 0;
+  const artUrls = normalizeArtUrls(artUrl);
+  const artHeight = artUrls.length > 0 ? artBandHeight(aspect, height) : 0;
+  const pairPresentation = model.pairPresentation;
   const padX = scaleFont(height, 56);
   const padY = scaleFont(height, 48);
   const headlineSize = scaleFont(height, 34);
@@ -144,9 +154,33 @@ export function renderPublicShareExportImage(
           fontFamily: 'sans-serif',
         }}
       >
-        {artUrl ? (
+        {artUrls.length === 2 ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width,
+              height: artHeight,
+            }}
+          >
+            <img
+              src={artUrls[0]}
+              width={Math.round(width / 2)}
+              height={artHeight}
+              alt=""
+              style={{ width: Math.round(width / 2), height: artHeight, objectFit: 'cover' }}
+            />
+            <img
+              src={artUrls[1]}
+              width={Math.round(width / 2)}
+              height={artHeight}
+              alt=""
+              style={{ width: Math.round(width / 2), height: artHeight, objectFit: 'cover' }}
+            />
+          </div>
+        ) : artUrls.length === 1 ? (
           <img
-            src={artUrl}
+            src={artUrls[0]}
             width={width}
             height={artHeight}
             alt=""
@@ -182,9 +216,23 @@ export function renderPublicShareExportImage(
               justifyContent: 'center',
             }}
           >
-            <div style={{ display: 'flex', fontSize: headlineSize, fontWeight: 700, lineHeight: 1.2 }}>
-              {spec.headline}
-            </div>
+            {(!isPair || pairPresentation?.showGenericHeadline) ? (
+              <div style={{ display: 'flex', fontSize: headlineSize, fontWeight: 700, lineHeight: 1.2 }}>
+                {spec.headline}
+              </div>
+            ) : null}
+            {isPair && pairPresentation ? (
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: Math.max(40, scaleFont(height, 28)),
+                  fontWeight: 700,
+                  lineHeight: 1.25,
+                }}
+              >
+                {pairPresentation.pairLabel}
+              </div>
+            ) : null}
             {isPoster
               ? posterHeroLinesJa(display.heroJa).map((line) => (
                   <div
@@ -225,26 +273,25 @@ export function renderPublicShareExportImage(
                 ))}
               </div>
             ) : null}
-            {isPair ? (
+            {isPair && pairPresentation ? (
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: pairPresentation.relationMode === 'two-column' ? 'row' : 'column',
                   gap: scaleFont(height, 10),
                   fontSize: bodySize,
                   lineHeight: 1.4,
                 }}
               >
-                {display.sideAJa ? (
-                  <div style={{ display: 'flex' }}>一方　{display.sideAJa}</div>
+                {pairPresentation.relationMode === 'combined' ? (
+                  <div style={{ display: 'flex' }}>{pairPresentation.combinedRelationJa}</div>
+                ) : pairPresentation.sideAJa ? (
+                  <div style={{ display: 'flex', flex: 1 }}>一方　{pairPresentation.sideAJa}</div>
                 ) : (
                   <div style={{ display: 'flex' }}>{display.entryJa}</div>
                 )}
-                {display.sideBJa ? (
-                  <div style={{ display: 'flex' }}>もう一方　{display.sideBJa}</div>
-                ) : null}
-                {display.returnJa ? (
-                  <div style={{ display: 'flex' }}>戻り　{display.returnJa}</div>
+                {pairPresentation.relationMode !== 'combined' && pairPresentation.sideBJa ? (
+                  <div style={{ display: 'flex', flex: 1 }}>もう一方　{pairPresentation.sideBJa}</div>
                 ) : null}
               </div>
             ) : null}
@@ -255,7 +302,7 @@ export function renderPublicShareExportImage(
             ) : null}
           </div>
           <div style={{ display: 'flex', fontSize: bodySize, color: palette.muted }}>
-            <span>{display.cta || 'あなたはどう出る？'}</span>
+            <span>{pairPresentation?.ctaJa || display.cta || 'あなたはどう出る？'}</span>
           </div>
         </div>
       </div>
