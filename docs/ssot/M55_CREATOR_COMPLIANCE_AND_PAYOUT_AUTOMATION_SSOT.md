@@ -876,7 +876,11 @@ Plus remaining Japan legal/tax classification:
 - Japan legal/payment-deadline compatibility (`JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN`)
 - Japan tax/withholding classification sufficient for R2 closure
 
-Full checklist (non-exhaustive): M55 Japan Stripe account supportability · actual connected-account configuration · who bears negative balances · Connect charge/transfer model · payout control capabilities · Japan creator payout availability · JPY/cross-border constraints · KYC requirements · tax/reporting responsibilities · payout fees · refund mechanics · dispute mechanics · transfer reversal mechanics · negative balance recovery in Japan · payout schedule constraints · bank/payout destination update behavior · provider-required holds · data handling boundary
+`R2_B2_STRIPE_RESIDUAL_CONFIRMATION = A_D_ONLY`
+
+`NO_BROAD_STRIPE_RESEARCH_REPLAY = TRUE`
+
+Previously mapped provider topics such as payout controls, KYC, refund/dispute mechanics, transfer reversal, payout scheduling, destination updates, webhook/data boundaries and similar operational details remain implementation/reference requirements where applicable, but they are **NOT** additional Stripe support questions for this R2-B2 residual gate unless a new account-specific ambiguity or direct invalidator appears.
 
 Until R2-B2 closure + R2 Final Human acceptance: `stripePayoutProviderStatus = UNSELECTED`
 
