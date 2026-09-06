@@ -19,6 +19,8 @@ import {
   STORED_V2_DISPLAY_FORBIDDEN_STEM1_CHAPTER1_PHRASES,
 } from './resolveDisplayedDtrEnvelope';
 import type { DtrReportSnapshotReadRow } from './storedEnvelopeRead';
+import { buildPurchaseInputSnapshotV1, purchaseInputExtraJson } from '../paidResult/purchaseInputSnapshotV1';
+import { DTR_CORE_LIGHT_V1, DTR_CORE_FULL_V1 } from '../../oneTimeCheckout';
 
 function legacyEnvelope(birthDate: string, nickname: string) {
   return runDtrEngine({
@@ -132,6 +134,507 @@ describe('resolveDisplayedDtrEnvelope', () => {
     assert.equal(read.ok, false);
     if (read.ok) return;
     assert.equal(read.reason, 'M55_COMPOSITE_DATE_OUT_OF_RANGE');
+  });
+
+  it('stored v2 with frozen draft purchase input → Q1 chapter bodies on display, raw preserved', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'resolver_q1_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const withPurchase = buildV2FulfillmentSnapshotFromFields(
+      {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      { purchaseInput: purchase.value },
+    );
+
+    const staleEnvelope = structuredClone(withPurchase.envelope_json);
+    const staleMarker = 'RAW_Q1_ARTIFACT_MARKER';
+    const s3 = staleEnvelope.payload.fullSections.find((s) => s.id === 's3_essence');
+    assert.ok(s3);
+    s3!.body = `${s3!.body}\n${staleMarker}`;
+
+    const row = baseRow({
+      user_id: 'resolver_q1_user',
+      product_id: DTR_CORE_LIGHT_V1,
+      envelope_json: staleEnvelope,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: withPurchase.engine_context_json,
+      profile_snapshot: withPurchase.profile_snapshot,
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(purchase.value, null),
+      },
+    });
+
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    assert.equal(read.mode, 'stored_v2');
+
+    const displayedS3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    const expectedS3 = withPurchase.envelope_json.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(displayedS3, expectedS3);
+    assert.equal(displayedS3.includes(staleMarker), false);
+    assert.match(displayedS3, /次に言葉が詰まったとき/);
+
+    const rawS3 = row.envelope_json.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(rawS3.includes(staleMarker), true);
+    assert.notEqual(read.envelope, row.envelope_json);
+  });
+
+  it('stored v2 binding — owner mismatch falls back to catalog without Q1 substance', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'bound_owner_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const row = baseRow({
+      user_id: 'foreign_owner_user',
+      product_id: DTR_CORE_LIGHT_V1,
+      envelope_json: built.envelope_json,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(purchase.value, null),
+      },
+    });
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const displayedS3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(displayedS3.includes('言葉が詰まる場面では、結論の前に一つだけ返す'), false);
+    assert.equal(displayedS3.includes('次に言葉が詰まったとき'), false);
+  });
+
+  it('stored v2 binding — product mismatch falls back to catalog without Q1 substance', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'bound_product_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const row = baseRow({
+      user_id: 'bound_product_user',
+      product_id: DTR_CORE_FULL_V1,
+      envelope_json: built.envelope_json,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(purchase.value, null),
+      },
+    });
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const displayedS3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(displayedS3.includes('言葉が詰まる場面では、結論の前に一つだけ返す'), false);
+  });
+
+  it('stored v2 binding — profile birth-date mismatch falls back to catalog without Q1 substance', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'bound_profile_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const row = baseRow({
+      user_id: 'bound_profile_user',
+      product_id: DTR_CORE_LIGHT_V1,
+      envelope_json: built.envelope_json,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: { nickname: 'GX', birthDate: '1983-02-01' },
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(purchase.value, null),
+      },
+    });
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const displayedS3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(displayedS3.includes('言葉が詰まる場面では、結論の前に一つだけ返す'), false);
+  });
+
+  it('stored v2 binding — stem-lane/outputHash mismatch falls back to catalog without Q1 substance', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'bound_stem_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const tampered = structuredClone(purchase.value);
+    tampered.paidAnswerSet = {
+      ...tampered.paidAnswerSet,
+      'paid.work_focus': 'paid.work_focus.priority',
+    };
+
+    const row = baseRow({
+      user_id: 'bound_stem_user',
+      product_id: DTR_CORE_LIGHT_V1,
+      envelope_json: built.envelope_json,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(tampered, null),
+      },
+    });
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const displayedS3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(displayedS3.includes('言葉が詰まる場面では、結論の前に一つだけ返す'), false);
+  });
+
+  it('stored v2 binding — corrupted outputHash falls back to catalog without Q1 substance', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'bound_hash_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const corrupted = structuredClone(purchase.value);
+    corrupted.individualization.audit.outputHash = 'corrupted-hash-value';
+
+    const row = baseRow({
+      user_id: 'bound_hash_user',
+      product_id: DTR_CORE_LIGHT_V1,
+      envelope_json: built.envelope_json,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(corrupted, null),
+      },
+    });
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    const displayedS3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(displayedS3.includes('言葉が詰まる場面では、結論の前に一つだけ返す'), false);
+  });
+
+  it('stored v2 — engine_context/envelope stem lane mismatch fails closed before Q1 injection', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const purchase = buildPurchaseInputSnapshotV1({
+      userId: 'bound_lane_user',
+      productId: DTR_CORE_LIGHT_V1,
+      profile: {
+        nickname: 'GX',
+        birthDate: '1983-02-28',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      },
+      freeAnswerSet: {
+        'free.start_style': 'free.start_style.try_first',
+        'free.decision_style': 'free.decision_style.deadline_first',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.change_style': 'free.change_style.adjust_fast',
+        'free.primary_theme': 'free.primary_theme.relation',
+      },
+      paidAnswerSet: {
+        'paid.work_focus': 'paid.work_focus.boundary',
+        'paid.decision_friction': 'paid.decision_friction.unclear_end',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
+        'paid.recovery_sequence': 'paid.recovery_sequence.small_start',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
+      },
+      stemLaneIndex: built.engine_context_json.stemLaneIndex,
+      createdAt: '2026-09-06T00:00:00.000Z',
+    });
+    assert.equal(purchase.ok, true);
+    if (!purchase.ok) return;
+
+    const storedEnvelope = structuredClone(built.envelope_json);
+    const rawS3Before = storedEnvelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    const mismatchedLane =
+      built.engine_context_json.stemLaneIndex === 9 ? 1 : built.engine_context_json.stemLaneIndex + 1;
+    const mismatchedContext = {
+      ...built.engine_context_json,
+      stemLaneIndex: mismatchedLane,
+    };
+    assert.notEqual(
+      mismatchedContext.stemLaneIndex,
+      storedEnvelope.auditMeta.stemLaneIndex,
+    );
+
+    const row = baseRow({
+      user_id: 'bound_lane_user',
+      product_id: DTR_CORE_LIGHT_V1,
+      envelope_json: storedEnvelope,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: mismatchedContext,
+      profile_snapshot: built.profile_snapshot,
+      draft_snapshot: {
+        extra_json: purchaseInputExtraJson(purchase.value, null),
+      },
+    });
+
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, false);
+    if (read.ok) return;
+    assert.equal(read.reason, 'v2_stem_mismatch');
+
+    const rawS3After = row.envelope_json.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    assert.equal(rawS3After, rawS3Before);
+    assert.equal(
+      rawS3After.includes('言葉が詰まる場面では、結論の前に一つだけ返す'),
+      false,
+    );
   });
 
   it('stored v2 row → display-normalized from current catalog, raw artifact preserved', () => {
