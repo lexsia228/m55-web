@@ -241,7 +241,7 @@ export const THEME_CHIP_DISPLAY_LABEL_OVERRIDES: Readonly<Partial<Record<string,
   'これからの動き方': '今の優先順位と動き方',
 } as const;
 
-/** PremiumDrawerHub — 4-chapter integrated surface (user-interest labels; Ⅰ〜Ⅳ skeleton preserved). */
+/** PremiumDrawerHub / LP — 4-chapter surface (canonical title + job-based scent; Ⅰ〜Ⅳ preserved). */
 export type PaidDtrDrawerChapterEntryId =
   | 'chapter-entry-1'
   | 'chapter-entry-2'
@@ -257,40 +257,22 @@ export type PaidDtrDrawerChapterEntry = {
   primaryChapterJa: string;
 };
 
-export const PAID_DTR_DRAWER_CHAPTER_ENTRIES: readonly PaidDtrDrawerChapterEntry[] = [
-  {
-    id: 'chapter-entry-1',
-    pillLabelJa: 'Ⅰ',
-    labelJa: '自分の形を知る',
-    sublabelJa: 'いま気になっていることを読み直す土台',
-    panel: 'chapter-1',
-    primaryChapterJa: 'Ⅰ 輪郭を見る',
-  },
-  {
-    id: 'chapter-entry-2',
-    pillLabelJa: 'Ⅱ',
-    labelJa: '仕事・これからの進め方',
-    sublabelJa: '力が出る条件と、優先順位を見る',
-    panel: 'chapter-2',
-    primaryChapterJa: 'Ⅱ 構造を読む',
-  },
-  {
-    id: 'chapter-entry-3',
-    pillLabelJa: 'Ⅲ',
-    labelJa: '恋人・近い人との向き合い方',
-    sublabelJa: '距離感・言葉選び・無理の出方を見る',
-    panel: 'chapter-3',
-    primaryChapterJa: 'Ⅲ 無理を知る',
-  },
-  {
-    id: 'chapter-entry-4',
-    pillLabelJa: 'Ⅳ',
-    labelJa: 'お金・生活・疲れの整え方',
-    sublabelJa: '生活の余白と、戻り方を見る',
-    panel: 'chapter-4',
-    primaryChapterJa: 'Ⅳ 楽に扱う',
-  },
-] as const;
+const PAID_DTR_DRAWER_CHAPTER_ENTRY_IDS: readonly PaidDtrDrawerChapterEntryId[] = [
+  'chapter-entry-1',
+  'chapter-entry-2',
+  'chapter-entry-3',
+  'chapter-entry-4',
+];
+
+export const PAID_DTR_DRAWER_CHAPTER_ENTRIES: readonly PaidDtrDrawerChapterEntry[] =
+  PAID_DTR_CHAPTERS.map((ch, index) => ({
+    id: PAID_DTR_DRAWER_CHAPTER_ENTRY_IDS[index]!,
+    pillLabelJa: ch.roman,
+    labelJa: ch.title,
+    sublabelJa: ch.readerDescJa,
+    panel: `chapter-${index + 1}` as PaidDtrDrawerThemePrimaryPanel,
+    primaryChapterJa: `${ch.roman} ${ch.title}`,
+  }));
 
 const PAID_DTR_CHAPTER_ANCHOR_BY_ID: Record<PaidDtrChapterId, string> = {
   outline: 'section-overview',
@@ -308,46 +290,38 @@ const PAID_DTR_CHAPTER_PART_ID: Record<PaidDtrChapterId, '1' | '2' | '3' | '4'> 
 
 export type PaidDtrReportPartId = '1' | '2' | '3' | '4';
 
-/** Drawer chapter surface — user-centric (W-B1 refine). Engine / snapshot unchanged. */
+/** Drawer / reader chapter band — canonical title + job scent. Engine / snapshot unchanged. */
 export type PaidDtrChapterDrawerIntro = {
   partId: PaidDtrReportPartId;
   hubLabelJa: string;
   hubSublabelJa: string;
   personalHeadingSuffixJa: string;
-  /** Screen-reader / mapping only — not shown as primary UI */
+  /** Screen-reader / mapping — matches hubLabelJa (canonical title). */
   legacyChapterTitleJa: string;
 };
 
-export const PAID_DTR_CHAPTER_DRAWER_INTRO: Record<PaidDtrReportPartId, PaidDtrChapterDrawerIntro> = {
-  '1': {
-    partId: '1',
-    hubLabelJa: '自分の形を知る',
-    hubSublabelJa: 'いま気になっていることを読み直す土台',
-    personalHeadingSuffixJa: 'の形',
-    legacyChapterTitleJa: '輪郭を見る',
-  },
-  '2': {
-    partId: '2',
-    hubLabelJa: '仕事・これからの進め方',
-    hubSublabelJa: '力が出る条件と、優先順位を見る',
-    personalHeadingSuffixJa: 'の進め方',
-    legacyChapterTitleJa: '構造を読む',
-  },
-  '3': {
-    partId: '3',
-    hubLabelJa: '恋人・近い人との向き合い方',
-    hubSublabelJa: '距離感・言葉選び・無理の出方を見る',
-    personalHeadingSuffixJa: 'の近い人との向き合い方',
-    legacyChapterTitleJa: '無理を知る',
-  },
-  '4': {
-    partId: '4',
-    hubLabelJa: 'お金・生活・疲れの整え方',
-    hubSublabelJa: '生活の余白と、戻り方を見る',
-    personalHeadingSuffixJa: 'の整え方',
-    legacyChapterTitleJa: '楽に扱う',
-  },
-} as const;
+const PAID_DTR_CHAPTER_PERSONAL_HEADING_SUFFIX: Record<PaidDtrReportPartId, string> = {
+  '1': 'の形',
+  '2': 'の進め方',
+  '3': 'の無理の出方',
+  '4': 'の整え方',
+};
+
+export const PAID_DTR_CHAPTER_DRAWER_INTRO: Record<PaidDtrReportPartId, PaidDtrChapterDrawerIntro> =
+  PAID_DTR_CHAPTERS.reduce(
+    (acc, ch) => {
+      const partId = PAID_DTR_CHAPTER_PART_ID[ch.id];
+      acc[partId] = {
+        partId,
+        hubLabelJa: ch.title,
+        hubSublabelJa: ch.readerDescJa,
+        personalHeadingSuffixJa: PAID_DTR_CHAPTER_PERSONAL_HEADING_SUFFIX[partId],
+        legacyChapterTitleJa: ch.title,
+      };
+      return acc;
+    },
+    {} as Record<PaidDtrReportPartId, PaidDtrChapterDrawerIntro>
+  );
 
 /** One-line graph meaning — placed immediately before each viz (W-B1). */
 export type PaidDtrChapterGraphCaptionId =
@@ -526,9 +500,9 @@ export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
   branchLeadJa:
     '形が見えたら、次は今いちばん重い場面へ進みます。',
   branchItemsJa: [
-    '進め方が重いときは、Ⅱ「仕事・これからの進め方」へ。',
-    '近い人とのやりとりが重いときは、Ⅲ「恋人・近い人との向き合い方」へ。',
-    '疲れ・生活・お金の不安が重いときは、Ⅳ「お金・生活・疲れの整え方」へ。',
+    '進め方が重いときは、Ⅱ「構造を読む」へ。',
+    '距離や言葉が重いときは、Ⅲ「無理を知る」へ。',
+    '疲れや生活の余白が重いときは、Ⅳ「楽に扱う」へ。',
   ] as const,
 } as const;
 
@@ -1020,7 +994,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   composeThemeHintJa:
     '1回の追加読み解きは1テーマに絞ります。短文でも始められます。長い場合は1テーマに絞ってください。',
   step1ChapterBaseLensNoteJa:
-    'Ⅰ「自分の形を知る」は、どのテーマでも土台として参照されます。',
+    'Ⅰ「輪郭を見る」は、どのテーマでも土台として参照されます。',
   composeSupplementaryLabelJa: '補助質問（最大3つ）',
   composeSupplementaryHintJa: '当てはまるものがあれば選択してください',
   composeFreeInputLabelJa: '自由入力',

@@ -707,12 +707,16 @@ function ChapterOpeningLede({ text }: { text: string }) {
   return <p className={styles.chapterOpeningLede}>{text}</p>;
 }
 
-/** Drawer chapter band — Hub label primary; legacy chapter title in aria only. */
+/** Drawer chapter band — canonical title primary; legacy title in aria only when distinct. */
 function ReportPartBand({ partId }: { partId: PaidDtrReportPartId }) {
   const part = REPORT_PARTS.find((p) => p.partId === partId);
   const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partId];
   const roman = part?.roman ?? '';
-  const a11yLabel = `第${partId}部 ${intro.hubLabelJa}。${intro.legacyChapterTitleJa}`;
+  const legacyTitle = intro.legacyChapterTitleJa.trim();
+  const a11yLabel =
+    legacyTitle && legacyTitle !== intro.hubLabelJa
+      ? `第${partId}章 ${intro.hubLabelJa}。${legacyTitle}`
+      : `第${partId}章 ${intro.hubLabelJa}`;
   const bandClass =
     partId === '1'
       ? `${styles.reportPartBand} ${styles.reportPartBandChapterPlate}`
@@ -843,7 +847,7 @@ function PersonalReadingDepthMap({
     >
       <p className={styles.personalReadingDepthOverline}>あなただけの4章</p>
       <p className={styles.personalReadingDepthLead}>
-        {displayName}の資質を、生活の4つの場面で読み返せます。
+        {displayName}の出方を、4章の流れで読み返せます。
       </p>
       <ol className={styles.personalReadingDepthList}>
         {partIds.map((partId) => {
