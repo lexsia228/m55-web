@@ -9,6 +9,7 @@ const required = [
   'docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json',
   'docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md',
   'docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md',
+  'docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md',
   'docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md',
   '.cursor/rules/m55-control-tower.mdc',
   '.cursor/rules/m55-scope-aware-repo-preflight.mdc',
@@ -43,12 +44,13 @@ const agents = fs.existsSync('AGENTS.md') ? fs.readFileSync('AGENTS.md','utf8') 
 const entry = fs.existsSync('docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md') ? fs.readFileSync('docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md','utf8') : '';
 if (!agents.includes('M55_GIT_FIRST_ENTRYPOINT.md')) failures.push('AGENTS.md must route every AI through M55_GIT_FIRST_ENTRYPOINT.md');
 if (!agents.includes('M55_GIT_PREFLIGHT_MANIFEST.json')) failures.push('AGENTS.md must require M55_GIT_PREFLIGHT_MANIFEST.json');
-for (const ref of ['M55_GIT_FIRST_HARDENING_SSOT.md','M55_GIT_FIRST_OPERATIONAL_FIXTURES.md']) {
+for (const ref of ['M55_GIT_FIRST_HARDENING_SSOT.md','M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md','M55_GIT_FIRST_OPERATIONAL_FIXTURES.md']) {
   if (!entry.includes(ref)) failures.push(`entrypoint missing governance reference ${ref}`);
 }
 if (!entry.includes('CONTINUATION_HANDOFF')) failures.push('entrypoint missing CONTINUATION_HANDOFF rule');
 if (!entry.includes('AUDIT_REPRODUCTION_MUST_MATCH_EXACT_ACCEPTANCE_CONDITION = TRUE')) failures.push('entrypoint missing exact audit re-grounding rule');
 if (!manifest?.universal?.requiredReads?.includes('docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md')) failures.push('manifest must make hardening a universal required read');
+if (!manifest?.universal?.requiredReads?.includes('docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md')) failures.push('manifest must make host enforcement a universal required read');
 
 if (failures.length) {
   console.error('M55_GIT_FIRST_STRUCTURE_VERIFY=FAIL');
