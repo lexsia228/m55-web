@@ -550,6 +550,9 @@ const unusualProtectedPaths = [
   ['tab', 'docs/ssot/escape\tfixture.md'],
   ['quote', 'docs/ssot/escape"fixture.md'],
   ['backslash', 'docs/ssot/escape\\fixture.md'],
+  ['cr', 'docs/ssot/escape\rfixture.md'],
+  ['line-separator', 'docs/ssot/escape\u2028fixture.md'],
+  ['paragraph-separator', 'docs/ssot/escape\u2029fixture.md'],
 ];
 
 for (const [label, attackPath] of unusualProtectedPaths) {
@@ -579,10 +582,45 @@ test('diff verifier: protected newline path passes when FULL declared', () => {
   }
 });
 
+for (const [label, attackPath] of [
+  ['cr', 'docs/ssot/escape\rfixture.md'],
+  ['line-separator', 'docs/ssot/escape\u2028fixture.md'],
+  ['paragraph-separator', 'docs/ssot/escape\u2029fixture.md'],
+]) {
+  test(`diff verifier: protected unusual path (${label}) passes when FULL declared`, () => {
+    const { root, baseSha } = setupDiffVerifierRepo();
+    try {
+      const headSha = commitFile(root, attackPath);
+      const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
+      assert.equal(result.ok, true);
+      assert.match(result.stdout, /machine_requires_full=true/);
+    } finally {
+      cleanupDiffRepo(root);
+    }
+  });
+}
+
 test('diff verifier: enforcement-critical unusual path requires marker', () => {
   const { root, baseSha } = setupDiffVerifierRepo();
   try {
     const headSha = commitFile(root, 'scripts/verify-m55-git-first-\nfixture.mjs', '// fixture\n');
+    const failResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
+    assert.equal(failResult.ok, false);
+    assert.match(failResult.combined, /enforcement-critical/);
+    assert.match(failResult.combined, /M55_ENFORCEMENT_CHANGE/);
+
+    const passResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullWithEnforcementPrBody });
+    assert.equal(passResult.ok, true);
+    assert.match(passResult.stdout, /enforcement_critical_change=true/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: enforcement-critical CR path requires marker', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'scripts/verify-m55-git-first-\rfixture.mjs', '// fixture\n');
     const failResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
     assert.equal(failResult.ok, false);
     assert.match(failResult.combined, /enforcement-critical/);
@@ -616,6 +654,65 @@ test('diff verifier: ordinary UIUX path does not force FULL under FAST', () => {
     const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fastPrBody });
     assert.equal(result.ok, true);
     assert.match(result.stdout, /machine_requires_full=false/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: ordinary docs/ssot path forces FULL under FAST', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'docs/ssot/x.md', '# x\n');
+    const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fastPrBody });
+    assert.equal(result.ok, false);
+    assert.match(result.combined, /M55_GIT_FIRST_DIFF_VERIFY=FAIL/);
+    assert.match(result.combined, /FULL_REPO_PREFLIGHT/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: nested docs/ssot path forces FULL under FAST', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'docs/ssot/a/b.md', '# nested\n');
+    const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fastPrBody });
+    assert.equal(result.ok, false);
+    assert.match(result.combined, /M55_GIT_FIRST_DIFF_VERIFY=FAIL/);
+    assert.match(result.combined, /FULL_REPO_PREFLIGHT/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: workflow path is enforcement-critical', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const workflowPath = '.github/workflows/m55-git-first-preflight.yml';
+    const headSha = commitFile(root, workflowPath, 'name: fixture\n');
+    const failResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
+    assert.equal(failResult.ok, false);
+    assert.match(failResult.combined, /enforcement-critical/);
+
+    const passResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullWithEnforcementPrBody });
+    assert.equal(passResult.ok, true);
+    assert.match(passResult.stdout, /enforcement_critical_change=true/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: verify-m55-git-first-diff.mjs path is enforcement-critical', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'scripts/verify-m55-git-first-diff.mjs', '// fixture\n');
+    const failResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
+    assert.equal(failResult.ok, false);
+    assert.match(failResult.combined, /enforcement-critical/);
+
+    const passResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullWithEnforcementPrBody });
+    assert.equal(passResult.ok, true);
+    assert.match(passResult.stdout, /enforcement_critical_change=true/);
   } finally {
     cleanupDiffRepo(root);
   }

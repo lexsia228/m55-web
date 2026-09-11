@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { pathMatches } from './m55-git-first-policy.mjs';
-
 const manifest = JSON.parse(fs.readFileSync('docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json','utf8'));
 const base = process.env.M55_BASE_SHA;
 const head = process.env.M55_HEAD_SHA;
@@ -54,8 +52,6 @@ function globToRegExpNulSafe(glob) {
 }
 
 function pathMatchesNulSafe(path, pattern) {
-  if (pathMatches(path, pattern)) return true;
-  if (!String(path).includes('\n')) return false;
   const normalizedPath = String(path).replace(/\\/g, '/').toLowerCase();
   const normalizedPattern = String(pattern).replace(/\\/g, '/').toLowerCase();
   return globToRegExpNulSafe(normalizedPattern).test(normalizedPath);
