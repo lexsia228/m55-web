@@ -48,24 +48,31 @@ export const REQUIRED_WORKFLOW_COMMANDS = [
 
 export const HOST_REQUIRED_JOB_ID = 'verify-git-first-preflight';
 
-const PARSER_NODE_PATH = '${{ runner.temp }}/m55-yaml-parser/node_modules';
-const PARSER_INSTALL_COMMAND = 'npm install --prefix "$RUNNER_TEMP/m55-yaml-parser" --no-save --ignore-scripts --no-audit --no-fund --package-lock=false js-yaml@4.1.1';
+const PARSER_INSTALL_COMMAND = [
+  'npm install --prefix "$RUNNER_TEMP/m55-yaml-parser" --no-save --ignore-scripts --no-audit --no-fund --package-lock=false js-yaml@4.1.1',
+  'echo "NODE_PATH=$RUNNER_TEMP/m55-yaml-parser/node_modules" >> "$GITHUB_ENV"',
+].join('\n');
 
 const EXPECTED_GIT_FIRST_WORKFLOW = {
   name: 'm55-git-first-preflight',
   on: {
     pull_request: null,
-    push: { branches: ['main'] },
+    push: {
+      branches: ['main'],
+    },
   },
-  permissions: { contents: 'read' },
+  permissions: {
+    contents: 'read',
+  },
   jobs: {
     [HOST_REQUIRED_JOB_ID]: {
       'runs-on': 'ubuntu-latest',
-      env: { NODE_PATH: PARSER_NODE_PATH },
       steps: [
         {
           uses: 'actions/checkout@v4',
-          with: { 'fetch-depth': 0 },
+          with: {
+            'fetch-depth': 0,
+          },
         },
         {
           name: 'Install pinned M55 YAML parser',
@@ -102,6 +109,18 @@ const EXPECTED_GIT_FIRST_WORKFLOW = {
   },
 };
 
+const ASSET_INDEX_RUN_HASHES = [
+  null,
+  null,
+  '8e39bb91b0f635e9adff16917e7f0e9a25abd8af80a85d15fa48bdb61ec909a3',
+  '89ee5fc66994c10742936aa1738e9956d883e2ac748f6d55ae46434a9398d664',
+  '27e075033e1cd8b8daf8dec37cb45c3323fc64cae2224509eb0781e9ec0afa0a',
+  'c6355fc817f7020c3466fd1833929a888618bac3a919f1becd0d8da8bd07de2d',
+  'd3f691fe2e1d49d5709e29d8802fffd54306036b6bb2f81fe782d30648d82dfb',
+  '3d1641c8ae671f4891e4b6b4d5007ac7763757f206d18a2a589a1eae1ddd6613',
+  'f6c48067adc14090eba57e7f981be6fa45f77bdf82c8c17e78803d0be547c6fa',
+];
+
 const EXPECTED_ASSET_INDEX_SEMANTICS = {
   name: 'm55-asset-index',
   on: {
@@ -129,7 +148,7 @@ const EXPECTED_ASSET_INDEX_SEMANTICS = {
           name: 'Resolve automation branch',
           id: 'branch',
           env: { GH_TOKEN: '${{ github.token }}' },
-          run_sha256: '8e39bb91b0f635e9adff16917e7f0e9a25abd8af80a85d15fa48bdb61ec909a3',
+          run_sha256: ASSET_INDEX_RUN_HASHES[2],
         },
         {
           name: 'Prepare automation branch',
@@ -137,23 +156,23 @@ const EXPECTED_ASSET_INDEX_SEMANTICS = {
             BRANCH: '${{ steps.branch.outputs.name }}',
             EXISTING_PR: '${{ steps.branch.outputs.existing_pr }}',
           },
-          run_sha256: '89ee5fc66994c10742936aa1738e9956d883e2ac748f6d55ae46434a9398d664',
+          run_sha256: ASSET_INDEX_RUN_HASHES[3],
         },
         {
           name: 'Build asset index',
-          run_sha256: '27e075033e1cd8b8daf8dec37cb45c3323fc64cae2224509eb0781e9ec0afa0a',
+          run_sha256: ASSET_INDEX_RUN_HASHES[4],
         },
         {
           name: 'Commit index if changed',
           id: 'commit',
           env: { BRANCH: '${{ steps.branch.outputs.name }}' },
-          run_sha256: 'c6355fc817f7020c3466fd1833929a888618bac3a919f1becd0d8da8bd07de2d',
+          run_sha256: ASSET_INDEX_RUN_HASHES[5],
         },
         {
           name: 'Push main-sync-only update for existing PR',
           if: "steps.branch.outputs.existing_pr == 'true' && steps.commit.outputs.changed != 'true'",
           env: { BRANCH: '${{ steps.branch.outputs.name }}' },
-          run_sha256: 'd3f691fe2e1d49d5709e29d8802fffd54306036b6bb2f81fe782d30648d82dfb',
+          run_sha256: ASSET_INDEX_RUN_HASHES[6],
         },
         {
           name: 'Create pull request',
@@ -162,13 +181,13 @@ const EXPECTED_ASSET_INDEX_SEMANTICS = {
             GH_TOKEN: '${{ github.token }}',
             BRANCH: '${{ steps.branch.outputs.name }}',
           },
-          run_sha256: '3d1641c8ae671f4891e4b6b4d5007ac7763757f206d18a2a589a1eae1ddd6613',
+          run_sha256: ASSET_INDEX_RUN_HASHES[7],
         },
         {
           name: 'Report existing pull request',
           if: "steps.branch.outputs.existing_pr == 'true'",
           env: { BRANCH: '${{ steps.branch.outputs.name }}' },
-          run_sha256: 'f6c48067adc14090eba57e7f981be6fa45f77bdf82c8c17e78803d0be547c6fa',
+          run_sha256: ASSET_INDEX_RUN_HASHES[8],
         },
       ],
     },
@@ -181,7 +200,10 @@ function isPlainObject(value) {
 
 function parseWorkflowYaml(text, label) {
   try {
-    const value = yaml.load(text, { schema: yaml.CORE_SCHEMA, json: false });
+    const value = yaml.load(text, {
+      schema: yaml.CORE_SCHEMA,
+      json: false,
+    });
     if (!isPlainObject(value)) {
       return { value: null, failures: [`${label} must parse to a YAML mapping`] };
     }
