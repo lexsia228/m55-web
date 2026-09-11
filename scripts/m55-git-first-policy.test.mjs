@@ -11,6 +11,7 @@ const baseManifest = {
       'docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json',
       'docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md',
       'docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md',
+      'docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md',
     ],
   },
   failClosedToken: 'GIT_PREFLIGHT_INCOMPLETE',
@@ -90,9 +91,7 @@ jobs:
         run: gh pr create --base main --head "$BRANCH"
 `;
 
-test('baseline manifest passes', () => {
-  assert.deepEqual(validateManifest(baseManifest,{fileExists:exists}), []);
-});
+test('baseline manifest passes', () => assert.deepEqual(validateManifest(baseManifest,{fileExists:exists}), []));
 
 test('dangerous task class cannot downgrade to FAST', () => {
   const m = clone(baseManifest); m.taskClasses.STRIPE_PROVIDER_MONEY.defaultProfile='CONTINUATION_FAST_PATH';
@@ -102,6 +101,11 @@ test('dangerous task class cannot downgrade to FAST', () => {
 test('hardening universal read cannot be removed', () => {
   const m = clone(baseManifest); m.universal.requiredReads = m.universal.requiredReads.filter(x=>!x.includes('HARDENING'));
   assert.ok(validateManifest(m,{fileExists:exists}).some(x=>x.includes('HARDENING')));
+});
+
+test('host enforcement universal read cannot be removed', () => {
+  const m = clone(baseManifest); m.universal.requiredReads = m.universal.requiredReads.filter(x=>!x.includes('HOST_ENFORCEMENT'));
+  assert.ok(validateManifest(m,{fileExists:exists}).some(x=>x.includes('HOST_ENFORCEMENT')));
 });
 
 test('missing mandatory stage fails', () => {
@@ -149,9 +153,7 @@ test('Cursor alwaysApply false fails', () => {
   assert.ok(validateCursorRule(text,'cursor').some(x=>x.includes('alwaysApply')));
 });
 
-test('valid workflow passes structural validator', () => {
-  assert.deepEqual(validateWorkflow(validWorkflow), []);
-});
+test('valid workflow passes structural validator', () => assert.deepEqual(validateWorkflow(validWorkflow), []));
 
 test('workflow missing structural verifier fails', () => {
   const workflow = validWorkflow.replace('        run: node scripts/verify-m55-git-first-structure.mjs\n','');
@@ -182,8 +184,7 @@ test('no-op host-required job cannot spoof real validation elsewhere', () => {
   const workflow = validWorkflow
     .replace('  verify-git-first-preflight:\n', '  real-validation:\n')
     .replace('jobs:\n  real-validation:', 'jobs:\n  verify-git-first-preflight:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo ok\n  real-validation:');
-  const failures = validateWorkflow(workflow);
-  assert.ok(failures.some(x=>x.includes('host-required job')));
+  assert.ok(validateWorkflow(workflow).some(x=>x.includes('host-required job')));
 });
 
 test('host-required job cannot use job-level if', () => {
@@ -191,9 +192,28 @@ test('host-required job cannot use job-level if', () => {
   assert.ok(validateWorkflow(workflow).some(x=>x.includes('job-level if')));
 });
 
-test('asset-index PR routing baseline passes', () => {
-  assert.deepEqual(validateAssetIndexWorkflow(validAssetIndexWorkflow), []);
+test('host-required validation step cannot use step-level if', () => {
+  const workflow = validWorkflow.replace(
+    '      - name: structure\n        run: node scripts/verify-m55-git-first-structure.mjs',
+    '      - name: structure\n        if: false\n        run: node scripts/verify-m55-git-first-structure.mjs',
+  );
+  assert.ok(validateWorkflow(workflow).some(x=>x.includes('step-level if')));
 });
+
+test('host-required validation step cannot use continue-on-error', () => {
+  const workflow = validWorkflow.replace(
+    '      - name: structure\n        run: node scripts/verify-m55-git-first-structure.mjs',
+    '      - name: structure\n        continue-on-error: true\n        run: node scripts/verify-m55-git-first-structure.mjs',
+  );
+  assert.ok(validateWorkflow(workflow).some(x=>x.includes('continue-on-error')));
+});
+
+test('host-required checkout cannot use step-level if', () => {
+  const workflow = validWorkflow.replace('      - uses: actions/checkout@v4\n', '      - uses: actions/checkout@v4\n        if: false\n');
+  assert.ok(validateWorkflow(workflow).some(x=>x.includes('step-level if')));
+});
+
+test('asset-index PR routing baseline passes', () => assert.deepEqual(validateAssetIndexWorkflow(validAssetIndexWorkflow), []));
 
 test('asset-index direct main push fails', () => {
   const workflow = `${validAssetIndexWorkflow}\n      - name: unsafe\n        run: git push origin main\n`;
@@ -235,27 +255,36 @@ test('asset-index REST approval fails', () => {
   assert.ok(validateAssetIndexWorkflow(workflow).some(x=>x.includes('auto-approve')));
 });
 
+test('asset-index REST main-ref mutation fails', () => {
+  const workflow = `${validAssetIndexWorkflow}\n      - name: unsafe ref\n        run: gh api -X PATCH repos/x/y/git/refs/heads/main -f sha=deadbeef\n`;
+  assert.ok(validateAssetIndexWorkflow(workflow).some(x=>x.includes('main ref')));
+});
+
+test('asset-index GraphQL updateRef fails', () => {
+  const workflow = `${validAssetIndexWorkflow}\n      - name: unsafe graphql\n        run: gh api graphql -f query='mutation { updateRef(input: {}) { clientMutationId } }'\n`;
+  assert.ok(validateAssetIndexWorkflow(workflow).some(x=>x.includes('GraphQL')));
+});
+
 test('known hard-trigger changed path requires FULL', () => {
-  const result=classifyChangedPaths(['app/api/stripe/route.ts'],baseManifest);
-  assert.equal(result.requiresFull,true);
+  assert.equal(classifyChangedPaths(['app/api/stripe/route.ts'],baseManifest).requiresFull,true);
 });
 
 test('known semantic-owner nested checkout path requires FULL', () => {
-  const result=classifyChangedPaths(['app/foo/checkout/action.ts'],baseManifest);
-  assert.equal(result.requiresFull,true);
+  assert.equal(classifyChangedPaths(['app/foo/checkout/action.ts'],baseManifest).requiresFull,true);
 });
 
 test('known semantic-owner root checkout path requires FULL', () => {
-  const result=classifyChangedPaths(['app/checkout/page.ts'],baseManifest);
-  assert.equal(result.requiresFull,true);
+  assert.equal(classifyChangedPaths(['app/checkout/page.ts'],baseManifest).requiresFull,true);
 });
 
 test('known semantic-owner root webhook path requires FULL', () => {
-  const result=classifyChangedPaths(['app/webhook/route.ts'],baseManifest);
-  assert.equal(result.requiresFull,true);
+  assert.equal(classifyChangedPaths(['app/webhook/route.ts'],baseManifest).requiresFull,true);
+});
+
+test('case-variant known semantic-owner path still requires FULL', () => {
+  assert.equal(classifyChangedPaths(['app/Checkout/page.ts'],baseManifest).requiresFull,true);
 });
 
 test('ordinary UIUX css path does not machine-force FULL', () => {
-  const result=classifyChangedPaths(['components/home/Hero.module.css'],baseManifest);
-  assert.equal(result.requiresFull,false);
+  assert.equal(classifyChangedPaths(['components/home/Hero.module.css'],baseManifest).requiresFull,false);
 });
