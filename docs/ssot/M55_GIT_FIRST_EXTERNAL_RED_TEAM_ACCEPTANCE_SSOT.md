@@ -49,7 +49,7 @@ against the same exact head SHA, without seeing each other's report first.
 
 The implementer/author must not impersonate the external reviewer. A material finding from either reviewer cannot be discarded merely because the other passed.
 
-## C. v3 implementation boundary the reviewer must understand
+## C. v4 implementation boundary the reviewer must understand
 
 The reviewer must distinguish four layers:
 
@@ -66,7 +66,7 @@ The reviewer must distinguish four layers:
 
 `ENFORCEMENT_CRITICAL_CHANGE_REQUIRES_CODEX_AND_GROK_REAUDIT = TRUE`
 
-A report that criticizes v3 for not claiming complete static semantic understanding has misunderstood the contract. A report that finds a real bypass inside a claimed layer is valid.
+A report that criticizes v4 for not claiming complete static semantic understanding has misunderstood the contract. A report that finds a real bypass inside a claimed layer is valid.
 
 ## D. Mandatory reviewer questions
 
@@ -88,12 +88,15 @@ The reviewer must determine actual usability, not prose quality.
 14. Do missing mandatory stages/authority files fail?
 15. Does the workflow run on every PR and fetch enough history for exact base/head diff?
 16. Are checkout/full-history/required commands structurally bound to the exact required job?
-17. Are `paths`, `paths-ignore`, restrictive PR branch filters and no-op required-job substitution rejected by the accepted fixture set?
-18. Can routine UIUX work be forced into chronic FULL or Product Authority reruns unnecessarily?
-19. Can another AI reconstruct the intended workflow from repo authority without chat memory?
-20. Are audit-agent findings re-grounded against exact acceptance conditions before becoming blockers?
-21. Is any claim stronger than the mechanism actually implemented?
-22. If enforcement-critical files changed, was prior acceptance invalidated and was this exact new head reviewed independently by both Codex and Grok?
+17. Are step-level `if:` and `continue-on-error` forbidden on checkout/required validation steps so the host-required job cannot become vacuously successful?
+18. Are `paths`, `paths-ignore`, restrictive PR branch filters and no-op required-job substitution rejected by the accepted fixture set?
+19. Are root and case-variant known-risk paths conservatively classified without escaping the bounded machine layer?
+20. Can routine UIUX work be forced into chronic FULL or Product Authority reruns unnecessarily?
+21. Can another AI reconstruct the intended workflow from repo authority without chat memory?
+22. Are audit-agent findings re-grounded against exact acceptance conditions before becoming blockers?
+23. Is any claim stronger than the mechanism actually implemented?
+24. If enforcement-critical files changed, was prior acceptance invalidated and was this exact new head reviewed independently by both Codex and Grok?
+25. Can asset-index automation reach `main` by alternate refspec, REST/`gh api` Git-ref mutation, GraphQL ref mutation, auto-approval, auto-merge, or swallowed write failure despite the intended model?
 
 ## E. Mandatory adversarial scenarios D1-D10
 
@@ -105,7 +108,7 @@ Expected: Git identity + relevant UIUX authority + `CONTINUATION_FAST_PATH`; unr
 
 ### D2 — UIUX disguised known-risk path
 
-UIUX-labelled work changes a manifest hard-trigger/semantic-owner path, including root-level `app/checkout/**` or `app/webhook/**` cases.
+UIUX-labelled work changes a manifest hard-trigger/semantic-owner path, including root-level or case-varied checkout/webhook cases.
 
 Expected: exact changed-path CI classifier requires `FULL_REPO_PREFLIGHT` regardless of self-label.
 
@@ -153,7 +156,7 @@ Expected: relevant recheck detects movement; external acceptance tied to old hea
 
 ### D10 — Guardrail self-disable
 
-Attempt representative corruption: alwaysApply=false, dangerous task class -> FAST, required authority missing, mandatory stage removed, workflow command removed, workflow narrowing, required job renamed/no-op substituted, verifier disconnected, or enforcement-critical implementation changed after acceptance.
+Attempt representative corruption: alwaysApply=false, dangerous task class -> FAST, required authority missing, mandatory stage removed, workflow command removed, workflow narrowing, required job renamed/no-op substituted, required checkout/validation step made conditional, required validation made non-blocking with `continue-on-error`, verifier disconnected, or enforcement-critical implementation changed after acceptance.
 
 Expected: repo structural/negative/diff checks reject the representative corruption where mechanically covered; host required check remains required; and any material enforcement-critical change invalidates prior external acceptance and requires exact-head Codex + Grok re-review before Human adoption. Repo CI alone is not called tamper-proof.
 
