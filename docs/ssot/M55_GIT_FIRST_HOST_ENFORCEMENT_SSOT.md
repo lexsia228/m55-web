@@ -79,8 +79,8 @@ Target state carried by PR #194:
 - workflow creates/updates an asset-index PR instead of bypassing `main`;
 - no auto-approval;
 - no auto-merge;
-- no `|| true` suppression around push/PR failure;
-- Git-first policy tests/structure verifier reject reintroduction of direct-main push, swallowed push failure, auto-approval, or auto-merge.
+- no swallowed push/PR failure;
+- Git-first policy tests/structure verifier reject representative direct-main refspecs, swallowed push failure, auto-approval, auto-merge, and REST/`gh api` variants covered by the accepted fixture set.
 
 Transition rule: because the host ruleset became active before PR #194 is merged, the old main-resident direct-push asset-index job may fail safely if it runs during the transition. Do not weaken the ruleset to make that legacy path succeed. After PR #194 merges, the PR-based asset-index workflow becomes the canonical path.
 
@@ -88,7 +88,41 @@ Transition rule: because the host ruleset became active before PR #194 is merged
 
 `DO_NOT_ADD_ACTIONS_BYPASS_FOR_ASSET_INDEX = TRUE`
 
-## E. Verification evidence required before external acceptance
+## E. Host enforcement boundary
+
+The ruleset is a host-side merge barrier, but the required status context is still produced by workflow code stored in the same repository. Therefore the host requirement proves that a check with the required context succeeded; it does **not** by itself prove that candidate-controlled workflow/verifier code is immutable or semantically equivalent to the previously accepted implementation.
+
+`REQUIRED_STATUS_CONTEXT_IS_NOT_IMMUTABLE_CODE_ATTESTATION = TRUE`
+
+`SELF_MODIFYING_REPO_CANNOT_CLAIM_TAMPER_PROOF_FROM_REQUIRED_CONTEXT_ALONE = TRUE`
+
+For this repository configuration, broad Git-first acceptance therefore uses two distinct controls:
+
+1. host rules prevent direct unreviewed `main` updates and require `verify-git-first-preflight`;
+2. any change to enforcement-critical files invalidates prior Git-first acceptance and requires new same-SHA independent external review before Human adoption/merge.
+
+Enforcement-critical paths include at minimum:
+
+- `.github/workflows/m55-git-first-preflight.yml`
+- `.github/workflows/m55-asset-index.yml`
+- `scripts/m55-git-first-policy.mjs`
+- `scripts/m55-git-first-policy.test.mjs`
+- `scripts/verify-m55-git-first-structure.mjs`
+- `scripts/verify-m55-git-first-diff.mjs`
+- `scripts/verify-m55-git-first-preflight.mjs`
+- `scripts/verify-m55-git-first-hardening.mjs`
+- `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
+- `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
+- `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+- `docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md`
+- this Host Enforcement SSOT
+- `docs/ssot/M55_GIT_FIRST_EXTERNAL_RED_TEAM_ACCEPTANCE_SSOT.md`
+
+`ENFORCEMENT_CRITICAL_CHANGE_INVALIDATES_PRIOR_ACCEPTANCE = TRUE`
+
+`ENFORCEMENT_CRITICAL_CHANGE_REQUIRES_CODEX_AND_GROK_REAUDIT = TRUE`
+
+## F. Verification evidence required before external acceptance
 
 Before claiming host enforcement GREEN, freshly verify through GitHub that:
 
@@ -100,21 +134,22 @@ Before claiming host enforcement GREEN, freshly verify through GitHub that:
 6. pull-request rule is present;
 7. required status check context is exactly `verify-git-first-preflight`;
 8. main resolves as protected;
-9. PR #194 exact head has same-SHA Git-first CI success;
-10. external reviewer pins the same exact PR head.
+9. PR exact head has same-SHA Git-first CI success;
+10. external reviewers pin the same exact PR head;
+11. if enforcement-critical files changed, both required external reviewers re-audited that exact head before Human adoption.
 
-If any item is unobservable, contradictory, or missing, report `HOST_ENFORCEMENT = UNPROVEN` and do not claim broad `USABLE`.
+If any required item is unobservable, contradictory, or missing, report `HOST_ENFORCEMENT = UNPROVEN` or `EXTERNAL_ACCEPTANCE = PENDING` as applicable and do not claim broad `USABLE`.
 
-## F. Change control
+## G. Change control
 
-Any change to this ruleset, workflow-permission policy, required check context, bypass actors, or asset-index write path is consequential governance work and requires:
+Any change to this ruleset, workflow-permission policy, required check context, bypass actors, asset-index write path, or enforcement-critical file set is consequential governance work and requires:
 
 - `FULL_REPO_PREFLIGHT`;
 - fresh host observation;
 - exact Git diff review when repo files change;
 - same-head CI;
-- external re-review when the accepted Git-first candidate changes materially.
+- independent Codex + Grok exact-head re-review before broad adoption when enforcement-critical files changed materially.
 
-Do not silently create a second ruleset that overlaps or weakens this one.
+Do not silently create a second ruleset that overlaps or weakens this one. Do not describe the current personal-repository required-context arrangement as immutable workflow attestation.
 
 This SSOT does not authorize merge by itself. Final merge/adoption remains Human-controlled under `M55_GIT_FIRST_EXTERNAL_RED_TEAM_ACCEPTANCE_SSOT.md`.
