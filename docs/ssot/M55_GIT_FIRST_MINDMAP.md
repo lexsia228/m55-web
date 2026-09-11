@@ -1,6 +1,6 @@
 # M55 Git-First Governance Mind Map
 
-Status: **HUMAN-READABLE MAP / v2 / 2026-09-11**
+Status: **HUMAN-READABLE MAP / v4 / 2026-09-11**
 
 ```text
 M55 AI WORK
@@ -22,7 +22,8 @@ M55 AI WORK
 |   +-- Entrypoint
 |   +-- Manifest
 |   +-- Scope-aware preflight SSOT
-|   `-- Hardening SSOT
+|   +-- Hardening SSOT
+|   `-- Host Enforcement SSOT
 |
 +-- 3. WHAT OWNS MY TASK?
 |   +-- read task-class routing manifest
@@ -88,6 +89,7 @@ M55 AI WORK
 |   +-- hard trigger appeared?
 |   +-- mutation ownership changed?
 |   +-- exact diff still inside scope?
+|   +-- host required-check/ruleset still proven when merge/adoption depends on it?
 |   `-- if changed -> refresh / reclassify / STOP
 |
 +-- 9. SUBTASK / SESSION BOUNDARY
@@ -112,7 +114,8 @@ M55 AI WORK
     +-- exact changed-path classifier
     +-- GitHub Actions on every PR + push main
     +-- full-history checkout for base/head diff
-    `-- host required-check/ruleset REQUIRED for final tamper-resistant adoption
+    +-- required job cannot skip/non-block checkout or validation steps
+    `-- host required-check/ruleset REQUIRED for final adoption
 ```
 
 ## Enforcement layers
@@ -128,10 +131,16 @@ UNKNOWN SEMANTIC RISK
 
 CI SELF-PROTECTION
   -> repo structural/negative checks
+  -> required job steps must remain unconditional + fail-closed
   -> PLUS host-side required merge check
+
+SELF-MODIFICATION BOUNDARY
+  -> host context is not immutable code attestation
+  -> enforcement-critical change invalidates prior acceptance
+  -> same-head CI + independent Codex + Grok required before Human adoption
 ```
 
-The repository does not claim that static path matching understands all semantic meaning, or that a procedural Lane Lock is an atomic distributed mutex.
+The repository does not claim that static path matching understands all semantic meaning, that a procedural Lane Lock is an atomic distributed mutex, or that a candidate-controlled required status context is immutable attestation.
 
 ## UIUX pause/resume live pilot
 
