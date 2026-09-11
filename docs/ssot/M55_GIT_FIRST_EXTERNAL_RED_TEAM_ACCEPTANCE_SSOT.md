@@ -16,47 +16,41 @@ The system is **not USABLE merely because its authors, static verifiers, CI, or 
 
 ## A. Audit candidate identity
 
-Every external review must pin:
-
-- repository `lexsia228/m55-web`;
-- PR number;
-- base SHA;
-- head SHA;
-- exact changed-file set/diff;
-- review timestamp;
-- reviewer identity/type;
-- same-head CI state;
-- Git-host required-check/ruleset state when observable.
+Every external review must pin repository `lexsia228/m55-web`, PR number, base SHA, head SHA, exact changed-file set/diff, review timestamp, reviewer type, same-head CI state, and live Git-host required-check/ruleset state when observable.
 
 `EXTERNAL_REVIEW_RESULT_BINDS_TO_EXACT_HEAD_SHA = TRUE`
 
 `HEAD_MOVEMENT_INVALIDATES_EXTERNAL_ACCEPTANCE = TRUE`
 
-Any changed bytes after review require re-review unless their non-impact is independently demonstrated and Human accepts that exception.
+Any changed bytes after review require re-review unless their non-impact is independently demonstrated and Human explicitly accepts that exception.
 
 ## B. Independent reviewer requirement
 
-Final high-confidence acceptance requires both:
-
-- independent Codex exact-PR/diff red-team;
-- independent GrokBOT adversarial/governance red-team;
-
-against the same exact head SHA, without seeing each other's report first.
+Final high-confidence acceptance requires both independent Codex and independent GrokBOT red-team reviews against the same exact head SHA, without seeing each other's current-cycle report first.
 
 `MINIMUM_EXTERNAL_REVIEWERS_FOR_FINAL_USABLE = 2`
 
 `REVIEWERS_MUST_BE_INDEPENDENT_BEFORE_ADJUDICATION = TRUE`
 
-The implementer/author must not impersonate the external reviewer. A material finding from either reviewer cannot be discarded merely because the other passed.
+A material finding from either reviewer cannot be discarded merely because the other passes.
 
-## C. v4 implementation boundary the reviewer must understand
+## C. FINAL STRUCTURAL REMEDIATION boundary
 
-The reviewer must distinguish four layers:
+The reviewer must distinguish five layers:
 
 1. **bounded machine path enforcement** — exact PR base/head changed paths are classified from manifest `hardTriggerPaths` + `semanticOwnerPaths`;
 2. **mandatory semantic review** — meaning outside known paths is not claimed to be completely machine-detectable;
-3. **host merge enforcement** — GitHub rules prevent direct unreviewed `main` updates and require the `verify-git-first-preflight` context;
-4. **self-modification boundary** — because the required context is produced by candidate-controlled repository workflow/verifier code, that context is not immutable code attestation. Enforcement-critical changes require new same-SHA independent external review before broad adoption.
+3. **parsed workflow semantic enforcement** — security-critical GitHub Actions YAML is parsed using pinned `js-yaml@4.1.1` and compared against canonical fail-closed allowlists, not line-oriented regex;
+4. **host merge enforcement** — GitHub rules prevent direct unreviewed `main` updates and require the `verify-git-first-preflight` context;
+5. **self-modification boundary** — because the required context is produced by candidate-controlled repository workflow/verifier code, that context is not immutable code attestation. Any enforcement-critical change invalidates prior acceptance and requires new exact-head same-SHA CI plus independent Codex and Grok review before Human adoption.
+
+The Git-first workflow allowlist fixes trigger scope, checkout/full history, pinned parser bootstrap, required job/step order, env, and exact commands. Quoted/unquoted YAML spelling may differ when parsed semantics are identical, but conditional execution, `continue-on-error`, defaults/custom shell, command wrappers, trigger narrowing, extra steps/keys, parser bootstrap drift, or other semantic additions must fail.
+
+The asset-index allowlist fixes the complete parsed job/step structure, branch-source env, conditions/actions, and SHA-256 fingerprints of shell bodies. Branch redirection, env reassignment, failure swallowing, API/ref mutation, shell/default changes, or any run-body drift must fail the repo-layer semantic check.
+
+`WORKFLOW_VALIDATION_USES_PARSED_YAML_SEMANTICS = TRUE`
+
+`SECURITY_CRITICAL_WORKFLOWS_USE_FAIL_CLOSED_ALLOWLIST = TRUE`
 
 `STATIC_PATH_CLASSIFIER_IS_NOT_COMPLETE_SEMANTIC_PROOF = TRUE`
 
@@ -66,7 +60,7 @@ The reviewer must distinguish four layers:
 
 `ENFORCEMENT_CRITICAL_CHANGE_REQUIRES_CODEX_AND_GROK_REAUDIT = TRUE`
 
-A report that criticizes v4 for not claiming complete static semantic understanding has misunderstood the contract. A report that finds a real bypass inside a claimed layer is valid.
+Do not classify the mere fact that a self-modifying repository can edit its own verifier as a new P0/P1; that limitation is explicit and is closed procedurally by exact-head external dual review plus Human adoption. Do report a concrete bypass of the reviewed parsed allowlist, host enforcement, authority routing, or re-review requirement.
 
 ## D. Mandatory reviewer questions
 
@@ -74,97 +68,68 @@ The reviewer must determine actual usability, not prose quality.
 
 1. Does every M55 work unit encounter Git-first before substantive work?
 2. Can a dangerous known changed path remain FAST without CI failure?
-3. Can semantic money/legal/provider/identity/security meaning outside known patterns still be silently treated as statically proven safe?
-4. Can a valid ordinary UIUX CSS continuation remain FAST without unrelated Creator/legal/provider/Product Authority archaeology?
-5. Can a new chat resume FAST only from a valid durable `CONTINUATION_HANDOFF`, while CLOSED GREEN remains non-invalidated?
-6. Are lane ownership/worktree/mutation-owner/mutable-path checks honest about being procedural rather than atomic?
+3. Is semantic risk outside known paths honestly bounded rather than machine-proven safe?
+4. Can ordinary bounded UIUX continuation remain FAST without unrelated Product Authority/Creator/legal/provider archaeology?
+5. Can a new chat resume FAST only from valid durable `CONTINUATION_HANDOFF`, while CLOSED GREEN remains closed?
+6. Is Lane Lock represented as procedural rather than atomic?
 7. Is overlapping mutation ownership fail-closed when detected?
 8. Is relevant open/unmerged authority discovery a real bounded procedure rather than a ceremonial boolean?
 9. Does remote-only review pin remote SHA and avoid inventing local state?
-10. Are pre-mutation and pre-GREEN/integration rechecks sufficient to catch relevant drift?
-11. Are structural manifest invariants actually validated?
+10. Do pre-mutation and pre-GREEN/integration rechecks catch relevant drift?
+11. Are structural manifest invariants validated?
 12. Does Cursor `alwaysApply: true` corruption fail?
-13. Do representative dangerous task-class downgrades to FAST fail?
+13. Do dangerous task-class downgrades to FAST fail?
 14. Do missing mandatory stages/authority files fail?
-15. Does the workflow run on every PR and fetch enough history for exact base/head diff?
-16. Are checkout/full-history/required commands structurally bound to the exact required job?
-17. Are step-level `if:` and `continue-on-error` forbidden on checkout/required validation steps so the host-required job cannot become vacuously successful?
-18. Are `paths`, `paths-ignore`, restrictive PR branch filters and no-op required-job substitution rejected by the accepted fixture set?
-19. Are root and case-variant known-risk paths conservatively classified without escaping the bounded machine layer?
-20. Can routine UIUX work be forced into chronic FULL or Product Authority reruns unnecessarily?
-21. Can another AI reconstruct the intended workflow from repo authority without chat memory?
-22. Are audit-agent findings re-grounded against exact acceptance conditions before becoming blockers?
+15. Does the Git-first workflow run on every PR and push main without path/branch/type narrowing?
+16. Does parsed-YAML validation bind checkout/full history, parser bootstrap, required commands, step order and env to the exact required job?
+17. Do quoted `if` / `continue-on-error`, job/step conditions, defaults/custom shells, command wrappers and duplicate keys fail?
+18. Does parser-bootstrap version/path tampering fail?
+19. Are root and case-variant protected paths conservatively classified?
+20. Does asset-index parsed validation reject `BRANCH=main`, resolver/data-flow changes, shell reassignment, `|| :`, custom shells, REST/GraphQL/ref mutation, auto-approval/merge and run-body drift?
+21. Can another fresh AI reconstruct the system from repo authority without chat memory?
+22. Are audit findings re-grounded against exact acceptance conditions before becoming blockers?
 23. Is any claim stronger than the mechanism actually implemented?
-24. If enforcement-critical files changed, was prior acceptance invalidated and was this exact new head reviewed independently by both Codex and Grok?
-25. Can asset-index automation reach `main` by alternate refspec, REST/`gh api` Git-ref mutation, GraphQL ref mutation, auto-approval, auto-merge, or swallowed write failure despite the intended model?
+24. If enforcement-critical files changed, was prior acceptance invalidated and was this exact new head independently reviewed by both Codex and Grok?
 
 ## E. Mandatory adversarial scenarios D1-D10
 
 ### D1 — Valid UIUX continuation
-
-Approved CSS/presentation-only work, valid same-session or durable handoff, dedicated UIUX workspace.
-
-Expected: Git identity + relevant UIUX authority + `CONTINUATION_FAST_PATH`; unrelated Creator/Stripe/legal/Product Authority reruns not required unless their semantics are touched or invalidated.
+Expected: Git identity + relevant UIUX authority + `CONTINUATION_FAST_PATH`; unrelated Creator/Stripe/legal/Product Authority work is not required unless those semantics enter scope.
 
 ### D2 — UIUX disguised known-risk path
-
-UIUX-labelled work changes a manifest hard-trigger/semantic-owner path, including root-level or case-varied checkout/webhook cases.
-
-Expected: exact changed-path CI classifier requires `FULL_REPO_PREFLIGHT` regardless of self-label.
+Change root/nested/case-varied checkout/webhook or another machine-trigger path. Expected: `FULL_REPO_PREFLIGHT` regardless of label.
 
 ### D3 — SSOT mutation disguised as editorial
-
-Normative `docs/ssot/**` change called wording-only.
-
-Expected: machine path trigger -> FULL + existing-contract/supersession check.
+Normative `docs/ssot/**` change. Expected: machine trigger -> FULL + existing-contract/supersession check.
 
 ### D4 — Semantic risk outside named path
-
-Money/DB/security/identity meaning appears in an unexpected source file not matched by classifier.
-
-Expected: system does **not** claim machine proof of safety; mandatory semantic review must escalate when detected. Reviewer must assess false-negative risk honestly.
+Money/DB/security/identity meaning appears in an unexpected file. Expected: no claim of static machine proof; AI/Human semantic review must escalate when detected.
 
 ### D5 — Remote-only reviewer
-
-No local runtime.
-
-Expected: `LOCAL_RUNTIME_UNAVAILABLE`, exact remote candidate pinned, no local dirty/worktree invention.
+Expected: `LOCAL_RUNTIME_UNAVAILABLE`, exact remote candidate pinned, no invented local facts.
 
 ### D6 — Open/unmerged authority
-
-Main lacks a relevant Human-approved SSOT that exists in an open PR/stacked branch.
-
 Expected: FULL procedure performs fresh bounded discovery, pins SHA, inspects relevant authority, and distinguishes `requiredAuthority` from `requiredUnmergedAuthority`.
 
 ### D7 — Lane collision
-
-Two agents claim overlapping mutable paths.
-
-Expected: detected overlap -> `MUTATION_OWNERSHIP_CONFLICT`. System must not overclaim an atomic distributed lock if none exists.
+Expected: detected overlap -> `MUTATION_OWNERSHIP_CONFLICT`; no atomic-lock overclaim.
 
 ### D8 — Context/session transition
-
-Paused UIUX task resumes in a new chat.
-
-Expected: CLOSED GREEN is not invalidated; FAST allowed only if durable handoff fields are freshly reconstructed and Git identity matches. Missing/stale handoff -> FULL.
+Expected: CLOSED GREEN is not invalidated; FAST only from complete fresh durable handoff + re-observed Git identity; otherwise FULL.
 
 ### D9 — Candidate moves
-
-PR/HEAD/main changes after preflight or external review.
-
-Expected: relevant recheck detects movement; external acceptance tied to old head becomes stale.
+Expected: relevant recheck detects movement; old external acceptance becomes stale.
 
 ### D10 — Guardrail self-disable
+Attack the actual parsed semantic boundary: quoted mapping keys, duplicate keys, aliases/anchors where relevant, job/step `if`, `continue-on-error`, defaults/custom shell, command wrappers, parser bootstrap/version/path, trigger narrowing including `pull_request.types`, step/order/env changes, no-op substitution, asset-index branch/env/data-flow changes, failure suppression, direct-main/ref/API/GraphQL mutation, and enforcement-critical changes after acceptance.
 
-Attempt representative corruption: alwaysApply=false, dangerous task class -> FAST, required authority missing, mandatory stage removed, workflow command removed, workflow narrowing, required job renamed/no-op substituted, required checkout/validation step made conditional, required validation made non-blocking with `continue-on-error`, verifier disconnected, or enforcement-critical implementation changed after acceptance.
-
-Expected: repo structural/negative/diff checks reject the representative corruption where mechanically covered; host required check remains required; and any material enforcement-critical change invalidates prior external acceptance and requires exact-head Codex + Grok re-review before Human adoption. Repo CI alone is not called tamper-proof.
+Expected: the reviewed candidate's repo-layer parsed canonical allowlists/negative fixtures reject semantic drift; host required check remains required; any enforcement-critical change still invalidates prior external acceptance and requires new exact-head dual review before Human adoption.
 
 ## F. Operational fixtures F1-F8
 
 Reviewer must read `docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md` and assess whether each failure mechanism is actually closed or honestly bounded.
 
-Especially F1: an auditor testing `2 -> 1 -> 21` must not be accepted as proof that the exact `1 -> 12` acceptance sequence fails. External audit output is supporting evidence, not self-authenticating product truth.
+Especially F1: an auditor testing `2 -> 1 -> 21` cannot be accepted as proof that exact accepted `1 -> 12` fails.
 
 `AUDIT_REPRODUCTION_MUST_MATCH_EXACT_ACCEPTANCE_CONDITION = TRUE`
 
@@ -172,10 +137,10 @@ Especially F1: an auditor testing `2 -> 1 -> 21` must not be accepted as proof t
 
 - `P0` — dangerous work can be authorized from wrong/stale authority or a core fail-closed boundary is materially bypassed;
 - `P1` — likely material governance failure, serious claimed-enforcement bypass, contradictory authority, or cross-lane mutation risk;
-- `P2` — meaningful reliability/usability gap that may be conditionally acceptable if non-safety-critical;
+- `P2` — meaningful reliability/usability gap that is non-safety-critical and may be conditionally acceptable;
 - `P3` — non-blocking clarity/maintainability improvement.
 
-Do not score an explicitly documented limitation as P1 merely because it is not stronger than claimed. Score overclaim or bypass relative to the actual contract.
+Do not score an explicitly documented limitation as P0/P1 merely because a stronger mechanism is imaginable. Score concrete overclaim or bypass relative to the contract.
 
 ## H. Required reviewer output
 
@@ -228,10 +193,10 @@ HOST_ENFORCEMENT
 <required-check/ruleset evidence and limitation>
 
 SELF_MODIFICATION_BOUNDARY
-<whether enforcement-critical files changed; whether prior acceptance was invalidated; whether same-head independent re-review is complete>
+<whether enforcement-critical files changed; prior acceptance invalidation; same-head dual re-review status>
 
 IMPROVEMENTS
-<ranked changes>
+<ranked changes; do not block USABLE on bounded P2/P3 unless materially safety-critical>
 
 FINAL_CLASSIFICATION
 USABLE | USABLE_WITH_CONDITIONS | NOT_USABLE
@@ -247,34 +212,24 @@ Automatic acceptance is prohibited.
 Candidate may be proposed as `USABLE` only when:
 
 - Codex and Grok independently pin the same exact head;
-- P0=0 and P1=0 in adjudicated result;
+- adjudicated P0=0 and P1=0;
 - D1-D10 PASS, or any uncertainty is evidenced non-material;
 - F1-F8 PASS, or explicitly bounded limitations are correctly represented and non-blocking;
 - no unresolved authority contradiction remains;
 - same-head CI/static/negative/diff checks are GREEN;
-- host-side required merge enforcement for the Git-first check is PROVEN;
-- if enforcement-critical files changed, prior acceptance was explicitly invalidated and both external reviewers reviewed the new exact head;
+- host-side required merge enforcement is PROVEN;
+- enforcement-critical changes explicitly invalidated prior acceptance and both external reviewers reviewed the new exact head;
 - another AI can reconstruct the system without prior chat memory.
 
-`USABLE_WITH_CONDITIONS` may be considered only for bounded non-safety-critical P2/P3 items. Missing host-side required-check enforcement or missing required re-review after an enforcement-critical change is not sufficient for final broad `USABLE`.
+`USABLE_WITH_CONDITIONS` may be considered for bounded non-safety-critical P2/P3 items. P2/P3 alone do not trigger another remediation cycle unless Human/Control Tower determines they materially undermine the acceptance boundary.
 
 Any P0 or unresolved P1 -> `NOT_USABLE` until patched and re-reviewed.
-
-If a patch changes the head after review, audit the new exact head again.
 
 ## J. Final Human authority
 
 External AI provides independent engineering classification. It does not override Human authority.
 
-Final adoption/merge/use remains a Human decision after Control Tower presents:
-
-- exact external results;
-- exact candidate SHA;
-- same-SHA CI;
-- host enforcement state;
-- self-modification-boundary status;
-- unresolved findings;
-- remediation delta if any.
+Final adoption/merge/use remains a Human decision after Control Tower presents exact external results, exact candidate SHA, same-SHA CI, host enforcement state, self-modification-boundary status, and unresolved findings.
 
 Until then:
 
