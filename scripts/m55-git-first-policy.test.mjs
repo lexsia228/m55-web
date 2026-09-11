@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execSync } from 'node:child_process';
 import {
   validateManifest,
   validateCursorRule,
@@ -313,6 +316,13 @@ assertAssetRejected('asset-index GraphQL ref mutation is rejected by exact run c
     "      - name: Build asset index from trusted main\n        run: gh api graphql -f query='mutation { updateRef(input: {}) { clientMutationId } }'",
   ));
 
+assertAssetRejected('asset-index post-switch cp to allowed output path is rejected', workflow =>
+  replaceRequired(
+    workflow,
+    '          git update-index --add --cacheinfo "100644,$md_blob,$allowed_md"',
+    '          cp "$temp_dir/M55_REPO_ASSET_INDEX.md" "$allowed_md"',
+  ));
+
 test('asset-index trusted build precedes output-branch preparation', () => {
   const parsed = yaml.load(validAssetIndexWorkflow);
   const steps = parsed.jobs['build-index'].steps;
@@ -359,10 +369,15 @@ test('asset-index rejects branch-first generator execution regression', () => {
   );
   const withBranchControlledPython = replaceRequired(
     vulnerable,
-    `      - name: Apply trusted index outputs
+    `      - name: Write trusted index outputs via Git index
         run: |
-          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.md" docs/audit/M55_REPO_ASSET_INDEX.md
-          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.json" docs/audit/M55_REPO_ASSET_INDEX.json
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
+          temp_dir="$RUNNER_TEMP/m55-asset-index-output"
+          md_blob="$(git hash-object -w "$temp_dir/M55_REPO_ASSET_INDEX.md")"
+          json_blob="$(git hash-object -w "$temp_dir/M55_REPO_ASSET_INDEX.json")"
+          git update-index --add --cacheinfo "100644,$md_blob,$allowed_md"
+          git update-index --add --cacheinfo "100644,$json_blob,$allowed_json"
 
 `,
     `      - name: Build asset index
@@ -371,6 +386,57 @@ test('asset-index rejects branch-first generator execution regression', () => {
 `,
   );
   assert.notDeepEqual(validateAssetIndexWorkflow(withBranchControlledPython), []);
+});
+
+test('asset-index index-only output replaces symlink without touching external target', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-asset-index-symlink-'));
+  const external = path.join(os.tmpdir(), `m55-asset-index-external-${Date.now()}.txt`);
+  const allowedMd = 'docs/audit/M55_REPO_ASSET_INDEX.md';
+  const allowedJson = 'docs/audit/M55_REPO_ASSET_INDEX.json';
+  const trustedMd = '# trusted md\n';
+  const trustedJson = '{"trusted":true}\n';
+  const externalBefore = 'external sentinel\n';
+
+  try {
+    fs.writeFileSync(external, externalBefore);
+    execSync('git init -b main', { cwd: root, stdio: 'pipe' });
+    execSync('git config user.email test@test && git config user.name test', { cwd: root, stdio: 'pipe', shell: true });
+
+    fs.mkdirSync(path.join(root, 'docs/audit'), { recursive: true });
+    fs.writeFileSync(path.join(root, allowedMd), '# baseline md\n');
+    fs.writeFileSync(path.join(root, allowedJson), '{"baseline":true}\n');
+    execSync('git add . && git commit -m baseline', { cwd: root, stdio: 'pipe', shell: true });
+
+    execSync('git switch -c automation/m55-asset-index-test', { cwd: root, stdio: 'pipe' });
+    fs.rmSync(path.join(root, allowedMd));
+    fs.symlinkSync(external, path.join(root, allowedMd));
+    execSync(`git add ${allowedMd} && git commit -m symlink`, { cwd: root, stdio: 'pipe', shell: true });
+
+    const tempDir = path.join(root, 'trusted-output');
+    fs.mkdirSync(tempDir);
+    fs.writeFileSync(path.join(tempDir, 'M55_REPO_ASSET_INDEX.md'), trustedMd);
+    fs.writeFileSync(path.join(tempDir, 'M55_REPO_ASSET_INDEX.json'), trustedJson);
+
+    const mdBlob = execSync(`git hash-object -w "${path.join(tempDir, 'M55_REPO_ASSET_INDEX.md')}"`, { cwd: root }).toString().trim();
+    const jsonBlob = execSync(`git hash-object -w "${path.join(tempDir, 'M55_REPO_ASSET_INDEX.json')}"`, { cwd: root }).toString().trim();
+    execSync(`git update-index --add --cacheinfo "100644,${mdBlob},${allowedMd}"`, { cwd: root, stdio: 'pipe' });
+    execSync(`git update-index --add --cacheinfo "100644,${jsonBlob},${allowedJson}"`, { cwd: root, stdio: 'pipe' });
+    execSync('git commit -m "index-only trusted outputs"', { cwd: root, stdio: 'pipe' });
+
+    assert.equal(fs.readFileSync(external, 'utf8'), externalBefore);
+
+    const treeMd = execSync(`git ls-tree HEAD -- ${allowedMd}`, { cwd: root }).toString().trim();
+    assert.match(treeMd, /^100644 blob/);
+
+    const objectType = execSync(`git cat-file -t ${mdBlob}`, { cwd: root }).toString().trim();
+    assert.equal(objectType, 'blob');
+
+    const committedMd = execSync(`git show HEAD:${allowedMd}`, { cwd: root }).toString();
+    assert.equal(committedMd, trustedMd);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    if (fs.existsSync(external)) fs.rmSync(external);
+  }
 });
 
 test('known hard-trigger changed path requires FULL', () => {

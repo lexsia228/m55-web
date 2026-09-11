@@ -64,45 +64,70 @@ jobs:
           git fetch origin main
           allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
           allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
-          if [ "$EXISTING_PR" = "true" ]; then
-            git fetch origin "$BRANCH"
-            disallowed="$(git diff --name-only "origin/main...origin/$BRANCH" | while read -r path; do
+          reject_disallowed_paths() {
+            local disallowed=''
+            while IFS= read -r -d '' path; do
               case "$path" in
                 "$allowed_md"|"$allowed_json") ;;
-                *) echo "$path" ;;
+                *) disallowed="${disallowed}${path}"$'\n' ;;
               esac
-            done)"
+            done < <(git diff --no-renames --name-only -z "$@")
             if [ -n "$disallowed" ]; then
-              echo "Automation branch contains disallowed paths vs origin/main:"
-              printf '%s\n' "$disallowed"
+              echo "Automation branch contains disallowed paths:"
+              printf '%s' "$disallowed"
               exit 1
             fi
+          }
+          if [ "$EXISTING_PR" = "true" ]; then
+            git fetch origin "$BRANCH"
+            reject_disallowed_paths "origin/main...origin/$BRANCH"
             git switch --track -c "$BRANCH" "origin/$BRANCH"
             git merge --no-edit origin/main
           else
             git switch -c "$BRANCH" origin/main
           fi
+          reject_disallowed_paths "origin/main...HEAD"
 
-      - name: Apply trusted index outputs
-        run: |
-          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.md" docs/audit/M55_REPO_ASSET_INDEX.md
-          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.json" docs/audit/M55_REPO_ASSET_INDEX.json
-
-      - name: Verify output-only working tree
+      - name: Write trusted index outputs via Git index
         run: |
           allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
           allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
-          disallowed="$(git status --porcelain | awk '{print $2}' | while read -r path; do
+          temp_dir="$RUNNER_TEMP/m55-asset-index-output"
+          md_blob="$(git hash-object -w "$temp_dir/M55_REPO_ASSET_INDEX.md")"
+          json_blob="$(git hash-object -w "$temp_dir/M55_REPO_ASSET_INDEX.json")"
+          git update-index --add --cacheinfo "100644,$md_blob,$allowed_md"
+          git update-index --add --cacheinfo "100644,$json_blob,$allowed_json"
+
+      - name: Verify staged index outputs
+        run: |
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
+          disallowed=''
+          while IFS= read -r -d '' path; do
             case "$path" in
               "$allowed_md"|"$allowed_json") ;;
-              *) echo "$path" ;;
+              *) disallowed="${disallowed}${path}"$'\n' ;;
             esac
-          done)"
+          done < <(git diff --cached --no-renames --name-only -z)
           if [ -n "$disallowed" ]; then
-            echo "Working tree contains disallowed changes:"
-            printf '%s\n' "$disallowed"
+            echo "Staged changes include disallowed paths:"
+            printf '%s' "$disallowed"
             exit 1
           fi
+          for path in "$allowed_md" "$allowed_json"; do
+            entries="$(git ls-files --stage -- "$path")"
+            count="$(printf '%s\n' "$entries" | sed '/^$/d' | wc -l | tr -d ' ')"
+            if [ "$count" -ne 1 ]; then
+              echo "Expected exactly one index entry for $path, found $count"
+              exit 1
+            fi
+            mode="$(printf '%s\n' "$entries" | awk '{print $1}')"
+            stage="$(printf '%s\n' "$entries" | awk '{print $3}')"
+            if [ "$mode" != "100644" ] || [ "$stage" != "0" ]; then
+              echo "Index entry for $path must be mode 100644 stage 0, got mode=$mode stage=$stage"
+              exit 1
+            fi
+          done
 
       - name: Commit index if changed
         id: commit
@@ -113,34 +138,36 @@ jobs:
           allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$allowed_md" "$allowed_json"
-          staged_disallowed="$(git diff --cached --name-only | while read -r path; do
-            case "$path" in
-              "$allowed_md"|"$allowed_json") ;;
-              *) echo "$path" ;;
-            esac
-          done)"
-          if [ -n "$staged_disallowed" ]; then
-            echo "Staged changes include disallowed paths:"
-            printf '%s\n' "$staged_disallowed"
-            exit 1
-          fi
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "chore(audit): refresh repo asset index"
-          branch_disallowed="$(git diff --name-only origin/main...HEAD | while read -r path; do
+          disallowed=''
+          while IFS= read -r -d '' path; do
             case "$path" in
               "$allowed_md"|"$allowed_json") ;;
-              *) echo "$path" ;;
+              *) disallowed="${disallowed}${path}"$'\n' ;;
             esac
-          done)"
-          if [ -n "$branch_disallowed" ]; then
+          done < <(git diff --no-renames --name-only -z origin/main...HEAD)
+          if [ -n "$disallowed" ]; then
             echo "Committed branch diff includes disallowed paths vs origin/main:"
-            printf '%s\n' "$branch_disallowed"
+            printf '%s' "$disallowed"
             exit 1
           fi
+          for path in "$allowed_md" "$allowed_json"; do
+            tree_entry="$(git ls-tree HEAD -- "$path")"
+            if [ -z "$tree_entry" ]; then
+              echo "Missing tree entry for $path"
+              exit 1
+            fi
+            mode="$(printf '%s\n' "$tree_entry" | awk '{print $1}')"
+            object_kind="$(printf '%s\n' "$tree_entry" | awk '{print $2}')"
+            if [ "$mode" != "100644" ] || [ "$object_kind" != "blob" ]; then
+              echo "Tree entry for $path must be 100644 blob, got mode=$mode kind=$object_kind"
+              exit 1
+            fi
+          done
           git push --set-upstream origin "$BRANCH"
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
