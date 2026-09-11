@@ -41,36 +41,106 @@ jobs:
             echo "existing_pr=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Assert trusted main checkout
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+
+      - name: Build asset index from trusted main
+        run: python scripts/m55/build_asset_index.py
+
+      - name: Stage trusted index outputs
+        run: |
+          mkdir -p "$RUNNER_TEMP/m55-asset-index-output"
+          cp docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json \
+            "$RUNNER_TEMP/m55-asset-index-output/"
+          git checkout -- docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json
+
       - name: Prepare automation branch
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
           EXISTING_PR: ${{ steps.branch.outputs.existing_pr }}
         run: |
           git fetch origin main
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
           if [ "$EXISTING_PR" = "true" ]; then
             git fetch origin "$BRANCH"
+            disallowed="$(git diff --name-only "origin/main...origin/$BRANCH" | while read -r path; do
+              case "$path" in
+                "$allowed_md"|"$allowed_json") ;;
+                *) echo "$path" ;;
+              esac
+            done)"
+            if [ -n "$disallowed" ]; then
+              echo "Automation branch contains disallowed paths vs origin/main:"
+              printf '%s\n' "$disallowed"
+              exit 1
+            fi
             git switch --track -c "$BRANCH" "origin/$BRANCH"
             git merge --no-edit origin/main
           else
             git switch -c "$BRANCH" origin/main
           fi
 
-      - name: Build asset index
-        run: python scripts/m55/build_asset_index.py
+      - name: Apply trusted index outputs
+        run: |
+          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.md" docs/audit/M55_REPO_ASSET_INDEX.md
+          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.json" docs/audit/M55_REPO_ASSET_INDEX.json
+
+      - name: Verify output-only working tree
+        run: |
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
+          disallowed="$(git status --porcelain | awk '{print $2}' | while read -r path; do
+            case "$path" in
+              "$allowed_md"|"$allowed_json") ;;
+              *) echo "$path" ;;
+            esac
+          done)"
+          if [ -n "$disallowed" ]; then
+            echo "Working tree contains disallowed changes:"
+            printf '%s\n' "$disallowed"
+            exit 1
+          fi
 
       - name: Commit index if changed
         id: commit
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
         run: |
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json
+          git add "$allowed_md" "$allowed_json"
+          staged_disallowed="$(git diff --cached --name-only | while read -r path; do
+            case "$path" in
+              "$allowed_md"|"$allowed_json") ;;
+              *) echo "$path" ;;
+            esac
+          done)"
+          if [ -n "$staged_disallowed" ]; then
+            echo "Staged changes include disallowed paths:"
+            printf '%s\n' "$staged_disallowed"
+            exit 1
+          fi
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "chore(audit): refresh repo asset index"
+          branch_disallowed="$(git diff --name-only origin/main...HEAD | while read -r path; do
+            case "$path" in
+              "$allowed_md"|"$allowed_json") ;;
+              *) echo "$path" ;;
+            esac
+          done)"
+          if [ -n "$branch_disallowed" ]; then
+            echo "Committed branch diff includes disallowed paths vs origin/main:"
+            printf '%s\n' "$branch_disallowed"
+            exit 1
+          fi
           git push --set-upstream origin "$BRANCH"
           echo "changed=true" >> "$GITHUB_OUTPUT"
 

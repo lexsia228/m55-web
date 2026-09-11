@@ -6,8 +6,13 @@ import {
   validateCursorRule,
   validateWorkflow,
   validateAssetIndexWorkflow,
+  validateAssetIndexTrustedExecutionOrder,
   classifyChangedPaths,
 } from './m55-git-first-policy.mjs';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const yaml = require('js-yaml');
 
 const baseManifest = {
   universal: {
@@ -297,16 +302,76 @@ assertAssetRejected('asset-index direct main push is rejected', workflow =>
 assertAssetRejected('asset-index REST main-ref mutation is rejected by exact run contract', workflow =>
   replaceRequired(
     workflow,
-    '      - name: Build asset index\n        run: python scripts/m55/build_asset_index.py',
-    '      - name: Build asset index\n        run: gh api -X PATCH repos/x/y/git/refs/heads/main -f sha=deadbeef',
+    '      - name: Build asset index from trusted main\n        run: python scripts/m55/build_asset_index.py',
+    '      - name: Build asset index from trusted main\n        run: gh api -X PATCH repos/x/y/git/refs/heads/main -f sha=deadbeef',
   ));
 
 assertAssetRejected('asset-index GraphQL ref mutation is rejected by exact run contract', workflow =>
   replaceRequired(
     workflow,
-    '      - name: Build asset index\n        run: python scripts/m55/build_asset_index.py',
-    "      - name: Build asset index\n        run: gh api graphql -f query='mutation { updateRef(input: {}) { clientMutationId } }'",
+    '      - name: Build asset index from trusted main\n        run: python scripts/m55/build_asset_index.py',
+    "      - name: Build asset index from trusted main\n        run: gh api graphql -f query='mutation { updateRef(input: {}) { clientMutationId } }'",
   ));
+
+test('asset-index trusted build precedes output-branch preparation', () => {
+  const parsed = yaml.load(validAssetIndexWorkflow);
+  const steps = parsed.jobs['build-index'].steps;
+  const buildIndex = steps.findIndex(step => step.name === 'Build asset index from trusted main');
+  const outputBranchIndex = steps.findIndex(step => step.name === 'Prepare automation branch');
+  assert.ok(buildIndex >= 0);
+  assert.ok(outputBranchIndex >= 0);
+  assert.ok(buildIndex < outputBranchIndex);
+  assert.deepEqual(validateAssetIndexTrustedExecutionOrder(parsed), []);
+});
+
+test('asset-index rejects repository scripts after output-branch preparation', () => {
+  const parsed = yaml.load(validAssetIndexWorkflow);
+  const outputBranchIndex = parsed.jobs['build-index'].steps.findIndex(
+    step => step.name === 'Prepare automation branch',
+  );
+  for (const step of parsed.jobs['build-index'].steps.slice(outputBranchIndex + 1)) {
+    if (typeof step.run === 'string') {
+      assert.doesNotMatch(step.run, /\b(?:python|node|bash)\s+(?:[^\n|;&]*\/)?scripts\//);
+    }
+  }
+});
+
+test('asset-index rejects branch-first generator execution regression', () => {
+  const vulnerable = replaceRequired(
+    validAssetIndexWorkflow,
+    `      - name: Assert trusted main checkout
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+
+      - name: Build asset index from trusted main
+        run: python scripts/m55/build_asset_index.py
+
+      - name: Stage trusted index outputs
+        run: |
+          mkdir -p "$RUNNER_TEMP/m55-asset-index-output"
+          cp docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json \\
+            "$RUNNER_TEMP/m55-asset-index-output/"
+          git checkout -- docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json
+
+      - name: Prepare automation branch`,
+    `      - name: Prepare automation branch`,
+  );
+  const withBranchControlledPython = replaceRequired(
+    vulnerable,
+    `      - name: Apply trusted index outputs
+        run: |
+          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.md" docs/audit/M55_REPO_ASSET_INDEX.md
+          cp "$RUNNER_TEMP/m55-asset-index-output/M55_REPO_ASSET_INDEX.json" docs/audit/M55_REPO_ASSET_INDEX.json
+
+`,
+    `      - name: Build asset index
+        run: python scripts/m55/build_asset_index.py
+
+`,
+  );
+  assert.notDeepEqual(validateAssetIndexWorkflow(withBranchControlledPython), []);
+});
 
 test('known hard-trigger changed path requires FULL', () => {
   assert.equal(classifyChangedPaths(['app/api/stripe/route.ts'],baseManifest).requiresFull,true);

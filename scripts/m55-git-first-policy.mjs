@@ -113,13 +113,22 @@ const ASSET_INDEX_RUN_HASHES = [
   null,
   null,
   '8e39bb91b0f635e9adff16917e7f0e9a25abd8af80a85d15fa48bdb61ec909a3',
-  '89ee5fc66994c10742936aa1738e9956d883e2ac748f6d55ae46434a9398d664',
+  '6cf5d53ca6ebad881c848a647918cb0323bc8397ce5a4dd46eca62dd81da608b',
   '27e075033e1cd8b8daf8dec37cb45c3323fc64cae2224509eb0781e9ec0afa0a',
-  'c6355fc817f7020c3466fd1833929a888618bac3a919f1becd0d8da8bd07de2d',
+  'fb477535cf827e9af5aec848fca2c08dabcc8495c7188642b0bda870c2f611f8',
+  'c1fb779135dd3c106e3b708509f6d5142f11fadbf6381b7376f50c1cca39c985',
+  'f9e8571efeebc5cb24e16bd3d7c5fba1595f90dfc6126effc8ef925ae06182b7',
+  '403e57a5c370d3229406973f43c9d2b6e18c8f5f160b033115d999670d808989',
+  'cad6508efa8ccb23006294c7017fa2c9e2ac190ea1bb27557cbe1592ea42a26f',
   'd3f691fe2e1d49d5709e29d8802fffd54306036b6bb2f81fe782d30648d82dfb',
   '3d1641c8ae671f4891e4b6b4d5007ac7763757f206d18a2a589a1eae1ddd6613',
   'f6c48067adc14090eba57e7f981be6fa45f77bdf82c8c17e78803d0be547c6fa',
 ];
+
+const ASSET_INDEX_TRUSTED_BUILD_STEP = 'Build asset index from trusted main';
+const ASSET_INDEX_OUTPUT_BRANCH_STEP = 'Prepare automation branch';
+
+const REPO_SCRIPT_RUN_PATTERN = /\b(?:python|node|bash)\s+(?:[^\n|;&]*\/)?scripts\//;
 
 const EXPECTED_ASSET_INDEX_SEMANTICS = {
   name: 'm55-asset-index',
@@ -151,28 +160,44 @@ const EXPECTED_ASSET_INDEX_SEMANTICS = {
           run_sha256: ASSET_INDEX_RUN_HASHES[2],
         },
         {
-          name: 'Prepare automation branch',
+          name: 'Assert trusted main checkout',
+          run_sha256: ASSET_INDEX_RUN_HASHES[3],
+        },
+        {
+          name: ASSET_INDEX_TRUSTED_BUILD_STEP,
+          run_sha256: ASSET_INDEX_RUN_HASHES[4],
+        },
+        {
+          name: 'Stage trusted index outputs',
+          run_sha256: ASSET_INDEX_RUN_HASHES[5],
+        },
+        {
+          name: ASSET_INDEX_OUTPUT_BRANCH_STEP,
           env: {
             BRANCH: '${{ steps.branch.outputs.name }}',
             EXISTING_PR: '${{ steps.branch.outputs.existing_pr }}',
           },
-          run_sha256: ASSET_INDEX_RUN_HASHES[3],
+          run_sha256: ASSET_INDEX_RUN_HASHES[6],
         },
         {
-          name: 'Build asset index',
-          run_sha256: ASSET_INDEX_RUN_HASHES[4],
+          name: 'Apply trusted index outputs',
+          run_sha256: ASSET_INDEX_RUN_HASHES[7],
+        },
+        {
+          name: 'Verify output-only working tree',
+          run_sha256: ASSET_INDEX_RUN_HASHES[8],
         },
         {
           name: 'Commit index if changed',
           id: 'commit',
           env: { BRANCH: '${{ steps.branch.outputs.name }}' },
-          run_sha256: ASSET_INDEX_RUN_HASHES[5],
+          run_sha256: ASSET_INDEX_RUN_HASHES[9],
         },
         {
           name: 'Push main-sync-only update for existing PR',
           if: "steps.branch.outputs.existing_pr == 'true' && steps.commit.outputs.changed != 'true'",
           env: { BRANCH: '${{ steps.branch.outputs.name }}' },
-          run_sha256: ASSET_INDEX_RUN_HASHES[6],
+          run_sha256: ASSET_INDEX_RUN_HASHES[10],
         },
         {
           name: 'Create pull request',
@@ -181,13 +206,13 @@ const EXPECTED_ASSET_INDEX_SEMANTICS = {
             GH_TOKEN: '${{ github.token }}',
             BRANCH: '${{ steps.branch.outputs.name }}',
           },
-          run_sha256: ASSET_INDEX_RUN_HASHES[7],
+          run_sha256: ASSET_INDEX_RUN_HASHES[11],
         },
         {
           name: 'Report existing pull request',
           if: "steps.branch.outputs.existing_pr == 'true'",
           env: { BRANCH: '${{ steps.branch.outputs.name }}' },
-          run_sha256: ASSET_INDEX_RUN_HASHES[8],
+          run_sha256: ASSET_INDEX_RUN_HASHES[12],
         },
       ],
     },
@@ -336,9 +361,48 @@ export function validateWorkflow(text) {
   return [];
 }
 
+export function validateAssetIndexTrustedExecutionOrder(parsed) {
+  const failures = [];
+  const steps = parsed?.jobs?.['build-index']?.steps;
+  if (!Array.isArray(steps)) {
+    failures.push('m55-asset-index workflow missing build-index steps');
+    return failures;
+  }
+
+  const buildIndex = steps.findIndex(step => step?.name === ASSET_INDEX_TRUSTED_BUILD_STEP);
+  const outputBranchIndex = steps.findIndex(step => step?.name === ASSET_INDEX_OUTPUT_BRANCH_STEP);
+  if (buildIndex < 0) {
+    failures.push(`m55-asset-index workflow missing ${ASSET_INDEX_TRUSTED_BUILD_STEP} step`);
+  }
+  if (outputBranchIndex < 0) {
+    failures.push(`m55-asset-index workflow missing ${ASSET_INDEX_OUTPUT_BRANCH_STEP} step`);
+  }
+  if (buildIndex >= 0 && outputBranchIndex >= 0 && buildIndex >= outputBranchIndex) {
+    failures.push(
+      `m55-asset-index workflow must execute ${ASSET_INDEX_TRUSTED_BUILD_STEP} before ${ASSET_INDEX_OUTPUT_BRANCH_STEP}`,
+    );
+  }
+
+  if (outputBranchIndex >= 0) {
+    for (const step of steps.slice(outputBranchIndex + 1)) {
+      if (!step || typeof step.run !== 'string') continue;
+      if (REPO_SCRIPT_RUN_PATTERN.test(step.run)) {
+        failures.push(
+          `m55-asset-index workflow must not execute repository scripts after ${ASSET_INDEX_OUTPUT_BRANCH_STEP}; found in step ${step.name ?? '(unnamed)'}`,
+        );
+      }
+    }
+  }
+
+  return failures;
+}
+
 export function validateAssetIndexWorkflow(text) {
   const parsed = parseWorkflowYaml(text, 'm55-asset-index workflow');
   if (parsed.failures.length) return parsed.failures;
+
+  const trustedOrderFailures = validateAssetIndexTrustedExecutionOrder(parsed.value);
+  if (trustedOrderFailures.length) return trustedOrderFailures;
 
   const fingerprint = assetIndexSemanticFingerprint(parsed.value);
   if (!isDeepStrictEqual(fingerprint, EXPECTED_ASSET_INDEX_SEMANTICS)) {
