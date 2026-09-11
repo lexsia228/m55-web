@@ -49,19 +49,24 @@ against the same exact head SHA, without seeing each other's report first.
 
 The implementer/author must not impersonate the external reviewer. A material finding from either reviewer cannot be discarded merely because the other passed.
 
-## C. v2 implementation boundary the reviewer must understand
+## C. v3 implementation boundary the reviewer must understand
 
-The reviewer must distinguish three layers:
+The reviewer must distinguish four layers:
 
 1. **bounded machine path enforcement** — exact PR base/head changed paths are classified from manifest `hardTriggerPaths` + `semanticOwnerPaths`;
 2. **mandatory semantic review** — meaning outside known paths is not claimed to be completely machine-detectable;
-3. **host merge enforcement** — repo-contained CI is not cryptographically self-protecting unless GitHub/ruleset/branch protection makes the check required.
-
-A report that criticizes v2 for not claiming complete static semantic understanding has misunderstood the contract. A report that finds a real bypass inside one of the claimed layers is valid.
+3. **host merge enforcement** — GitHub rules prevent direct unreviewed `main` updates and require the `verify-git-first-preflight` context;
+4. **self-modification boundary** — because the required context is produced by candidate-controlled repository workflow/verifier code, that context is not immutable code attestation. Enforcement-critical changes require new same-SHA independent external review before broad adoption.
 
 `STATIC_PATH_CLASSIFIER_IS_NOT_COMPLETE_SEMANTIC_PROOF = TRUE`
 
-`REPO_CI_SELF_PROTECTION_REQUIRES_HOST_REQUIRED_CHECK = TRUE`
+`REQUIRED_STATUS_CONTEXT_IS_NOT_IMMUTABLE_CODE_ATTESTATION = TRUE`
+
+`ENFORCEMENT_CRITICAL_CHANGE_INVALIDATES_PRIOR_ACCEPTANCE = TRUE`
+
+`ENFORCEMENT_CRITICAL_CHANGE_REQUIRES_CODEX_AND_GROK_REAUDIT = TRUE`
+
+A report that criticizes v3 for not claiming complete static semantic understanding has misunderstood the contract. A report that finds a real bypass inside a claimed layer is valid.
 
 ## D. Mandatory reviewer questions
 
@@ -70,7 +75,7 @@ The reviewer must determine actual usability, not prose quality.
 1. Does every M55 work unit encounter Git-first before substantive work?
 2. Can a dangerous known changed path remain FAST without CI failure?
 3. Can semantic money/legal/provider/identity/security meaning outside known patterns still be silently treated as statically proven safe?
-4. Can a valid ordinary UIUX CSS continuation remain FAST without unrelated Creator/legal/provider archaeology?
+4. Can a valid ordinary UIUX CSS continuation remain FAST without unrelated Creator/legal/provider/Product Authority archaeology?
 5. Can a new chat resume FAST only from a valid durable `CONTINUATION_HANDOFF`, while CLOSED GREEN remains non-invalidated?
 6. Are lane ownership/worktree/mutation-owner/mutable-path checks honest about being procedural rather than atomic?
 7. Is overlapping mutation ownership fail-closed when detected?
@@ -82,11 +87,13 @@ The reviewer must determine actual usability, not prose quality.
 13. Do representative dangerous task-class downgrades to FAST fail?
 14. Do missing mandatory stages/authority files fail?
 15. Does the workflow run on every PR and fetch enough history for exact base/head diff?
-16. Are workflow structural requirements and required commands checked?
-17. Can routine UIUX work be forced into chronic FULL unnecessarily?
-18. Can another AI reconstruct the intended workflow from repo authority without chat memory?
-19. Are audit-agent findings re-grounded against exact acceptance conditions before becoming blockers?
-20. Is any claim stronger than the mechanism actually implemented?
+16. Are checkout/full-history/required commands structurally bound to the exact required job?
+17. Are `paths`, `paths-ignore`, restrictive PR branch filters and no-op required-job substitution rejected by the accepted fixture set?
+18. Can routine UIUX work be forced into chronic FULL or Product Authority reruns unnecessarily?
+19. Can another AI reconstruct the intended workflow from repo authority without chat memory?
+20. Are audit-agent findings re-grounded against exact acceptance conditions before becoming blockers?
+21. Is any claim stronger than the mechanism actually implemented?
+22. If enforcement-critical files changed, was prior acceptance invalidated and was this exact new head reviewed independently by both Codex and Grok?
 
 ## E. Mandatory adversarial scenarios D1-D10
 
@@ -94,11 +101,11 @@ The reviewer must determine actual usability, not prose quality.
 
 Approved CSS/presentation-only work, valid same-session or durable handoff, dedicated UIUX workspace.
 
-Expected: Git identity + relevant UIUX authority + `CONTINUATION_FAST_PATH`; unrelated Creator/Stripe/legal not required.
+Expected: Git identity + relevant UIUX authority + `CONTINUATION_FAST_PATH`; unrelated Creator/Stripe/legal/Product Authority reruns not required unless their semantics are touched or invalidated.
 
 ### D2 — UIUX disguised known-risk path
 
-UIUX-labelled work changes a manifest hard-trigger/semantic-owner path.
+UIUX-labelled work changes a manifest hard-trigger/semantic-owner path, including root-level `app/checkout/**` or `app/webhook/**` cases.
 
 Expected: exact changed-path CI classifier requires `FULL_REPO_PREFLIGHT` regardless of self-label.
 
@@ -146,9 +153,9 @@ Expected: relevant recheck detects movement; external acceptance tied to old hea
 
 ### D10 — Guardrail self-disable
 
-Attempt representative corruption: alwaysApply=false, dangerous task class -> FAST, required authority missing, mandatory stage removed, workflow command removed, workflow paths filter added, or structural verifier disconnected.
+Attempt representative corruption: alwaysApply=false, dangerous task class -> FAST, required authority missing, mandatory stage removed, workflow command removed, workflow narrowing, required job renamed/no-op substituted, verifier disconnected, or enforcement-critical implementation changed after acceptance.
 
-Expected: structural verifier/negative tests/CI fail on the candidate merge result. Reviewer must separately report whether Git-host required-check enforcement exists; repo CI alone is not called tamper-proof.
+Expected: repo structural/negative/diff checks reject the representative corruption where mechanically covered; host required check remains required; and any material enforcement-critical change invalidates prior external acceptance and requires exact-head Codex + Grok re-review before Human adoption. Repo CI alone is not called tamper-proof.
 
 ## F. Operational fixtures F1-F8
 
@@ -217,6 +224,9 @@ Grok = PASS | FAIL | UNCERTAIN
 HOST_ENFORCEMENT
 <required-check/ruleset evidence and limitation>
 
+SELF_MODIFICATION_BOUNDARY
+<whether enforcement-critical files changed; whether prior acceptance was invalidated; whether same-head independent re-review is complete>
+
 IMPROVEMENTS
 <ranked changes>
 
@@ -240,9 +250,10 @@ Candidate may be proposed as `USABLE` only when:
 - no unresolved authority contradiction remains;
 - same-head CI/static/negative/diff checks are GREEN;
 - host-side required merge enforcement for the Git-first check is PROVEN;
+- if enforcement-critical files changed, prior acceptance was explicitly invalidated and both external reviewers reviewed the new exact head;
 - another AI can reconstruct the system without prior chat memory.
 
-`USABLE_WITH_CONDITIONS` may be considered only for bounded non-safety-critical P2/P3 items. **Missing host-side required-check enforcement is not sufficient for final broad `USABLE`.**
+`USABLE_WITH_CONDITIONS` may be considered only for bounded non-safety-critical P2/P3 items. Missing host-side required-check enforcement or missing required re-review after an enforcement-critical change is not sufficient for final broad `USABLE`.
 
 Any P0 or unresolved P1 -> `NOT_USABLE` until patched and re-reviewed.
 
@@ -258,6 +269,7 @@ Final adoption/merge/use remains a Human decision after Control Tower presents:
 - exact candidate SHA;
 - same-SHA CI;
 - host enforcement state;
+- self-modification-boundary status;
 - unresolved findings;
 - remediation delta if any.
 
