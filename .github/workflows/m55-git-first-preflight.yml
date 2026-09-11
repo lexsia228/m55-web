@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install pinned M55 YAML parser
-        run: |
+        run: |-
           npm install --prefix "$RUNNER_TEMP/m55-yaml-parser" --no-save --ignore-scripts --no-audit --no-fund --package-lock=false js-yaml@4.1.1
           echo "NODE_PATH=$RUNNER_TEMP/m55-yaml-parser/node_modules" >> "$GITHUB_ENV"
       - name: Verify M55 Git-first legacy routing compatibility
