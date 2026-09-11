@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.1",
+  "schemaVersion": "2.0.2",
   "status": "ACTIVE_HUMAN_APPROVED_GOVERNANCE_TARGET",
   "purpose": "Route every M55 AI work unit through Git-first, task-relevant authority before substantive work, with machine-verifiable profile invariants and bounded changed-path escalation.",
   "universal": {
@@ -9,6 +9,7 @@
     "entrypoint": "docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md",
     "profileAuthority": "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
     "hardeningAuthority": "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+    "hostEnforcementAuthority": "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md",
     "operationalFixtures": "docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md",
     "globalAgentRules": "AGENTS.md",
     "executionAuthority": "docs/ssot/M55_EXECUTION_STATE.json",
@@ -16,7 +17,8 @@
       "docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md",
       "docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json",
       "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
-      "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md"
+      "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+      "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md"
     ]
   },
   "profiles": {
@@ -171,7 +173,8 @@
       "requiredAuthority": [
         "docs/ssot/README.md",
         "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
-        "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md"
+        "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+        "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md"
       ],
       "requiresExistingContractSearch": true,
       "checkRelevantOpenPrOrStackedBranch": true
