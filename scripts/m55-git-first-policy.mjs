@@ -29,6 +29,7 @@ export const REQUIRED_UNIVERSAL_READS = [
   'docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json',
   'docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md',
   'docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md',
+  'docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md',
 ];
 
 export const REQUIRED_WORKFLOW_COMMANDS = [
@@ -188,7 +189,9 @@ export function validateWorkflow(text) {
     failures.push(`workflow missing host-required job ${HOST_REQUIRED_JOB_ID}`);
     return failures;
   }
-  if (/^\s{4}if:\s*/m.test(requiredJob)) failures.push('host-required job must not have a job-level if condition');
+  if (/^\s{4}if\s*:\s*/m.test(requiredJob)) failures.push('host-required job must not have a job-level if condition');
+  if (/^\s{8}if\s*:\s*/m.test(requiredJob)) failures.push('host-required job steps must not have step-level if conditions');
+  if (/^\s{8}continue-on-error\s*:\s*/m.test(requiredJob)) failures.push('host-required job steps must not use continue-on-error');
   if (/^\s{4}name:\s*(?!["']?verify-git-first-preflight["']?\s*$).+/m.test(requiredJob)) {
     failures.push('host-required job must not override its check name');
   }
@@ -240,8 +243,17 @@ export function validateAssetIndexWorkflow(text) {
     if (/\bgh\s+pr\s+review\b.*--approve\b/.test(line) || /\bgh\s+api\b.*\/pulls\/[^\s/]+\/reviews\b/.test(line) || /\bcurl\b.*\/pulls\/[^\s/]+\/reviews\b/.test(line)) {
       failures.push('asset-index workflow must not auto-approve its pull request');
     }
+    if (/\b(?:gh\s+api|curl)\b/i.test(line) && /(?:git\/refs\/heads\/main|refs\/heads\/main)/i.test(line.replace(/["']/g, ' '))) {
+      failures.push('asset-index workflow must not mutate the main ref through GitHub API calls');
+    }
   }
 
+  if (/\b(?:mergePullRequest|updateRef|createRef|deleteRef)\b/.test(active)) {
+    failures.push('asset-index workflow must not use GitHub GraphQL merge/ref mutations');
+  }
+  if (/(?:\bgh\s+api\b|\bcurl\b)[\s\S]{0,800}(?:git\/refs\/heads\/main|refs\/heads\/main)/i.test(active)) {
+    failures.push('asset-index workflow must not mutate the main ref through GitHub API calls');
+  }
   if (/\bauto-merge\b|\bmerge_method\b|\bAPPROVE\b/.test(active)) {
     failures.push('asset-index workflow must not contain auto-merge or approval API semantics');
   }
@@ -280,7 +292,9 @@ function globToRegExp(glob) {
 }
 
 export function pathMatches(path, pattern) {
-  return globToRegExp(pattern).test(path);
+  const normalizedPath = String(path).replace(/\\/g, '/').toLowerCase();
+  const normalizedPattern = String(pattern).replace(/\\/g, '/').toLowerCase();
+  return globToRegExp(normalizedPattern).test(normalizedPath);
 }
 
 export function classifyChangedPaths(paths, manifest) {
