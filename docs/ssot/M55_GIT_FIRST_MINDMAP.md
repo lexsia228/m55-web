@@ -1,6 +1,6 @@
 # M55 Git-First Governance Mind Map
 
-Status: **HUMAN-READABLE MAP / v4 / 2026-09-11**
+Status: **HUMAN-READABLE MAP / FINAL STRUCTURAL REMEDIATION / 2026-09-11**
 
 ```text
 M55 AI WORK
@@ -26,8 +26,8 @@ M55 AI WORK
 |   `-- Host Enforcement SSOT
 |
 +-- 3. WHAT OWNS MY TASK?
-|   +-- read task-class routing manifest
-|   +-- read only relevant local authority
+|   +-- task-class routing manifest
+|   +-- only relevant local authority
 |   +-- distinguish requiredUnmergedAuthority
 |   +-- fresh bounded open PR / stacked-branch discovery when required
 |   `-- search existing contract before inventing a new one
@@ -110,11 +110,12 @@ M55 AI WORK
 `-- 11. MACHINE ENFORCEMENT
     +-- manifest structural invariants
     +-- Cursor alwaysApply=true verification
-    +-- negative policy tests
     +-- exact changed-path classifier
     +-- GitHub Actions on every PR + push main
-    +-- full-history checkout for base/head diff
-    +-- required job cannot skip/non-block checkout or validation steps
+    +-- pinned js-yaml parser bootstrap
+    +-- parsed canonical allowlist for Git-first workflow
+    +-- parsed structure + run-body fingerprints for asset-index workflow
+    +-- consolidated adversarial negative matrix
     `-- host required-check/ruleset REQUIRED for final adoption
 ```
 
@@ -129,10 +130,15 @@ UNKNOWN SEMANTIC RISK
   -> AI/Human semantic review
   -> FULL when meaning enters protected family
 
-CI SELF-PROTECTION
-  -> repo structural/negative checks
-  -> required job steps must remain unconditional + fail-closed
-  -> PLUS host-side required merge check
+REPO WORKFLOW SEMANTICS
+  -> parse YAML, do not infer security from line regex
+  -> canonical fail-closed allowlist
+  -> quoted-key/custom-shell/default-shell/data-flow morphs change semantics -> FAIL
+
+HOST LAYER
+  -> required verify-git-first-preflight context on main
+  -> deletion/non-fast-forward protection
+  -> no bypass actor
 
 SELF-MODIFICATION BOUNDARY
   -> host context is not immutable code attestation
@@ -164,3 +170,5 @@ PR #193 paused cleanly
 `GIT_FIRST = ALWAYS`
 
 `STATIC_PATH_CLASSIFIER_IS_NOT_COMPLETE_SEMANTIC_PROOF = TRUE`
+
+`WORKFLOW_VALIDATION_USES_PARSED_YAML_SEMANTICS = TRUE`
