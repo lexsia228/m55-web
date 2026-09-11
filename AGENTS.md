@@ -38,16 +38,29 @@ For a completely new ChatGPT conversation, also read `docs/ssot/M55_GPT_COLD_STA
 
 A model hallucination or stale recollection never authorizes work. Any contradiction between executable state and required fresh evidence is **STOP**.
 
-## Product Authority Pack (mandatory before analysis or mutation)
+## Product Authority Pack — scope-aware requirement
 
-The Git-first Stage 0 routing does **not** weaken this existing requirement. Before any M55 analysis or source mutation:
+Git-first routing does **not** weaken Product Authority where product authority is relevant, but it also does not force Product Authority ceremony onto an unrelated bounded continuation.
 
-1. Run `npm run verify:product-authority:bootstrap` when on the Authority Pack bootstrap branch (`feat/m55-product-authority-pack-v1`) with provisional sequence-0 history only.
+Product Authority verification/header review is mandatory when any of the following is true:
+
+- the selected profile is `FULL_REPO_PREFLIGHT` or this is a cold-start/global integration task;
+- the task changes or decides product/commercial semantics owned by Product Authority, including pricing, funnel flow, claims/copy authority, product mapping, provider/runtime authority, protected-worktree identity, or Production observation facts;
+- the relevant task-class authority explicitly requires Product Authority;
+- a previously accepted Product Authority result has a real invalidating dependency.
+
+When Product Authority is required:
+
+1. Run `npm run verify:product-authority:bootstrap` only on the Authority Pack bootstrap branch (`feat/m55-product-authority-pack-v1`) with provisional sequence-0 history.
 2. Run `npm run verify:product-authority` for steady-state reconciliation (requires history sequences 0–2 after bootstrap reconciliation).
 3. Read `.product-authority/generated/authority-header.md`.
 4. **STOP** on hash drift, authority conflict, protected-worktree violation, or pending Production evidence promoted without verification.
 
-Memory and conversation history are **not** authority. The Product Authority Pack durable sources and generated header supersede recalled facts, but generated observations are not timeless runtime truth.
+A valid `CONTINUATION_FAST_PATH` that is presentation-only or otherwise outside Product Authority semantics does **not** rerun Product Authority merely because M55 work is occurring. It preserves already-accepted authority/no-replay evidence and checks only task-relevant authority unless an invalidator or semantic expansion enters scope.
+
+A `PINNED_REVIEW_PREFLIGHT` reads Product Authority only when the pinned claim/diff depends on it.
+
+Memory and conversation history are **not** authority. When Product Authority is in scope, the durable sources and generated header supersede recalled facts, but generated observations are not timeless runtime truth.
 
 Bootstrap mode applies **only** on the Authority Pack implementation branch during provisional sequence-0 initialization. Steady-state verification must fail on unreconciled bootstrap tips.
 
@@ -74,7 +87,7 @@ A new/cold-start or FULL_REPO_PREFLIGHT session must establish durable repo memo
 17. Invalidating dependencies — document before any proposed rerun
 18. Execute only the authorized **NEXT SINGLE ACTION** from `M55_EXECUTION_STATE.json` when global executable progression is in scope
 
-A valid `CONTINUATION_FAST_PATH` does not replay the unrelated lane-specific parts of this full list. It still preserves the Product Authority requirement, follows the Git-first entrypoint/manifest, verifies its own lane/ref/workspace/touched authority, and escalates to FULL only when a listed trigger enters scope.
+A valid `CONTINUATION_FAST_PATH` does not replay the unrelated lane-specific parts of this full list. It follows the Git-first entrypoint/manifest, verifies its own lane/ref/workspace/touched authority, reuses still-valid accepted Product Authority evidence when relevant, and escalates to FULL only when a listed trigger or semantic expansion enters scope.
 
 **Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN`. Missing evidence in the current chat does **not** authorize rerunning real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, or real consult consumption. Search SSOT and prior evidence first.
 
@@ -100,7 +113,7 @@ Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` and `.cursor/rules/m55-s
 
 ## Read order
 
-Use `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json` to route the exact task-specific read set. The following is the FULL/cold-start order; continuation/review profiles intentionally use a narrower task-specific set after the mandatory Product Authority step.
+Use `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json` to route the exact task-specific read set. The following is the FULL/cold-start order. Continuation/review profiles intentionally use a narrower task-specific set and include Product Authority only when the task/profile/semantics require it.
 
 1. `AGENTS.md` (this file)
 2. `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
@@ -132,7 +145,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **EXISTING CONTRACT FIRST** — search existing SSOT/source and relevant unmerged authority before creating a new contract or architecture.
 - **PRE-MUTATION RECHECK** — before mutation, reconfirm correct branch/worktree/HEAD/dirty state/mutable allowlist when locally observable.
 - **PRE-GREEN / INTEGRATION RECHECK** — before consequential GREEN/freeze/authorization or commit/push/PR/merge/integration, re-observe relevant Git identity and exact diff; fresh main is required when integration depends on it.
-- **FAST PATH IS REAL** — an approved bounded UIUX or other continuation lane does not read unrelated Creator Revenue/legal/tax/provider SSOT and does not fetch main every message.
+- **FAST PATH IS REAL** — an approved bounded UIUX or other continuation lane does not read unrelated Creator Revenue/legal/tax/provider/Product Authority material and does not fetch main every message unless that authority becomes task-relevant.
 - **ESCALATE ON SEMANTIC EXPANSION** — new architecture/economics/reward/legal/tax/provider/DB/ledger/security/governance/cross-lane semantics convert FAST_PATH to FULL_REPO_PREFLIGHT.
 - **ACTIVE LANE only** — do not start unrelated lanes without explicit lane change in `M55_EXECUTION_STATE.json` where global executable lane ownership is involved.
 - **NEXT SINGLE ACTION** — do not jump ahead in the roadmap when global executable progression is in scope.
@@ -180,7 +193,9 @@ npm run verify:m55-control-tower
 npm run m55:context
 ```
 
-Required validation/check commands are **fail-closed**. If a required check returns non-zero: **STOP** — do not commit, do not push, do not classify GREEN. "Cosmetic", "known", or "non-product" does not override a failed required check unless the Human explicitly waives that exact check.
+Run only the verification commands required by the selected profile/task and current invalidation set. Product Authority commands above are mandatory when Product Authority is in scope as defined in this file; they are not a per-message or unrelated FAST-path tax.
+
+Required validation/check commands that are selected for the task are **fail-closed**. If a required check returns non-zero: **STOP** — do not commit, do not push, do not classify GREEN. "Cosmetic", "known", or "non-product" does not override a failed required check unless the Human explicitly waives that exact check.
 
 ## Superseded / subordinate authorities
 
