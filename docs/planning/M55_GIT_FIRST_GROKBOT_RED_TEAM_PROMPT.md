@@ -1,4 +1,4 @@
-# GrokBOT — M55 Git-First Governance v2 Adversarial Red-Team
+# GrokBOT — M55 Git-First Governance v3 Adversarial Red-Team
 
 READ-ONLY ONLY. DO NOT PATCH. DO NOT MERGE. DO NOT MUTATE REPO.
 
@@ -29,11 +29,13 @@ Mandatory reading:
 
 Role: adversarial operational governance reviewer. Determine how another AI will actually misread, evade, over-apply or under-apply the system.
 
-Important v2 boundary:
+Important v3 boundary:
 - known protected paths have bounded machine changed-path enforcement;
 - unknown semantic meaning is not claimed to be completely statically detectable;
 - Lane Lock is explicitly procedural, not an atomic distributed mutex;
-- repo CI is explicitly not tamper-proof without host required-check enforcement;
+- GitHub required status context enforces a named successful check but is not immutable attestation of candidate-controlled workflow/verifier code;
+- enforcement-critical changes therefore require exact-head same-SHA CI plus independent Codex + Grok re-audit before Human adoption;
+- Product Authority is scope-aware: FULL/cold-start/product-semantic work requires it, while unrelated bounded FAST continuation does not rerun it without invalidation;
 - expected host configuration is recorded in `M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md`, but the live GitHub state must still be checked independently.
 
 Do not score an explicitly bounded limitation as a contradiction merely because a stronger system is imaginable. Find places where actual wording/behavior still exceeds or conflicts with that boundary.
@@ -41,8 +43,8 @@ Do not score an explicitly bounded limitation as a contradiction merely because 
 Attack these operational failure modes:
 1. fresh AI misses Hardening or Host Enforcement despite following the mandatory entry;
 2. new chat incorrectly defaults FAST without durable continuation handoff;
-3. valid paused UIUX lane incorrectly gets chronic FULL or unrelated Creator/legal/provider reading;
-4. hard-trigger path is renamed/varied enough to escape machine matching;
+3. valid paused UIUX lane incorrectly gets chronic FULL or unrelated Creator/legal/provider/Product Authority reading;
+4. hard-trigger path is renamed/varied enough to escape machine matching, including root-level checkout/webhook zero-directory cases;
 5. semantic risk outside patterns is mistaken for machine-proven safe;
 6. open/unmerged authority search is declared without a real fresh query;
 7. `requiredUnmergedAuthority` is confused with a missing local file;
@@ -54,16 +56,20 @@ Attack these operational failure modes:
 13. CLOSED GREEN is reopened because a new session lacks history;
 14. local facts are invented from folder names or remote-only evidence;
 15. workflow/verifier strings survive while effective enforcement is gutted;
-16. negative tests test only themselves and fail to cover actual manifest/workflow behavior;
-17. routine UIUX CSS becomes impractically ceremonial;
-18. Product Authority/global execution-state requirements conflict with scope-aware FAST;
-19. another ChatGPT/Codex/Grok cannot reconstruct hierarchy without this chat;
-20. host-side required-check is missing/weaker than the host SSOT but the system still claims broad USABLE;
-21. asset-index automation can directly push main, auto-approve, auto-merge, or suppress write failures despite the intended protected-main model.
+16. required check is spoofed with a no-op `verify-git-first-preflight` job while real validation moves elsewhere;
+17. workflow commands/checkout/full history are moved outside the required job;
+18. workflow is narrowed by `paths`, `paths-ignore`, restrictive PR branches, job conditions, or equivalent routing;
+19. negative tests test only themselves and fail to cover actual manifest/workflow behavior;
+20. routine UIUX CSS becomes impractically ceremonial;
+21. Product Authority/global execution-state requirements conflict with scope-aware FAST;
+22. another ChatGPT/Codex/Grok cannot reconstruct hierarchy without this chat;
+23. host-side required-check is missing/weaker than the host SSOT but the system still claims broad USABLE;
+24. asset-index automation can directly push main via alternate refspec/API, auto-approve, auto-merge, or suppress write failures despite the intended protected-main model;
+25. enforcement-critical file changes can pass without the PR declaring the enforcement change and without exact-head independent re-audit before Human adoption.
 
 Perform all D1-D10 and F1-F8 from the external acceptance SSOT.
 
-For F1, inspect the governance behavior, not the product itself. The known real incident is: exact accepted month sequence was `1 -> 12`; an auditor used `2 -> 1 -> 21`. Determine whether v2 prevents such mismatched reproduction from becoming a blocker without throwing away unrelated real findings.
+For F1, inspect the governance behavior, not the product itself. The known real incident is: exact accepted month sequence was `1 -> 12`; an auditor used `2 -> 1 -> 21`. Determine whether v3 prevents such mismatched reproduction from becoming a blocker without throwing away unrelated real findings.
 
 Inspect same-head CI separately from GitHub host enforcement. Compare live ruleset/required-check state to `M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md`. If the live host state cannot be observed, report UNOBSERVABLE rather than assume.
 
