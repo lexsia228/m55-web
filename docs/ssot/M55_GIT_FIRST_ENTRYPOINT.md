@@ -8,11 +8,12 @@ The purpose is simple: **identify the work, inspect the relevant Git authority, 
 
 Do not start from chat memory alone.
 
-Before substantive work, every AI must follow the routing manifest and hardening rules:
+Before substantive work, every AI must follow the routing manifest and hardening/host rules:
 
 - `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
 - `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
 - `docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md`
+- `docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md`
 
 Operational failure examples live in `docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md` and are required for governance/red-team work, but ordinary bounded UIUX continuation does not need to reread the fixture catalog every task.
 
@@ -154,6 +155,7 @@ Before commit/push/PR/merge/integration or consequential `PLAN_GREEN` / `DESIGN_
 - reconcile fresh `origin/main` when integration depends on it;
 - compare exact candidate diff against the approved scope;
 - confirm no newer relevant authority supersedes the decision;
+- inspect fresh host enforcement when merge/adoption depends on the required check;
 - if external audit evidence is used, re-ground the finding against the exact acceptance contract rather than treating the auditor statement as self-authenticating authority.
 
 `PRE_GREEN_RELEVANT_GIT_RECHECK_REQUIRED = TRUE`
@@ -173,6 +175,7 @@ Stop or downgrade the claim when:
 - intended mutation overlaps another mutation owner;
 - exact diff exceeds the authorized scope;
 - a machine path trigger is present but the task is not FULL;
+- required host enforcement is unavailable/unproven for a merge/adoption claim that depends on it;
 - an external audit finding does not reproduce the exact accepted condition.
 
 Use the applicable token:
@@ -199,6 +202,10 @@ Machine-readable routing manifest:
 Hardening / bounded machine enforcement:
 
 `docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md`
+
+Host-side merge enforcement and its non-immutable-attestation boundary:
+
+`docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md`
 
 Operational regression fixtures:
 
