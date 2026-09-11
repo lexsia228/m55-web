@@ -1,13 +1,75 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { classifyChangedPaths, pathMatches } from './m55-git-first-policy.mjs';
+import { pathMatches } from './m55-git-first-policy.mjs';
 
 const manifest = JSON.parse(fs.readFileSync('docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json','utf8'));
 const base = process.env.M55_BASE_SHA;
 const head = process.env.M55_HEAD_SHA;
 const prBody = process.env.M55_PR_BODY ?? '';
 const eventName = process.env.M55_EVENT_NAME ?? 'local';
+
+function splitNulPaths(buffer) {
+  const paths = [];
+  let start = 0;
+  for (let i = 0; i < buffer.length; i += 1) {
+    if (buffer[i] !== 0) continue;
+    paths.push(buffer.subarray(start, i).toString('utf8'));
+    start = i + 1;
+  }
+  if (start !== buffer.length) {
+    throw new Error('unterminated NUL-delimited git path output');
+  }
+  return paths;
+}
+
+function globToRegExpNulSafe(glob) {
+  let out = '^';
+  for (let i = 0; i < glob.length; i += 1) {
+    const ch = glob[i];
+    if (ch === '*') {
+      if (glob[i + 1] === '*') {
+        const followedBySlash = glob[i + 2] === '/';
+        if (followedBySlash) {
+          out += '(?:[^/]+/)*';
+          i += 2;
+        } else {
+          out += '[\\s\\S]*';
+          i += 1;
+        }
+      } else {
+        out += '[^/]*';
+      }
+      continue;
+    }
+    if (ch === '?') {
+      out += '[^/]';
+      continue;
+    }
+    if ('\\.^$+{}()|[]'.includes(ch)) out += `\\${ch}`;
+    else out += ch;
+  }
+  out += '$';
+  return new RegExp(out);
+}
+
+function pathMatchesNulSafe(path, pattern) {
+  if (pathMatches(path, pattern)) return true;
+  if (!String(path).includes('\n')) return false;
+  const normalizedPath = String(path).replace(/\\/g, '/').toLowerCase();
+  const normalizedPattern = String(pattern).replace(/\\/g, '/').toLowerCase();
+  return globToRegExpNulSafe(normalizedPattern).test(normalizedPath);
+}
+
+function classifyChangedPathsNulSafe(paths, manifest) {
+  const matched = [];
+  for (const filepath of paths) {
+    for (const pattern of [...(manifest?.hardTriggerPaths ?? []), ...(manifest?.semanticOwnerPaths ?? [])]) {
+      if (pathMatchesNulSafe(filepath, pattern)) matched.push({ path: filepath, pattern });
+    }
+  }
+  return { requiresFull: matched.length > 0, matched };
+}
 
 const enforcementCriticalPatterns = [
   'AGENTS.md',
@@ -32,18 +94,18 @@ if (!base || !head) {
 
 let changed;
 try {
-  changed = execFileSync('git',['diff','--name-only',`${base}...${head}`],{encoding:'utf8'})
-    .split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const diffOutput = execFileSync('git', ['diff', '--no-renames', '--name-only', '-z', `${base}...${head}`]);
+  changed = splitNulPaths(diffOutput);
 } catch (error) {
   console.error('M55_GIT_FIRST_DIFF_VERIFY=FAIL');
   console.error(`- unable to resolve exact diff ${base}...${head}: ${error.message}`);
   process.exit(1);
 }
 
-const classification = classifyChangedPaths(changed, manifest);
+const classification = classifyChangedPathsNulSafe(changed, manifest);
 const marker = prBody.match(/M55_PREFLIGHT_PROFILE:\s*(CONTINUATION_FAST_PATH|PINNED_REVIEW_PREFLIGHT|FULL_REPO_PREFLIGHT)/i)?.[1]?.toUpperCase();
 const enforcementMarker = /M55_ENFORCEMENT_CHANGE:\s*TRUE/i.test(prBody);
-const enforcementHits = changed.filter(path => enforcementCriticalPatterns.some(pattern => pathMatches(path, pattern)));
+const enforcementHits = changed.filter(path => enforcementCriticalPatterns.some(pattern => pathMatchesNulSafe(path, pattern)));
 
 if (classification.requiresFull && eventName === 'pull_request' && marker !== 'FULL_REPO_PREFLIGHT') {
   console.error('M55_GIT_FIRST_DIFF_VERIFY=FAIL');

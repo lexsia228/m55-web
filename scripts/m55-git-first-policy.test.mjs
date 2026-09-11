@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import {
   validateManifest,
   validateCursorRule,
@@ -461,4 +462,161 @@ test('case-variant protected path requires FULL', () => {
 
 test('ordinary UIUX css path does not machine-force FULL', () => {
   assert.equal(classifyChangedPaths(['components/home/Hero.module.css'],baseManifest).requiresFull,false);
+});
+
+const diffVerifierPath = fileURLToPath(new URL('./verify-m55-git-first-diff.mjs', import.meta.url));
+
+const diffTestManifest = {
+  hardTriggerPaths: ['docs/ssot/**', 'app/api/stripe/**', 'supabase/**'],
+  semanticOwnerPaths: ['lib/m55/contracts/**', 'app/**/checkout/**', 'app/**/webhook/**'],
+};
+
+const fastPrBody = 'M55_PREFLIGHT_PROFILE: CONTINUATION_FAST_PATH';
+const fullPrBody = 'M55_PREFLIGHT_PROFILE: FULL_REPO_PREFLIGHT';
+const fullWithEnforcementPrBody = 'M55_PREFLIGHT_PROFILE: FULL_REPO_PREFLIGHT\nM55_ENFORCEMENT_CHANGE: TRUE';
+
+function setupDiffVerifierRepo(extraBaselineFiles = {}) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-diff-verifier-'));
+  execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'pipe' });
+  execFileSync('git', ['config', 'user.email', 'test@test'], { cwd: root, stdio: 'pipe' });
+  execFileSync('git', ['config', 'user.name', 'test'], { cwd: root, stdio: 'pipe' });
+
+  fs.mkdirSync(path.join(root, 'docs/ssot'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json'),
+    JSON.stringify(diffTestManifest, null, 2),
+  );
+  fs.writeFileSync(path.join(root, 'README.md'), 'baseline\n');
+  for (const [relativePath, content] of Object.entries(extraBaselineFiles)) {
+    const fullPath = path.resolve(root, relativePath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, content);
+  }
+  execFileSync('git', ['add', '.'], { cwd: root, stdio: 'pipe' });
+  execFileSync('git', ['commit', '-m', 'baseline'], { cwd: root, stdio: 'pipe' });
+  const baseSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, stdio: 'pipe' }).toString().trim();
+  return { root, baseSha };
+}
+
+function commitFile(repoRoot, relativePath, content = 'fixture\n') {
+  const fullPath = path.resolve(repoRoot, relativePath);
+  fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+  fs.writeFileSync(fullPath, content);
+  execFileSync('git', ['add', '--', relativePath], { cwd: repoRoot, stdio: 'pipe' });
+  execFileSync('git', ['commit', '-m', 'fixture'], { cwd: repoRoot, stdio: 'pipe' });
+  return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: 'pipe' }).toString().trim();
+}
+
+function commitRename(repoRoot, fromPath, toPath) {
+  execFileSync('git', ['mv', '--', fromPath, toPath], { cwd: repoRoot, stdio: 'pipe' });
+  execFileSync('git', ['commit', '-m', 'rename'], { cwd: repoRoot, stdio: 'pipe' });
+  return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: 'pipe' }).toString().trim();
+}
+
+function runDiffVerifier(repoRoot, { base, head, prBody, eventName = 'pull_request' }) {
+  try {
+    const stdout = execFileSync('node', [diffVerifierPath], {
+      cwd: repoRoot,
+      env: {
+        ...process.env,
+        M55_BASE_SHA: base,
+        M55_HEAD_SHA: head,
+        M55_EVENT_NAME: eventName,
+        M55_PR_BODY: prBody,
+      },
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { ok: true, stdout, stderr: '', exitCode: 0, combined: stdout };
+  } catch (error) {
+    const stdout = error.stdout?.toString() ?? '';
+    const stderr = error.stderr?.toString() ?? '';
+    return {
+      ok: false,
+      stdout,
+      stderr,
+      exitCode: error.status ?? 1,
+      combined: `${stdout}\n${stderr}`,
+    };
+  }
+}
+
+function cleanupDiffRepo(root) {
+  fs.rmSync(root, { recursive: true, force: true });
+}
+
+const unusualProtectedPaths = [
+  ['newline', 'docs/ssot/escape\nfixture.md'],
+  ['tab', 'docs/ssot/escape\tfixture.md'],
+  ['quote', 'docs/ssot/escape"fixture.md'],
+  ['backslash', 'docs/ssot/escape\\fixture.md'],
+];
+
+for (const [label, attackPath] of unusualProtectedPaths) {
+  test(`diff verifier: protected unusual path (${label}) forces FULL under FAST`, () => {
+    const { root, baseSha } = setupDiffVerifierRepo();
+    try {
+      const headSha = commitFile(root, attackPath);
+      const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fastPrBody });
+      assert.equal(result.ok, false);
+      assert.match(result.combined, /M55_GIT_FIRST_DIFF_VERIFY=FAIL/);
+      assert.match(result.combined, /FULL_REPO_PREFLIGHT/);
+    } finally {
+      cleanupDiffRepo(root);
+    }
+  });
+}
+
+test('diff verifier: protected newline path passes when FULL declared', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'docs/ssot/escape\nfixture.md');
+    const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
+    assert.equal(result.ok, true);
+    assert.match(result.stdout, /machine_requires_full=true/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: enforcement-critical unusual path requires marker', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'scripts/verify-m55-git-first-\nfixture.mjs', '// fixture\n');
+    const failResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullPrBody });
+    assert.equal(failResult.ok, false);
+    assert.match(failResult.combined, /enforcement-critical/);
+    assert.match(failResult.combined, /M55_ENFORCEMENT_CHANGE/);
+
+    const passResult = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fullWithEnforcementPrBody });
+    assert.equal(passResult.ok, true);
+    assert.match(passResult.stdout, /enforcement_critical_change=true/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: rename into protected unusual path forces FULL under FAST', () => {
+  const { root, baseSha } = setupDiffVerifierRepo({ 'tmp/source.md': 'source\n' });
+  try {
+    const headSha = commitRename(root, 'tmp/source.md', 'docs/ssot/renamed\nfixture.md');
+    const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fastPrBody });
+    assert.equal(result.ok, false);
+    assert.match(result.combined, /M55_GIT_FIRST_DIFF_VERIFY=FAIL/);
+    assert.match(result.combined, /FULL_REPO_PREFLIGHT/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
+});
+
+test('diff verifier: ordinary UIUX path does not force FULL under FAST', () => {
+  const { root, baseSha } = setupDiffVerifierRepo();
+  try {
+    const headSha = commitFile(root, 'components/home/Hero.module.css', '.hero {}\n');
+    const result = runDiffVerifier(root, { base: baseSha, head: headSha, prBody: fastPrBody });
+    assert.equal(result.ok, true);
+    assert.match(result.stdout, /machine_requires_full=false/);
+  } finally {
+    cleanupDiffRepo(root);
+  }
 });
