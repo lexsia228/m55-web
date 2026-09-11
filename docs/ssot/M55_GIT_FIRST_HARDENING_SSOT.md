@@ -94,14 +94,25 @@ Use FULL again when the new subtask changes semantic class or crosses a hard tri
 Repo-level enforcement layers:
 
 1. legacy compatibility verifiers remain active;
-2. structural verifier validates manifest invariants, required authority existence, Cursor `alwaysApply: true`, workflow structure, and continuation-handoff requirements;
-3. negative policy tests prove representative corruptions fail;
-4. exact changed-path classifier evaluates PR base/head and requires FULL declaration for known protected paths;
-5. GitHub Actions runs on every PR and on pushes to main;
-6. protected runtime/provider/DB operations retain their own existing gates;
-7. external Codex/Grok red-team remains required before this governance system is adopted as USABLE.
+2. structural verifier validates manifest invariants, required authority existence, Cursor `alwaysApply: true`, workflow semantics, and continuation-handoff requirements;
+3. security-critical workflow validation parses YAML with pinned `js-yaml@4.1.1` and compares the parsed result to a fail-closed canonical allowlist rather than relying on line-oriented regex;
+4. the Git-first required workflow allowlist fixes trigger scope, checkout depth, parser bootstrap, required job/step order, env, commands, and forbids additional conditional/non-blocking/custom-shell/default-shell semantics by exact parsed-structure comparison;
+5. the asset-index workflow allowlist fixes job/step structure, branch-source env, conditions, actions, and SHA-256 fingerprints of each shell body so branch redirection, shell wrapping, failure suppression, API mutation, or run-body drift fails structurally;
+6. negative policy tests consolidate the v3/v4 adversarial corpus, including quoted YAML keys, `if`, `continue-on-error`, custom/default shells, parser-bootstrap tampering, trigger narrowing, branch env override, branch reassignment, `|| :`, REST/GraphQL mutation, root-level glob, and case-variant path attacks;
+7. exact changed-path classifier evaluates PR base/head and requires FULL declaration for known protected paths;
+8. GitHub Actions runs on every PR and on pushes to main;
+9. protected runtime/provider/DB operations retain their own existing gates;
+10. external Codex/Grok red-team remains required before this governance system is adopted as USABLE.
 
-Important limitation: repo-contained CI cannot make itself cryptographically undeletable. Durable `USABLE` acceptance therefore also requires the repository host to enforce the Git-first check (or equivalent immutable external check) as a required merge condition. Until that repository setting is proven, do not describe the CI as tamper-proof.
+`WORKFLOW_VALIDATION_USES_PARSED_YAML_SEMANTICS = TRUE`
+
+`SECURITY_CRITICAL_WORKFLOWS_USE_FAIL_CLOSED_ALLOWLIST = TRUE`
+
+Important limitation: repo-contained CI cannot make itself cryptographically undeletable or immutably attest a candidate that changes its own workflow/verifier. The parsed allowlist is a strong regression/control layer for the reviewed candidate, not a substitute for the self-modification boundary. Any enforcement-critical change invalidates prior acceptance and requires same-head CI plus independent Codex and Grok review before Human adoption.
+
+`REQUIRED_STATUS_CONTEXT_IS_NOT_IMMUTABLE_CODE_ATTESTATION = TRUE`
+
+`ENFORCEMENT_CRITICAL_CHANGE_REQUIRES_CODEX_AND_GROK_REAUDIT = TRUE`
 
 `REPO_CI_SELF_PROTECTION_REQUIRES_HOST_REQUIRED_CHECK = TRUE`
 
@@ -161,13 +172,15 @@ No failure token authorizes reset/stash/clean/rebase/force push or unrelated mut
 
 ## H. External audit disposition
 
-Accepted/adapted from the first external audit and the independent Codex/Grok red-team:
+Accepted/adapted from the external audit cycles:
 
 - path machine triggers: **ACCEPT / IMPLEMENT bounded diff classifier**;
 - semantic triggers: **ACCEPT as mandatory AI review; do not overclaim static completeness**;
 - physical lane lock wording: **REJECT overclaim / retain procedural ownership guard unless an atomic mechanism is later introduced**;
 - context flush: **ADAPT to durable continuation handoff + mandatory task-boundary context refresh**;
-- CI fail closed: **ACCEPT repo-level structural/negative/diff enforcement, with host required-check proof as adoption prerequisite**;
+- regex workflow hardening: **RETIRED for security-critical workflow semantics**;
+- parsed YAML + canonical allowlist: **ADOPT as repo-layer semantic regression enforcement**;
+- self-modification: **repo CI is not immutable attestation; host required check + exact-head independent dual audit + Human adoption remain the final acceptance boundary**;
 - external audit: **must be re-grounded against exact acceptance contract before blocker acceptance**.
 
 This annex creates governance only. It does not authorize runtime UI, Stripe, DB, provider, deploy, merge, or Production mutation.
