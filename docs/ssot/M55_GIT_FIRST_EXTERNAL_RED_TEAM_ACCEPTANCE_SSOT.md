@@ -1,6 +1,6 @@
 # M55 Git-First External Red-Team Acceptance SSOT
 
-Status: **ACTIVE / HUMAN-APPROVED ACCEPTANCE GATE (2026-09-11)**
+Status: **CLOSED / HUMAN-ADOPTED ACCEPTANCE GATE (2026-09-12)**
 
 This SSOT defines the final independent acceptance gate for the M55 Git-first AI work-routing system.
 
@@ -8,7 +8,11 @@ The system is **not USABLE merely because its authors, static verifiers, CI, or 
 
 `GIT_FIRST_SYSTEM_EXTERNAL_RED_TEAM_REQUIRED = TRUE`
 
-`GIT_FIRST_SYSTEM_USE_STATUS = PENDING_EXTERNAL_RED_TEAM`
+`GIT_FIRST_SYSTEM_USE_STATUS = HUMAN_ADOPTED`
+
+`ADOPTED_OPERATIONAL_THREAT_MODEL = docs/ssot/M55_GIT_FIRST_ADOPTION_CLOSURE_SSOT.md`
+
+The closure SSOT (`M55_GIT_FIRST_ADOPTION_CLOSURE_SSOT.md`) is the final authority for operational threat-model scope and stop/reopen rules. Older broader adversarial examples in this document remain historical regression/security evidence but do not expand the adopted threat model beyond the closure SSOT.
 
 `SELF_REVIEW_CANNOT_CLOSE_EXTERNAL_RED_TEAM_GATE = TRUE`
 
@@ -23,6 +27,8 @@ Every external review must pin repository `lexsia228/m55-web`, PR number, base S
 `HEAD_MOVEMENT_INVALIDATES_EXTERNAL_ACCEPTANCE = TRUE`
 
 Any changed bytes after review require re-review unless their non-impact is independently demonstrated and Human explicitly accepts that exception.
+
+**One-time documentation-only closure exception (Human-approved):** the Human-authorized documentation-only closure that changes only `docs/ssot/M55_GIT_FIRST_ADOPTION_CLOSURE_SSOT.md` and `docs/ssot/M55_GIT_FIRST_EXTERNAL_RED_TEAM_ACCEPTANCE_SSOT.md` does NOT require another Codex/Grok cycle. It requires an exact two-document diff, same-head CI GREEN, fresh host enforcement proof, then merge. See `PR194_DOCUMENTATION_CLOSURE_REAUDIT_EXCEPTION = HUMAN_APPROVED_ONE_TIME` in the closure SSOT.
 
 ## B. Independent reviewer requirement
 
@@ -125,6 +131,8 @@ Attack the actual parsed semantic boundary: quoted mapping keys, duplicate keys,
 
 Expected: the reviewed candidate's repo-layer parsed canonical allowlists/negative fixtures reject semantic drift; host required check remains required; any enforcement-critical change still invalidates prior external acceptance and requires new exact-head dual review before Human adoption.
 
+**D10/F5 scope clarification:** D10 and F5 continue to test ordinary semantic self-disable/configuration drift in the reviewed mechanism. They do not redefine PR #194 as a hostile-repository/supply-chain security product. Intentionally force-added dependency shadowing and pathological filename construction are governed by the closure SSOT (`M55_GIT_FIRST_ADOPTION_CLOSURE_SSOT.md`) and are out of scope for this adoption gate.
+
 ## F. Operational fixtures F1-F8
 
 Reviewer must read `docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md` and assess whether each failure mechanism is actually closed or honestly bounded.
@@ -141,6 +149,8 @@ Especially F1: an auditor testing `2 -> 1 -> 21` cannot be accepted as proof tha
 - `P3` — non-blocking clarity/maintainability improvement.
 
 Do not score an explicitly documented limitation as P0/P1 merely because a stronger mechanism is imaginable. Score concrete overclaim or bypass relative to the contract.
+
+**Threat-model interpretation:** P0/P1 blocking severity is evaluated against the adopted operational threat model in `M55_GIT_FIRST_ADOPTION_CLOSURE_SSOT.md`. A concrete finding outside that adopted threat model is NOT called false; it is preserved as residual/security-hardening evidence; it does not recursively reopen PR #194; it may only become a new blocker if Human explicitly expands the threat model or opens a separate hardening task.
 
 ## H. Required reviewer output
 
@@ -223,7 +233,9 @@ Candidate may be proposed as `USABLE` only when:
 
 `USABLE_WITH_CONDITIONS` may be considered for bounded non-safety-critical P2/P3 items. P2/P3 alone do not trigger another remediation cycle unless Human/Control Tower determines they materially undermine the acceptance boundary.
 
-Any P0 or unresolved P1 -> `NOT_USABLE` until patched and re-reviewed.
+Any concrete P0 or unresolved P1 **inside the adopted operational threat model** -> `NOT_USABLE` until resolved or explicitly re-adjudicated by Human authority.
+
+Findings classified by the closure SSOT as `OUT_OF_SCOPE_HOSTILE_REPOSITORY_HARDENING` are documented residual risks and do not block PR #194 adoption.
 
 ## J. Final Human authority
 
@@ -231,6 +243,8 @@ External AI provides independent engineering classification. It does not overrid
 
 Final adoption/merge/use remains a Human decision after Control Tower presents exact external results, exact candidate SHA, same-SHA CI, host enforcement state, self-modification-boundary status, and unresolved findings.
 
-Until then:
+Independent Codex and Grok exact-head reviews completed on `b8cfbb37390fe9fa4a4e00239142d8a41b731eb4`. The last Grok hostile-repository findings (literal-backslash enforcement-filename construction and force-added repo-local `node_modules/js-yaml` dependency shadowing) were explicitly preserved but bounded out of the operational adoption threat model by Human decision.
 
-`GIT_FIRST_SYSTEM_USE_STATUS = PENDING_EXTERNAL_RED_TEAM`
+Human adoption is **APPROVED**. After exact two-document closure diff + same-head CI GREEN + fresh host ruleset proof, PR #194 is merge-authorized. No further external audit cycle is required for this one-time documentation closure.
+
+`GIT_FIRST_SYSTEM_USE_STATUS = HUMAN_ADOPTED`
