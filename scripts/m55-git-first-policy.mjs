@@ -1,4 +1,10 @@
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
+import { isDeepStrictEqual } from 'node:util';
+
+const require = createRequire(import.meta.url);
+const yaml = require('js-yaml');
 
 export const REQUIRED_PROFILES = [
   'CONTINUATION_FAST_PATH',
@@ -41,6 +47,171 @@ export const REQUIRED_WORKFLOW_COMMANDS = [
 ];
 
 export const HOST_REQUIRED_JOB_ID = 'verify-git-first-preflight';
+
+const PARSER_NODE_PATH = '${{ runner.temp }}/m55-yaml-parser/node_modules';
+const PARSER_INSTALL_COMMAND = 'npm install --prefix "$RUNNER_TEMP/m55-yaml-parser" --no-save --ignore-scripts --no-audit --no-fund --package-lock=false js-yaml@4.1.1';
+
+const EXPECTED_GIT_FIRST_WORKFLOW = {
+  name: 'm55-git-first-preflight',
+  on: {
+    pull_request: null,
+    push: { branches: ['main'] },
+  },
+  permissions: { contents: 'read' },
+  jobs: {
+    [HOST_REQUIRED_JOB_ID]: {
+      'runs-on': 'ubuntu-latest',
+      env: { NODE_PATH: PARSER_NODE_PATH },
+      steps: [
+        {
+          uses: 'actions/checkout@v4',
+          with: { 'fetch-depth': 0 },
+        },
+        {
+          name: 'Install pinned M55 YAML parser',
+          run: PARSER_INSTALL_COMMAND,
+        },
+        {
+          name: 'Verify M55 Git-first legacy routing compatibility',
+          run: REQUIRED_WORKFLOW_COMMANDS[0],
+        },
+        {
+          name: 'Verify M55 Git-first legacy hardening compatibility',
+          run: REQUIRED_WORKFLOW_COMMANDS[1],
+        },
+        {
+          name: 'Verify M55 Git-first structural invariants',
+          run: REQUIRED_WORKFLOW_COMMANDS[2],
+        },
+        {
+          name: 'Run M55 Git-first negative policy tests',
+          run: REQUIRED_WORKFLOW_COMMANDS[3],
+        },
+        {
+          name: 'Verify M55 Git-first exact changed-path classification',
+          env: {
+            M55_BASE_SHA: '${{ github.event.pull_request.base.sha || github.event.before }}',
+            M55_HEAD_SHA: '${{ github.event.pull_request.head.sha || github.sha }}',
+            M55_PR_BODY: "${{ github.event.pull_request.body || '' }}",
+            M55_EVENT_NAME: '${{ github.event_name }}',
+          },
+          run: REQUIRED_WORKFLOW_COMMANDS[4],
+        },
+      ],
+    },
+  },
+};
+
+const EXPECTED_ASSET_INDEX_SEMANTICS = {
+  name: 'm55-asset-index',
+  on: {
+    workflow_dispatch: null,
+    schedule: [{ cron: '15 21 * * *' }],
+  },
+  jobs: {
+    'build-index': {
+      'runs-on': 'ubuntu-latest',
+      permissions: {
+        contents: 'write',
+        'pull-requests': 'write',
+      },
+      steps: [
+        {
+          uses: 'actions/checkout@v4',
+          with: { 'fetch-depth': 0 },
+        },
+        {
+          name: 'Set up Python',
+          uses: 'actions/setup-python@v5',
+          with: { 'python-version': '3.11' },
+        },
+        {
+          name: 'Resolve automation branch',
+          id: 'branch',
+          env: { GH_TOKEN: '${{ github.token }}' },
+          run_sha256: '8e39bb91b0f635e9adff16917e7f0e9a25abd8af80a85d15fa48bdb61ec909a3',
+        },
+        {
+          name: 'Prepare automation branch',
+          env: {
+            BRANCH: '${{ steps.branch.outputs.name }}',
+            EXISTING_PR: '${{ steps.branch.outputs.existing_pr }}',
+          },
+          run_sha256: '89ee5fc66994c10742936aa1738e9956d883e2ac748f6d55ae46434a9398d664',
+        },
+        {
+          name: 'Build asset index',
+          run_sha256: '27e075033e1cd8b8daf8dec37cb45c3323fc64cae2224509eb0781e9ec0afa0a',
+        },
+        {
+          name: 'Commit index if changed',
+          id: 'commit',
+          env: { BRANCH: '${{ steps.branch.outputs.name }}' },
+          run_sha256: 'c6355fc817f7020c3466fd1833929a888618bac3a919f1becd0d8da8bd07de2d',
+        },
+        {
+          name: 'Push main-sync-only update for existing PR',
+          if: "steps.branch.outputs.existing_pr == 'true' && steps.commit.outputs.changed != 'true'",
+          env: { BRANCH: '${{ steps.branch.outputs.name }}' },
+          run_sha256: 'd3f691fe2e1d49d5709e29d8802fffd54306036b6bb2f81fe782d30648d82dfb',
+        },
+        {
+          name: 'Create pull request',
+          if: "steps.branch.outputs.existing_pr != 'true' && steps.commit.outputs.changed == 'true'",
+          env: {
+            GH_TOKEN: '${{ github.token }}',
+            BRANCH: '${{ steps.branch.outputs.name }}',
+          },
+          run_sha256: '3d1641c8ae671f4891e4b6b4d5007ac7763757f206d18a2a589a1eae1ddd6613',
+        },
+        {
+          name: 'Report existing pull request',
+          if: "steps.branch.outputs.existing_pr == 'true'",
+          env: { BRANCH: '${{ steps.branch.outputs.name }}' },
+          run_sha256: 'f6c48067adc14090eba57e7f981be6fa45f77bdf82c8c17e78803d0be547c6fa',
+        },
+      ],
+    },
+  },
+};
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function parseWorkflowYaml(text, label) {
+  try {
+    const value = yaml.load(text, { schema: yaml.CORE_SCHEMA, json: false });
+    if (!isPlainObject(value)) {
+      return { value: null, failures: [`${label} must parse to a YAML mapping`] };
+    }
+    return { value, failures: [] };
+  } catch (error) {
+    return { value: null, failures: [`${label} YAML parse failed: ${error.message}`] };
+  }
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value, 'utf8').digest('hex');
+}
+
+function assetIndexSemanticFingerprint(parsed) {
+  if (!isPlainObject(parsed)) return parsed;
+  const copy = structuredClone(parsed);
+  const steps = copy?.jobs?.['build-index']?.steps;
+  if (Array.isArray(steps)) {
+    copy.jobs['build-index'].steps = steps.map(step => {
+      if (!isPlainObject(step)) return step;
+      const normalized = { ...step };
+      if (Object.hasOwn(normalized, 'run')) {
+        normalized.run_sha256 = sha256(String(normalized.run));
+        delete normalized.run;
+      }
+      return normalized;
+    });
+  }
+  return copy;
+}
 
 export function validateManifest(manifest, { fileExists = fs.existsSync } = {}) {
   const failures = [];
@@ -131,134 +302,29 @@ export function validateCursorRule(text, label) {
   return failures;
 }
 
-function activeWorkflowText(text) {
-  return text.split(/\r?\n/).filter(line => !/^\s*#/.test(line)).join('\n');
-}
-
-function extractJobBlock(active, jobId) {
-  const lines = active.split('\n');
-  const jobsIndex = lines.findIndex(line => /^jobs:\s*$/.test(line));
-  if (jobsIndex < 0) return null;
-  const jobHeader = `  ${jobId}:`;
-  const start = lines.findIndex((line, index) => index > jobsIndex && line === jobHeader);
-  if (start < 0) return null;
-  const block = [lines[start]];
-  for (let i = start + 1; i < lines.length; i += 1) {
-    if (/^  [A-Za-z0-9_-]+:\s*$/.test(lines[i])) break;
-    block.push(lines[i]);
-  }
-  return block.join('\n');
-}
-
-function extractPullRequestEventBlock(active) {
-  const lines = active.split('\n');
-  const onIndex = lines.findIndex(line => /^on:\s*$/.test(line));
-  if (onIndex < 0) return null;
-  const start = lines.findIndex((line, index) => index > onIndex && /^  pull_request:\s*$/.test(line));
-  if (start < 0) return null;
-  const block = [lines[start]];
-  for (let i = start + 1; i < lines.length; i += 1) {
-    if (/^  [A-Za-z0-9_-]+:\s*$/.test(lines[i])) break;
-    block.push(lines[i]);
-  }
-  return block.join('\n');
-}
-
 export function validateWorkflow(text) {
-  const failures = [];
-  const active = activeWorkflowText(text);
+  const parsed = parseWorkflowYaml(text, 'm55-git-first-preflight workflow');
+  if (parsed.failures.length) return parsed.failures;
 
-  if (!/^on:\s*$/m.test(active)) failures.push('workflow missing active on: block');
-  if (!/^\s{2}pull_request:\s*$/m.test(active)) failures.push('workflow missing active pull_request trigger');
-  if (!/^\s{2}push:\s*$/m.test(active)) failures.push('workflow missing active push trigger');
-  if (!/^\s{6}- main\s*$/m.test(active)) failures.push('workflow push trigger must include main');
-
-  const prEvent = extractPullRequestEventBlock(active);
-  if (prEvent) {
-    if (/^\s{4}(paths|paths-ignore|branches|branches-ignore):\s*$/m.test(prEvent)) {
-      failures.push('workflow pull_request trigger must not narrow paths or branches');
-    }
+  if (!isDeepStrictEqual(parsed.value, EXPECTED_GIT_FIRST_WORKFLOW)) {
+    return [
+      'm55-git-first-preflight workflow must match the canonical parsed-YAML allowlist exactly; conditional, non-blocking, custom-shell, default-shell, trigger-narrowing, step-reordering, command-wrapping, or extra semantics are prohibited',
+    ];
   }
-
-  if (/^\s+(paths|paths-ignore):\s*$/m.test(active)) {
-    failures.push('workflow must not use paths/paths-ignore filters; Git-first self-protection must run on every PR');
-  }
-
-  const requiredJob = extractJobBlock(active, HOST_REQUIRED_JOB_ID);
-  if (!requiredJob) {
-    failures.push(`workflow missing host-required job ${HOST_REQUIRED_JOB_ID}`);
-    return failures;
-  }
-  if (/^\s{4}if\s*:\s*/m.test(requiredJob)) failures.push('host-required job must not have a job-level if condition');
-  if (/^\s{8}if\s*:\s*/m.test(requiredJob)) failures.push('host-required job steps must not have step-level if conditions');
-  if (/^\s{8}continue-on-error\s*:\s*/m.test(requiredJob)) failures.push('host-required job steps must not use continue-on-error');
-  if (/^\s{4}name:\s*(?!["']?verify-git-first-preflight["']?\s*$).+/m.test(requiredJob)) {
-    failures.push('host-required job must not override its check name');
-  }
-  if (!/^\s{6}- uses:\s*actions\/checkout@v4\s*$/m.test(requiredJob)) failures.push('host-required job must use actions/checkout@v4');
-  if (!/^\s{10}fetch-depth:\s*0\s*$/m.test(requiredJob)) failures.push('host-required job checkout must use fetch-depth: 0');
-
-  for (const command of REQUIRED_WORKFLOW_COMMANDS) {
-    const escaped = command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    if (!new RegExp(`^\\s{8}run:\\s*${escaped}\\s*$`, 'm').test(requiredJob)) {
-      failures.push(`host-required job missing active command: ${command}`);
-    }
-  }
-
-  return failures;
-}
-
-function shellMutationLines(active) {
-  return active.split('\n').map(line => line.trim()).filter(Boolean);
+  return [];
 }
 
 export function validateAssetIndexWorkflow(text) {
-  const failures = [];
-  const active = activeWorkflowText(text);
-  const lines = shellMutationLines(active);
+  const parsed = parseWorkflowYaml(text, 'm55-asset-index workflow');
+  if (parsed.failures.length) return parsed.failures;
 
-  if (!/^\s{6}contents:\s*write\s*$/m.test(active)) failures.push('asset-index workflow must scope contents: write to its job');
-  if (!/^\s{6}pull-requests:\s*write\s*$/m.test(active)) failures.push('asset-index workflow must scope pull-requests: write to its job');
-  if (!/gh pr create/.test(active)) failures.push('asset-index workflow must create a pull request');
-  if (!/--base main/.test(active)) failures.push('asset-index pull request must target main');
-  if (!/automation\/m55-asset-index-/.test(active)) failures.push('asset-index workflow must use the dedicated automation branch family');
-
-  for (const line of lines) {
-    if (/\bgit\s+push\b/.test(line)) {
-      if (/\|\|\s*true\b/.test(line) || /continue-on-error\s*:\s*true/.test(active)) {
-        failures.push('asset-index workflow must not swallow push failures');
-      }
-      const normalized = line.replace(/["']/g, ' ');
-      if (/\b(?:refs\/heads\/)?main\b/.test(normalized) || /\bHEAD\s*:\s*(?:refs\/heads\/)?main\b/.test(normalized)) {
-        failures.push('asset-index workflow must not push directly to main by branch or refspec');
-      }
-      if (!/\$BRANCH|steps\.branch\.outputs\.name/.test(line) && !/--set-upstream\s+origin\s+"?\$BRANCH"?/.test(line)) {
-        failures.push('asset-index git push must target the dedicated automation branch variable');
-      }
-    }
-
-    if (/\bgh\s+pr\s+merge\b/.test(line) || /\bgh\s+api\b.*\/pulls\/[^\s/]+\/merge\b/.test(line) || /\bcurl\b.*\/pulls\/[^\s/]+\/merge\b/.test(line)) {
-      failures.push('asset-index workflow must not auto-merge its pull request');
-    }
-    if (/\bgh\s+pr\s+review\b.*--approve\b/.test(line) || /\bgh\s+api\b.*\/pulls\/[^\s/]+\/reviews\b/.test(line) || /\bcurl\b.*\/pulls\/[^\s/]+\/reviews\b/.test(line)) {
-      failures.push('asset-index workflow must not auto-approve its pull request');
-    }
-    if (/\b(?:gh\s+api|curl)\b/i.test(line) && /(?:git\/refs\/heads\/main|refs\/heads\/main)/i.test(line.replace(/["']/g, ' '))) {
-      failures.push('asset-index workflow must not mutate the main ref through GitHub API calls');
-    }
+  const fingerprint = assetIndexSemanticFingerprint(parsed.value);
+  if (!isDeepStrictEqual(fingerprint, EXPECTED_ASSET_INDEX_SEMANTICS)) {
+    return [
+      'm55-asset-index workflow must match the canonical parsed-YAML allowlist exactly; branch-source overrides, shell/data-flow changes, failure suppression, direct-main/API mutations, step changes, or extra semantics are prohibited',
+    ];
   }
-
-  if (/\b(?:mergePullRequest|updateRef|createRef|deleteRef)\b/.test(active)) {
-    failures.push('asset-index workflow must not use GitHub GraphQL merge/ref mutations');
-  }
-  if (/(?:\bgh\s+api\b|\bcurl\b)[\s\S]{0,800}(?:git\/refs\/heads\/main|refs\/heads\/main)/i.test(active)) {
-    failures.push('asset-index workflow must not mutate the main ref through GitHub API calls');
-  }
-  if (/\bauto-merge\b|\bmerge_method\b|\bAPPROVE\b/.test(active)) {
-    failures.push('asset-index workflow must not contain auto-merge or approval API semantics');
-  }
-
-  return [...new Set(failures)];
+  return [];
 }
 
 function globToRegExp(glob) {
