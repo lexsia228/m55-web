@@ -1,0 +1,37 @@
+name: m55-git-first-preflight
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify-git-first-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install pinned M55 YAML parser
+        run: |-
+          npm install --prefix "$RUNNER_TEMP/m55-yaml-parser" --no-save --ignore-scripts --no-audit --no-fund --package-lock=false js-yaml@4.1.1
+          echo "NODE_PATH=$RUNNER_TEMP/m55-yaml-parser/node_modules" >> "$GITHUB_ENV"
+      - name: Verify M55 Git-first legacy routing compatibility
+        run: node scripts/verify-m55-git-first-preflight.mjs
+      - name: Verify M55 Git-first legacy hardening compatibility
+        run: node scripts/verify-m55-git-first-hardening.mjs
+      - name: Verify M55 Git-first structural invariants
+        run: node scripts/verify-m55-git-first-structure.mjs
+      - name: Run M55 Git-first negative policy tests
+        run: node --test scripts/m55-git-first-policy.test.mjs
+      - name: Verify M55 Git-first exact changed-path classification
+        env:
+          M55_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          M55_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          M55_PR_BODY: ${{ github.event.pull_request.body || '' }}
+          M55_EVENT_NAME: ${{ github.event_name }}
+        run: node scripts/verify-m55-git-first-diff.mjs

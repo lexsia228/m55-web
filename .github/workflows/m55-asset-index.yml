@@ -10,21 +10,191 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Build asset index
+      - name: Resolve automation branch
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          open_branch="$(gh pr list \
+            --base main \
+            --state open \
+            --search 'in:title "chore(audit): refresh repo asset index"' \
+            --json headRefName,title \
+            --jq '.[] | select(.title == "chore(audit): refresh repo asset index" and (.headRefName | startswith("automation/m55-asset-index-"))) | .headRefName' \
+            | head -n 1)"
+          if [ -n "$open_branch" ]; then
+            echo "name=$open_branch" >> "$GITHUB_OUTPUT"
+            echo "existing_pr=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=automation/m55-asset-index-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+            echo "existing_pr=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Assert trusted main checkout
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+
+      - name: Build asset index from trusted main
         run: python scripts/m55/build_asset_index.py
 
-      - name: Commit index if changed
+      - name: Stage trusted index outputs
         run: |
+          mkdir -p "$RUNNER_TEMP/m55-asset-index-output"
+          cp docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json \
+            "$RUNNER_TEMP/m55-asset-index-output/"
+          git checkout -- docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json
+
+      - name: Prepare automation branch
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          EXISTING_PR: ${{ steps.branch.outputs.existing_pr }}
+        run: |
+          git fetch origin main
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
+          reject_disallowed_paths() {
+            local disallowed=''
+            while IFS= read -r -d '' path; do
+              case "$path" in
+                "$allowed_md"|"$allowed_json") ;;
+                *) disallowed="${disallowed}${path}"$'\n' ;;
+              esac
+            done < <(git diff --no-renames --name-only -z "$@")
+            if [ -n "$disallowed" ]; then
+              echo "Automation branch contains disallowed paths:"
+              printf '%s' "$disallowed"
+              exit 1
+            fi
+          }
+          if [ "$EXISTING_PR" = "true" ]; then
+            git fetch origin "$BRANCH"
+            reject_disallowed_paths "origin/main...origin/$BRANCH"
+            git switch --track -c "$BRANCH" "origin/$BRANCH"
+            git merge --no-edit origin/main
+          else
+            git switch -c "$BRANCH" origin/main
+          fi
+          reject_disallowed_paths "origin/main...HEAD"
+
+      - name: Write trusted index outputs via Git index
+        run: |
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
+          temp_dir="$RUNNER_TEMP/m55-asset-index-output"
+          md_blob="$(git hash-object -w "$temp_dir/M55_REPO_ASSET_INDEX.md")"
+          json_blob="$(git hash-object -w "$temp_dir/M55_REPO_ASSET_INDEX.json")"
+          git update-index --add --cacheinfo "100644,$md_blob,$allowed_md"
+          git update-index --add --cacheinfo "100644,$json_blob,$allowed_json"
+
+      - name: Verify staged index outputs
+        run: |
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
+          disallowed=''
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              "$allowed_md"|"$allowed_json") ;;
+              *) disallowed="${disallowed}${path}"$'\n' ;;
+            esac
+          done < <(git diff --cached --no-renames --name-only -z)
+          if [ -n "$disallowed" ]; then
+            echo "Staged changes include disallowed paths:"
+            printf '%s' "$disallowed"
+            exit 1
+          fi
+          for path in "$allowed_md" "$allowed_json"; do
+            entries="$(git ls-files --stage -- "$path")"
+            count="$(printf '%s\n' "$entries" | sed '/^$/d' | wc -l | tr -d ' ')"
+            if [ "$count" -ne 1 ]; then
+              echo "Expected exactly one index entry for $path, found $count"
+              exit 1
+            fi
+            mode="$(printf '%s\n' "$entries" | awk '{print $1}')"
+            stage="$(printf '%s\n' "$entries" | awk '{print $3}')"
+            if [ "$mode" != "100644" ] || [ "$stage" != "0" ]; then
+              echo "Index entry for $path must be mode 100644 stage 0, got mode=$mode stage=$stage"
+              exit 1
+            fi
+          done
+
+      - name: Commit index if changed
+        id: commit
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          allowed_md='docs/audit/M55_REPO_ASSET_INDEX.md'
+          allowed_json='docs/audit/M55_REPO_ASSET_INDEX.json'
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/audit/M55_REPO_ASSET_INDEX.md docs/audit/M55_REPO_ASSET_INDEX.json || true
-          git diff --cached --quiet || git commit -m "chore(audit): refresh repo asset index"
-          git push || true
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "chore(audit): refresh repo asset index"
+          disallowed=''
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              "$allowed_md"|"$allowed_json") ;;
+              *) disallowed="${disallowed}${path}"$'\n' ;;
+            esac
+          done < <(git diff --no-renames --name-only -z origin/main...HEAD)
+          if [ -n "$disallowed" ]; then
+            echo "Committed branch diff includes disallowed paths vs origin/main:"
+            printf '%s' "$disallowed"
+            exit 1
+          fi
+          for path in "$allowed_md" "$allowed_json"; do
+            tree_entry="$(git ls-tree HEAD -- "$path")"
+            if [ -z "$tree_entry" ]; then
+              echo "Missing tree entry for $path"
+              exit 1
+            fi
+            mode="$(printf '%s\n' "$tree_entry" | awk '{print $1}')"
+            object_kind="$(printf '%s\n' "$tree_entry" | awk '{print $2}')"
+            if [ "$mode" != "100644" ] || [ "$object_kind" != "blob" ]; then
+              echo "Tree entry for $path must be 100644 blob, got mode=$mode kind=$object_kind"
+              exit 1
+            fi
+          done
+          git push --set-upstream origin "$BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Push main-sync-only update for existing PR
+        if: steps.branch.outputs.existing_pr == 'true' && steps.commit.outputs.changed != 'true'
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/$BRANCH")" ]; then
+            git push origin "$BRANCH"
+          fi
+
+      - name: Create pull request
+        if: steps.branch.outputs.existing_pr != 'true' && steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "chore(audit): refresh repo asset index" \
+            --body "Automated asset-index refresh. Do not bypass required checks. GitHub Actions-created PR workflows may require a Human to approve workflow execution before the required Git-first check can run."
+
+      - name: Report existing pull request
+        if: steps.branch.outputs.existing_pr == 'true'
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          echo "Updated existing asset-index PR branch: $BRANCH"

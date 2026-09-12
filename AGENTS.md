@@ -2,6 +2,30 @@
 
 All AI agents, Cursor sessions, and developers working on M55 commercial funnel work **must read this file first**.
 
+## Mandatory Git-first work-unit entry
+
+Before substantive M55 work, every AI must read and follow:
+
+- `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
+- `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
+- `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+
+The non-negotiable order is:
+
+`IDENTIFY_TASK -> GIT_IDENTITY -> RELEVANT_AUTHORITY -> EXISTING_DECISION_CHECK -> WORK`
+
+`NO_M55_WORK_BEFORE_GIT_FIRST_BASELINE = TRUE`
+
+Every work profile requires task-relevant Git identity before substantive reasoning or mutation. The profile changes **depth**, not whether Git is checked.
+
+- Existing bounded lane continuation such as approved UIUX work uses `CONTINUATION_FAST_PATH` and checks only its own branch/worktree/ref, lane authority, touched paths, and relevant shared owners.
+- Exact read-only candidate review uses `PINNED_REVIEW_PREFLIGHT` and pins the exact PR/branch/commit/diff.
+- New architecture, economics, reward, legal/tax, provider, security, DB/ledger, SSOT/governance, cross-lane, merge/integration, or consequential GREEN/freeze work uses `FULL_REPO_PREFLIGHT`.
+
+If task-relevant Git identity or authority cannot be established, use **`GIT_PREFLIGHT_INCOMPLETE`**. Do not guess and do not issue consequential `PLAN_GREEN`, `DESIGN_GREEN`, `FROZEN`, `AUTHORIZED`, or equivalent.
+
+A full preflight is **not** permission for broad repo archaeology. Read the relevant authority for the identified task. Unrelated active programs must not burden valid continuation lanes.
+
 ## Executable state authority — mandatory cold-start rule
 
 The **sole executable authority** for `CURRENT EXECUTION GATE` and `NEXT SINGLE ACTION` is:
@@ -14,38 +38,56 @@ For a completely new ChatGPT conversation, also read `docs/ssot/M55_GPT_COLD_STA
 
 A model hallucination or stale recollection never authorizes work. Any contradiction between executable state and required fresh evidence is **STOP**.
 
-## Product Authority Pack (mandatory before analysis or mutation)
+## Product Authority Pack — scope-aware requirement
 
-Before any M55 analysis or source mutation:
+Git-first routing does **not** weaken Product Authority where product authority is relevant, but it also does not force Product Authority ceremony onto an unrelated bounded continuation.
 
-1. Run `npm run verify:product-authority:bootstrap` when on the Authority Pack bootstrap branch (`feat/m55-product-authority-pack-v1`) with provisional sequence-0 history only.
+Product Authority verification/header review is mandatory when any of the following is true:
+
+- the selected profile is `FULL_REPO_PREFLIGHT` or this is a cold-start/global integration task;
+- the task changes or decides product/commercial semantics owned by Product Authority, including pricing, funnel flow, claims/copy authority, product mapping, provider/runtime authority, protected-worktree identity, or Production observation facts;
+- the relevant task-class authority explicitly requires Product Authority;
+- a previously accepted Product Authority result has a real invalidating dependency.
+
+When Product Authority is required:
+
+1. Run `npm run verify:product-authority:bootstrap` only on the Authority Pack bootstrap branch (`feat/m55-product-authority-pack-v1`) with provisional sequence-0 history.
 2. Run `npm run verify:product-authority` for steady-state reconciliation (requires history sequences 0–2 after bootstrap reconciliation).
 3. Read `.product-authority/generated/authority-header.md`.
 4. **STOP** on hash drift, authority conflict, protected-worktree violation, or pending Production evidence promoted without verification.
 
-Memory and conversation history are **not** authority. The Product Authority Pack durable sources and generated header supersede recalled facts, but generated observations are not timeless runtime truth.
+A valid `CONTINUATION_FAST_PATH` that is presentation-only or otherwise outside Product Authority semantics does **not** rerun Product Authority merely because M55 work is occurring. It preserves already-accepted authority/no-replay evidence and checks only task-relevant authority unless an invalidator or semantic expansion enters scope.
+
+A `PINNED_REVIEW_PREFLIGHT` reads Product Authority only when the pinned claim/diff depends on it.
+
+Memory and conversation history are **not** authority. When Product Authority is in scope, the durable sources and generated header supersede recalled facts, but generated observations are not timeless runtime truth.
 
 Bootstrap mode applies **only** on the Authority Pack implementation branch during provisional sequence-0 initialization. Steady-state verification must fail on unreconciled bootstrap tips.
 
 ## Control Tower boot sequence
 
-Every session must establish durable repo memory **before** proposing high-cost work:
+A new/cold-start or FULL_REPO_PREFLIGHT session must establish durable repo memory **before** proposing high-cost or consequential work:
 
 1. `AGENTS.md` (this file)
-2. `docs/ssot/M55_EXECUTION_STATE.json` — sole executable lane/gate/NEXT owner
-3. `.product-authority/generated/authority-header.md` — generated observation artifact
-4. `docs/ssot/README.md`
-5. `docs/ssot/M55_CURRENT_STATE.md` — narrative/history; subordinate executable fields when superseded
-6. `docs/ssot/M55_ROADMAP.md`
-7. `docs/ssot/M55_WORKTREE_REGISTRY.md`
-8. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
-9. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
-10. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` when handoff/cold-start is under test
-11. **`npm run m55:context`** after `git fetch origin` when local runtime exists
-12. Fresh GitHub/remote facts and Vercel Production identity when required
-13. CLOSED GREEN gates — do not re-audit without invalidation
-14. Invalidating dependencies — document before any proposed rerun
-15. Execute only the authorized **NEXT SINGLE ACTION** from `M55_EXECUTION_STATE.json`
+2. `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
+3. `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
+4. `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+5. `docs/ssot/M55_EXECUTION_STATE.json` — sole executable lane/gate/NEXT owner
+6. `.product-authority/generated/authority-header.md`
+7. `docs/ssot/README.md`
+8. `docs/ssot/M55_CURRENT_STATE.md` — narrative/history; subordinate executable fields when superseded
+9. `docs/ssot/M55_ROADMAP.md`
+10. `docs/ssot/M55_WORKTREE_REGISTRY.md`
+11. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
+12. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
+13. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` when handoff/cold-start is under test
+14. **`npm run m55:context`** after `git fetch origin` when local runtime exists and the selected profile requires fresh main/global context
+15. Fresh GitHub/remote facts and Vercel Production identity when required by the task
+16. CLOSED GREEN gates relevant to the task — do not re-audit without invalidation
+17. Invalidating dependencies — document before any proposed rerun
+18. Execute only the authorized **NEXT SINGLE ACTION** from `M55_EXECUTION_STATE.json` when global executable progression is in scope
+
+A valid `CONTINUATION_FAST_PATH` does not replay the unrelated lane-specific parts of this full list. It follows the Git-first entrypoint/manifest, verifies its own lane/ref/workspace/touched authority, reuses still-valid accepted Product Authority evidence when relevant, and escalates to FULL only when a listed trigger or semantic expansion enters scope.
 
 **Critical:** `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN`. Missing evidence in the current chat does **not** authorize rerunning real payment, checkout, fulfillment, Preview mutation smoke, DB migration, user deletion, webhook mutation, or real consult consumption. Search SSOT and prior evidence first.
 
@@ -67,36 +109,46 @@ If no invalidating dependency changed → **`RERUN_PROHIBITED`**. A new chat/ses
 
 **Risk-weighted audit depth:** do not run every agent on every change. Ordinary docs/editorial work may use normal CI + Control-Tower review; user-visible/product changes need the lane-required independent quality review; money/tax/provider/security/ledger/idempotency changes require the full independent audit stack defined by the multi-agent SSOT.
 
-Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` (always apply). **Do not use legacy `.cursorrules` as authority.**
+Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` and `.cursor/rules/m55-scope-aware-repo-preflight.mdc` (always apply). **Do not use legacy `.cursorrules` as authority.**
 
 ## Read order
 
+Use `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json` to route the exact task-specific read set. The following is the FULL/cold-start order. Continuation/review profiles intentionally use a narrower task-specific set and include Product Authority only when the task/profile/semantics require it.
+
 1. `AGENTS.md` (this file)
-2. `docs/ssot/M55_EXECUTION_STATE.json`
-3. `.product-authority/generated/authority-header.md`
-4. `docs/ssot/README.md`
-5. `docs/ssot/M55_CURRENT_STATE.md`
-6. `docs/ssot/M55_WORKTREE_REGISTRY.md`
-7. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
-8. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
-9. `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` — **mandatory while Creator Revenue program is active**
-10. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
-10. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
-11. `docs/ssot/M55_UX_BENCHMARK_STACK.md` — **mandatory before any user-visible implementation or review**
-11a. `docs/ssot/M55_EDITORIAL_COMMERCIAL_AUTOMATION_SSOT.md` — **mandatory for editorial automation / automated content construction work** (subordinate to items 1–11 and lane/copy/visual authority; not executable NEXT)
-12. `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` — **mandatory before any Safari MCP actual-browser gate or ACTUAL-BROWSER GREEN claim**
-13. `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` — **mandatory while Creator Revenue program is active**; reconstruct creator roadmap stage, direct-only anti-MLM rules, provider implementation status, and R1 no-replay state
-14. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-15. `docs/ssot/M55_DECISION_LOG.md`
-16. `docs/ssot/M55_ROADMAP.md`
-17. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
+2. `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
+3. `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
+4. `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+5. `docs/ssot/M55_EXECUTION_STATE.json`
+6. `.product-authority/generated/authority-header.md`
+7. `docs/ssot/README.md`
+8. `docs/ssot/M55_CURRENT_STATE.md`
+9. `docs/ssot/M55_WORKTREE_REGISTRY.md`
+10. `docs/ssot/M55_CONTROL_TOWER_OPERATIONS_MAP.md`
+11. `docs/ssot/M55_HIGH_COST_EVIDENCE_LEDGER.md`
+12. relevant active-lane SSOT(s) selected by the manifest
+13. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
+14. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — mandatory before user-visible implementation/review
+15. `docs/ssot/M55_UX_BENCHMARK_STACK.md` — mandatory before user-visible implementation/review
+16. `docs/ssot/M55_EDITORIAL_COMMERCIAL_AUTOMATION_SSOT.md` — mandatory for editorial automation / automated content construction work
+17. `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` — mandatory before Safari MCP actual-browser gate or ACTUAL-BROWSER GREEN claim
+18. `docs/ssot/M55_DECISION_LOG.md` when decision history is relevant
+19. `docs/ssot/M55_ROADMAP.md` when sequence/global integration is relevant
+20. `docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md` for handoff acceptance
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts and subordinate to `M55_EXECUTION_STATE.json` for executable gate/NEXT.
 
 ## Mandatory rules
 
-- **ACTIVE LANE only** — do not start unrelated lanes without explicit lane change in `M55_EXECUTION_STATE.json`.
-- **NEXT SINGLE ACTION** — do not jump ahead in the roadmap.
+- **GIT FIRST** — every M55 work unit establishes task-relevant Git identity before substantive reasoning or mutation; profile depth is task-scoped.
+- **TASK-RELEVANT AUTHORITY** — inspect the Git/SSOT/source owners for the actual task before deciding. Unrelated lane scans are prohibited by default.
+- **EXISTING CONTRACT FIRST** — search existing SSOT/source and relevant unmerged authority before creating a new contract or architecture.
+- **PRE-MUTATION RECHECK** — before mutation, reconfirm correct branch/worktree/HEAD/dirty state/mutable allowlist when locally observable.
+- **PRE-GREEN / INTEGRATION RECHECK** — before consequential GREEN/freeze/authorization or commit/push/PR/merge/integration, re-observe relevant Git identity and exact diff; fresh main is required when integration depends on it.
+- **FAST PATH IS REAL** — an approved bounded UIUX or other continuation lane does not read unrelated Creator Revenue/legal/tax/provider/Product Authority material and does not fetch main every message unless that authority becomes task-relevant.
+- **ESCALATE ON SEMANTIC EXPANSION** — new architecture/economics/reward/legal/tax/provider/DB/ledger/security/governance/cross-lane semantics convert FAST_PATH to FULL_REPO_PREFLIGHT.
+- **ACTIVE LANE only** — do not start unrelated lanes without explicit lane change in `M55_EXECUTION_STATE.json` where global executable lane ownership is involved.
+- **NEXT SINGLE ACTION** — do not jump ahead in the roadmap when global executable progression is in scope.
 - **Closed GREEN** — do not re-audit closed GREEN areas without actual invalidation.
 - **Prohibited lanes** — no runtime UI, DB, Stripe, Clerk, env, checkout, webhook, or Pair runtime changes unless the active executable gate explicitly requires it.
 - **Runtime truth ≠ target contract** — never describe target contracts as already implemented.
@@ -110,13 +162,14 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **Safari actual-browser gates** — before claiming ACTUAL-BROWSER GREEN or running Safari MCP observation, read `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md`; SOURCE REVIEW GREEN does not equal ACTUAL-BROWSER GREEN; implementer cannot self-certify independent Safari audit GREEN.
 - **Shared public chrome** — before creating or modifying page-local Header, Footer, legal, support, privacy, or refund navigation, inspect `PublicShell` / `PublicHeaderContainer` / `PublicHeader` / `PublicFooter` ownership and reuse or update the shared owner. Duplicate shared chrome is prohibited unless an explicit route-specific contract requires it and the reason is stated before mutation.
 - **Cold-start acceptance** — while NEXT is `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation and Pair mapping are prohibited. Human approval is required after PASS to advance the execution state.
-- **Creator Revenue program** — while active, read `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` and reconstruct: R1 `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** / no-replay; `productWorkAfterControlTower = REVENUE_SAFETY_E2E`; staged R1→R8 sequence; creator referral/ledger/dashboard/payout **NOT_IMPLEMENTED**; Stripe payout provider **UNSELECTED**; direct single-tier anti-MLM; `TARGET_COMMISSION_RATE = 50%` is Human target only; do not invent E2C2E acronym expansion.
+- **Creator Revenue program** — when Creator Revenue semantics are actually in the task scope, read `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` plus the Creator Revenue task-class authority from `M55_GIT_PREFLIGHT_MANIFEST.json` and reconstruct: R1 `FOUR_SURFACE_CREATOR_READINESS` **CLOSED GREEN** / no-replay; staged R1→R8 sequence; creator referral/ledger/dashboard/payout **NOT_IMPLEMENTED**; direct single-tier anti-MLM; frozen Creator economics and current provider/legal status. Do not force this read onto unrelated valid continuation lanes.
 
 ## Authority hierarchy (summary)
 
 | Priority | Owner |
 |---|---|
 | A0 — Executable state | `docs/ssot/M55_EXECUTION_STATE.json` |
+| A0-preflight — AI work routing | `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`, `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`, `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md` |
 | A — Machine product truth | `lib/m55/contracts/m55CommercialFunnelContract.ts` |
 | B — Commercial principles | `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` |
 | B+ — Global commercial quality | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` |
@@ -130,6 +183,8 @@ Subordinate copies must not silently override primary authority.
 ## Verification
 
 ```bash
+node scripts/verify-m55-git-first-preflight.mjs
+node scripts/verify-m55-git-first-hardening.mjs
 npm run verify:product-authority:bootstrap
 npm run verify:product-authority
 npm run test:product-authority
@@ -138,7 +193,9 @@ npm run verify:m55-control-tower
 npm run m55:context
 ```
 
-Required validation/check commands are **fail-closed**. If a required check returns non-zero: **STOP** — do not commit, do not push, do not classify GREEN. "Cosmetic", "known", or "non-product" does not override a failed required check unless the Human explicitly waives that exact check.
+Run only the verification commands required by the selected profile/task and current invalidation set. Product Authority commands above are mandatory when Product Authority is in scope as defined in this file; they are not a per-message or unrelated FAST-path tax.
+
+Required validation/check commands that are selected for the task are **fail-closed**. If a required check returns non-zero: **STOP** — do not commit, do not push, do not classify GREEN. "Cosmetic", "known", or "non-product" does not override a failed required check unless the Human explicitly waives that exact check.
 
 ## Superseded / subordinate authorities
 
