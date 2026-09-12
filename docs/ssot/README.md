@@ -37,6 +37,7 @@ The AI identifies its task, verifies task-relevant Git identity, loads only the 
 | E | `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` | State, worktrees, sequence, decisions |
 | E+ | `M55_CONTROL_TOWER_OPERATIONS_MAP.md` | GitHub / Vercel / Clerk / Supabase / Stripe ops map · boot cross-reference |
 | E++ | `M55_HIGH_COST_EVIDENCE_LEDGER.md` | Closed high-cost test evidence · rerun prohibition · invalidation rules |
+| E++op | `M55_OPERATOR_BUSINESS_STATUS_SSOT.md` | Sole-proprietor / solo-build / staffing / payroll / pre-revenue / bookkeeping / tax-admin / Tokushoho / APPI / re-review triggers |
 | E+++ | `M55_CREATOR_REVENUE_E2C2E_SSOT.md` | Creator Revenue / E2C2E staged roadmap contract · anti-MLM · ledger lifecycle · Stripe boundary |
 | E+++a | `M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md` | Affiliate-first Creator relationship · Stripe money-flow · payout economics · Japan legal/tax fail-closed contract |
 | E+++b | `M55_CREATOR_AFFILIATE_BENCHMARK_TARGET_ARCHITECTURE_SSOT.md` | Frozen six-benchmark pattern map · M55-native affiliate control plane · Stripe money rail · REUSE/ADAPT/REJECT/DEFER authority |

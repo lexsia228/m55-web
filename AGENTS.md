@@ -109,6 +109,8 @@ If no invalidating dependency changed → **`RERUN_PROHIBITED`**. A new chat/ses
 
 **Risk-weighted audit depth:** do not run every agent on every change. Ordinary docs/editorial work may use normal CI + Control-Tower review; user-visible/product changes need the lane-required independent quality review; money/tax/provider/security/ledger/idempotency changes require the full independent audit stack defined by the multi-agent SSOT.
 
+**Operator/business-status rule:** read `docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md` before tax, Creator payout, Stripe/KYC, seller-identity, staffing/payroll, bookkeeping, invoice, or pre-revenue business-state analysis. Do not infer corporation, employee, salary-payer, revenue, invoice-registration, or business-start facts from generic wording. Re-review only on a registered trigger.
+
 Cursor bootstrap: `.cursor/rules/m55-control-tower.mdc` and `.cursor/rules/m55-scope-aware-repo-preflight.mdc` (always apply). **Do not use legacy `.cursorrules` as authority.**
 
 ## Read order

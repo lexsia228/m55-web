@@ -57,9 +57,11 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Curre
 | **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General User non-cash / Approved Creator cash split | **INTERNAL TWO-LANE CONTRACT FROZEN** |
 | **R2-D** `FOUNDING_CREATOR_ECONOMICS` | 50/40/30 · cohort 20 · machine-first compliance · 30-day review · corrected stop-loss | **INTERNAL ECONOMICS FROZEN** |
 | **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | `FREE_COMPLETION_DIGITAL_UNLOCK` v1 · Pair mutual artifact deferred | **INTERNAL LAUNCH MVP FROZEN** |
-| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe + Japan legal/tax confirmation | **ACTIVE** — **STRIPE A/B/D CLOSED** · **STRIPE C FOLLOW-UP COMPLETED / NO ACTION REQUIRED** · **JAPAN LEGAL/TAX OPEN** · P0-1 `GREEN_WITH_CONDITION` · P0-2 `GREEN` · P0-3 `GREEN` · **NOT CLOSED** |
+| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe + Japan legal/tax confirmation | **ACTIVE / CLOSURE CANDIDATE** — Stripe A/B/D CLOSED · Stripe C completed/no action · M55 payer facts frozen as sole proprietor / no employees / no salary payer · Japan 60-day deadline + payer-side withholding mapped to current public-rule branches · **pending PR #189 independent review before closure** |
 
 Compliance/payout automation annex: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
+
+Operator/business-status annex: `docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md`
 
 Affiliate-first Stripe/tax/legal annex: `docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md`
 

@@ -782,3 +782,109 @@ This contract is deliberately conservative:
 - the exact recovery treatment, if any, must be supported by the then-applicable law/contract and explicitly Human-approved before runtime.
 
 Owning implementation gate: R8 `PAYOUT_AND_SETTLEMENT`.
+
+## S. M55 sole-proprietor payer facts / current legal-tax closure candidate — Human-approved 2026-09-10
+
+### S-1. Human-frozen payer facts
+
+`M55_OPERATOR_FORM = SOLE_PROPRIETOR`
+
+`M55_BUILD_MODEL = SOLO_BUILD`
+
+`M55_EMPLOYEES = NONE`
+
+`M55_PAYS_SALARY_OR_WAGES = FALSE`
+
+`M55_IS_SALARY_PAYER_FOR_WITHHOLDING = FALSE`
+
+These facts are current M55 operating authority. Generic references to "company", "corporation", or "platform company" do not override them.
+
+### S-2. Freelance Act branch under current facts
+
+Current JFTC Q2/Q3/Q9 and the official applicability chart establish:
+
+- an individual ordering business using employees can be a `特定業務委託事業者`;
+- an individual ordering business not using employees is not in that specified-orderer category;
+- if the transaction is otherwise covered, an ordering business without employees still gives the Article 3 transaction-condition notice;
+- the current JFTC definition of "uses employees" generally requires a worker scheduled for at least 20 hours/week and expected to be employed for at least 31 days.
+
+M55 currently uses **no employees**.
+
+Therefore:
+
+`FREELANCE_ACT_M55_ORDERER_ROLE_IF_AFFILIATE_IS_COVERED_DELEGATION = 業務委託事業者_NOT_特定業務委託事業者_CURRENT_FACTS`
+
+`FREELANCE_ACT_ARTICLE_3_TRANSACTION_TERMS_DISCLOSURE = REQUIRED_IF_AFFILIATE_IS_COVERED_業務委託`
+
+`JAPAN_LEGAL_60_DAY_PAYMENT_COMPATIBILITY = NOT_A_CURRENT_M55_REQUIREMENT_IF_AFFILIATE_IS_COVERED_DELEGATION`
+
+M55 should nevertheless use clear written/electronic Program Truth/Creator Terms with compensation calculation, payment timing, refund/reversal treatment, dispute path, and policy versions. This is both a conservative Article 3-compatible design and Creator trust requirement.
+
+The exact Affiliate-first `業務委託` characterization may remain a legal taxonomy question, but it is no longer a blocker for the 60-day payment-deadline architecture under the current no-employee payer facts.
+
+### S-3. Source withholding branch under current facts
+
+NTA No.2793 states that where the remuneration payer is an individual and is not a payer of salaries, source withholding is generally not required, except specified cases such as hostess remuneration. NTA expressly notes that salary payments include blue-return family-employee salary (`青色専従者給与`).
+
+M55 currently pays **no salary or wages**.
+
+Therefore:
+
+`NTA_SOURCE_WITHHOLDING_M55_CURRENT_PAYER_FACT_PATTERN = CLOSED_NO_WITHHOLDING_REQUIRED_FOR_JP_RESIDENT_ORDINARY_AFFILIATE_PAYMENT`
+
+`AFFILIATE_SOURCE_WITHHOLDING_SALES_AGENT_CLASSIFICATION = NOT_REQUIRED_TO_DETERMINE_CURRENT_M55_PAYER_OBLIGATION`
+
+`NO_UNIVERSAL_WITHHOLDING_RATE = STILL_PROHIBITED`
+
+Do not translate this into a timeless statement that "affiliate commission is never subject to withholding." It is a **payer-fact exception for the current Japan-resident ordinary Affiliate payout branch**. Nonresident/foreign-recipient payouts remain separately blocked pending tax/treaty classification. If M55 becomes a salary payer, the payment-category analysis reopens before the next live payout.
+
+### S-4. Fee policy
+
+Because M55 is not currently a `特定業務委託事業者`, the Freelance Act Article 5 reduction prohibition / Q78 bank-transfer-fee example is not the current M55 payer branch.
+
+However:
+
+`CREATOR_FEE_DEDUCTION_IMPLEMENTATION = STILL_NOT_AUTHORIZED`
+
+Reason: M55 has not yet frozen the exact commercial fee term, disclosure mechanics, Stripe economic threshold/cadence, or other-law/contract analysis. R8 owns that implementation. The safe launch fallback remains M55-borne payout cost unless a separately lawful, clearly disclosed fee is later Human-approved.
+
+### S-5. Closure status
+
+`R2_B2_JAPAN_LEGAL_PAYMENT_DEADLINE = PUBLIC_EVIDENCE_CLOSURE_CANDIDATE`
+
+`R2_B2_JAPAN_SOURCE_WITHHOLDING = PUBLIC_EVIDENCE_CLOSURE_CANDIDATE`
+
+`R2_B2_PHONE_CONSULTATION = NOT_REQUIRED_BY_DEFAULT_CURRENT_FACTS`
+
+Independent Grok/Codex review of PR #189 must confirm there is no overclaim. After that review, Control Tower may close the Japan legal/tax residual and request explicit Human R2 final acceptance.
+
+### S-6. Hard invalidators
+
+`M55_EMPLOYEE_STATUS_CHANGE_REOPENS_FREELANCE_ACT_BRANCH = TRUE`
+
+`M55_SALARY_PAYER_STATUS_CHANGE_REOPENS_WITHHOLDING_BRANCH = TRUE`
+
+`M55_ENTITY_FORM_CHANGE_REOPENS_PAYER_FORM_ANALYSIS = TRUE`
+
+`SPONSORED_CREATOR_RELATIONSHIP_REQUIRES_SEPARATE_CLASSIFICATION = TRUE`
+
+## T. Pre-revenue / operator-status dependency — Human-approved 2026-09-10
+
+Normative operating-fact authority: `docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md`.
+
+Current M55 business state:
+`PRE_REVENUE_ZERO_BUSINESS_REVENUE`.
+
+This does **not** remove:
+- bookkeeping/electronic-transaction retention;
+- Tokushoho duties on paid-sale surfaces;
+- APPI duties when personal data is used for business;
+- Stripe/KYC identity accuracy.
+
+It does affect:
+- current consumption-tax/base-period analysis;
+- source-withholding payer branch;
+- employee/employer obligations;
+- loss/evidence preservation.
+
+Unknown administrative records (opening date, opening notification, blue-return status, M55 invoice/consumption-tax status) are tracked in the operator SSOT and must not be invented here.

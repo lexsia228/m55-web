@@ -928,3 +928,67 @@ Invoice-registration status may change M55's own consumption-tax/input-tax-credi
 `BENCHMARK_TO_M55_PROVENANCE_REQUIRED = TRUE`
 
 Public competitor/vendor patterns may inform M55 requirements; competitor code, terms text, branding, distinctive UI expression, and non-public implementation are not implementation sources.
+
+## M55 operator facts / R2-B2 payer-form freeze — Human-approved 2026-09-10
+
+These are durable M55 operating facts and must not be guessed from generic "company" language.
+
+`M55_OPERATOR_FORM = SOLE_PROPRIETOR`
+
+`M55_BUILD_MODEL = SOLO_BUILD`
+
+`M55_EMPLOYEES = NONE`
+
+`M55_PAYS_SALARY_OR_WAGES = FALSE`
+
+`M55_IS_SALARY_PAYER_FOR_WITHHOLDING = FALSE`
+
+Human clarification: M55 is not a corporation and does not currently employ workers or pay salary/wages.
+
+### Current R2-B2 consequence
+
+Under current JFTC public guidance, a sole-proprietor ordering business that does **not** use employees is not a `特定業務委託事業者`. If a Creator affiliate relationship is a covered `業務委託`, M55 still must satisfy the Article 3 transaction-condition disclosure requirement, but the additional duties imposed on `特定業務委託事業者` — including the statutory payment-deadline framework — are not the current M55 payer branch.
+
+`FREELANCE_ACT_M55_ORDERER_ROLE_IF_AFFILIATE_IS_COVERED_DELEGATION = BUSINESS_COMMISSIONER_NOT_SPECIFIED_COMMISSIONER_CURRENT_FACTS`
+
+`FREELANCE_ACT_ARTICLE_3_DISCLOSURE = REQUIRED_IF_COVERED_TRANSACTION`
+
+`FREELANCE_ACT_60_DAY_PAYMENT_DEADLINE = NOT_APPLICABLE_TO_CURRENT_M55_IF_AFFILIATE_IS_COVERED_DELEGATION`
+
+Under NTA No.2793, when the payer is an individual who is not a payer of salaries, source withholding on remuneration/fees is generally not required except specified cases such as hostess remuneration.
+
+`M55_PAYER_SIDE_SOURCE_WITHHOLDING_FOR_JP_RESIDENT_ORDINARY_AFFILIATE_COMMISSION = NOT_REQUIRED_UNDER_CURRENT_PAYER_FACTS`
+
+The unresolved academic question of whether ordinary web-affiliate commission could fall inside a category such as `外交員等` does not control M55's current Japan-resident ordinary Affiliate payer obligation while the individual/no-salary-payer exception applies. Nonresident/foreign-recipient payouts remain a separate tax/treaty branch.
+
+### Invalidation
+
+Re-open the relevant legal/tax branch before cash payout if any of these change:
+
+- M55 begins using employees under the then-current JFTC definition;
+- M55 begins paying salary/wages, including a tax treatment that makes M55 a salary payer;
+- M55 changes from sole proprietor to corporation or another entity form;
+- Creator relationship changes from Affiliate-first to sponsored/commissioned deliverables;
+- law or official guidance materially changes.
+
+`M55_EMPLOYEE_OR_PAYROLL_STATUS_CHANGE = R2_B2_LEGAL_TAX_INVALIDATOR`
+
+This fact freeze does not authorize payout runtime. R2-B2 closure still requires independent review of the public-evidence mapping and explicit Human R2 final acceptance.
+
+## Operator-status cross-reference — Human-approved 2026-09-10
+
+Normative operator/business-state authority: `docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md`.
+
+Current frozen facts:
+- sole proprietor;
+- solo build;
+- zero employees;
+- zero salary/wage payments;
+- pre-revenue / zero M55 business revenue;
+- development phase.
+
+Creator Revenue must consume those facts rather than re-infer them.
+
+`CREATOR_REVENUE_OPERATOR_FACTS_REFERENCE = M55_OPERATOR_BUSINESS_STATUS_SSOT`
+
+First employee, first salary, entity conversion, invoice-status change, first revenue, sponsored-Creator conversion, nonresident payout or material legal change reopens only the affected Creator legal/tax branch.

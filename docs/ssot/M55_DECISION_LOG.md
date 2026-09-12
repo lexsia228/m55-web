@@ -1339,3 +1339,73 @@ No additional full Grok/Codex rerun is required merely to record these audit art
 
 Merge remains a separate Human-authorized action.
 
+### 2026-09-10 — M55 sole-proprietor / solo-build operating facts freeze (Human-approved)
+
+**Status:** durable business-operating fact freeze · Creator Revenue R2-B2 legal/tax impact · no runtime/provider mutation
+
+| Fact | Frozen value |
+|---|---|
+| M55 operator form | `SOLE_PROPRIETOR` |
+| Build/operation model | `SOLO_BUILD` |
+| Employees | `NONE` |
+| Salary/wage payments | `NONE` |
+| NTA salary-payer status | `FALSE` |
+| Corporation assumption | **REJECTED** |
+
+Primary-source impact:
+
+- JFTC: individual ordering business with no employees is not a `特定業務委託事業者`; if a transaction is covered, Article 3 terms disclosure remains.
+- Current M55 consequence: the Freelance Act 60-day payment-deadline branch is not a current M55 orderer obligation.
+- NTA No.2793: individual payer who is not a salary payer generally does not withhold on covered remuneration/fees, except specified cases such as hostess remuneration.
+- Current M55 consequence: payer-side source withholding on ordinary Affiliate Creator commission is not required under the frozen payer facts.
+
+Control tokens:
+
+`M55_OPERATOR_FORM = SOLE_PROPRIETOR`
+
+`M55_BUILD_MODEL = SOLO_BUILD`
+
+`M55_EMPLOYEES = NONE`
+
+`M55_PAYS_SALARY_OR_WAGES = FALSE`
+
+`FREELANCE_ACT_60_DAY_PAYMENT_DEADLINE = NOT_APPLICABLE_TO_CURRENT_M55_ORDERER_ROLE`
+
+`M55_PAYER_SIDE_SOURCE_WITHHOLDING_FOR_ORDINARY_AFFILIATE_COMMISSION = NOT_REQUIRED_UNDER_CURRENT_PAYER_FACTS`
+
+Invalidators:
+- employee use begins;
+- salary/wage payment begins;
+- entity form changes;
+- Sponsored Creator/work-order facts replace Affiliate-first.
+
+PR #189 independent Grok/Codex review remains required before R2-B2 is formally closed. CURRENT/NEXT remains `REVENUE_SAFETY_E2E`.
+
+### 2026-09-10 — M55 pre-revenue solo-proprietor full compliance reclassification (Human-approved)
+
+**Status:** complete public-rule recheck for current operator facts · no runtime/provider mutation
+
+Human-frozen:
+- `M55_OPERATOR_FORM = SOLE_PROPRIETOR`
+- `M55_BUILD_MODEL = SOLO_BUILD`
+- `M55_EMPLOYEES = NONE`
+- `M55_PAYS_SALARY_OR_WAGES = FALSE`
+- `M55_CURRENT_BUSINESS_REVENUE_STATUS = PRE_REVENUE_ZERO_BUSINESS_REVENUE`
+- `M55_CURRENT_OPERATING_PHASE = PRE_REVENUE_DEVELOPMENT`
+
+New normative SSOT:
+`docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md`
+
+Material conclusions:
+- no current employee labour-insurance / employer social-insurance trigger;
+- first employee immediately reopens labour/payroll/JFTC branches;
+- current individual/no-salary-payer NTA source-withholding exception applies;
+- no-employee JFTC orderer remains Article-3-only if the affiliate relationship is a covered delegation;
+- zero revenue does not waive bookkeeping/electronic-data retention;
+- blue-return/opening-date/admin status must be reconciled from Human records;
+- zero revenue does not make invoice registration necessary; registration must not be automatic;
+- pre-revenue does not waive APPI or Tokushoho when their factual triggers occur;
+- local tax opening administration is jurisdiction-specific and cannot be inferred;
+- seller/Stripe identity must remain sole-proprietor accurate.
+
+Re-review registry is frozen in the operator SSOT. Review is trigger-scoped; unrelated CLOSED GREEN gates remain closed.

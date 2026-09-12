@@ -1215,3 +1215,42 @@ Any recovery from the Creator or offset against future commission requires separ
 `PAST_PAYOUT_POSTED_DOES_NOT_CLOSE_LATE_TAX_REMITTANCE_LIABILITY = TRUE`
 
 Implementation owner: R8 `PAYOUT_AND_SETTLEMENT`, after source-withholding classification is closed.
+
+## BE. M55 payer operating facts / automation implications — Human-approved 2026-09-10
+
+`M55_OPERATOR_FORM = SOLE_PROPRIETOR`
+
+`M55_BUILD_MODEL = SOLO_BUILD`
+
+`M55_EMPLOYEES = NONE`
+
+`M55_PAYS_SALARY_OR_WAGES = FALSE`
+
+Current automation implications:
+
+- no current R2-B2 requirement to build a 60-day statutory-deadline engine solely from the Freelance Act specified-orderer branch;
+- still record Creator Terms / Program Truth electronically and version them;
+- no current M55 payer-side source-withholding deduction for ordinary Affiliate Creator commission under the NTA individual/no-salary-payer rule;
+- do not collect My Number for a withholding/reporting workflow that is not actually required;
+- keep tax profile/entity/invoice information because Creator accounting, consumption tax, future payer-status changes, and cross-border cases remain separate;
+- do not implement Creator fee deduction yet;
+- any future employee/payroll/entity-form change must trigger fail-closed policy reclassification before further cash payouts.
+
+`PAYOUT_POLICY_RECLASSIFICATION_TRIGGER = EMPLOYEE_OR_PAYROLL_OR_ENTITY_FORM_CHANGE`
+
+This does not change the R5/R6/R7/R8 stage order and does not authorize payout implementation.
+
+## BF. Operator-status runtime invalidation hooks — Human-approved 2026-09-10
+
+Runtime planning must read `M55_OPERATOR_BUSINESS_STATUS_SSOT.md`.
+
+Before Creator cash activation and before each material payout-policy version:
+- assert M55 operator form;
+- assert employee-status version;
+- assert salary-payer-status version;
+- assert consumption-tax/invoice-status version;
+- assert seller/provider identity version.
+
+`OPERATOR_FACT_VERSION_REQUIRED_FOR_PAYOUT_POLICY = TRUE`
+
+If employee/payroll/entity/invoice/tax status changes, block only the affected payout/tax policy until reclassified. Do not erase valid commissions.
