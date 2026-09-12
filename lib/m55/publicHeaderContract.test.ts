@@ -42,7 +42,16 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
       headerStateSource.indexOf('export const ABOUT_DROPDOWN_NAV'),
     );
     assert.match(navBlock, /href:\s*'\/core',\s*label:\s*T\.freeEntry/);
+    assert.match(navBlock, /href:\s*'\/synastry',\s*label:\s*T\.pairEntry/);
     assert.match(navBlock, /href:\s*'\/dtr\/lp',\s*label:\s*T\.premiumProduct/);
+    assert.ok(
+      navBlock.indexOf("label: T.freeEntry") < navBlock.indexOf('label: T.pairEntry'),
+      'desktop Pair entry must follow Free entry',
+    );
+    assert.ok(
+      navBlock.indexOf('label: T.pairEntry') < navBlock.indexOf('label: T.premiumProduct'),
+      'desktop Pair entry must precede Premium',
+    );
 
     const aboutBlock = headerStateSource.slice(
       headerStateSource.indexOf('export const ABOUT_DROPDOWN_NAV'),
@@ -73,7 +82,47 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
     assert.match(headerSource, /aria-current=\{active \? 'page' : undefined\}/);
     assert.match(headerSource, /aria-current=\{pathname === '\/home' \? 'page' : undefined\}/);
   });
+});
 
+describe('publicHeaderContract — Pair discoverability', () => {
+  it('wires the exact HOME Pair CTA label into desktop and mobile public nav', () => {
+    const terminology = readSource('lib/m55/commercialUx/terminology.ts');
+    const contract = readSource('lib/m55/homePairReadingPublicContract.ts');
+    assert.match(terminology, /pairEntry:\s*'二人の関係を見てみる'/);
+    assert.doesNotMatch(terminology, /pairEntry:\s*'二人の関係を見る'/);
+    assert.match(contract, /HOME_PAIR_READING_PUBLIC_HREF = '\/synastry'/);
+
+    const desktop = headerStateSource.slice(
+      headerStateSource.indexOf('export const DESKTOP_PRIMARY_NAV'),
+      headerStateSource.indexOf('export const ABOUT_DROPDOWN_NAV'),
+    );
+    assert.equal(desktop.includes("href: '/synastry', label: T.pairEntry"), true);
+    assert.ok(desktop.indexOf('T.freeEntry') < desktop.indexOf('T.pairEntry'));
+    assert.ok(desktop.indexOf('T.pairEntry') < desktop.indexOf('T.premiumProduct'));
+
+    const mobile = headerStateSource.slice(
+      headerStateSource.indexOf('export const MOBILE_MENU_PUBLIC'),
+      headerStateSource.indexOf('export const ACCOUNT_DROPDOWN_NAV'),
+    );
+    assert.match(mobile, /href:\s*'\/synastry',\s*label:\s*T\.pairEntry/);
+    assert.ok(mobile.indexOf("href: '/core'") < mobile.indexOf("href: '/synastry'"));
+    assert.ok(mobile.indexOf("href: '/synastry'") < mobile.indexOf("href: '/dtr/lp'"));
+  });
+
+  it('marks /synastry active without claiming adjacent product destinations', () => {
+    const activeBlock = headerStateSource.slice(
+      headerStateSource.indexOf('export function isHeaderNavActive'),
+    );
+    assert.match(
+      activeBlock,
+      /if \(href === '\/synastry'\) \{\s*return pathname === '\/synastry' \|\| pathname\.startsWith\('\/synastry\/'\);/,
+    );
+    assert.match(activeBlock, /if \(href === '\/core'\)/);
+    assert.match(activeBlock, /if \(href === '\/dtr\/lp'\)/);
+  });
+});
+
+describe('publicHeaderContract — desktop (≥960px) primary nav continued', () => {
   it('signed-out shows ログイン and signed-in reuses the existing Clerk UserButton', () => {
     assert.match(
       headerSource,
@@ -145,7 +194,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
       headerStateSource.indexOf('export const MOBILE_MENU_PUBLIC'),
       headerStateSource.indexOf('export const ACCOUNT_DROPDOWN_NAV'),
     );
-    const order = ['/home', '/core', '/dtr/lp', '/how-m55-works', '/ten-views'];
+    const order = ['/home', '/core', '/synastry', '/dtr/lp', '/how-m55-works', '/ten-views'];
     const indices = order.map((href) => navBlock.indexOf(`href: '${href}'`));
     for (const [i, href] of order.entries()) {
       assert.notEqual(indices[i], -1, `mobile menu missing item: ${href}`);
@@ -153,6 +202,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
     for (let i = 1; i < indices.length; i += 1) {
       assert.ok(indices[i]! > indices[i - 1]!, `mobile menu order broken at ${order[i]}`);
     }
+    assert.match(navBlock, /label:\s*T\.pairEntry/);
     assert.match(navBlock, /label:\s*T\.premiumProduct/);
     assert.match(navBlock, /label:\s*T\.aboutM55/);
     assert.match(navBlock, /label:\s*T\.tenQualities/);

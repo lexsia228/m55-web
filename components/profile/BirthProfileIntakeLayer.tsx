@@ -38,34 +38,50 @@ function SegmentedDobFieldsInline({
   const yearRef = useRef<HTMLInputElement>(null);
   const monthRef = useRef<HTMLInputElement>(null);
   const dayRef = useRef<HTMLInputElement>(null);
+  const lastEmittedIsoRef = useRef(birthDate);
+  const partsRef = useRef<SegmentedDobParts>({ year: initial.year, month: initial.month, day: initial.day });
 
   useEffect(() => {
+    if (birthDate === lastEmittedIsoRef.current) return;
     const parts = partsFromIsoDate(birthDate);
     if (!parts) return;
     setYear(parts.year);
     setMonth(parts.month);
     setDay(parts.day);
+    partsRef.current = parts;
+    lastEmittedIsoRef.current = birthDate;
   }, [birthDate]);
 
   function applyParts(parts: SegmentedDobParts) {
     setYear(parts.year);
     setMonth(parts.month);
     setDay(parts.day);
+    partsRef.current = parts;
   }
 
-  function syncValidDate(parts: SegmentedDobParts) {
-    if (parts.year.length !== 4 || parts.month.length !== 2 || parts.day.length !== 2) {
-      onBirthDateChange('');
+  function emitIsoDate(nextIso: string) {
+    lastEmittedIsoRef.current = nextIso;
+    onBirthDateChange(nextIso);
+  }
+
+  function syncValidDate(parts: SegmentedDobParts, normalizeVisual = false) {
+    const yearRaw = parts.year.trim();
+    const monthRaw = parts.month.trim();
+    const dayRaw = parts.day.trim();
+    if (!yearRaw || !monthRaw || !dayRaw) {
+      emitIsoDate('');
       setErrorJa(null);
       return;
     }
     const result = validateSegmentedDob(parts);
     if (result.ok) {
       setErrorJa(null);
-      applyParts(result.parts);
-      onBirthDateChange(result.birthDate);
+      if (normalizeVisual) {
+        applyParts(result.parts);
+      }
+      emitIsoDate(result.birthDate);
     } else {
-      onBirthDateChange('');
+      emitIsoDate('');
     }
   }
 
@@ -75,8 +91,27 @@ function SegmentedDobFieldsInline({
     if (!parts) return;
     event.preventDefault();
     applyParts(parts);
-    syncValidDate(parts);
+    syncValidDate(parts, true);
     dayRef.current?.focus();
+  }
+
+  function normalizeBlurredField(field: 'month' | 'day') {
+    const current = partsRef.current;
+    const result = validateSegmentedDob(current);
+    if (!result.ok) {
+      syncValidDate(current);
+      return;
+    }
+    const padded = result.parts[field];
+    if (current[field] !== padded) {
+      const next = { ...current, [field]: padded };
+      if (field === 'month') setMonth(padded);
+      else setDay(padded);
+      partsRef.current = next;
+      syncValidDate(next);
+      return;
+    }
+    syncValidDate(current);
   }
 
   return (
@@ -100,9 +135,12 @@ function SegmentedDobFieldsInline({
             const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
             setYear(digits);
             setErrorJa(null);
+            const next = { ...partsRef.current, year: digits };
+            partsRef.current = next;
             if (digits.length === 4) monthRef.current?.focus();
-            syncValidDate({ year: digits, month, day });
+            syncValidDate(next);
           }}
+          onBlur={() => syncValidDate(partsRef.current)}
           aria-label="年"
         />
         <span className={dobStyles.freeSegmentedDobUnit} aria-hidden>
@@ -124,9 +162,12 @@ function SegmentedDobFieldsInline({
             const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
             setMonth(digits);
             setErrorJa(null);
+            const next = { ...partsRef.current, month: digits };
+            partsRef.current = next;
             if (digits.length === 2) dayRef.current?.focus();
-            syncValidDate({ year, month: digits, day });
+            syncValidDate(next);
           }}
+          onBlur={() => normalizeBlurredField('month')}
           aria-label="月"
         />
         <span className={dobStyles.freeSegmentedDobUnit} aria-hidden>
@@ -148,8 +189,11 @@ function SegmentedDobFieldsInline({
             const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
             setDay(digits);
             setErrorJa(null);
-            syncValidDate({ year, month, day: digits });
+            const next = { ...partsRef.current, day: digits };
+            partsRef.current = next;
+            syncValidDate(next);
           }}
+          onBlur={() => normalizeBlurredField('day')}
           aria-label="日"
         />
         <span className={dobStyles.freeSegmentedDobUnit} aria-hidden>

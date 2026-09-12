@@ -168,17 +168,46 @@ describe('public card display parse', () => {
     assert.equal(extractJapaneseLabelQuoteJa(card!.body, '実際の私'), display.actualJa);
   });
 
-  it('pair manual public card parse omits return when body has entry only', () => {
-    const card = reconstructPairPublicCard('talk_now_go_quiet', 'try', 'map');
+  it('pair manual public card parse surfaces relationship editorial stack', () => {
+    const card = reconstructPairPublicCard({
+      interactionId: 'talk_now_go_quiet',
+      relationStatusId: 'R3',
+      visibleStart: 'try',
+      inwardStart: 'map',
+    });
     const display = parsePublicCardDisplayV1({
       variant: 'pair_manual',
       headline: card.headline,
       body: card.body,
       cta: card.cta,
     });
-    assert.match(display.entryJa, /一方|もう一方|すれ違い/);
+    assert.match(display.conclusionJa, /付き合っている日常では、|確かめ/);
+    assert.ok(display.overlapJa.length > 0);
+    assert.ok(display.differenceJa.length > 0);
+    assert.ok(display.usConclusionJa.length > 0);
+    assert.equal(display.sideAJa, '');
+    assert.equal(display.sideBJa, '');
     assert.equal(display.returnJa, '');
     assert.doesNotMatch(card.body, /戻りやすい方法/);
+    assert.doesNotMatch(card.body, /\n一方\n/);
+    assert.equal(card.cta, 'これ、私たちだとどう思う？');
+  });
+
+  it('tempo_mismatch us conclusion avoids breakup-coded wording', () => {
+    const card = reconstructPairPublicCard({
+      interactionId: 'tempo_mismatch',
+      relationStatusId: 'R3',
+      visibleStart: 'try',
+      inwardStart: 'map',
+    });
+    const display = parsePublicCardDisplayV1({
+      variant: 'pair_manual',
+      headline: card.headline,
+      body: card.body,
+      cta: card.cta,
+    });
+    assert.match(display.usConclusionJa, /会話を一区切りにするタイミング/);
+    assert.doesNotMatch(display.usConclusionJa, /終わらせ|別れ|拒否している/);
   });
 });
 

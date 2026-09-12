@@ -610,6 +610,9 @@ export default function CoreEssencePanel() {
                 <a href="#core-share">共有</a>
               </nav>
               <div className={CoreExperienceStyles.freeResultRevealItem} data-m55-print-hide>
+                <p className={CoreExperienceStyles.freeDobSummary} data-testid="m55-free-result-dob-summary">
+                  {dobSummaryJa}
+                </p>
                 <button
                   type="button"
                   className={CoreExperienceStyles.freeQuestionnaireSecondaryBtn}

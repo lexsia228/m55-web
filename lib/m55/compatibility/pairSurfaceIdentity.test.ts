@@ -65,13 +65,21 @@ describe('pair signature copy compression', () => {
 });
 
 describe('pair free surface wiring', () => {
-  it('mounts the signature and privacy-safe share on the guest result', () => {
+  it('mounts one identity strip and conviction stack on the guest result', () => {
     const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
-    assert.match(guest, /PairResultSignature/);
+    assert.match(guest, /pair-free-conviction-stack/);
+    assert.match(guest, /result\.free\.difference/);
     assert.match(guest, /PairFreeShareCTA/);
     const insightSpec = read('lib/m55/compatibility/pairFreeInsightSpecV2.ts');
     assert.doesNotMatch(insightSpec, /pairReadingFingerprint/);
     assert.match(guest, /result\.free\.overlap/);
+    assert.match(guest, /data-testid="m55-pair-identity-strip"/);
+    assert.match(guest, /data-testid="m55-pair-relational-grammar"/);
+    assert.match(guest, /id="pair-free-lead"/);
+    assert.doesNotMatch(guest, /pairRelationalBanner/);
+    assert.match(guest, /data-testid="m55-pair-result-thesis"/);
+    assert.doesNotMatch(guest, /data-testid="m55-pair-trait-hero"/);
+    assert.doesNotMatch(guest, /pairTraitIdentity\.pairLabel\}の二人に起きやすいこと/);
     const manualAt = guest.indexOf('<PairManualBlock');
     const bridgeAt = guest.indexOf('この二人の続きとして読めること');
     const shareAt = guest.indexOf('<PairFreeShareCTA');
@@ -138,27 +146,27 @@ describe('pair free surface wiring', () => {
   it('delegates Pair aspect hierarchy to the shared presentation authority', () => {
     const preview = read('components/narrative/PublicShareCardPreview.tsx');
     const exportRenderer = read('lib/m55/narrative/publicShareImageV1.tsx');
+    const sharedEntry = read('components/share/SharedEntryPanel.tsx');
     assert.match(preview, /buildPairSharePresentationV1\(spec, aspectRatio\)/);
     assert.match(exportRenderer, /buildPairSharePresentationV1\(spec, aspect\)/);
     assert.match(preview, /m55-pair-share-header/);
-    assert.match(preview, /m55-pair-share-relation/);
+    assert.match(preview, /m55-pair-share-editorial/);
+    assert.match(preview, /m55-pair-share-overlap/);
     assert.match(preview, /m55-pair-share-card-cta/);
+    assert.match(sharedEntry, /href=\{shareSubsystem === 'pair' \? '\/synastry' : '\/core'\}/);
   });
 });
 
 describe('pair trait hero continuity', () => {
-  it('uses canonical pair trait resolver on guest result without local trait tables', () => {
+  it('uses compact trait badges on guest result without local trait tables', () => {
     const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
     assert.match(guest, /resolvePairTraitIdentityV1/);
-    assert.match(guest, /M55の資質の組み合わせ/);
-    assert.match(guest, /data-testid="m55-pair-trait-hero"/);
-    assert.match(guest, /data-testid="m55-pair-trait-label"/);
-    assert.match(guest, /data-testid="m55-pair-trait-a"/);
-    assert.match(guest, /data-testid="m55-pair-trait-b"/);
+    assert.match(guest, /data-testid="m55-pair-trait-badge"/);
     assert.match(guest, /data-testid="m55-pair-edit-dob"/);
     assert.match(guest, /二人の生年月日を変更する/);
     assert.match(guest, /personA\.imagePath/);
     assert.doesNotMatch(guest, /traitNameMap|localTrait/);
+    assert.doesNotMatch(guest, /data-testid="m55-pair-trait-a"/);
   });
 
   it('passes canonical stem lanes into pair public share projection', () => {

@@ -1,7 +1,7 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-09-09T23:13:33.422449+00:00
-Total records: 712
+Generated: 2026-09-10T23:09:14.355272+00:00
+Total records: 713
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
 - [ssot] `docs/ssot/DESKTOP_PACK_SCAN_REPORT_2026-02-26.md` (3948 bytes)
@@ -42,6 +42,7 @@ Total records: 712
 - [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_PLANNING_2026-05-24.md` (9903 bytes)
 - [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_IMPLEMENTATION_2026-05-24.md` (4750 bytes)
 - [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_PLANNING_2026-05-24.md` (13265 bytes)
+- [ssot] `docs/ssot/M55_EDITORIAL_COMMERCIAL_AUTOMATION_SSOT.md` (10121 bytes)
 - [ssot] `docs/ssot/M55_ENTITLEMENT_STATE_TRANSITION_SPEC_v1.md` (11634 bytes)
 - [ssot] `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md` (149864 bytes)
 - [ssot] `docs/ssot/M55_ENVIRONMENT_MATRIX.md` (3019 bytes)
@@ -636,12 +637,12 @@ Total records: 712
 - [ssot] `docs/ssot/M55_WEB_PAGE_MAPPING_AND_REUSE_MATRIX_v1_2026-03-07.md` (1319 bytes)
 - [ssot] `docs/ssot/M55_WEB_UI_ARCHITECTURE_SSOT_v1_2026-03-07.md` (1134 bytes)
 - [ssot] `docs/ssot/M55_WEB_VISUAL_AND_COMPONENT_CONTRACT_SSOT_v1_2026-03-07.md` (1438 bytes)
-- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (127657 bytes)
+- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (133710 bytes)
 - [ssot] `docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md` (3159 bytes)
 - [ssot] `docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md` (3410 bytes)
 - [ssot] `docs/ssot/PRICING_WALLET_SEPARATION__EXTRACT_v1_DESKTOP_PACK_2026-02-01.md` (2813 bytes)
 - [ssot] `docs/ssot/PROJECT_B_SSOT_FREEZE.md` (1259 bytes)
-- [ssot] `docs/ssot/README.md` (4520 bytes)
+- [ssot] `docs/ssot/README.md` (4738 bytes)
 - [ssot] `docs/ssot/SOURCES_USED__PROJECT_B_v8.md` (1523 bytes)
 - [ssot] `docs/ssot/SSOT_INDEX.md` (627 bytes)
 - [ssot] `docs/ssot/STRIPE_DASHBOARD_SUBMISSION_CHECKLIST__MIN_PII_v1.md` (2262 bytes)
@@ -678,8 +679,8 @@ Total records: 712
 - [audit] `docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md` (1974 bytes)
 - [audit] `docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md` (10134 bytes)
 - [audit] `docs/audit/M55_REFINED_EXECUTION_ROADMAP_2026-03-07.md` (5608 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (112012 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (75085 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (112294 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (75263 bytes)
 - [audit] `docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md` (9663 bytes)
 - [audit] `docs/audit/M55_TEAM_CHECKPOINT_2026-03-07_CURRENT_POSITION.md` (3726 bytes)
 - [audit] `docs/audit/M55_THREAD_ASSET_SUMMARY_2026-03-06.md` (1323 bytes)

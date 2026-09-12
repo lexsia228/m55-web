@@ -160,6 +160,12 @@ function scaleFont(totalHeight: number, base: number): number {
   return Math.round(base * (totalHeight / 1350));
 }
 
+/** Side-row Japanese wrap — matches in-browser Pair side contract. */
+const PAIR_JA_SIDE_WRAP_STYLE = {
+  wordBreak: 'keep-all',
+  overflowWrap: 'normal',
+} as const;
+
 function normalizeArtUrls(artUrl: string | readonly string[] | null): readonly string[] {
   if (!artUrl) return [];
   return Array.isArray(artUrl) ? artUrl : [artUrl];
@@ -555,21 +561,102 @@ export function renderPublicShareExportImage(
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: pairPresentation.relationMode === 'two-column' ? 'row' : 'column',
+                  flexDirection: 'column',
                   gap: scaleFont(height, 10),
                   fontSize: bodySize,
                   lineHeight: 1.4,
+                  width: '100%',
                 }}
               >
-                {pairPresentation.relationMode === 'combined' ? (
-                  <div style={{ display: 'flex' }}>{pairPresentation.combinedRelationJa}</div>
-                ) : pairPresentation.sideAJa ? (
-                  <div style={{ display: 'flex', flex: 1 }}>一方　{pairPresentation.sideAJa}</div>
-                ) : (
-                  <div style={{ display: 'flex' }}>{display.entryJa}</div>
-                )}
-                {pairPresentation.relationMode !== 'combined' && pairPresentation.sideBJa ? (
-                  <div style={{ display: 'flex', flex: 1 }}>もう一方　{pairPresentation.sideBJa}</div>
+                {pairPresentation.relationshipConclusionJa ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: scaleFont(height, 4) }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        fontSize: labelSize,
+                        letterSpacing: '0.08em',
+                        color: palette.muted,
+                      }}
+                    >
+                      二人の間で起きやすいこと
+                    </div>
+                    <div
+                      style={{
+                        width: '100%',
+                        fontSize: Math.max(bodySize + 2, scaleFont(height, 22)),
+                        fontWeight: 700,
+                        lineHeight: 1.45,
+                        textWrap: 'balance',
+                      }}
+                    >
+                      {pairPresentation.relationshipConclusionJa}
+                    </div>
+                  </div>
+                ) : null}
+                {pairPresentation.overlapJa ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: scaleFont(height, 4),
+                      padding: `${scaleFont(height, 10)}px ${scaleFont(height, 12)}px`,
+                      borderRadius: scaleFont(height, 10),
+                      background: 'rgba(255,255,255,0.88)',
+                      border: '1px solid rgba(101,79,137,0.16)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', fontSize: labelSize, color: palette.muted }}>重なり</div>
+                    <div style={{ display: 'flex', fontSize: bodySize, lineHeight: 1.45, wordBreak: 'keep-all' }}>
+                      {pairPresentation.overlapJa}
+                    </div>
+                  </div>
+                ) : null}
+                {pairPresentation.differenceJa ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: scaleFont(height, 4),
+                      padding: `${scaleFont(height, 10)}px ${scaleFont(height, 12)}px`,
+                      borderRadius: scaleFont(height, 10),
+                      background: 'rgba(255,255,255,0.88)',
+                      border: '1px solid rgba(101,79,137,0.16)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', fontSize: labelSize, color: palette.muted }}>違い</div>
+                    <div style={{ display: 'flex', fontSize: bodySize, lineHeight: 1.45, wordBreak: 'keep-all' }}>
+                      {pairPresentation.differenceJa}
+                    </div>
+                  </div>
+                ) : null}
+                {pairPresentation.usConclusionJa ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: scaleFont(height, 4),
+                      padding: `${scaleFont(height, 10)}px ${scaleFont(height, 12)}px`,
+                      borderRadius: scaleFont(height, 10),
+                      background: 'rgba(244,238,250,0.72)',
+                      border: '1px solid rgba(75,59,96,0.22)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', fontSize: labelSize, color: palette.muted }}>ふたりについて</div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        fontSize: Math.max(bodySize, scaleFont(height, 20)),
+                        fontWeight: 650,
+                        lineHeight: 1.45,
+                        wordBreak: 'normal',
+                        lineBreak: 'strict',
+                        overflowWrap: 'normal',
+                        maxWidth: '100%',
+                      }}
+                    >
+                      {pairPresentation.usConclusionJa}
+                    </div>
+                  </div>
                 ) : null}
               </div>
             ) : null}
@@ -579,7 +666,14 @@ export function renderPublicShareExportImage(
               </div>
             ) : null}
           </div>
-          <div style={{ display: 'flex', fontSize: bodySize, color: palette.muted }}>
+          <div
+            style={{
+              width: '100%',
+              fontSize: bodySize,
+              color: palette.muted,
+              ...(isPair ? PAIR_JA_SIDE_WRAP_STYLE : {}),
+            }}
+          >
             <span>{pairPresentation?.ctaJa || display.cta || 'あなたはどう出る？'}</span>
           </div>
             </>

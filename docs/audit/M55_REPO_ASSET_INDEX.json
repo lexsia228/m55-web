@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-09-09T23:13:33.419667+00:00",
-  "count": 712,
+  "generated_at_utc": "2026-09-10T23:09:14.352522+00:00",
+  "count": 713,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -196,6 +196,11 @@
       "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_PLANNING_2026-05-24.md",
       "category": "ssot",
       "bytes": 13265
+    },
+    {
+      "path": "docs/ssot/M55_EDITORIAL_COMMERCIAL_AUTOMATION_SSOT.md",
+      "category": "ssot",
+      "bytes": 10121
     },
     {
       "path": "docs/ssot/M55_ENTITLEMENT_STATE_TRANSITION_SPEC_v1.md",
@@ -3170,7 +3175,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 127657
+      "bytes": 133710
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
@@ -3195,7 +3200,7 @@
     {
       "path": "docs/ssot/README.md",
       "category": "ssot",
-      "bytes": 4520
+      "bytes": 4738
     },
     {
       "path": "docs/ssot/SOURCES_USED__PROJECT_B_v8.md",
@@ -3380,12 +3385,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 112012
+      "bytes": 112294
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 75085
+      "bytes": 75263
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",

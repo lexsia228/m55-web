@@ -2,8 +2,8 @@
  * Public share post text serialization — flat quotes, tier-specific CTA voice.
  */
 
-/** Canonical Pair share CTA — card and post must import from here. */
-export const PAIR_SHARE_CTA_JA = 'あなたと誰かの関係も、見てみる？' as const;
+/** Canonical Pair share CTA — conversation object for the already-read pair. */
+export const PAIR_SHARE_CTA_JA = 'これ、私たちだとどう思う？' as const;
 
 const PAIR_SHARE_CTA_MARKER = PAIR_SHARE_CTA_JA;
 

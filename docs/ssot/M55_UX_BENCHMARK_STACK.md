@@ -269,6 +269,7 @@ Freeze route/capability identity only; display labels remain copy/terminology au
 **Desktop primary (`DESKTOP_PRIMARY_NAV`):**
 
 - `/core`
+- `/synastry`
 - `/dtr/lp`
 
 **About dropdown (`ABOUT_DROPDOWN_NAV`):**
@@ -280,6 +281,7 @@ Freeze route/capability identity only; display labels remain copy/terminology au
 
 - `/home`
 - `/core`
+- `/synastry`
 - `/dtr/lp`
 - `/how-m55-works`
 - `/ten-views`

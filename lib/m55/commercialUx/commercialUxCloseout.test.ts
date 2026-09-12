@@ -54,11 +54,20 @@ describe('commercial UX closeout — header contract', () => {
   it('desktop primary nav and mobile menu match required destinations', () => {
     assert.deepEqual(
       DESKTOP_PRIMARY_NAV.map((i) => i.label),
-      [T.freeEntry, T.premiumProduct],
+      [T.freeEntry, T.pairEntry, T.premiumProduct],
+    );
+    assert.deepEqual(
+      DESKTOP_PRIMARY_NAV.map((i) => i.href),
+      ['/core', '/synastry', '/dtr/lp'],
+    );
+    assert.deepEqual(
+      MOBILE_MENU_PUBLIC.map((i) => i.href),
+      ['/home', '/core', '/synastry', '/dtr/lp', '/how-m55-works', '/ten-views'],
     );
     assert.equal(MOBILE_MENU_PUBLIC[0]!.label, T.home);
-    assert.equal(MOBILE_MENU_PUBLIC[3]!.label, T.aboutM55);
-    assert.equal(MOBILE_MENU_PUBLIC[4]!.label, T.tenQualities);
+    assert.equal(MOBILE_MENU_PUBLIC[2]!.label, T.pairEntry);
+    assert.equal(MOBILE_MENU_PUBLIC[4]!.label, T.aboutM55);
+    assert.equal(MOBILE_MENU_PUBLIC[5]!.label, T.tenQualities);
   });
 
   it('PublicHeader does not read storage and uses 960px breakpoint', () => {

@@ -36,6 +36,7 @@ export const M55_COMMERCIAL_TERMINOLOGY = {
   tenQualities: '10の資質',
   home: 'Home',
   menu: 'メニュー',
+  pairEntry: '二人の関係を見てみる',
 } as const;
 
 /** Primary terms that must not appear in P1 Growth UI copy. */

@@ -23,13 +23,15 @@ type Props = {
 function SharedEntryCta({
   copyLabel,
   actionKey,
+  href = '/core',
 }: {
   copyLabel: string;
   actionKey: string;
+  href?: string;
 }) {
   return (
     <a
-      href="/core"
+      href={href}
       className={styles.cta}
       data-testid="m55-shared-entry-cta"
       onClick={() => {
@@ -57,6 +59,12 @@ const NARRATIVE_LANDING = {
   privacyNoteJa: '共有リンクには、相手の生年月日や回答は含まれていません。',
 } as const;
 
+const PAIR_NARRATIVE_LANDING = {
+  overlineJa: 'この二人には、こんな読みが出ました。',
+  ctaJa: 'あなたも、二人の関係を読み解いてみる',
+  privacyNoteJa: '共有リンクには、生年月日や回答、相手の呼び名は含まれていません。',
+} as const;
+
 export default function SharedEntryPanel({ card, narrative = null }: Props) {
   const copy = SHARED_ENTRY_COPY_V1;
 
@@ -79,6 +87,7 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
       narrative.variant === 'pair_manual' || narrative.variant === 'pair_generic'
         ? 'pair'
         : 'self';
+    const landingCopy = shareSubsystem === 'pair' ? PAIR_NARRATIVE_LANDING : NARRATIVE_LANDING;
     return (
       <div
         className={`${styles.shell} m55-exp-reading`}
@@ -88,16 +97,17 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
         data-m55-share-art={art ? 'true' : 'false'}
       >
         <p className={styles.brand}>M55</p>
-        <p className={styles.overline}>{NARRATIVE_LANDING.overlineJa}</p>
+        <p className={styles.overline}>{landingCopy.overlineJa}</p>
         <PublicShareCardPreview
           spec={narrative}
           premiumMark={narrative.surface === 'personal_premium'}
           imagePath={art}
         />
-        <p className={styles.privacy}>{NARRATIVE_LANDING.privacyNoteJa}</p>
+        <p className={styles.privacy}>{landingCopy.privacyNoteJa}</p>
         <SharedEntryCta
-          copyLabel={NARRATIVE_LANDING.ctaJa}
+          copyLabel={landingCopy.ctaJa}
           actionKey={`shared-entry-cta-${narrative.token}`}
+          href={shareSubsystem === 'pair' ? '/synastry' : '/core'}
         />
       </div>
     );

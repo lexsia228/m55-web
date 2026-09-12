@@ -137,4 +137,25 @@ describe('continuous DOB + questionnaire UX contract', () => {
     if (!a.ok || !b.ok) return;
     assert.equal(JSON.stringify(a.value), JSON.stringify(b.value));
   });
+
+  it('accepts 1-2 digit month/day without requiring pre-typed zero-padding', () => {
+    const intake = read('components/profile/BirthProfileIntakeLayer.tsx');
+    const pair = read('components/compatibility/PairSegmentedDobFields.tsx');
+    assert.doesNotMatch(intake, /month\.length !== 2/);
+    assert.doesNotMatch(intake, /day\.length !== 2/);
+    assert.doesNotMatch(pair, /completeLengths/);
+    assert.doesNotMatch(pair, /monthRaw\.length === 2 && dayRaw\.length === 2/);
+    assert.match(intake, /validateSegmentedDob\(parts\)/);
+    assert.match(pair, /validateSegmentedDob\(parts\)/);
+    assert.match(intake, /lastEmittedIsoRef/);
+    assert.match(pair, /lastEmittedIsoRef/);
+    assert.match(intake, /normalizeBlurredField\('month'\)/);
+    assert.match(intake, /normalizeBlurredField\('day'\)/);
+    assert.match(pair, /normalizeBlurredField\('month'\)/);
+    assert.match(pair, /normalizeBlurredField\('day'\)/);
+    assert.match(intake, /if \(normalizeVisual\)/);
+    assert.match(pair, /if \(normalizeVisual\)/);
+    assert.doesNotMatch(intake, /type="date"/);
+    assert.doesNotMatch(pair, /type="date"/);
+  });
 });

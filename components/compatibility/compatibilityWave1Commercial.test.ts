@@ -116,8 +116,10 @@ test('Pair Free and Premium bridge expose the compact HV-09 commercial architect
   const questionAt = guest.indexOf('compatibility-premium-unresolved-question');
   const leadAt = guest.indexOf('styles.deliverableLead');
   assert.ok(endpointAt > 0 && questionAt > endpointAt && leadAt > questionAt);
-  assert.match(guest, /pairTraitIdentity\.pairLabel/);
-  assert.match(guest, /<PairManualBlock manual=\{pairNarrative\.manualSpec\} compact/);
+  assert.match(guest, /data-testid="m55-pair-identity-strip"/);
+  assert.match(guest, /data-testid="m55-pair-result-thesis"/);
+  assert.doesNotMatch(guest, /pairTraitIdentity\.pairLabel\}の二人に起きやすいこと/);
+  assert.match(guest, /<PairManualBlock manual=\{pairNarrative\.manualSpec\} mode="free-depth"/);
   assert.match(guest, /premiumBridge\?\.groupedOutcomes/);
   assert.match(guest, /result\.mappedChapters\.slice\(0, 1\)/);
   assert.match(guest, /このレポートは現在準備中です。無料の読み解きは、このままお使いいただけます。/);

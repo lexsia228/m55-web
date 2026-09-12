@@ -31,6 +31,17 @@ import {
   PAIR_SHARE_CTA_JA,
 } from './sharePostSerializationV1';
 
+export const PAIR_SHARE_STATUS_LEAD: Readonly<Partial<Record<RelationStatusId, string>>> = {
+  R1: 'まだ会話がない二人では、',
+  R2: 'やり取りが始まった二人では、',
+  R3: '付き合っている二人では、',
+  R4: '距離ができている二人では、',
+  R5: 'いま離れている二人では、',
+  R6: '長く一緒にいる二人では、',
+};
+
+const PAIR_SHARE_CONCLUSION_HEADING = '二人の間で起きやすいこと' as const;
+
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
   try: '小さく一つ動かしてから、様子を見る。',
   map: '全体の段取りが見えてから動き出す。',
@@ -180,8 +191,62 @@ export function pairRelationSidesJa(
   };
 }
 
+type PairShareEditorialBlockV1 = {
+  readonly overlapJa: string;
+  readonly differenceJa: string;
+  readonly usConclusionJa: string;
+};
+
+/** Token-safe Pair share editorial blocks — relationship-first, partner-sendable. */
+const PAIR_SHARE_EDITORIAL: Readonly<Record<PairFreeInteractionId, PairShareEditorialBlockV1>> = {
+  tempo_mismatch: {
+    overlapJa:
+      '二人とも、次の一歩の見通しが少しでも見えると、動きを選びやすいところが重なります。',
+    differenceJa:
+      '一区切りを付けたいタイミングと、言葉を整えてから返したいタイミングで、進め方の感覚がずれやすいです。',
+    usConclusionJa:
+      '会話を一区切りにするタイミングと、言葉を整えて返すタイミングに違いが出やすい二人です。',
+  },
+  space_misread: {
+    overlapJa: '二人とも、静かな時間の意味を自分なりに確かめたいところが重なります。',
+    differenceJa:
+      '距離を置く意図と、整えるための時間の長さで、読み取り方がずれやすいです。',
+    usConclusionJa:
+      '黙る時間を拒否しているわけではなく、置き方の理解がずれやすいだけ、という読み方ができます。',
+  },
+  one_carries_quiet: {
+    overlapJa: '二人とも、話題が表に出なくても関心は続いているところがあります。',
+    differenceJa: '言葉にする速さと、自分の中で整える速さで、受け取り方がずれやすいです。',
+    usConclusionJa:
+      '言葉が少ないときほど、関心の有無ではなく伝え方の差として見直せる二人です。',
+  },
+  talk_now_go_quiet: {
+    overlapJa: '二人とも、はっきりした合図があると会話を続けやすいところが重なります。',
+    differenceJa: '確かめたいタイミングと、静かに整えたいタイミングが重なりやすいです。',
+    usConclusionJa:
+      '声を上げるほうと静かに整えるほうの差として、関心の差に見えにくくする読み方ができます。',
+  },
+  later_decide_words_soon: {
+    overlapJa: '二人とも、言葉が出ると流れが見えやすいところが重なります。',
+    differenceJa:
+      '先に出た言葉を結論と読むか、途中の仮置きと読むかで、受け取り方がずれやすいです。',
+    usConclusionJa: '言葉の出方の差が、結論の差に見えやすいだけ、という整理ができます。',
+  },
+  hard_return_hard_space: {
+    overlapJa: '二人とも、一度距離を置いてから戻る順序を大切にしやすいところがあります。',
+    differenceJa: '戻る速さと、整える時間の長さで、再開のタイミング感がずれやすいです。',
+    usConclusionJa: '戻り方の差が、関心の差に見えやすいだけ、という読み方ができます。',
+  },
+  default_relationship_loop: {
+    overlapJa:
+      '二人とも、いまの進み方が見えにくいと、つながり方を確かめたくなるところがあります。',
+    differenceJa: '速さの感覚と、関心の見え方で、温度の差に見えやすいです。',
+    usConclusionJa: '温度の差ではなく、進め方の見え方の差として整理しやすい二人です。',
+  },
+};
+
 const PAIR_SAME_ENTRY: Readonly<Record<PairFreeInteractionId, string>> = {
-  tempo_mismatch: '速さは近く見えても、終わらせたい気持ちと、置いて考えたい気持ちが同時に出やすい。',
+  tempo_mismatch: '速さは近く見えても、一区切りつけたい感覚と、置いて考えたい感覚が同時に出やすい。',
   space_misread: '静かな時間の意味が揃わず、距離を置かれたように感じられやすい。',
   one_carries_quiet: '表では話が進んでも、言えていない一点が残りやすい。',
   talk_now_go_quiet: '確かめようとするほど、静かな時間が長くなりやすい。',
@@ -203,7 +268,8 @@ const PAIR_RELATION_ENTRY: Readonly<
       'やり取りの最初のほうでは、一方はその場のやり取りを一区切りにしようとしやすく、もう一方は返す前に言葉を整えたい時間を取りやすいことがあります。',
   },
   R3: {
-    tempo_mismatch: '付き合っている日常では、終わらせたい気持ちと置いて考えたい気持ちが同時に出やすい。',
+    tempo_mismatch:
+      '付き合っている日常では、いまのやり取りを一区切りつけたい感覚と、返す前に言葉を整えたい感覚が同時に出やすい。',
   },
   R4: {
     tempo_mismatch: '距離ができているときは、連絡の間より、再開のタイミングの感覚がずれやすい。',
@@ -448,34 +514,49 @@ export type ReconstructPairPublicCardInputV1 = {
   readonly relationStatusId?: RelationStatusId;
   readonly visibleStart?: StartTendency;
   readonly inwardStart?: StartTendency;
-  readonly shareInsightJa?: string;
 };
 
-function pairEntryJa(
-  interactionId: PairFreeInteractionId,
-  relationStatusId: RelationStatusId | undefined,
-  visibleStart?: StartTendency,
-  inwardStart?: StartTendency,
-): string {
-  const differentiated =
-    visibleStart &&
-    inwardStart &&
-    visibleStart !== inwardStart;
-  if (differentiated) {
-    return `一方は、${PAIR_SIDE[visibleStart]}。\nもう一方は、${PAIR_SIDE[inwardStart]}。`;
+/** Catalog-only relationship conclusion — safe for token reconstruction. */
+export function pairRelationshipConclusionJa(input: {
+  interactionId: PairFreeInteractionId;
+  relationStatusId?: RelationStatusId;
+}): string {
+  const relationEntry =
+    input.relationStatusId != null
+      ? PAIR_RELATION_ENTRY[input.relationStatusId]?.[input.interactionId]
+      : undefined;
+  if (relationEntry) {
+    return normalizeJapaneseTerminalPunctuation(relationEntry);
   }
-  if (relationStatusId) {
-    const relationEntry = PAIR_RELATION_ENTRY[relationStatusId]?.[interactionId];
-    if (relationEntry) return relationEntry;
-  }
-  return PAIR_SAME_ENTRY[interactionId];
+  const statusLead =
+    input.relationStatusId != null
+      ? (PAIR_SHARE_STATUS_LEAD[input.relationStatusId] ?? '')
+      : '';
+  const core = PAIR_SAME_ENTRY[input.interactionId];
+  return normalizeJapaneseTerminalPunctuation(`${statusLead}${core}`);
+}
+
+export function pairShareEditorialBlocksJa(input: {
+  interactionId: PairFreeInteractionId;
+}): PairShareEditorialBlockV1 {
+  return PAIR_SHARE_EDITORIAL[input.interactionId];
+}
+
+function pairShareBodyJa(input: ReconstructPairPublicCardInputV1): string {
+  const recognitionJa = pairRelationshipConclusionJa(input);
+  const editorial = pairShareEditorialBlocksJa({ interactionId: input.interactionId });
+  return [
+    `${PAIR_SHARE_CONCLUSION_HEADING}\n${recognitionJa}`,
+    `重なり\n${editorial.overlapJa}`,
+    `違い\n${editorial.differenceJa}`,
+    `ふたりについて\n${editorial.usConclusionJa}`,
+  ].join('\n\n');
 }
 
 export function reconstructPairPublicCard(
   interactionOrInput: PairFreeInteractionId | ReconstructPairPublicCardInputV1,
   visibleStart?: StartTendency,
   inwardStart?: StartTendency,
-  shareInsightJa?: string,
 ): ReconstructedPublicCardV1 {
   const input: ReconstructPairPublicCardInputV1 =
     typeof interactionOrInput === 'string'
@@ -483,31 +564,17 @@ export function reconstructPairPublicCard(
           interactionId: interactionOrInput,
           visibleStart,
           inwardStart,
-          shareInsightJa,
         }
       : interactionOrInput;
-  const entryJa = pairEntryJa(
-    input.interactionId,
-    input.relationStatusId,
-    input.visibleStart,
-    input.inwardStart,
-  );
-  const differentiated =
-    input.visibleStart &&
-    input.inwardStart &&
-    input.visibleStart !== input.inwardStart;
-  const body = `すれ違いの入口\n${entryJa}`;
-  const defaultInsight = differentiated
-    ? `一方は${PAIR_SIDE[input.visibleStart!]}。もう一方は${PAIR_SIDE[input.inwardStart!]}。`
-    : entryJa;
-  const insight = input.shareInsightJa?.trim() || defaultInsight;
+  const editorial = pairShareEditorialBlocksJa({ interactionId: input.interactionId });
+  const body = pairShareBodyJa(input);
   return {
     variant: 'pair_manual',
     headline: '二人の取扱説明書',
     body,
     cta: PAIR_SHARE_CTA_JA,
-    insightJa: insight,
-    shareTextJa: pairShareText('二人の取扱説明書', insight),
+    insightJa: editorial.usConclusionJa,
+    shareTextJa: pairShareText('二人の取扱説明書', editorial.usConclusionJa),
   };
 }
 

@@ -1,6 +1,9 @@
 export const COMPATIBILITY_REPORT_FULL_PRODUCT_KEY =
   'compatibility_report_full_v1' as const;
 export const COMPATIBILITY_REPORT_PUBLIC_NAME = '二人の相性レポート' as const;
+/** Guest paid-bridge primary CTA — continues into the existing Pair purchase flow. */
+export const COMPATIBILITY_GUEST_PURCHASE_CTA_JA =
+  `この${COMPATIBILITY_REPORT_PUBLIC_NAME}の続きを見る` as const;
 export const COMPATIBILITY_REPORT_PRICE_YEN = 1480 as const;
 export const COMPATIBILITY_REPORT_CURRENCY = 'jpy' as const;
 export const COMPATIBILITY_REPORT_QUANTITY = 1 as const;

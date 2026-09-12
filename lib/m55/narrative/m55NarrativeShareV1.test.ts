@@ -25,9 +25,12 @@ import { encodePublicShareToken, decodePublicShareToken } from './publicShareTok
 import { buildXShareIntentUrl, xShareEncodedPreview } from './xShareIntentV1';
 import { narrativeSafetyHits, paidContentWouldLeak, PUBLIC_DOB_PROVENANCE_CUE_JA } from './narrativeSafetyV1';
 import {
+  pairRelationshipConclusionJa,
   publicSemanticKey,
   recommendPublicShareVariant,
+  reconstructPairPublicCard,
 } from './reconstructPublicCardV1';
+import { parsePublicCardDisplayV1 } from './publicCardDisplayV1';
 import {
   assertSharePayloadPrivacySafe,
   sharePayloadContainsSensitive,
@@ -142,11 +145,12 @@ describe('pair public token trait lanes', () => {
       personAStemLaneIndex: 9,
       personBStemLaneIndex: 1,
     });
-    assert.match(publicSpec.token, /x91$/);
+    assert.match(publicSpec.token, /3x91$/);
     const decoded = decodePublicShareToken(publicSpec.token);
     assert.ok(decoded);
     assert.equal(decoded!.kind, 'pair');
     if (decoded!.kind !== 'pair') throw new Error('pair expected');
+    assert.equal(decoded.relationStatusId, 'R3');
     assert.equal(decoded.personAStemLaneIndex, 9);
     assert.equal(decoded.personBStemLaneIndex, 1);
     assert.equal(encodePublicShareToken(decoded), publicSpec.token);
@@ -154,6 +158,8 @@ describe('pair public token trait lanes', () => {
     const landing = resolvePublicShareSpecFromToken(publicSpec.token);
     assert.ok(landing);
     assert.equal(landing!.token, publicSpec.token);
+    assert.equal(landing!.body, publicSpec.body);
+    assert.equal(landing!.cta, publicSpec.cta);
   });
 
   it('rejects malformed partial lane suffixes', () => {
@@ -205,6 +211,110 @@ describe('pair public token trait lanes', () => {
   });
 });
 
+describe('pair share relationship conclusion wave B', () => {
+  it('in-session and token reconstruction share the same catalog conclusion', () => {
+    const spec = pairSpec(PAIR_V5_FIXTURES[0]!);
+    const publicSpec = projectPairPublicShareV1({
+      spec,
+      personAStemLaneIndex: 9,
+      personBStemLaneIndex: 1,
+    });
+    const landing = resolvePublicShareSpecFromToken(publicSpec.token);
+    assert.ok(landing);
+    assert.equal(landing!.body, publicSpec.body);
+    assert.equal(landing!.cta, publicSpec.cta);
+    assert.match(publicSpec.body, /二人の間で起きやすいこと/);
+    assert.match(publicSpec.body, /付き合っている日常では、/);
+    assert.match(publicSpec.body, /\n重なり\n/);
+    assert.match(publicSpec.body, /\n違い\n/);
+    assert.match(publicSpec.body, /\nふたりについて\n/);
+    assert.doesNotMatch(publicSpec.body, /付き合っている.*付き合っている/);
+    assert.doesNotMatch(publicSpec.body, /終わらせたい/);
+    assert.doesNotMatch(publicSpec.body, /\n一方\n/);
+    assert.doesNotMatch(publicSpec.cta, /あなたと誰か/);
+    assert.equal(publicSpec.cta, 'これ、私たちだとどう思う？');
+  });
+
+  it('tempo_mismatch us conclusion stays partner-sendable and aligns with recognition', () => {
+    const card = reconstructPairPublicCard({
+      interactionId: 'tempo_mismatch',
+      relationStatusId: 'R3',
+      visibleStart: 'try',
+      inwardStart: 'map',
+    });
+    const display = parsePublicCardDisplayV1({
+      variant: 'pair_manual',
+      headline: card.headline,
+      body: card.body,
+      cta: card.cta,
+    });
+    assert.match(display.usConclusionJa, /一区切りにするタイミング/);
+    assert.match(display.usConclusionJa, /整えて返すタイミング/);
+    assert.doesNotMatch(display.usConclusionJa, /速さの差ではなく/);
+    assert.doesNotMatch(display.usConclusionJa, /終わらせ|別れ|拒否|終了/);
+    assert.match(card.body, /\n重なり\n[\s\S]+\n違い\n/);
+    assert.match(card.body, /一区切りを付けたいタイミング/);
+  });
+
+  it('old pair tokens without relation code remain decodable', () => {
+    const oldToken = 'n1cmtmam';
+    const decoded = decodePublicShareToken(oldToken);
+    assert.ok(decoded);
+    assert.equal(decoded!.kind, 'pair');
+    if (decoded!.kind !== 'pair') throw new Error('pair expected');
+    assert.equal(decoded.relationStatusId, undefined);
+    assert.equal(encodePublicShareToken(decoded), oldToken);
+    const landing = resolvePublicShareSpecFromToken(oldToken);
+    assert.ok(landing);
+    assert.match(landing!.body, /二人の間で起きやすいこと/);
+  });
+
+  it('uses status-scoped relation entries directly without duplicating status lead', () => {
+    const r1 = pairRelationshipConclusionJa({
+      interactionId: 'tempo_mismatch',
+      relationStatusId: 'R1',
+    });
+    assert.equal(
+      r1,
+      'まだ会話がない段階では、返事の速さより、最初の一言の置き方が先にずれやすい。',
+    );
+    assert.doesNotMatch(r1, /まだ会話がない.*まだ会話がない/);
+
+    const r3 = pairRelationshipConclusionJa({
+      interactionId: 'tempo_mismatch',
+      relationStatusId: 'R3',
+    });
+    assert.equal(
+      r3,
+      '付き合っている日常では、いまのやり取りを一区切りつけたい感覚と、返す前に言葉を整えたい感覚が同時に出やすい。',
+    );
+    assert.doesNotMatch(r3, /付き合っている.*付き合っている/);
+    assert.doesNotMatch(r3, /終わらせたい/);
+
+    const r6 = pairRelationshipConclusionJa({
+      interactionId: 'tempo_mismatch',
+      relationStatusId: 'R6',
+    });
+    assert.equal(
+      r6,
+      '長く一緒にいるほど、いつもの速さが当たり前になり、変化の合図が見えにくくなりやすい。',
+    );
+    assert.doesNotMatch(r6, /長く一緒にいる.*長く一緒にいる/);
+  });
+
+  it('prepends status lead only for generic same-entry fallback', () => {
+    const fallback = pairRelationshipConclusionJa({
+      interactionId: 'default_relationship_loop',
+      relationStatusId: 'R3',
+    });
+    assert.equal(
+      fallback,
+      '付き合っている二人では、いまの二人の進み方が見えにくく、速さの差が熱量の差に見えやすい。',
+    );
+    assert.doesNotMatch(fallback, /付き合っている.*付き合っている/);
+  });
+});
+
 describe('pair privacy and A/B semantics', () => {
   it('five private readings map to public-safe cards without partner identity', () => {
     for (const fixture of PAIR_V5_FIXTURES.slice(0, 5)) {
@@ -216,7 +326,7 @@ describe('pair privacy and A/B semantics', () => {
       assert.equal(publicSpec.shareTextJa.includes(fixture.personA), false);
       assert.equal(publicSpec.shareTextJa.includes(fixture.personB), false);
       assert.equal(sharePayloadContainsSensitive(publicSpec.shareTextJa), false);
-      assert.match(publicSpec.body, /すれ違いの入口/);
+      assert.match(publicSpec.body, /二人の間で起きやすいこと/);
       assert.doesNotMatch(publicSpec.body, /戻りやすい方法/);
       assert.doesNotMatch(publicSpec.body, /逆方向になりやすい/);
       const sideIds = narrative.manualSpec.slots.map((slot) => slot.id);

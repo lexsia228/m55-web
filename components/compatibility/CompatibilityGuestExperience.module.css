@@ -3,13 +3,15 @@
   --muted: #6d6876;
   --line: var(--m55-subsystem-accent-soft, rgba(55, 45, 70, 0.14));
   --plum: var(--m55-subsystem-accent, #4b3b60);
-  width: min(100%, 1040px);
+  --pair-page-measure: min(56rem, calc(100vw - 24px));
+  width: min(100%, var(--pair-page-measure));
+  max-width: var(--pair-page-measure);
   margin: 0 auto;
-  padding: clamp(32px, 6vw, 72px) clamp(18px, 4vw, 40px) 88px;
+  padding: clamp(32px, 6vw, 72px) clamp(12px, 4vw, 24px) 88px;
   box-sizing: border-box;
   color: var(--ink);
   background:
-    radial-gradient(80% 50% at 8% 0%, var(--m55-subsystem-accent-soft, rgba(92, 61, 110, 0.1)), transparent 55%),
+    radial-gradient(80% 50% at 50% 0%, var(--m55-subsystem-accent-soft, rgba(92, 61, 110, 0.08)), transparent 55%),
     var(--m55-subsystem-surface, transparent);
 }
 
@@ -447,6 +449,294 @@
 
 .result {
   margin-top: 0;
+  width: 100%;
+}
+
+.pairFreeResultColumn {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(18px, 3vw, 28px);
+}
+
+.pairResultHero {
+  padding: clamp(20px, 3.5vw, 30px);
+  border: 1px solid rgba(101, 79, 137, 0.18);
+  border-radius: 18px;
+  background: rgba(250, 247, 253, 0.92);
+}
+
+.pairIdentityStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  margin: 0 0 14px;
+}
+
+.pairIdentityDyad {
+  color: #3b3049;
+  font-size: clamp(15px, 2.2vw, 17px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.pairIdentityRelation {
+  color: #756a7e;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pairResultThesis {
+  margin: 0;
+  max-width: 38em;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 500;
+  line-height: 1.42;
+  letter-spacing: 0.015em;
+  text-wrap: balance;
+}
+
+.pairResultSupport,
+.pairResultTrust {
+  margin: 14px 0 0;
+  max-width: 38em;
+  color: #4f4a57;
+  line-height: 1.85;
+}
+
+.pairResultTrust {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.pairTraitBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(101, 79, 137, 0.12);
+}
+
+.pairTraitBadgeItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(101, 79, 137, 0.14);
+  color: #3b3049;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.pairTraitBadgeImage {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.pairTraitBadgeBridge {
+  color: rgba(107, 95, 168, 0.72);
+  font-weight: 700;
+}
+
+.pairConvictionStack {
+  display: grid;
+  gap: 14px;
+  padding: clamp(20px, 3.5vw, 30px);
+  border: 1px solid rgba(101, 79, 137, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.pairConvictionStack > h3 {
+  margin: 10px 0 0;
+  max-width: 38em;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(21px, 3vw, 27px);
+  font-weight: 500;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.pairConvictionBlock,
+.pairConvictionConclusion {
+  padding: clamp(16px, 2.5vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(250, 248, 247, 0.92);
+}
+
+.pairConvictionConclusion {
+  border-color: rgba(75, 59, 96, 0.22);
+  background: rgba(244, 238, 250, 0.72);
+}
+
+.convictionLabel {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--plum);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.convictionBody,
+.convictionSupport {
+  margin: 0;
+  max-width: 38em;
+  color: #4f4a57;
+  line-height: 1.85;
+}
+
+.convictionSupport {
+  margin-top: 12px;
+  color: #756a7e;
+  font-size: 14px;
+}
+
+.flowTitle {
+  margin: 8px 0 0;
+  max-width: 38em;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(18px, 2.6vw, 22px);
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.pairLead {
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(101, 79, 137, 0.18);
+  border-radius: 18px;
+  background: rgba(250, 247, 253, 0.92);
+}
+
+.pairLeadStage {
+  margin: 0 0 10px;
+  color: #756a7e;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pairLeadHeadline {
+  margin: 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 500;
+  line-height: 1.42;
+  letter-spacing: 0.015em;
+}
+
+.pairLeadSupport,
+.pairLeadTrust {
+  margin: 14px 0 0;
+  color: #4f4a57;
+  line-height: 1.85;
+}
+
+.pairLeadTrust {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.pairFreeSummaryHub {
+  padding: clamp(20px, 3.5vw, 30px);
+  border: 1px solid rgba(101, 79, 137, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.pairFreeSummaryHub h3,
+.pairRelationshipFlow h3 {
+  margin: 10px 0 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(21px, 3vw, 27px);
+  font-weight: 500;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.summaryGrid {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.summaryCard,
+.summaryExpression {
+  padding: clamp(16px, 2.5vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(250, 248, 247, 0.92);
+}
+
+.summaryLabel {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--plum);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.summaryCard p,
+.summaryExpression p {
+  margin: 0;
+  color: #4f4a57;
+  line-height: 1.85;
+}
+
+.summaryExpression .glanceLabel {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.summaryExpression .dynamicOutcome {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.pairRelationshipFlow {
+  padding: clamp(16px, 2.5vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  border-left: 3px solid rgba(75, 59, 96, 0.34);
+}
+
+.flowIntro {
+  margin: 12px 0 0;
+  color: #756a7e;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (min-width: 900px) {
+  .pairConvictionStack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pairConvictionStack > .eyebrow,
+  .pairConvictionStack > h3,
+  .pairRelationshipFlow,
+  .pairConvictionConclusion {
+    grid-column: 1 / -1;
+  }
 }
 
 .resultHeader {
@@ -865,9 +1155,9 @@
 
 .commerceOffer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px;
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: stretch;
   margin-top: 26px;
   padding: 18px;
   border: 1px solid rgba(82, 62, 103, 0.16);
@@ -898,18 +1188,29 @@
 
 .purchaseLink {
   display: inline-flex;
-  min-height: 48px;
+  width: 100%;
+  min-height: 52px;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: 11px 18px;
-  border-radius: 999px;
-  background: #665184;
+  padding: 12px 18px;
+  border-radius: 11px;
+  background: #352a46;
   color: #fff;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   text-align: center;
   text-decoration: none;
+}
+
+.resultMaintenanceActions {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.resultMaintenanceActions .backButton {
+  width: 100%;
 }
 
 /* Shown instead of the offer while compatibility commerce stays env-gated. */
@@ -979,10 +1280,6 @@
     gap: 18px;
   }
 
-  .commerceOffer {
-    grid-template-columns: 1fr;
-  }
-
   .purchaseLink {
     width: 100%;
   }
@@ -1022,7 +1319,7 @@
 }
 .pairContext { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 20px; padding: 14px 16px; border: 1px solid rgba(101,79,137,.18); border-radius: 14px; background: rgba(250,247,253,.92); color: #3b3049; }
 .pairTraitHero {
-  margin: 0 0 20px;
+  margin: 0;
   padding: 18px 16px 16px;
   border-radius: 18px;
   border: 1px solid rgba(101, 79, 137, 0.22);

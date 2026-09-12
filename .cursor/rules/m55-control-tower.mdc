@@ -1,5 +1,5 @@
 ---
-description: M55 control-tower boot — repo-as-memory, cold-start handoff, high-cost rerun prohibition.
+description: M55 control-tower boot — Git-first repo identity, repo-as-memory, durable continuation handoff, high-cost rerun prohibition.
 alwaysApply: true
 ---
 
@@ -7,34 +7,58 @@ alwaysApply: true
 
 **Do not treat `.cursorrules` or chat memory as authority. Read `AGENTS.md` first.**
 
+## Mandatory Stage 0 — Git-first task routing
+
+Before substantive M55 reasoning, review, or mutation, read:
+
+- `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
+- `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
+- `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+- `docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md`
+
+For Git-first governance/red-team work, also read `docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md`.
+
+Classify the work unit by task/lane, establish task-relevant Git identity, then load only relevant authority. All profiles require Git identity; profile changes depth, not whether Git is checked.
+
+Known protected changed paths are machine-classified from the manifest. Semantic meaning still requires independent review: `STATIC_PATH_CLASSIFIER_IS_NOT_COMPLETE_SEMANTIC_PROOF = TRUE`.
+
+A new chat may use `CONTINUATION_FAST_PATH` only when a durable `CONTINUATION_HANDOFF` with all manifest-required fields can be freshly reconstructed and Git identity re-observed. A new chat does not invalidate CLOSED GREEN. Missing, stale, contradictory, or unverifiable handoff defaults to `FULL_REPO_PREFLIGHT`.
+
+If task-relevant Git identity cannot be established, use `GIT_PREFLIGHT_INCOMPLETE` and do not invent state or issue consequential GREEN/freeze/authorization.
+
 Executable state owner:
 
 `docs/ssot/M55_EXECUTION_STATE.json`
 
-It is the sole executable CURRENT GATE / NEXT authority. `M55_CURRENT_STATE.md` remains narrative/history while the execution-state file says `legacyExecutionFieldsSuperseded=true`.
+It is the sole executable CURRENT GATE / NEXT authority. `M55_CURRENT_STATE.md` remains narrative/history while execution state says `legacyExecutionFieldsSuperseded=true`.
 
 Before analysis or mutation:
 
 - read `AGENTS.md`;
-- read `docs/ssot/M55_EXECUTION_STATE.json`;
-- read the required SSOT/operations/evidence files from the AGENTS boot order;
-- run `npm run m55:context` after `git fetch origin` when local runtime exists;
-- if local runtime does not exist, declare `LOCAL_RUNTIME_UNAVAILABLE` and use fresh connected GitHub/Vercel evidence without inventing local facts;
+- complete Git-first task routing;
+- read `M55_EXECUTION_STATE.json` when required by profile/task;
+- read required task-relevant authority from the manifest;
+- when `requiredUnmergedAuthority` applies, perform a fresh bounded open-PR/stacked-branch query and pin relevant SHA/timestamp rather than treating absence on current branch as absence of authority;
+- run `npm run m55:context` after `git fetch origin` when local runtime exists and profile requires fresh main/global context;
+- if local runtime is unavailable, declare `LOCAL_RUNTIME_UNAVAILABLE` and use fresh connected GitHub/Vercel evidence without inventing local facts;
 - preserve `GATE_LOCAL_UNPROVEN != HISTORICALLY_UNPROVEN`;
 - ledger search → invalidating dependency compare → otherwise **RERUN_PROHIBITED**;
-- do not replay completed development gates;
-- during `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`, mutation is prohibited and Pair mapping is not yet authorized.
+- do not replay completed development gates.
 
-For user-visible work, also read:
+Before mutation, treat Lane Lock as a **procedural ownership guard**, not an atomic mutex: confirm workspace/ref, one mutation owner, mutable paths and no known overlap. Ambiguity/overlap -> `MUTATION_OWNERSHIP_CONFLICT` / STOP.
+
+Before accepting an external audit blocker, re-ground it against the exact pinned candidate and exact acceptance condition. Auditor output is supporting evidence, not self-authenticating truth. `AUDIT_REPRODUCTION_MUST_MATCH_EXACT_ACCEPTANCE_CONDITION = TRUE`.
+
+For user-visible work, read only relevant lane authority, including as applicable:
 
 - `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md`
 - `docs/ssot/M55_UX_BENCHMARK_STACK.md`
-- `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` when Safari MCP actual-browser evidence applies
-- `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` while Creator Revenue program is active
+- `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` when Safari actual-browser evidence applies
+- `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` only when Creator Revenue semantics are actually in task scope
 
 Use the frozen surface mapping in `M55_UX_BENCHMARK_STACK.md`. Do not perform ad-hoc benchmark research absent a documented invalidator.
 
-Before creating page-local header, footer, legal, support, privacy, or refund navigation, inspect shared ownership in `PublicShell`, `PublicHeaderContainer`, `PublicHeader`, and `PublicFooter`. Do not duplicate site-wide chrome when the shared owner already provides it.
+Before creating page-local header/footer/legal/support/privacy/refund navigation, inspect shared ownership in `PublicShell`, `PublicHeaderContainer`, `PublicHeader`, and `PublicFooter`. Do not duplicate site-wide chrome when the shared owner already provides it.
 
 Fresh GPT acceptance contract:
 
@@ -42,4 +66,4 @@ Fresh GPT acceptance contract:
 
 Safari MCP: Cursor implementer may prepare Safari evidence but **cannot** self-issue independent Safari audit GREEN or `INDEPENDENT_SAFARI_SSOT_REVIEW_GREEN`. SOURCE REVIEW GREEN does not equal ACTUAL-BROWSER GREEN.
 
-Any authority conflict or unexplained identity drift is STOP.
+Any authority conflict, unexplained identity drift, incomplete task-relevant Git preflight, or unresolved mutation ownership conflict is STOP.

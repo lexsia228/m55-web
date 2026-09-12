@@ -1110,7 +1110,7 @@
 .card[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relationSide,
 .card[data-m55-share-subsystem='pair'][data-share-aspect='4:5'] .relationSide {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .card[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relationSide:only-of-type,
@@ -1164,7 +1164,7 @@
 .card[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relationBody {
   font-size: 0.72rem;
   line-height: 1.32;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .card[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .mirrorVs {
@@ -1199,7 +1199,7 @@
 .card[data-m55-share-subsystem='pair'][data-share-aspect='4:5'] .relationBody {
   font-size: 0.88rem;
   line-height: 1.45;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .card[data-m55-share-subsystem='pair'][data-share-aspect='4:5'] .relationLabel {
@@ -1241,8 +1241,10 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  overflow: visible;
+  overflow: clip;
   min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .cardPair .pairDualHeroBand {
@@ -1257,22 +1259,100 @@
   order: 2;
 }
 
+.cardPair .pairShareConclusion {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.cardPair .pairShareEditorial {
+  flex: 1 1 auto;
+  order: 3;
+  align-content: start;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cardPair .pairShareEditorial .pairShareConclusion,
+.cardPair .pairShareEditorial .pairShareValueBlock,
+.cardPair .pairShareEditorial .pairShareUsBlock {
+  order: initial;
+}
+
 .cardPair .relation {
   flex: 0 0 auto;
-  order: 3;
+  order: 4;
   min-height: min-content;
   overflow: visible;
 }
 
 .cardPair .cue {
   flex: 0 0 auto;
-  order: 4;
+  order: 5;
   margin-top: auto;
 }
 
 .cardPair .cta {
   flex: 0 0 auto;
-  order: 5;
+  order: 6;
+}
+
+.pairShareConclusionBody {
+  margin: 0;
+  color: #2c2638;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.pairShareEditorial {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.pairShareSectionLabel {
+  margin: 0 0 0.35rem;
+  color: rgba(75, 59, 96, 0.82);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.pairShareValueBlock,
+.pairShareUsBlock {
+  padding: 0.72rem 0.82rem;
+  border: 1px solid rgba(101, 79, 137, 0.16);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.88);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.pairShareBlockBody,
+.pairShareUsBody {
+  margin: 0;
+  color: #3b3049;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+  word-break: normal;
+  overflow-wrap: normal;
+  line-break: strict;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.pairShareUsBody {
+  font-weight: 650;
+}
+
+
+.cardPair .pairShareUsBlock {
+  border-color: rgba(75, 59, 96, 0.22);
+  background: rgba(244, 238, 250, 0.72);
 }
 
 .pairShareHeader {
@@ -1315,7 +1395,16 @@
 .cardPair .relationBody,
 .cardPair .relationCombined {
   overflow-wrap: normal;
+  word-break: keep-all;
+  line-break: strict;
+  text-wrap: pretty;
+}
+
+.cardPair .pairShareConclusionBody {
+  overflow-wrap: normal;
   word-break: normal;
+  line-break: strict;
+  text-wrap: balance;
 }
 
 .cardPair[data-share-aspect='1:1'] {
@@ -1346,8 +1435,46 @@
 .cardPair[data-share-aspect='1:1'] .relation {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
   min-height: min-content;
   align-content: start;
+  gap: 0.12rem;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: 0.12rem;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation > .relationSide:first-of-type,
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation > .mirrorVs,
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation > .relationSide:nth-of-type(2) {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: stretch;
+  width: 100%;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation > .mirrorVs {
+  position: relative;
+  margin: 0;
+  color: transparent;
+  font-size: 0;
+  height: 0.9rem;
+  letter-spacing: 0;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation > .mirrorVs::after {
+  content: '↓';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  color: rgba(78, 68, 128, 0.7);
 }
 
 .card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='1:1'] .relation > .relationCombined {
@@ -1444,16 +1571,16 @@
 
 .cardPair[data-share-aspect='9:16'] .relationSide {
   min-width: 0;
-  padding: 0.3rem 0.48rem;
+  padding: 0.34rem 0.42rem;
 }
 
 .cardPair[data-share-aspect='9:16'] .relationBody {
   font-size: 0.875rem;
   line-height: 1.4;
   margin-top: 0;
-  word-break: keep-all;
+  word-break: normal;
   line-break: strict;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .cardPair[data-share-aspect='9:16'] .relationLabel {
@@ -1513,15 +1640,51 @@
 
 .card.cardPair .pairTraitLabel {
   line-height: 1.22;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  line-break: strict;
+  text-wrap: pretty;
 }
 
 .card.cardPair .pairShareKicker {
   line-height: 1.24;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  line-break: strict;
+  text-wrap: pretty;
 }
 
-@media (max-width: 359px) {
+.card.cardPair[data-m55-share-subsystem='pair'] .pairShareConclusionBody {
+  word-break: normal;
+  line-break: strict;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'] .pairShareBlockBody,
+.card.cardPair[data-m55-share-subsystem='pair'] .pairShareUsBody {
+  word-break: normal;
+  line-break: strict;
+  overflow-wrap: normal;
+  text-wrap: pretty;
+  max-width: 100%;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'] .relationBody,
+.card.cardPair[data-m55-share-subsystem='pair'] .relationSide,
+.card.cardPair[data-m55-share-subsystem='pair'] .cta {
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: normal;
+  text-wrap: pretty;
+}
+
+.card.cardPair[data-m55-share-subsystem='pair'][data-share-aspect='9:16'] .relationBody {
+  word-break: normal;
+  text-wrap: balance;
+}
+
+@media (max-width: 420px) {
   .card.cardPair[data-share-aspect='1:1'] .pairDualHeroBand,
   .card.cardPair[data-share-aspect='1:1'] .pairDualHeroImage {
     min-height: 2.8rem;
@@ -1544,13 +1707,24 @@
   .card.cardPair[data-share-aspect='4:5'],
   .card.cardPair[data-share-aspect='9:16'] {
     gap: 0.24rem;
-    padding: 0.55rem 0.65rem 0.62rem;
+    padding: 0.52rem 0.52rem 0.58rem;
   }
 
-  .card.cardPair[data-share-aspect='4:5'] {
-    aspect-ratio: unset;
-    min-height: min-content;
-    overflow: visible;
+  .card.cardPair[data-share-aspect='1:1'] .pairShareEditorial,
+  .card.cardPair[data-share-aspect='4:5'] .pairShareEditorial,
+  .card.cardPair[data-share-aspect='9:16'] .pairShareEditorial {
+    gap: 0.35rem;
+  }
+
+  .card.cardPair .pairShareValueBlock,
+  .card.cardPair .pairShareUsBlock {
+    padding: 0.48rem 0.52rem;
+  }
+
+  .card.cardPair .pairShareBlockBody,
+  .card.cardPair .pairShareUsBody {
+    font-size: 0.78rem;
+    line-height: 1.42;
   }
 
   .card.cardPair .pairShareKicker {
@@ -1604,6 +1778,11 @@
   .card.cardPair[data-share-aspect='4:5'] .relationBody {
     font-size: 0.8rem;
     line-height: 1.36;
+  }
+
+  .card.cardPair .pairShareConclusionBody {
+    font-size: 0.83rem;
+    line-height: 1.46;
   }
 
   .card.cardPair[data-share-aspect='1:1'] .relationCombined {

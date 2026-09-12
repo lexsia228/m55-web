@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last semantic reconciliation: **2026-08-22 Control Tower static/dynamic separation** — durable ownership/lane only; live Git identity via **`npm run m55:context`**.
+Last semantic reconciliation: **2026-09-10 Worktree Cleanup Wave 2D registry closure** — durable ownership/lane only; live Git identity via **`npm run m55:context`**. Executable CURRENT / NEXT: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
 Source command for volatile facts: **`npm run m55:context`** (preferred) or manual `git fetch origin` + `git status` + `rev-list`.
 
 ## How to read this registry
@@ -17,6 +17,7 @@ Source command for volatile facts: **`npm run m55:context`** (preferred) or manu
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
+- **Current live remote main (2026-09-10 post-PR-#191; observation):** `bf5311333428fa537c04c8bc99f23badc3e2981c` — PR **#191 MERGED** · PR **#188 MERGED** · **live SHA: `npm run m55:context`**
 - **Current live remote main (2026-08-21 post-PR-#149; historical evidence):** `53b71f8c8ea0ddeecd1828a2a809b4de08583aba` — PR #149 **MERGED** · feature head `144686ca83b05179f9f159e2040802845f2e65a0` · G5 Wave 1 **CLOSED GREEN** · G5 Wave 2 **DEFER UNTIL REAL TRAFFIC DATA** · **live SHA: `npm run m55:context`**
 - **Previous live remote main (2026-08-21 post-PR-#148; historical):** `0f62ff7c575eb65730862092ff80d7168469ae95` — PR #148 **MERGED** · G4 feature head `2a16b6fd78fe45bba9ffbc325f6aa0c6dd914957` · G4 Organic Discovery **CLOSED GREEN**
 - **Previous live remote main (2026-08-19 post-PR-#145; historical):** `9ca5b57d72a7c0b31ec96a8448872e73d3e2ab7f` — PR #145 **MERGED** · self-closing PR #144 Tier-E / docs/control-plane settlement only · Production deployment `dpl_7xHKu8cQ1rtARxmSS8JyozA3VNC5` **READY** · Human Sales Launch authority **SELL** (inherited from PR #144 closure)
@@ -58,7 +59,9 @@ Source command for volatile facts: **`npm run m55:context`** (preferred) or manu
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-31 commercial content quality — registry reconciliation for Safari revalidation) — authoritative, read this first:** Durable **macro lane = M55_COMMERCIAL_CONTENT_QUALITY**. Active product worktree `/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1` (WT-054); branch `fix/m55-content-integrity-semantic-v1`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable CURRENT / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`**. WT-053 path `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` is **path-reused** on branch `fix/m55-login-entry-failsafe` after prior `feat/m55-global-commercial-japanese-quality-v1` program **SUPERSEDED** (`globalCommercialJapaneseComprehensionTransition.status` in execution state; prior branch **contained in** `origin/main`). WT-055 `/Users/lexsia/Documents/M55_WORKTREE-dtr-premium-ux-local` is **CLOSED / RETAINED** (PR **#174 MERGED**; `stpCommercialUiuxAutonomousFixAndReauditTransition` **CLOSED_GREEN**). Prunable runtime entry `/private/tmp/m55_patch3_typecheck_base` is **not** durable active ownership — see **PRUNABLE RUNTIME ENTRIES** below. Pair Premium activation switch = **ACTIVATED / CLOSED GREEN** · Pair real-payment E2E = **PAUSED_BEFORE_PAYMENT** — do **not** mark GREEN.
+**CURRENT (2026-08-31 commercial content quality — registry reconciliation for Safari revalidation) — historical:** Durable **macro lane = M55_COMMERCIAL_CONTENT_QUALITY**. Active product worktree `/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1` (WT-054); branch `fix/m55-content-integrity-semantic-v1`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable CURRENT / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`**. WT-053 path `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` is **path-reused** on branch `fix/m55-login-entry-failsafe` after prior `feat/m55-global-commercial-japanese-quality-v1` program **SUPERSEDED** (`globalCommercialJapaneseComprehensionTransition.status` in execution state; prior branch **contained in** `origin/main`). WT-055 `/Users/lexsia/Documents/M55_WORKTREE-dtr-premium-ux-local` is **CLOSED / RETAINED** (PR **#174 MERGED**; `stpCommercialUiuxAutonomousFixAndReauditTransition` **CLOSED_GREEN**). Prunable runtime entry `/private/tmp/m55_patch3_typecheck_base` is **not** durable active ownership — see **PRUNABLE RUNTIME ENTRIES** below. Pair Premium activation switch = **ACTIVATED / CLOSED GREEN** · Pair real-payment E2E = **PAUSED_BEFORE_PAYMENT** — do **not** mark GREEN. **Superseded 2026-09-10:** WT-054 physical path **RETIRED** (Wave 2A cleanup 2026-09-10); WT-055 physical path **RETIRED** (Wave 2A). Do not treat WT-054 as live ACTIVE product worktree. Executable authority: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
+
+**CURRENT (2026-09-10 Worktree Cleanup Wave 2D — registry closure) — authoritative for worktree inventory only:** Physical cleanup Waves **2A** (2026-09-10, 6 paths retired + evidence archived), **2C-A** (2026-09-10, 3 paths retired incl. PR #191 integration worktree), and prior retirements are **COMPLETE** under Human HARD-PROTECT boundary. **Live physical count: 8** — see **FINAL LIVE WORKTREES (2026-09-10)** below. **OPEN PR worktrees:** WT-027 PR **#119** · WT-051 PR **#159**. **PR #189** has **no** local worktree. **Merged retained dirty worktrees** (PR #188, parallel Pair lane, share/R1 sidecars): **HARD PROTECTED** — no retirement without Human disposition. **Current active UIUX implementation (Human-confirmed):** `/Users/lexsia/Documents/M55_WORKTREE-free-entry-identity-continuity-v1` · branch `feat/m55-free-entry-identity-continuity-v1` · lane `M55_FREE_ENTRY_IDENTITY_CONTINUITY_AND_PAIR_DISCOVERABILITY` · classification **ACTIVE_UIUX_HARD_PROTECT** · LOCAL implementation active in separate chat/task. Live Git facts via **`npm run m55:context`**. Do **not** infer future active UIUX lane ownership changes from registry path names or dirty timestamps. Executable CURRENT / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — unchanged by this registry lane.
 
 **CURRENT (2026-08-27 Pair Wave-A user-visible closure) — historical:** Durable **ACTIVE lane = PAIR LANE**. Product worktree **WT-049** `/Users/lexsia/Documents/M55_WORKTREE-pair-relation-stage-v1`; branch `feat/m55-pair-relation-stage-v1`; **USER_VISIBLE_CLOSED_GREEN** · PR **#165 MERGED** @ `3a87ee84129086a261c4f34a074e8b63fd735b99`; Production **READY** @ `dpl_8incbWrtaJunn7T3G8wGzozTQG8E`. Live HEAD/divergence/dirty: **`npm run m55:context`**. Executable gate / NEXT SINGLE ACTION: **`docs/ssot/M55_EXECUTION_STATE.json`** — `PAIR-PREMIUM-ACTIVATION-DECISION`. Pair Wave-A source + Safari actual-browser + Human commercial approval **CLOSED GREEN**. Source/browser replay **PROHIBITED** absent dependency invalidation. Pair Premium **NOT_ACTIVATED**. Pair purchase funnel **NOT GREEN**.. Explicit freezes retained: Pair Free→Paid mapping repeat **PROHIBITED** · benchmark reselection **PROHIBITED**.
 
@@ -1269,12 +1272,12 @@ Historical post-merge transition snapshots remain recorded for audit.
 | branch | `fix/m55-content-integrity-semantic-v1` |
 | intended upstream | fresh `origin/main` |
 | live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
-| lifecycle | **ACTIVE / M55_COMMERCIAL_CONTENT_QUALITY** |
+| lifecycle | **PHYSICALLY_RETIRED / CLOSED / MERGED** — PRs #175–#177 merged; path removed 2026-09-10 Wave 2A cleanup; evidence archived under `M55_LOCAL_EVIDENCE_ARCHIVE/retired-worktrees/2026-09-10/` |
 | macro lane | **M55_COMMERCIAL_CONTENT_QUALITY** |
 | purpose | Authorized commercial content integrity / semantic quality lane; current executable product work per `M55_EXECUTION_STATE.json` |
 | executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` |
 | product implementation authorized | per active gate in execution state |
-| removal eligibility | physical worktree retained while lane active |
+| removal eligibility | **PHYSICALLY_RETIRED 2026-09-10** — historical path only; do not recreate without Human authorization |
 
 ---
 
@@ -1287,6 +1290,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | intended upstream | `origin/fix/m55-dtr-premium-ux-local` |
 | live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
 | lifecycle | **CLOSED / RETAINED** |
+| physical status | **PHYSICALLY_RETIRED 2026-09-10** (Wave 2A cleanup) — PR #174 remains merged on `origin/main`; path removed locally |
 | macro lane | **M55_STP_COMMERCIAL_UIUX_FINAL_GREEN** |
 | program identity | **M55_STP_COMMERCIAL_UIUX_FINAL_GREEN** |
 | related PR | **#174 MERGED** — merge commit on `origin/main` @ `eb825f58be699bb860315ab1c167e385820a53fb` |
@@ -1319,9 +1323,9 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-31 worktree registry drift reconciliation for Safari revalidation) — AUTHORITATIVE
+## FINAL LIVE WORKTREES (2026-08-31 worktree registry drift reconciliation for Safari revalidation) — HISTORICAL
 
-Durable **ACTIVE product worktree = WT-054** `/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1` (**M55_COMMERCIAL_CONTENT_QUALITY**). Durable **ACTIVE product lane reference = WT-049** (Pair Wave-A **USER_VISIBLE_CLOSED_GREEN** / **MERGED** / **RETAINED**). WT-053 path retained as **PATH_REUSE / LOGIN_ENTRY_FAILSAFE_SIDECAR** on `fix/m55-login-entry-failsafe`. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
+**Superseded 2026-09-10** by **FINAL LIVE WORKTREES (2026-09-10)** below. At this observation, durable **ACTIVE product worktree = WT-054** `/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1` (**M55_COMMERCIAL_CONTENT_QUALITY**). Durable **ACTIVE product lane reference = WT-049** (Pair Wave-A **USER_VISIBLE_CLOSED_GREEN** / **MERGED** / **RETAINED**). WT-053 path retained as **PATH_REUSE / LOGIN_ENTRY_FAILSAFE_SIDECAR** on `fix/m55-login-entry-failsafe`. Live `origin/main`, per-worktree HEAD, divergence, and dirty state: **`npm run m55:context`**.
 
 Live count from `git worktree list --porcelain` at reconciliation observation: **22** (includes **1 prunable runtime entry** with no physical path). Count is observation-only — refresh via live Git; do not treat as timeless registry truth.
 
@@ -1356,6 +1360,40 @@ The following entry appears in `git worktree list --porcelain` but is **not** du
 | Path | Git state | Classification |
 |---|---|---|
 | `/private/tmp/m55_patch3_typecheck_base` | detached @ `cc16d8abc6867bae0b82786d9319f6825545ddbd` · **prunable** · physical path **absent** | **STALE_PRUNABLE_RUNTIME_ENTRY** — ephemeral typecheck base; not registered as ACTIVE |
+
+## FINAL LIVE WORKTREES (2026-09-10 Worktree Cleanup Wave 2D closure) — AUTHORITATIVE
+
+Post-cleanup physical inventory after Waves **2A**, **2C-A**, and Human HARD-PROTECT boundary. Live count from `git worktree list`: **8**. Count is observation-only — refresh via **`npm run m55:context`**.
+
+**HARD PROTECT:** Worktrees below include **externally active UIUX / Pair / share preservation lanes**. No `git worktree remove`, no prune, no branch delete, no reset/stash/restore without explicit Human scope. **Current active UIUX implementation** = `/Users/lexsia/Documents/M55_WORKTREE-free-entry-identity-continuity-v1` (**ACTIVE_UIUX_HARD_PROTECT**). Do **not** infer future UIUX ownership changes from path names or dirty timestamps.
+
+| Path | Branch | Registry id | Classification | Lifecycle / PR |
+|---|---|---|---|---|
+| `/Users/lexsia/Documents/M55_CANONICAL` | `main` | primary git root | **CANONICAL** | **PRIMARY_REPO_ROOT** |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | WT-027 | **OPEN_PR_KEEP** | PR **#119 OPEN** · commerce OFF |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-premium-purchase-copy-v1` | `fix/m55-pair-premium-purchase-copy-v1` | WT-051 | **OPEN_PR_KEEP / DIRTY_HARD_PROTECT** | PR **#159 OPEN** · dirty WIP |
+| `/Users/lexsia/Documents/M55_WORKTREE-control-tower-generic-gate-v1` | `fix/m55-login-entry-failsafe` | WT-053 | **DIRTY_HARD_PROTECT** | PATH_REUSE sidecar · unpushed + dirty Pair deltas |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-free-value-parity-v1` | `feat/m55-pair-free-value-parity-v1` | — | **FROZEN_LOCAL_EVIDENCE_ARCHIVE / HARD_PROTECT** | FROZEN local evidence archive · not active mutation owner · DO NOT RETIRE / reset / stash / clean / remove / branch-delete |
+| `/Users/lexsia/Documents/M55_WORKTREE-r1-share-export-editorial-quality-v1` | `fix/m55-r1-share-export-editorial-quality-v1` | — | **DIRTY_HARD_PROTECT** | No open PR · dirty share-image WIP |
+| `/Users/lexsia/Documents/M55_WORKTREE-share-surface-commercial-defect-remediation-v1` | `feat/m55-share-surface-commercial-defect-remediation-v1` | — | **DIRTY_HARD_PROTECT** | PR **#188 MERGED** · post-merge dirty WIP retained |
+| `/Users/lexsia/Documents/M55_WORKTREE-free-entry-identity-continuity-v1` | `feat/m55-free-entry-identity-continuity-v1` | — | **ACTIVE_UIUX_HARD_PROTECT** | Human-confirmed active LOCAL implementation lane · DO NOT RETIRE / reset / stash / clean / remove / branch-delete |
+
+### PHYSICALLY_RETIRED (2026-09-10 cleanup waves — historical paths only)
+
+| Path | Retirement wave | Closure evidence |
+|---|---|---|
+| `/Users/lexsia/Documents/M55_WORKTREE-content-integrity-semantic-v1` | Wave 2A | PRs #175–#177 merged; archived |
+| `/Users/lexsia/Documents/M55_WORKTREE-dtr-premium-ux-local` | Wave 2A | PR #174 merged; archived |
+| `/Users/lexsia/Documents/M55_WORKTREE-commercial-acceptance-fix-v1` | Wave 2A | archived |
+| `/Users/lexsia/Documents/M55_WORKTREE-editorial-commercial-automation-v1` | Wave 2A | PR #190 merged; archived |
+| `/Users/lexsia/Documents/M55_WORKTREE-g3-runtime-proof-v1` | Wave 2A | archived |
+| `/private/tmp/m55-phase1a-evidence-base-228bf19` | Wave 2A | ephemeral; archived |
+| `/private/tmp/m55-main-tsc-33209` | Wave 2C-A | clean detached main pin |
+| `/private/tmp/m55-pair-base-attribution-31095` | Wave 2C-A | clean PR #188 merge-base pin |
+| `/Users/lexsia/Documents/M55_WORKTREE-pair-free-value-parity-integration-v1` | Wave 2C-A | PR **#191 MERGED** @ `2865b2fd` |
+| *(plus paths listed in 2026-08-31 table but absent post-cleanup)* | Prior waves | STALE_RETIRE_CANDIDATE paths retired before 2026-09-10 census |
+
+PR **#189** (`docs/m55-r2b2-japan-legal-tax-closure-v1`): **OPEN** · **no** registered worktree path.
 
 ## FINAL LIVE WORKTREES (2026-08-26 worktree registry drift reconciliation) — HISTORICAL
 

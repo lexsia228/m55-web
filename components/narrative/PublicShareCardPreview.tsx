@@ -82,6 +82,7 @@ export default function PublicShareCardPreview({
       data-share-art={art || pairPresentation ? 'true' : 'false'}
       data-share-aspect={aspectRatio}
       data-m55-share-subsystem={subsystem}
+      lang={pairPresentation ? 'ja' : undefined}
       aria-label={`M55の共有カード：${spec.headline}`}
     >
       {pairPresentation ? (
@@ -179,31 +180,36 @@ export default function PublicShareCardPreview({
           ) : null}
 
           {variant === 'pair_manual' && pairPresentation ? (
-            <div className={styles.relation} data-testid="m55-pair-share-relation">
-              {pairPresentation.relationMode === 'combined' ? (
-                <p className={styles.relationCombined} data-testid="m55-pair-share-relation-combined">
-                  {pairPresentation.combinedRelationJa}
-                </p>
-              ) : pairPresentation.sideAJa && pairPresentation.sideBJa ? (
-                <>
-                  <div className={styles.relationSide} data-testid="m55-pair-share-relation-a">
-                    <span className={styles.relationLabel}>一方</span>
-                    <p className={styles.relationBody}>{pairPresentation.sideAJa}</p>
-                  </div>
-                  <p className={styles.mirrorVs} aria-hidden data-testid="m55-pair-share-arrow">
-                    →
+            <div className={styles.pairShareEditorial} data-testid="m55-pair-share-editorial">
+              {pairPresentation.relationshipConclusionJa ? (
+                <div
+                  className={styles.pairShareConclusion}
+                  data-testid="m55-pair-share-conclusion"
+                >
+                  <p className={styles.pairShareSectionLabel}>二人の間で起きやすいこと</p>
+                  <p className={styles.pairShareConclusionBody}>
+                    {pairPresentation.relationshipConclusionJa}
                   </p>
-                  <div className={styles.relationSide} data-testid="m55-pair-share-relation-b">
-                    <span className={styles.relationLabel}>もう一方</span>
-                    <p className={styles.relationBody}>{pairPresentation.sideBJa}</p>
-                  </div>
-                </>
-              ) : (
-                <div className={styles.relationSide} data-testid="m55-pair-share-relation-a">
-                  <span className={styles.relationLabel}>すれ違いの入口</span>
-                  <p className={styles.relationBody}>{pairPresentation.sideAJa}</p>
                 </div>
-              )}
+              ) : null}
+              {pairPresentation.overlapJa ? (
+                <div className={styles.pairShareValueBlock} data-testid="m55-pair-share-overlap">
+                  <p className={styles.pairShareSectionLabel}>重なり</p>
+                  <p className={styles.pairShareBlockBody}>{pairPresentation.overlapJa}</p>
+                </div>
+              ) : null}
+              {pairPresentation.differenceJa ? (
+                <div className={styles.pairShareValueBlock} data-testid="m55-pair-share-difference">
+                  <p className={styles.pairShareSectionLabel}>違い</p>
+                  <p className={styles.pairShareBlockBody}>{pairPresentation.differenceJa}</p>
+                </div>
+              ) : null}
+              {pairPresentation.usConclusionJa ? (
+                <div className={styles.pairShareUsBlock} data-testid="m55-pair-share-us-conclusion">
+                  <p className={styles.pairShareSectionLabel}>ふたりについて</p>
+                  <p className={styles.pairShareUsBody}>{pairPresentation.usConclusionJa}</p>
+                </div>
+              ) : null}
             </div>
           ) : null}
 

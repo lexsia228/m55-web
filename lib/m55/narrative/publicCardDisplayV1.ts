@@ -51,6 +51,10 @@ export type PublicCardDisplayV1 = {
   readonly actualJa: string;
   readonly entryJa: string;
   readonly returnJa: string;
+  readonly conclusionJa: string;
+  readonly overlapJa: string;
+  readonly differenceJa: string;
+  readonly usConclusionJa: string;
   readonly sideAJa: string;
   readonly sideBJa: string;
 };
@@ -114,15 +118,33 @@ export function parsePublicCardDisplayV1(input: {
   const actualJa = extractJapaneseLabelQuoteJa(main, '実際の私');
 
   const entryWithReturnMatch = /すれ違いの入口\n([\s\S]*?)\n\n戻りやすい方法/.exec(main);
+  const conclusionMatch =
+    input.variant === 'pair_manual'
+      ? /二人の間で起きやすいこと\n([\s\S]*?)(?:\n\n重なり|\n\n違い|\n\n一方|$)/.exec(main)
+      : null;
+  const overlapMatch =
+    input.variant === 'pair_manual' ? /\n重なり\n([^\n]+)/.exec(main) : null;
+  const differenceMatch =
+    input.variant === 'pair_manual' ? /\n違い\n([^\n]+)/.exec(main) : null;
+  const usConclusionMatch =
+    input.variant === 'pair_manual' ? /\nふたりについて\n([\s\S]+)$/.exec(main) : null;
   const entryOnlyMatch =
     input.variant === 'pair_manual'
       ? /すれ違いの入口\n([\s\S]+)$/.exec(main)
       : null;
   const returnMatch = /戻りやすい方法\n([\s\S]+)$/.exec(main);
-  const entryJa = (entryWithReturnMatch?.[1] ?? entryOnlyMatch?.[1] ?? '').trim();
+  const conclusionJa = (conclusionMatch?.[1] ?? '').trim();
+  const overlapJa = (overlapMatch?.[1] ?? '').trim();
+  const differenceJa = (differenceMatch?.[1] ?? '').trim();
+  const usConclusionJa = (usConclusionMatch?.[1] ?? '').trim();
+  const entryJa = (entryWithReturnMatch?.[1] ?? entryOnlyMatch?.[1] ?? conclusionJa).trim();
   const returnJa = (returnMatch?.[1] ?? '').trim();
-  const sideA = /一方は、([^\n。]+)/.exec(entryJa)?.[1]?.trim() ?? '';
-  const sideB = /もう一方は、([^\n。]+)/.exec(entryJa)?.[1]?.trim() ?? '';
+  const sideAFromBlock = /\n一方\n([^\n]+)/.exec(main)?.[1]?.trim() ?? '';
+  const sideBFromBlock = /\nもう一方\n([^\n]+)/.exec(main)?.[1]?.trim() ?? '';
+  const sideA =
+    sideAFromBlock || (/一方は、([^\n。]+)/.exec(entryJa)?.[1]?.trim() ?? '');
+  const sideB =
+    sideBFromBlock || (/もう一方は、([^\n。]+)/.exec(entryJa)?.[1]?.trim() ?? '');
 
   return {
     variant: input.variant,
@@ -136,6 +158,10 @@ export function parsePublicCardDisplayV1(input: {
     actualJa,
     entryJa,
     returnJa,
+    conclusionJa,
+    overlapJa,
+    differenceJa,
+    usConclusionJa,
     sideAJa: sideA,
     sideBJa: sideB,
   };

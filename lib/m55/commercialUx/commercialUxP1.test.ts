@@ -75,14 +75,24 @@ describe('planComparison', () => {
 
 describe('publicHeaderState contract', () => {
   it('desktop nav uses canonical terminology', () => {
-    assert.equal(DESKTOP_PRIMARY_NAV[0]!.label, T.freeEntry);
-    assert.equal(DESKTOP_PRIMARY_NAV[1]!.label, T.premiumProduct);
+    assert.deepEqual(
+      DESKTOP_PRIMARY_NAV.map((item) => item.label),
+      [T.freeEntry, T.pairEntry, T.premiumProduct],
+    );
+    assert.deepEqual(
+      DESKTOP_PRIMARY_NAV.map((item) => item.href),
+      ['/core', '/synastry', '/dtr/lp'],
+    );
   });
 
   it('mobile menu contains required destinations', () => {
     const hrefs = MOBILE_MENU_PUBLIC.map((item) => item.href);
-    assert.deepEqual(hrefs, ['/home', '/core', '/dtr/lp', '/how-m55-works', '/ten-views']);
-    assert.equal(MOBILE_MENU_PUBLIC[3]!.label, T.aboutM55);
+    assert.deepEqual(
+      hrefs,
+      ['/home', '/core', '/synastry', '/dtr/lp', '/how-m55-works', '/ten-views'],
+    );
+    assert.equal(MOBILE_MENU_PUBLIC[3]!.label, T.premiumProduct);
+    assert.equal(MOBILE_MENU_PUBLIC[4]!.label, T.aboutM55);
   });
 
   it('shared entry contextual CTA is recipient action', () => {

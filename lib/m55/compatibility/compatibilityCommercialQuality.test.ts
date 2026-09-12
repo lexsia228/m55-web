@@ -187,7 +187,7 @@ describe('free pair result renders a relationship dynamic, not two profiles', ()
     assert.match(component, /result\.free\.relationshipDynamic/);
     assert.match(component, /この違いが、二人の間でどう動くか/);
     assert.match(component, /data-testid="compatibility-relationship-dynamic"/);
-    assert.match(component, /PairResultSignature/);
+    assert.match(component, /pair-free-conviction-stack/);
     assert.match(component, /PairFreeShareCTA/);
   });
 
@@ -255,6 +255,20 @@ describe('paid bridge sells real report value, not chapter count', () => {
     const gateAt = component.indexOf('{commerceEnabled ? (');
     const purchaseAt = component.indexOf('/synastry/purchase/confirm');
     assert.ok(purchaseAt > gateAt, 'purchase link must sit inside the commerce gate');
+  });
+
+  it('names the paid-bridge primary CTA as Pair report continuation, not save or price review', () => {
+    const component = read(GUEST);
+    const authority = read('lib/m55/compatibility/compatibilityCommerceAuthority.ts');
+    assert.match(authority, /COMPATIBILITY_GUEST_PURCHASE_CTA_JA/);
+    assert.match(component, /COMPATIBILITY_GUEST_PURCHASE_CTA_JA/);
+    assert.match(component, /data-testid="m55-pair-premium-primary-cta"/);
+    assert.doesNotMatch(component, /商品内容と価格を確認する/);
+    assert.match(component, /resultMaintenanceActions/);
+    assert.doesNotMatch(
+      component.match(/resultMaintenanceActions[\s\S]*?<\/div>/)?.[0] ?? '',
+      /styles\.nextButton/,
+    );
   });
 
   it('states availability plainly instead of offering a dead action when gated', () => {

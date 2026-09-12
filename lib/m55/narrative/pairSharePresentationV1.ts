@@ -12,6 +12,10 @@ export type PairSharePresentationV1 = {
   readonly showGenericHeadline: boolean;
   readonly pairLabel: string;
   readonly relationMode: PairShareRelationModeV1;
+  readonly relationshipConclusionJa: string;
+  readonly overlapJa: string;
+  readonly differenceJa: string;
+  readonly usConclusionJa: string;
   readonly sideAJa: string;
   readonly sideBJa: string;
   readonly combinedRelationJa: string;
@@ -39,20 +43,19 @@ export function buildPairSharePresentationV1(
   const traitB = resolveTraitIdentity(key.personBStemLaneIndex);
   if (!traitA || !traitB) return null;
   const display = parsePublicCardDisplayV1(spec);
-  const sideAJa = display.sideAJa || display.entryJa;
-  const sideBJa = display.sideBJa;
-  const combinedRelationJa = sideBJa
-    ? `${sideAJa}。もう一方は、${sideBJa}。`
-    : sideAJa;
   return Object.freeze({
     hierarchy:
       aspect === '1:1' ? 'square-priority' : aspect === '4:5' ? 'portrait-rich' : 'story-stack',
     showGenericHeadline: aspect !== '1:1',
     pairLabel: `${traitA.traitName} × ${traitB.traitName}`,
-    relationMode: aspect === '1:1' ? 'combined' : aspect === '4:5' ? 'two-column' : 'vertical',
-    sideAJa,
-    sideBJa,
-    combinedRelationJa,
+    relationMode: aspect === '4:5' ? 'two-column' : 'vertical',
+    relationshipConclusionJa: display.conclusionJa,
+    overlapJa: display.overlapJa,
+    differenceJa: display.differenceJa,
+    usConclusionJa: display.usConclusionJa,
+    sideAJa: '',
+    sideBJa: '',
+    combinedRelationJa: display.usConclusionJa || display.conclusionJa,
     showCue: aspect === '9:16' && Boolean(display.cueJa),
     cueJa: display.cueJa,
     ctaJa: display.cta,

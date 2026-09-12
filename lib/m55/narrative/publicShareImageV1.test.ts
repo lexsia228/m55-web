@@ -259,23 +259,27 @@ describe('pair trait artwork export parity', () => {
 describe('Pair aspect presentation authority', () => {
   const spec = pairManualSpec({ personAStemLaneIndex: 9, personBStemLaneIndex: 1 });
 
-  it('prioritizes one combined contrast in 1:1', () => {
+  it('prioritizes relationship conclusion in 1:1', () => {
     const model = buildPairSharePresentationV1(spec, '1:1');
     assert.ok(model);
     assert.equal(model.hierarchy, 'square-priority');
     assert.equal(model.showGenericHeadline, false);
-    assert.equal(model.relationMode, 'combined');
+    assert.equal(model.relationMode, 'vertical');
+    assert.ok(model.relationshipConclusionJa.length > 0);
+    assert.ok(model.overlapJa.length > 0);
+    assert.ok(model.differenceJa.length > 0);
+    assert.ok(model.usConclusionJa.length > 0);
     assert.match(model.pairLabel, / × /);
-    assert.ok(model.combinedRelationJa.length > 0);
   });
 
-  it('keeps the richest two-side hierarchy in 4:5', () => {
+  it('keeps the richest editorial hierarchy in 4:5', () => {
     const model = buildPairSharePresentationV1(spec, '4:5');
     assert.ok(model);
     assert.equal(model.hierarchy, 'portrait-rich');
     assert.equal(model.relationMode, 'two-column');
-    assert.ok(model.sideAJa.length > 0);
-    assert.ok(model.sideBJa.length > 0);
+    assert.ok(model.overlapJa.length > 0);
+    assert.ok(model.differenceJa.length > 0);
+    assert.ok(model.usConclusionJa.length > 0);
   });
 
   it('uses a vertical relation stack in 9:16', () => {
@@ -298,6 +302,31 @@ describe('Pair aspect presentation authority', () => {
     const renderer = readFileSync(join(ROOT, 'lib/m55/narrative/publicShareImageV1.tsx'), 'utf8');
     assert.match(preview, /buildPairSharePresentationV1/);
     assert.match(renderer, /buildPairSharePresentationV1/);
+  });
+
+  it('keeps pair us-conclusion wrap and aspect frame authority in browser CSS', () => {
+    const css = readFileSync(join(ROOT, 'components/narrative/NarrativeShare.module.css'), 'utf8');
+    assert.match(css, /\.cardPair[\s\S]*overflow:\s*clip/);
+    assert.match(css, /\.pairShareUsBody[\s\S]*word-break:\s*normal/);
+    assert.match(css, /\.pairShareUsBody[\s\S]*line-break:\s*strict/);
+    assert.doesNotMatch(css, /@media \(max-width: 420px\)[\s\S]*aspect-ratio:\s*unset/);
+  });
+
+  it('maps each pair export aspect to distinct pixel dimensions', () => {
+    const dims = (['1:1', '4:5', '9:16'] as const).map((aspect) =>
+      buildPublicShareImageExportModel(spec, aspect).dimensions,
+    );
+    assert.deepEqual(dims[0], { width: 1080, height: 1080 });
+    assert.deepEqual(dims[1], { width: 1080, height: 1350 });
+    assert.deepEqual(dims[2], { width: 1080, height: 1920 });
+    assert.notDeepEqual(dims[0], dims[1]);
+    assert.notDeepEqual(dims[1], dims[2]);
+  });
+
+  it('keeps browser/export us-conclusion wrap parity in export renderer', () => {
+    const renderer = readFileSync(join(ROOT, 'lib/m55/narrative/publicShareImageV1.tsx'), 'utf8');
+    assert.match(renderer, /usConclusionJa[\s\S]*wordBreak:\s*'normal'/);
+    assert.match(renderer, /usConclusionJa[\s\S]*lineBreak:\s*'strict'/);
   });
 });
 

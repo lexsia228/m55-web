@@ -17,6 +17,7 @@ import type {
   StartTendency,
 } from '../individualization/types';
 import type { PairFreeInteractionId } from '../compatibility/pairFreeInsightSpecV2';
+import type { RelationStatusId } from '../compatibility/pairReadingTypes';
 import type { M55NarrativeSurface, ShareCandidateVariant } from './m55NarrativeSpecV1';
 
 export const PUBLIC_SHARE_TOKEN_VERSION = 'n1' as const;
@@ -112,6 +113,23 @@ const PAIR_INTERACTION_FROM: Readonly<Record<string, PairFreeInteractionId>> = {
   df: 'default_relationship_loop',
 };
 
+const RELATION_STATUS_CODE: Readonly<Record<RelationStatusId, string>> = {
+  R1: '1',
+  R2: '2',
+  R3: '3',
+  R4: '4',
+  R5: '5',
+  R6: '6',
+};
+const RELATION_STATUS_FROM: Readonly<Record<string, RelationStatusId>> = {
+  '1': 'R1',
+  '2': 'R2',
+  '3': 'R3',
+  '4': 'R4',
+  '5': 'R5',
+  '6': 'R6',
+};
+
 const AXES_RE = '([mta])([sdw])([pkc])([nio])([vjb])';
 
 function encodeAxes(axes: ExpressionAxes): string {
@@ -150,6 +168,7 @@ export type PairPublicShareKeyV1 = {
   readonly surface: 'compatibility_free' | 'compatibility_paid';
   readonly variant: ShareCandidateVariant;
   readonly interactionId: PairFreeInteractionId;
+  readonly relationStatusId?: RelationStatusId;
   readonly visibleStart?: StartTendency;
   readonly inwardStart?: StartTendency;
   readonly personAStemLaneIndex?: number;
@@ -178,6 +197,8 @@ export function encodePublicShareToken(key: PublicShareKeyV1): string {
       key.visibleStart && key.inwardStart
         ? `${START_CODE[key.visibleStart]}${START_CODE[key.inwardStart]}`
         : '';
+    const relation =
+      key.relationStatusId != null ? RELATION_STATUS_CODE[key.relationStatusId] : '';
     const laneA = key.personAStemLaneIndex;
     const laneB = key.personBStemLaneIndex;
     const lanes =
@@ -191,7 +212,7 @@ export function encodePublicShareToken(key: PublicShareKeyV1): string {
       laneB <= 9
         ? `x${laneA}${laneB}`
         : '';
-    return `${PUBLIC_SHARE_TOKEN_VERSION}c${VARIANT_CODE[key.variant]}${PAIR_INTERACTION_CODE[key.interactionId]}${starts}${lanes}`;
+    return `${PUBLIC_SHARE_TOKEN_VERSION}c${VARIANT_CODE[key.variant]}${PAIR_INTERACTION_CODE[key.interactionId]}${starts}${relation}${lanes}`;
   }
   return [
     PUBLIC_SHARE_TOKEN_VERSION,
@@ -223,20 +244,22 @@ export function decodePublicShareToken(raw: string | null | undefined): PublicSh
   }
 
   const pair = new RegExp(
-    `^${PUBLIC_SHARE_TOKEN_VERSION}c([mg])(tm|sm|oc|tq|ld|hr|df)([mta][mta])?(?:x([0-9])([0-9]))?$`,
+    `^${PUBLIC_SHARE_TOKEN_VERSION}c([mg])(tm|sm|oc|tq|ld|hr|df)([mta][mta])?([1-6])?(?:x([0-9])([0-9]))?$`,
   ).exec(token);
   if (pair) {
     const variant = VARIANT_FROM[pair[1]!];
     const interactionId = PAIR_INTERACTION_FROM[pair[2]!];
     if (!variant || !interactionId) return null;
     const starts = pair[3];
-    const laneA = pair[4] !== undefined ? Number(pair[4]) : undefined;
-    const laneB = pair[5] !== undefined ? Number(pair[5]) : undefined;
+    const relationCode = pair[4];
+    const laneA = pair[5] !== undefined ? Number(pair[5]) : undefined;
+    const laneB = pair[6] !== undefined ? Number(pair[6]) : undefined;
     return {
       kind: 'pair',
       surface: 'compatibility_free',
       variant,
       interactionId,
+      relationStatusId: relationCode ? RELATION_STATUS_FROM[relationCode] : undefined,
       visibleStart: starts ? START_FROM[starts[0]!] : undefined,
       inwardStart: starts ? START_FROM[starts[1]!] : undefined,
       ...(laneA !== undefined && laneB !== undefined
