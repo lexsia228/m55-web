@@ -205,7 +205,7 @@ function storageKeyForUser(clerkUserId: string): string {
 }
 
 export function readProfileBirthDate(clerkUserId: string | null | undefined): string | null {
-  if (!isClient() || !clerkUserId) return null;
+  if (!isClient()) return null;
   const profile = ProfileRepository.get(clerkUserId);
   const birthDate = profile?.birthDate?.trim().slice(0, 10) ?? '';
   return birthDate && isValidCompatibilityBirthDate(birthDate) ? birthDate : null;
@@ -267,6 +267,10 @@ export function resolvePairGuestMountBootstrap(args: {
       kind: 'legacy_dob',
       input: { personA: args.legacyDobInput.personA, personB: args.legacyDobInput.personB },
     };
+  }
+
+  if (profileBirth && isValidCompatibilityBirthDate(profileBirth)) {
+    return { kind: 'profile_only', personA: profileBirth };
   }
 
   return { kind: 'empty' };

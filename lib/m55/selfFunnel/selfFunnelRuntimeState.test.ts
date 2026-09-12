@@ -164,6 +164,14 @@ describe('selfFunnelRuntimeState — wiring guards', () => {
     assert.match(panel, /generationFlightRef/);
     assert.match(panel, /data-m55-generation-count/);
     assert.match(panel, /formatActiveDobSummaryJa/);
+    assert.match(panel, /data-testid="m55-free-result-dob-summary"/);
+    assert.match(panel, /data-testid="m55-free-result-edit-dob"/);
+    const resultDobBlock = panel.slice(
+      panel.indexOf('data-testid="m55-free-result-dob-summary"'),
+      panel.indexOf('data-testid="m55-free-result-edit-dob"'),
+    );
+    assert.match(resultDobBlock, /\{dobSummaryJa\}/);
+    assert.match(panel, /生年月日を変更する/);
   });
 
   it('dtr lp fails closed without free result', () => {

@@ -510,6 +510,80 @@ describe('pair guest resume store', () => {
     assert.deepEqual(bootstrap, { kind: 'legacy_dob', input: legacyDobInput });
   });
 
+  it('uses signed-out valid Self profile DOB only after session and legacy Pair state', () => {
+    const sessionJourney = completeJourney();
+    const sessionWins = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney,
+      legacyDobInput: { personA: '1982-02-28', personB: '1997-06-15' },
+    });
+    assert.equal(sessionWins.kind, 'restore_result');
+    if (sessionWins.kind === 'restore_result') {
+      assert.deepEqual(sessionWins.journey, sessionJourney);
+    }
+
+    const legacyWins = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: { personA: '1982-02-28', personB: '1997-06-15' },
+    });
+    assert.deepEqual(legacyWins, {
+      kind: 'legacy_dob',
+      input: { personA: '1982-02-28', personB: '1997-06-15' },
+    });
+
+    const profileOnly = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: PROFILE_DOB,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: null,
+    });
+    assert.deepEqual(profileOnly, { kind: 'profile_only', personA: PROFILE_DOB });
+  });
+
+  it('fails closed to empty when signed-out Self profile DOB is absent or invalid', () => {
+    const missing = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: null,
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: null,
+    });
+    assert.deepEqual(missing, { kind: 'empty' });
+
+    const invalid = resolvePairGuestMountBootstrap({
+      clerkUserId: null,
+      profileBirthDate: '1990-02-31',
+      persistedJourney: null,
+      sessionJourney: null,
+      legacyDobInput: null,
+    });
+    assert.deepEqual(invalid, { kind: 'empty' });
+  });
+
+  it('does not activate signed-in locked /my UI for signed-out profile fallback', () => {
+    const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
+    assert.match(
+      component,
+      /const personAFromProfile = Boolean\(userId && profileBirthDate && input\.personA === profileBirthDate\)/,
+    );
+    assert.match(component, /authLoaded \? readProfileBirthDate\(userId \?\? null\) : null/);
+    const lockedStart = component.indexOf('{personAFromProfile ? (');
+    const lockedEnd = component.indexOf('<PairSegmentedDobFields', lockedStart);
+    const lockedBlock = component.slice(lockedStart, lockedEnd);
+    assert.match(lockedBlock, /href="\/my"/);
+    assert.match(lockedBlock, /compatibility-profile-birthdate-locked/);
+    assert.doesNotMatch(
+      component.slice(0, lockedStart),
+      /href="\/my"/,
+    );
+  });
+
   it('returns empty onboarding for logged-in user without profile or persisted journey', () => {
     const sessionJourney = completeJourney();
     const bootstrap = resolvePairGuestMountBootstrap({

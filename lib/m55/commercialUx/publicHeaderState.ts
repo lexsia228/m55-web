@@ -34,6 +34,7 @@ export type PublicHeaderState = {
 
 export const DESKTOP_PRIMARY_NAV: PublicHeaderNavItem[] = [
   { href: '/core', label: T.freeEntry },
+  { href: '/synastry', label: T.pairEntry },
   { href: '/dtr/lp', label: T.premiumProduct },
 ];
 
@@ -45,6 +46,7 @@ export const ABOUT_DROPDOWN_NAV: PublicHeaderNavItem[] = [
 export const MOBILE_MENU_PUBLIC: PublicHeaderNavItem[] = [
   { href: '/home', label: T.home },
   { href: '/core', label: T.freeEntry },
+  { href: '/synastry', label: T.pairEntry },
   { href: '/dtr/lp', label: T.premiumProduct },
   { href: '/how-m55-works', label: T.aboutM55 },
   { href: '/ten-views', label: T.tenQualities },
@@ -118,6 +120,9 @@ export function resolvePublicHeaderState(input: {
 export function isHeaderNavActive(pathname: string, href: string): boolean {
   if (href === '/home') return pathname === '/home';
   if (href === '/core') return pathname === '/core' || pathname.startsWith('/core/');
+  if (href === '/synastry') {
+    return pathname === '/synastry' || pathname.startsWith('/synastry/');
+  }
   if (href === '/dtr/lp') {
     return (
       pathname === '/dtr/lp' ||

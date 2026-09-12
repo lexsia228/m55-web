@@ -37,6 +37,7 @@ export default function PairSegmentedDobFields({
   const dayRef = useRef<HTMLInputElement>(null);
   const lastEmittedIsoRef = useRef(isoDate);
   const lastSyncedExternalRef = useRef(isoDate);
+  const partsRef = useRef<SegmentedDobParts>(initial);
 
   useEffect(() => {
     if (isoDate === lastEmittedIsoRef.current) {
@@ -47,6 +48,7 @@ export default function PairSegmentedDobFields({
         setYear('');
         setMonth('');
         setDay('');
+        partsRef.current = { year: '', month: '', day: '' };
         lastSyncedExternalRef.current = '';
         lastEmittedIsoRef.current = '';
         setErrorJa(null);
@@ -58,6 +60,7 @@ export default function PairSegmentedDobFields({
     setYear(parts.year);
     setMonth(parts.month);
     setDay(parts.day);
+    partsRef.current = parts;
     lastEmittedIsoRef.current = isoDate;
     lastSyncedExternalRef.current = isoDate;
     setErrorJa(null);
@@ -67,6 +70,7 @@ export default function PairSegmentedDobFields({
     setYear(parts.year);
     setMonth(parts.month);
     setDay(parts.day);
+    partsRef.current = parts;
   }
 
   function emitIsoDate(nextIso: string) {
@@ -74,15 +78,12 @@ export default function PairSegmentedDobFields({
     onIsoDateChange(nextIso);
   }
 
-  function syncPartsToParent(parts: SegmentedDobParts) {
+  function syncPartsToParent(parts: SegmentedDobParts, normalizeVisual = false) {
     const yearRaw = parts.year.trim();
     const monthRaw = parts.month.trim();
     const dayRaw = parts.day.trim();
 
-    const completeLengths =
-      yearRaw.length === 4 && monthRaw.length === 2 && dayRaw.length === 2;
-
-    if (!completeLengths) {
+    if (!yearRaw || !monthRaw || !dayRaw) {
       emitIsoDate('');
       setErrorJa(null);
       return;
@@ -101,7 +102,7 @@ export default function PairSegmentedDobFields({
 
     if (result.birthDate > maxIso) {
       emitIsoDate('');
-      if (yearRaw.length === 4 && monthRaw.length === 2 && dayRaw.length === 2) {
+      if (yearRaw.length === 4 && monthRaw.length >= 1 && dayRaw.length >= 1) {
         setErrorJa('今日以前の日付を入力してください。');
       } else {
         setErrorJa(null);
@@ -110,7 +111,9 @@ export default function PairSegmentedDobFields({
     }
 
     setErrorJa(null);
-    applyParts(result.parts);
+    if (normalizeVisual) {
+      applyParts(result.parts);
+    }
     emitIsoDate(result.birthDate);
     lastSyncedExternalRef.current = result.birthDate;
   }
@@ -121,31 +124,56 @@ export default function PairSegmentedDobFields({
     if (!parts) return;
     event.preventDefault();
     applyParts(parts);
-    syncPartsToParent(parts);
+    syncPartsToParent(parts, true);
     dayRef.current?.focus();
+  }
+
+  function normalizeBlurredField(field: 'month' | 'day') {
+    const current = partsRef.current;
+    const result = validateSegmentedDob(current);
+    if (!result.ok || result.birthDate > maxIso) {
+      syncPartsToParent(current);
+      return;
+    }
+    const padded = result.parts[field];
+    if (current[field] !== padded) {
+      const next = { ...current, [field]: padded };
+      if (field === 'month') setMonth(padded);
+      else setDay(padded);
+      partsRef.current = next;
+      syncPartsToParent(next);
+      return;
+    }
+    syncPartsToParent(current);
   }
 
   function handleYearChange(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 4);
     setYear(digits);
     setErrorJa(null);
+    const next = { ...partsRef.current, year: digits };
+    partsRef.current = next;
     if (digits.length === 4) monthRef.current?.focus();
-    syncPartsToParent({ year: digits, month, day });
+    syncPartsToParent(next);
   }
 
   function handleMonthChange(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 2);
     setMonth(digits);
     setErrorJa(null);
+    const next = { ...partsRef.current, month: digits };
+    partsRef.current = next;
     if (digits.length === 2) dayRef.current?.focus();
-    syncPartsToParent({ year, month: digits, day });
+    syncPartsToParent(next);
   }
 
   function handleDayChange(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 2);
     setDay(digits);
     setErrorJa(null);
-    syncPartsToParent({ year, month, day: digits });
+    const next = { ...partsRef.current, day: digits };
+    partsRef.current = next;
+    syncPartsToParent(next);
   }
 
   const yearAutoComplete = enableBirthdayAutocomplete ? 'bday-year' : 'off';
@@ -171,6 +199,7 @@ export default function PairSegmentedDobFields({
           placeholder="YYYY"
           value={year}
           onChange={(event) => handleYearChange(event.target.value)}
+          onBlur={() => syncPartsToParent(partsRef.current)}
           aria-label={`${ariaLabelPrefix} 年`}
         />
         <span className={styles.segmentedDobUnit} aria-hidden>
@@ -189,6 +218,7 @@ export default function PairSegmentedDobFields({
           placeholder="MM"
           value={month}
           onChange={(event) => handleMonthChange(event.target.value)}
+          onBlur={() => normalizeBlurredField('month')}
           aria-label={`${ariaLabelPrefix} 月`}
         />
         <span className={styles.segmentedDobUnit} aria-hidden>
@@ -207,6 +237,7 @@ export default function PairSegmentedDobFields({
           placeholder="DD"
           value={day}
           onChange={(event) => handleDayChange(event.target.value)}
+          onBlur={() => normalizeBlurredField('day')}
           aria-label={`${ariaLabelPrefix} 日`}
         />
         <span className={styles.segmentedDobUnit} aria-hidden>

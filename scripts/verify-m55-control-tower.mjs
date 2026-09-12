@@ -1251,8 +1251,8 @@ function runSharedChromeSourceNegativeSelfTests() {
     {
       label: 'source removed /core from desktop inventory',
       headerState: headerStateSrc.replace(
-        "  { href: '/core', label: T.freeEntry },\n  { href: '/dtr/lp', label: T.premiumProduct },",
-        "  { href: '/dtr/lp', label: T.premiumProduct },",
+        "  { href: '/core', label: T.freeEntry },\n  { href: '/synastry', label: T.pairEntry },\n  { href: '/dtr/lp', label: T.premiumProduct },",
+        "  { href: '/synastry', label: T.pairEntry },\n  { href: '/dtr/lp', label: T.premiumProduct },",
       ),
       benchmark: benchmarkSrc,
     },
@@ -1268,8 +1268,8 @@ function runSharedChromeSourceNegativeSelfTests() {
       label: 'SSOT added unexpected desktop route',
       headerState: headerStateSrc,
       benchmark: benchmarkSrc.replace(
-        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/dtr/lp`\n',
-        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/dtr/lp`\n- `/pricing`\n',
+        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/synastry`\n- `/dtr/lp`\n',
+        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/synastry`\n- `/dtr/lp`\n- `/pricing`\n',
       ),
     },
     {
@@ -1829,8 +1829,8 @@ function runBenchmarkStackNegativeSelfTests() {
     {
       label: 'removed /core from desktop inventory',
       mutated: src.replace(
-        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/dtr/lp`\n',
-        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/dtr/lp`\n',
+        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/core`\n- `/synastry`\n- `/dtr/lp`\n',
+        '**Desktop primary (`DESKTOP_PRIMARY_NAV`):**\n\n- `/synastry`\n- `/dtr/lp`\n',
       ),
       headerState: headerStateSrc,
       experience: experienceSrc,

@@ -107,7 +107,7 @@ export default function CompatibilityGuestExperience({
   const { userId, isLoaded: authLoaded } = useAuth();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const profileBirthDate = useMemo(
-    () => (authLoaded && userId ? readProfileBirthDate(userId) : null),
+    () => (authLoaded ? readProfileBirthDate(userId ?? null) : null),
     [authLoaded, userId],
   );
   const [input, setInput] = useState<CompatibilityGuestInput>(previewFixture?.input ?? EMPTY_INPUT);
