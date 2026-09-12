@@ -1,0 +1,105 @@
+---
+description: M55 scope-aware repository preflight routing — Git-first always; bounded machine path escalation, semantic review, durable continuation handoff.
+alwaysApply: true
+---
+
+# M55 Scope-Aware Repository Preflight
+
+Normative authority:
+
+- `docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md`
+- `docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json`
+- `docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+- `docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md`
+
+Before substantive M55 work, establish task-relevant Git identity. Then classify exactly one profile:
+
+- `FULL_REPO_PREFLIGHT`
+- `CONTINUATION_FAST_PATH`
+- `PINNED_REVIEW_PREFLIGHT`
+
+If required task-relevant Git identity or authority cannot be established, use `GIT_PREFLIGHT_INCOMPLETE` and STOP rather than guessing.
+
+## Hard trigger — self-classification cannot bypass known machine paths
+
+`HARD_TRIGGER_FORCES_FULL_PREFLIGHT = TRUE`
+
+First classify intended/observed changed paths against manifest `hardTriggerPaths` and `semanticOwnerPaths`.
+
+A match forces `FULL_REPO_PREFLIGHT`.
+
+Then independently inspect semantics. Money, price/rate/reward, legal/tax, identity/KYC, authorization/security, attribution/ledger, provider behavior, executable state or cross-lane ownership also force FULL when they enter scope, even if the path classifier did not match.
+
+`STATIC_PATH_CLASSIFIER_IS_NOT_COMPLETE_SEMANTIC_PROOF = TRUE`
+
+Do not claim the machine classifier understands all semantic meaning.
+
+## CONTINUATION_FAST_PATH
+
+Use only for an already-authorized bounded continuation lane when either:
+
+- the same active session continues; or
+- a valid durable `CONTINUATION_HANDOFF` is freshly reconstructed.
+
+The handoff must contain the manifest-required lane, owner, workspace/ref, authorized task, candidate SHA, mutable paths and observation time. Re-observe Git identity before resume.
+
+If the handoff is missing, stale or contradictory, use FULL. A new chat by itself does not invalidate CLOSED GREEN.
+
+`CONTINUATION_HANDOFF_REQUIRED_FOR_NEW_SESSION_FAST = TRUE`
+
+Do not force unrelated Creator Revenue, Stripe payout, Japan legal/tax or global repo archaeology onto a valid UIUX continuation.
+
+Fresh `origin/main` is not required every turn; require it when integration or relevant touched-authority drift depends on it.
+
+FAST is fast, not blind.
+
+## FULL_REPO_PREFLIGHT
+
+Use for new/consequential architecture, economics, reward, legal/tax, provider, security, DB/ledger/payout, SSOT/governance/roadmap, cross-lane work, hard-trigger changes, unknown existing-contract coverage, or consequential GREEN/freeze/authorization.
+
+Minimum evidence is bounded to relevant authority. When relevant unmerged Human-approved authority may exist, actually query open PRs/stacked branches, pin SHA/timestamp and inspect the relevant owner. `requiredUnmergedAuthority` is not a missing-local-file error and is not permission to fabricate `none found`.
+
+## PINNED_REVIEW_PREFLIGHT
+
+For read-only independent review, pin exact remote PR/branch/commit and exact diff/artifact boundary. If local runtime is unavailable, state `LOCAL_RUNTIME_UNAVAILABLE`; never run local-ref verification and describe it as proof of the pinned remote candidate.
+
+## Lane lock before mutation
+
+`LANE_LOCK_REQUIRED_BEFORE_MUTATION = TRUE`
+
+"Lane Lock" means a required procedural ownership guard, not an atomic distributed mutex.
+
+Before mutation confirm fresh branch/worktree/ref identity, one mutation owner, exact mutable-path allowlist and no known overlap. `M55_WORKTREE_REGISTRY.md` + fresh Git remain authority. Optional `.m55_lane_state.json` is cache only.
+
+Any overlap/ambiguity -> `MUTATION_OWNERSHIP_CONFLICT` / STOP.
+
+Do not mutate protected UIUX worktrees merely to add lane-state markers.
+
+## Context refresh
+
+At a material subtask boundary, re-enter Git-first and reselect FAST/PINNED/FULL.
+
+`SUBTASK_BOUNDARY_CONTEXT_REFRESH_REQUIRED = TRUE`
+
+## External audit findings
+
+An auditor statement is supporting evidence only. Before accepting a blocker, retrieve the exact candidate and acceptance condition and verify the reported reproduction actually matches it.
+
+`AUDIT_REPRODUCTION_MUST_MATCH_EXACT_ACCEPTANCE_CONDITION = TRUE`
+
+The PR #193 operational fixture demonstrates why `2 -> 1 -> 21` cannot disprove an exact `1 -> 12` acceptance contract.
+
+## Escalation
+
+Escalate FAST to FULL on:
+
+- any manifest machine path match;
+- semantic money/legal/provider/DB/ledger/security/auth expansion;
+- new Human architecture/economic/reward decision;
+- SSOT/governance change;
+- cross-lane authority collision;
+- relevant unmerged authority or relevant main drift;
+- unknown existing-contract coverage;
+- consequential PLAN/DESIGN GREEN or freeze.
+
+A main SHA change alone is not a global stop. One lane's FULL preflight must not globally block unrelated valid continuations.

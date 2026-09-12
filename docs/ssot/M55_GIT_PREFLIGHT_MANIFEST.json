@@ -1,0 +1,205 @@
+{
+  "schemaVersion": "2.0.2",
+  "status": "ACTIVE_HUMAN_APPROVED_GOVERNANCE_TARGET",
+  "purpose": "Route every M55 AI work unit through Git-first, task-relevant authority before substantive work, with machine-verifiable profile invariants and bounded changed-path escalation.",
+  "universal": {
+    "gitFirstRequired": true,
+    "localRuntimeUnavailableToken": "LOCAL_RUNTIME_UNAVAILABLE",
+    "unknownScopeProfile": "FULL_REPO_PREFLIGHT",
+    "entrypoint": "docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md",
+    "profileAuthority": "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
+    "hardeningAuthority": "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+    "hostEnforcementAuthority": "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md",
+    "operationalFixtures": "docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md",
+    "globalAgentRules": "AGENTS.md",
+    "executionAuthority": "docs/ssot/M55_EXECUTION_STATE.json",
+    "requiredReads": [
+      "docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md",
+      "docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json",
+      "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
+      "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+      "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md"
+    ]
+  },
+  "profiles": {
+    "CONTINUATION_FAST_PATH": {
+      "requiresGitIdentity": true,
+      "requiresFreshMainEveryWorkUnit": false,
+      "requiresRelevantLaneAuthority": true,
+      "requiresUnrelatedLaneAuthority": false,
+      "escalateOnSemanticExpansion": true,
+      "requiresValidContinuationHandoffAcrossNewSession": true
+    },
+    "PINNED_REVIEW_PREFLIGHT": {
+      "requiresGitIdentity": true,
+      "requiresPinnedCandidateSha": true,
+      "requiresExactDiffBoundary": true,
+      "requiresRelevantLaneAuthority": true,
+      "mutationAllowed": false
+    },
+    "FULL_REPO_PREFLIGHT": {
+      "requiresGitIdentity": true,
+      "requiresFreshRemoteMain": true,
+      "requiresExecutionState": true,
+      "requiresSsotIndex": true,
+      "requiresRelevantNormativeSsot": true,
+      "requiresRelevantUnmergedAuthorityCheck": true,
+      "requiresExistingContractSearch": true
+    }
+  },
+  "continuationHandoff": {
+    "enabled": true,
+    "token": "CONTINUATION_HANDOFF",
+    "requiredFields": [
+      "lane",
+      "owner",
+      "workspaceOrRef",
+      "authorizedTask",
+      "candidateSha",
+      "mutablePaths",
+      "observedAt"
+    ],
+    "newChatMayUseFastWhenValid": true,
+    "missingOrStaleHandoffDefaultsFull": true,
+    "newChatAloneIsNotInvalidation": true,
+    "mustReobserveGitIdentityBeforeResume": true,
+    "mustEscalateOnHardTriggerOrSemanticExpansion": true
+  },
+  "hardTriggerPaths": [
+    "docs/ssot/**",
+    ".product-authority/**",
+    "lib/m55/contracts/**",
+    "app/api/stripe/**",
+    "app/**/checkout/**",
+    "app/**/webhook/**",
+    "supabase/**",
+    ".github/workflows/**",
+    ".cursor/rules/**",
+    "AGENTS.md"
+  ],
+  "semanticOwnerPaths": [
+    "app/api/**",
+    "lib/m55/entitlement/**",
+    "lib/m55/identity/**",
+    "lib/m55/auth/**",
+    "lib/m55/payment/**",
+    "lib/m55/stripe/**",
+    "lib/m55/creator/**",
+    "lib/m55/ledger/**",
+    "lib/m55/contracts/**",
+    "supabase/**"
+  ],
+  "semanticTriggersRequireAiReview": [
+    "money movement",
+    "price/rate/reward definition",
+    "legal/tax meaning",
+    "identity/KYC",
+    "authorization/security",
+    "attribution authority",
+    "ledger authority",
+    "provider behavior",
+    "executable gate/NEXT",
+    "cross-lane ownership",
+    "new normative SSOT"
+  ],
+  "taskClasses": {
+    "UIUX_CONTINUATION": {
+      "defaultProfile": "CONTINUATION_FAST_PATH",
+      "requiredAuthority": [
+        "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
+        "docs/ssot/M55_UX_BENCHMARK_STACK.md",
+        "docs/ssot/M55_VISUAL_SYSTEM.md"
+      ],
+      "conditionalAuthority": {
+        "self_funnel": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
+        "pair_funnel": "docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md",
+        "public_copy": "docs/ssot/M55_COPY_AND_CLAIMS.md",
+        "creator_console": "docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md",
+        "payment_ux": "docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md"
+      },
+      "doNotRequireByDefault": [
+        "Creator Revenue legal/tax SSOT",
+        "Stripe payout SSOT",
+        "unrelated DB/ledger SSOT"
+      ]
+    },
+    "CREATOR_REVENUE_DESIGN": {
+      "defaultProfile": "FULL_REPO_PREFLIGHT",
+      "requiredAuthority": [
+        "docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md",
+        "docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md",
+        "docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md",
+        "docs/ssot/M55_CREATOR_AFFILIATE_BENCHMARK_TARGET_ARCHITECTURE_SSOT.md"
+      ],
+      "requiredUnmergedAuthority": [
+        {
+          "path": "docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md",
+          "discoveryHint": "Creator affiliate operating-model branch or PR; inspect fresh open/stacked authority before design freeze"
+        }
+      ],
+      "checkRelevantOpenPrOrStackedBranch": true
+    },
+    "LEGAL_TAX_OPERATOR": {
+      "defaultProfile": "FULL_REPO_PREFLIGHT",
+      "requiredAuthority": [
+        "docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md"
+      ],
+      "requiredUnmergedAuthority": [
+        {
+          "path": "docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md",
+          "discoveryHint": "PR #189 / docs/m55-r2b2-japan-legal-tax-closure-v1 or its fresh successor; pin current head before use"
+        }
+      ],
+      "checkRelevantOpenPrOrStackedBranch": true
+    },
+    "STRIPE_PROVIDER_MONEY": {
+      "defaultProfile": "FULL_REPO_PREFLIGHT",
+      "requiredAuthority": [
+        "docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md",
+        "docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md"
+      ],
+      "requiresCurrentProviderEvidenceWhenActionSpecific": true
+    },
+    "DB_LEDGER_SECURITY": {
+      "defaultProfile": "FULL_REPO_PREFLIGHT",
+      "requiredAuthority": [
+        "docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md",
+        "docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md"
+      ],
+      "requiresExactMutationAllowlist": true
+    },
+    "SSOT_GOVERNANCE": {
+      "defaultProfile": "FULL_REPO_PREFLIGHT",
+      "requiredAuthority": [
+        "docs/ssot/README.md",
+        "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
+        "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+        "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md"
+      ],
+      "requiresExistingContractSearch": true,
+      "checkRelevantOpenPrOrStackedBranch": true
+    },
+    "PINNED_DIFF_REVIEW": {
+      "defaultProfile": "PINNED_REVIEW_PREFLIGHT",
+      "requiresExactCandidate": true,
+      "requiresRelevantLaneAuthority": true,
+      "mutationAllowed": false
+    },
+    "MERGE_SYNC_INTEGRATION": {
+      "defaultProfile": "FULL_REPO_PREFLIGHT",
+      "requiresFreshRemoteMain": true,
+      "requiresCandidateDivergence": true,
+      "requiresWorktreeOwnershipCheck": true,
+      "requiresCrossLaneCollisionCheck": true
+    }
+  },
+  "mandatoryStages": [
+    "IDENTIFY_TASK",
+    "GIT_FIRST_BASELINE",
+    "ROUTE_RELEVANT_AUTHORITY",
+    "EXISTING_DECISION_CHECK",
+    "PRE_MUTATION_RECHECK_IF_MUTATING",
+    "PRE_GREEN_OR_INTEGRATION_RECHECK_WHEN_APPLICABLE"
+  ],
+  "failClosedToken": "GIT_PREFLIGHT_INCOMPLETE"
+}

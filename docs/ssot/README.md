@@ -3,10 +3,32 @@
 Status: **ACTIVE** (Commercial Funnel SSOT lane)  
 Machine truth: `lib/m55/contracts/m55CommercialFunnelContract.ts`
 
+## AI work entry — Git first
+
+Every M55 AI work unit starts with:
+
+1. `AGENTS.md`
+2. `M55_GIT_FIRST_ENTRYPOINT.md`
+3. `M55_GIT_PREFLIGHT_MANIFEST.json`
+4. `M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md`
+5. `M55_GIT_FIRST_HARDENING_SSOT.md`
+
+For consequential merge/adoption or governance-host verification, also read `M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md` and freshly re-observe the live GitHub ruleset. The host SSOT records the intended/observed configuration but never replaces fresh host evidence.
+
+The AI identifies its task, verifies task-relevant Git identity, loads only the relevant authority, checks for an existing decision/contract, and only then performs substantive work. Continuation lanes use the fast path only from a valid same-session or durable `CONTINUATION_HANDOFF`; consequential/cross-lane/money/legal/provider/SSOT work uses full preflight.
+
+`M55_GIT_FIRST_OPERATIONAL_FIXTURES.md` contains real and synthetic adversarial regression cases. It is mandatory for governance/red-team work but not a per-task reading tax on ordinary bounded UIUX continuation.
+
 ## Authority hierarchy
 
 | Tier | File | Role |
 |---|---|---|
+| A0-preflight | `M55_GIT_FIRST_ENTRYPOINT.md` | Mandatory short entrypoint — identify task → Git identity → relevant authority → existing-decision check → work |
+| A0-preflight | `M55_GIT_PREFLIGHT_MANIFEST.json` | Machine-readable task class/profile invariants, universal reads, changed-path triggers, continuation handoff |
+| A0-preflight | `M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md` | FULL / CONTINUATION_FAST_PATH / PINNED_REVIEW routing, unmerged-authority discovery and escalation rules |
+| A0-preflight | `M55_GIT_FIRST_HARDENING_SSOT.md` | Bounded machine path enforcement, semantic-review boundary, lane ownership guard, CI/adoption limitations |
+| A0-host | `M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md` | Exact GitHub ruleset / required-check / Actions-permission / asset-index PR-routing configuration; fresh host observation still required |
+| A0-test | `M55_GIT_FIRST_OPERATIONAL_FIXTURES.md` | Real/synthetic adversarial regression cases; supporting test evidence, not product authority |
 | A | `lib/m55/contracts/m55CommercialFunnelContract.ts` | Prices, counts, status, availability, CTA flags |
 | B | `M55_COMMERCIAL_FUNNEL_SSOT.md` | Commercial principles, psychology, free/paid boundary |
 | C | `M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md` | Funnel flow contracts |
@@ -34,19 +56,27 @@ It does **not** override `M55_EXECUTION_STATE.json`, does **not** reorder roadma
 
 ## Worktree registry
 
-`M55_WORKTREE_REGISTRY.md` is the **human authority** for registered Git worktrees: path, branch, HEAD, lifecycle status, allowed/prohibited operations, and DO_NOT_USE classifications.
+`M55_WORKTREE_REGISTRY.md` is the **human authority** for registered Git worktrees: path, branch, lifecycle status, allowed/prohibited operations, and DO_NOT_USE classifications. Volatile HEAD/dirty/divergence facts require fresh Git observation.
 
-- **Production main authority** lives on `origin/main` (SHA recorded in registry and `M55_CURRENT_STATE.md`).
+- **Production main authority** lives on freshly observed `origin/main`.
 - **PRIMARY_MAIN_HOME** is a post-merge baseline designation — not “currently checked out on `main`”.
 - Folder names are not authority; branch + HEAD + registry are.
-- CI verifies document contract only; local preflight may compare live `git worktree list` to registry.
+- `.m55_lane_state.json`, when present, is cache/guard only and never overrides registry + fresh Git.
 
 ## Verification
 
 ```bash
+node scripts/verify-m55-git-first-preflight.mjs
+node scripts/verify-m55-git-first-hardening.mjs
+node scripts/verify-m55-git-first-structure.mjs
+node --test scripts/m55-git-first-policy.test.mjs
+# exact-diff verifier is invoked by GitHub Actions with base/head/PR metadata
+node scripts/verify-m55-git-first-diff.mjs
 npm run verify:m55-ssot
 node scripts/verify-m55-commercial-ssot.mjs
 ```
+
+The Git-first GitHub Actions workflow runs on every PR. Repo-contained CI is not claimed to be tamper-proof by itself; final governance `USABLE` requires proof of a host-side required merge check (or equivalent immutable external enforcement). Exact expected host configuration is recorded in `M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md`, but acceptance always compares that record with fresh GitHub state.
 
 ## Subordinate / superseded authorities
 
