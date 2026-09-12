@@ -7,6 +7,7 @@ import styles from "./M55TenViews.module.css";
 
 const storefrontCopy = TOP_FREE_ENTRY_PUBLIC_COPY.storefront;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
+const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 
 /**
  * M55TenViews — 「10通りの資質」informational page
@@ -150,15 +151,15 @@ export default function M55TenViews() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          FOLD 4 — Free-entry bridge → /home
+          FOLD 4 — Free-entry bridge → /core
           ══════════════════════════════════════════════════════════════ */}
       <section className={styles.freeBridgeFold}>
         <h2 className={styles.bridgeTitle}>M55 で整理をはじめる</h2>
         <p className={styles.bridgeBody}>
-          プロフィールを保存すると、10通りの資質に基づく読み取りを無料で確認できます。
+          {homeCopy.finalCtaBodyJa}
         </p>
-        <Link href="/home" className={styles.primaryCta}>
-          プロフィールを保存して始める
+        <Link href={ctaCopy.coreFreeHref} className={styles.primaryCta}>
+          {homeCopy.finalCtaPrimaryJa}
         </Link>
       </section>
 
