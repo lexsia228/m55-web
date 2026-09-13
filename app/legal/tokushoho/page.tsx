@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   M55_USER_FACING_POSITIONING_COPY,
@@ -11,13 +12,39 @@ import {
   COMPATIBILITY_REPORT_PRODUCT_AUTHORITY,
 } from "../../../lib/m55/compatibility/compatibilityCommerceAuthority";
 
-export const metadata = {
-  title: "特定商取引法に基づく表記 | M55",
+const title = "特定商取引法に基づく表記 | M55";
+const description =
+  "M55 Projectの販売事業者情報、所在地、連絡先、商品価格、支払方法、提供条件、返金・キャンセルの案内を掲載しています。";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: "/legal/tokushoho",
+  },
 };
+
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://m-55.jp/legal/tokushoho#webpage",
+  url: "https://m-55.jp/legal/tokushoho",
+  name: title,
+  description,
+  about: { "@id": "https://m-55.jp/#operator" },
+  inLanguage: "ja-JP",
+};
+
+const webPageJsonLdString = JSON.stringify(webPageJsonLd).replace(/</g, "\\u003c");
 
 export default function TokushohoPage() {
   return (
-    <main style={{
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: webPageJsonLdString }}
+      />
+      <main style={{
       maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
       padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
@@ -181,5 +208,6 @@ export default function TokushohoPage() {
         医療・法律・投資等の専門的助言ではありません。
       </p>
     </main>
+    </>
   );
 }
