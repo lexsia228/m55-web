@@ -1,10 +1,12 @@
 # M55 Creator Affiliate / Stripe / Tax-Legal SSOT
 
-Status: **ACTIVE / HUMAN-APPROVED ARCHITECTURE CONTRACT (2026-09-09)**
+Status: **ACTIVE / HUMAN-APPROVED ARCHITECTURE CONTRACT (2026-09-09; Rev4 reconciled 2026-09-13)**
 
 Implementation status: **CREATOR CASH INFRASTRUCTURE NOT IMPLEMENTED**
 
-Sole executable CURRENT/NEXT authority remains `docs/ssot/M55_EXECUTION_STATE.json`. This SSOT does not advance the execution gate, select the payout provider, create connected accounts, move money, or authorize Production cash activation.
+Sole executable CURRENT/NEXT authority remains `docs/ssot/M55_EXECUTION_STATE.json`. This SSOT does not advance the execution gate, create connected accounts, move money, or authorize Production cash activation.
+
+Human-frozen operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`
 
 Parent roadmap authority: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md`
 
@@ -89,6 +91,8 @@ Customer
 
 `COMMISSION_LEDGER_OWNER = M55`
 
+`STRIPE_CONNECT = REQUIRED`
+
 `STRIPE_CONNECT_FLOW = SEPARATE_CHARGES_AND_TRANSFERS`
 
 `STRIPE_ACCOUNT_API = ACCOUNTS_V2`
@@ -104,6 +108,25 @@ Customer
 `M55_FULL_CREATOR_BANK_DATA_STORAGE = PROHIBITED_UNLESS_LATER_UNAVOIDABLE_AND_HUMAN_APPROVED`
 
 Do not transfer Creator commission at customer-purchase time. Purchase attribution is not commission finality.
+
+`NO_STRIPE_TRANSFER_BEFORE_PAYOUT_BATCH_LOCK = TRUE`
+
+`CONNECTED_ACCOUNT_PAYOUT_SCHEDULE_V1 = MANUAL`
+
+`CONNECTED_ACCOUNT_MANUAL_HOLD_MAX_DAYS_JP = 90`
+
+`CREATOR_PAYABLE_CASH_COVERAGE_RATIO = 100%`
+
+Launch cash scope:
+
+```text
+V1_CASH_CREATOR_RESIDENCY = JAPAN_RESIDENT_ONLY
+V1_PAYOUT_CURRENCY = JPY_ONLY
+V1_PAYOUT_BANK_COUNTRY = JAPAN
+NON_RESIDENT_CREATOR_CASH_PAYOUT = BLOCKED
+MY_NUMBER_COLLECTION_V1 = OFF
+CREATOR_MINIMUM_AGE_YEARS = 18
+```
 
 ---
 
@@ -131,9 +154,11 @@ Canonical payout states remain:
 - `PAYOUT_FAILED`
 - `PAYOUT_RETURNED`
 
-A Creator payout request is a **timing preference / early trigger** only. It does not approve a commission and cannot make an invalid commission valid.
+`PAYOUT_APPLICATION_REQUIRED = FALSE`.
 
-`CREATOR_PAYOUT_REQUEST_IS_NOT_COMMISSION_APPROVAL = TRUE`
+Standard and tail settlements follow the frozen due-date rules.
+
+No Creator-requested early-trigger payout is authorized in v1. A Creator request cannot approve a commission and cannot make an invalid commission valid.
 
 ---
 
@@ -145,16 +170,29 @@ Never create one bank payout per purchase.
 
 M55 should aggregate valid `COMMISSION_PAYABLE` amounts before payout to reduce fixed per-payout cost and reconciliation load.
 
-The following remain unresolved until R8/legal-tax closure:
+The following payout economics are frozen by Rev4 Operating Model for the current operator branch. R8 implements them; they are not unresolved design questions.
 
-- exact economic payout threshold;
-- exact payout cadence;
-- whether Creator may choose threshold/cadence options;
-- exact early-payout mechanics;
-- exact fee amount or fee formula;
-- exact treatment when a balance is below the economic threshold near a legal deadline.
+`PAYOUT_BATCHING_REQUIRED = TRUE`
 
-`ECONOMIC_PAYOUT_THRESHOLD = UNRESOLVED`
+`STANDARD_PAYOUT_THRESHOLD_JPY = 20_000`
+
+`STANDARD_PAYOUT_CADENCE = MONTHLY`
+
+`STANDARD_PAYOUT_DAY_OF_MONTH = 15`
+
+`STANDARD_PAYOUT_BATCH_CUTOFF = PRIOR_CALENDAR_MONTH_END_23_59_59_JST`
+
+`PAYOUT_APPLICATION_REQUIRED = FALSE`
+
+`BELOW_THRESHOLD_TREATMENT = CARRY_OVER_NO_FORFEITURE`
+
+`TAIL_SETTLEMENT_TRIGGER_AGE_DAYS = 180`
+
+`TAIL_AGE_ANCHOR = OLDEST_UNSETTLED_PAYABLE_AT`
+
+`PAYOUT_DUE_AT = earliest applicable of STANDARD_PAYOUT_DUE_AT / TAIL_DUE_AT / APPLICABLE_LEGAL_DUE_AT`
+
+Founding 180-day rate window and tail-settlement 180-day age are separately named.
 
 `LEGAL_PAYMENT_DEADLINE_OVERRIDES_ECONOMIC_THRESHOLD = TRUE_IF_APPLICABLE`
 
@@ -168,47 +206,62 @@ Human economic requirement:
 
 `M55_PAYOUT_COST_PASS_THROUGH_OBJECTIVE = HUMAN_APPROVED`
 
-The goal is to avoid a business model where M55 permanently absorbs avoidable Creator bank-payout costs, especially for very small balances.
+`STANDARD_PAYOUT_COST_ECONOMIC_BEARER = CREATOR`
 
-But:
+`M55_STANDARD_PAYOUT_SUBSIDY = PROHIBITED_BY_DEFAULT`
 
-`CREATOR_FEE_DEDUCTION_IMPLEMENTATION = NOT_AUTHORIZED_PENDING_LEGAL_CLASSIFICATION`
+The goal is to avoid a business model where M55 permanently absorbs avoidable Creator bank-payout costs, especially for very small balances. Forced-tail residual M55 cost is a bounded exception only.
 
-Stripe billing and Creator fee policy are separate facts:
+Under the current operating branch, the standard payout-processing fee is a separate disclosed M55 service consideration with contractual payout setoff:
+
+```text
+STANDARD_PAYOUT_FEE_BASE_JPY = 770
+STANDARD_PAYOUT_FEE_BASE_PAYABLE_JPY = 20_000
+STANDARD_PAYOUT_FEE_INCREMENT_BPS = 55
+excess_jpy = MAX(SETTLEMENT_PAYABLE_JPY - 20_000, 0)
+increment_tens = (excess_jpy * 55 + 99_999) // 100_000
+STANDARD_PAYOUT_PROCESSING_FEE_JPY = 770 + 10 * increment_tens
+TAIL_EFFECTIVE_PAYOUT_FEE_JPY = MIN(standard fee, FLOOR(SETTLEMENT_PAYABLE_JPY * 0.25))
+PAYOUT_FEE_IS_SEPARATE_M55_SERVICE_CONSIDERATION = TRUE
+CREATOR_AUTHORIZES_DISCLOSED_CONTRACTUAL_SETOFF_AT_PAYOUT = TRUE
+DOUBLE_PAYOUT_FEE = PROHIBITED
+```
+
+Fee policy locks at payout-instruction lock. One fee per economic instruction/retry chain. No negative payout. No fee-caused forfeiture.
+
+Stripe billing and Creator fee policy remain separate facts:
 
 1. Under the M55-specific Stripe Support answer dated 2026-09-08, the observed Accounts v2 + Express Dashboard + Separate Charges and Transfers configuration uses platform-managed pricing and Connect charges are debited from the M55 platform Stripe balance.
-2. Stripe's public Japan Connect pricing states that when the platform controls pricing, Stripe bills the platform and the platform can charge users fees in supported configurations.
-3. Whether M55 may lawfully pass through a payout/service fee to a particular Creator depends on the exact contract/transaction classification and Japanese law.
+2. The Creator-facing fee is M55 service consideration, not an exact Stripe invoice line-item pass-through.
+3. Current Stripe account pricing/tax invoice must still be verified before Production cash activation.
 
-If the Freelance Act applies, current JFTC Q&A states that making the freelancer bear the bank-transfer fee and deducting it from remuneration is a prohibited remuneration reduction regardless of agreement.
-
-Therefore no implementation may silently convert a Stripe fee, bank fee or platform expense into a Creator deduction until R2-B2 closes the exact legal mechanics.
+Re-review is required if employee/entity/relationship/law facts change. Article 5 reduction-prohibition / bank-fee deduction rules are not the current no-employee operating branch, but they remain a future invalidator if M55 becomes a `特定業務委託事業者`.
 
 ---
 
 ## G. Creator legal-relationship classification
 
-R2-B2 must classify at minimum:
+R2-B2 classified current-operator relationship facts. v1 remains `AFFILIATE_ONLY`. Any later Sponsored Creator work order requires a separate classification. Counsel identification of other models is optional risk reduction, not a launch token.
 
-`CREATOR_RELATIONSHIP_CLASSIFICATION`
+M55 v1 target is `AFFILIATE_ONLY`. Current operating branch:
 
-Candidate factual models:
+```text
+M55_IS_SPECIFIED_COMMISSIONING_BUSINESS_OPERATOR_UNDER_FREELANCE_ACT = FALSE
+FREELANCE_ACT_ART3_READY_DISCLOSURE = REQUIRED
+JFTC_PRECLEARANCE_REQUIRED = FALSE
+NTA_PRECLEARANCE_REQUIRED = FALSE
+LEGAL_COUNSEL_PRECLEARANCE_REQUIRED = FALSE
+TAX_ACCOUNTANT_PRECLEARANCE_REQUIRED = FALSE
+OPTIONAL_PROFESSIONAL_REVIEW = RISK_REDUCTION_ONLY
+```
 
-- `AFFILIATE_ONLY` — voluntary link introduction; no specific work product/order;
-- `SPONSORED_CREATOR` — M55 commissions a specific content/service/deliverable;
-- any other legally supported classification identified by counsel.
-
-M55 v1 target is `AFFILIATE_ONLY`, but the final legal conclusion must be based on contract and actual operation, not the label.
-
-Official JFTC guidance describes an委託 as requesting another business to provide a specified service or create a specified information product; it also states that substantive involvement and transaction reality govern classification.
+Normal launch does **not** require prior JFTC, NTA, counsel, or tax-accountant approval. External professional review is risk-reduction only and is not a launch prerequisite.
 
 `COMMERCIAL_PRECEDENT_IS_NOT_LEGAL_SAFE_HARBOR = TRUE`
 
 `FREELANCE_ACT_CATEGORICAL_AFFILIATE_EXCLUSION = NOT_CONFIRMED`
 
-`AFFILIATE_SERVICE_CHARACTERIZATION = OPEN_PENDING_M55_FACT_PATTERN_CONFIRMATION`
-
-Existing affiliate/creator platforms are implementation evidence, not proof that M55's exact contract is legally identical. A current major Japanese ASP (A8.net) expressly defines affiliate outcome compensation as consideration for advertising distribution; that commercial wording is evidence that "affiliate" is not, by name alone, outside the concept of a paid service.
+The absence of a categorical affiliate exclusion is **not** a current design blocker. Article-3-ready electronic disclosure is still required if the relationship is covered delegation.
 
 ---
 
@@ -218,7 +271,26 @@ M55 must not hard-code a universal withholding percentage for Affiliate Creator 
 
 `UNIVERSAL_WITHHOLDING_RATE = PROHIBITED`
 
-The National Tax Agency lists specific categories of remuneration subject to withholding. Exact treatment must be classified from the recipient and transaction facts.
+For ordinary Japanese-resident URL-only Affiliate commission under current no-salary-payer facts:
+
+```text
+DEFAULT_WITHHOLDING_RATE = 0
+```
+
+This is fail-closed to reclassification if the payment character changes (salary/employment, sponsored writing, model/performance, speaker fee, other specifically source-withheld remuneration) or if the recipient is nonresident / M55 becomes a salary payer.
+
+Exact treatment for other branches must still be classified from the recipient and transaction facts. Creator tax profile remains required. No universal withholding percentage is assumed.
+
+`CREATOR_TAX_PROFILE_REQUIRED_BEFORE_CASH_ACTIVATION = TRUE`
+
+Creator-facing commission amounts are contractual total consideration:
+
+```text
+CREATOR_COMMISSION_QUOTED_AMOUNT = TAX_INCLUSIVE_TOTAL_CONTRACTUAL_CONSIDERATION
+AUTOMATIC_PLUS_10_PERCENT_CLAIM = PROHIBITED
+```
+
+M55 consumption-tax status and qualified-invoice-issuer status are factual activation/accounting inputs, not external-professional approval tokens.
 
 Minimum Creator tax profile:
 
@@ -302,11 +374,11 @@ Future M55 Creator Revenue Console must show enough information for the Creator 
 - pending / hold / payable commission;
 - reason codes for hold/adjustment;
 - payable balance;
-- payout preference and next legal/contractual payout deadline where applicable;
+- next frozen standard/tail/legal payout due date where applicable; no Creator-requested early-trigger payout in v1;
 - Stripe/KYC readiness;
 - invoice/tax-profile status at an appropriate privacy-safe level;
 - payout batch status;
-- gross commission, legal tax deductions, any legally approved fee, and net payout;
+- Gross Payable Commission, Payout Processing Fee, statutory withholding if actually required, and Net Payout;
 - payout history / provider reference.
 
 No amount may silently disappear.
@@ -331,7 +403,18 @@ Actual Creator cash activation is prohibited until all of the following are GREE
 
 `ACTUAL_CASH_ACTIVATION_FAIL_CLOSED = TRUE`
 
-Provider-independent implementation may proceed before all external classifications close, but it may not invent unresolved financial/legal semantics.
+Provider-independent implementation may proceed under the frozen current-operator legal/tax branch.
+
+Implementation must not invent facts that remain account-specific or operator-specific.
+
+Production activation still requires:
+- actual Stripe account pricing/tax-invoice evidence
+- actual M55 consumption-tax / qualified-invoice factual status needed by accounting
+- runtime money-safety controls
+- required Production evidence
+- explicit Human Production GO
+
+No lawyer/tax-accountant/regulator confirmation is a routine activation prerequisite.
 
 ---
 
@@ -363,14 +446,14 @@ All external facts are dated evidence, not timeless constants. Re-verify at R8/a
 ## N. No-regression / no-overclaim
 
 - Do not relabel Affiliate v1 as a sponsored work order without an actual product/business change.
-- Do not claim Affiliate v1 is definitively outside the Freelance Act until the exact relationship is professionally classified.
+- Do not claim a categorical Freelance Act exclusion that official sources do not state. Current operating branch is frozen for present no-employee facts; Article-3-ready disclosure remains required if covered delegation.
 - Do not claim a competitor's operation proves M55 legality.
-- Do not deduct a bank-transfer fee from remuneration when the Freelance Act applies.
+- Do not treat the current disclosed M55 payout-processing service consideration as an Article 5 bank-fee deduction. If M55 later becomes a `特定業務委託事業者`, re-review before live payout.
 - Do not hard-code universal 10.21% withholding.
-- Do not treat Stripe pricing observed in 2026 as timeless.
+- Do not treat Stripe pricing observed in 2026 as timeless; verify actual account pricing/tax invoice before Production cash activation.
 - Do not use Creator inactivity or an economic threshold to violate an applicable payment deadline.
 - Do not reduce valid earned commission merely because a Creator becomes highly successful.
-- Do not move real Creator money until the activation blockers are closed.
+- Do not move real Creator money until runtime/provider/accounting activation gates are closed. External professional approval is **not** one of those gates.
 
 ---
 
@@ -401,34 +484,25 @@ Those facts are **favorable but not conclusive**. Paying only when a referred cu
 
 `CONTRACT_LABEL_DOES_NOT_CONTROL = TRUE`
 
-### O-2. Required regulator-grade confirmation
+### O-2. Current legal branch — no professional preclearance gate
 
-Before using a legal conclusion that the Freelance Act does not apply — especially before deducting/passing through payout fees — M55 must obtain fact-pattern-specific confirmation.
+Current M55 facts: individual sole proprietor, no employees, not current `特定業務委託事業者`.
 
-Preferred primary-regulator route:
+```text
+JFTC_PRECLEARANCE_REQUIRED = FALSE
+NTA_PRECLEARANCE_REQUIRED = FALSE
+LEGAL_COUNSEL_PRECLEARANCE_REQUIRED = FALSE
+TAX_ACCOUNTANT_PRECLEARANCE_REQUIRED = FALSE
+OPTIONAL_PROFESSIONAL_REVIEW = RISK_REDUCTION_ONLY
+```
 
-- JFTC official Freelance Act interpretation consultation desk;
-- for Tokyo/Kanto, JFTC Freelance Transaction Fairness Office, 03-3581-5479 (telephone consultation);
-- preserve the date, department, exact M55 fact pattern presented, exact answer, limits/caveats, and operator notes as dated evidence.
+Normal launch does not require a JFTC fact-pattern consultation, NTA pre-transaction written answer, or counsel classification token.
 
-The fact pattern presented must be fixed and non-leading:
+Historical 2026-09-09 research recommended JFTC/NTA confirmation as risk reduction. That recommendation is **SUPERSEDED** as a launch prerequisite. Optional professional review remains allowed when a genuinely new or ambiguous fact arises.
 
-1. M55 sells its own digital reports.
-2. Creator voluntarily joins an affiliate program.
-3. M55 provides a unique URL.
-4. Creator has no required post, deliverable, date, channel, hours, quota or exclusivity.
-5. Creator may make zero introductions with no penalty.
-6. Commission arises only on an eligible third-party purchase attributable to the URL.
-7. No joining fee, inventory purchase, M55-product purchase or paid training is required to earn.
-8. No Creator-recruitment/downline commission exists.
-9. M55 only imposes compliance boundaries: law, Stripe rules, ad disclosure, claims policy, anti-fraud/self-referral.
-10. Ask whether this exact relationship constitutes `役務の提供を委託` under Article 2(3), and separately what payout-fee rule follows from that classification.
+`JFTC_M55_FACT_PATTERN_CONFIRMATION = NOT_REQUIRED_FOR_CURRENT_OPERATING_BRANCH` — SUPERSEDED as a launch gate.
 
-`JFTC_M55_FACT_PATTERN_CONFIRMATION = REQUIRED_BEFORE_FREELANCE_ACT_EXCLUSION_IS_USED_AS_AUTHORITY`
-
-`JFTC_M55_FACT_PATTERN_CONFIRMATION = REQUIRED_BEFORE_CREATOR_BANK_FEE_DEDUCTION_IF_EXCLUSION_IS_RELied_ON`
-
-A written Japanese-law opinion may supplement regulator evidence; it does not permit changing the actual operating facts later without re-review.
+If employee/entity/relationship/law facts change, the current branch is invalidated and must be re-reviewed.
 
 ### O-3. Labor/employment law
 
@@ -474,22 +548,19 @@ NTA explicitly lists affiliate income as income that is generally reportable as 
 
 High earnings do not create a new tax category merely because the amount is high.
 
-But M55's **payer-side source-withholding** classification is not closed.
+M55's **payer-side source-withholding** for ordinary JP-resident URL-only Affiliate commission under current no-salary-payer facts is:
 
-NTA rules require source withholding for certain remuneration to `外交員等`; NTA basic guidance also treats certain salespeople paid by volume/value as `外交員` remuneration. The research did not locate a current official NTA statement categorically including or excluding ordinary web affiliate commission.
+```text
+DEFAULT_WITHHOLDING_RATE = 0
+```
 
-`AFFILIATE_SOURCE_WITHHOLDING_SALES_AGENT_CLASSIFICATION = OPEN`
+`NO_UNIVERSAL_WITHHOLDING_RATE = STILL_PROHIBITED`
 
-`NO_WITHHOLDING_ASSUMPTION = PROHIBITED`
+`NTA_PRECLEARANCE_REQUIRED = FALSE`
 
-`NO_UNIVERSAL_10_21_PERCENT_ASSUMPTION = PROHIBITED`
+`NTA_SOURCE_WITHHOLDING_CLASSIFICATION = FROZEN_FOR_CURRENT_NO_SALARY_PAYER_JP_RESIDENT_ORDINARY_AFFILIATE`
 
-Before cash activation, M55 must obtain tax-specific confirmation for the exact Affiliate v1 contract. Preferred escalation:
-
-- NTA Tax Consultation Center for source withholding; and
-- where eligible and useful, NTA's pre-transaction written-answer procedure for a fixed future transaction with concrete documents.
-
-`NTA_SOURCE_WITHHOLDING_CLASSIFICATION = REQUIRED_BEFORE_CASH_ACTIVATION`
+This must be reclassified if payment character / nonresident / salary-payer facts change. Historical "REQUIRED_BEFORE_CASH_ACTIVATION" language is **SUPERSEDED** as a launch prerequisite.
 
 ### O-7. Consumption tax / invoice
 
@@ -507,7 +578,7 @@ M55's target architecture is materially different: M55 pays **its own commission
 
 `M55_DOES_NOT_OFFER_ESCROW = TRUE`
 
-`PAYMENT_SERVICES_ACT_SELF_DEBT_PAYMENT_LOW_RISK_INFERENCE = TRUE_PENDING_FINAL_LEGAL_REVIEW`
+`PAYMENT_SERVICES_ACT_SELF_DEBT_PAYMENT_LOW_RISK_INFERENCE = TRUE_UNDER_CURRENT_OWN_COMMISSION_OBLIGATION`
 
 ### O-9. Privacy / attribution tracking
 
@@ -536,24 +607,24 @@ Therefore:
 
 `A8_PRECEDENT_PROVES_M55_FEE_DEDUCTION_LEGALITY = FALSE`
 
-The same rule applies to every competitor: **precedent informs design; regulator/counsel classification controls M55 legality.**
+The same rule applies to every competitor: **precedent informs design; current-operator facts plus Rev4 Operating Model control M55's current operating branch.** Regulator/counsel review is optional risk reduction, not a launch token.
 
 ### O-11. Revised legal status matrix
 
 | Area | Current M55 status | Required action |
 |---|---|---|
-| Freelance Act | **OPEN / NOT CATEGORICALLY EXCLUDED** | JFTC M55 fact-pattern consultation; counsel supplement if needed |
+| Freelance Act | **CURRENT BRANCH FROZEN** — individual / no employees / not `特定業務委託事業者`; Article-3-ready disclosure still required if covered delegation | professional preclearance **NOT REQUIRED**; re-review on employee/entity/relationship/law change |
 | Labor / employment | **LOW RISK BY DESIGN** | preserve no control/quotas/hours; re-review if operations change |
 | 景品表示法 / stealth marketing | **APPLIES TO M55 ADVERTISER RESPONSIBILITY WHEN CONDITIONS MET** | disclosure + claims controls + monitoring |
 | MLM / chain-sales | **LOW RISK BY DESIGN** | never add entry fee/required purchase/recruitment commission without re-review |
 | Business-opportunity sales | **LOW RISK BY DESIGN** | no special financial burden as condition of earning |
 | Creator income tax | **APPLIES** | Creator-facing tax notice; Creator remains responsible for own filing |
-| M55 source withholding | **OPEN** | NTA/tax-adviser classification, including `外交員等` |
-| Consumption tax / invoice | **APPLIES BY FACTS/STATUS** | tax profile + invoice verification + effective-dated policy |
-| Payment Services Act | **LOW RISK INFERENCE UNDER OWN-DEBT + STRIPE RAIL** | no third-party remittance/escrow; final legal review |
+| M55 source withholding | **CURRENT BRANCH FROZEN** — ordinary JP-resident URL-only Affiliate `DEFAULT_WITHHOLDING_RATE = 0` under no-salary-payer facts | fail-closed reclassification if payment character / nonresident / salary-payer facts change; no universal percentage |
+| Consumption tax / invoice | **APPLIES BY FACTS/STATUS** | tax profile + invoice verification + effective-dated policy; not an external-professional approval token |
+| Payment Services Act | **LOW RISK INFERENCE UNDER OWN-DEBT + STRIPE RAIL** | no third-party remittance/escrow; no launch-blocking professional review token |
 | APPI / cookies | **APPLIES TO ATTRIBUTION DATA AS RELEVANT** | disclosure, minimization, retention and data-transfer controls |
 
-This matrix is the current no-overclaim position until direct M55-specific regulator/tax evidence supersedes it.
+This matrix is the current operating-branch position. Optional professional review is risk reduction only. Re-review on a real operator/law invalidator.
 
 ---
 
@@ -577,17 +648,27 @@ This is the Creator's commercial commission before any payer-side statutory with
 
 NTA guidance shows that when a source-withholding payment is contracted as a **net take-home amount**, the payer must gross up the payment amount to compute withholding. M55 therefore must not contract 50% / 40% / 30% as an after-tax/net-of-withholding guarantee.
 
-Candidate payout equation:
+Creator-facing payout display / settlement equation:
 
-```
-NET_PAYOUT
-  = GROSS_CREATOR_COMMISSION
-  + append-only lawful adjustments
-  - statutory withholding actually required
-  - any separately lawful and Human-approved payout/service fee
+```text
+Gross Payable Commission
+- Payout Processing Fee
+= Net Payout
 ```
 
-The final fee term remains unresolved and cannot be activated by this equation alone.
+The Payout Processing Fee is charged at payout-settlement level, not per referral/sale.
+
+The standard Creator payout-processing fee is frozen by the Rev4 Operating Model.
+
+Launch formula:
+- base = JPY 770 at JPY 20,000 SETTLEMENT_PAYABLE
+- + integer-safe 55 bps on the amount above JPY 20,000
+- rounded up to JPY 10
+- forced-tail effective fee = MIN(standard fee, FLOOR(SETTLEMENT_PAYABLE_JPY * 0.25))
+
+Statutory withholding, if actually required on a reclassified branch, is a separate payout/tax layer and does not redefine the commercial rate.
+
+Production use remains gated by runtime implementation, actual Stripe account pricing/tax-invoice verification, and the applicable M55 accounting configuration.
 
 `STATUTORY_WITHHOLDING_DOES_NOT_REDEFINE_COMMISSION_RATE = TRUE`
 
@@ -601,17 +682,16 @@ That is the Creator's own tax filing layer.
 
 Separately, M55 has a payer-side withholding obligation **only if** the exact payment is legally within a source-withholding category. Current NTA materials list specific categories including `外交員等`, but the official research did not locate a categorical rule that ordinary web affiliate commission is always inside or always outside that category.
 
-Therefore:
+Therefore, for the **current** no-salary-payer Japan-resident ordinary URL-only Affiliate branch:
 
-`AFFILIATE_SOURCE_WITHHOLDING_CLASSIFICATION = OPEN`
+```text
+DEFAULT_WITHHOLDING_RATE = 0
+AFFILIATE_SOURCE_WITHHOLDING_CLASSIFICATION = NOT_REQUIRED_TO_DETERMINE_CURRENT_M55_PAYER_OBLIGATION
+UNIVERSAL_WITHHOLDING_RATE = PROHIBITED
+UNKNOWN_TAX_CLASSIFICATION_MUST_FAIL_CLOSED_BEFORE_LIVE_PAYOUT = TRUE
+```
 
-`NO_WITHHOLDING_ASSUMPTION = PROHIBITED`
-
-`UNIVERSAL_WITHHOLDING_RATE = PROHIBITED`
-
-`UNKNOWN_TAX_CLASSIFICATION_MUST_FAIL_CLOSED_BEFORE_LIVE_PAYOUT = TRUE`
-
-If a payment is classified as `外交員等`, current NTA guidance uses a category-specific calculation with a monthly ¥120,000 deduction rule rather than a universal flat 10.21% on the whole amount. Do not generalize that formula to M55 until the exact classification closes.
+If a **different** payment is later classified as `外交員等` or another specifically withheld category, current NTA guidance uses a category-specific calculation with a monthly ¥120,000 deduction rule rather than a universal flat 10.21% on the whole amount. Do not generalize that formula to ordinary Affiliate v1. Nonresident cash payout remains blocked.
 
 ### P-3. Tax readiness as an orthogonal control
 
@@ -702,15 +782,15 @@ Whenever a Creator chooses to publish promotional content containing an M55 affi
 
 This is a compliance condition, not a posting quota or commissioned deliverable.
 
-### P-8. Payout fee guard remains unchanged
+### P-8. Payout fee under current operating branch
 
-Stripe currently bills the M55 platform under the planned platform-managed configuration. Stripe's public pricing also states that platforms can charge users fees in supported configurations.
+Stripe currently bills the M55 platform under the planned platform-managed configuration.
 
-That technical ability is **not** sufficient legal authority to deduct a fee from Creator commission.
+The Creator-facing standard payout-processing fee is a separate disclosed M55 service consideration with contractual payout setoff under the current no-employee operating branch. Exact Rev4 integer formula and forced-tail cap are operating-model authority.
 
-If the Freelance Act applies, current JFTC Q&A states that deducting bank-transfer fees from remuneration is prohibited regardless of agreement.
+`CREATOR_FEE_DEDUCTION_IMPLEMENTATION` as a pending-legal-classification hold is **SUPERSEDED** for the current branch.
 
-`CREATOR_FEE_DEDUCTION_IMPLEMENTATION = NOT_AUTHORIZED_PENDING_LEGAL_CLASSIFICATION`
+Re-review if M55 becomes a `特定業務委託事業者`, hires employees, changes entity form, or commissions a Sponsored Creator work order.
 
 ### P-9. Evidence maintenance
 
@@ -842,21 +922,23 @@ Do not translate this into a timeless statement that "affiliate commission is ne
 
 Because M55 is not currently a `特定業務委託事業者`, the Freelance Act Article 5 reduction prohibition / Q78 bank-transfer-fee example is not the current M55 payer branch.
 
-However:
+The standard payout-processing fee is frozen by Rev4 as a separate disclosed M55 service consideration with contractual payout setoff. Exact integer formula, one-fee-per-instruction, retry inheritance, and forced-tail 25% cap are operating-model authority.
 
-`CREATOR_FEE_DEDUCTION_IMPLEMENTATION = STILL_NOT_AUTHORIZED`
+`CREATOR_FEE_DEDUCTION_IMPLEMENTATION = AUTHORIZED_UNDER_CURRENT_OPERATING_BRANCH_AS_DISCLOSED_M55_SERVICE_SETOFF`
 
-Reason: M55 has not yet frozen the exact commercial fee term, disclosure mechanics, Stripe economic threshold/cadence, or other-law/contract analysis. R8 owns that implementation. The safe launch fallback remains M55-borne payout cost unless a separately lawful, clearly disclosed fee is later Human-approved.
+Future re-review remains required if employee/entity/relationship/law facts change.
 
 ### S-5. Closure status
 
-`R2_B2_JAPAN_LEGAL_PAYMENT_DEADLINE = PUBLIC_EVIDENCE_CLOSURE_CANDIDATE`
+`R2_B2_JAPAN_LEGAL_PAYMENT_DEADLINE = FROZEN_FOR_PRESENT_OPERATOR_FACTS`
 
-`R2_B2_JAPAN_SOURCE_WITHHOLDING = PUBLIC_EVIDENCE_CLOSURE_CANDIDATE`
+`R2_B2_JAPAN_SOURCE_WITHHOLDING = FROZEN_FOR_PRESENT_OPERATOR_FACTS`
 
-`R2_B2_PHONE_CONSULTATION = NOT_REQUIRED_BY_DEFAULT_CURRENT_FACTS`
+`R2_B2_PHONE_CONSULTATION = NOT_REQUIRED`
 
-Independent Grok/Codex review of PR #189 must confirm there is no overclaim. After that review, Control Tower may close the Japan legal/tax residual and request explicit Human R2 final acceptance.
+`PROFESSIONAL_PRECLEARANCE = NOT_REQUIRED`
+
+PR **#189 is MERGED**. Do not treat it as pending independent review. Current operator legal/tax design is frozen for present facts. External professional/JFTC/NTA preclearance is not required. Actual tax/admin facts and Stripe account pricing/tax invoice are activation evidence inputs, not business-design blockers. R2 remains ACTIVE until repo/Terms/reconciliation closure under existing executable authority.
 
 ### S-6. Hard invalidators
 

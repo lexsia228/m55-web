@@ -13,21 +13,23 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
-## CURRENT EXECUTION OVERLAY — 2026-09-06
+## CURRENT EXECUTION OVERLAY — 2026-09-13 Rev4 Creator overlay
 
-Human-approved durable overlay. When this section conflicts with older narrative `(CURRENT)` labels below, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**.
+Human-approved durable overlay. When this section conflicts with older narrative `(CURRENT)` labels below, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. This overlay does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence.
 
 | Field | Value |
 |---|---|
 | SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
-| CURRENT / NEXT | `REVENUE_SAFETY_E2E` |
+| CURRENT / NEXT | `REVENUE_SAFETY_E2E` — **unchanged**; this docs gate does **not** advance executable CURRENT/NEXT |
 | ACTIVE MACRO | **CREATOR REVENUE R2** |
-| R2-B2 | **STRIPE A/B/D CLOSED** · **STRIPE C FOLLOW-UP COMPLETED / NO ACTION REQUIRED** · **JAPAN LEGAL/TAX OPEN** |
+| R2-B2 / Japan current operator legal-tax branch | **FROZEN for present facts** — Japan sole proprietor · zero employees · no salary payer · not current `特定業務委託事業者` branch · Article-3-ready disclosure still required if covered delegation · Stripe A/B/D **CLOSED** · Stripe C follow-up **COMPLETED / NO ACTION REQUIRED** |
+| PROFESSIONAL PRECLEARANCE | **NOT REQUIRED** — `JFTC_PRECLEARANCE_REQUIRED = FALSE` · `NTA_PRECLEARANCE_REQUIRED = FALSE` · `LEGAL_COUNSEL_PRECLEARANCE_REQUIRED = FALSE` · `TAX_ACCOUNTANT_PRECLEARANCE_REQUIRED = FALSE` · optional review is risk-reduction only |
 | PARALLEL QUALITY LANE | **SELF PREMIUM PUBLICATION CLOSURE** — non-Stripe · does not replace CURRENT/NEXT |
-| CREATOR CASH | **NOT IMPLEMENTED** |
-| PAYOUT PROVIDER | **UNSELECTED** |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| STRIPE TARGET ARCHITECTURE | **REQUIRED** — Stripe Connect · Accounts v2 · Express · Separate Charges and Transfers · no provider mutation / live payout activated in this gate |
+| REV4 REPO RECONCILIATION | **CURRENT DOCS CANDIDATE WORK** — Human-frozen operating-model authority = `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` · `REPO_CANONICAL_INTEGRATION = PENDING` until merge |
 | DOMESTIC CREATOR REVENUE PRECEDENT | **GREEN / REUSE** — mature Japan affiliate lifecycle + Japan Stripe Connect multi-party operating precedent; no broad replay absent invalidator |
-| EXTERNAL WAIT POLICY | Stripe C support follow-up **COMPLETED** (`STRIPE_SUPPORT_FOLLOWUP = COMPLETED_NO_ACTION_REQUIRED`) · M55 **cannot directly request** account review · Stripe contacts M55 if additional information is required · future review remains possible · **no M55 action required now** · A/B/D **CLOSED** · provider-independent development **CONTINUES** · paid professional consultation **NOT REQUIRED NOW** · actual cash activation remains fail-closed |
+| EXTERNAL WAIT POLICY | Stripe C support follow-up **COMPLETED** (`STRIPE_SUPPORT_FOLLOWUP = COMPLETED_NO_ACTION_REQUIRED`) · M55 **cannot directly request** account review · Stripe contacts M55 if additional information is required · future review remains possible · **no M55 action required now** · A/B/D **CLOSED** · provider-independent development **CONTINUES** · actual tax/admin facts and Stripe account pricing/tax invoice are **activation evidence inputs**, not business-design blockers · actual cash activation remains fail-closed until runtime/provider/accounting gates are verified |
 | PAIR PREMIUM | commerce switch **ACTIVATED** · control-plane decision **CLOSED GREEN** · real-payment E2E **not GREEN** · fulfillment + owned-report revisit E2E **not GREEN** unless separately proven |
 
 All older `CURRENT` narrative sections below are **historical mirrors** when they conflict with this overlay or `M55_EXECUTION_STATE.json`.

@@ -8,6 +8,8 @@ Normative detailed architecture for scalable creator compliance, commission qual
 
 Parent contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md`
 
+Human-frozen operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`
+
 Sole executable CURRENT/NEXT authority remains `docs/ssot/M55_EXECUTION_STATE.json`.
 
 ---
@@ -171,14 +173,14 @@ Human approval is **not** required for every corrected low-risk case.
 
 `STANDARD_COMPLIANCE_REVIEW_WINDOW_DAYS = 30`
 
-Subject to mandatory applicable payment-deadline law and final R2-B2 professional confirmation.
+The 30-day review remains frozen. It is not dependent on a final R2-B2 professional confirmation token.
 
-**Provider vs legal separation (Human-approved 2026-09-06):**
+**Provider vs legal separation (Human-approved 2026-09-06; Rev4 reconciled 2026-09-13):**
 
 | Token | Status |
 |---|---|
 | `STRIPE_30_DAY_REVIEW_COMPATIBILITY` | **GREEN** — Stripe support confirmed provider compatibility for ~30-day review → PAYABLE → later transfer (Japan platform + Japan connected account) |
-| `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY` | **OPEN** — Freelance Act applicability · mandatory payment deadline · Creator contract treatment · tax/withholding not resolved by Stripe response alone |
+| `JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY` | **FROZEN_FOR_PRESENT_OPERATOR_FACTS** — current branch is not `特定業務委託事業者`; Article-3-ready disclosure still required if covered delegation; professional preclearance **NOT REQUIRED** |
 
 Stripe provider compatibility does **not** itself resolve Japanese mandatory-law questions. If law creates direct incompatibility → `REAL_INVALIDATOR` → Human architecture review. Do **not** silently change 30 days.
 
@@ -267,29 +269,30 @@ Cumulative current classification after the later 2026-09-08 Stripe Support evid
 - `R2_B2_STRIPE_C_ACCOUNT_SUPPORTABILITY = NON_BLOCKING_STRIPE_SUPPORT_FOLLOWUP`
 - `STRIPE_SUPPORT_FOLLOWUP = COMPLETED_NO_ACTION_REQUIRED`
 - `M55_ACCOUNT_FINAL_STRIPE_APPROVAL = NOT_YET_CONFIRMED`
-- Japan legal/tax/payment-deadline classification remains OPEN
-- cash activation remains prohibited
+Japan current-operator legal/tax design is **frozen for present facts**, not OPEN as a design blocker. Cash activation remains prohibited until runtime/provider/accounting gates are verified. External professional approval token is **not** required.
 
 Preserve:
 
-- `stripePayoutProviderStatus = UNSELECTED`
+- `STRIPE_CONNECT = REQUIRED`
+- `STRIPE_ACCOUNTS_MODEL = ACCOUNTS_V2`
+- `CONNECTED_ACCOUNT_DASHBOARD = EXPRESS`
+- `CHARGE_MODEL = SEPARATE_CHARGES_AND_TRANSFERS`
 - `R2_B2_CORE_STRIPE_ARCHITECTURE_FEASIBLE = TRUE`
-- `STRIPE_CONNECT = VALIDATED_LEADING_PROVIDER_CANDIDATE`
 - `SEPARATE_CHARGES_AND_TRANSFERS = CONFIRMED_M55_CONNECT_FLOW`
 
 Do **not** assert:
 
-- Connect selected
-- Connect approved
+- Connect is Production-activated
+- Connect approved as live cash
 - Global Payouts available
 - Stripe account approval obtained
 - escrow
 - M55WEB fully approved
 - Creator payout activated
 - final Accounts v2 API field syntax frozen (semantic configuration classified 2026-09-08)
-- final unit-cost pricing formula frozen (pricing model classified 2026-09-08; R8 billing reconciliation remains)
+- final unit-cost pricing formula frozen (pricing model classified 2026-09-08; actual account pricing/tax invoice verification remains required before Production cash activation)
 
-Final provider/flow selection requires remaining R2-B2 confirmation + R2 Final Human acceptance.
+Runtime/provider mutation remains unauthorized. R2 remains ACTIVE until repo/Terms/reconciliation closure.
 
 ---
 
@@ -307,11 +310,38 @@ Future payout engine must:
 - track processing / posted / failed / returned
 - reconcile failures/returns
 
-R2-B2 classifies applicable provider/legal/tax constraints. **R8 owns the exact economic payout threshold and payout cadence values.**
+R2-B2 classified applicable provider/legal/tax constraints for **present operator facts**. **R8 implements** the frozen Rev4 payout values; it does not invent new threshold/cadence/fee policy.
+
+```text
+STANDARD_PAYOUT_THRESHOLD_JPY = 20_000
+STANDARD_PAYOUT_CADENCE = MONTHLY
+STANDARD_PAYOUT_DAY_OF_MONTH = 15
+STANDARD_PAYOUT_BATCH_CUTOFF = PRIOR_CALENDAR_MONTH_END_23_59_59_JST
+PAYOUT_APPLICATION_REQUIRED = FALSE
+TAIL_SETTLEMENT_TRIGGER_AGE_DAYS = 180
+TAIL_AGE_ANCHOR = OLDEST_UNSETTLED_PAYABLE_AT
+PAYOUT_DUE_AT = earliest applicable of STANDARD_PAYOUT_DUE_AT / TAIL_DUE_AT / APPLICABLE_LEGAL_DUE_AT
+```
+
+Payout fee integer formula (one fee per economic instruction; retry inherits parent fee; forced-tail cap):
+
+```text
+STANDARD_PAYOUT_FEE_BASE_JPY = 770
+STANDARD_PAYOUT_FEE_BASE_PAYABLE_JPY = 20_000
+STANDARD_PAYOUT_FEE_INCREMENT_BPS = 55
+excess_jpy = MAX(SETTLEMENT_PAYABLE_JPY - 20_000, 0)
+increment_tens = (excess_jpy * 55 + 99_999) // 100_000
+STANDARD_PAYOUT_PROCESSING_FEE_JPY = 770 + 10 * increment_tens
+TAIL_EFFECTIVE_PAYOUT_FEE_JPY = MIN(standard fee, FLOOR(SETTLEMENT_PAYABLE_JPY * 0.25))
+DOUBLE_PAYOUT_FEE = PROHIBITED
+NO_NEGATIVE_PAYOUT = TRUE
+```
+
+Minimum batch/instruction model: `payout_batch` · `payout_instruction` · `payout_batch_line` · `transfer_instruction` · `payout_attempt` · `payout_fee_charge`. No transfer before payout-batch lock. `CREATOR_PAYABLE_CASH_COVERAGE_RATIO = 100%`.
 
 The 30-day review window must **not** be used to violate any applicable mandatory payment deadline.
 
-Applicable Japanese legal/tax/payment deadlines are external confirmation items — not invented facts in this SSOT.
+Current-operator legal/tax branch is frozen for present facts. Applicable later-law or operator-fact changes are invalidators, not standing professional-confirmation blockers.
 
 ---
 
@@ -698,7 +728,7 @@ Provider may impose a longer hold. Mandatory legal payment deadlines must be res
 
 ## AD. Creator account takeover protection
 
-High-risk profile actions: payout destination change · identity/KYC change · email/account recovery · 2FA/security method reset · sudden payout request after profile change
+High-risk profile actions: payout destination change · identity/KYC change · email/account recovery · 2FA/security method reset · sudden payout-destination or payout-readiness change after profile change. Creator-requested early-trigger payout is **not authorized** in v1.
 
 → `PAYOUT_BLOCKED_SECURITY` / `AUTO_HOLD` when risk rules require.
 
@@ -807,7 +837,38 @@ Commercial commission rate must remain distinguishable from tax or other legally
 
 `PAYOUT_INSTRUCTION_IDEMPOTENCY = REQUIRED`
 
-Deterministic uniqueness required for: commission creation · adjustment creation · payout batch creation · provider transfer instruction · provider payout event ingestion · webhook replay
+Provider uniqueness (fail-closed):
+
+```text
+provider_event_receipt unique(provider, event_id)
+commission_accrual unique(provider, eligible_payment_object_id)
+refund/dispute adjustments keyed by source economic object id (refund_id/dispute_id) + transition
+transfer_instruction unique deterministic key
+payout_instruction unique deterministic key
+payout_fee_charge unique(payout_instruction_id)
+payout_attempt unique(provider, provider_payout_id)
+```
+
+Unknown provider acknowledgement must be reconciled before retry.
+
+`NO_STRIPE_TRANSFER_BEFORE_PAYOUT_BATCH_LOCK = TRUE`
+
+`CONNECTED_ACCOUNT_PAYOUT_SCHEDULE_V1 = MANUAL`
+
+`CONNECTED_ACCOUNT_MANUAL_HOLD_MAX_DAYS_JP = 90`
+
+Manual connected-account payout races must be reconciled before retry.
+
+`CREATOR_PAYABLE_CASH_COVERAGE_RATIO = 100%`
+
+Platform available-balance preflight is required before every transfer batch.
+
+Standard payout-processing fee integer formula, one-fee-per-instruction, retry inheritance, and forced-tail 25% cap are owned by the Operating Model. `DOUBLE_PAYOUT_FEE = PROHIBITED`.
+
+Canonical persisted state names remain:
+
+- commission: `COMMISSION_PENDING_COMPLIANCE_REVIEW` / `COMMISSION_HOLD` / `COMMISSION_PAYABLE` / `COMMISSION_REVERSED` / `COMMISSION_ADJUSTED`
+- payout: `PAYOUT_NOT_READY` / `PAYOUT_BLOCKED_*` / `PAYOUT_QUEUED` / `PAYOUT_PROCESSING` / `PAYOUT_POSTED` / `PAYOUT_FAILED` / `PAYOUT_RETURNED`
 
 Duplicate webhook or retry must **never** create duplicate creator money. Provider external IDs must bind durably to internal instructions.
 
@@ -886,8 +947,9 @@ Stripe A/B/D closed 2026-09-08. Primary evidence: `docs/evidence/M55_R2_B2_STRIP
 
 Plus remaining Japan legal/tax classification:
 
-- Japan legal/payment-deadline compatibility (`JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = OPEN`)
-- Japan tax/withholding classification sufficient for R2 closure
+- Japan current-operator legal/tax branch is **FROZEN for present facts** (`JAPAN_LEGAL_30_DAY_PAYMENT_COMPATIBILITY = FROZEN_FOR_PRESENT_OPERATOR_FACTS`)
+- Japan tax/withholding for ordinary JP-resident Affiliate under current no-salary-payer facts: `DEFAULT_WITHHOLDING_RATE = 0` with fail-closed reclassification triggers
+- professional preclearance **NOT REQUIRED**
 
 `R2_B2_STRIPE_RESIDUAL_CONFIRMATION = C_ONLY_NON_BLOCKING`
 
@@ -899,7 +961,7 @@ Plus remaining Japan legal/tax classification:
 
 Previously mapped provider topics such as payout controls, KYC, refund/dispute mechanics, transfer reversal, payout scheduling, destination updates, webhook/data boundaries and similar operational details remain implementation/reference requirements where applicable, but they are **NOT** additional Stripe support questions for this R2-B2 residual gate unless a new account-specific ambiguity or direct invalidator appears.
 
-Until R2-B2 closure + R2 Final Human acceptance: `stripePayoutProviderStatus = UNSELECTED`
+Stripe Connect is the **REQUIRED** target money rail. Runtime/provider mutation and Production cash activation remain unauthorized until actual account pricing/tax invoice verification and remaining runtime gates are complete. No external professional approval token is required.
 
 ---
 
@@ -1127,10 +1189,11 @@ Normative detailed authority: `docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_
 - Affiliate v1 has no M55-mandated post count, posting schedule, creative deliverable, or recruitment commission.
 - M55 may require compliance with M55 terms, Stripe rules, Japanese law, ad-disclosure rules, approved claims, anti-fraud rules, and prohibited-claims rules. Those safeguards do not by themselves authorize M55 to invent a sponsored-content work order.
 - Commission validity and payout readiness remain orthogonal.
-- Creator payout preference may accelerate or batch payout, but does not approve the commission itself.
+- `PAYOUT_APPLICATION_REQUIRED = FALSE`. Standard and tail settlements follow the frozen due-date rules. No Creator-requested early-trigger payout is authorized in v1.
 - `LEGAL_PAYMENT_DEADLINE_OVERRIDES_ECONOMIC_THRESHOLD = TRUE_IF_APPLICABLE`.
-- `M55_PAYOUT_COST_PASS_THROUGH_OBJECTIVE = HUMAN_APPROVED`, but no Creator fee deduction/pass-through implementation is authorized until the exact Affiliate relationship and fee mechanics are legally classified.
-- If the Freelance Act applies to a payment, bank-transfer-fee deduction from remuneration is prohibited under current JFTC guidance.
+- Standard payout-processing fee is frozen by the Rev4 Operating Model (base JPY 770 at JPY 20,000 SETTLEMENT_PAYABLE + integer-safe 55 bps above, rounded up to JPY 10; forced-tail cap 25%). Production use remains gated by runtime implementation, actual Stripe account pricing/tax-invoice verification, and the applicable M55 accounting configuration.
+- If M55 later enters the 特定業務委託事業者 / Article 5 branch, the remuneration-reduction rules, including the bank-transfer-fee example, must be re-reviewed before live payout.
+  This is not the current no-employee operating branch.
 - No universal withholding rate may be hard-coded; tax treatment must be classified by recipient/contract facts.
 - High Creator volume alone must not reduce an already-earned commission rate or erase valid commission; scale may increase KYC, tax verification, fraud review, reconciliation, and observability.
 
