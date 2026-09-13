@@ -57,7 +57,8 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Curre
 | **R2-C** `M55_TWO_LANE_REWARD_CONTRACT` | General User non-cash / Approved Creator cash split | **INTERNAL TWO-LANE CONTRACT FROZEN** |
 | **R2-D** `FOUNDING_CREATOR_ECONOMICS` | 50/40/30 · cohort 20 · machine-first compliance · 30-day review · corrected stop-loss | **INTERNAL ECONOMICS FROZEN** |
 | **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | `FREE_COMPLETION_DIGITAL_UNLOCK` v1 · Pair mutual artifact deferred | **INTERNAL LAUNCH MVP FROZEN** |
-| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe + Japan legal/tax confirmation | **DESIGN FROZEN FOR PRESENT FACTS / R2 STILL ACTIVE** — PR **#189 MERGED** · Stripe A/B/D CLOSED · Stripe C completed/no action · current operator legal/tax operating branch **FROZEN** (sole proprietor / zero employees / no salary payer / not current `特定業務委託事業者`) · external professional/JFTC/NTA preclearance **NOT REQUIRED** · actual tax/admin facts and Stripe account pricing/tax invoice are **activation evidence inputs**, not business-design blockers · R2 remains ACTIVE until repo/Terms/reconciliation closure under existing executable authority |
+| **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe + Japan legal/tax confirmation | **DESIGN FROZEN FOR PRESENT FACTS** — PR **#189 MERGED** · Stripe A/B/D CLOSED · Stripe C completed/no action · current operator legal/tax operating branch **FROZEN** (sole proprietor / zero employees / no salary payer / not current `特定業務委託事業者`) · external professional/JFTC/NTA preclearance **NOT REQUIRED** · actual tax/admin facts and Stripe account pricing/tax invoice are **activation evidence inputs**, not business-design blockers |
+| **R2-R** `REPO_TERMS_RECONCILIATION` | Rev4 SSOT repo reconciliation + Creator Affiliate Terms public surface | **CLOSED GREEN** — repo reconciliation **MERGED** via PR **#199** @ `3c143955…` · Creator Affiliate Terms canonical route `/legal/creator-affiliate-terms` · version `2026-09-13-v1` · satisfies R2 design/reconciliation closure conditions · **does not** advance executable CURRENT/NEXT · **does not** activate R3 |
 
 Compliance/payout automation annex: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
 
@@ -261,7 +262,7 @@ Detailed contracts: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT
 | Stage | Exits only when |
 |---|---|
 | **R2-B2** | (1) M55 Stripe account supportability classified · (2) current Connect account/configuration model classified · (3) negative-balance/loss responsibility classified · (4) applicable Connect pricing model classified · (5) Japan legal/payment-deadline issues classified for **present operator facts** · (6) Japan tax/withholding issues classified for **present operator facts** · (7) no invented financial semantics · (8) no unsupported escrow claim · (9) Stripe Connect required-architecture packet recorded — **not** Production cash activation |
-| **R2 final** | explicit Human acceptance after repo/Terms/reconciliation closure under existing executable authority; this docs gate does **not** close R2 or advance CURRENT/NEXT |
+| **R2 final** | explicit Human acceptance after R2-R repo/Terms reconciliation **CLOSED GREEN**; R2 stage may remain **ACTIVE** for remaining REVENUE_SAFETY_E2E authority until Human R2-final acceptance — **does not** advance executable CURRENT/NEXT or activate R3 |
 | **R3** | Creator-facing Product Truth and trust UX are safe/comprehensible |
 | **R4** | approved Creator identity/terms/distribution foundation exists |
 | **R5** | attribution/compliance/fraud/appeal machine contract is executable |
