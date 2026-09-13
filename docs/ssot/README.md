@@ -42,6 +42,7 @@ The AI identifies its task, verifies task-relevant Git identity, loads only the 
 | E+++a | `M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md` | Affiliate-first Creator relationship · Stripe money-flow · payout economics · Japan legal/tax fail-closed contract |
 | E+++b | `M55_CREATOR_AFFILIATE_BENCHMARK_TARGET_ARCHITECTURE_SSOT.md` | Frozen six-benchmark pattern map · M55-native affiliate control plane · Stripe money rail · REUSE/ADAPT/REJECT/DEFER authority |
 | E++++ | `M55_MULTI_AGENT_PARALLEL_OPERATING_MODEL_SSOT.md` | Human-approved parallel AI operating model · Mac/Windows cross-device topology · GitHub handoff · Cursor/Codex/Codex Replay/Grok roles · risk-weighted audit · fresh-chat recovery |
+| E++++a | `M55_DRAFT_PR_FIRST_REVIEW_MODEL_SSOT.md` | Human-approved cross-lane review handoff · eligible local validation → atomic commit → non-force Draft push → exact-head CI → independent exact-diff review; manual patch relay is fallback |
 | — | `M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` | Safari MCP canonical actual-browser observation adapter · subordinate to commercial quality contract |
 | — | `docs/runbooks/M55_SAFARI_MCP_LOCAL_READINESS_RUNBOOK.md` | Subordinate STP/MCP local readiness steps · not authority |
 | — | `M55_PRODUCT_TRUTH.md` | Human-readable product truth (references machine contract) |
@@ -53,7 +54,11 @@ When two or more ChatGPT/Cursor/Codex/Grok roles operate concurrently, read `M55
 
 That SSOT is process authority for role separation, one-lane/one-mutation-owner, one-Bot/one-controller, isolated workspaces, **Mac local mutation vs Windows remote control/audit separation, GitHub cross-device handoff, Codex local vs Codex Replay roles, Grok read-only red-team usage, risk-weighted audit depth**, cross-lane sync, and fresh-chat recovery.
 
-It does **not** override `M55_EXECUTION_STATE.json`, does **not** reorder roadmap gates, and does **not** authorize mutation by itself.
+For an eligible repository-contained work unit, the default review handoff is additionally governed by `M55_DRAFT_PR_FIRST_REVIEW_MODEL_SSOT.md`: after bounded local validation, create the atomic candidate commit and non-force push it to the dedicated Draft PR branch, then pin the exact remote HEAD SHA for CI and independent exact-diff review. Manual patch relay is the fallback when Draft push is not authorized or safe.
+
+`M55_DRAFT_PR_FIRST_REVIEW_MODEL_SSOT.md` does **not** weaken risk-weighted review, Human visual/product approval, or security/money/provider controls, and it never overrides an owning gate that explicitly requires pre-commit/pre-push review or forbids push.
+
+These operating SSOTs do **not** override `M55_EXECUTION_STATE.json`, do **not** reorder roadmap gates, and do **not** authorize mutation by themselves.
 
 ## Worktree registry
 
