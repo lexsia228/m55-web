@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. Executable CURRENT/NEXT is `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT`. R3 is **ACTIVE**. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. Executable CURRENT/NEXT is `M55-CREATOR-DISTRIBUTION-FOUNDATION`; R4 is **ACTIVE**. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -916,9 +916,9 @@ A referred customer may later become an approved promoter, which can create anot
 | Stage | Gate | Status |
 |---|---|---|
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
-| R2 | `REVENUE_SAFETY_E2E` | **ACTIVE** — Human-accepted cold-start PASS 2026-09-05 |
-| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | future |
-| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | future |
+| R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final R2 acceptance 2026-09-13 |
+| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR #204 merged · Human Preview visual GREEN · Production READY at merge SHA |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
 | R6 | `COMMISSION_LEDGER` | future |
 | R7 | `CREATOR_DASHBOARD` | future |

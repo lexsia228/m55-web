@@ -402,7 +402,8 @@ function runSemanticSelfTests() {
       const humanAcceptedCreatorState = {
         ...liveCreatorState,
         completedSubGates: (liveCreatorState.completedSubGates ?? []).filter(
-          (gate) => gate !== 'REVENUE_SAFETY_E2E',
+          (gate) => gate !== 'REVENUE_SAFETY_E2E'
+            && gate !== 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
         ),
         productWorkAfterControlTower: 'REVENUE_SAFETY_E2E',
         currentExecutionGate: 'REVENUE_SAFETY_E2E',

@@ -31,14 +31,14 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT`.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `M55-CREATOR-DISTRIBUTION-FOUNDATION`.
 
 | Stage | Gate | Status |
 |---|---|---|
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final acceptance 2026-09-13 · R2 repo/Terms/reconciliation complete |
-| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **ACTIVE** |
-| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | future |
+| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR **#204** merged @ `e8d9773cd7a04830f4cdb1208fbe2aa811027114` · Human Preview visual **GREEN** · Production **READY** at the same SHA · `/support` and `/legal/creator-affiliate-terms` HTTP **200** · no Creator cash activation |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
 | R6 | `COMMISSION_LEDGER` | future |
 | R7 | `CREATOR_DASHBOARD` | future |

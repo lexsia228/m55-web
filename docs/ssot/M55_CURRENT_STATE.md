@@ -13,15 +13,16 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
-## CURRENT EXECUTION OVERLAY — 2026-09-13 Rev4 Creator overlay
+## CURRENT EXECUTION OVERLAY — 2026-09-14 R3 post-merge Creator overlay
 
 Human-approved durable overlay. When this section conflicts with older narrative `(CURRENT)` labels below, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. This overlay does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence.
 
 | Field | Value |
 |---|---|
 | SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
-| CURRENT / NEXT | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` |
-| ACTIVE MACRO | **CREATOR REVENUE R3** |
+| CURRENT / NEXT | `M55-CREATOR-DISTRIBUTION-FOUNDATION` |
+| ACTIVE MACRO | **CREATOR REVENUE R4** |
+| R3 CLOSURE EVIDENCE | **CLOSED GREEN** — PR **#204** merged @ `e8d9773cd7a04830f4cdb1208fbe2aa811027114` · Human Preview visual **GREEN** · Production **READY** at the same merge SHA · `/support` HTTP **200** · `/legal/creator-affiliate-terms` HTTP **200** · no Creator cash activation |
 | R2-B2 / Japan current operator legal-tax branch | **FROZEN for present facts** — Japan sole proprietor · zero employees · no salary payer · not current `特定業務委託事業者` branch · Article-3-ready disclosure still required if covered delegation · Stripe A/B/D **CLOSED** · Stripe C follow-up **COMPLETED / NO ACTION REQUIRED** |
 | PROFESSIONAL PRECLEARANCE | **NOT REQUIRED** — `JFTC_PRECLEARANCE_REQUIRED = FALSE` · `NTA_PRECLEARANCE_REQUIRED = FALSE` · `LEGAL_COUNSEL_PRECLEARANCE_REQUIRED = FALSE` · `TAX_ACCOUNTANT_PRECLEARANCE_REQUIRED = FALSE` · optional review is risk-reduction only |
 | PARALLEL QUALITY LANE | **SELF PREMIUM PUBLICATION CLOSURE** — non-Stripe · does not replace CURRENT/NEXT |
