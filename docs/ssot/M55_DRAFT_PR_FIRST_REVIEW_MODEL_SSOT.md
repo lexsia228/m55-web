@@ -340,3 +340,13 @@ Ordinary task progress does not rewrite it.
 Change this SSOT only when the Human explicitly changes the handoff/review operating model or a higher-authority security/governance requirement invalidates it.
 
 Dynamic PR numbers, branch names, HEAD SHAs, and current lane facts must not be frozen here.
+
+---
+
+## N. GitHub Actions event-metadata freshness
+
+Some GitHub Actions checks evaluate `pull_request` event payload fields such as the PR body. Re-running an existing workflow job can replay the original event payload rather than freshly reading later PR metadata edits.
+
+Therefore, when a required PR-body marker or other event metadata is corrected after a failed run and the verifier still sees the stale value, trigger a fresh PR `synchronize` event with a bounded non-force commit on the same Draft PR branch instead of treating the rerun as authoritative fresh metadata.
+
+The retrigger commit must not broaden the product/runtime diff. The subsequent review pins the new exact HEAD SHA and remains delta-only.
