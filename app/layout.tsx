@@ -31,6 +31,19 @@ export const viewport: Viewport = {
   themeColor: "#1c1630",
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://m-55.jp/#website",
+  url: "https://m-55.jp/",
+  name: "M55",
+  description:
+    "M55は、生年月日と今の回答から、自分に出やすい反応や傾向、整え方の入口を言葉にする自己理解サービスです。",
+  inLanguage: "ja-JP",
+};
+
+const websiteJsonLdString = JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c");
+
 /**
  * Root layout: ClerkProvider only — no global SiteFooter.
  *
@@ -56,6 +69,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <html lang="ja">
         <body style={{ margin: 0, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: websiteJsonLdString }}
+          />
           <DraftClaimOnLogin />
           <RuntimeStateIdentitySync />
           <ScrollToTopButton />
