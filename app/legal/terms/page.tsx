@@ -1,15 +1,42 @@
+import type { Metadata } from "next";
 import {
   M55_LEGAL_SAFETY_BOUNDARIES,
   M55_USER_FACING_POSITIONING_COPY,
 } from "../../../lib/m55/analysisAuthorityReferenceModel";
 
-export const metadata = {
-  title: "利用規約 | M55",
+const title = "利用規約 | M55";
+const description =
+  "M55 Projectが提供するM55の利用条件、サービスの性質、提供内容、禁止事項、追加読み解きの利用条件、免責等を掲載しています。";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: "/legal/terms",
+  },
 };
+
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://m-55.jp/legal/terms#webpage",
+  url: "https://m-55.jp/legal/terms",
+  name: title,
+  description,
+  about: { "@id": "https://m-55.jp/#operator" },
+  inLanguage: "ja-JP",
+};
+
+const webPageJsonLdString = JSON.stringify(webPageJsonLd).replace(/</g, "\\u003c");
 
 export default function TermsPage() {
   return (
-    <main style={{
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: webPageJsonLdString }}
+      />
+      <main style={{
       maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
       padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
@@ -96,5 +123,6 @@ export default function TermsPage() {
         本規約は、必要に応じて改定することがあります。改定後の内容は当サイト上に掲載した時点で効力を生じます。
       </p>
     </main>
+    </>
   );
 }

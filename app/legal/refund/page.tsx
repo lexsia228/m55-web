@@ -1,12 +1,39 @@
-﻿import Link from "next/link";
+﻿import type { Metadata } from "next";
+import Link from "next/link";
 
-export const metadata = {
-  title: "返金・キャンセル | M55",
+const title = "返金・キャンセル | M55";
+const description =
+  "M55のデジタルレポート商品の返金・キャンセル条件、例外的な対応ケース、問い合わせ手続きを掲載しています。";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: "/legal/refund",
+  },
 };
+
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://m-55.jp/legal/refund#webpage",
+  url: "https://m-55.jp/legal/refund",
+  name: title,
+  description,
+  about: { "@id": "https://m-55.jp/#operator" },
+  inLanguage: "ja-JP",
+};
+
+const webPageJsonLdString = JSON.stringify(webPageJsonLd).replace(/</g, "\\u003c");
 
 export default function RefundPage() {
   return (
-    <main style={{ maxWidth: "min(1320px, calc(100vw - 48px))", margin: "0 auto", padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)", lineHeight: 1.7 }}>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: webPageJsonLdString }}
+      />
+      <main style={{ maxWidth: "min(1320px, calc(100vw - 48px))", margin: "0 auto", padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)", lineHeight: 1.7 }}>
       <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 12px" }}>返金・キャンセル</h1>
 
       <section style={{ margin: "0 0 18px" }}>
@@ -46,5 +73,6 @@ export default function RefundPage() {
         </ol>
       </section>
     </main>
+    </>
   );
 }

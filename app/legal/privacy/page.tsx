@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   M55_USER_FACING_POSITIONING_COPY,
@@ -14,13 +15,39 @@ import {
   ACCOUNT_DATA_REQUEST_HREF,
 } from "../../../lib/m55/accountDataControlPublicCopy";
 
-export const metadata = {
-  title: "プライバシーポリシー | M55",
+const title = "プライバシーポリシー | M55";
+const description =
+  "M55 Projectが取り扱うアカウント情報、生年月日、ユーザー入力、決済確認情報等の利用目的、委託、開示・訂正・削除等について掲載しています。";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: "/legal/privacy",
+  },
 };
+
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://m-55.jp/legal/privacy#webpage",
+  url: "https://m-55.jp/legal/privacy",
+  name: title,
+  description,
+  about: { "@id": "https://m-55.jp/#operator" },
+  inLanguage: "ja-JP",
+};
+
+const webPageJsonLdString = JSON.stringify(webPageJsonLd).replace(/</g, "\\u003c");
 
 export default function PrivacyPage() {
   return (
-    <main style={{
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: webPageJsonLdString }}
+      />
+      <main style={{
       maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
       padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
@@ -103,5 +130,6 @@ export default function PrivacyPage() {
         医療・法律・投資等の専門的助言ではありません。
       </p>
     </main>
+    </>
   );
 }

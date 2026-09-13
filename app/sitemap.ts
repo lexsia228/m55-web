@@ -11,6 +11,10 @@ const PUBLIC_DISCOVERY_PATHS = [
   "/ten-views",
   "/synastry",
   "/support",
+  "/legal/tokushoho",
+  "/legal/privacy",
+  "/legal/refund",
+  "/legal/terms",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
