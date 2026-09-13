@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 remains **ACTIVE**. Executable CURRENT/NEXT remains `REVENUE_SAFETY_E2E` and is **not** advanced here. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. Executable CURRENT/NEXT is `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT`. R3 is **ACTIVE**. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
