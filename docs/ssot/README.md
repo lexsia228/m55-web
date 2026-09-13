@@ -39,13 +39,26 @@ The AI identifies its task, verifies task-relevant Git identity, loads only the 
 | E++ | `M55_HIGH_COST_EVIDENCE_LEDGER.md` | Closed high-cost test evidence · rerun prohibition · invalidation rules |
 | E++op | `M55_OPERATOR_BUSINESS_STATUS_SSOT.md` | Sole-proprietor / solo-build / staffing / payroll / pre-revenue / bookkeeping / tax-admin / Tokushoho / APPI / re-review triggers |
 | E+++ | `M55_CREATOR_REVENUE_E2C2E_SSOT.md` | Creator Revenue / E2C2E staged roadmap contract · anti-MLM · ledger lifecycle · Stripe boundary |
-| E+++a | `M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md` | Affiliate-first Creator relationship · Stripe money-flow · payout economics · Japan legal/tax fail-closed contract |
-| E+++b | `M55_CREATOR_AFFILIATE_BENCHMARK_TARGET_ARCHITECTURE_SSOT.md` | Frozen six-benchmark pattern map · M55-native affiliate control plane · Stripe money rail · REUSE/ADAPT/REJECT/DEFER authority |
+| E+++om | `M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` | Human-frozen Creator Affiliate operating-model delta (Rev4 FINAL) · repo integration pending · runtime/Production cash not active · does not own CURRENT/NEXT |
+| E+++a | `M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md` | Affiliate-first Stripe / tax / legal supporting authority, reconciled to the Rev4 Operating Model |
+| E+++b | `M55_CREATOR_AFFILIATE_BENCHMARK_TARGET_ARCHITECTURE_SSOT.md` | Frozen six-benchmark pattern map · M55-native affiliate control plane · Stripe money rail · REUSE/ADAPT/REJECT/DEFER authority · target-direction fields reconciled to Rev4 |
 | E++++ | `M55_MULTI_AGENT_PARALLEL_OPERATING_MODEL_SSOT.md` | Human-approved parallel AI operating model · Mac/Windows cross-device topology · GitHub handoff · Cursor/Codex/Codex Replay/Grok roles · risk-weighted audit · fresh-chat recovery |
 | — | `M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` | Safari MCP canonical actual-browser observation adapter · subordinate to commercial quality contract |
 | — | `docs/runbooks/M55_SAFARI_MCP_LOCAL_READINESS_RUNBOOK.md` | Subordinate STP/MCP local readiness steps · not authority |
 | — | `M55_PRODUCT_TRUTH.md` | Human-readable product truth (references machine contract) |
 | Entry | `AGENTS.md` | Read order and agent rules |
+
+## Creator SSOT family (Rev4 operating-model delta)
+
+This does **not** reorder the unrelated SSOT hierarchy above.
+
+- Executable CURRENT/NEXT remains `M55_EXECUTION_STATE.json` only. Rev4 docs reconciliation does **not** advance CURRENT/NEXT.
+- `M55_OPERATOR_BUSINESS_STATUS_SSOT.md` owns current operator facts (Japan sole proprietor, zero employees, no salary payer).
+- `M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` owns the Human-frozen Creator Affiliate operating-model delta (Rev4 FINAL).
+- `M55_CREATOR_REVENUE_E2C2E_SSOT.md` remains the parent Creator Revenue program/roadmap contract and is reconciled to that operating-model delta.
+- `M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md`, `M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`, and `M55_CREATOR_AFFILIATE_BENCHMARK_TARGET_ARCHITECTURE_SSOT.md` are reconciled supporting/implementation authorities. They must not contradict the Operating Model on frozen operating-model values.
+
+`REPO_CANONICAL_INTEGRATION` remains PENDING until merge. `RUNTIME_IMPLEMENTATION` remains PENDING. `PRODUCTION_CASH_ACTIVATION = FALSE`.
 
 ## Multi-agent parallel operating model
 

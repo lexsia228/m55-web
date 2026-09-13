@@ -10,6 +10,8 @@ This SSOT does not authorize Production cash activation, connected-account creat
 
 Parent Creator Revenue authority: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md`
 
+Human-frozen operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`
+
 Tax/legal fail-closed authority: `docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md`
 
 Benchmark composition evidence: `docs/evidence/M55_CREATOR_AFFILIATE_BENCHMARK_COMPOSITION_EVIDENCE_2026-09-09.md`
@@ -484,23 +486,19 @@ No customer-purchase event directly sends Creator money.
 
 Benchmarks prove that cookies/referral tokens are conventional, but M55 must not blindly copy one vendor's window.
 
-Required future R5 decisions:
+Required future R5 implementation detail (token format, cookie role, authenticated continuity, coupon fallback, privacy/retention) remains R5 work. Benchmark-specific window values remain non-normative.
 
-- referral query/token format;
-- server-side attribution evidence;
-- cookie/local-storage role;
-- attribution lifetime/window;
-- first-click vs last-click vs locked attribution;
-- authenticated-user continuity;
-- coupon/code fallback if later required;
-- multiple-Creator collision rule;
-- self-referral/circular abuse;
-- privacy/consent/retention;
-- manual correction protocol with append-only audit.
+Active M55 target direction is no longer deferred:
 
-`ATTRIBUTION_WINDOW = DEFER_TO_R5`
+`ATTRIBUTION_WINDOW_DAYS = 30`
+
+`ATTRIBUTION_METHOD = LAST_QUALIFIED_DIRECT_CREATOR_TOUCH`
 
 `ONE_PURCHASE_MAX_ONE_CREATOR = REQUIRED`
+
+`RETROACTIVE_ATTRIBUTION = PROHIBITED`
+
+Exact lock/expiry/no-retroactive-correction principles are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` §14. This benchmark SSOT must not reselect a competing window or click model.
 
 `ATTRIBUTION_CORRECTION_MUST_BE_AUDITED = TRUE`
 
@@ -510,11 +508,23 @@ Required future R5 decisions:
 
 M55 does not copy benchmark rates.
 
-Existing Human-approved M55 schedule remains:
+Existing Human-approved M55 schedule remains the 50% / 40% / 30% exact half-open schedule — see Creator Affiliate Operating Model SSOT:
 
-- 50% days 0–180;
-- 40% days 181–365;
-- 30% day 366+.
+```text
+50%:
+FIRST_FINAL_CREATOR_APPROVED_AT
+<= ELIGIBLE_CUSTOMER_PAYMENT_SUCCEEDED_AT
+< FIRST_FINAL_CREATOR_APPROVED_AT + 180 days
+
+40%:
+FIRST_FINAL_CREATOR_APPROVED_AT + 180 days
+<= ELIGIBLE_CUSTOMER_PAYMENT_SUCCEEDED_AT
+< FIRST_FINAL_CREATOR_APPROVED_AT + 365 days
+
+30%:
+ELIGIBLE_CUSTOMER_PAYMENT_SUCCEEDED_AT
+>= FIRST_FINAL_CREATOR_APPROVED_AT + 365 days
+```
 
 Commission rate must be selected and locked using the approved M55 rate rule at the purchase/commission event, then carried through the append-only ledger.
 
@@ -553,21 +563,49 @@ Combined precedent:
 - aggregate commissions;
 - use a threshold/cadence;
 - expose payout status to Creator;
-- permit Creator preference/request where legally/operationally safe;
+- M55 v1 does **not** authorize Creator-requested early-trigger / on-demand payout; A8-style payout-preference UX is benchmark evidence only / **not authorized**;
 - automate at scale;
 - use provider-hosted payout details;
 - reconcile batches;
 - preserve statements.
 
-M55 exact threshold, cadence and fee remain unresolved at this stage.
+M55 exact threshold, cadence and fee are no longer unresolved. Active target values are frozen by Rev4 Operating Model; benchmark-specific competitor values remain non-normative.
 
 `PAYOUT_BATCHING_REQUIRED = TRUE`
 
-`ECONOMIC_PAYOUT_THRESHOLD = UNRESOLVED`
+`STANDARD_PAYOUT_THRESHOLD_JPY = 20_000`
 
-`PAYOUT_CADENCE = UNRESOLVED`
+`STANDARD_PAYOUT_CADENCE = MONTHLY`
 
-`CREATOR_PAYOUT_FEE = UNRESOLVED_PENDING_LEGAL_CLASSIFICATION`
+`STANDARD_PAYOUT_DAY_OF_MONTH = 15`
+
+`STANDARD_PAYOUT_BATCH_CUTOFF = PRIOR_CALENDAR_MONTH_END_23_59_59_JST`
+
+`STANDARD_PAYOUT_FEE_BASE_JPY = 770`
+
+`STANDARD_PAYOUT_FEE_BASE_PAYABLE_JPY = 20_000`
+
+`STANDARD_PAYOUT_FEE_INCREMENT_BPS = 55`
+
+```text
+excess_jpy = MAX(SETTLEMENT_PAYABLE_JPY - 20_000, 0)
+increment_tens = (excess_jpy * 55 + 99_999) // 100_000
+STANDARD_PAYOUT_PROCESSING_FEE_JPY = 770 + 10 * increment_tens
+```
+
+Forced-tail effective fee = `MIN(standard fee, FLOOR(SETTLEMENT_PAYABLE_JPY * 0.25))`.
+
+`STRIPE_CONNECT = REQUIRED`
+
+`STRIPE_ACCOUNTS_MODEL = ACCOUNTS_V2`
+
+`CONNECTED_ACCOUNT_DASHBOARD = EXPRESS`
+
+`CHARGE_MODEL = SEPARATE_CHARGES_AND_TRANSFERS`
+
+`M55_COMMISSION_LEDGER_IS_FINANCIAL_AUTHORITY = TRUE`
+
+Stripe remains the money rail. M55 ledger remains financial authority. Runtime/provider mutation and Production cash activation remain unauthorized in this docs gate.
 
 Benchmark fee policies are commercial evidence only.
 
