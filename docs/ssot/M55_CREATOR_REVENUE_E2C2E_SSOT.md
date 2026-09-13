@@ -78,6 +78,8 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 remains **ACTIVE**. Executable CURRENT/NEXT remains `REVENUE_SAFETY_E2E` and is **not** advanced here. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`.
 
+Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
+
 Current operator branch:
 
 ```text
