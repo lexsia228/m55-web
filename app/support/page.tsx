@@ -80,17 +80,17 @@ export default function SupportPage() {
           <li><strong>M55 プレミアムレポート フル（¥1,480）</strong>：プレミアムレポートを読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。</li>
         </ul>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          ライトは追加読み解き1件、FULLは合計5件です。プレミアムレポートは共通です。ライト購入後でも、必要になったらFULL化できます。
+          ライトは追加読み解き1件、フルは合計5件です。プレミアムレポートは共通です。ライト購入後でも、必要になったらフルへ変更できます。
         </p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからFULL化</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからフルへ変更</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          M55 プレミアムレポート ライトを購入済みの方は、¥600でFULL化できます。
+          M55 プレミアムレポート ライトを購入済みの方は、¥600でM55 プレミアムレポート フルへ変更できます。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          FULL化後は、追加読み解きを合計5件利用できます。
+          フルへ変更後は、追加読み解きを合計5件利用できます。
         </p>
       </section>
 
@@ -181,7 +181,7 @@ export default function SupportPage() {
           </li>
           <li>
             <strong>何件まで利用できますか？</strong>
-            ：M55 プレミアムレポート ライトは追加読み解き1件、M55 プレミアムレポート フルは追加読み解き合計5件です。ライト購入後にFULL化した場合も、合計5件です。
+            ：M55 プレミアムレポート ライトは追加読み解き1件、M55 プレミアムレポート フルは追加読み解き合計5件です。ライト購入後にフルへ変更した場合も、合計5件です。
           </li>
           <li>
             <strong>どこで利用できますか？</strong>
@@ -201,6 +201,19 @@ export default function SupportPage() {
           <li>メールアドレス</li>
           <li>発生している状況</li>
         </ul>
+      </section>
+
+      <section style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>Creator Affiliateについて</h2>
+        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
+          M55 Creator Affiliate の参加条件、紹介時の表示、報酬・支払条件、禁止事項は
+          <Link href="/legal/creator-affiliate-terms">Creator Affiliate 規約</Link>
+          をご確認ください。
+        </p>
+        <p style={{ margin: 0, opacity: 0.9 }}>
+          規約ページの公開自体は、Creator申請受付、本プログラムの一般公開、または報酬支払の開始を意味しません。
+          Creatorに関するお問い合わせも、本ページ上部のサポート窓口をご利用ください。
+        </p>
       </section>
 
       <p style={{ margin: 0 }}>
