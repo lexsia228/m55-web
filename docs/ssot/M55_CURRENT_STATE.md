@@ -20,14 +20,15 @@ Human-approved durable overlay. When this section conflicts with older narrative
 | Field | Value |
 |---|---|
 | SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
-| CURRENT / NEXT | `REVENUE_SAFETY_E2E` — **unchanged**; this docs gate does **not** advance executable CURRENT/NEXT |
-| ACTIVE MACRO | **CREATOR REVENUE R2** |
+| CURRENT / NEXT | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` |
+| ACTIVE MACRO | **CREATOR REVENUE R3** |
 | R2-B2 / Japan current operator legal-tax branch | **FROZEN for present facts** — Japan sole proprietor · zero employees · no salary payer · not current `特定業務委託事業者` branch · Article-3-ready disclosure still required if covered delegation · Stripe A/B/D **CLOSED** · Stripe C follow-up **COMPLETED / NO ACTION REQUIRED** |
 | PROFESSIONAL PRECLEARANCE | **NOT REQUIRED** — `JFTC_PRECLEARANCE_REQUIRED = FALSE` · `NTA_PRECLEARANCE_REQUIRED = FALSE` · `LEGAL_COUNSEL_PRECLEARANCE_REQUIRED = FALSE` · `TAX_ACCOUNTANT_PRECLEARANCE_REQUIRED = FALSE` · optional review is risk-reduction only |
 | PARALLEL QUALITY LANE | **SELF PREMIUM PUBLICATION CLOSURE** — non-Stripe · does not replace CURRENT/NEXT |
 | CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
 | STRIPE TARGET ARCHITECTURE | **REQUIRED** — Stripe Connect · Accounts v2 · Express · Separate Charges and Transfers · no provider mutation / live payout activated in this gate |
-| REV4 REPO RECONCILIATION | **CURRENT DOCS CANDIDATE WORK** — Human-frozen operating-model authority = `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` · `REPO_CANONICAL_INTEGRATION = PENDING` until merge |
+| R2 CLOSURE EVIDENCE | **CLOSED GREEN** — PR **#199** merged (Rev4 repo reconciliation) · PR **#200** merged (Creator Affiliate Terms) · Human final R2 acceptance **2026-09-13** |
+| REV4 REPO RECONCILIATION | **CLOSED GREEN** / merged — Human-frozen operating-model authority = `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` |
 | DOMESTIC CREATOR REVENUE PRECEDENT | **GREEN / REUSE** — mature Japan affiliate lifecycle + Japan Stripe Connect multi-party operating precedent; no broad replay absent invalidator |
 | EXTERNAL WAIT POLICY | Stripe C support follow-up **COMPLETED** (`STRIPE_SUPPORT_FOLLOWUP = COMPLETED_NO_ACTION_REQUIRED`) · M55 **cannot directly request** account review · Stripe contacts M55 if additional information is required · future review remains possible · **no M55 action required now** · A/B/D **CLOSED** · provider-independent development **CONTINUES** · actual tax/admin facts and Stripe account pricing/tax invoice are **activation evidence inputs**, not business-design blockers · actual cash activation remains fail-closed until runtime/provider/accounting gates are verified |
 | PAIR PREMIUM | commerce switch **ACTIVATED** · control-plane decision **CLOSED GREEN** · real-payment E2E **not GREEN** · fulfillment + owned-report revisit E2E **not GREEN** unless separately proven |

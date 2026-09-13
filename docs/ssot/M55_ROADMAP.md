@@ -31,13 +31,13 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `REVENUE_SAFETY_E2E`. This Rev4 docs reconciliation does **not** advance CURRENT/NEXT.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT`.
 
 | Stage | Gate | Status |
 |---|---|---|
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
-| R2 | `REVENUE_SAFETY_E2E` | **ACTIVE** — Human-accepted cold-start PASS 2026-09-05 |
-| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | future |
+| R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final acceptance 2026-09-13 · R2 repo/Terms/reconciliation complete |
+| R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **ACTIVE** |
 | R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | future |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
 | R6 | `COMMISSION_LEDGER` | future |
@@ -58,7 +58,7 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Curre
 | **R2-D** `FOUNDING_CREATOR_ECONOMICS` | 50/40/30 · cohort 20 · machine-first compliance · 30-day review · corrected stop-loss | **INTERNAL ECONOMICS FROZEN** |
 | **R2-E** `GENERAL_USER_VIRAL_VALUE_DESIGN` | `FREE_COMPLETION_DIGITAL_UNLOCK` v1 · Pair mutual artifact deferred | **INTERNAL LAUNCH MVP FROZEN** |
 | **R2-B2** `EXTERNAL_SUPPORTABILITY_CONFIRMATION` | account-specific Stripe + Japan legal/tax confirmation | **DESIGN FROZEN FOR PRESENT FACTS** — PR **#189 MERGED** · Stripe A/B/D CLOSED · Stripe C completed/no action · current operator legal/tax operating branch **FROZEN** (sole proprietor / zero employees / no salary payer / not current `特定業務委託事業者`) · external professional/JFTC/NTA preclearance **NOT REQUIRED** · actual tax/admin facts and Stripe account pricing/tax invoice are **activation evidence inputs**, not business-design blockers |
-| **R2-R** `REPO_TERMS_RECONCILIATION` | Rev4 SSOT repo reconciliation + Creator Affiliate Terms public surface | **CLOSED GREEN** — repo reconciliation **MERGED** via PR **#199** @ `3c143955…` · Creator Affiliate Terms canonical route `/legal/creator-affiliate-terms` · version `2026-09-13-v1` · satisfies R2 design/reconciliation closure conditions · **does not** advance executable CURRENT/NEXT · **does not** activate R3 |
+| **R2-R** `REPO_TERMS_RECONCILIATION` | Rev4 SSOT repo reconciliation + Creator Affiliate Terms public surface | **CLOSED GREEN** — repo reconciliation **MERGED** via PR **#199** @ `3c143955…` · Creator Affiliate Terms **MERGED** via PR **#200** @ `3985ea1cc12ffce59e6f8208891e3f2a20d5cae9` · canonical route `/legal/creator-affiliate-terms` · version `2026-09-13-v1` · R2 closure condition satisfied · R3 activation occurs via separate control-plane transition |
 
 Compliance/payout automation annex: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md`
 
@@ -262,7 +262,7 @@ Detailed contracts: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT
 | Stage | Exits only when |
 |---|---|
 | **R2-B2** | (1) M55 Stripe account supportability classified · (2) current Connect account/configuration model classified · (3) negative-balance/loss responsibility classified · (4) applicable Connect pricing model classified · (5) Japan legal/payment-deadline issues classified for **present operator facts** · (6) Japan tax/withholding issues classified for **present operator facts** · (7) no invented financial semantics · (8) no unsupported escrow claim · (9) Stripe Connect required-architecture packet recorded — **not** Production cash activation |
-| **R2 final** | explicit Human acceptance after R2-R repo/Terms reconciliation **CLOSED GREEN**; R2 stage may remain **ACTIVE** for remaining REVENUE_SAFETY_E2E authority until Human R2-final acceptance — **does not** advance executable CURRENT/NEXT or activate R3 |
+| **R2 final** | Human final acceptance 2026-09-13 after R2-R repo/Terms reconciliation **CLOSED GREEN** — R2 **CLOSED GREEN**; R3 activation is a separate control-plane transition |
 | **R3** | Creator-facing Product Truth and trust UX are safe/comprehensible |
 | **R4** | approved Creator identity/terms/distribution foundation exists |
 | **R5** | attribution/compliance/fraud/appeal machine contract is executable |

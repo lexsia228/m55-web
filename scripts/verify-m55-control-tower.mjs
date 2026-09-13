@@ -401,6 +401,10 @@ function runSemanticSelfTests() {
 
       const humanAcceptedCreatorState = {
         ...liveCreatorState,
+        completedSubGates: (liveCreatorState.completedSubGates ?? []).filter(
+          (gate) => gate !== 'REVENUE_SAFETY_E2E',
+        ),
+        productWorkAfterControlTower: 'REVENUE_SAFETY_E2E',
         currentExecutionGate: 'REVENUE_SAFETY_E2E',
         nextSingleAction: 'REVENUE_SAFETY_E2E',
         acceptance: {
@@ -422,6 +426,7 @@ function runSemanticSelfTests() {
       const laterCreatorGate = 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT';
       const laterCreatorGateState = {
         ...humanAcceptedCreatorState,
+        completedSubGates: [...(humanAcceptedCreatorState.completedSubGates ?? []), 'REVENUE_SAFETY_E2E'],
         productWorkAfterControlTower: laterCreatorGate,
         currentExecutionGate: laterCreatorGate,
         nextSingleAction: laterCreatorGate,
@@ -437,6 +442,9 @@ function runSemanticSelfTests() {
         'creator currentStage must equal productWorkAfterControlTower',
         {
           ...liveCreatorState,
+          productWorkAfterControlTower: 'REVENUE_SAFETY_E2E',
+          currentExecutionGate: 'REVENUE_SAFETY_E2E',
+          nextSingleAction: 'REVENUE_SAFETY_E2E',
           creatorRevenueRoadmapAuthority: {
             ...liveCreatorState.creatorRevenueRoadmapAuthority,
             currentStage: 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
