@@ -22,7 +22,7 @@ import styles from "./lp.module.css";
 export const metadata: Metadata = {
   title: PAID_DTR_LP_METADATA_TITLE_JA,
   description:
-    "M55 プレミアムレポートは、生年月日と6問の回答から自分の出方を一つの流れで読み返せるデジタルレポートです。ライト ¥1,000・フル ¥1,480の買い切り。追加読み解き付き。",
+    "M55は、生年月日と6問の回答から自分の出方を読み返す自己理解サービスです。プレミアムレポートはライト ¥1,000・フル ¥1,480の買い切り・自動更新なし。",
   alternates: {
     canonical: "/dtr/lp",
   },
@@ -317,7 +317,34 @@ export default async function DtrLpPage({
           </section>
         )}
 
-        {/* 10. FAQ */}
+        {/* 10. 購入前によく確認されること */}
+        <section aria-labelledby="dtr-lp-purchase-trust" className={styles.lpSection}>
+          <h2 id="dtr-lp-purchase-trust" className={styles.lpH2}>
+            {PAID_DTR_LP.purchaseTrustRetrieval.sectionTitleJa}
+          </h2>
+          <div className={styles.lpFaqList}>
+            {PAID_DTR_LP.purchaseTrustRetrieval.items.map((item) => (
+              <div key={item.questionJa} className={styles.lpFaqItem}>
+                <div className={styles.lpFaqQuestion}>{item.questionJa}</div>
+                <p className={styles.lpFaqAnswer}>{item.answerJa}</p>
+                {item.links.length > 0 && (
+                  <p className={styles.lpBodyTight}>
+                    {item.links.map((link, index) => (
+                      <span key={link.href}>
+                        {index > 0 ? " · " : null}
+                        <Link href={link.href} style={{ color: "#6b5fa8", textDecoration: "none" }}>
+                          {link.labelJa}
+                        </Link>
+                      </span>
+                    ))}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 11. FAQ */}
         <section aria-labelledby="dtr-lp-faq" className={styles.lpSection}>
           <h2 id="dtr-lp-faq" className={styles.lpH2}>
             {PAID_DTR_LP.faq.sectionTitleJa}
