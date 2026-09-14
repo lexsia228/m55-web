@@ -6,6 +6,7 @@ import M55PrivacySafeAnalytics from "../components/analytics/M55PrivacySafeAnaly
 import { DraftClaimOnLogin } from "../components/dtr/DraftClaimOnLogin";
 import { ScrollToTopButton } from "../components/common/ScrollToTopButton";
 import RuntimeStateIdentitySync from "../components/shell/RuntimeStateIdentitySync";
+import { M55_PUBLIC_SUPPORT_EMAIL } from "../lib/m55/accountDataControlPublicCopy";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://m-55.jp"),
@@ -31,17 +32,48 @@ export const viewport: Viewport = {
   themeColor: "#1c1630",
 };
 
+const operatorJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://m-55.jp/#operator",
+  name: "M55 Project",
+  alternateName: "M55",
+  url: "https://m-55.jp/",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://m-55.jp/icons/icon-512.png",
+  },
+  email: M55_PUBLIC_SUPPORT_EMAIL,
+  address: {
+    "@type": "PostalAddress",
+    postalCode: "107-0062",
+    addressRegion: "東京都",
+    addressLocality: "港区",
+    streetAddress: "南青山3丁目1番36号 青山丸竹ビル6F",
+    addressCountry: "JP",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    email: M55_PUBLIC_SUPPORT_EMAIL,
+    availableLanguage: ["ja"],
+  },
+};
+
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "@id": "https://m-55.jp/#website",
   url: "https://m-55.jp/",
   name: "M55",
+  alternateName: "m-55.jp",
   description:
     "M55は、生年月日と今の回答から、自分に出やすい反応や傾向、整え方の入口を言葉にする自己理解サービスです。",
   inLanguage: "ja-JP",
+  publisher: { "@id": "https://m-55.jp/#operator" },
 };
 
+const operatorJsonLdString = JSON.stringify(operatorJsonLd).replace(/</g, "\\u003c");
 const websiteJsonLdString = JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c");
 
 /**
@@ -69,6 +101,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <html lang="ja">
         <body style={{ margin: 0, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: operatorJsonLdString }}
+          />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: websiteJsonLdString }}
