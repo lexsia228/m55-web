@@ -1257,6 +1257,67 @@ export const PAID_DTR_LP = {
       { labelJa: 'プライバシー', href: '/legal/privacy' },
     ] as const,
   },
+  purchaseTrustRetrieval: {
+    sectionTitleJa: '購入前によく確認されること',
+    items: [
+      {
+        questionJa: 'M55とは何ですか？',
+        answerJa:
+          'M55は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答を組み合わせ、自己理解と関係性整理に使える形へ整える参考情報を提供するサービスです。表示内容は参考情報であり、医学的診断、心理検査、または将来の不確実な事実を断定するものではありません。',
+        links: [
+          { labelJa: 'M55の仕組み', href: '/how-m55-works' },
+          { labelJa: '利用規約', href: '/legal/terms' },
+        ],
+      },
+      {
+        questionJa: '定期購入（サブスクリプション）ですか？',
+        answerJa: `現在の ${PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa}（${PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}）と ${PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa}（${PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}）は、いずれも一回払いの買い切りです。自動更新はありません。`,
+        links: [{ labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' }],
+      },
+      {
+        questionJa: '支払い前に試せますか？',
+        answerJa:
+          '無料の見取り図で、生年月日とニックネームから自分に出やすい輪郭の入口を確認できます。公開の無料入口は、ログイン不要で始められます。',
+        links: [{ labelJa: '無料の見取り図', href: '/core' }],
+      },
+      {
+        questionJa: '運営者は誰ですか？',
+        answerJa:
+          '販売事業者は M55 Project です。連絡先・所在地などの法定表示は特定商取引法に基づく表記に、お問い合わせ先はサポート窓口に掲載しています。',
+        links: [
+          { labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
+          { labelJa: 'サポート窓口', href: '/support' },
+        ],
+      },
+      {
+        questionJa: '返金・キャンセルはできますか？',
+        answerJa:
+          'デジタルコンテンツの性質上、原則として返金は行いません。内容の好みの違いや、閲覧後の自己都合によるキャンセルは、原則として返金対象外です。誤請求・二重請求が確認できる場合、または決済完了後に提供が成立しない障害が確認できる場合などは、個別に対応します。',
+        links: [{ labelJa: '返金・キャンセルについて', href: '/legal/refund' }],
+      },
+      {
+        questionJa: '生年月日や個人情報はどう使われますか？',
+        answerJa:
+          '生年月日や回答情報は、読み取りの生成とサービス提供のため、プライバシーポリシーに掲載の目的の範囲で取り扱います。決済の確認に必要な取引情報は取得し、決済の処理は外部の決済事業者を利用します。情報の種類・利用目的・委託の詳細はプライバシーポリシーをご確認ください。',
+        links: [{ labelJa: '生年月日・個人情報の取り扱い', href: '/legal/privacy' }],
+      },
+      {
+        questionJa: 'アカウントやデータの削除はできますか？',
+        answerJa:
+          '開示・訂正・削除等のご希望は、プライバシーポリシーに記載の手続きに従い、サポート窓口からお問い合わせいただけます。',
+        links: [
+          { labelJa: 'プライバシーポリシー', href: '/legal/privacy' },
+          { labelJa: 'サポート窓口', href: '/support' },
+        ],
+      },
+      {
+        questionJa: '支払い後はどうなりますか？',
+        answerJa:
+          '決済完了後、ウェブ上でプレミアムレポートを閲覧できます。物理配送はありません。購入したレポートは、同じ内容を開き直して読み返せます。',
+        links: [{ labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' }],
+      },
+    ] as const,
+  },
   faq: {
     sectionTitleJa: 'FAQ',
     items: [
@@ -1348,6 +1409,12 @@ export function collectPaidDtrLpCopyStrings(): string[] {
     lp.purchaseNotes.legalLinksNavAriaLabelJa,
     ...lp.purchaseNotes.paragraphsJa,
     ...lp.purchaseNotes.legalLinks.map((l) => l.labelJa),
+    lp.purchaseTrustRetrieval.sectionTitleJa,
+    ...lp.purchaseTrustRetrieval.items.flatMap((item) => [
+      item.questionJa,
+      item.answerJa,
+      ...item.links.map((link) => link.labelJa),
+    ]),
     lp.faq.sectionTitleJa,
     ...lp.faq.items.flatMap((f) => [f.questionJa, f.answerJa]),
     lp.cta.sectionTitleJa,
