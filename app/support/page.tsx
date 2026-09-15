@@ -203,19 +203,6 @@ export default function SupportPage() {
         </ul>
       </section>
 
-      <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>Creator Affiliateについて</h2>
-        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          M55 Creator Affiliate の参加条件、紹介時の表示、報酬・支払条件、禁止事項は
-          <Link href="/legal/creator-affiliate-terms">Creator Affiliate 規約</Link>
-          をご確認ください。
-        </p>
-        <p style={{ margin: 0, opacity: 0.9 }}>
-          規約ページの公開自体は、Creator申請受付、本プログラムの一般公開、または報酬支払の開始を意味しません。
-          Creatorに関するお問い合わせも、本ページ上部のサポート窓口をご利用ください。
-        </p>
-      </section>
-
       <p style={{ margin: 0 }}>
         <Link href="/">トップページへ戻る</Link>
       </p>

@@ -50,6 +50,17 @@ export function PublicFooter() {
             ))}
           </div>
         </nav>
+        <nav className={styles.utilityNav} aria-label="Creator / Partner">
+          <div className={styles.linkRow}>
+            <Link
+              href="/creator"
+              className={styles.link}
+              data-testid="m55-creator-partner-footer-link"
+            >
+              Creator / Partner
+            </Link>
+          </div>
+        </nav>
         <p className={styles.copy}>© 2026 M55</p>
       </div>
     </footer>
