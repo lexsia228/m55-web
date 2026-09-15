@@ -4,7 +4,11 @@ import { SignInButton } from '@clerk/nextjs';
 import { CreatorApplicationForm } from '../_components/CreatorApplicationForm';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Creator申請 | M55', other: { referrer: 'no-referrer' } };
+export const metadata = {
+  title: 'Creator申請 | M55',
+  robots: { index: false, follow: false },
+  other: { referrer: 'no-referrer' },
+};
 export default async function CreatorApplyPage({ searchParams }: { searchParams: Promise<{ invite?: string }> }) {
   const { userId } = await auth();
   const { invite } = await searchParams;

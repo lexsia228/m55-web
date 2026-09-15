@@ -4,7 +4,10 @@ import { SignInButton } from '@clerk/nextjs';
 import { CreatorPortalPanel } from '../_components/CreatorPortalPanel';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Creator申請状況 | M55' };
+export const metadata = {
+  title: 'Creator申請状況 | M55',
+  robots: { index: false, follow: false },
+};
 export default async function CreatorPortalPage() {
   const { userId } = await auth();
   return <main style={{ maxWidth: 760, margin: '0 auto', padding: '48px 20px 80px', lineHeight: 1.8 }}>

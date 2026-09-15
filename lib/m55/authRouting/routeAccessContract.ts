@@ -27,6 +27,9 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   '/my',
   '/how-m55-works',
   '/ten-views',
+  '/creator',
+  '/creator/apply',
+  '/creator/portal',
   '/synastry',
   '/synastry/purchase/confirm',
   '/dev/synastry-paid-report-preview',
@@ -73,6 +76,7 @@ export const PROTECTED_PAGE_PATHS = [
   '/dev/dtr-drawer-preview',
   '/dev/dtr-processing-preview',
   '/dev/premium-share-preview',
+  '/internal/creator-review',
 ] as const;
 
 export const PROTECTED_API_PATHS = [
@@ -85,6 +89,9 @@ export const PROTECTED_API_PATHS = [
   '/api/reply/history',
   '/api/room/core',
   '/api/room/core/send',
+  '/api/creator/application',
+  '/api/creator/portal',
+  '/api/internal/creator-review',
 ] as const;
 
 const PROTECTED_STATIC_PATHS = new Set<string>([
@@ -96,6 +103,13 @@ const PROTECTED_STATIC_PATHS = new Set<string>([
 const PROTECTED_DYNAMIC_PATTERNS: readonly RegExp[] = [
   /^\/synastry\/report\/[^/]+$/,
   /^\/api\/reply\/session\/[^/]+$/,
+  /^\/api\/internal\/creator-review\/[^/]+$/,
+];
+
+/** Public dynamic routes with exactly one opaque segment. */
+const PUBLIC_DYNAMIC_PATTERNS: readonly RegExp[] = [
+  /^\/creator\/invite\/[^/]+$/,
+  /^\/api\/creator\/invite\/[^/]+$/,
 ];
 
 const E2E_CLEAN_CAPTURE_DEV_FIXTURE_PATHS = new Set<string>([
@@ -120,6 +134,7 @@ export function normalizePathname(pathname: string): string {
 export function matchesPublicRoutePath(pathname: string): boolean {
   const path = normalizePathname(pathname);
   if (PUBLIC_EXACT_PATHS.has(path)) return true;
+  if (PUBLIC_DYNAMIC_PATTERNS.some((pattern) => pattern.test(path))) return true;
   for (const root of PUBLIC_PREFIX_ROOTS) {
     if (path === root || path.startsWith(`${root}/`)) return true;
   }

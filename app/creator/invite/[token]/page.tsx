@@ -2,7 +2,11 @@ import Link from 'next/link';
 import { findValidScoutInvite } from '../../../../lib/m55/creatorDistribution/invite';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Creator招待 | M55', other: { referrer: 'no-referrer' } };
+export const metadata = {
+  title: 'Creator招待 | M55',
+  robots: { index: false, follow: false },
+  other: { referrer: 'no-referrer' },
+};
 export default async function CreatorInvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   let valid = false;

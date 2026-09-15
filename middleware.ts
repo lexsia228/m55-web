@@ -23,6 +23,10 @@ const isPublicRoute = createRouteMatcher([
   '/my',
   '/how-m55-works',
   '/ten-views',
+  '/creator',
+  '/creator/apply',
+  '/creator/portal',
+  '/creator/invite/:token',
   '/synastry',
   '/synastry/purchase/confirm',
   '/dev/synastry-paid-report-preview',
@@ -41,6 +45,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/dtr/draft',
   '/api/dtr/report-snapshot-ready',
   '/api/dtr/report-snapshot/hide',
+  '/api/creator/invite/:token',
 ]);
 
 const isE2ECleanCaptureDevFixture = createRouteMatcher([

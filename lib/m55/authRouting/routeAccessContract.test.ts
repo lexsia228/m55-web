@@ -103,6 +103,10 @@ const PUBLIC_PAGE_SAMPLES = [
   '/my',
   '/how-m55-works',
   '/ten-views',
+  '/creator',
+  '/creator/apply',
+  '/creator/portal',
+  '/creator/invite/sample-token',
   '/support',
   '/synastry',
   '/synastry/purchase/confirm',
@@ -135,6 +139,7 @@ const PUBLIC_API_SAMPLES = [
   '/api/dtr/draft',
   '/api/dtr/report-snapshot-ready',
   '/api/dtr/report-snapshot/hide',
+  '/api/creator/invite/sample-token',
 ] as const;
 
 describe('routeAccessContract — normalization', () => {
@@ -151,19 +156,21 @@ describe('routeAccessContract — exhaustive inventory', () => {
 
   it('discovers the current application route count', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 66);
+    assert.equal(templates.length, 77);
   });
 });
 
 describe('routeAccessContract — protected regression', () => {
   it('keeps all 16 protected pages protected', () => {
+    assert.equal(PROTECTED_PAGE_PATHS.length, 16);
     for (const path of PROTECTED_PAGE_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
     }
   });
 
-  it('keeps all 10 protected Route Handlers protected', () => {
+  it('keeps all 12 protected static Route Handlers protected', () => {
+    assert.equal(PROTECTED_API_PATHS.length, 12);
     for (const path of PROTECTED_API_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
@@ -200,6 +207,20 @@ describe('routeAccessContract — dynamic boundaries', () => {
     assert.equal(classifyRouteAccess('/api/reply/session/abc'), 'protected');
     assert.equal(classifyRouteAccess('/api/reply/session'), 'unknown');
     assert.equal(classifyRouteAccess('/api/reply/session/abc/more'), 'unknown');
+  });
+
+  it('publishes only the one-segment Creator invite document and API families', () => {
+    for (const root of ['/creator/invite', '/api/creator/invite']) {
+      assert.equal(classifyRouteAccess(`${root}/token`), 'public');
+      assert.equal(classifyRouteAccess(root), 'unknown');
+      assert.equal(classifyRouteAccess(`${root}/token/more`), 'unknown');
+    }
+  });
+
+  it('protects only the one-segment internal Creator review action family', () => {
+    assert.equal(classifyRouteAccess('/api/internal/creator-review/application-id'), 'protected');
+    assert.equal(classifyRouteAccess('/api/internal/creator-review/application-id/more'), 'unknown');
+    assert.equal(classifyRouteAccess('/api/internal/anything-else'), 'unknown');
   });
 
   it('rejects sibling prefix and suffix prototype paths', () => {
@@ -483,6 +504,18 @@ describe('routeAccessContract — middleware boundary', () => {
     assert.match(src, /createPlainUnknownApi404Response/);
     assert.match(src, /createUnknownDocumentRecoveryRewrite/);
     assert.doesNotMatch(src, /NextResponse\.next\(\)/);
+    for (const route of [
+      "'/creator'", "'/creator/apply'", "'/creator/portal'",
+      "'/creator/invite/:token'", "'/api/creator/invite/:token'",
+    ]) {
+      assert.match(src, new RegExp(route.replace(/[/:]/g, '\\$&')));
+    }
+    for (const protectedRoute of [
+      '/internal/creator-review', '/api/creator/application', '/api/creator/portal',
+      '/api/internal/creator-review',
+    ]) {
+      assert.doesNotMatch(src, new RegExp(`['"]${protectedRoute.replace(/\//g, '\\/')}[^'"]*['"]`));
+    }
   });
 });
 

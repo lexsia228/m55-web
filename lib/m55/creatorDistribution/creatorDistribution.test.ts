@@ -80,6 +80,33 @@ test('both bearer-token pages declare a no-referrer policy', () => {
   }
 });
 
+test('Creator discovery stays selective, separate from support, and footer-only', () => {
+  const support = read('app/support/page.tsx');
+  assert.doesNotMatch(support, /Creator Affiliateについて|creator-affiliate-terms/);
+
+  const footer = read('app/_components/PublicFooter.tsx');
+  assert.equal([...footer.matchAll(/href="\/creator"/g)].length, 1);
+  assert.match(footer, /aria-label="Creator \/ Partner"/);
+  assert.match(footer, /data-testid="m55-creator-partner-footer-link"/);
+  assert.match(footer, />\s*Creator \/ Partner\s*</);
+
+  const landing = read('app/creator/page.tsx');
+  assert.match(landing, /個別審査制/);
+  assert.match(landing, /人の目で審査/);
+  assert.match(landing, /一律のフォロワー最低数は設けず/);
+  assert.match(landing, /自動参加できるオープンアクセス型ではありません/);
+  assert.match(landing, /スカウトは承認を保証しません/);
+});
+
+test('all Creator acquisition and status pages are noindex and nofollow', () => {
+  for (const page of [
+    'app/creator/page.tsx', 'app/creator/apply/page.tsx',
+    'app/creator/portal/page.tsx', 'app/creator/invite/[token]/page.tsx',
+  ]) {
+    assert.match(read(page), /robots: \{ index: false, follow: false \}/, page);
+  }
+});
+
 test('R4 source contains no cash, payout, commission, or attribution implementation', () => {
   const implementation = [
     'lib/m55/creatorDistribution/contract.ts', 'lib/m55/creatorDistribution/repository.ts',
