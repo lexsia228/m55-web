@@ -66,7 +66,7 @@ function PlanAnchorLink({ label }: { label: string }) {
   return (
     <a
       href={`#${PAID_DTR_LP.hero.compareSectionId}`}
-      className="m55-lp-cta-btn m55-lp-cta-btn--secondary"
+      className="m55-lp-cta-btn"
     >
       <span>{label}</span>
       <ArrowRightIcon />
@@ -76,21 +76,24 @@ function PlanAnchorLink({ label }: { label: string }) {
 
 function HeroPriceChips() {
   return (
-    <div className={styles.lpPriceChips} aria-label="プレミアムレポートプランの価格">
-      <div className={styles.lpPriceChip}>
-        <span className={styles.lpPriceChipLabel}>{PLAN.light.publicName}</span>
-        <span className={styles.lpPriceChipValue}>{PLAN.light.priceLabelJa}</span>
-        <span className={styles.lpPriceChipMeta}>
-          {PLAN.consultReplyLabelJa} {PLAN.light.includedItemsJa[1]?.replace('追加読み解き ', '')}
-        </span>
+    <div className={styles.lpPriceBlock}>
+      <div className={styles.lpPriceChips} aria-label="プレミアムレポートプランの価格">
+        <div className={styles.lpPriceChip}>
+          <span className={styles.lpPriceChipValue}>{PLAN.light.priceLabelJa}</span>
+          <span className={styles.lpPriceChipLabel}>{PLAN.light.publicName}</span>
+          <span className={styles.lpPriceChipMeta}>
+            {PLAN.consultReplyLabelJa} {PLAN.light.includedItemsJa[1]?.replace('追加読み解き ', '')}
+          </span>
+        </div>
+        <div className={styles.lpPriceChipFull}>
+          <span className={styles.lpPriceChipValue}>{PLAN.full.priceLabelJa}</span>
+          <span className={styles.lpPriceChipLabel}>{PLAN.full.publicName}</span>
+          <span className={styles.lpPriceChipMeta}>
+            {PLAN.consultReplyLabelJa} {PLAN.full.includedItemsJa[1]?.replace('追加読み解き ', '')}
+          </span>
+        </div>
       </div>
-      <div className={styles.lpPriceChipFull}>
-        <span className={styles.lpPriceChipLabel}>{PLAN.full.publicName}</span>
-        <span className={styles.lpPriceChipValue}>{PLAN.full.priceLabelJa}</span>
-        <span className={styles.lpPriceChipMeta}>
-          {PLAN.consultReplyLabelJa} {PLAN.full.includedItemsJa[1]?.replace('追加読み解き ', '')}
-        </span>
-      </div>
+      <p className={styles.lpHeroOneTime}>{PLAN.oneTimeNoteJa}</p>
     </div>
   );
 }
