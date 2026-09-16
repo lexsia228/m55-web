@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. Executable CURRENT/NEXT is `M55-CREATOR-DISTRIBUTION-FOUNDATION`; R4 is **ACTIVE**. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. The executable R4 stage owner (`productWorkAfterControlTower`) is `M55-CREATOR-DISTRIBUTION-FOUNDATION`; R4 is **ACTIVE** and not closed. As of the 2026-09-16 pre-commit SSOT sync the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` inside R4 — see the R4 boundary checkpoint below. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -918,15 +918,99 @@ A referred customer may later become an approved promoter, which can create anot
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final R2 acceptance 2026-09-13 |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR #204 merged · Human Preview visual GREEN · Production READY at merge SHA |
-| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** — see R4 boundary and in-progress checkpoint below · **not** closed |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
 | R6 | `COMMISSION_LEDGER` | future |
 | R7 | `CREATOR_DASHBOARD` | future |
 | R8 | `PAYOUT_AND_SETTLEMENT` | future |
 | — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
-| — | `INVITE_ONLY_CREATOR_BETA` | future |
-| — | `M55_CREATOR_REVENUE_READY` | future |
+| — | `M55_CREATOR_REVENUE_READY` | future — **precedes** invite-only beta (Human decision 2026-09-16) |
+| — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
 | — | `CONTROLLED_SCALE` | future |
+
+### Post-R8 activation sequence (Human-approved 2026-09-16)
+
+`M55_CREATOR_REVENUE_READY` **must precede** `INVITE_ONLY_CREATOR_BETA`. Do **not** weaken this order to satisfy a legacy control-plane verifier.
+
+```
+R8 PAYOUT_AND_SETTLEMENT
+→ M55-CODEX-CREATOR-INFRA-AUDIT   (historical name; Codex currently PAUSED — do not execute now)
+→ STRIPE_SANDBOX_COMMERCIAL_E2E
+→ HUMAN_DESIGNATED_CREATOR_ACCOUNT_REHEARSAL
+→ PRODUCTION_ZERO_MONEY_READONLY_SMOKE
+→ SEPARATE_HUMAN_GO_FOR_REAL_MONEY
+→ PRODUCTION_MINIMAL_REAL_MONEY_CONTROLLED_SMOKE
+→ M55_CREATOR_REVENUE_READY
+→ INVITE_ONLY_CREATOR_BETA
+→ CONTROLLED_SCALE
+```
+
+### R4 boundary — Creator distribution foundation (updated 2026-09-16 — pre-commit SSOT sync)
+
+R4 owns approved Creator identity/terms/distribution foundation. R4 is **ACTIVE and not closed**. Local Creator PublicShell/copy, portal public status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **LOCAL_GREEN / ACTUAL_DIFF_GREEN** and **not** committed. Execution agents: Codex **PAUSED** · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY**.
+
+| Field | Value |
+|---|---|
+| Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
+| Observed HEAD | `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| PR #210 | **OPEN** — not mutated |
+| Internal reviewer UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| Creator public shell/copy work | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · **REMOTE_PENDING** |
+| Creator portal status + CTA | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_LOCAL** |
+| Explicitly **not** proven | not staged · not committed · not pushed · not in updated PR #210 · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — `PublicShell`, forbidden human-review wording, apply expectation wording, non-activation 報酬発生 wording, portal public labels, and landing CTA hierarchy already locally addressed |
+| Real unresolved R4 product defects | **NONE** — portal raw enum exposure **RESOLVED_LOCAL** · landing CTA hierarchy **RESOLVED_LOCAL** |
+| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` — **PRE_STAGE_AUTHORIZATION_REVIEW**; does **not** itself authorize stage/commit |
+
+R4 portal still owns **application/profile status + clear next action only**. Internal enum values remain **unchanged**. Public UI uses concise Japanese status labels. **No R7 analytics/dashboard implementation in R4.**
+
+R4 CTA: existing M55 CTA/button/link assets — primary **Creatorとして申請する**, secondary **申請状況を見る**, Terms subordinate. No new design system; no broad CSS architecture.
+
+### Commercial readiness failure matrix (Human-approved 2026-09-16)
+
+Mandatory before Founding Creator external operation. **Happy path alone is insufficient.**
+
+1. creator application and approval
+2. duplicate economic identity
+3. attribution expiry
+4. Creator A → B last-qualified-direct-touch
+5. self-referral
+6. circular abuse
+7. duplicate webhook
+8. out-of-order webhook
+9. payment retry/idempotency
+10. full refund
+11. partial refund
+12. late chargeback/dispute
+13. review → PAYABLE
+14. Stripe transfer failure
+15. insufficient available platform balance
+16. payout disabled
+17. bank payout failure
+18. Stripe verification/requirements change
+19. Terms reaccept
+20. Creator suspension/revocation
+21. transfer/payout retry without double transfer
+
+### Dashboard phase boundary (Human-approved 2026-09-16)
+
+R4 portal exposes **application/profile status + clear next action only**. R7 dashboard owns referral/link state · authoritative visits/clicks · conversions · pending commission · payable commission · actionable hold/block reason · next payout expectation · payout history. **Do not implement R7 in R4.**
+
+### Stripe architecture — unchanged (2026-09-16)
+
+`TARGET_AFFILIATE_ARCHITECTURE = M55_NATIVE_CONTROL_PLANE_PLUS_STRIPE_MONEY_RAIL` · `STRIPE_CONNECT = REQUIRED` · `STRIPE_ACCOUNTS_MODEL = ACCOUNTS_V2` · `CONNECTED_ACCOUNT_DASHBOARD = EXPRESS` · `CHARGE_MODEL = SEPARATE_CHARGES_AND_TRANSFERS` · `CONNECTED_ACCOUNT_PAYOUT_SCHEDULE_V1 = MANUAL` · `PAYOUT_BATCHING_REQUIRED = TRUE` · `NO_STRIPE_TRANSFER_BEFORE_PAYOUT_BATCH_LOCK = TRUE` · `CREATOR_PAYABLE_CASH_COVERAGE_RATIO = 100%`
+
+Current runtime remains **CREATOR CASH INFRASTRUCTURE NOT IMPLEMENTED** — `CREATOR_CASH_INFRASTRUCTURE = NOT_IMPLEMENTED` · `PRODUCTION_CASH_ACTIVATION = FALSE`.
+
+### No-rework / progress contract (Human-approved 2026-09-16)
+
+`PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** evidence levels where applicable. Never infer `MERGED` / `PRODUCTION_GREEN` from LOCAL evidence. Use delta-only validation, read-only mapping before mutation, and do not replay CLOSED GREEN absent actual invalidation.
+
+### Control-plane verifier incompatibility (2026-09-16 — reported at mapping checkpoint; later locally resolved, not committed)
+
+Historical report at the mapping checkpoint: `CONTROL_PLANE_VERIFIER_INCOMPATIBILITY`. The verifier was **not** modified **in that SSOT checkpoint**.
+
+Current state: **RESOLVED_LOCAL_NOT_COMMITTED** · **ACTUAL_DIFF_GREEN** on `scripts/verify-m55-control-tower.mjs` and `scripts/m55-control-tower-semantic.mjs` — **not committed**. Historical CPVI-01 / CPVI-02 findings remain in `docs/ssot/M55_EXECUTION_STATE.json` `creatorRevenueRoadmapAuthority.controlPlaneVerifierIncompatibility`.
 
 ### R2 boundary — `REVENUE_SAFETY_E2E`
 
@@ -995,8 +1079,8 @@ Owns Stripe/provider integration, hosted onboarding, KYC readiness, payout batch
 | **R7** | Creator can independently reconcile earnings/status without normal Human help |
 | **R8** | provider onboarding and payout lifecycle are automated/reconciled/fail-closed |
 | **Creator Infra Audit** | cross-stage invariants and failure modes pass independent review |
-| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects |
-| **Revenue Ready** | explicit Human GO |
+| **Revenue Ready** | explicit Human GO — after the frozen post-R8 activation sequence and **before** invite-only beta (Human decision 2026-09-16) |
+| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects — entered **only after** Revenue Ready |
 
 Do **not** reorder stages without a real dependency invalidator + Human approval.
 

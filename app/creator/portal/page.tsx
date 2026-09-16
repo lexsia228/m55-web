@@ -10,9 +10,9 @@ export const metadata = {
 };
 export default async function CreatorPortalPage() {
   const { userId } = await auth();
-  return <main style={{ maxWidth: 760, margin: '0 auto', padding: '48px 20px 80px', lineHeight: 1.8 }}>
+  return <div style={{ maxWidth: 760, margin: '0 auto', padding: '48px 20px 80px', lineHeight: 1.8 }}>
     <h1>Creator 申請状況</h1>
     {userId ? <CreatorPortalPanel /> : <p>状況の確認にはログインが必要です。<SignInButton mode="modal"><button type="button">ログイン</button></SignInButton></p>}
     <p><Link href="/support">サポートに相談</Link></p>
-  </main>;
+  </div>;
 }

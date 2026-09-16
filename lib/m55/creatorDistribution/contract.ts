@@ -8,6 +8,7 @@ export const APPLICATION_STATUSES = [
 ] as const;
 export type ApplicationStatus = typeof APPLICATION_STATUSES[number];
 export const PROFILE_STATUSES = ['APPROVED_PENDING_ACTIVATION', 'ACTIVE', 'SUSPENDED', 'REVOKED'] as const;
+export type ProfileStatus = typeof PROFILE_STATUSES[number];
 export const MEDIA_METHODS = ['DM_CHALLENGE', 'BIO_CHALLENGE', 'EXISTING_SCOUT_THREAD', 'MANUAL_OTHER'] as const;
 export const REVIEW_REASON_CODES = [
   'QUALIFIED', 'INSUFFICIENT_ACTIVE_AUDIENCE_EVIDENCE', 'MEDIA_CONTROL_UNVERIFIED',
