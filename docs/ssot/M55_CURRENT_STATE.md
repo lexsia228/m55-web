@@ -13,9 +13,40 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
+## CURRENT EXECUTION OVERLAY — 2026-09-16 R4 post-commit SSOT temporal reconciliation
+
+Human-approved durable overlay. This is the **newest** overlay: where it conflicts with the earlier 2026-09-16 pre-commit SSOT sync overlay, mapping-checkpoint overlay, 2026-09-14 R3 overlay, or any older narrative `(CURRENT)` label, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. It does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence, and it does **not** close R4.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW** bounded sub-gate inside R4 |
+| PRODUCT WORK AFTER CONTROL TOWER | `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4 stage owner — unchanged) |
+| EXECUTION PARENT GATE | `M55-CREATOR-DISTRIBUTION-FOUNDATION` |
+| ACTIVE MACRO | **CREATOR REVENUE R4** |
+| STAGE STATUS | R1 **CLOSED GREEN** · R2 **CLOSED GREEN** · R3 **CLOSED GREEN** · R4 **ACTIVE** (**not** closed) |
+| EXECUTION AGENT TOPOLOGY | Human decision — Codex **PAUSED** (token/usage limit) · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY** |
+| R4 WORKTREE / BRANCH | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
+| SSOT RECONCILIATION BASE HEAD | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — immutable Creator/R4 atomic payload commit; **not** a durable live-HEAD claim after this SSOT reconciliation |
+| ATOMIC PAYLOAD COMMIT TREE | `b25d7add92f633c19b57d46f82b61af8d7fb2be9` |
+| ATOMIC PAYLOAD COMMIT GATE | `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` — **CLOSED GREEN** |
+| PR #210 | **OPEN** — not mutated |
+| INTERNAL REVIEWER UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| CREATOR PUBLIC SHELL / COPY WORK | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
+| CREATOR PORTAL STATUS + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
+| R4 UNRESOLVED PRODUCT DEFECTS | **NONE** |
+| COMMITTED LOCAL — NOT PROVEN REMOTE | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| CONTROL PLANE VERIFIER | **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED** |
+| CONTROL TOWER HANDOFF TEST | **STALE** · **DEFERRED_NON_BLOCKING** · not required by current CI or precommit contract |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| STRIPE TARGET ARCHITECTURE | **UNCHANGED** |
+| EVIDENCE LEVELS | `PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** — never infer MERGED/PRODUCTION from LOCAL evidence |
+| PROHIBITED IN THIS GATE | push · PR mutation · merge · deploy |
+| IMPLEMENTATION AUTHORIZED IN THIS GATE | **FALSE** — pre-push authorization review does not authorize push |
+
 ## CURRENT EXECUTION OVERLAY — 2026-09-16 R4 pre-commit SSOT sync
 
-Human-approved durable overlay. This is the **newest** overlay: where it conflicts with the earlier 2026-09-16 mapping-checkpoint overlay, the 2026-09-14 R3 overlay, or any older narrative `(CURRENT)` label, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. It does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence, and it does **not** close R4.
+Historical pre-commit SSOT sync overlay. **Superseded for CURRENT/NEXT and committed-local status** by the later 2026-09-16 post-commit SSOT temporal reconciliation overlay above. Retained as dated evidence of the pre-commit gate. Executable CURRENT/NEXT is owned by `docs/ssot/M55_EXECUTION_STATE.json`.
 
 | Field | Value |
 |---|---|

@@ -2,10 +2,10 @@
   "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-09-16T21:16:15Z",
+  "updatedAt": "2026-09-16T22:05:20Z",
   "macroLane": "M55_COMMERCIAL_CONTENT_QUALITY",
-  "currentExecutionGate": "M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW",
-  "nextSingleAction": "M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW",
+  "currentExecutionGate": "M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW",
+  "nextSingleAction": "M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW",
   "productWorkAfterControlTower": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
   "executionParentGate": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
   "pairImplementation": "COMPLETE",
@@ -782,18 +782,29 @@
     "r4Closed": false,
     "worktreePath": "/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1",
     "featureBranch": "feat/m55-r4-internal-review-ui-polish-v1",
-    "observedHead": "5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd",
+    "ssotReconciliationBaseHead": "c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72",
+    "worktreeStateAtReconciliationBase": "CLEAN",
+    "indexStateAtReconciliationBase": "EMPTY",
+    "atomicPayloadCommit": {
+      "sha": "c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72",
+      "parent": "5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd",
+      "tree": "b25d7add92f633c19b57d46f82b61af8d7fb2be9",
+      "subject": "feat: advance R4 creator public experience",
+      "pathCount": 14,
+      "gate": "M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT",
+      "gateState": "CLOSED_GREEN"
+    },
     "prNumber": 210,
     "prStateObserved": "OPEN",
     "internalReviewerUi": "COMMITTED_AT_5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd",
-    "creatorPublicShellAndCopyWork": "LOCAL_GREEN_REMOTE_PENDING",
+    "creatorPublicShellAndCopyWork": "COMMITTED_LOCAL",
     "creatorPublicShellAndCopyActualDiff": "GREEN",
-    "creatorPortalStatusAndCtaWork": "LOCAL_GREEN",
+    "creatorPortalStatusAndCtaWork": "COMMITTED_LOCAL",
     "creatorPortalStatusAndCtaActualDiff": "GREEN",
     "focusedCreatorDistributionSuite": "16/16 PASS",
-    "portalRawEnumExposure": "RESOLVED_LOCAL",
-    "landingCtaHierarchy": "RESOLVED_LOCAL",
-    "pendingActivationDuplicateCopyPatch1": "RESOLVED_LOCAL",
+    "portalRawEnumExposure": "RESOLVED_COMMITTED_LOCAL",
+    "landingCtaHierarchy": "RESOLVED_COMMITTED_LOCAL",
+    "pendingActivationDuplicateCopyPatch1": "RESOLVED_COMMITTED_LOCAL",
     "localGreenScope": [
       "shared PublicShell locally wired across Creator public routes",
       "four page-local outer main elements removed locally",
@@ -807,11 +818,11 @@
       "focused Creator distribution suite 16/16 PASS",
       "git diff --check PASS"
     ],
-    "localGreenNotProven": [
-      "not staged",
-      "not committed",
+    "committedLocalNotProvenRemote": [
       "not pushed",
-      "not yet included in PR #210",
+      "remote feature branch not updated",
+      "not yet included in updated PR #210",
+      "no CI GREEN for the new local commit chain",
       "no new Preview verification",
       "no Human final Preview visual",
       "not merged",
@@ -826,9 +837,9 @@
       "non-activation 報酬発生 wording"
     ],
     "r4UnresolvedItems": [],
-    "nextSingleActionWithinR4": "M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW",
-    "nextSingleActionMode": "PRE_STAGE_AUTHORIZATION_REVIEW",
-    "nextSingleActionAuthorizationScope": "complete bounded 14-path R4 local delta",
+    "nextSingleActionWithinR4": "M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW",
+    "nextSingleActionMode": "PRE_PUSH_AUTHORIZATION_REVIEW",
+    "nextSingleActionAuthorizationScope": "fresh remote preflight and exact feature push preparation for PR #210",
     "portalMappingGoal": {
       "internalEnumValues": "UNCHANGED",
       "publicUi": "CONCISE_JAPANESE_STATUS_LABELS",
@@ -857,12 +868,10 @@
     },
     "implementationAuthorizedInThisGate": false,
     "prohibitedInThisGate": [
-      "stage",
-      "commit",
       "push",
+      "PR mutation",
       "merge",
-      "deploy",
-      "PR mutation"
+      "deploy"
     ],
     "executionAgentTopology": {
       "codex": "PAUSED_TOKEN_USAGE_LIMIT",
@@ -890,7 +899,7 @@
       "HANDOFF_TEST_REQUIRED_BY_CURRENT_CI": false,
       "HANDOFF_TEST_REQUIRED_BY_PRECOMMIT_CONTRACT": false
     },
-    "observedAt": "2026-09-16T21:16:15Z"
+    "observedAt": "2026-09-16T22:05:20Z"
   },
   "creatorRevenueRoadmapAuthority": {
     "status": "ACTIVE",
@@ -1036,15 +1045,16 @@
       "broadCompetitorAuditReplayAbsentInvalidation": "PROHIBITED"
     },
     "controlPlaneVerifierIncompatibility": {
-      "status": "RESOLVED_LOCAL_NOT_COMMITTED",
-      "resolutionState": "RESOLVED_LOCAL_NOT_COMMITTED",
+      "status": "RESOLVED_COMMITTED_LOCAL",
+      "resolutionState": "RESOLVED_COMMITTED_LOCAL",
       "actualDiffReview": "GREEN",
       "resolvedByLocalPaths": [
         "scripts/verify-m55-control-tower.mjs",
         "scripts/m55-control-tower-semantic.mjs"
       ],
-      "remoteState": "NOT_COMMITTED",
-      "resolvedAt": "2026-09-16T21:16:15Z",
+      "committedInPayloadCommit": "c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72",
+      "remoteState": "NOT_PUSHED",
+      "resolvedAt": "2026-09-16T22:05:20Z",
       "verifier": "scripts/verify-m55-control-tower.mjs",
       "verifierMutatedInSsotCheckpoint20260916": false,
       "ssotOrderReversedToSatisfyVerifier": false,

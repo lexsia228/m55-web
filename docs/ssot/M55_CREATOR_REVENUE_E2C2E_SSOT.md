@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. The executable R4 stage owner (`productWorkAfterControlTower`) is `M55-CREATOR-DISTRIBUTION-FOUNDATION`; R4 is **ACTIVE** and not closed. As of the 2026-09-16 pre-commit SSOT sync the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` inside R4 — see the R4 boundary checkpoint below. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. The executable R4 stage owner (`productWorkAfterControlTower`) is `M55-CREATOR-DISTRIBUTION-FOUNDATION`; R4 is **ACTIVE** and not closed. As of the 2026-09-16 post-commit SSOT temporal reconciliation the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` inside R4 — see the R4 boundary checkpoint below. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -945,22 +945,22 @@ R8 PAYOUT_AND_SETTLEMENT
 → CONTROLLED_SCALE
 ```
 
-### R4 boundary — Creator distribution foundation (updated 2026-09-16 — pre-commit SSOT sync)
+### R4 boundary — Creator distribution foundation (updated 2026-09-16 — post-commit SSOT temporal reconciliation)
 
-R4 owns approved Creator identity/terms/distribution foundation. R4 is **ACTIVE and not closed**. Local Creator PublicShell/copy, portal public status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **LOCAL_GREEN / ACTUAL_DIFF_GREEN** and **not** committed. Execution agents: Codex **PAUSED** · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY**.
+R4 owns approved Creator identity/terms/distribution foundation. R4 is **ACTIVE and not closed**. Creator PublicShell/copy, portal public status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **COMMITTED_LOCAL** in atomic payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` (tree `b25d7add92f633c19b57d46f82b61af8d7fb2be9`). Execution agents: Codex **PAUSED** · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY**.
 
 | Field | Value |
 |---|---|
 | Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
-| Observed HEAD | `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| Atomic payload commit | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — gate `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` **CLOSED GREEN** |
 | PR #210 | **OPEN** — not mutated |
 | Internal reviewer UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
-| Creator public shell/copy work | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · **REMOTE_PENDING** |
-| Creator portal status + CTA | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_LOCAL** |
-| Explicitly **not** proven | not staged · not committed · not pushed · not in updated PR #210 · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
-| External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — `PublicShell`, forbidden human-review wording, apply expectation wording, non-activation 報酬発生 wording, portal public labels, and landing CTA hierarchy already locally addressed |
-| Real unresolved R4 product defects | **NONE** — portal raw enum exposure **RESOLVED_LOCAL** · landing CTA hierarchy **RESOLVED_LOCAL** |
-| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` — **PRE_STAGE_AUTHORIZATION_REVIEW**; does **not** itself authorize stage/commit |
+| Creator public shell/copy work | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
+| Creator portal status + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
+| Explicitly **not** proven | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — `PublicShell`, forbidden human-review wording, apply expectation wording, non-activation 報酬発生 wording, portal public labels, and landing CTA hierarchy committed locally |
+| Real unresolved R4 product defects | **NONE** — portal raw enum exposure **RESOLVED_COMMITTED_LOCAL** · landing CTA hierarchy **RESOLVED_COMMITTED_LOCAL** |
+| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW**; does **not** itself authorize push |
 
 R4 portal still owns **application/profile status + clear next action only**. Internal enum values remain **unchanged**. Public UI uses concise Japanese status labels. **No R7 analytics/dashboard implementation in R4.**
 
@@ -1006,11 +1006,11 @@ Current runtime remains **CREATOR CASH INFRASTRUCTURE NOT IMPLEMENTED** — `CRE
 
 `PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** evidence levels where applicable. Never infer `MERGED` / `PRODUCTION_GREEN` from LOCAL evidence. Use delta-only validation, read-only mapping before mutation, and do not replay CLOSED GREEN absent actual invalidation.
 
-### Control-plane verifier incompatibility (2026-09-16 — reported at mapping checkpoint; later locally resolved, not committed)
+### Control-plane verifier incompatibility (2026-09-16 — reported at mapping checkpoint; later committed locally)
 
 Historical report at the mapping checkpoint: `CONTROL_PLANE_VERIFIER_INCOMPATIBILITY`. The verifier was **not** modified **in that SSOT checkpoint**.
 
-Current state: **RESOLVED_LOCAL_NOT_COMMITTED** · **ACTUAL_DIFF_GREEN** on `scripts/verify-m55-control-tower.mjs` and `scripts/m55-control-tower-semantic.mjs` — **not committed**. Historical CPVI-01 / CPVI-02 findings remain in `docs/ssot/M55_EXECUTION_STATE.json` `creatorRevenueRoadmapAuthority.controlPlaneVerifierIncompatibility`.
+Current state: **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** on `scripts/verify-m55-control-tower.mjs` and `scripts/m55-control-tower-semantic.mjs` — committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED**. Historical CPVI-01 / CPVI-02 findings remain in `docs/ssot/M55_EXECUTION_STATE.json` `creatorRevenueRoadmapAuthority.controlPlaneVerifierIncompatibility`.
 
 ### R2 boundary — `REVENUE_SAFETY_E2E`
 

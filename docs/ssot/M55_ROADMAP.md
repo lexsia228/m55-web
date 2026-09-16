@@ -31,7 +31,7 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current stage: `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4, **ACTIVE**). As of the 2026-09-16 pre-commit SSOT sync the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` inside R4.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current stage: `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4, **ACTIVE**). As of the 2026-09-16 post-commit SSOT temporal reconciliation the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` inside R4.
 
 | Stage | Gate | Status |
 |---|---|---|
@@ -48,23 +48,23 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Curre
 | — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
 | — | `CONTROLLED_SCALE` | future |
 
-### R4 in-progress checkpoint (updated 2026-09-16 — pre-commit SSOT sync)
+### R4 in-progress checkpoint (updated 2026-09-16 — post-commit SSOT temporal reconciliation)
 
-R4 is **ACTIVE and not closed**. Local Creator PublicShell/copy, portal status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **LOCAL_GREEN / ACTUAL_DIFF_GREEN** and **not** committed. Execution agents: **Codex PAUSED** · **Cursor ACTIVE EXECUTION AGENT** · **GrokBOT READ-ONLY AUDIT / BENCHMARK ONLY**.
+R4 is **ACTIVE and not closed**. Creator PublicShell/copy, portal status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **COMMITTED_LOCAL** in atomic payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` (tree `b25d7add92f633c19b57d46f82b61af8d7fb2be9`). Execution agents: **Codex PAUSED** · **Cursor ACTIVE EXECUTION AGENT** · **GrokBOT READ-ONLY AUDIT / BENCHMARK ONLY**.
 
 | Field | Value |
 |---|---|
 | Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
-| Observed HEAD | `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| Atomic payload commit | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — gate `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` **CLOSED GREEN** |
 | PR #210 | **OPEN** — not mutated |
 | Internal reviewer UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
-| Creator public shell/copy work | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · **REMOTE_PENDING** |
-| Creator portal status + CTA | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_LOCAL** |
-| Local GREEN not proven as remote | not staged · not committed · not pushed · not in updated PR #210 · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| Creator public shell/copy work | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
+| Creator portal status + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
+| Committed local not proven remote | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
 | External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — already locally addressed: `PublicShell` · forbidden human-review wording · apply expectation wording · non-activation 報酬発生 wording · portal public labels · landing CTA hierarchy |
 | Real unresolved R4 product defects | **NONE** |
-| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` — **PRE_STAGE_AUTHORIZATION_REVIEW**; does **not** itself authorize stage/commit |
-| Control-plane verifier | **RESOLVED_LOCAL_NOT_COMMITTED** · **ACTUAL_DIFF_GREEN** · local paths `scripts/verify-m55-control-tower.mjs` · `scripts/m55-control-tower-semantic.mjs` · **not committed** |
+| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW**; does **not** itself authorize push |
+| Control-plane verifier | **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED** |
 
 Broad competitor audit replay is **prohibited absent actual invalidation**.
 
@@ -85,7 +85,7 @@ R8 PAYOUT_AND_SETTLEMENT
 → CONTROLLED_SCALE
 ```
 
-`CONTROL_PLANE_VERIFIER_INCOMPATIBILITY` was **reported** in the 2026-09-16 mapping-checkpoint SSOT (verifier **not** modified in that checkpoint). Later local reconciliation is **RESOLVED_LOCAL_NOT_COMMITTED** · **ACTUAL_DIFF_GREEN** on `scripts/verify-m55-control-tower.mjs` and `scripts/m55-control-tower-semantic.mjs` — **not committed**. Historical CPVI-01 / CPVI-02 findings remain in `creatorRevenueRoadmapAuthority.controlPlaneVerifierIncompatibility`.
+`CONTROL_PLANE_VERIFIER_INCOMPATIBILITY` was **reported** in the 2026-09-16 mapping-checkpoint SSOT (verifier **not** modified in that checkpoint). Later reconciliation is **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** on `scripts/verify-m55-control-tower.mjs` and `scripts/m55-control-tower-semantic.mjs` — committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED**. Historical CPVI-01 / CPVI-02 findings remain in `creatorRevenueRoadmapAuthority.controlPlaneVerifierIncompatibility`.
 
 ### Commercial readiness failure matrix (Human-approved 2026-09-16)
 
