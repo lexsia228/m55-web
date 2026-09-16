@@ -359,6 +359,7 @@ export default function DtrPaidPurchasePrep() {
             <span className={styles.planCompareName}>{plan.compactDifference.full.nameJa}</span>
             <span className={styles.planCompareDelta}>{plan.compactDifference.full.differenceJa}</span>
           </div>
+          <p className={styles.planCompareFullDelta}>{plan.fullDeltaNoteJa}</p>
         </div>
         <p className={styles.planCompareShared}>{plan.compactDifference.sharedJa}</p>
       </div>
@@ -419,7 +420,6 @@ export default function DtrPaidPurchasePrep() {
               ))}
             </ul>
           </div>
-          <p className={styles.planNote}>{plan.fullDeltaNoteJa}</p>
           <p className={styles.planAudience}>{plan.full.audienceJa}</p>
           <div className={styles.planCtaWrap}>
             <button

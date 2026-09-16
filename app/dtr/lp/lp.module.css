@@ -772,6 +772,69 @@
   display: none;
 }
 
+/* While a question is on screen, the continuity card keeps only its identity
+   heading. The /core bridge already presented the open loop and locked headings,
+   and the questionnaire repeats the trait line in its own context strip, so the
+   long form here pushed question 1 out of the first viewport. */
+.lpSection:has([data-m55-paid-phase="question"])
+  :global([data-testid="m55-dtr-lp-continuity"]) {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+}
+
+.lpSection:has([data-m55-paid-phase="question"])
+  :global([data-testid="m55-dtr-lp-continuity"]) > :not(:first-child) {
+  display: none;
+}
+
+.lpSection:has([data-m55-paid-phase="question"])
+  :global([data-testid="m55-dtr-lp-continuity"]) > :first-child {
+  margin-bottom: 0;
+}
+
+/* 360-class: drop empty navy stage padding and stacked grid air so the
+   actual Q1 question can start in the first viewport. Desktop, plans, and
+   checkout keep the existing stage rhythm. */
+@media (max-width: 639px) {
+  .lpRoot:has([data-m55-paid-phase="question"]) {
+    padding-top: 4px;
+  }
+
+  .lpSection:has([data-m55-paid-phase="question"])
+    :global([data-testid="m55-dtr-lp-continuity"]) {
+    margin-bottom: 4px;
+    padding: 8px 14px;
+  }
+
+  .lpSection:has([data-m55-paid-phase="question"])
+    :global(.m55-premium-decision-field) {
+    padding-top: 0;
+    padding-bottom: 0.5rem;
+  }
+
+  .lpSection:has([data-m55-paid-phase="question"])
+    :global(.m55-premium-decision-sheet) {
+    padding-top: 0.55rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .lpSection:has([data-m55-paid-phase="question"])
+    :global([data-m55-paid-phase="question"]) {
+    gap: 0.4rem;
+  }
+
+  .lpSection:has([data-m55-paid-phase="question"])
+    :global([aria-label="プレミアム購入の流れ"]) {
+    margin-bottom: 0;
+  }
+
+  .lpSection:has([data-m55-paid-phase="question"])
+    :global([data-testid="m55-paid-result-context"]) {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lpRoot :global(.m55-lp-cta-btn) {
     transition: none !important;

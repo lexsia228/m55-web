@@ -67,7 +67,11 @@ describe('commercial presentation polish — Premium intro single', () => {
     assert.doesNotMatch(q, /力が出やすい条件/);
     assert.match(q, /data-m55-paid-phase="question"/);
     assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);
-    assert.match(q, /ctaSupportJa|正解はありません/);
+    assert.doesNotMatch(q, /ctaSupportJa/);
+    assert.doesNotMatch(q, /正解はありません/);
+    assert.match(read('components/dtr/DtrLpPremiumContinuityIntro.tsx'), /ctaSupportJa/);
+    assert.match(read('components/core/CoreFreeToPaidConversionBridge.tsx'), /ctaSupportJa/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa, /正解はありません/);
     assert.match(q, /paidQuestionnaireStart/);
   });
 });

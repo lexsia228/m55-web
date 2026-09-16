@@ -744,6 +744,33 @@
   }
 }
 
+/* Sits under the Full cell so the difference is readable at the compact decision
+   point without changing either cell's geometry or the co-visible price row. */
+.planCompareFullDelta {
+  grid-column: 2;
+  /* Do not let the sentence floor the 1fr track and squeeze the Light cell. */
+  min-width: 0;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(45, 40, 70, 0.78);
+  /* A sentence, not a chip label: keep amounts and counters with their units. */
+  line-break: strict;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* One column is too tight for a sentence on phones, so it takes the band width
+   instead of breaking mid-phrase. The copy names Light, so it still reads as the
+   Full difference. */
+@media (max-width: 639px) {
+  .planCompareFullDelta {
+    grid-column: 1 / -1;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+}
+
 .planCompareShared {
   margin: 0.7rem 0 0;
   font-size: 0.8rem;
