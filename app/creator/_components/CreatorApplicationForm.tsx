@@ -106,9 +106,9 @@ export function CreatorApplicationForm({ inviteToken }: { inviteToken?: string }
           <input name="termsAccepted" type="checkbox" required />
           <span>
             <Link href="/legal/creator-affiliate-terms" target="_blank" className={styles.tertiaryLink}>
-              Creator Affiliate 規約（2026-09-13-v1）
+              Creator Affiliate 規約
             </Link>
-            を確認し同意します
+            を確認し、同意します
           </span>
         </label>
       </section>

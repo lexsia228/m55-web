@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { SignInButton } from '@clerk/nextjs';
 import { CreatorApplicationForm } from '../_components/CreatorApplicationForm';
@@ -55,11 +54,6 @@ export default async function CreatorApplyPage({ searchParams }: { searchParams:
       ) : (
         <CreatorApplicationForm inviteToken={invite} />
       )}
-      <p className={styles.footerLinks}>
-        <Link href="/legal/creator-affiliate-terms" className={styles.tertiaryLink}>Creator Affiliate 規約</Link>
-        {' · '}
-        <Link href="/support" className={styles.tertiaryLink}>サポート</Link>
-      </p>
     </div>
   );
 }

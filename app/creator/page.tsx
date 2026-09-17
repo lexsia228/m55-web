@@ -34,15 +34,6 @@ const TERMS_SUMMARY = [
   },
 ] as const;
 
-const PRE_REFERRAL_LINKS = [
-  { label: 'M55の読み解き方', href: '/how-m55-works' },
-  { label: '購入後のレポート読み返し', href: '/dtr/core' },
-  { label: '返金・キャンセル', href: '/legal/refund' },
-  { label: 'プライバシーポリシー', href: '/legal/privacy' },
-  { label: 'Creator Affiliate規約', href: '/legal/creator-affiliate-terms' },
-  { label: 'サポート', href: '/support' },
-] as const;
-
 const FAQ = [
   {
     q: 'フォロワー数の最低条件はありますか？',
@@ -141,8 +132,7 @@ export default function CreatorRecruitmentPage() {
         </div>
         <p className={styles.termsNote}>
           詳細な算定条件、保留・取消・調整、支払処理手数料等は
-          <Link href="/legal/creator-affiliate-terms" className={styles.tertiaryLink}>Creator Affiliate規約</Link>
-          をご確認ください。
+          ページ下部のCreator Affiliate規約をご確認ください。
         </p>
       </section>
 
@@ -159,17 +149,6 @@ export default function CreatorRecruitmentPage() {
         <p className={styles.lead}>
           報酬の受け取りには、日本国内の金融機関口座で日本円の精算を受けられることが必要です。
         </p>
-      </section>
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>紹介前に確認する</h2>
-        <nav className={styles.preReferralLinks} aria-label="紹介前に確認する">
-          {PRE_REFERRAL_LINKS.map((item) => (
-            <Link key={item.href} href={item.href} className={styles.tertiaryLink}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
       </section>
 
       <section className={styles.section}>
@@ -194,7 +173,6 @@ export default function CreatorRecruitmentPage() {
         </p>
         <p className={styles.disclaimer}>
           このページの公開は、紹介計測・報酬発生・報酬支払の開始を意味しません。
-          お問い合わせは<Link href="/support" className={styles.tertiaryLink}>サポート</Link>へ。
         </p>
       </section>
     </div>
