@@ -91,13 +91,10 @@ test('Creator discovery stays selective, separate from support, and footer-only'
   assert.match(footer, />\s*Creator \/ Partner\s*</);
 
   const landing = read('app/creator/page.tsx');
-  assert.match(landing, /個別審査制/);
-  assert.doesNotMatch(landing, /人の目/);
-  assert.doesNotMatch(landing, /人による審査/);
-  assert.match(landing, /当社所定の基準に基づき審査します/);
+  assert.doesNotMatch(landing, /個別審査制|オープンアクセス型|誰でも自動参加|人の目|人による審査|Human review|individual-review/);
+  assert.match(landing, /承認制Creator Affiliateプログラムです/);
+  assert.match(landing, /当社所定の基準に基づき参加可否を審査します/);
   assert.match(landing, /一律のフォロワー最低数は設けず/);
-  assert.match(landing, /自動参加できるオープンアクセス型ではありません/);
-  assert.match(landing, /M55からの招待は、参加承認を保証するものではありません/);
 });
 
 test('all Creator acquisition and status pages are noindex and nofollow', () => {
@@ -126,11 +123,12 @@ test('Creator public pages use the approved application-review and non-activatio
   const landing = read('app/creator/page.tsx');
   const apply = read('app/creator/apply/page.tsx');
   const invite = read('app/creator/invite/[token]/page.tsx');
-  assert.doesNotMatch([landing, apply, invite].join('\n'), /3〜5営業日/);
-  assert.match(landing, /申請内容を確認のうえ、当社所定の基準に基づき審査します。確認のため、追加情報の提出をお願いする場合があります。申請またはM55からの招待は、参加承認を保証するものではありません。/);
-  assert.doesNotMatch(apply, /人の目/);
+  const portal = read('app/creator/portal/page.tsx');
+  assert.doesNotMatch([landing, apply, invite, portal].join('\n'), /3〜5営業日/);
+  assert.doesNotMatch([landing, apply, invite, portal].join('\n'), /人の目|人による審査|Human review|individual-review/);
+  assert.match(landing, /当社所定の基準に基づき参加可否を審査します/);
   assert.match(apply, /当社所定の基準に基づき審査します/);
-  assert.match(invite, /M55からの招待は、Creator Affiliateへの申請をご案内するものです。招待を受けたことにより、参加承認または報酬の発生が保証されるものではありません。/);
+  assert.match(invite, /参加承認または報酬の発生が保証されるものではありません/);
   assert.match(landing, /このページの公開は、紹介計測・報酬発生・報酬支払の開始を意味しません。/);
 });
 
@@ -199,13 +197,13 @@ test('Creator portal presents Japanese status labels without raw enum leakage', 
 
 test('Creator portal preserves special next-action flows', () => {
   const panel = read('app/creator/_components/CreatorPortalPanel.tsx');
-  assert.match(panel, /app\.status === 'NEED_MORE_INFO' && <p><Link href="\/support">/);
+  assert.match(panel, /app\.status === 'NEED_MORE_INFO'[\s\S]*href="\/support"/);
   assert.match(panel, /app\.status === 'TERMS_REACCEPT_REQUIRED'[\s\S]*href="\/legal\/creator-affiliate-terms"/);
   assert.match(panel, /action: 'REACCEPT_TERMS'/);
   assert.match(panel, />再同意する<\/button>/);
   assert.match(panel, /app\.status === 'REJECTED'[\s\S]*href="\/creator\/apply"/);
   assert.match(panel, /app\.status === 'BLOCKED'[\s\S]*href="\/support"/);
-  assert.match(panel, /profile\.status === 'SUSPENDED'[\s\S]*href="\/support"/);
+  assert.match(panel, /profile\.status === 'SUSPENDED'[\s\S]*href="\/support"|profile\.status === 'SUSPENDED' \|\| profile\.status === 'REVOKED'/);
   assert.match(panel, /profile\.status === 'REVOKED'[\s\S]*href="\/support"|profile\.status === 'SUSPENDED' \|\| profile\.status === 'REVOKED'/);
 });
 
@@ -216,19 +214,99 @@ test('pending-activation next action is shown once on the normal approved path',
   assert.equal([...panel.matchAll(/有効化は別途ご案内します。/g)].length, 2);
 });
 
-test('Creator landing CTA uses existing M55 hierarchy without header recruitment', () => {
+test('Creator landing CTA uses creator module hierarchy without header recruitment', () => {
   const landing = read('app/creator/page.tsx');
-  assert.match(landing, /from ['"]\.\.\/how-m55-works\/how-it-works\.module\.css['"]/);
+  assert.match(landing, /from ['"]\.\/creator\.module\.css['"]/);
   assert.match(landing, /className=\{styles\.ctaStack\}/);
   const primary = landing.match(/<Link href="\/creator\/apply" className=\{styles\.primaryCta\}>([^<]+)<\/Link>/);
   const secondary = landing.match(/<Link href="\/creator\/portal" className=\{styles\.secondaryCta\}>([^<]+)<\/Link>/);
-  const terms = landing.match(/<Link href="\/legal\/creator-affiliate-terms">([^<]+)<\/Link>/);
+  const terms = landing.match(/Creator Affiliate利用規約/);
   assert.equal(primary?.[1], 'Creatorとして申請する');
   assert.equal(secondary?.[1], '申請状況を見る');
-  assert.equal(terms?.[1], 'Creator Affiliate利用規約');
-  assert.ok(landing.indexOf('styles.ctaStack') < landing.indexOf('/legal/creator-affiliate-terms'));
+  assert.ok(terms);
+  assert.match(
+    landing,
+    /styles\.ctaStack[\s\S]*Creatorとして申請する[\s\S]*申請状況を見る[\s\S]*Creator Affiliate利用規約/,
+  );
   assert.doesNotMatch(landing, /人の目|人による審査|Human review|individual-review/);
 
   const header = read('components/shell/PublicHeader.tsx');
   assert.doesNotMatch(header, /\/creator/);
+});
+
+test('Creator commercial onboarding UX presents step flow, trust facts, and terms summary', () => {
+  const landing = read('app/creator/page.tsx');
+  const css = read('app/creator/creator.module.css');
+  for (const label of ['申請', '審査', '承認・開始準備']) {
+    assert.match(landing, new RegExp(label));
+  }
+  for (const fact of ['参加費なし', '必須購入なし', '投稿ノルマなし', '一律のフォロワー最低数なし']) {
+    assert.match(landing, new RegExp(fact));
+  }
+  assert.match(landing, /50%/);
+  assert.match(landing, /40%/);
+  assert.match(landing, /30%/);
+  assert.match(landing, /紹介の判定/);
+  assert.match(landing, /30日間/);
+  assert.match(landing, /最後の有効な直接紹介/);
+  assert.match(landing, /支払スケジュール/);
+  assert.match(landing, /フォロワー数だけで参加可否を判断しません/);
+  assert.doesNotMatch(landing, /最後の有効な直接Creator接触/);
+  assert.doesNotMatch(landing, /M55の安全な紹介方針との大きな不一致/);
+  assert.match(landing, /自分や関係性を決めつけずに読み解くための参考情報/);
+  assert.match(landing, /ライト/);
+  assert.match(landing, /フル/);
+  assert.match(landing, /¥1,000/);
+  assert.match(landing, /¥1,480/);
+  assert.match(landing, /1回購入/);
+  assert.match(landing, /Web上のレポート/);
+  assert.match(landing, /購入時点の入力内容/);
+  assert.match(landing, /読み返しやすく整理/);
+  assert.doesNotMatch(landing, /診断|科学的|確実な予測|保証された結果/);
+  assert.match(landing, /\/dtr\/core/);
+  assert.match(landing, /購入後のレポート読み返し/);
+  assert.match(landing, /規約で定める報酬算定対象額/);
+  assert.match(landing, /収入を保証するものではありません/);
+  assert.match(landing, /標準30日間/);
+  assert.match(landing, /支払申請は不要/);
+  assert.match(landing, /20,000円未満/);
+  assert.match(landing, /失効しません/);
+  assert.match(landing, /770円/);
+  assert.match(landing, /日本国内の金融機関口座/);
+  assert.match(landing, /「PR」/);
+  assert.match(landing, /アフィリエイト/);
+  assert.match(landing, /カード情報/);
+  assert.match(landing, /非公開・機微な分析内容/);
+  assert.match(landing, /\/how-m55-works/);
+  assert.match(landing, /\/legal\/refund/);
+  assert.match(landing, /\/legal\/privacy/);
+  assert.match(landing, /\/legal\/creator-affiliate-terms/);
+  assert.match(landing, /\/support/);
+  assert.match(landing, /20,000円/);
+  assert.match(landing, /翌月15日/);
+  assert.match(landing, /このページの公開は、紹介計測・報酬発生・報酬支払の開始を意味しません。/);
+  assert.match(css, /\.stepFlow/);
+  assert.match(css, /\.factChip/);
+  assert.match(css, /\.termsCard/);
+  assert.match(css, /white-space:\s*pre-line/);
+  assert.match(css, /\.ctaStack/);
+  assert.match(css, /max-width:\s*360px/);
+});
+
+test('Creator apply and portal use branded auth cards without raw default buttons', () => {
+  const apply = read('app/creator/apply/page.tsx');
+  const portal = read('app/creator/portal/page.tsx');
+  const form = read('app/creator/_components/CreatorApplicationForm.tsx');
+  assert.match(apply, /className=\{styles\.buttonPrimary\}/);
+  assert.match(apply, /ログインして申請へ進む/);
+  assert.match(apply, /01[\s\S]*申請情報/);
+  assert.doesNotMatch(apply, /<button type="button">ログイン/);
+  assert.match(portal, /className=\{styles\.buttonPrimary\}/);
+  assert.match(portal, /ログインして確認する/);
+  assert.doesNotMatch(portal, /<button type="button">ログイン<\/button>/);
+  assert.match(form, /審査を申し込む/);
+  assert.match(form, /申請または招待は参加承認を保証するものではありません。/);
+  assert.match(form, /公開メディア/);
+  assert.match(form, /発信内容/);
+  assert.match(form, /申請条件の確認/);
 });
