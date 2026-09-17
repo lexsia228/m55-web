@@ -346,21 +346,6 @@ export default async function DtrLpPage({
             ))}
           </div>
         </section>
-
-        {/* 11. FAQ */}
-        <section aria-labelledby="dtr-lp-faq" className={styles.lpSection}>
-          <h2 id="dtr-lp-faq" className={styles.lpH2}>
-            {PAID_DTR_LP.faq.sectionTitleJa}
-          </h2>
-          <div className={styles.lpFaqList}>
-            {PAID_DTR_LP.faq.items.map((item) => (
-              <div key={item.questionJa} className={styles.lpFaqItem}>
-                <div className={styles.lpFaqQuestion}>Q. {item.questionJa}</div>
-                <p className={styles.lpFaqAnswer}>{item.answerJa}</p>
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
     </PublicShell>
   );

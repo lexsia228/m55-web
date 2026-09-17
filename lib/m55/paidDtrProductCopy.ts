@@ -1281,15 +1281,6 @@ export const PAID_DTR_LP = {
         links: [{ labelJa: '無料の見取り図', href: '/core' }],
       },
       {
-        questionJa: '運営者は誰ですか？',
-        answerJa:
-          '販売事業者は M55 Project です。連絡先・所在地などの法定表示は特定商取引法に基づく表記に、お問い合わせ先はサポート窓口に掲載しています。',
-        links: [
-          { labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
-          { labelJa: 'サポート窓口', href: '/support' },
-        ],
-      },
-      {
         questionJa: '返金・キャンセルはできますか？',
         answerJa:
           'デジタルコンテンツの性質上、原則として返金は行いません。内容の好みの違いや、閲覧後の自己都合によるキャンセルは、原則として返金対象外です。誤請求・二重請求が確認できる場合、または決済完了後に提供が成立しない障害が確認できる場合などは、個別に対応します。',
@@ -1315,16 +1306,6 @@ export const PAID_DTR_LP = {
         answerJa:
           '決済完了後、ウェブ上でプレミアムレポートを閲覧できます。物理配送はありません。購入したレポートは、同じ内容を開き直して読み返せます。',
         links: [{ labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' }],
-      },
-    ] as const,
-  },
-  faq: {
-    sectionTitleJa: 'FAQ',
-    items: [
-      {
-        questionJa: 'ライト購入後にフルへ切り替えられますか？',
-        answerJa:
-          'はい。必要になったら、あとからフルに切り替えられます（¥600・税込）。\n切り替えると、追加読み解きの利用上限が合計5件になります。',
       },
     ] as const,
   },
@@ -1415,8 +1396,6 @@ export function collectPaidDtrLpCopyStrings(): string[] {
       item.answerJa,
       ...item.links.map((link) => link.labelJa),
     ]),
-    lp.faq.sectionTitleJa,
-    ...lp.faq.items.flatMap((f) => [f.questionJa, f.answerJa]),
     lp.cta.sectionTitleJa,
     lp.cta.finalCompareLabelJa,
     os.statusLeadJa,
