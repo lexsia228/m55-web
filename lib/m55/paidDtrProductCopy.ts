@@ -1146,10 +1146,10 @@ export const PAID_DTR_LP = {
     titleJa: PAID_DTR_LP_METADATA_TITLE_JA,
   },
   hero: {
-    subheadlineJa: '生年月日と6問の回答から、自分の出方を一つの流れで読み返せるデジタルレポートです。',
+    subheadlineJa: '生年月日と6問の回答から、自分の出方を一つの流れで読めるデジタルレポートです。',
     headlineJa: 'M55 プレミアムレポート',
     bodyJa:
-      '自分に出やすい傾向、力が出やすい条件、\n無理の出方、日常での扱い方までを、\n一つの流れで読み返せます。\n\n購入後は同じ内容を開き直せます。\n気になったテーマは、追加読み解きで整理できます。',
+      '自分に出やすい傾向、力が出やすい条件、\n無理の出方、日常での扱い方までを、\n一つの流れで読めます。\n\n購入後は同じ内容を開き直せます。\n気になったテーマは、追加読み解きで整理できます。',
     ctaLabelJa: 'プラン選択へ進む',
     compareSectionId: PAID_DTR_LP_PLAN_DECISION_SECTION_ID,
   },
@@ -1201,7 +1201,7 @@ export const PAID_DTR_LP = {
       'プレミアムレポートに紐づく、一つの読み解きテーマを整理する追加読み解きです。\nプレミアムレポートの内容をもとに、いま気になっている1テーマだけを整理します。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   tiers: {
-    sectionTitleJa: '読み返し方に合わせて選べます',
+    sectionTitleJa: '読み解き方に合わせて選べます',
     sectionLeadJa:
       'どちらも同じプレミアムレポートです。違いは、追加読み解きとして使える回数です。',
     navigateToPrepCtaJa: 'プラン選択へ進む',

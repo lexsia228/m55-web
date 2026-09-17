@@ -281,7 +281,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.metadata.titleJa, PAID_DTR_LP_METADATA_TITLE_JA);
     assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, 'フルを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, 'ライトを選ぶ');
-    assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み返し方に合わせて選べます');
+    assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み解き方に合わせて選べます');
     assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /どちらも同じプレミアムレポート/);
     assert.equal(PAID_DTR_LP.tiers.full.oneTimeLabelJa, '一回払い');
     assert.equal(PAID_DTR_LP.tiers.light.oneTimeLabelJa, '一回払い');

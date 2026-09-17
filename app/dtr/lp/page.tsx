@@ -22,14 +22,14 @@ import styles from "./lp.module.css";
 export const metadata: Metadata = {
   title: PAID_DTR_LP_METADATA_TITLE_JA,
   description:
-    "M55は、生年月日と6問の回答から自分の出方を読み返す自己理解サービスです。プレミアムレポートはライト ¥1,000・フル ¥1,480の買い切り・自動更新なし。",
+    "M55は、生年月日と6問の回答から自分の出方を読み解く自己理解サービスです。プレミアムレポートはライト ¥1,000・フル ¥1,480の買い切り・自動更新なし。",
   alternates: {
     canonical: "/dtr/lp",
   },
   openGraph: {
     title: "M55 プレミアムレポート",
     description:
-      "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解きで一テーマずつ深められます。",
+      "自分の出方を一つの流れで読み解く。ライト・フルは買い切り。追加読み解きで一テーマずつ深められます。",
     url: "/dtr/lp",
     type: "website",
     images: [M55_PUBLIC_SHARE_IMAGE],
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "M55 プレミアムレポート",
     description:
-      "自分の出方を一つの流れで読み返す。ライト・フルは買い切り。追加読み解き付き。",
+      "自分の出方を一つの流れで読み解く。ライト・フルは買い切り。追加読み解き付き。",
     images: [M55_PUBLIC_SHARE_IMAGE_PATH],
   },
 };
@@ -185,7 +185,7 @@ export default async function DtrLpPage({
       <DtrPremiumLpViewAnalytics />
       <div className={styles.lpRoot}>
         <p className={styles.lpBreadcrumb}>
-          <Link href="/" style={{ color: "#6b5fa8", textDecoration: "none" }}>
+          <Link href="/home" style={{ color: "#6b5fa8", textDecoration: "none" }}>
             M55
           </Link>
           <span style={{ margin: "0 6px", opacity: 0.35 }}>›</span>
