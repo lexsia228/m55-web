@@ -312,7 +312,14 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
   it('aligns LP copy with analysis authority reference model vocabulary', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assertAuthorityVocabularyPresent(blob);
+    assertAuthorityVocabularyPresent(blob, [
+      '日本の暦文化',
+      '6問の回答',
+      '自己理解',
+      '関係性整理',
+      '参考情報',
+    ]);
+    assert.doesNotMatch(blob, /回答差分/);
     assert.match(blob, /本人の回答/);
     assert.match(blob, /医学的診断/);
     assert.match(blob, /心理検査/);

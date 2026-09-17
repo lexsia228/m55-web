@@ -1124,7 +1124,7 @@ export const PAID_DTR_FORBIDDEN_CLAIMS = [
 
 /** /pricing hub — lightweight authority note (display-only; not LP duplicate). */
 export const PAID_DTR_PRICING_AUTHORITY_NOTE_JA =
-  'M55のプレミアムレポートは、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による回答差分をもとに、自己理解と関係性整理に使える形へ整える参考情報です。' as const;
+  'M55のプレミアムレポートは、生年月日から得られる日本の暦文化上の手がかりと、本人の6問の回答をもとに、自己理解と関係性整理に使える形へ整える参考情報です。' as const;
 
 /** Collect all user-facing Japanese strings for static checks (tests, lint helpers). */
 /** Paid LP surface copy — Human-approved M55_PAID_LP_FINAL_COPY_SSOT_v1 (display-only). */
@@ -1162,10 +1162,10 @@ export const PAID_DTR_LP = {
   },
   authorityNote: {
     sectionTitleJa: 'M55が見ているもの',
-    headlineJa: '生年月日と回答差分を、読み解きの材料にします',
+    headlineJa: '生年月日と6問の回答を、読み解きの材料にします',
     bodyParagraphsJa: [
       'M55は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて読み解きます。',
-      'プレミアムレポートでは、その初期ベースと回答差分をもとに、自己理解と関係性整理に使える形へ整えます。',
+      'プレミアムレポートでは、その初期ベースと6問の回答をもとに、自己理解と関係性整理に使える形へ整えます。',
       '表示内容は参考情報であり、医学的診断、心理検査、または将来の不確実な事実を断定するものではありません。',
     ] as const,
   },
