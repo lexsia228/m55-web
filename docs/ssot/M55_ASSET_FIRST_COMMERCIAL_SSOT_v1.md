@@ -18,7 +18,7 @@ This gate is mandatory before implementation of user-facing commercial expressio
 
 - **Mapping before implementation:** Benchmark mapping must happen before code or copy is added. “Implement first, remove later” is prohibited.
 - **UNMAPPED = NO_IMPLEMENT:** If an item has not been mapped against the SSOT-defined benchmark set, do not implement it.
-- **Repeated benchmark presence = required gap:** If the same class of item is present across multiple relevant benchmark sites and M55 does not have it, treat it as a required gap to close unless a higher Product / Legal authority explicitly conflicts.
+- **Repeated benchmark presence = real gap candidate:** If the same class of item is present across multiple applicable relevant benchmark sites and M55 does not have it, treat it as a real gap candidate. Benchmark frequency alone does not authorize mutation. Implementation remains subject to all superior M55 authorities (Product Authority / machine product truth, Commercial Quality Contract, active funnel contract, Copy and Claims, Visual System, privacy, accessibility, legal, and `M55_EXECUTION_STATE.json` executable authority) and occurs only through the owning lane/gate.
 - **Repeated benchmark absence = do not add:** If the item is not present across multiple relevant benchmark sites, do not add it merely because it sounds reassuring, complete, premium, or helpful.
 - **Single-site novelty is insufficient:** A pattern found on only one benchmark is not enough to introduce it into M55 without separate Human approval.
 - **No AI-style explanatory inflation:** Do not add extra explanations, reassurance paragraphs, FAQ questions, trust copy, or invented framing beyond what the mapped pattern and M55 authority require. Unnecessary explanatory copy lowers clarity and can make the site feel AI-generated.
@@ -30,9 +30,11 @@ Required implementation table for any new commercial expression:
 
 `Item | Benchmark A | Benchmark B | Benchmark C+ | M55 current state | Product/Legal authority | Classification | Implement?`
 
+Benchmark A / B / C+ columns represent applicable relevant references for the mapped surface. Non-applicable benchmark columns may be N/A. A frozen surface with only one applicable primary reference is valid; do not invent or reselect benchmarks to fill columns. Benchmark-frequency evidence from only one applicable reference remains `SINGLE_SITE_HOLD` unless Human-approved or `REQUIRED_BY_AUTHORITY`.
+
 Allowed classifications:
 
-- `BENCHMARK_REQUIRED_GAP` — repeated benchmark presence; missing in M55; implement the minimum required form.
+- `BENCHMARK_REQUIRED_GAP` — repeated presence across applicable relevant benchmarks; missing in M55; no conflict with superior Product / Commercial Quality / Funnel / Copy & Claims / Visual / privacy / accessibility / Legal authority; eligible for the minimum benchmark-supported implementation only when the owning gate authorizes that implementation. Benchmark frequency does not self-authorize code changes.
 - `COMPLETE_AND_WIRED` — repeated benchmark presence and already correctly implemented in M55; no-op.
 - `UNMAPPED_NO_IMPLEMENT` — mapping not completed; implementation prohibited.
 - `BENCHMARK_ABSENT_NO_IMPLEMENT` — not supported across multiple relevant benchmarks; do not add.
