@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. The executable R4 stage owner (`productWorkAfterControlTower`) is `M55-CREATOR-DISTRIBUTION-FOUNDATION`; R4 is **ACTIVE** and not closed. As of the 2026-09-16 post-commit SSOT temporal reconciliation the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` inside R4 — see the R4 boundary checkpoint below. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. Canonical current stage is R5 `ATTRIBUTION_AND_COMPLIANCE` — **NOT YET IMPLEMENTED**; separate Human GO required before R5 implementation. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -918,8 +918,8 @@ A referred customer may later become an approved promoter, which can create anot
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final R2 acceptance 2026-09-13 |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR #204 merged · Human Preview visual GREEN · Production READY at merge SHA |
-| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** — see R4 boundary and in-progress checkpoint below · **not** closed |
-| R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **CLOSED GREEN** — PR #210 **MERGED** · see R4 closure checkpoint below |
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CURRENT CANONICAL STAGE** — **NOT YET IMPLEMENTED** |
 | R6 | `COMMISSION_LEDGER` | future |
 | R7 | `CREATOR_DASHBOARD` | future |
 | R8 | `PAYOUT_AND_SETTLEMENT` | future |
@@ -945,22 +945,36 @@ R8 PAYOUT_AND_SETTLEMENT
 → CONTROLLED_SCALE
 ```
 
+### R4 closure checkpoint — Creator distribution foundation (updated 2026-09-18 — post-merge Production closure)
+
+R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. PR **#210** is **MERGED**. Canonical entry is R5 `ATTRIBUTION_AND_COMPLIANCE`; R5 implementation is **not** started by this reconciliation.
+
+| Field | Value |
+|---|---|
+| Feature head | `5b3d3689232f64af2c1136979872bfc7b9fbe7df` |
+| Merge commit | `a23ce3188cf874521d6cfc750072cd95d34e60d0` |
+| Human visual | **GREEN** |
+| Production | **READY** at exact merge SHA |
+| Creator production routes | `/creator` **200** · `/creator/apply` **200** · `/creator/portal` **200** |
+| Real unresolved R4 product defects | **NONE** |
+| R5 attribution/compliance | **NOT YET IMPLEMENTED** — separate Human GO required |
+
 ### R4 boundary — Creator distribution foundation (updated 2026-09-16 — post-commit SSOT temporal reconciliation)
 
-R4 owns approved Creator identity/terms/distribution foundation. R4 is **ACTIVE and not closed**. Creator PublicShell/copy, portal public status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **COMMITTED_LOCAL** in atomic payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` (tree `b25d7add92f633c19b57d46f82b61af8d7fb2be9`). Execution agents: Codex **PAUSED** · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY**.
+Historical pre-merge R4 boundary. **Superseded for R4 status** by the 2026-09-18 R4 closure checkpoint above. Retained as dated evidence.
 
 | Field | Value |
 |---|---|
 | Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
 | Atomic payload commit | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — gate `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` **CLOSED GREEN** |
-| PR #210 | **OPEN** — not mutated |
+| PR #210 | **OPEN** — historical pre-merge observation |
 | Internal reviewer UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
 | Creator public shell/copy work | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
 | Creator portal status + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
-| Explicitly **not** proven | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| Explicitly **not** proven | historical pre-merge negatives — superseded by accepted merge/Production evidence |
 | External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — `PublicShell`, forbidden human-review wording, apply expectation wording, non-activation 報酬発生 wording, portal public labels, and landing CTA hierarchy committed locally |
 | Real unresolved R4 product defects | **NONE** — portal raw enum exposure **RESOLVED_COMMITTED_LOCAL** · landing CTA hierarchy **RESOLVED_COMMITTED_LOCAL** |
-| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW**; does **not** itself authorize push |
+| Executable NEXT SINGLE ACTION | historical bounded sub-gate — superseded |
 
 R4 portal still owns **application/profile status + clear next action only**. Internal enum values remain **unchanged**. Public UI uses concise Japanese status labels. **No R7 analytics/dashboard implementation in R4.**
 

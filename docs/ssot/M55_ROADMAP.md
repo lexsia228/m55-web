@@ -31,15 +31,15 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current stage: `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4, **ACTIVE**). As of the 2026-09-16 post-commit SSOT temporal reconciliation the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` inside R4.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current canonical stage: `ATTRIBUTION_AND_COMPLIANCE` (R5 entry). R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. R5 implementation is **NOT** authorized by this reconciliation alone.
 
 | Stage | Gate | Status |
 |---|---|---|
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final acceptance 2026-09-13 · R2 repo/Terms/reconciliation complete |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR **#204** merged @ `e8d9773cd7a04830f4cdb1208fbe2aa811027114` · Human Preview visual **GREEN** · Production **READY** at the same SHA · `/support` and `/legal/creator-affiliate-terms` HTTP **200** · no Creator cash activation |
-| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** — see R4 in-progress checkpoint below · PR **#210** OPEN · **not** closed |
-| R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **CLOSED GREEN** — see R4 closure checkpoint below · PR **#210** **MERGED** |
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CURRENT / ENTRY** — not yet implemented |
 | R6 | `COMMISSION_LEDGER` | future |
 | R7 | `CREATOR_DASHBOARD` | future |
 | R8 | `PAYOUT_AND_SETTLEMENT` | future |
@@ -48,23 +48,37 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Curre
 | — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
 | — | `CONTROLLED_SCALE` | future |
 
+### R4 closure checkpoint (updated 2026-09-18 — post-merge Production closure)
+
+R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. PR **#210** is **MERGED**. Canonical entry is now R5 `ATTRIBUTION_AND_COMPLIANCE`; R5 implementation is **not** started by this reconciliation.
+
+| Field | Value |
+|---|---|
+| Feature head | `5b3d3689232f64af2c1136979872bfc7b9fbe7df` |
+| Merge commit | `a23ce3188cf874521d6cfc750072cd95d34e60d0` |
+| Production | **READY** at exact merge SHA |
+| Human visual | **GREEN** |
+| Creator production routes | `/creator` **200** · `/creator/apply` **200** · `/creator/portal` **200** |
+| Real unresolved R4 product defects | **NONE** |
+| R5 implementation | **NOT** authorized by this reconciliation alone |
+
 ### R4 in-progress checkpoint (updated 2026-09-16 — post-commit SSOT temporal reconciliation)
 
-R4 is **ACTIVE and not closed**. Creator PublicShell/copy, portal status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **COMMITTED_LOCAL** in atomic payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` (tree `b25d7add92f633c19b57d46f82b61af8d7fb2be9`). Execution agents: **Codex PAUSED** · **Cursor ACTIVE EXECUTION AGENT** · **GrokBOT READ-ONLY AUDIT / BENCHMARK ONLY**.
+Historical in-progress checkpoint. **Superseded for R4 status** by the 2026-09-18 R4 closure checkpoint above. Retained as dated evidence.
 
 | Field | Value |
 |---|---|
 | Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
 | Atomic payload commit | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — gate `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` **CLOSED GREEN** |
-| PR #210 | **OPEN** — not mutated |
+| PR #210 | **OPEN** — historical pre-merge observation |
 | Internal reviewer UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
 | Creator public shell/copy work | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
 | Creator portal status + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
-| Committed local not proven remote | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| Committed local not proven remote | historical pre-merge negatives — superseded by accepted merge/Production evidence |
 | External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — already locally addressed: `PublicShell` · forbidden human-review wording · apply expectation wording · non-activation 報酬発生 wording · portal public labels · landing CTA hierarchy |
 | Real unresolved R4 product defects | **NONE** |
-| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW**; does **not** itself authorize push |
-| Control-plane verifier | **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED** |
+| Executable NEXT SINGLE ACTION | historical bounded sub-gate — superseded |
+| Control-plane verifier | historical **RESOLVED_COMMITTED_LOCAL** observation — superseded by merged Production closure |
 
 Broad competitor audit replay is **prohibited absent actual invalidation**.
 
