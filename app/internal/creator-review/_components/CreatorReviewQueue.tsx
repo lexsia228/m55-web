@@ -95,7 +95,9 @@ export function CreatorReviewQueue() {
       });
       if (!response.ok) throw new Error('審査操作は適用されませんでした。');
       const body = await response.json();
-      setMessage(body.challenge ? `チャレンジ（今回のみ表示）：${body.challenge}` : `操作を記録しました：${body.status}`);
+      setMessage(body.challenge
+        ? `安全な連絡経路でCreatorへ共有してください。このチャレンジは今回のみ表示されます。\nチャレンジ（今回のみ表示）：${body.challenge}`
+        : `操作を記録しました：${body.status}`);
       await load();
     } catch (cause) { setMessage(String(cause)); } finally { setBusy(false); }
   }

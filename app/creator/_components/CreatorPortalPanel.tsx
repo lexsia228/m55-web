@@ -28,10 +28,39 @@ function publicStatusLabel(status: string, labels: Record<string, string>): stri
   return Object.hasOwn(labels, status) ? labels[status] : UNKNOWN_PUBLIC_STATUS_LABEL;
 }
 
+type PrimaryMediaVerification = null | 'ACTION_REQUIRED' | 'VERIFIED' | 'FAILED';
+
 type Portal = {
-  application: null | { id: string; status: ApplicationStatus; terms_version: string; submitted_at: string; rejected_reapply_after: string | null };
+  application: null | {
+    id: string;
+    status: ApplicationStatus;
+    terms_version: string;
+    submitted_at: string;
+    rejected_reapply_after: string | null;
+    primary_media_verification: PrimaryMediaVerification;
+  };
   profile: null | { creator_code: string; first_final_approved_at: string; status: ProfileStatus; terms_version: string };
 };
+
+function mediaVerificationNextAction(verification: PrimaryMediaVerification) {
+  if (verification === 'ACTION_REQUIRED') {
+    return (
+      <p className={styles.nextAction}>
+        運営確認が必要です。M55から届いた確認案内に従ってください。
+        案内が見当たらない場合は<Link href="/support" className={styles.tertiaryLink}>サポート</Link>へお問い合わせください。
+      </p>
+    );
+  }
+  if (verification === 'FAILED') {
+    return (
+      <p className={styles.nextAction}>
+        運営確認を完了できていません。
+        <Link href="/support" className={styles.tertiaryLink}>サポート</Link>へお問い合わせください。
+      </p>
+    );
+  }
+  return null;
+}
 
 export function CreatorPortalPanel() {
   const [portal, setPortal] = useState<Portal | null>(null);
@@ -71,8 +100,16 @@ export function CreatorPortalPanel() {
           <p className={styles.statusHeading}>現在の状況</p>
           <span className={styles.statusBadge}>{publicStatusLabel(app.status, APPLICATION_PUBLIC_LABELS)}</span>
           <p className={styles.statusMeta}>申請日：{new Date(app.submitted_at).toLocaleDateString('ja-JP')}</p>
-          {app.status === 'SUBMITTED' && <p className={styles.nextAction}>結果をお待ちください。</p>}
-          {app.status === 'UNDER_REVIEW' && <p className={styles.nextAction}>審査結果をお待ちください。</p>}
+          {app.status === 'SUBMITTED' && (
+            mediaVerificationNextAction(app.primary_media_verification) ?? (
+              <p className={styles.nextAction}>結果をお待ちください。</p>
+            )
+          )}
+          {app.status === 'UNDER_REVIEW' && (
+            mediaVerificationNextAction(app.primary_media_verification) ?? (
+              <p className={styles.nextAction}>審査結果をお待ちください。</p>
+            )
+          )}
           {app.status === 'NEED_MORE_INFO' && (
             <p className={styles.nextAction}>
               <Link href="/support" className={styles.tertiaryLink}>サポートに連絡してください。</Link>

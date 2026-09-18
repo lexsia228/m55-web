@@ -318,3 +318,93 @@ test('Creator apply and portal use branded auth cards without raw default button
   assert.doesNotMatch(form, /Creator Affiliate 規約（2026-09-13-v1）/);
   assert.match(form, /termsVersion: '2026-09-13-v1'/);
 });
+
+type PrimaryMediaProjectionRow = {
+  is_primary?: boolean;
+  control_verification_status: string;
+  control_verification_method: string | null;
+};
+
+function deriveCreatorPrimaryMediaVerification(
+  mediaRows: PrimaryMediaProjectionRow[] | null | undefined,
+) {
+  const primary = mediaRows?.find((row) => row.is_primary);
+  if (!primary) return null;
+  if (primary.control_verification_status === 'VERIFIED') return 'VERIFIED';
+  if (primary.control_verification_status === 'FAILED') return 'FAILED';
+  if (primary.control_verification_status === 'PENDING' && primary.control_verification_method != null) {
+    return 'ACTION_REQUIRED';
+  }
+  return null;
+}
+
+test('Creator portal projects primary media verification without exposing challenge secrets', () => {
+  const repository = read('lib/m55/creatorDistribution/repository.ts');
+  const panel = read('app/creator/_components/CreatorPortalPanel.tsx');
+  const queue = read('app/internal/creator-review/_components/CreatorReviewQueue.tsx');
+
+  assert.equal(deriveCreatorPrimaryMediaVerification([]), null);
+  assert.equal(deriveCreatorPrimaryMediaVerification(undefined), null);
+  assert.equal(
+    deriveCreatorPrimaryMediaVerification([
+      { is_primary: true, control_verification_status: 'PENDING', control_verification_method: null },
+    ]),
+    null,
+  );
+  assert.equal(
+    deriveCreatorPrimaryMediaVerification([
+      { is_primary: true, control_verification_status: 'PENDING', control_verification_method: 'DM_CHALLENGE' },
+    ]),
+    'ACTION_REQUIRED',
+  );
+  assert.equal(
+    deriveCreatorPrimaryMediaVerification([
+      { is_primary: true, control_verification_status: 'VERIFIED', control_verification_method: 'DM_CHALLENGE' },
+    ]),
+    'VERIFIED',
+  );
+  assert.equal(
+    deriveCreatorPrimaryMediaVerification([
+      { is_primary: true, control_verification_status: 'FAILED', control_verification_method: 'BIO_CHALLENGE' },
+    ]),
+    'FAILED',
+  );
+
+  assert.match(repository, /primary_media_verification/);
+  assert.match(repository, /deriveCreatorPrimaryMediaVerification/);
+  assert.match(
+    repository,
+    /m55_creator_application_media\(is_primary,control_verification_status,control_verification_method\)/,
+  );
+  assert.doesNotMatch(repository, /challenge_hash/);
+  assert.doesNotMatch(repository, /challenge_plaintext|plaintext challenge/i);
+
+  assert.match(panel, /primary_media_verification/);
+  assert.match(panel, /mediaVerificationNextAction/);
+  assert.match(panel, /運営確認が必要です。M55から届いた確認案内に従ってください。/);
+  assert.match(panel, /案内が見当たらない場合は<Link href="\/support"/);
+  assert.match(panel, /運営確認を完了できていません。/);
+  assert.match(
+    panel,
+    /app\.status === 'SUBMITTED'[\s\S]*mediaVerificationNextAction\(app\.primary_media_verification\)[\s\S]*結果をお待ちください/,
+  );
+  assert.match(
+    panel,
+    /app\.status === 'UNDER_REVIEW'[\s\S]*mediaVerificationNextAction\(app\.primary_media_verification\)[\s\S]*審査結果をお待ちください/,
+  );
+
+  for (const rawLabel of [
+    'MEDIA_CHALLENGE', 'DM_CHALLENGE', 'BIO_CHALLENGE', 'EXISTING_SCOUT_THREAD', 'MANUAL_OTHER',
+  ]) {
+    assert.doesNotMatch(panel, new RegExp(rawLabel));
+  }
+  assert.doesNotMatch(panel, /control_verification_method|control_verification_status/);
+  assert.match(repository, /rejected_reapply_after,\s*\n\s*primary_media_verification: deriveCreatorPrimaryMediaVerification/);
+  const applicationReturn = repository.match(/const application = rawApplication \? \{([\s\S]*?)\} : null;/)?.[1] ?? '';
+  assert.doesNotMatch(applicationReturn, /\bm55_creator_application_media,/);
+  assert.doesNotMatch(applicationReturn, /\bm55_creator_application_media:/);
+
+  assert.match(queue, /安全な連絡経路でCreatorへ共有してください。このチャレンジは今回のみ表示されます。/);
+  assert.match(queue, /チャレンジ（今回のみ表示）：/);
+  assert.doesNotMatch(queue, /localStorage|sessionStorage|console\.log/);
+});
