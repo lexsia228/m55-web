@@ -26,7 +26,9 @@ describe('P2 revenue-ready — LP continuity and canonical purchase path', () =>
     assert.match(continuity, /resolveSelfFunnelStage/);
     assert.match(continuity, /ctaSupportJa/);
     assert.doesNotMatch(continuity, /m55-dtr-lp-continuity-cta/);
-    assert.doesNotMatch(continuity, /#m55-paid-questionnaire/);
+    assert.doesNotMatch(continuity, /href\s*=\s*[{'"\s]*#m55-paid-questionnaire/);
+    assert.doesNotMatch(continuity, /<Link[\s\S]{0,240}#m55-paid-questionnaire/);
+    assert.match(continuity, /window\.location\.hash !== '#m55-paid-questionnaire'/);
     assert.doesNotMatch(continuity, /fallback|dummy|mock|lorem/i);
   });
 

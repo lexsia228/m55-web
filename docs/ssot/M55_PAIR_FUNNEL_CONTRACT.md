@@ -42,16 +42,30 @@ Do not use as center product language:
 - 二人の間に今表れやすい流れの入口
 - Login 不要
 
-## pairPremium (current: NOT_LIVE)
+## pairPremium (current authority — three non-overlapping facts)
 
-Repo-verified facts only (`lib/m55/compatibility/compatibilityCommerceAuthority.ts`):
+These facts coexist and must not be collapsed:
+
+| Layer | Status | Meaning |
+|---|---|---|
+| Product runtime (`M55_COMMERCIAL_PRODUCTS.pairPremium.status`) | **NOT_LIVE** | Machine product truth; not a full live purchasable product surface |
+| Production commerce switch / control-plane (`pairPremium` in `M55_EXECUTION_STATE.json`) | **ACTIVATED** | `PAIR-PREMIUM-ACTIVATION-DECISION` is **CLOSED GREEN**; approved control-plane activation only |
+| Production real-payment E2E | **PAUSED_BEFORE_PAYMENT / NOT GREEN** | No payment E2E GREEN; fulfillment / owned-report revisit E2E not GREEN |
+
+Repo-verified product facts only (`lib/m55/compatibility/compatibilityCommerceAuthority.ts`):
 
 - productKey: `compatibility_report_full_v1`
 - publicName: 二人の相性レポート
 - price: ¥1,480（税込）
 - Commerce env-gated (`M55_COMPATIBILITY_COMMERCE_ENABLED`)
-- Production E2E 未完了
 - HOME paid CTA: **false**
+
+Control-plane activation **does not** establish:
+
+- full `ProductStatus` LIVE
+- payment E2E GREEN
+- fulfillment E2E GREEN
+- owned-report revisit E2E GREEN
 
 **Target value (not claimed as live):**
 
@@ -93,5 +107,5 @@ Repeat mapping: **PROHIBITED**
 
 - Free must not leak paid handling, actionable steps, experiments, or durable revisit value.
 - Paid must not re-open the base relationship/overlap/mismatch recognition work that Free already owns.
-- Pair Premium activation remains `NOT_ACTIVATED` until `PAIR-PREMIUM-ACTIVATION-DECISION` is explicitly completed.
-- Compatibility commerce is not live; do not claim purchasable Pair Paid in production.
+- `PAIR-PREMIUM-ACTIVATION-DECISION` is **CLOSED GREEN**. The Production commerce switch/control-plane is **ACTIVATED**. Full product runtime status remains **NOT_LIVE** until the separately owned Production E2E closure is proven.
+- Do not claim purchasable Pair Paid in production; real-payment E2E remains **PAUSED_BEFORE_PAYMENT / NOT GREEN**.

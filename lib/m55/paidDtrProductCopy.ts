@@ -1124,7 +1124,7 @@ export const PAID_DTR_FORBIDDEN_CLAIMS = [
 
 /** /pricing hub — lightweight authority note (display-only; not LP duplicate). */
 export const PAID_DTR_PRICING_AUTHORITY_NOTE_JA =
-  'M55のプレミアムレポートは、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による回答差分をもとに、自己理解と関係性整理に使える形へ整える参考情報です。' as const;
+  'M55のプレミアムレポートは、生年月日から得られる日本の暦文化上の手がかりと、本人の6問の回答をもとに、自己理解と関係性整理に使える形へ整える参考情報です。' as const;
 
 /** Collect all user-facing Japanese strings for static checks (tests, lint helpers). */
 /** Paid LP surface copy — Human-approved M55_PAID_LP_FINAL_COPY_SSOT_v1 (display-only). */
@@ -1146,10 +1146,10 @@ export const PAID_DTR_LP = {
     titleJa: PAID_DTR_LP_METADATA_TITLE_JA,
   },
   hero: {
-    subheadlineJa: '生年月日と6問の回答から、自分の出方を一つの流れで読み返せるデジタルレポートです。',
+    subheadlineJa: '生年月日と6問の回答から、自分の出方を一つの流れで読めるデジタルレポートです。',
     headlineJa: 'M55 プレミアムレポート',
     bodyJa:
-      '自分に出やすい傾向、力が出やすい条件、\n無理の出方、日常での扱い方までを、\n一つの流れで読み返せます。\n\n購入後は同じ内容を開き直せます。\n気になったテーマは、追加読み解きで整理できます。',
+      '自分に出やすい傾向、力が出やすい条件、\n無理の出方、日常での扱い方までを、\n一つの流れで読めます。\n\n購入後は同じ内容を開き直せます。\n気になったテーマは、追加読み解きで整理できます。',
     ctaLabelJa: 'プラン選択へ進む',
     compareSectionId: PAID_DTR_LP_PLAN_DECISION_SECTION_ID,
   },
@@ -1162,10 +1162,10 @@ export const PAID_DTR_LP = {
   },
   authorityNote: {
     sectionTitleJa: 'M55が見ているもの',
-    headlineJa: '生年月日と回答差分を、読み解きの材料にします',
+    headlineJa: '生年月日と6問の回答を、読み解きの材料にします',
     bodyParagraphsJa: [
       'M55は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて読み解きます。',
-      'プレミアムレポートでは、その初期ベースと回答差分をもとに、自己理解と関係性整理に使える形へ整えます。',
+      'プレミアムレポートでは、その初期ベースと6問の回答をもとに、自己理解と関係性整理に使える形へ整えます。',
       '表示内容は参考情報であり、医学的診断、心理検査、または将来の不確実な事実を断定するものではありません。',
     ] as const,
   },
@@ -1201,7 +1201,7 @@ export const PAID_DTR_LP = {
       'プレミアムレポートに紐づく、一つの読み解きテーマを整理する追加読み解きです。\nプレミアムレポートの内容をもとに、いま気になっている1テーマだけを整理します。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   tiers: {
-    sectionTitleJa: '読み返し方に合わせて選べます',
+    sectionTitleJa: '読み解き方に合わせて選べます',
     sectionLeadJa:
       'どちらも同じプレミアムレポートです。違いは、追加読み解きとして使える回数です。',
     navigateToPrepCtaJa: 'プラン選択へ進む',
@@ -1281,15 +1281,6 @@ export const PAID_DTR_LP = {
         links: [{ labelJa: '無料の見取り図', href: '/core' }],
       },
       {
-        questionJa: '運営者は誰ですか？',
-        answerJa:
-          '販売事業者は M55 Project です。連絡先・所在地などの法定表示は特定商取引法に基づく表記に、お問い合わせ先はサポート窓口に掲載しています。',
-        links: [
-          { labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
-          { labelJa: 'サポート窓口', href: '/support' },
-        ],
-      },
-      {
         questionJa: '返金・キャンセルはできますか？',
         answerJa:
           'デジタルコンテンツの性質上、原則として返金は行いません。内容の好みの違いや、閲覧後の自己都合によるキャンセルは、原則として返金対象外です。誤請求・二重請求が確認できる場合、または決済完了後に提供が成立しない障害が確認できる場合などは、個別に対応します。',
@@ -1315,16 +1306,6 @@ export const PAID_DTR_LP = {
         answerJa:
           '決済完了後、ウェブ上でプレミアムレポートを閲覧できます。物理配送はありません。購入したレポートは、同じ内容を開き直して読み返せます。',
         links: [{ labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' }],
-      },
-    ] as const,
-  },
-  faq: {
-    sectionTitleJa: 'FAQ',
-    items: [
-      {
-        questionJa: 'ライト購入後にフルへ切り替えられますか？',
-        answerJa:
-          'はい。必要になったら、あとからフルに切り替えられます（¥600・税込）。\n切り替えると、追加読み解きの利用上限が合計5件になります。',
       },
     ] as const,
   },
@@ -1415,8 +1396,6 @@ export function collectPaidDtrLpCopyStrings(): string[] {
       item.answerJa,
       ...item.links.map((link) => link.labelJa),
     ]),
-    lp.faq.sectionTitleJa,
-    ...lp.faq.items.flatMap((f) => [f.questionJa, f.answerJa]),
     lp.cta.sectionTitleJa,
     lp.cta.finalCompareLabelJa,
     os.statusLeadJa,

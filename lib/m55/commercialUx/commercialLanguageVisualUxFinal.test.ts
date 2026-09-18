@@ -57,10 +57,11 @@ describe('commercial language visual UX final — CTA contract', () => {
 
   it('paid completion copy confirms answers without promising a finished report', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
-    assert.match(q, /回答内容を確認しました/);
-    assert.match(q, /プレミアムレポートの内容をあなた向けに整えます/);
-    assert.match(q, /プランを選ぶ/);
-    assert.match(q, /回答を見直す/);
+    assert.match(q, /回答内容を確認/);
+    assert.match(q, /この回答でプランを見る/);
+    assert.match(q, /最初から回答し直す/);
+    assert.doesNotMatch(q, /回答内容を確認しました/);
+    assert.doesNotMatch(q, /プレミアムレポートの内容をあなた向けに整えます/);
     assert.doesNotMatch(q, /6つの回答がそろいました|プラン選択へ進む/);
   });
 });

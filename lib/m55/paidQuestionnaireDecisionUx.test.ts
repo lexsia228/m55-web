@@ -17,6 +17,7 @@ import {
 } from './individualization/answerIdMapsV1';
 import { PAID_QUESTIONNAIRE_COPY_V1 } from './paidResult/questionnaireCopyV1';
 import { PAID_DTR_LP, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { PREMIUM_FUNNEL_PAGE_CONTENT } from './commercialUx/experience/pageContent/premiumFunnelCopy';
 import {
   assertPrivacySafeFunnelPayload,
   buildPrivacySafeFunnelPayload,
@@ -106,8 +107,11 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(prep, /PurchaseButton/);
     assert.match(prep, /selectFullCtaJa/);
     assert.match(prep, /m55-paid-answer-status/);
-    assert.match(prep, /回答を確認・変更/);
-    assert.match(prep, /料金について/);
+    assert.equal(PREMIUM_FUNNEL_PAGE_CONTENT.reviewAnswersJa, '回答を確認・変更');
+    assert.match(prep, /PREMIUM_FUNNEL_PAGE_CONTENT as C/);
+    assert.match(prep, /reviewAnswersJa/);
+    assert.equal(PREMIUM_FUNNEL_PAGE_CONTENT.pricingDisclosureJa, '料金について');
+    assert.match(prep, /pricingDisclosureJa/);
     assert.match(prep, /return 'questionnaire'/);
     assert.doesNotMatch(prep, /paidAnswersAreComplete\(\)\) return 'plans'/);
     assert.doesNotMatch(prep, /FULLを選ぶ/);

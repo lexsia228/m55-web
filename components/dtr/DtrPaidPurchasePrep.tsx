@@ -350,15 +350,16 @@ export default function DtrPaidPurchasePrep() {
         <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
         <div className={styles.planCompareGrid}>
           <div className={styles.planCompareCell} data-testid="m55-plan-compare-light">
-            <span className={styles.planCompareName}>{plan.compactDifference.light.nameJa}</span>
             <span className={styles.planComparePrice}>{plan.compactDifference.light.priceLabelJa}</span>
+            <span className={styles.planCompareName}>{plan.compactDifference.light.nameJa}</span>
             <span className={styles.planCompareDelta}>{plan.compactDifference.light.differenceJa}</span>
           </div>
-          <div className={styles.planCompareCell} data-testid="m55-plan-compare-full">
-            <span className={styles.planCompareName}>{plan.compactDifference.full.nameJa}</span>
+          <div className={styles.planCompareCellFull} data-testid="m55-plan-compare-full">
             <span className={styles.planComparePrice}>{plan.compactDifference.full.priceLabelJa}</span>
+            <span className={styles.planCompareName}>{plan.compactDifference.full.nameJa}</span>
             <span className={styles.planCompareDelta}>{plan.compactDifference.full.differenceJa}</span>
           </div>
+          <p className={styles.planCompareFullDelta}>{plan.fullDeltaNoteJa}</p>
         </div>
         <p className={styles.planCompareShared}>{plan.compactDifference.sharedJa}</p>
       </div>
@@ -366,71 +367,81 @@ export default function DtrPaidPurchasePrep() {
         <article
           className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}
           data-testid="m55-dtr-plan-light"
+          aria-current={selectedPlan === 'light' ? 'true' : undefined}
         >
           <div className={styles.planHeader}>
-            <span className={styles.planName}>{plan.light.publicName}</span>
             <span className={styles.planPrice}>{plan.light.priceLabelJa}</span>
+            <span className={styles.planName}>{plan.light.publicName}</span>
           </div>
           <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
-          <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
-          <ul className={styles.planIncludedList}>
-            {plan.light.includedItemsJa.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <div className={styles.planFeatures}>
+            <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+            <ul className={styles.planIncludedList}>
+              {plan.light.includedItemsJa.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
           <p className={styles.planAudience}>{plan.light.audienceJa}</p>
-          <button
-            type="button"
-            className={styles.commercialPrimaryBtn}
-            onClick={() => {
-              setSelectedPlan('light');
-              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan', {
-                planClass: 'light',
-              });
-              setGate('checkout');
-            }}
-          >
-            {plan.selectLightCtaJa}
-          </button>
+          <p className={styles.planNote}>{PAID_DTR_LP.tiers.light.upgradeNoteJa}</p>
+          <div className={styles.planCtaWrap}>
+            <button
+              type="button"
+              className={styles.commercialPrimaryBtn}
+              onClick={() => {
+                setSelectedPlan('light');
+                trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan', {
+                  planClass: 'light',
+                });
+                setGate('checkout');
+              }}
+            >
+              {plan.selectLightCtaJa}
+            </button>
+          </div>
         </article>
 
         <article
-          className={`${styles.planCard}${selectedPlan === 'full' ? ` ${styles.planCardSelected}` : ''}`}
+          className={`${styles.planCard} ${styles.planCardFull}${selectedPlan === 'full' ? ` ${styles.planCardSelected}` : ''}`}
           data-testid="m55-dtr-plan-full"
+          aria-current={selectedPlan === 'full' ? 'true' : undefined}
         >
-          <span className={styles.planRecommendBadge}>{plan.fullRecommendBadgeJa}</span>
+          <span className={styles.planRecommendMark}>{plan.fullRecommendBadgeJa}</span>
           <div className={styles.planHeader}>
-            <span className={styles.planName}>{plan.full.publicName}</span>
             <span className={styles.planPrice}>{plan.full.priceLabelJa}</span>
+            <span className={styles.planName}>{plan.full.publicName}</span>
           </div>
           <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
-          <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
-          <ul className={styles.planIncludedList}>
-            {plan.full.includedItemsJa.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          <p className={styles.planNote}>{plan.fullDeltaNoteJa}</p>
+          <div className={styles.planFeatures}>
+            <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+            <ul className={styles.planIncludedList}>
+              {plan.full.includedItemsJa.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
           <p className={styles.planAudience}>{plan.full.audienceJa}</p>
-          <button
-            type="button"
-            className={styles.commercialPrimaryBtn}
-            onClick={() => {
-              setSelectedPlan('full');
-              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan', {
-                planClass: 'full',
-              });
-              setGate('checkout');
-            }}
-          >
-            {plan.selectFullCtaJa}
-          </button>
+          <div className={styles.planCtaWrap}>
+            <button
+              type="button"
+              className={styles.commercialPrimaryBtn}
+              onClick={() => {
+                setSelectedPlan('full');
+                trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan', {
+                  planClass: 'full',
+                });
+                setGate('checkout');
+              }}
+            >
+              {plan.selectFullCtaJa}
+            </button>
+          </div>
         </article>
       </div>
-      <details className={styles.planUpgradeDisclosure} data-testid="m55-plan-pricing-disclosure">
-        <summary className={styles.planUpgradeSummary}>{C.pricingDisclosureJa}</summary>
+      <aside className={styles.planUpgradeDisclosure} data-testid="m55-plan-pricing-disclosure">
+        <p className={styles.planUpgradeSummary}>{C.pricingDisclosureJa}</p>
         <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
-      </details>
+      </aside>
       <div className={styles.planMethodSlot} data-testid="m55-plan-method-slot">
         <DtrMethodDifference />
       </div>

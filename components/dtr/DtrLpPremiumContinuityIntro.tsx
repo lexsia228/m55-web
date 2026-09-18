@@ -71,6 +71,25 @@ export default function DtrLpPremiumContinuityIntro() {
     });
   }, []);
 
+  useEffect(() => {
+    if (!view) return;
+    if (window.location.hash !== '#m55-paid-questionnaire') return;
+
+    let innerFrame = 0;
+    const outerFrame = requestAnimationFrame(() => {
+      innerFrame = requestAnimationFrame(() => {
+        document
+          .getElementById('m55-paid-questionnaire')
+          ?.scrollIntoView({ block: 'start' });
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(outerFrame);
+      if (innerFrame) cancelAnimationFrame(innerFrame);
+    };
+  }, [view]);
+
   if (!view) return null;
 
   const copy = STATIC_FREE_TO_PAID_BRIDGE;
