@@ -2,11 +2,12 @@
   "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-09-18T05:33:00Z",
+  "updatedAt": "2026-09-18T08:03:08Z",
   "macroLane": "M55_COMMERCIAL_CONTENT_QUALITY",
-  "currentExecutionGate": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
-  "nextSingleAction": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
+  "currentExecutionGate": "M55-R4-PR210-FRESH-MAIN-RECONCILIATION",
+  "nextSingleAction": "M55-R4-PR210-FRESH-MAIN-RECONCILIATION",
   "productWorkAfterControlTower": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
+  "executionParentGate": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
   "pairImplementation": "COMPLETE",
   "pairPremium": "ACTIVATED",
   "pairPremiumActivationScope": "PRODUCTION_COMMERCE_SWITCH_CONTROL_PLANE",
@@ -774,6 +775,134 @@
     "noReplay": true,
     "observedAt": "2026-09-13T15:02:22Z"
   },
+  "r4CreatorDistributionFoundationProgress": {
+    "status": "ACTIVE",
+    "gate": "M55-CREATOR-DISTRIBUTION-FOUNDATION",
+    "r1": "CLOSED_GREEN",
+    "r2": "CLOSED_GREEN",
+    "r3": "CLOSED_GREEN",
+    "r4": "ACTIVE",
+    "r4Closed": false,
+    "worktreePath": "/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1",
+    "featureBranch": "feat/m55-r4-internal-review-ui-polish-v1",
+    "ssotReconciliationBaseHead": "c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72",
+    "worktreeStateAtReconciliationBase": "CLEAN",
+    "indexStateAtReconciliationBase": "EMPTY",
+    "atomicPayloadCommit": {
+      "sha": "c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72",
+      "parent": "5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd",
+      "tree": "b25d7add92f633c19b57d46f82b61af8d7fb2be9",
+      "subject": "feat: advance R4 creator public experience",
+      "pathCount": 14,
+      "gate": "M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT",
+      "gateState": "CLOSED_GREEN"
+    },
+    "prNumber": 210,
+    "prStateObserved": "OPEN",
+    "internalReviewerUi": "COMMITTED_AT_5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd",
+    "creatorPublicShellAndCopyWork": "COMMITTED_LOCAL",
+    "creatorPublicShellAndCopyActualDiff": "GREEN",
+    "creatorPortalStatusAndCtaWork": "COMMITTED_LOCAL",
+    "creatorPortalStatusAndCtaActualDiff": "GREEN",
+    "focusedCreatorDistributionSuite": "16/16 PASS",
+    "portalRawEnumExposure": "RESOLVED_COMMITTED_LOCAL",
+    "landingCtaHierarchy": "RESOLVED_COMMITTED_LOCAL",
+    "pendingActivationDuplicateCopyPatch1": "RESOLVED_COMMITTED_LOCAL",
+    "localGreenScope": [
+      "shared PublicShell locally wired across Creator public routes",
+      "four page-local outer main elements removed locally",
+      "approved Japanese corporate review wording locally applied",
+      "public 人の目 / 人による審査 wording removed",
+      "unsupported 3-5 business-day application SLA removed",
+      "non-activation wording includes 紹介計測・報酬発生・報酬支払",
+      "Creator portal public Japanese status labels without raw enum leakage",
+      "Creator landing CTA hierarchy primary/secondary/subordinate",
+      "pending-activation next-action duplicate copy Patch-1",
+      "focused Creator distribution suite 16/16 PASS",
+      "git diff --check PASS"
+    ],
+    "committedLocalNotProvenRemote": [
+      "not pushed",
+      "remote feature branch not updated",
+      "not yet included in updated PR #210",
+      "no CI GREEN for the new local commit chain",
+      "no new Preview verification",
+      "no Human final Preview visual",
+      "not merged",
+      "not Production-verified"
+    ],
+    "externalAuditDisposition": "R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES",
+    "externalAuditSource": "GROKBOT_READ_ONLY_BOUNDED_CREATOR_PUBLIC_EXPERIENCE_AUDIT",
+    "externalAuditAlreadyAddressedLocally": [
+      "PublicShell",
+      "forbidden human-review wording",
+      "apply expectation wording",
+      "non-activation 報酬発生 wording"
+    ],
+    "r4UnresolvedItems": [],
+    "nextSingleActionWithinR4": "M55-R4-PR210-FRESH-MAIN-RECONCILIATION",
+    "nextSingleActionMode": "FRESH_MAIN_RECONCILIATION",
+    "nextSingleActionAuthorizationScope": "bounded ordinary merge of PR #210 with fresh origin/main and local validation",
+    "portalMappingGoal": {
+      "internalEnumValues": "UNCHANGED",
+      "publicUi": "CONCISE_JAPANESE_STATUS_LABELS",
+      "nextActionClarity": "REQUIRED",
+      "flowReuse": "REQUIRED",
+      "applicationStatesToClarify": [
+        "SUBMITTED",
+        "UNDER_REVIEW",
+        "APPROVED_PENDING_ACTIVATION"
+      ],
+      "profileStatesToClarify": [
+        "ACTIVE",
+        "SUSPENDED",
+        "REVOKED",
+        "APPROVED_PENDING_ACTIVATION"
+      ],
+      "r7AnalyticsDashboardImplementation": "PROHIBITED"
+    },
+    "ctaMappingGoal": {
+      "assetPolicy": "MAP_EXISTING_M55_CTA_BUTTON_LINK_ASSETS",
+      "primary": "Creatorとして申請する",
+      "secondary": "申請状況を見る",
+      "terms": "SUBORDINATE",
+      "newDesignSystem": "PROHIBITED",
+      "broadCssArchitecture": "PROHIBITED"
+    },
+    "implementationAuthorizedInThisGate": true,
+    "prohibitedInThisGate": [
+      "push",
+      "PR mutation",
+      "deploy"
+    ],
+    "executionAgentTopology": {
+      "codex": "PAUSED_TOKEN_USAGE_LIMIT",
+      "cursor": "ACTIVE_EXECUTION_AGENT",
+      "grokbot": "READ_ONLY_AUDIT_BENCHMARK_ONLY",
+      "humanDecision": true,
+      "codexSsotEditAssumedApplied": false
+    },
+    "evidenceLevels": {
+      "PLAN_GREEN": "distinct",
+      "LOCAL_GREEN": "distinct",
+      "ACTUAL_DIFF_GREEN": "distinct",
+      "HUMAN_VISUAL_GREEN": "distinct",
+      "REMOTE_GREEN": "distinct",
+      "MERGED": "distinct",
+      "PRODUCTION_GREEN": "distinct",
+      "inferMergedOrProductionFromLocal": "PROHIBITED",
+      "validationMode": "DELTA_ONLY",
+      "readOnlyMapBeforeMutation": true,
+      "closedGreenReplayAbsentInvalidation": "PROHIBITED"
+    },
+    "controlTowerHandoffTest": {
+      "HANDOFF_TEST_STALE": true,
+      "HANDOFF_TEST_DISPOSITION": "DEFERRED_NON_BLOCKING",
+      "HANDOFF_TEST_REQUIRED_BY_CURRENT_CI": false,
+      "HANDOFF_TEST_REQUIRED_BY_PRECOMMIT_CONTRACT": false
+    },
+    "observedAt": "2026-09-18T08:03:08Z"
+  },
   "creatorRevenueRoadmapAuthority": {
     "status": "ACTIVE",
     "humanApproved": true,
@@ -798,10 +927,16 @@
       "CREATOR_DASHBOARD",
       "PAYOUT_AND_SETTLEMENT",
       "M55-CODEX-CREATOR-INFRA-AUDIT",
-      "INVITE_ONLY_CREATOR_BETA",
       "M55_CREATOR_REVENUE_READY",
+      "INVITE_ONLY_CREATOR_BETA",
       "CONTROLLED_SCALE"
     ],
+    "stageOrderAuthority": {
+      "humanApprovedAt": "2026-09-16",
+      "readinessBeforeBeta": true,
+      "rule": "M55_CREATOR_REVENUE_READY must precede INVITE_ONLY_CREATOR_BETA",
+      "weakenOrderToSatisfyLegacyVerifier": "PROHIBITED"
+    },
     "criticalPath": [
       "FOUR_SURFACE_CREATOR_READINESS",
       "REVENUE_SAFETY_E2E",
@@ -812,9 +947,142 @@
       "CREATOR_DASHBOARD",
       "PAYOUT_AND_SETTLEMENT",
       "M55-CODEX-CREATOR-INFRA-AUDIT",
-      "INVITE_ONLY_CREATOR_BETA",
-      "M55_CREATOR_REVENUE_READY"
+      "M55_CREATOR_REVENUE_READY",
+      "INVITE_ONLY_CREATOR_BETA"
     ],
+    "postR8ActivationSequence": [
+      "M55-CODEX-CREATOR-INFRA-AUDIT",
+      "STRIPE_SANDBOX_COMMERCIAL_E2E",
+      "HUMAN_DESIGNATED_CREATOR_ACCOUNT_REHEARSAL",
+      "PRODUCTION_ZERO_MONEY_READONLY_SMOKE",
+      "SEPARATE_HUMAN_GO_FOR_REAL_MONEY",
+      "PRODUCTION_MINIMAL_REAL_MONEY_CONTROLLED_SMOKE",
+      "M55_CREATOR_REVENUE_READY",
+      "INVITE_ONLY_CREATOR_BETA",
+      "CONTROLLED_SCALE"
+    ],
+    "postR8ActivationSequenceNotes": {
+      "codexInfraAuditNameIsHistorical": true,
+      "codexInfraAuditExecuteNow": false,
+      "codexCurrentAvailability": "PAUSED_TOKEN_USAGE_LIMIT"
+    },
+    "commercialReadinessFailureMatrix": {
+      "requiredBeforeFoundingCreatorExternalOperation": true,
+      "happyPathAloneSufficient": false,
+      "cases": [
+        "creator application and approval",
+        "duplicate economic identity",
+        "attribution expiry",
+        "Creator A to B last-qualified-direct-touch",
+        "self-referral",
+        "circular abuse",
+        "duplicate webhook",
+        "out-of-order webhook",
+        "payment retry/idempotency",
+        "full refund",
+        "partial refund",
+        "late chargeback/dispute",
+        "review to PAYABLE",
+        "Stripe transfer failure",
+        "insufficient available platform balance",
+        "payout disabled",
+        "bank payout failure",
+        "Stripe verification/requirements change",
+        "Terms reaccept",
+        "Creator suspension/revocation",
+        "transfer/payout retry without double transfer"
+      ]
+    },
+    "dashboardPhaseBoundary": {
+      "r4PortalScope": [
+        "application/profile status",
+        "clear next action"
+      ],
+      "r7DashboardTarget": [
+        "referral/link state",
+        "authoritative visits/clicks",
+        "conversions",
+        "pending commission",
+        "payable commission",
+        "actionable hold/block reason",
+        "next payout expectation",
+        "payout history"
+      ],
+      "implementR7InR4": false
+    },
+    "stripeArchitecture": {
+      "TARGET_AFFILIATE_ARCHITECTURE": "M55_NATIVE_CONTROL_PLANE_PLUS_STRIPE_MONEY_RAIL",
+      "STRIPE_CONNECT": "REQUIRED",
+      "STRIPE_ACCOUNTS_MODEL": "ACCOUNTS_V2",
+      "CONNECTED_ACCOUNT_DASHBOARD": "EXPRESS",
+      "CHARGE_MODEL": "SEPARATE_CHARGES_AND_TRANSFERS",
+      "CONNECTED_ACCOUNT_PAYOUT_SCHEDULE_V1": "MANUAL",
+      "PAYOUT_BATCHING_REQUIRED": true,
+      "NO_STRIPE_TRANSFER_BEFORE_PAYOUT_BATCH_LOCK": true,
+      "CREATOR_PAYABLE_CASH_COVERAGE_RATIO": "100%",
+      "CREATOR_CASH_INFRASTRUCTURE": "NOT_IMPLEMENTED",
+      "PRODUCTION_CASH_ACTIVATION": false,
+      "changeInThisCheckpoint": "NONE"
+    },
+    "benchmarkPolicy": {
+      "futureExternalMapping": "TARGETED_ONLY",
+      "reusableBenchmarkClasses": [
+        "Stripe",
+        "Shopify Collabs",
+        "Amazon Associates where relevant",
+        "A8.net",
+        "ValueCommerce",
+        "existing frozen benchmark SSOT"
+      ],
+      "competitorDifferenceAloneIsDefect": false,
+      "adoptOnlyWhenMateriallyImproves": [
+        "accident prevention",
+        "Creator comprehension",
+        "commercial trust",
+        "payment safety",
+        "operational recoverability",
+        "compliance clarity",
+        "bounded conversion UX"
+      ],
+      "broadCompetitorAuditReplayAbsentInvalidation": "PROHIBITED"
+    },
+    "controlPlaneVerifierIncompatibility": {
+      "status": "RESOLVED_COMMITTED_LOCAL",
+      "resolutionState": "RESOLVED_COMMITTED_LOCAL",
+      "actualDiffReview": "GREEN",
+      "resolvedByLocalPaths": [
+        "scripts/verify-m55-control-tower.mjs",
+        "scripts/m55-control-tower-semantic.mjs"
+      ],
+      "committedInPayloadCommit": "c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72",
+      "remoteState": "NOT_PUSHED",
+      "resolvedAt": "2026-09-16T22:05:20Z",
+      "verifier": "scripts/verify-m55-control-tower.mjs",
+      "verifierMutatedInSsotCheckpoint20260916": false,
+      "ssotOrderReversedToSatisfyVerifier": false,
+      "findings": [
+        {
+          "id": "CPVI-01",
+          "location": "scripts/verify-m55-control-tower.mjs CANONICAL_CREATOR_REVENUE_STAGES",
+          "hardCodedOrder": "INVITE_ONLY_CREATOR_BETA before M55_CREATOR_REVENUE_READY",
+          "conflictsWith": "Human-approved 2026-09-16 readiness-before-beta order",
+          "minimumFutureReconciliation": "update CANONICAL_CREATOR_REVENUE_STAGES to place M55_CREATOR_REVENUE_READY before INVITE_ONLY_CREATOR_BETA, and update the two order/completeness fixtures that derive from that constant"
+        },
+        {
+          "id": "CPVI-02",
+          "location": "scripts/m55-control-tower-semantic.mjs validateExecutionState",
+          "rule": "CURRENT/NEXT must equal productWorkAfterControlTower when revalidationRequired=false",
+          "conflictsWith": "Human-approved executable NEXT = M55-R4-CREATOR-PORTAL-STATUS-CTA-READONLY-MAPPING, a bounded sub-gate inside the R4 stage, while productWorkAfterControlTower correctly remains the R4 stage M55-CREATOR-DISTRIBUTION-FOUNDATION",
+          "minimumFutureReconciliation": "allow an in-stage sub-gate as CURRENT/NEXT when it is declared under the owning stage (for example accept next === productWork OR next === declared subGateOfProductWork), so a bounded read-only mapping sub-gate does not require corrupting the canonical stage taxonomy"
+        }
+      ],
+      "doNotResolveBy": [
+        "reversing the Human-approved stage order",
+        "adding a sub-gate into the canonical R-stage array",
+        "editing the verifier inside the 2026-09-16 SSOT checkpoint"
+      ],
+      "observedAt": "2026-09-16T13:48:00Z"
+    },
     "prohibitedBeforeReadinessClosure": [
       "creator referral cash infrastructure",
       "campaign attribution implementation",
@@ -825,7 +1093,7 @@
       "Stripe Global Payouts activation",
       "Stripe escrow representation"
     ],
-    "observedAt": "2026-09-13T15:02:22Z"
+    "observedAt": "2026-09-16T13:48:00Z"
   },
   "freshnessPolicy": {
     "chatMemoryIsAuthority": false,

@@ -36,6 +36,21 @@ function isGateCompleted(state, gateToken) {
   return completedSubGatesNormalized(state).includes(normalized);
 }
 
+function readExecutionParentGate(state) {
+  if (!Object.prototype.hasOwnProperty.call(state, 'executionParentGate')) {
+    return { present: false, parent: null, error: null };
+  }
+  const raw = state.executionParentGate;
+  if (typeof raw !== 'string' || !raw.trim()) {
+    return {
+      present: true,
+      parent: null,
+      error: 'executionParentGate must be a non-empty string',
+    };
+  }
+  return { present: true, parent: normalizeGateToken(raw), error: null };
+}
+
 export function parseExecutionState(src) {
   let state;
   try {
@@ -82,6 +97,10 @@ export function validateExecutionState(src) {
   const productWork = normalizeGateToken(state.productWorkAfterControlTower);
   const coldStart = normalizeGateToken(COLD_START_GATE);
   const acceptance = state.acceptance ?? {};
+  const parentGate = readExecutionParentGate(state);
+  if (parentGate.error) {
+    errors.push(parentGate.error);
+  }
 
   if (current !== next) {
     errors.push('CURRENT EXECUTION GATE and NEXT SINGLE ACTION must match');
@@ -129,8 +148,16 @@ export function validateExecutionState(src) {
     if (acceptance.latestResultAcceptedByHuman !== true) {
       errors.push('post-revalidation execution state requires Human acceptance of the latest cold-start PASS');
     }
-    if (next !== productWork) {
-      errors.push('CURRENT/NEXT must equal productWorkAfterControlTower when revalidationRequired=false');
+    if (next === productWork) {
+      if (parentGate.present && !parentGate.error && parentGate.parent !== productWork) {
+        errors.push(
+          'executionParentGate must be absent or equal productWorkAfterControlTower when CURRENT/NEXT is the product stage',
+        );
+      }
+    } else if (!parentGate.error && (!parentGate.present || parentGate.parent !== productWork)) {
+      errors.push(
+        'bounded sub-gate requires executionParentGate equal to productWorkAfterControlTower',
+      );
     }
   }
 

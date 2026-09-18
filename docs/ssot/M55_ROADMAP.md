@@ -31,22 +31,105 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current gate: `M55-CREATOR-DISTRIBUTION-FOUNDATION`.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current stage: `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4, **ACTIVE**). As of the 2026-09-16 post-commit SSOT temporal reconciliation the executable CURRENT/NEXT is the bounded sub-gate `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` inside R4.
 
 | Stage | Gate | Status |
 |---|---|---|
 | R1 | `FOUR_SURFACE_CREATOR_READINESS` | **CLOSED GREEN** |
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final acceptance 2026-09-13 · R2 repo/Terms/reconciliation complete |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR **#204** merged @ `e8d9773cd7a04830f4cdb1208fbe2aa811027114` · Human Preview visual **GREEN** · Production **READY** at the same SHA · `/support` and `/legal/creator-affiliate-terms` HTTP **200** · no Creator cash activation |
-| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** |
+| R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **ACTIVE** — see R4 in-progress checkpoint below · PR **#210** OPEN · **not** closed |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | future |
 | R6 | `COMMISSION_LEDGER` | future |
 | R7 | `CREATOR_DASHBOARD` | future |
 | R8 | `PAYOUT_AND_SETTLEMENT` | future |
 | — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
-| — | `INVITE_ONLY_CREATOR_BETA` | future |
-| — | `M55_CREATOR_REVENUE_READY` | future |
+| — | `M55_CREATOR_REVENUE_READY` | future — **precedes** invite-only beta (Human decision 2026-09-16) |
+| — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
 | — | `CONTROLLED_SCALE` | future |
+
+### R4 in-progress checkpoint (updated 2026-09-16 — post-commit SSOT temporal reconciliation)
+
+R4 is **ACTIVE and not closed**. Creator PublicShell/copy, portal status labels, landing CTA hierarchy, pending-activation Patch-1, and Control Tower verifier reconciliation are **COMMITTED_LOCAL** in atomic payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` (tree `b25d7add92f633c19b57d46f82b61af8d7fb2be9`). Execution agents: **Codex PAUSED** · **Cursor ACTIVE EXECUTION AGENT** · **GrokBOT READ-ONLY AUDIT / BENCHMARK ONLY**.
+
+| Field | Value |
+|---|---|
+| Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
+| Atomic payload commit | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — gate `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` **CLOSED GREEN** |
+| PR #210 | **OPEN** — not mutated |
+| Internal reviewer UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| Creator public shell/copy work | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
+| Creator portal status + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
+| Committed local not proven remote | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| External audit disposition | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — already locally addressed: `PublicShell` · forbidden human-review wording · apply expectation wording · non-activation 報酬発生 wording · portal public labels · landing CTA hierarchy |
+| Real unresolved R4 product defects | **NONE** |
+| Executable NEXT SINGLE ACTION | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW**; does **not** itself authorize push |
+| Control-plane verifier | **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED** |
+
+Broad competitor audit replay is **prohibited absent actual invalidation**.
+
+### Human-approved activation sequence after R8 (2026-09-16)
+
+`M55_CREATOR_REVENUE_READY` **must precede** `INVITE_ONLY_CREATOR_BETA`. Do **not** weaken this order to satisfy a legacy verifier.
+
+```
+R8 PAYOUT_AND_SETTLEMENT
+→ M55-CODEX-CREATOR-INFRA-AUDIT   (name may remain historical while Codex is unavailable; do not execute now)
+→ STRIPE_SANDBOX_COMMERCIAL_E2E
+→ HUMAN_DESIGNATED_CREATOR_ACCOUNT_REHEARSAL
+→ PRODUCTION_ZERO_MONEY_READONLY_SMOKE
+→ SEPARATE_HUMAN_GO_FOR_REAL_MONEY
+→ PRODUCTION_MINIMAL_REAL_MONEY_CONTROLLED_SMOKE
+→ M55_CREATOR_REVENUE_READY
+→ INVITE_ONLY_CREATOR_BETA
+→ CONTROLLED_SCALE
+```
+
+`CONTROL_PLANE_VERIFIER_INCOMPATIBILITY` was **reported** in the 2026-09-16 mapping-checkpoint SSOT (verifier **not** modified in that checkpoint). Later reconciliation is **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** on `scripts/verify-m55-control-tower.mjs` and `scripts/m55-control-tower-semantic.mjs` — committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED**. Historical CPVI-01 / CPVI-02 findings remain in `creatorRevenueRoadmapAuthority.controlPlaneVerifierIncompatibility`.
+
+### Commercial readiness failure matrix (Human-approved 2026-09-16)
+
+Mandatory before Founding Creator external operation. **Happy path alone is insufficient.**
+
+1. creator application and approval
+2. duplicate economic identity
+3. attribution expiry
+4. Creator A → B last-qualified-direct-touch
+5. self-referral
+6. circular abuse
+7. duplicate webhook
+8. out-of-order webhook
+9. payment retry/idempotency
+10. full refund
+11. partial refund
+12. late chargeback/dispute
+13. review → PAYABLE
+14. Stripe transfer failure
+15. insufficient available platform balance
+16. payout disabled
+17. bank payout failure
+18. Stripe verification/requirements change
+19. Terms reaccept
+20. Creator suspension/revocation
+21. transfer/payout retry without double transfer
+
+### Dashboard phase boundary (Human-approved 2026-09-16)
+
+R4 portal owns **application/profile status + clear next action only**. R7 dashboard owns referral/link state · authoritative visits/clicks · conversions · pending commission · payable commission · actionable hold/block reason · next payout expectation · payout history. **Do not implement R7 in R4.**
+
+### Stripe architecture — no change in this checkpoint (2026-09-16)
+
+`TARGET_AFFILIATE_ARCHITECTURE = M55_NATIVE_CONTROL_PLANE_PLUS_STRIPE_MONEY_RAIL` · `STRIPE_CONNECT = REQUIRED` · `STRIPE_ACCOUNTS_MODEL = ACCOUNTS_V2` · `CONNECTED_ACCOUNT_DASHBOARD = EXPRESS` · `CHARGE_MODEL = SEPARATE_CHARGES_AND_TRANSFERS` · `CONNECTED_ACCOUNT_PAYOUT_SCHEDULE_V1 = MANUAL` · `PAYOUT_BATCHING_REQUIRED = TRUE` · `NO_STRIPE_TRANSFER_BEFORE_PAYOUT_BATCH_LOCK = TRUE` · `CREATOR_PAYABLE_CASH_COVERAGE_RATIO = 100%`
+
+Current runtime remains `CREATOR_CASH_INFRASTRUCTURE = NOT_IMPLEMENTED` · `PRODUCTION_CASH_ACTIVATION = FALSE`.
+
+### No-rework / progress contract (Human-approved 2026-09-16)
+
+`PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** evidence levels where applicable. Never infer `MERGED` / `PRODUCTION_GREEN` from LOCAL evidence. Use delta-only validation. Read-only map before mutation. CLOSED GREEN is not replayed absent actual invalidation.
+
+### Benchmark policy (Human-approved 2026-09-16)
+
+Future GrokBOT / external mapping must be **targeted**. Reusable benchmark classes: Stripe · Shopify Collabs · Amazon Associates where relevant · A8.net · ValueCommerce · existing frozen benchmark SSOT. **Competitor difference alone is not a defect.** Adopt a pattern only when it materially improves accident prevention · Creator comprehension · commercial trust · payment safety · operational recoverability · compliance clarity · bounded conversion UX.
 
 ### R2 sub-gates (Human-approved 2026-09-06 — machine-first freeze)
 
@@ -226,7 +309,7 @@ Future GPTs must **not** collapse these distinct states:
 
 `ACTIVATED` ≠ `LIVE` ≠ `PAYMENT_E2E_GREEN` ≠ `FULFILLMENT_E2E_GREEN`
 
-### Canonical development order (frozen 2026-09-06 — no reorder without invalidator + Human approval)
+### Canonical development order (frozen 2026-09-06 · readiness/beta order corrected by Human decision 2026-09-16)
 
 ```
 R2-B2 EXTERNAL_SUPPORTABILITY_CONFIRMATION
@@ -238,10 +321,12 @@ R2-B2 EXTERNAL_SUPPORTABILITY_CONFIRMATION
 → R7 CREATOR_DASHBOARD
 → R8 PAYOUT_AND_SETTLEMENT
 → M55-CODEX-CREATOR-INFRA-AUDIT
-→ INVITE_ONLY_CREATOR_BETA
 → M55_CREATOR_REVENUE_READY
+→ INVITE_ONLY_CREATOR_BETA
 → CONTROLLED_SCALE
 ```
+
+The 2026-09-16 Human decision changed **only** the readiness/beta order: `M55_CREATOR_REVENUE_READY` now precedes `INVITE_ONLY_CREATOR_BETA`. The R2→R8 stage order is unchanged. Detailed post-R8 activation steps are recorded in the Human-approved activation sequence section above.
 
 Do **not** repeat: R2-A competitor reward research · creator automation competitor mapping · R1 · Pair mapping · cold-start acceptance — unless a direct invalidating dependency changes. External audit opinion alone is **not** an invalidator.
 
@@ -270,8 +355,8 @@ Detailed contracts: `docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT
 | **R7** | Creator can independently reconcile earnings/status without normal Human help |
 | **R8** | provider onboarding and payout lifecycle are automated/reconciled/fail-closed |
 | **Creator Infra Audit** | cross-stage invariants and failure modes pass independent review |
-| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects |
-| **Revenue Ready** | explicit Human GO |
+| **Revenue Ready** | explicit Human GO — after the frozen post-R8 activation sequence, and **before** invite-only beta (Human decision 2026-09-16) |
+| **Invite-only beta** | real controlled Creator operations expose no blocking safety/accounting defects — entered **only after** Revenue Ready |
 
 ### Zero-omission traceability matrix (frozen 2026-09-06)
 

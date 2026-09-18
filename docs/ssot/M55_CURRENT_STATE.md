@@ -13,6 +13,94 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
+## CURRENT EXECUTION OVERLAY — 2026-09-16 R4 post-commit SSOT temporal reconciliation
+
+Human-approved durable overlay. This is the **newest** overlay: where it conflicts with the earlier 2026-09-16 pre-commit SSOT sync overlay, mapping-checkpoint overlay, 2026-09-14 R3 overlay, or any older narrative `(CURRENT)` label, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. It does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence, and it does **not** close R4.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `M55-R4-BOUNDED-FEATURE-PUSH-PREFLIGHT-AUTHORIZATION-REVIEW` — **PRE_PUSH_AUTHORIZATION_REVIEW** bounded sub-gate inside R4 |
+| PRODUCT WORK AFTER CONTROL TOWER | `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4 stage owner — unchanged) |
+| EXECUTION PARENT GATE | `M55-CREATOR-DISTRIBUTION-FOUNDATION` |
+| ACTIVE MACRO | **CREATOR REVENUE R4** |
+| STAGE STATUS | R1 **CLOSED GREEN** · R2 **CLOSED GREEN** · R3 **CLOSED GREEN** · R4 **ACTIVE** (**not** closed) |
+| EXECUTION AGENT TOPOLOGY | Human decision — Codex **PAUSED** (token/usage limit) · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY** |
+| R4 WORKTREE / BRANCH | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
+| SSOT RECONCILIATION BASE HEAD | `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` — immutable Creator/R4 atomic payload commit; **not** a durable live-HEAD claim after this SSOT reconciliation |
+| ATOMIC PAYLOAD COMMIT TREE | `b25d7add92f633c19b57d46f82b61af8d7fb2be9` |
+| ATOMIC PAYLOAD COMMIT GATE | `M55-R4-BOUNDED-14-PATH-EXACT-STAGE-AND-ATOMIC-COMMIT` — **CLOSED GREEN** |
+| PR #210 | **OPEN** — not mutated |
+| INTERNAL REVIEWER UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| CREATOR PUBLIC SHELL / COPY WORK | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** |
+| CREATOR PORTAL STATUS + CTA | **COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_COMMITTED_LOCAL** |
+| R4 UNRESOLVED PRODUCT DEFECTS | **NONE** |
+| COMMITTED LOCAL — NOT PROVEN REMOTE | not pushed · remote feature branch not updated · not in updated PR #210 · no CI GREEN for the new local commit chain · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| CONTROL PLANE VERIFIER | **RESOLVED_COMMITTED_LOCAL** · **ACTUAL_DIFF_GREEN** · committed in payload commit `c73a23e7e4c1e17ebfb3185cd0f0dceb4093ca72` · remote **NOT_PUSHED** |
+| CONTROL TOWER HANDOFF TEST | **STALE** · **DEFERRED_NON_BLOCKING** · not required by current CI or precommit contract |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| STRIPE TARGET ARCHITECTURE | **UNCHANGED** |
+| EVIDENCE LEVELS | `PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** — never infer MERGED/PRODUCTION from LOCAL evidence |
+| PROHIBITED IN THIS GATE | push · PR mutation · merge · deploy |
+| IMPLEMENTATION AUTHORIZED IN THIS GATE | **FALSE** — pre-push authorization review does not authorize push |
+
+## CURRENT EXECUTION OVERLAY — 2026-09-16 R4 pre-commit SSOT sync
+
+Historical pre-commit SSOT sync overlay. **Superseded for CURRENT/NEXT and committed-local status** by the later 2026-09-16 post-commit SSOT temporal reconciliation overlay above. Retained as dated evidence of the pre-commit gate. Executable CURRENT/NEXT is owned by `docs/ssot/M55_EXECUTION_STATE.json`.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `M55-R4-BOUNDED-14-PATH-ATOMIC-COMMIT-AUTHORIZATION-REVIEW` — **PRE_STAGE_AUTHORIZATION_REVIEW** bounded sub-gate inside R4 |
+| PRODUCT WORK AFTER CONTROL TOWER | `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4 stage owner — unchanged) |
+| EXECUTION PARENT GATE | `M55-CREATOR-DISTRIBUTION-FOUNDATION` |
+| ACTIVE MACRO | **CREATOR REVENUE R4** |
+| STAGE STATUS | R1 **CLOSED GREEN** · R2 **CLOSED GREEN** · R3 **CLOSED GREEN** · R4 **ACTIVE** (**not** closed) |
+| EXECUTION AGENT TOPOLOGY | Human decision — Codex **PAUSED** (token/usage limit) · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY** |
+| R4 WORKTREE / BRANCH | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
+| R4 OBSERVED HEAD | `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| PR #210 | **OPEN** — not mutated in this SSOT sync |
+| INTERNAL REVIEWER UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| CREATOR PUBLIC SHELL / COPY WORK | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · **REMOTE_PENDING** |
+| CREATOR PORTAL STATUS + CTA | **LOCAL_GREEN** · **ACTUAL_DIFF_GREEN** · focused Creator distribution suite **16/16 PASS** · pending-activation duplicate copy Patch-1 **RESOLVED_LOCAL** |
+| R4 UNRESOLVED PRODUCT DEFECTS | **NONE** — raw portal enum exposure **RESOLVED_LOCAL** · flat landing CTA hierarchy **RESOLVED_LOCAL** |
+| CREATOR LOCAL WORK — NOT PROVEN | not staged · not committed · not pushed · not in updated PR #210 · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| CONTROL PLANE VERIFIER | **RESOLVED_LOCAL_NOT_COMMITTED** · **ACTUAL_DIFF_GREEN** · local paths `scripts/verify-m55-control-tower.mjs` · `scripts/m55-control-tower-semantic.mjs` · **not committed** |
+| CONTROL TOWER HANDOFF TEST | **STALE** · **DEFERRED_NON_BLOCKING** · not required by current CI or precommit contract · does **not** block the 14-path commit |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| STRIPE TARGET ARCHITECTURE | **UNCHANGED** |
+| EVIDENCE LEVELS | `PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** — never infer MERGED/PRODUCTION from LOCAL evidence |
+| PROHIBITED IN THIS GATE | stage · commit · push · merge · deploy · PR mutation |
+| IMPLEMENTATION AUTHORIZED IN THIS GATE | **FALSE** — SSOT sync does not authorize staging or commit |
+
+## CURRENT EXECUTION OVERLAY — 2026-09-16 R4 Creator roadmap durable SSOT checkpoint
+
+Historical mapping-checkpoint overlay. **Superseded for CURRENT/NEXT and R4 unresolved-product-defect status** by the later 2026-09-16 pre-commit SSOT sync overlay above. Retained as dated evidence of the read-only mapping gate. Executable CURRENT/NEXT is owned by `docs/ssot/M55_EXECUTION_STATE.json`.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `M55-R4-CREATOR-PORTAL-STATUS-CTA-READONLY-MAPPING` — **READ-ONLY** bounded sub-gate inside R4 |
+| PRODUCT WORK AFTER CONTROL TOWER | `M55-CREATOR-DISTRIBUTION-FOUNDATION` (R4 stage owner — unchanged) |
+| ACTIVE MACRO | **CREATOR REVENUE R4** |
+| STAGE STATUS | R1 **CLOSED GREEN** · R2 **CLOSED GREEN** · R3 **CLOSED GREEN** · R4 **ACTIVE** (**not** closed) |
+| EXECUTION AGENT TOPOLOGY | Human decision — Codex **PAUSED** (token/usage limit) · Cursor **ACTIVE EXECUTION AGENT** · GrokBOT **READ-ONLY AUDIT / BENCHMARK ONLY** |
+| CODEX HANDOFF RECONCILIATION | Codex completed precheck/mapping, then its first SSOT mutation was rejected by automatic approval and it hit its usage limit. **No Codex SSOT edit is assumed applied.** Cursor re-observed Git state fresh; the four SSOT files were **clean** before this checkpoint |
+| R4 WORKTREE / BRANCH | `/Users/lexsia/Documents/M55_WORKTREE-r4-internal-review-ui-polish-v1` · `feat/m55-r4-internal-review-ui-polish-v1` |
+| R4 OBSERVED HEAD | `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| PR #210 | **OPEN** — not mutated in this checkpoint |
+| INTERNAL REVIEWER UI | committed at `5fcfc00f7849af59a0e5caf7a48bfefbb6cc69dd` |
+| CREATOR PUBLIC SHELL / COPY WORK | **LOCAL_GREEN_REMOTE_PENDING** — shared `PublicShell` locally wired across Creator public routes · four page-local outer `main` elements removed locally · approved Japanese corporate review wording locally applied · public 「人の目」/「人による審査」 removed · unsupported 3–5 business-day application SLA removed · non-activation wording includes 紹介計測・報酬発生・報酬支払 · focused Creator distribution suite **11/11 PASS** · `git diff --check` **PASS** |
+| CREATOR PUBLIC SHELL / COPY — NOT PROVEN | not staged · not committed · not pushed · not in PR #210 · no new Preview verification · no Human final Preview visual · not merged · not Production-verified |
+| EXTERNAL AUDIT DISPOSITION | **R4_AUDIT_GREEN_WITH_BOUNDED_PATCHES** — bounded GrokBOT Creator public-experience audit; `PublicShell`, forbidden human-review wording, apply expectation wording and non-activation 報酬発生 wording are already locally addressed |
+| R4 UNRESOLVED ITEMS | (historical at this checkpoint) (1) Creator portal exposes raw internal application/profile enum values · (2) Creator landing CTA hierarchy is flat |
+| HUMAN-APPROVED SEQUENCE CHANGE | **`M55_CREATOR_REVENUE_READY` now precedes `INVITE_ONLY_CREATOR_BETA`** — recorded in the execution state `stages` / `criticalPath` / `postR8ActivationSequence` |
+| CONTROL PLANE VERIFIER | **CONTROL_PLANE_VERIFIER_INCOMPATIBILITY** reported at this checkpoint — verifier **not** modified **in this checkpoint**; later local reconciliation is recorded in the newer overlay |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| STRIPE TARGET ARCHITECTURE | **UNCHANGED** — `M55_NATIVE_CONTROL_PLANE_PLUS_STRIPE_MONEY_RAIL` · Connect **REQUIRED** · Accounts v2 · Express · Separate Charges and Transfers · payout schedule v1 **MANUAL** · payout batching **REQUIRED** · `NO_STRIPE_TRANSFER_BEFORE_PAYOUT_BATCH_LOCK = TRUE` · `CREATOR_PAYABLE_CASH_COVERAGE_RATIO = 100%` |
+| EVIDENCE LEVELS | `PLAN_GREEN` · `LOCAL_GREEN` · `ACTUAL_DIFF_GREEN` · `HUMAN_VISUAL_GREEN` · `REMOTE_GREEN` · `MERGED` · `PRODUCTION_GREEN` are **distinct** — never infer MERGED/PRODUCTION from LOCAL evidence |
+| PROHIBITED IN THIS CHECKPOINT | Creator source/test/Terms/CSS/API/migration/package mutation · Stripe · Clerk · DB · env · PR #210 mutation · deploy · portal implementation · CTA implementation · stage/commit/push/merge/rebase/reset/restore/stash/clean |
+
 ## CURRENT EXECUTION OVERLAY — 2026-09-14 R3 post-merge Creator overlay
 
 Human-approved durable overlay. When this section conflicts with older narrative `(CURRENT)` labels below, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. This overlay does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence.

@@ -17,6 +17,7 @@ import {
   PAIR_PREMIUM_ACTIVATION_GATE,
   validateExecutionState,
   detectLegacyExecutionDrift,
+  normalizeGateToken,
 } from './m55-control-tower-semantic.mjs';
 import { git, parsePorcelainDirtyPaths } from './m55-control-tower-context.mjs';
 
@@ -40,8 +41,8 @@ const CANONICAL_CREATOR_REVENUE_STAGES = [
   'CREATOR_DASHBOARD',
   'PAYOUT_AND_SETTLEMENT',
   'M55-CODEX-CREATOR-INFRA-AUDIT',
-  'INVITE_ONLY_CREATOR_BETA',
   'M55_CREATOR_REVENUE_READY',
+  'INVITE_ONLY_CREATOR_BETA',
   'CONTROLLED_SCALE',
 ];
 
@@ -298,6 +299,48 @@ function runSemanticSelfTests() {
     }),
   );
 
+  expectValidationPass(
+    'stage-level executionParentGate equals productWork',
+    buildFixtureState({
+      currentExecutionGate: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      nextSingleAction: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture stage-level parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+  );
+
+  expectValidationPass(
+    'bounded sub-gate executionParentGate equals productWork',
+    buildFixtureState({
+      currentExecutionGate: 'BOUNDED-SUBGATE-EXAMPLE',
+      nextSingleAction: 'BOUNDED-SUBGATE-EXAMPLE',
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture bounded sub-gate',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+  );
+
   expectValidationFail(
     'CURRENT/NEXT mismatch',
     buildFixtureState({
@@ -305,6 +348,145 @@ function runSemanticSelfTests() {
       nextSingleAction: PAIR_MINIMAL_IMPLEMENTATION_GATE,
     }),
     'CURRENT EXECUTION GATE and NEXT SINGLE ACTION must match',
+  );
+
+  expectValidationFail(
+    'bounded sub-gate missing executionParentGate',
+    buildFixtureState({
+      currentExecutionGate: 'BOUNDED-SUBGATE-EXAMPLE',
+      nextSingleAction: 'BOUNDED-SUBGATE-EXAMPLE',
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture missing parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+    'bounded sub-gate requires executionParentGate equal to productWorkAfterControlTower',
+  );
+
+  expectValidationFail(
+    'bounded sub-gate wrong executionParentGate',
+    buildFixtureState({
+      currentExecutionGate: 'BOUNDED-SUBGATE-EXAMPLE',
+      nextSingleAction: 'BOUNDED-SUBGATE-EXAMPLE',
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: PAIR_MAPPING_GATE,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture wrong parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+    'bounded sub-gate requires executionParentGate equal to productWorkAfterControlTower',
+  );
+
+  expectValidationFail(
+    'bounded sub-gate whitespace executionParentGate',
+    buildFixtureState({
+      currentExecutionGate: 'BOUNDED-SUBGATE-EXAMPLE',
+      nextSingleAction: 'BOUNDED-SUBGATE-EXAMPLE',
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: '   ',
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture whitespace parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+    'executionParentGate must be a non-empty string',
+  );
+
+  expectValidationFail(
+    'bounded sub-gate empty executionParentGate',
+    buildFixtureState({
+      currentExecutionGate: 'BOUNDED-SUBGATE-EXAMPLE',
+      nextSingleAction: 'BOUNDED-SUBGATE-EXAMPLE',
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: '',
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture empty parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+    'executionParentGate must be a non-empty string',
+  );
+
+  expectValidationFail(
+    'bounded sub-gate malformed non-string executionParentGate',
+    buildFixtureState({
+      currentExecutionGate: 'BOUNDED-SUBGATE-EXAMPLE',
+      nextSingleAction: 'BOUNDED-SUBGATE-EXAMPLE',
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: 123,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture malformed parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+    'executionParentGate must be a non-empty string',
+  );
+
+  expectValidationFail(
+    'stage-level leftover wrong executionParentGate',
+    buildFixtureState({
+      currentExecutionGate: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      nextSingleAction: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      productWorkAfterControlTower: PAIR_MINIMAL_IMPLEMENTATION_GATE,
+      executionParentGate: PAIR_MAPPING_GATE,
+      acceptance: {
+        ...buildFixtureState().acceptance,
+        revalidationRequired: false,
+        revalidationReason: 'fixture leftover parent',
+        latestResult: 'HANDOFF_COLD_START_PASS',
+        latestResultAcceptedByHuman: true,
+        acceptedAt: '2026-08-22T15:00:00Z',
+        zeroMemoryOnePrompt: true,
+        localRuntimeHandlingCorrect: true,
+        mutationsObserved: 0,
+      },
+    }),
+    'executionParentGate must be absent or equal productWorkAfterControlTower when CURRENT/NEXT is the product stage',
+  );
+
+  expectValidationFail(
+    'cold-start malformed executionParentGate',
+    buildFixtureState({
+      executionParentGate: null,
+    }),
+    'executionParentGate must be a non-empty string',
   );
 
   expectValidationFail(
@@ -396,12 +578,13 @@ function runSemanticSelfTests() {
   if (exists(EXECUTION_STATE_PATH)) {
     const liveCreatorState = JSON.parse(read(EXECUTION_STATE_PATH));
     if (liveCreatorState.creatorRevenueRoadmapAuthority) {
+      const { executionParentGate: _liveExecutionParentGate, ...liveWithoutParent } = liveCreatorState;
       expectCreatorPolicyPass('creator pending cold-start revalidation state', liveCreatorState);
       expectValidationPass('creator pending cold-start revalidation state', liveCreatorState);
 
       const humanAcceptedCreatorState = {
-        ...liveCreatorState,
-        completedSubGates: (liveCreatorState.completedSubGates ?? []).filter(
+        ...liveWithoutParent,
+        completedSubGates: (liveWithoutParent.completedSubGates ?? []).filter(
           (gate) => gate !== 'REVENUE_SAFETY_E2E'
             && gate !== 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
         ),
@@ -409,7 +592,7 @@ function runSemanticSelfTests() {
         currentExecutionGate: 'REVENUE_SAFETY_E2E',
         nextSingleAction: 'REVENUE_SAFETY_E2E',
         acceptance: {
-          ...liveCreatorState.acceptance,
+          ...liveWithoutParent.acceptance,
           revalidationRequired: false,
           latestResult: 'HANDOFF_COLD_START_PASS',
           latestResultAcceptedByHuman: true,
@@ -417,7 +600,7 @@ function runSemanticSelfTests() {
           latestResultAcceptedBy: 'Human',
         },
         creatorRevenueRoadmapAuthority: {
-          ...liveCreatorState.creatorRevenueRoadmapAuthority,
+          ...liveWithoutParent.creatorRevenueRoadmapAuthority,
           currentStage: 'REVENUE_SAFETY_E2E',
         },
       };
@@ -479,6 +662,38 @@ function runSemanticSelfTests() {
           },
         },
         'must exactly match canonical Creator Revenue stage order',
+      );
+
+      expectCreatorPolicyFail(
+        'bounded sub-gate must not appear in canonical stages',
+        {
+          ...liveCreatorState,
+          currentExecutionGate: 'REVENUE_SAFETY_E2E',
+          nextSingleAction: 'REVENUE_SAFETY_E2E',
+          productWorkAfterControlTower: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          executionParentGate: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          creatorRevenueRoadmapAuthority: {
+            ...liveCreatorState.creatorRevenueRoadmapAuthority,
+            currentStage: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          },
+        },
+        'bounded sub-gate must not appear in creatorRevenueRoadmapAuthority.stages',
+      );
+
+      expectCreatorPolicyFail(
+        'formatted canonical stage cannot bypass bounded sub-gate guard',
+        {
+          ...liveCreatorState,
+          currentExecutionGate: '  REVENUE_SAFETY_E2E  ',
+          nextSingleAction: '  REVENUE_SAFETY_E2E  ',
+          productWorkAfterControlTower: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          executionParentGate: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          creatorRevenueRoadmapAuthority: {
+            ...liveCreatorState.creatorRevenueRoadmapAuthority,
+            currentStage: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          },
+        },
+        'bounded sub-gate must not appear in creatorRevenueRoadmapAuthority.stages',
       );
 
       expectValidationFail(
@@ -573,6 +788,15 @@ function collectCreatorRevenueExecutionStateErrors(state) {
     if (currentStage !== state.productWorkAfterControlTower) {
       errors.push('creatorRevenueRoadmapAuthority.currentStage must equal productWorkAfterControlTower');
     }
+  }
+  const normalizedNext = normalizeGateToken(state.nextSingleAction);
+  const normalizedProductWork = normalizeGateToken(state.productWorkAfterControlTower);
+  if (
+    normalizedNext !== normalizedProductWork
+    && Array.isArray(authority.stages)
+    && authority.stages.some((stage) => normalizeGateToken(stage) === normalizedNext)
+  ) {
+    errors.push('bounded sub-gate must not appear in creatorRevenueRoadmapAuthority.stages');
   }
   for (const [field, expected] of REQUIRED_CREATOR_CAPABILITY_ASSERTIONS) {
     if (authority[field] !== expected) {
