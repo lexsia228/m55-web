@@ -622,6 +622,27 @@ function runSemanticSelfTests() {
       expectCreatorPolicyPass('creator later gate progression without verifier edit', laterCreatorGateState);
       expectValidationPass('creator later gate progression without verifier edit', laterCreatorGateState);
 
+      const nonCreatorExecutableGate = 'M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1';
+      const nonCreatorExecutableGateState = {
+        ...liveCreatorState,
+        currentExecutionGate: nonCreatorExecutableGate,
+        nextSingleAction: nonCreatorExecutableGate,
+        productWorkAfterControlTower: nonCreatorExecutableGate,
+        executionParentGate: nonCreatorExecutableGate,
+        creatorRevenueRoadmapAuthority: {
+          ...liveCreatorState.creatorRevenueRoadmapAuthority,
+          currentStage: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+        },
+      };
+      expectCreatorPolicyPass(
+        'non-Creator executable gate can coexist with Creator program memory',
+        nonCreatorExecutableGateState,
+      );
+      expectValidationPass(
+        'non-Creator executable gate can coexist with Creator program memory',
+        nonCreatorExecutableGateState,
+      );
+
       expectCreatorPolicyFail(
         'creator currentStage must equal productWorkAfterControlTower',
         {
@@ -785,7 +806,10 @@ function collectCreatorRevenueExecutionStateErrors(state) {
     if (stageOccurrences !== 1) {
       errors.push('creatorRevenueRoadmapAuthority.currentStage must exist exactly once in stages');
     }
-    if (currentStage !== state.productWorkAfterControlTower) {
+    const productWorkIsCanonicalCreatorStage = CANONICAL_CREATOR_REVENUE_STAGES.some(
+      (stage) => normalizeGateToken(stage) === normalizeGateToken(state.productWorkAfterControlTower),
+    );
+    if (productWorkIsCanonicalCreatorStage && currentStage !== state.productWorkAfterControlTower) {
       errors.push('creatorRevenueRoadmapAuthority.currentStage must equal productWorkAfterControlTower');
     }
   }
