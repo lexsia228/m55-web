@@ -43,3 +43,23 @@
   box-sizing: border-box;
 }
 
+/*
+ * Creator surfaces include short portal/auth states. Keep the shared footer
+ * in normal document flow while allowing the Creator shell to fill the
+ * viewport, so short states do not leave the footer floating above unused
+ * page space.
+ */
+.page[data-m55-pathname^='/creator'] {
+  box-sizing: border-box;
+}
+
+.page[data-m55-pathname^='/creator'] .main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.page[data-m55-pathname^='/creator'] .inner {
+  flex: 1 0 auto;
+}
+
