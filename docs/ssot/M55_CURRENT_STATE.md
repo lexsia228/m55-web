@@ -13,9 +13,30 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
+## CURRENT EXECUTION OVERLAY — 2026-09-18 R4 post-merge Production closure / R5 canonical entry
+
+Human-approved durable overlay. This is the **newest** overlay: where it conflicts with any earlier R4 ACTIVE overlay, pre-merge reconciliation overlay, mapping-checkpoint overlay, 2026-09-14 R3 overlay, or any older narrative `(CURRENT)` label, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. It does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `ATTRIBUTION_AND_COMPLIANCE` |
+| PRODUCT WORK AFTER CONTROL TOWER | `ATTRIBUTION_AND_COMPLIANCE` |
+| EXECUTION PARENT GATE | `ATTRIBUTION_AND_COMPLIANCE` |
+| STAGE STATUS | R1 **CLOSED GREEN** · R2 **CLOSED GREEN** · R3 **CLOSED GREEN** · R4 **CLOSED GREEN** · R5 **canonical current stage** — implementation **NOT** authorized by this reconciliation alone |
+| PR #210 | **MERGED** |
+| FEATURE HEAD | `5b3d3689232f64af2c1136979872bfc7b9fbe7df` |
+| MERGE COMMIT | `a23ce3188cf874521d6cfc750072cd95d34e60d0` |
+| PRODUCTION | **READY** at exact merge SHA |
+| PRODUCTION ROUTES | `/creator` **200** · `/creator/apply` **200** · `/creator/portal` **200** |
+| HUMAN VISUAL | **GREEN** |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| R5 ATTRIBUTION / COMPLIANCE | **NOT_IMPLEMENTED** — separate Human GO required before implementation |
+| DB / ENV / PROVIDER / STRIPE / CREATOR-CASH MUTATION | **NONE** in this reconciliation |
+
 ## CURRENT EXECUTION OVERLAY — 2026-09-16 R4 post-commit SSOT temporal reconciliation
 
-Human-approved durable overlay. This is the **newest** overlay: where it conflicts with the earlier 2026-09-16 pre-commit SSOT sync overlay, mapping-checkpoint overlay, 2026-09-14 R3 overlay, or any older narrative `(CURRENT)` label, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. It does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence, and it does **not** close R4.
+Historical post-merge-pre-PR-210-merge overlay. **Superseded for CURRENT/NEXT and R4 closure status** by the 2026-09-18 R4 post-merge Production closure / R5 canonical entry overlay above. Retained as dated evidence. Executable CURRENT/NEXT is owned by `docs/ssot/M55_EXECUTION_STATE.json`.
 
 | Field | Value |
 |---|---|
