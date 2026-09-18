@@ -1,6 +1,6 @@
 # M55 Agent Entrypoint
 
-All AI agents, Cursor sessions, and developers working on M55 commercial funnel work **must read this file first**.
+All AI agents, Cursor sessions, and developers working on M55 **must read this file first**.
 
 ## Mandatory Git-first work-unit entry
 
@@ -145,6 +145,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **GIT FIRST** — every M55 work unit establishes task-relevant Git identity before substantive reasoning or mutation; profile depth is task-scoped.
 - **TASK-RELEVANT AUTHORITY** — inspect the Git/SSOT/source owners for the actual task before deciding. Unrelated lane scans are prohibited by default.
 - **EXISTING CONTRACT FIRST** — search existing SSOT/source and relevant unmerged authority before creating a new contract or architecture.
+- **BENCHMARK MAPPING FIRST — GLOBAL USER-VISIBLE RULE** — before adding or changing any user-visible copy, FAQ, trust/reassurance content, CTA, section, explanatory paragraph, public information architecture, or presentation pattern, read `docs/ssot/M55_UX_BENCHMARK_STACK.md`, identify the mapped surface/archetype and compare the proposed item against the fixed benchmark references for that surface. **UNMAPPED = NO_IMPLEMENT.** Repeated presence across multiple applicable relevant benchmarks means a real gap candidate; repeated absence means do not add the item merely because it sounds helpful, premium, reassuring, or complete. A single-site pattern remains HOLD unless the Human explicitly approves it. Benchmark frequency/classification is presentation-mapping evidence. It is not by itself Product Truth, runtime authority, pricing/entitlement authority, legal authority, mutation authorization, or executable NEXT authority. Product Authority / machine product truth, the M55 Commercial Quality Contract, the active funnel contract, M55 Copy and Claims, M55 Visual System, privacy, accessibility, legal requirements, and `M55_EXECUTION_STATE.json` executable authority remain superior as frozen by `M55_UX_BENCHMARK_STACK.md`. **Implement-first-then-remove, AI-invented explanatory inflation, and novel trust/FAQ problems without benchmark or authority evidence are prohibited.**
 - **PRE-MUTATION RECHECK** — before mutation, reconfirm correct branch/worktree/HEAD/dirty state/mutable allowlist when locally observable.
 - **PRE-GREEN / INTEGRATION RECHECK** — before consequential GREEN/freeze/authorization or commit/push/PR/merge/integration, re-observe relevant Git identity and exact diff; fresh main is required when integration depends on it.
 - **FAST PATH IS REAL** — an approved bounded UIUX or other continuation lane does not read unrelated Creator Revenue/legal/tax/provider/Product Authority material and does not fetch main every message unless that authority becomes task-relevant.
@@ -175,6 +176,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 | A — Machine product truth | `lib/m55/contracts/m55CommercialFunnelContract.ts` |
 | B — Commercial principles | `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` |
 | B+ — Global commercial quality | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` |
+| B+ benchmark — mandatory user-visible mapping reference (non-overriding; precedence defined by the benchmark SSOT) | `docs/ssot/M55_UX_BENCHMARK_STACK.md` |
 | B++ — Safari MCP actual-browser | `docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md` |
 | C — Funnel contracts | `M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md` |
 | D — Language / visual | `M55_COPY_AND_CLAIMS.md`, `M55_VISUAL_SYSTEM.md` |

@@ -367,19 +367,20 @@
 }
 
 .planUpgradeDisclosure {
-  margin: 0.85rem 0 0;
+  margin: 0.15rem 0 0;
+  padding: 1rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  background: #fbf8f3;
 }
 
 .planUpgradeSummary {
-  font-size: 0.86rem;
-  line-height: 1.55;
-  color: rgba(55, 48, 82, 0.72);
-  cursor: pointer;
-  list-style: none;
-}
-
-.planUpgradeSummary::-webkit-details-marker {
-  display: none;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.45;
+  color: rgba(55, 48, 82, 0.68);
 }
 
 .actions {
@@ -462,12 +463,60 @@
 }
 
 @media (max-width: 639px) {
+  .shell {
+    max-width: none;
+    width: 100%;
+  }
+
   .actions {
     gap: 0.65rem;
   }
 
   .secondaryBtn {
     width: 100%;
+  }
+
+  .planCompare {
+    padding: 0.75rem 0.55rem;
+  }
+
+  .planCompareGrid {
+    gap: 0.35rem;
+  }
+
+  .planCompareCell,
+  .planCompareCellFull {
+    padding: 0.55rem 0.32rem;
+  }
+
+  .planCard,
+  .planCardFull {
+    padding: 1rem 0.85rem 0.95rem;
+  }
+
+  .planPrice {
+    font-size: clamp(1.35rem, 6.4vw, 1.65rem);
+    white-space: nowrap;
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 360px) {
+  .planCompare {
+    padding: 0.6rem 0.28rem;
+  }
+
+  .planCompareGrid {
+    gap: 0.25rem;
+  }
+
+  .planCompareCell,
+  .planCompareCellFull {
+    padding: 0.42rem 0.14rem;
+  }
+
+  .planComparePrice {
+    letter-spacing: -0.025em;
   }
 }
 
@@ -498,23 +547,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
+  width: 100%;
+  min-height: 2.85rem;
   min-width: 7.5rem;
-  padding: 0.65rem 1.15rem;
-  border-radius: 999px;
+  padding: 0.7rem 1.15rem;
+  border-radius: 0.85rem;
   font-size: 0.95rem;
+  font-weight: 700;
   line-height: 1.35;
   cursor: pointer;
   text-decoration: none;
   box-sizing: border-box;
-  border: 1px solid rgba(52, 44, 78, 0.2);
-  background: rgba(52, 44, 78, 0.92);
-  color: #faf8f5;
-  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  border: 1px solid rgba(47, 39, 80, 0.88);
+  background: #2f2750;
+  color: #fffaf1;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
 
 .commercialPrimaryBtn:hover:not(:disabled) {
-  background: rgba(42, 35, 66, 0.96);
+  background: #281f46;
+}
+
+.commercialPrimaryBtn:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline-offset: 2px;
 }
 
 .commercialPrimaryBtn:disabled {
@@ -613,15 +669,16 @@
    every width so both tiers are comparable without scrolling past a card. */
 .planCompare {
   margin: 0 0 1rem;
-  padding: 0.85rem 0.9rem;
-  border-radius: 0.9rem;
-  border: 1px solid rgba(107, 95, 168, 0.2);
-  background: rgba(255, 255, 255, 0.6);
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.04);
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
 .planCompareHeading {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.7rem;
   font-size: 0.9rem;
   line-height: 1.55;
   font-weight: 600;
@@ -633,43 +690,89 @@
 .planCompareGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .planCompareCell {
   display: grid;
-  gap: 0.2rem;
-  padding: 0.6rem 0.55rem;
-  border-radius: 0.7rem;
-  background: rgba(107, 95, 168, 0.07);
+  gap: 0.22rem;
+  padding: 0.7rem 0.65rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  background: rgba(251, 248, 243, 0.9);
   min-width: 0;
 }
 
+.planCompareCellFull {
+  composes: planCompareCell;
+  border-color: rgba(107, 95, 168, 0.28);
+  background: linear-gradient(180deg, #ffffff 0%, #f6f2ff 100%);
+}
+
 .planCompareName {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.4;
-  color: rgba(45, 40, 70, 0.92);
+  color: rgba(55, 48, 82, 0.7);
   overflow-wrap: anywhere;
 }
 
 .planComparePrice {
-  font-size: 0.86rem;
-  line-height: 1.4;
-  color: rgba(45, 40, 70, 0.88);
+  font-size: clamp(0.88rem, 3.2vw, 1.12rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: #121212;
   font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .planCompareDelta {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   line-height: 1.5;
   color: rgba(45, 40, 70, 0.75);
   overflow-wrap: anywhere;
 }
 
+@media (max-width: 639px) {
+  .planCompareName,
+  .planCompareDelta {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+}
+
+/* Sits under the Full cell so the difference is readable at the compact decision
+   point without changing either cell's geometry or the co-visible price row. */
+.planCompareFullDelta {
+  grid-column: 2;
+  /* Do not let the sentence floor the 1fr track and squeeze the Light cell. */
+  min-width: 0;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(45, 40, 70, 0.78);
+  /* A sentence, not a chip label: keep amounts and counters with their units. */
+  line-break: strict;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* One column is too tight for a sentence on phones, so it takes the band width
+   instead of breaking mid-phrase. The copy names Light, so it still reads as the
+   Full difference. */
+@media (max-width: 639px) {
+  .planCompareFullDelta {
+    grid-column: 1 / -1;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+}
+
 .planCompareShared {
-  margin: 0.6rem 0 0;
+  margin: 0.7rem 0 0;
   font-size: 0.8rem;
   line-height: 1.6;
   color: rgba(45, 40, 70, 0.72);
@@ -677,41 +780,67 @@
 
 .planStack {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.9rem;
 }
 
 .planCard {
-  display: grid;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   gap: 0.55rem;
-  padding: 1rem 1.05rem;
-  border-radius: 0.95rem;
-  border: 1px solid rgba(107, 95, 168, 0.18);
-  background: rgba(255, 255, 255, 0.72);
+  padding: 1.15rem 1.1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.045);
+  min-width: 0;
+}
+
+.planCardFull {
+  border-color: rgba(107, 95, 168, 0.32);
+  background: linear-gradient(180deg, #ffffff 0%, #f7f3ff 100%);
+  box-shadow: 0 12px 32px rgba(29, 24, 61, 0.06);
 }
 
 .planCardSelected {
-  border-color: rgba(107, 95, 168, 0.48);
-  box-shadow: inset 0 0 0 1px rgba(107, 95, 168, 0.14);
+  border-color: rgba(47, 39, 80, 0.55);
+  box-shadow: 0 0 0 1px rgba(47, 39, 80, 0.28), 0 12px 28px rgba(29, 24, 61, 0.08);
+  padding-right: 2.15rem;
+}
+
+.planCardSelected::after {
+  content: '✓';
+  position: absolute;
+  top: 0.95rem;
+  right: 1rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: rgba(47, 39, 80, 0.82);
 }
 
 .planHeader {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.35rem 0.75rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
 }
 
 .planName {
-  font-size: 1.05rem;
+  font-size: 0.86rem;
   font-weight: 600;
-  color: rgba(28, 24, 48, 0.94);
+  line-height: 1.4;
+  color: rgba(55, 48, 82, 0.72);
+  word-break: keep-all;
 }
 
 .planPrice {
-  font-size: 1rem;
+  font-size: clamp(1.5rem, 4.4vw, 1.85rem);
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  color: rgba(45, 40, 70, 0.88);
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  color: #121212;
+  word-break: keep-all;
 }
 
 .planMeta {
@@ -738,53 +867,86 @@
 
 .planOneTime {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   line-height: 1.45;
-  color: rgba(45, 40, 70, 0.78);
+  color: rgba(55, 48, 82, 0.66);
+}
+
+.planFeatures {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.15rem 0 0;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.8rem;
+  background: rgba(251, 248, 243, 0.88);
 }
 
 .planIncludedHeading {
   margin: 0;
-  font-size: 0.84rem;
-  letter-spacing: 0.04em;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: rgba(55, 48, 82, 0.62);
 }
 
 .planIncludedList {
   margin: 0;
-  padding: 0 0 0 1rem;
+  padding: 0;
+  list-style: none;
   display: grid;
-  gap: 0.25rem;
-  font-size: 0.9rem;
+  gap: 0.32rem;
+  font-size: 0.92rem;
   line-height: 1.5;
-  color: rgba(45, 40, 70, 0.82);
+  color: rgba(28, 24, 48, 0.88);
 }
 
-.planRecommendBadge {
+.planIncludedList li {
+  padding-left: 1.05rem;
+  position: relative;
+}
+
+.planIncludedList li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(47, 39, 80, 0.72);
+}
+
+.planRecommendMark {
   display: inline-flex;
   align-self: flex-start;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  background: rgba(52, 44, 78, 0.1);
-  color: rgba(52, 44, 78, 0.88);
+  background: rgba(47, 39, 80, 0.08);
+  color: rgba(47, 39, 80, 0.88);
+}
+
+.planCtaWrap {
+  margin-top: auto;
+  padding-top: 0.45rem;
 }
 
 .planUpgradeNote {
-  margin: 0.45rem 0 0;
-  font-size: 0.86rem;
-  line-height: 1.55;
-  color: rgba(55, 48, 82, 0.68);
+  margin: 0.4rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: rgba(45, 40, 70, 0.82);
 }
 
 .confirmCard {
   display: grid;
-  gap: 0.65rem;
-  padding: 1.05rem 1.1rem;
-  border-radius: 0.95rem;
-  border: 1px solid rgba(107, 95, 168, 0.2);
-  background: rgba(255, 255, 255, 0.74);
+  gap: 0.7rem;
+  padding: 1.1rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(107, 95, 168, 0.18);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.045);
 }
 
 .checkoutDecisionCluster {
@@ -800,6 +962,10 @@
   font-size: 0.95rem;
   line-height: 1.5;
   color: rgba(28, 24, 48, 0.9);
+}
+
+.confirmRow strong {
+  font-variant-numeric: tabular-nums;
 }
 
 .confirmNote {
@@ -840,7 +1006,7 @@
 
 @media (min-width: 896px) {
   .shell {
-    max-width: 40rem;
+    max-width: 44rem;
   }
 
   .planStack {
@@ -851,6 +1017,24 @@
 
   .planCard {
     height: 100%;
+  }
+
+  /* Reserve badge-height space on Light so price baselines align with Full. */
+  .planCard:not(.planCardFull)::before {
+    content: '';
+    display: block;
+    align-self: flex-start;
+    min-height: calc(0.18rem * 2 + 0.72rem * 1.25);
+  }
+}
+
+@media (hover: hover) {
+  .planCard:hover {
+    border-color: rgba(107, 95, 168, 0.28);
+  }
+
+  .planCardFull:hover {
+    border-color: rgba(107, 95, 168, 0.42);
   }
 }
 

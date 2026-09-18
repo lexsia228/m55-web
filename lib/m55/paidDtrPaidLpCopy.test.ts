@@ -155,8 +155,6 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.ok(blob.includes('利用規約'));
     assert.ok(blob.includes('プライバシー'));
     assert.ok(blob.includes('特商法'));
-    assert.ok(blob.includes(PAID_DTR_LP.faq.items[0]!.questionJa));
-    assert.ok(blob.includes(PAID_DTR_LP.faq.items[0]!.answerJa));
     assert.ok(blob.includes(PAID_DTR_LP.chapters.items[0]!.titleJa));
     assert.ok(blob.includes(PAID_DTR_LP.chapters.items[0]!.introJa));
     assert.ok(blob.includes(PAID_DTR_LP.operational.ownedState.statusLeadJa));
@@ -209,8 +207,12 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
   });
 
-  it('has exactly 1 FAQ item (non-duplicative)', () => {
-    assert.equal(PAID_DTR_LP.faq.items.length, 1);
+  it('does not render a separate duplicate Light→Full FAQ section', () => {
+    assert.equal(lpPageSource.includes('id="dtr-lp-faq"'), false);
+    assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でフルに切り替え/);
+    assert.match(lpPageSource, /PAID_DTR_LP\.upgrade\.sectionTitleJa/);
+    assert.ok(collectPaidDtrLpCopyStrings().join('\n').includes(PAID_DTR_LP.upgrade.sectionTitleJa));
+    assert.ok(lpPageSource.includes('id="dtr-lp-purchase-trust"'));
   });
 
   it('keeps internal structural vocabulary out of public LP copy', () => {
@@ -234,14 +236,14 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     const savedIndex = lpPageSource.indexOf('id="dtr-lp-saved"');
     const funnelIndex = lpPageSource.indexOf('id="m55-paid-questionnaire"');
     const trustIndex = lpPageSource.indexOf('id="dtr-lp-trust"');
-    const faqIndex = lpPageSource.indexOf('id="dtr-lp-faq"');
+    const purchaseTrustIndex = lpPageSource.indexOf('id="dtr-lp-purchase-trust"');
 
     for (const [label, index] of [
       ['hero', heroIndex],
       ['saved', savedIndex],
       ['funnel', funnelIndex],
       ['trust', trustIndex],
-      ['faq', faqIndex],
+      ['purchase-trust', purchaseTrustIndex],
     ] as const) {
       assert.notEqual(index, -1, `missing LP section: ${label}`);
     }
@@ -249,7 +251,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.ok(heroIndex < savedIndex, 'hero must precede プレミアムレポートとは');
     assert.ok(savedIndex < funnelIndex, 'value sections must precede the purchase funnel');
     assert.ok(funnelIndex < trustIndex, 'trust/method sections must follow plan choice');
-    assert.ok(trustIndex < faqIndex, 'FAQ must be the final section');
+    assert.equal(lpPageSource.includes('id="dtr-lp-faq"'), false);
     assert.equal(lpPageSource.includes('id="dtr-lp-layers"'), false);
     assert.equal(lpPageSource.includes('id="dtr-lp-final"'), false);
     assert.equal(lpPageSource.includes('id="dtr-lp-authority"'), false);
@@ -279,7 +281,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.metadata.titleJa, PAID_DTR_LP_METADATA_TITLE_JA);
     assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, 'フルを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, 'ライトを選ぶ');
-    assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み返し方に合わせて選べます');
+    assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み解き方に合わせて選べます');
     assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /どちらも同じプレミアムレポート/);
     assert.equal(PAID_DTR_LP.tiers.full.oneTimeLabelJa, '一回払い');
     assert.equal(PAID_DTR_LP.tiers.light.oneTimeLabelJa, '一回払い');
@@ -310,7 +312,14 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
   it('aligns LP copy with analysis authority reference model vocabulary', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assertAuthorityVocabularyPresent(blob);
+    assertAuthorityVocabularyPresent(blob, [
+      '日本の暦文化',
+      '6問の回答',
+      '自己理解',
+      '関係性整理',
+      '参考情報',
+    ]);
+    assert.doesNotMatch(blob, /回答差分/);
     assert.match(blob, /本人の回答/);
     assert.match(blob, /医学的診断/);
     assert.match(blob, /心理検査/);
