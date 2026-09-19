@@ -24,6 +24,14 @@ export const PREMIUM_FUNNEL_PAGE_CONTENT = {
   planSelectAriaJa: 'プレミアムレポートのプラン選択',
   paidAnswersCompleteJa: 'プレミアム質問　6 / 6 回答済み',
   reviewAnswersJa: '回答を確認・変更',
+  preQuestionEffortJa: 'あと6問・約1〜2分。',
+  preQuestionValueJa:
+    '仕事の進め方、決めにくさ、人とのやりとり、疲れと戻り方を確認します。回答は、プレミアムレポートで重点的に読む場面や整え方に反映されます。',
+  answerReviewValueJa:
+    'ここで選んだ内容が、レポート内の重点と整え方に反映されます。違うと感じる項目は、プランを見る前に変更できます。',
+  reviewContinueJa: 'この回答を反映してプランを見る',
+  planQuestionnaireLinkageJa:
+    'どちらのプランも、6つの回答を反映した同じプレミアムレポートです。違いは、購入後に追加で読み解けるテーマ数だけです。',
   pricingDisclosureJa: '料金について',
   authRecoveryTitleJa: '購入準備を確認できませんでした',
   authRecoveryDescriptionJa:

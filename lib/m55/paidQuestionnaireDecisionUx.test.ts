@@ -33,6 +33,76 @@ function read(rel: string): string {
 }
 
 const FORBIDDEN_CLAIM = /おすすめ|人気|今だけ|残りわずか|期間限定|カウントダウン|保証|診断|予測/;
+const FORBIDDEN_PUBLIC_PLUS = /保存版|精度が上が|より正確|一番おすすめ|あなたに最適/;
+
+const FROZEN_SHORT_LABELS = [
+  '取り組みの焦点',
+  '決めにくさ',
+  '関係の焦点',
+  '疲れのサイン',
+  '戻り方',
+  '再開の条件',
+] as const;
+
+const EXPECTED_DISPLAY_COPY = [
+  {
+    questionId: 'paid.work_focus',
+    sceneContextJa:
+      '仕事や勉強、家のことなど、いま時間を使っていることをひとつ思い浮かべてください。',
+    questionJa: 'それを進めるとき、まずはっきりさせたいのはどれですか？',
+    labels: ['何からやるか', 'どのくらいのペースで進めるか', 'どこまで引き受けるか'],
+  },
+  {
+    questionId: 'paid.decision_friction',
+    sceneContextJa:
+      '仕事や買い物、予定など、選ぶのに時間がかかった場面を思い浮かべてください。',
+    questionJa: 'なかなか決められないとき、いちばん近いのはどれですか？',
+    labels: [
+      '選択肢が多くて絞れない',
+      'どこまでやれば終わりか見えない',
+      '間違えたくなくて決めきれない',
+    ],
+  },
+  {
+    questionId: 'paid.relation_focus',
+    sceneContextJa:
+      '身近な人や仕事相手とのやりとりで、少し引っかかりが残った場面を思い浮かべてください。',
+    questionJa: '人とのやりとりで、いま少しラクにしたいのはどれですか？',
+    labels: ['どう伝えるか', 'いつ話すか・返すか', '気まずさが残ったあとの戻り方'],
+  },
+  {
+    questionId: 'paid.fatigue_signal',
+    sceneContextJa:
+      '最近、余裕がなくなったり、動きが重くなった場面を思い浮かべてください。',
+    questionJa: 'どんなときに、疲れが出やすいですか？',
+    labels: [
+      '無理をしてやり切ったあと',
+      '取りかかる前から重く感じるとき',
+      '同じペースを長く続けたあと',
+    ],
+  },
+  {
+    questionId: 'paid.recovery_sequence',
+    sceneContextJa:
+      'まだ本調子ではないけれど、少しずつ戻りたい場面を思い浮かべてください。',
+    questionJa: '疲れが残っているとき、最初にすると戻りやすいのはどれですか？',
+    labels: [
+      'いったん止まって休む',
+      'できることから小さく始める',
+      '考える材料を整理してから戻る',
+    ],
+  },
+  {
+    questionId: 'paid.restart_condition',
+    sceneContextJa: 'やろうと思っているのに、動き出せない場面を思い浮かべてください。',
+    questionJa: '止まっていたことを、もう一度動かしやすくするのはどれですか？',
+    labels: [
+      '全体の流れが見えること',
+      '今日やる範囲を小さくすること',
+      '信頼できる人に一度話すこと',
+    ],
+  },
+] as const;
 
 describe('paid questionnaire decision UX — ids and count', () => {
   it('keeps exactly 6 paid questions with frozen question IDs', () => {
@@ -62,10 +132,32 @@ describe('paid questionnaire decision UX — ids and count', () => {
     const q1 = PAID_QUESTIONNAIRE_COPY_V1[0]!;
     assert.equal(q1.shortLabelJa, '取り組みの焦点');
     assert.doesNotMatch(q1.questionJa, /今の仕事で/);
-    assert.match(q1.sceneContextJa, /仕事・学業・家事・活動/);
+    assert.equal(
+      q1.sceneContextJa,
+      '仕事や勉強、家のことなど、いま時間を使っていることをひとつ思い浮かべてください。',
+    );
     for (const q of PAID_QUESTIONNAIRE_COPY_V1) {
       assert.ok(q.sceneContextJa.length > 0, `missing sceneContextJa for ${q.questionId}`);
     }
+  });
+
+  it('keeps shortLabelJa frozen and display copy exact without mutating answer IDs', () => {
+    assert.deepEqual(
+      PAID_QUESTIONNAIRE_COPY_V1.map((q) => q.shortLabelJa),
+      [...FROZEN_SHORT_LABELS],
+    );
+    for (const [index, expected] of EXPECTED_DISPLAY_COPY.entries()) {
+      const actual = PAID_QUESTIONNAIRE_COPY_V1[index]!;
+      assert.equal(actual.questionId, expected.questionId);
+      assert.equal(actual.sceneContextJa, expected.sceneContextJa);
+      assert.equal(actual.questionJa, expected.questionJa);
+      assert.deepEqual(
+        actual.choices.map((choice) => choice.labelJa),
+        [...expected.labels],
+      );
+    }
+    assert.doesNotMatch(JSON.stringify(PAID_QUESTIONNAIRE_COPY_V1), FORBIDDEN_CLAIM);
+    assert.doesNotMatch(JSON.stringify(PAID_QUESTIONNAIRE_COPY_V1), FORBIDDEN_PUBLIC_PLUS);
   });
 });
 
@@ -81,7 +173,7 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(q, /disabled=\{!selected\}/);
     assert.match(q, /phase === 'review'/);
     assert.match(q, /回答内容を確認/);
-    assert.match(q, /この回答でプランを見る/);
+    assert.match(q, /C\.reviewContinueJa|この回答を反映してプランを見る/);
     assert.match(q, /最初から回答し直す/);
     assert.match(q, /sceneContextJa/);
     assert.match(q, /m55-premium-scene-context/);
@@ -117,6 +209,8 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.doesNotMatch(prep, /FULLを選ぶ/);
     assert.doesNotMatch(prep, FORBIDDEN_CLAIM);
     assert.doesNotMatch(prep, /m55_paid_plan_select|m55_paid_checkout/);
+    assert.match(prep, /planQuestionnaireLinkageJa/);
+    assert.doesNotMatch(prep, /plan\.sameFourChaptersNoteJa/);
   });
 
   it('puts the plan decision before the secondary pricing and method explanation', () => {
@@ -156,6 +250,61 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.ok(reassurance < legal);
     assert.ok(legal < primaryAction);
     assert.ok(primaryAction < method);
+  });
+});
+
+describe('paid questionnaire decision UX — value continuity copy', () => {
+  it('owns pre-question, review, CTA, plan linkage, and journey labels centrally', () => {
+    assert.equal(PREMIUM_FUNNEL_PAGE_CONTENT.preQuestionEffortJa, 'あと6問・約1〜2分。');
+    assert.equal(
+      PREMIUM_FUNNEL_PAGE_CONTENT.preQuestionValueJa,
+      '仕事の進め方、決めにくさ、人とのやりとり、疲れと戻り方を確認します。回答は、プレミアムレポートで重点的に読む場面や整え方に反映されます。',
+    );
+    assert.equal(
+      PREMIUM_FUNNEL_PAGE_CONTENT.answerReviewValueJa,
+      'ここで選んだ内容が、レポート内の重点と整え方に反映されます。違うと感じる項目は、プランを見る前に変更できます。',
+    );
+    assert.equal(
+      PREMIUM_FUNNEL_PAGE_CONTENT.reviewContinueJa,
+      'この回答を反映してプランを見る',
+    );
+    assert.equal(
+      PREMIUM_FUNNEL_PAGE_CONTENT.planQuestionnaireLinkageJa,
+      'どちらのプランも、6つの回答を反映した同じプレミアムレポートです。違いは、購入後に追加で読み解けるテーマ数だけです。',
+    );
+
+    const strip = read('components/dtr/DtrPaidResultContextStrip.tsx');
+    const review = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
+    const rail = read('components/dtr/DtrPaidJourneyStepRail.tsx');
+    const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
+    assert.match(strip, /C\.preQuestionEffortJa/);
+    assert.match(strip, /C\.preQuestionValueJa/);
+    assert.doesNotMatch(strip, /STATIC_FREE_TO_PAID_BRIDGE/);
+    assert.match(review, /C\.answerReviewValueJa/);
+    assert.match(review, /C\.reviewContinueJa/);
+    assert.match(rail, /6つの質問/);
+    assert.match(rail, /回答確認/);
+    assert.match(rail, /プラン選択/);
+    assert.match(rail, /お支払い/);
+    assert.match(prep, /C\.planQuestionnaireLinkageJa/);
+    assert.doesNotMatch(
+      [
+        PREMIUM_FUNNEL_PAGE_CONTENT.preQuestionEffortJa,
+        PREMIUM_FUNNEL_PAGE_CONTENT.preQuestionValueJa,
+        PREMIUM_FUNNEL_PAGE_CONTENT.answerReviewValueJa,
+        PREMIUM_FUNNEL_PAGE_CONTENT.reviewContinueJa,
+        PREMIUM_FUNNEL_PAGE_CONTENT.planQuestionnaireLinkageJa,
+      ].join('\n'),
+      FORBIDDEN_CLAIM,
+    );
+    assert.doesNotMatch(
+      [
+        PREMIUM_FUNNEL_PAGE_CONTENT.preQuestionValueJa,
+        PREMIUM_FUNNEL_PAGE_CONTENT.answerReviewValueJa,
+        PREMIUM_FUNNEL_PAGE_CONTENT.planQuestionnaireLinkageJa,
+      ].join('\n'),
+      FORBIDDEN_PUBLIC_PLUS,
+    );
   });
 });
 

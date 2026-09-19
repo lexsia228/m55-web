@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { ensureSealedCoreResult } from '../../lib/m55/coreResult/store';
 import { resolveTraitIdentity } from '../../lib/m55/commercialUx/traitIdentityCatalog';
-import { STATIC_FREE_TO_PAID_BRIDGE } from '../core/corePublicCopy';
+import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
 import {
   isValidBasicInfo,
   resolveSelfFunnelStage,
@@ -20,7 +20,7 @@ type StripView = {
 
 /**
  * Compact free→Premium continuity strip shown before paid Q1/6.
- * Not a second sales card — trait + one sentence + effort only.
+ * Not a second sales card — trait + tagline + effort + questionnaire value.
  */
 export default function DtrPaidResultContextStrip() {
   const [view, setView] = useState<StripView | null>(null);
@@ -72,7 +72,8 @@ export default function DtrPaidResultContextStrip() {
         あなたの資質 <strong>{view.traitName}</strong>
       </p>
       <p className={styles.contextSentence}>{view.sentenceJa}</p>
-      <p className={styles.contextEffort}>{STATIC_FREE_TO_PAID_BRIDGE.effortJa}</p>
+      <p className={styles.contextEffort}>{C.preQuestionEffortJa}</p>
+      <p className={styles.contextSentence}>{C.preQuestionValueJa}</p>
     </aside>
   );
 }

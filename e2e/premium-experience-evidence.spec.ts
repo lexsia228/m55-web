@@ -456,7 +456,7 @@ for (const vp of VIEWPORTS) {
     await page.getByRole('button', { name: '保存して確認に戻る' }).click();
     await expectAnswerReviewPhase(page);
 
-    await page.getByRole('button', { name: 'この回答でプランを見る' }).click();
+    await page.getByRole('button', { name: 'この回答を反映してプランを見る' }).click();
     await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible();
     await assertDecisionSheet(page);
     await capturePng(page, 'plan-selection', vp.name);
@@ -603,7 +603,7 @@ test('print PDF premium states @1280', async ({ browser }) => {
   await completeQuestionnaire(page);
   await capturePdf(page, 'answer-review');
 
-  await page.getByRole('button', { name: 'この回答でプランを見る' }).click();
+  await page.getByRole('button', { name: 'この回答を反映してプランを見る' }).click();
   await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
   await capturePdf(page, 'plan-selection');
 
