@@ -2,12 +2,12 @@
   "schemaVersion": "1.4.0",
   "status": "ACTIVE",
   "semanticAuthorityOwner": "docs/ssot/M55_EXECUTION_STATE.json",
-  "updatedAt": "2026-09-18T11:21:31Z",
+  "updatedAt": "2026-09-19T00:22:00Z",
   "macroLane": "M55_COMMERCIAL_CONTENT_QUALITY",
-  "currentExecutionGate": "ATTRIBUTION_AND_COMPLIANCE",
-  "nextSingleAction": "ATTRIBUTION_AND_COMPLIANCE",
-  "productWorkAfterControlTower": "ATTRIBUTION_AND_COMPLIANCE",
-  "executionParentGate": "ATTRIBUTION_AND_COMPLIANCE",
+  "currentExecutionGate": "M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1",
+  "nextSingleAction": "M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1",
+  "productWorkAfterControlTower": "M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1",
+  "executionParentGate": "M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1",
   "pairImplementation": "COMPLETE",
   "pairPremium": "ACTIVATED",
   "pairPremiumActivationScope": "PRODUCTION_COMMERCE_SWITCH_CONTROL_PLANE",
@@ -55,7 +55,8 @@
     "FOUR_SURFACE_CREATOR_READINESS",
     "REVENUE_SAFETY_E2E",
     "M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT",
-    "M55-CREATOR-DISTRIBUTION-FOUNDATION"
+    "M55-CREATOR-DISTRIBUTION-FOUNDATION",
+    "M55-R4-PR210-FRESH-MAIN-RECONCILIATION"
   ],
   "pairFreeToPaidMapping": {
     "gate": "PAIR-FREE-TO-PAID-MAPPING-FIRST",
