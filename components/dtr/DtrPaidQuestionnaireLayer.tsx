@@ -26,6 +26,7 @@ import DtrPaidResultContextStrip from './DtrPaidResultContextStrip';
 import DtrPaidJourneyStepRail from './DtrPaidJourneyStepRail';
 import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
+import { paidQuestionReportTraceLineJa } from '../../lib/m55/paidResult/paidQuestionReportTraceDisplayV1';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
@@ -227,6 +228,11 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
                     <div className={styles.answerRowBody}>
                       <span className={styles.answerQ}>{q.shortLabelJa}</span>
                       <span className={styles.answerA}>{labelForAnswer(q.questionId, answerId)}</span>
+                      {answerId ? (
+                        <span className={styles.hint} data-testid={`m55-paid-answer-trace-${q.questionId}`}>
+                          {paidQuestionReportTraceLineJa(answerId)}
+                        </span>
+                      ) : null}
                     </div>
                     <button
                       type="button"

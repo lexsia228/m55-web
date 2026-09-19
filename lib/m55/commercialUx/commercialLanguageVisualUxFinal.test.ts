@@ -130,10 +130,15 @@ describe('commercial language visual UX final — sticky + premium continuity', 
 
     const strip = read('components/dtr/DtrPaidResultContextStrip.tsx');
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
+    const css = read('components/dtr/DtrPaidDecisionUx.module.css');
     assert.match(strip, /m55-paid-result-context/);
     assert.match(strip, /C\.preQuestionEffortJa/);
+    assert.match(strip, /questionnaireBirthFoundationJa/);
+    assert.match(strip, /questionnaireFoundationJa/);
     assert.match(q, /DtrPaidResultContextStrip/);
     assert.match(q, /index === 0/);
+    assert.match(css, /\.shell[\s\S]*?scroll-margin-top/);
+    assert.doesNotMatch(strip, /この6問だけで人を決める/);
   });
 });
 

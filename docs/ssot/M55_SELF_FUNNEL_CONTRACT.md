@@ -106,6 +106,18 @@ Self funnel runtime source on WT-001 remains **uncommitted** and is **not** part
 
 Premium theme 選択は **購入後**。結果前 theme selection は target では廃止。
 
+Free foundation precedes Premium questions. Layer 1 is the birth/calendar
+foundation. Layer 2 is current expression from the five Free answers (the Free
+result combines L1 + L2). The frozen Premium questionnaire is exactly six
+questions / eighteen answer IDs. Those answers are Layer 3: they contextualize
+and emphasize what the paid report reads more closely (chapter II / III / IV
+emphasis). They are not a standalone diagnosis and they do not become current
+expression.
+
+Answer→report provenance may be shown before purchase at **chapter/topic level
+only**, in compact form. Pre-purchase provenance must not leak paid substantive
+passages, handling instructions, or concrete next actions.
+
 ## Commercial desire binding (2026-09-18)
 
 Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial desire and paid-worthiness」

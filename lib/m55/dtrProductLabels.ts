@@ -56,9 +56,10 @@ export const MY_SAVED_REPORT_PROCESSING =
 export const MY_SAVED_REPORT_OWNED_NOTE_P1 =
   'プレミアムレポートは、購入時までに入力された情報をもとに作成・保存されています。';
 export const MY_SAVED_REPORT_OWNED_NOTE_P2 =
-  'ここでプロフィールを更新しても、購入済みのプレミアムレポートの内容は自動では変わりません。';
+  'ここでプロフィールを更新しても、購入時に使った入力内容が自動で置き換わることはありません。';
 export const MY_SAVED_REPORT_VALUE_TITLE = 'プレミアムレポート';
-export const MY_SAVED_REPORT_VALUE_BODY = '購入時の内容をそのまま読み返せます。';
+export const MY_SAVED_REPORT_VALUE_BODY =
+  '購入時の入力を土台にしたプレミアムレポートを、あとから読み返せます。';
 export const MY_SAVED_REPORT_CTA_PLAN_LABEL = 'プレミアムレポートのプランを見る';
 export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';
 export const MY_SAVED_REPORT_CTA_OPEN_LABEL = 'プレミアムレポートを読み返す';
