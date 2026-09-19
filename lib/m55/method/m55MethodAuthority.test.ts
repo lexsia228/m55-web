@@ -107,7 +107,7 @@ describe('M55 method authority — canonical sentences', () => {
   it('keeps the explanation, reproducibility and boundary wording intact', () => {
     assert.equal(
       M55_METHOD_CANONICAL_COPY.explanationJa,
-      'M55は、生年月日だけでも、今の回答だけでも人を決めません。変わりにくい土台と、今表れている反応を別々に見て、近いところとずれるところ、負担が重なりやすい場面を一つの読み解きに組み立てます。',
+      'M55は、生年月日だけでも、今の回答だけでも人を決めません。暦に基づく土台と、今表れている反応を別々に見て、近いところとずれるところ、負担が重なりやすい場面を一つの読み解きに組み立てます。',
     );
     assert.equal(
       M55_METHOD_CANONICAL_COPY.reproducibilityJa,
@@ -116,6 +116,14 @@ describe('M55 method authority — canonical sentences', () => {
     assert.equal(
       M55_METHOD_CANONICAL_COPY.boundaryJa,
       '診断、占い、未来予測、相手の気持ちの断定ではありません。',
+    );
+    assert.equal(
+      M55_METHOD_CANONICAL_COPY.questionnaireBirthFoundationJa,
+      '生年月日から、暦に基づく土台を置いています。',
+    );
+    assert.equal(
+      M55_METHOD_CANONICAL_COPY.questionnaireFoundationJa,
+      '無料の5つの回答は、いまの出方です。次の6問では、プレミアムで深く読むところを合わせます。',
     );
   });
 
@@ -212,10 +220,73 @@ describe('M55 method authority — required sections', () => {
     assert.equal(inputsSection.itemsJa.length, M55_METHOD_INPUTS.length);
   });
 
+  it('distinguishes user-provided inputs from derived reading signals', () => {
+    assert.deepEqual(
+      M55_METHOD_INPUTS.filter((i) => i.sourceKind === 'user_provided').map((i) => i.id),
+      ['dob_base', 'free_expression', 'paid_depth'],
+    );
+    assert.deepEqual(
+      M55_METHOD_INPUTS.filter((i) => i.sourceKind === 'derived').map((i) => i.id),
+      ['align', 'diverge', 'intensity', 'hesitation', 'reactive_context', 'reply_affinity'],
+    );
+    const inputsSection = M55_METHOD_SECTIONS.find((s) => s.id === 'inputs_used');
+    assert.ok(inputsSection?.itemsJa);
+    assert.match(inputsSection.bodyJa.join(''), /本人が入力するのは、生年月日、無料の5つの回答/);
+    assert.match(inputsSection.bodyJa.join(''), /暦の土台/);
+    assert.match(inputsSection.bodyJa.join(''), /プレミアムで読むところの重点/);
+    for (const item of inputsSection.itemsJa) {
+      assert.match(item.labelJa, /^(本人が入力するもの|読み解きで組み立てる手がかり)｜/);
+    }
+    assert.equal(
+      inputsSection.itemsJa.filter((i) => i.labelJa.startsWith('本人が入力するもの｜')).length,
+      3,
+    );
+    assert.equal(
+      inputsSection.itemsJa.filter((i) => i.labelJa.startsWith('読み解きで組み立てる手がかり｜'))
+        .length,
+      6,
+    );
+  });
+
   it('states that reproducibility is not an accuracy claim', () => {
     const section = M55_METHOD_SECTIONS.find((s) => s.id === 'reproducibility_and_versioning');
     assert.ok(section);
     assert.ok(section.bodyJa.some((p) => p.includes('精度の主張ではありません')));
+    assert.ok(section.bodyJa.some((p) => p.includes('購入時の入力を土台に読み返せます')));
+    assert.ok(
+      section.bodyJa.some((p) => p.includes('表示の言い回しは、現在の製品表記に合わせて整うことがあります')),
+    );
+    assert.ok(!section.bodyJa.some((p) => p.includes('購入時の版のまま')));
+    assert.ok(!section.bodyJa.some((p) => p.includes('そのまま読み返せます')));
+  });
+
+  it('keeps Method calendar detail off commercial-hero jargon and names 十干 only in method detail', () => {
+    const foundation = M55_METHOD_SECTIONS.find((s) => s.id === 'stable_foundation');
+    assert.ok(foundation);
+    const foundationBlob = foundation.bodyJa.join('\n');
+    assert.match(foundationBlob, /十干/);
+    assert.match(foundationBlob, /二十四節気は季節の手がかり/);
+    assert.match(foundationBlob, /十干そのものではありません/);
+    assert.match(foundationBlob, /公開の自分用入力は、いまは生年月日までです/);
+    assert.match(foundationBlob, /出生の時刻や場所からの星の配置は使いません/);
+    const unused = M55_METHOD_SECTIONS.find((s) => s.id === 'what_m55_does_not_do');
+    assert.ok(unused);
+    assert.match(unused.bodyJa.join(''), /十二支や四柱推命、西洋占星術/);
+    assert.match(unused.bodyJa.join(''), /別の体系を重ねた計算は使いません/);
+    for (const step of M55_METHOD_STEPS) {
+      assert.doesNotMatch(`${step.titleJa}\n${step.bodyJa}`, /十干/);
+    }
+    assert.doesNotMatch(M55_METHOD_CANONICAL_COPY.explanationJa, /十干/);
+    assert.doesNotMatch(M55_METHOD_CANONICAL_COPY.questionnaireBirthFoundationJa, /十干/);
+    assert.doesNotMatch(M55_METHOD_CANONICAL_COPY.questionnaireFoundationJa, /十干/);
+    const paidDepth = M55_METHOD_INPUTS.find((i) => i.id === 'paid_depth');
+    assert.ok(paidDepth);
+    assert.match(paidDepth.publicDescriptionJa, /重点的に読むところ/);
+    assert.doesNotMatch(paidDepth.publicDescriptionJa, /6問だけで人を決める/);
+    const freeExpression = M55_METHOD_INPUTS.find((i) => i.id === 'free_expression');
+    assert.ok(freeExpression);
+    assert.match(freeExpression.publicDescriptionJa, /いま表に出ている動き方/);
+    assert.match(freeExpression.publicDescriptionJa, /無料の5つの回答/);
   });
 });
 

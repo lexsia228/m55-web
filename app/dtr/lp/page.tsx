@@ -22,7 +22,7 @@ import styles from "./lp.module.css";
 export const metadata: Metadata = {
   title: PAID_DTR_LP_METADATA_TITLE_JA,
   description:
-    "M55は、生年月日と6問の回答から自分の出方を読み解く自己理解サービスです。プレミアムレポートはライト ¥1,000・フル ¥1,480の買い切り・自動更新なし。",
+    "M55は、生年月日の暦の土台と、無料で見えた今の出方を重ね、次の6問で深く読むところを合わせる自己理解サービスです。プレミアムレポートはライト ¥1,000・フル ¥1,480の買い切り・自動更新なし。",
   alternates: {
     canonical: "/dtr/lp",
   },

@@ -12,7 +12,7 @@ import {
   collectPaidDtrLpCopyStrings,
 } from './paidDtrProductCopy';
 import {
-  assertAuthorityVocabularyPresent,
+  assertLayeredAuthorityTruthPresent,
   assertStrictStorefrontVocabularySafe,
 } from './testSupport/analysisAuthorityCopyAssertions';
 
@@ -61,11 +61,11 @@ describe('storefrontAuthorityImportAlignment — wiring and role separation', ()
     assert.match(page, /PAID_DTR_LP/);
     assert.match(page, /authorityNote/);
     assert.equal(PAID_DTR_LP.authorityNote.bodyParagraphsJa.length, 3);
-    assertAuthorityVocabularyPresent(lpAuthorityNoteCorpus());
+    assertLayeredAuthorityTruthPresent(lpAuthorityNoteCorpus(), 'full');
   });
 
   it('wires pricing through PAID_DTR_PRICING_AUTHORITY_NOTE_JA', () => {
-    assertAuthorityVocabularyPresent(PAID_DTR_PRICING_AUTHORITY_NOTE_JA);
+    assertLayeredAuthorityTruthPresent(PAID_DTR_PRICING_AUTHORITY_NOTE_JA, 'lightweight');
     const page = readRepoFile(PRICING_PAGE);
     assert.match(page, /permanentRedirect\s*\(\s*['"]\/dtr\/lp['"]\s*\)/);
   });

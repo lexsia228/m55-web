@@ -10,6 +10,7 @@ import {
   PAID_DTR_LP,
   PAID_DTR_LP_GOVERNED_HASH_ANCHORS,
   PAID_DTR_LP_METADATA_TITLE_JA,
+  PAID_DTR_PRICING_AUTHORITY_NOTE_JA,
   PAID_DTR_SAVED_REPORT_PRICING,
   collectPaidDtrLpCopyStrings,
 } from './paidDtrProductCopy';
@@ -60,7 +61,7 @@ const OLD_CHAPTER_TITLES = ['軸', '結節', '微差', '全体像の輪郭'];
 const SAVED_REPORT_HEADLINE_JA = '自分の出方を、一つの流れで読み直す。';
 
 const SAVED_REPORT_BODY_JA =
-  'プレミアムレポートは、\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にしたデジタルレポートです。\n\n購入後は、同じ内容を読み返せます。\n\nレポート本体は、\nライトとフルで共通です。';
+  'プレミアムレポートは、\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にしたデジタルレポートです。\n\n購入後は、購入時の入力を土台にしたレポートを読み返せます。\n\nレポート本体は、\nライトとフルで共通です。';
 
 const OWNED_STATE_STRINGS = [
   'プレミアムレポートの閲覧・準備状況はこちらから進められます。',
@@ -274,7 +275,9 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   it('defines hero plan anchor and CTA labels', () => {
     assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'プラン選択へ進む');
     assert.equal(PAID_DTR_LP.hero.compareSectionId, 'm55-paid-questionnaire');
-    assert.match(PAID_DTR_LP.hero.subheadlineJa, /生年月日と6問の回答/);
+    assert.match(PAID_DTR_LP.hero.subheadlineJa, /生年月日の暦の土台/);
+    assert.match(PAID_DTR_LP.hero.subheadlineJa, /今の出方/);
+    assert.doesNotMatch(PAID_DTR_LP.hero.subheadlineJa, /生年月日と6問の回答/);
     assert.match(lpPageSource, /PAID_DTR_LP_METADATA_TITLE_JA/);
     assert.doesNotMatch(lpPageSource, /本質を見つめ直す \| M55 プレミアムレポート/);
     assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
@@ -320,6 +323,16 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
       '参考情報',
     ]);
     assert.doesNotMatch(blob, /回答差分/);
+    assert.match(blob, /本人の回答/);
+    assert.match(PAID_DTR_LP.hero.subheadlineJa, /生年月日の暦の土台と、無料で見えた今の出方を重ね/);
+    assert.doesNotMatch(PAID_DTR_LP.hero.headlineJa, /生年月日と6問/);
+    assert.doesNotMatch(PAID_DTR_LP.hero.headlineJa, /十干/);
+    assert.doesNotMatch(PAID_DTR_LP.hero.subheadlineJa, /十干/);
+    assert.doesNotMatch(PAID_DTR_LP.authorityNote.headlineJa, /生年月日と6問の回答を、読み解きの材料/);
+    assert.doesNotMatch(lpPageSource, /生年月日と6問の回答から自分の出方を読み解く/);
+    assert.match(blob, /購入時の入力を土台にしたレポートを読み返せます/);
+    assert.doesNotMatch(blob, /同じ内容を読み返せます/);
+    assert.doesNotMatch(blob, /購入時点の内容のまま変わりません/);
     assert.match(blob, /本人の回答/);
     assert.match(blob, /医学的診断/);
     assert.match(blob, /心理検査/);
@@ -371,5 +384,26 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
       '/legal/terms',
       '/legal/privacy',
     ]);
+  });
+
+  it('states L1 calendar foundation, L2 Free expression, L3 Premium emphasis without a DOB+6Q complete model', () => {
+    const blob = collectPaidDtrLpCopyStrings().join('\n');
+    const lpPage = lpPageSource;
+    assert.match(PAID_DTR_LP.hero.subheadlineJa, /暦の土台/);
+    assert.match(PAID_DTR_LP.freeComparison.bodyJa, /暦の土台/);
+    assert.match(PAID_DTR_LP.freeComparison.bodyJa, /いまの出方/);
+    assert.match(PAID_DTR_LP.freeComparison.bodyJa, /重点的に読むところ/);
+    assert.match(PAID_DTR_LP.authorityNote.bodyParagraphsJa.join('\n'), /無料の5つの回答はいまの出方/);
+    assert.match(PAID_DTR_LP.authorityNote.bodyParagraphsJa.join('\n'), /6問の回答で重点的に読むところ/);
+    assert.match(blob, /公開の自分用では、いまは生年月日までを使い、出生の時刻や場所は使いません/);
+    assert.doesNotMatch(blob, /出生時間|出生時刻|出生地からの.*ホロスコープ|natal chart/i);
+    assert.doesNotMatch(blob, /十二支|六十干支|60干支|四柱推命|算命学|九星|紫微|宿曜|西洋占星/);
+    assert.doesNotMatch(PAID_DTR_LP.hero.headlineJa + PAID_DTR_LP.hero.subheadlineJa, /十干/);
+    assert.doesNotMatch(blob, /生年月日と6問(の回答)?だけで/);
+    assert.doesNotMatch(blob, /生年月日\s*\+\s*6問/);
+    assert.match(PAID_DTR_PRICING_AUTHORITY_NOTE_JA, /日本の暦文化/);
+    assert.match(PAID_DTR_PRICING_AUTHORITY_NOTE_JA, /6問の回答で重点的に読むところ/);
+    assert.doesNotMatch(PAID_DTR_PRICING_AUTHORITY_NOTE_JA, /6問の回答をもとに/);
+    assert.match(lpPage, /生年月日の暦の土台と、無料で見えた今の出方を重ね/);
   });
 });

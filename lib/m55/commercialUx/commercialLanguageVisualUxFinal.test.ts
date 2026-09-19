@@ -58,7 +58,7 @@ describe('commercial language visual UX final — CTA contract', () => {
   it('paid completion copy confirms answers without promising a finished report', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
     assert.match(q, /回答内容を確認/);
-    assert.match(q, /この回答でプランを見る/);
+    assert.match(q, /C\.reviewContinueJa/);
     assert.match(q, /最初から回答し直す/);
     assert.doesNotMatch(q, /回答内容を確認しました/);
     assert.doesNotMatch(q, /プレミアムレポートの内容をあなた向けに整えます/);
@@ -130,10 +130,15 @@ describe('commercial language visual UX final — sticky + premium continuity', 
 
     const strip = read('components/dtr/DtrPaidResultContextStrip.tsx');
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
+    const css = read('components/dtr/DtrPaidDecisionUx.module.css');
     assert.match(strip, /m55-paid-result-context/);
-    assert.match(strip, /あと6問・約1〜2分|STATIC_FREE_TO_PAID_BRIDGE\.effortJa/);
+    assert.match(strip, /C\.preQuestionEffortJa/);
+    assert.match(strip, /questionnaireBirthFoundationJa/);
+    assert.match(strip, /questionnaireFoundationJa/);
     assert.match(q, /DtrPaidResultContextStrip/);
     assert.match(q, /index === 0/);
+    assert.match(css, /\.shell[\s\S]*?scroll-margin-top/);
+    assert.doesNotMatch(strip, /この6問だけで人を決める/);
   });
 });
 

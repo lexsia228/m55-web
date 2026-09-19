@@ -1,6 +1,6 @@
 import styles from './DtrPaidDecisionUx.module.css';
 
-const STEPS = ['追加質問', '回答確認', 'プラン', 'お支払い'] as const;
+const STEPS = ['6つの質問', '回答確認', 'プラン選択', 'お支払い'] as const;
 
 export type PaidJourneyStepIndex = 0 | 1 | 2 | 3;
 
