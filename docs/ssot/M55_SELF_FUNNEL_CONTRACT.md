@@ -105,3 +105,22 @@ Self funnel runtime source on WT-001 remains **uncommitted** and is **not** part
 ## Premium boundary
 
 Premium theme 選択は **購入後**。結果前 theme selection は target では廃止。
+
+## Commercial desire binding (2026-09-18)
+
+Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial desire and paid-worthiness」
+
+## Commercial delight binding (2026-09-19)
+
+Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial delight and discovery standard」
+
+- All Self user-visible commercial content inherits the **Global Commercial Delight Standard**.
+- Delight / discovery / anticipation requirements apply to intro, questions, answer options, progress, transitions, Free result, Premium bridge, answer review, plan, CTA, paid report, and revisit — not questions alone.
+- Product Truth, safety, and non-diagnostic constraints remain superior.
+
+## Commercial desire binding detail (2026-09-18)
+
+- Self primary commercial desire is **「自分をもっと知りたい」**.
+- **Free owns recognition** — 何が起きやすいか / 反応・傾向 / 自分では言葉にしづらかった輪郭.
+- **Paid owns supported deeper value** — なぜ・条件・力が出る場面・迷いと摩擦・疲れ・戻り方・再開条件・次の小さな一手, only where Product Truth supports it.
+- Detailed paid-worthiness rules, question design standard, promise continuity, market evidence filter, and report change classes **A–E** live in `M55_COMMERCIAL_FUNNEL_SSOT.md`. Do not duplicate them here.

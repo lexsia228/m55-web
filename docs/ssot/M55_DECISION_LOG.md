@@ -63,6 +63,56 @@ Machine authority: `M55_ACCESSIBILITY_DEFERRALS` in `lib/m55/commercialUx/qualit
 ## Human-approved policy decisions (dated)
 
 
+### 2026-09-19 — Global commercial delight / discovery / anticipation standard approved
+
+**Status:** Human-approved · gate `M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1` · **docs-only** true delta
+
+Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial delight and discovery standard」.
+
+Frozen decisions:
+
+| Decision | Value |
+|---|---|
+| Delight / discovery / anticipation | **required for all governed user-visible commercial content** — not questions alone |
+| Scope | **ALL** governed user-visible commercial content, **including but not limited to**: HOME/entry · questionnaire/question+answer · progress/transitions · Free result · Premium bridge · plan/product decision · CTA · purchase confirmation · checkout/payment/status continuity · paid report · My Page/owned report/revisit · shared navigation/support · relevant empty/error/status states — representative map is **non-exhaustive** |
+| Self inheritance | all Self user-visible commercial content inherits the Global Commercial Delight Standard |
+| Pair inheritance | same standard; frozen Pair Free/Paid boundary and non-mind-reading constraints remain superior |
+| Superior constraints | Product Truth · safety · non-diagnostic language · trust / legal / privacy / accessibility / security / payment accuracy · `M55_COMMERCIAL_QUALITY_CONTRACT.md` · Human actual-screen review remain required |
+| Prohibited mechanics | fake scarcity · fake urgency · streak pressure · arbitrary points/badges · mystery-box manipulation · fear-based purchase pressure · fake AI waiting · answer-praise bias · exaggerated accuracy · dependency loops |
+| Numeric fun score | **PROHIBITED** |
+| Product / runtime mutation | **NONE** in this gate |
+
+Execution-state reconciliation: fresh `origin/main` @ `b0532e72c4f73f15c14ce48486b00902fc426021` incorporated manually because ordinary merge was blocked by dirty overlap on `M55_EXECUTION_STATE.json`. PR **#213** Control Tower non-Creator gate decoupling is merged on main. Executable CURRENT / NEXT remains `M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1`. Creator program memory remains independently at `ATTRIBUTION_AND_COMPLIANCE`. This gate is **not** re-parented under Creator.
+
+### 2026-09-18 — Global commercial insight / paid-worthiness doctrine promoted
+
+**Status:** Human-approved · gate `M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1` · **docs-only** true delta
+
+Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial desire and paid-worthiness」. No parallel top-level SSOT was created; the existing Tier B owner was extended.
+
+Frozen decisions:
+
+| Decision | Value |
+|---|---|
+| Commercial copy / question / report quality | **cross-product durable authority**, not isolated per-screen edits |
+| Self primary purchase desire | **自分をもっと知りたい** — self-understanding |
+| Pair primary purchase desire | **二人の相性・関係性をもっと知りたい** — compatibility / relationship understanding |
+| FREE | recognition — 何が起きやすいか |
+| PAID | なぜ / 条件 / 扱い方 / 次に試せること — **never Free made longer** |
+| Market evidence | informs eligible topics; **does not override Product Truth** (`DEMAND − PRODUCT TRUTH = HOLD`) |
+| Evidence classes D / E | **must never become Product Truth** |
+| 16Personalities | **market evidence only** — NOT added to `M55_UX_BENCHMARK_STACK.md` |
+| Benchmark stack | **unchanged** — no reselection |
+| Report-content remediation | allowed **later** under classification **A REUSE > B REFRAME > C REORDER > D COPY > E ENGINE/HOLD** |
+| Existing M55 assets | **preserved by default**; remediation requires a proven commercial-quality defect |
+| Pair Human-approved Free/Paid boundary | **frozen** — later alignment is an overlay, not a `PAIR-FREE-TO-PAID-MAPPING-FIRST` repeat |
+| Pair Premium product runtime | remains **NOT_LIVE** |
+| Commercial success | still requires **observed Production data** — no numeric score, no invented conversion threshold |
+
+Execution-state reconciliation (existing schema 1.4.0 keys only): PR **#210** observed **MERGED** at merge commit `a23ce3188cf874521d6cfc750072cd95d34e60d0`; the R4 PR210 fresh-main reconciliation action is complete and appended to `completedSubGates`. Creator roadmap status is retained as **program memory**, not executable NEXT. Executable CURRENT / NEXT moved to `M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1`. This does **not** declare the Creator program permanently complete.
+
+The Self implementation candidate `fd852677ddf4e0b4678a9bfd5e46f1a66c56ee1f` on `feat/m55-self-premium-questionnaire-monetization-v1` is **preserved and untouched**; it will be reconciled against this authority in a later gate. No product/runtime source, price, selector, report engine, or Creator source was mutated.
+
 ### 2026-09-08 — Multi-agent parallel operating model SSOT
 
 **Status:** Human-approved **durable operating model**.

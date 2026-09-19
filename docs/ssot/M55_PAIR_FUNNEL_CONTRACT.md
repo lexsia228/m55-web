@@ -109,3 +109,25 @@ Repeat mapping: **PROHIBITED**
 - Paid must not re-open the base relationship/overlap/mismatch recognition work that Free already owns.
 - `PAIR-PREMIUM-ACTIVATION-DECISION` is **CLOSED GREEN**. The Production commerce switch/control-plane is **ACTIVATED**. Full product runtime status remains **NOT_LIVE** until the separately owned Production E2E closure is proven.
 - Do not claim purchasable Pair Paid in production; real-payment E2E remains **PAUSED_BEFORE_PAYMENT / NOT GREEN**.
+
+## Commercial desire binding (2026-09-18)
+
+Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial desire and paid-worthiness」
+
+## Commercial delight binding (2026-09-19)
+
+Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial delight and discovery standard」
+
+- All Pair user-visible commercial content inherits the same **Global Commercial Delight Standard**.
+- The frozen Pair Free/Paid boundary and non-mind-reading constraints remain **superior** and unchanged.
+- Delight must not introduce compatibility score, good/bad verdict, partner mind-reading, or future prediction.
+
+## Commercial desire binding detail (2026-09-18)
+
+- Pair primary commercial desire is **「二人の相性・関係性をもっと知りたい」**.
+- M55 compatibility is **non-deterministic**: no 相性スコア, no 合う/合わない判定, no 相手の本音, no 未来予測, no 復縁/結婚/改善保証.
+- The existing Human-approved Pair Free/Paid boundary above remains **frozen**.
+- Later alignment work against the global doctrine is an **overlay**, **not** a repeat of `PAIR-FREE-TO-PAID-MAPPING-FIRST`; `repeatMapping` remains **PROHIBITED**.
+- The user-alone input rule remains: 回答するのはユーザー本人で、相手が回答したものではない.
+- Pair Premium **product runtime remains NOT_LIVE**; this binding does not activate or claim it.
+- Global paid-worthiness rules, question design standard, promise continuity, and report change classes **A–E** live in `M55_COMMERCIAL_FUNNEL_SSOT.md`. Do not duplicate them here.
