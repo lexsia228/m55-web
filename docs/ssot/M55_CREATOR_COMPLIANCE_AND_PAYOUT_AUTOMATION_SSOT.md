@@ -769,17 +769,229 @@ Once eligible purchase attribution is locked, later unrelated clicks must **not*
 
 ---
 
-## AG. Attribution conflict contract (R5 pre-freeze)
+## AG. Attribution conflict contract (R5-A FROZEN)
 
-Before R5 implementation, publish deterministic precedence for:
+`M55-R5-R5A-POLICY-HUMAN-FREEZE-REV2 = APPROVED`
 
-- multiple creator touches
-- creator link vs General User invite
+This section closes the former R5 pre-freeze publication duty. Operating Model §14 / §16A / §18 / §24 / §32 remain the frozen core and are **not** superseded here. Machine-readable encoding lives in:
+
+- `lib/m55/contracts/m55AttributionPolicyContract.ts`
+- `lib/m55/contracts/m55CreatorTrackingContract.ts`
+
+R5-A is semantics/contracts only. Schema, checkout, webhook, and fulfillment remain out of this freeze.
+
+### AG.1 Published conflict dimensions
+
+Deterministic precedence is published for:
+
+- multiple Creator touches
+- Creator link vs General User invite
 - cookie vs signed link evidence
 - same-device conflicting account evidence
 - late click after eligibility lock
 
-Conflict resolution: deterministic policy where possible → exception only when genuinely ambiguous. Database race order must **not** decide financial attribution.
+Conflict resolution: deterministic policy where possible → `HOLD` / Human exception only when genuinely ambiguous. Database race order, first-writer-wins unique insert, serial/sequence, commit order, and locale string order must **not** decide financial attribution.
+
+### AG.2 Subject / qualified-touch admission
+
+```text
+v1 tracking_subject_id = server-authenticated Clerk userId
+email / cookie / device / client body / anonymous id = NOT buyer authority
+already-authenticated Clerk subject + verified Creator-link / direct
+  qualified action = eligible
+authentication continuation = allowed path, NOT mandatory for every touch
+verified Creator-link → same-action login continuation
+  = may complete the same logical action after auth
+unauthenticated landing alone = NOT a qualified Creator touch
+old cookie reread alone = MUST NOT create a new touch
+generic anonymous→account auto-merge = PROHIBITED
+cross-account / same-device / same-IP union = PROHIBITED
+```
+
+### AG.3 Creator vs General lanes
+
+```text
+Creator method = evidence-source-neutral LAST_QUALIFIED_DIRECT_CREATOR_TOUCH
+cookie vs signed link = NO fixed source precedence
+General /r/[token] = MUST NOT create a Creator candidate
+General lane MUST NOT overwrite or delete Creator touch/lock
+General lane MUST NOT create Creator cash commission
+Creator and General tracking purpose/namespace MUST be separate
+```
+
+### AG.4 Touch clock and exact-timestamp tie
+
+```text
+qualified_touch_at = M55 server qualified-action acceptance UTC
+v1 helper representation = Unix epoch milliseconds (integer)
+Stripe Event.created native input = Unix epoch seconds
+canonicalPaymentSucceededAtMs = Event.created seconds × 1000
+raw seconds MUST NOT be passed to ms helpers
+fulfilled_at MUST NOT be canonicalized
+client timestamp = FORBIDDEN as winner authority
+cookie timestamp = FORBIDDEN as winner authority
+DB commit completion time = FORBIDDEN as winner authority
+retry MUST NOT update qualified_touch_at
+
+Exact timestamp tie only:
+  ORDER BY qualified_touch_at DESC,
+           touch_event_key ASC
+
+touch_event_key:
+  per logical touch event
+  generated before first persist
+  v1 fixed length = 16 bytes / 128 bits / 32 lowercase hex chars
+  serialized v1 representation = lowercase 32-hex only
+  uppercase / noncanonical hex = REJECT
+  same bytes => same event identity
+  comparator / equality / retry MUST agree
+  unsigned byte-order comparison
+  invalid encoding = REJECT (do not zero-pad)
+  mixed length = REJECT (do not zero-pad into equality)
+  same key + different payload = REJECT
+  retry preserves the same key
+  Creator/buyer cannot choose it
+
+checkout lock establishes the server acceptance cutoff
+touch accepted at/before cutoff MUST reach durable admission
+  before winner selection
+pending pre-cutoff admission = wait / retry / HOLD
+  (MUST NOT silently exclude)
+post-cutoff touches cannot join that lock
+DB commit latency MUST NOT decide the winner
+DB first-writer-wins MUST NOT be selection authority
+R5-A does not choose a DB locking implementation
+
+token ingest:
+  known + active → may create a new touch
+  unknown → reject new ingest
+  retired/revoked version → reject new ingest
+historical verification evidence MAY be preserved after retirement
+new-ingest eligibility ≠ historical evidence preservation
+reusable link identity ≠ logical touch event
+HTTP retry converges to the same logical event
+link-wide one-shot dedupe = PROHIBITED
+purpose/namespace separation required
+client-visible raw Creator identity = PROHIBITED
+server-side resolution required
+```
+
+Candidate set is frozen at checkout lock. DB first-writer-wins must not choose the money winner.
+
+### AG.5 Purchase attempt / lock
+
+```text
+semantic identity = M55-issued immutable purchase_attempt_id
+raw purchaseContextId is NOT attempt authority
+1 attempt = exactly 1 immutable attribution decision
+NONE is a lockable decision
+same-attempt retry = same decision
+network retry / unknown Stripe create outcome MUST NOT mint a new attempt
+confirmed expiry / cancel / purchase-scope change = new attempt / new lock
+stale lock MUST NOT inherit to a successor attempt
+late click after lock MUST NOT overwrite the locked decision
+
+v1 provider binding:
+  max 1 accepted payable Checkout Session per purchase_attempt
+  provider creation retry converges to the same accepted binding
+  renewal / new payable session after confirmed expiry/cancel = new attempt
+  session/PI → purchase_attempt binding history is immutable
+  latest pending ref MUST NOT overwrite historical binding
+  new-attempt lock MUST NEVER service an old session/payment
+
+causal order (semantic only; no R5-A runtime/schema):
+  immutable attribution decision/lock for purchase_attempt_id
+    MUST exist before an accepted payable Checkout Session is exposed to the buyer
+  accepted session/PI binding MUST point to that pre-existing attempt decision
+  canonical payment can consume only that pre-existing bound decision
+  provider session creation result unknown → reconcile/retry;
+    MUST NOT expose an unbound payable session as success
+  later touch/lock creation after payment remains prohibited
+R5-A does not choose schema/runtime mechanism
+```
+
+### AG.6 Payment evidence (mirrors Operating Model §24)
+
+```text
+canonical payment success authority =
+  Event.created of the first accepted canonical
+  payment_intent.succeeded event
+
+required canonical evidence:
+  Stripe canonical event ID
+  PaymentIntent ID
+  canonical Event.created
+first accepted canonical evidence is immutable
+replay MUST NOT replace it
+
+binding validation required:
+  provider account / mode / object
+  PI ↔ Checkout Session
+  Checkout Session ↔ purchase_attempt
+  purchase_attempt ↔ buyer / product
+
+conflicting canonical evidence = HOLD / RECONCILE
+arrival order MUST NOT resolve the conflict
+
+FORBIDDEN as canonical success:
+  fulfilled_at
+  webhook_received_at
+  M55 processing time
+  PaymentIntent.created
+
+canonical success before lock expiry → delayed processing still uses the existing lock
+canonical success == lock expiry = upper-bound excluded
+webhook / payment processing MUST NOT recalculate the winner
+30-day attribution window is evaluated at lock, not re-evaluated at webhook
+
+lock-evidence state:
+  VALID_PREEXISTING + canonical success within validity
+    = existing Creator attribution decision
+  CONFIRMED_NONE = effective attribution NONE
+  UNKNOWN_OR_CONFLICTING = HOLD / RECONCILE
+  VALID_PREEXISTING + canonical success at/outside expiry = NONE
+evidence not yet obtained MUST NOT be treated as CONFIRMED_NONE
+confirmed absence MUST NOT remain HOLD forever
+MUST NOT create a post-payment touch/lock to rescue attribution
+```
+
+### AG.7 Invalidity / status / appeal
+
+```text
+NEW lock requires Creator ACTIVE
+locked_creator_id / locked touch / policy evidence = immutable history
+later status change MUST NOT rewrite winner identity
+SUSPENDED at canonical payment success → HOLD
+REVOKED / effective deactivation before canonical payment success
+  → new earning OFF / objective denial; winner history retained
+status change after legitimate canonical payment success
+  MUST NOT automatically retroactively deny
+processing-time current status alone is NOT historical authority
+effective-time status evidence is required
+do NOT introduce a persisted DEACTIVATED enum in R5-A
+existing Creator vocabulary remains ACTIVE / SUSPENDED / REVOKED
+  (+ APPROVED_PENDING_ACTIVATION); effective deactivation is policy state
+
+original locked Creator / touch / policy evidence = immutable history
+invalid winner MUST NOT select a runner-up
+confirmed objective invalidity = effective cash NONE / objective denial
+uncertainty ≠ objective invalidity → HOLD
+do NOT NULL/delete winner history to represent NONE
+attribution identity ≠ earning/compliance outcome
+post-lock status change MUST NOT rewrite winner identity
+§32 future/new earning gate is a separate layer
+post-payment legitimate earning MUST NOT be auto-denied by later status change alone
+documented objective system-error correction = limited exception only
+
+CREATOR_DISCREPANCY_AND_APPEAL_PATH = REQUIRED
+adverse decision evidence / reason / appeal_status = REQUIRED
+numeric appeal SLA = DEFERRED_TO_BETA_TERMS_FREEZE
+SLA defer MUST NOT defer appeal intake
+```
+
+### AG.8 Product scope
+
+Creator cash attribution v1 allowlist remains Premium Report Light / Full only. Pair, reply-ticket, and Additional Interpretation are not added by R5-A.
 
 ---
 
