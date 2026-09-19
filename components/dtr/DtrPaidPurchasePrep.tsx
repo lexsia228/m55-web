@@ -345,7 +345,7 @@ export default function DtrPaidPurchasePrep() {
       <h3 className={styles.title} data-testid="m55-premium-plans-headline">
         {C.planTitleJa}
       </h3>
-      <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
+      <p className={styles.planLead}>{C.planQuestionnaireLinkageJa}</p>
       <div className={styles.planCompare} data-testid="m55-plan-compare">
         <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
         <div className={styles.planCompareGrid}>

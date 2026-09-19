@@ -131,6 +131,6 @@ describe('homeFreeCtaHydrationContract — premium Q1 universality guard', () =>
     const q1 = PAID_QUESTIONNAIRE_COPY_V1[0]!;
     assert.doesNotMatch(q1.questionJa, /今の仕事で/);
     assert.equal(q1.shortLabelJa, '取り組みの焦点');
-    assert.match(q1.sceneContextJa, /仕事・学業・家事・活動/);
+    assert.match(q1.sceneContextJa, /仕事や勉強、家のこと/);
   });
 });

@@ -31,6 +31,9 @@ export type MethodInputId =
 /** When an input starts contributing to the reading. */
 export type MethodInputStage = 'free' | 'premium';
 
+/** How the public Method page must classify this composition authority. */
+export type MethodInputSourceKind = 'user_provided' | 'derived';
+
 export type MethodInput = {
   id: MethodInputId;
   /**
@@ -39,6 +42,7 @@ export type MethodInput = {
    */
   fingerprintField: string;
   stage: MethodInputStage;
+  sourceKind: MethodInputSourceKind;
   /** Daily Japanese. No internal vocabulary, no scores, no version strings. */
   publicLabelJa: string;
   publicDescriptionJa: string;
@@ -49,69 +53,82 @@ export const M55_METHOD_INPUTS: readonly MethodInput[] = [
     id: 'dob_base',
     fingerprintField: 'dobBase',
     stage: 'free',
+    sourceKind: 'user_provided',
     publicLabelJa: '変わりにくい土台',
     publicDescriptionJa:
-      '生年月日から、時期によって動きにくい傾向の土台を置きます。ここは日々の気分では変わりません。',
+      '本人が入力するものです。公開の自分用では、ニックネームと生年月日を使います。生年月日から暦に基づく土台を置きます。ここは日々の気分では変わりません。',
   },
   {
     id: 'free_expression',
     fingerprintField: 'freeExpression',
     stage: 'free',
+    sourceKind: 'user_provided',
     publicLabelJa: '今の回答に表れる傾向',
     publicDescriptionJa:
-      '無料の5つの回答から、いま表に出ている動き方を読みます。土台とは分けて扱います。',
+      '本人が入力するものです。無料の5つの回答から、いま表に出ている動き方を読みます。暦の土台とは分けて扱います。',
   },
   {
     id: 'paid_depth',
     fingerprintField: 'paidDepth',
     stage: 'premium',
+    sourceKind: 'user_provided',
     publicLabelJa: '踏み込んだ状況の手がかり',
     publicDescriptionJa:
-      'プレミアムの6つの回答から、負担が出る場面と戻り方の手がかりを加えます。',
+      '本人が入力するものです。プレミアムの6つの回答から、レポートで重点的に読むところを合わせます。',
   },
   {
     id: 'align',
     fingerprintField: 'alignItems',
     stage: 'free',
+    sourceKind: 'derived',
     publicLabelJa: '近いところ',
-    publicDescriptionJa: '土台と今の回答が同じ方向を向いている点を、重なりとして取り出します。',
+    publicDescriptionJa:
+      '読み解きで組み立てる手がかりです。土台と今の回答が同じ方向を向いている点を、重なりとして取り出します。',
   },
   {
     id: 'diverge',
     fingerprintField: 'divergeItems',
     stage: 'free',
+    sourceKind: 'derived',
     publicLabelJa: 'ずれるところ',
     publicDescriptionJa:
-      '土台と今の回答が違う方向を向いている点を、ずれとして取り出します。どちらが正しいとは扱いません。',
+      '読み解きで組み立てる手がかりです。土台と今の回答が違う方向を向いている点を、ずれとして取り出します。どちらが正しいとは扱いません。',
   },
   {
     id: 'intensity',
     fingerprintField: 'intensity',
     stage: 'premium',
+    sourceKind: 'derived',
     publicLabelJa: '重なりの強さ',
-    publicDescriptionJa: '同じ話題に手がかりがいくつ集まっているかで、記述の濃さを決めます。',
+    publicDescriptionJa:
+      '読み解きで組み立てる手がかりです。同じ話題に手がかりがいくつ集まっているかで、記述の濃さを決めます。',
   },
   {
     id: 'hesitation',
     fingerprintField: 'hesitation',
     stage: 'free',
+    sourceKind: 'derived',
     publicLabelJa: '止まりやすさ',
-    publicDescriptionJa: '決める前に止まりやすい状況が回答に表れているかを見ます。',
+    publicDescriptionJa:
+      '読み解きで組み立てる手がかりです。決める前に止まりやすい状況が回答に表れているかを見ます。',
   },
   {
     id: 'reactive_context',
     fingerprintField: 'reactiveContext',
     stage: 'free',
+    sourceKind: 'derived',
     publicLabelJa: '表れやすい場面',
-    publicDescriptionJa: '回答から、傾向が表に出やすい生活の場面を選び出します。',
+    publicDescriptionJa:
+      '読み解きで組み立てる手がかりです。回答から、傾向が表に出やすい生活の場面を選び出します。',
   },
   {
     id: 'reply_affinity',
     fingerprintField: 'replyAffinity',
     stage: 'free',
+    sourceKind: 'derived',
     publicLabelJa: '扱いやすいテーマ',
     publicDescriptionJa:
-      'ここまでの読み解きと相性のよいテーマの並びを決めます。追加読み解きの入口になります。',
+      '読み解きで組み立てる手がかりです。ここまでの読み解きと相性のよいテーマの並びを決めます。追加読み解きの入口になります。',
   },
 ] as const;
 
@@ -128,7 +145,7 @@ export const M55_METHOD_STEPS: readonly MethodStep[] = [
   {
     order: 1,
     titleJa: '変わりにくい土台を置く',
-    bodyJa: '生年月日から、動きにくい傾向の土台を先に置きます。',
+    bodyJa: '生年月日から、暦に基づく土台を先に置きます。',
     inputIds: ['dob_base'],
   },
   {
@@ -157,7 +174,7 @@ export const M55_METHOD_STEPS: readonly MethodStep[] = [
  */
 export const M55_METHOD_CANONICAL_COPY = {
   explanationJa:
-    'M55は、生年月日だけでも、今の回答だけでも人を決めません。変わりにくい土台と、今表れている反応を別々に見て、近いところとずれるところ、負担が重なりやすい場面を一つの読み解きに組み立てます。',
+    'M55は、生年月日だけでも、今の回答だけでも人を決めません。暦に基づく土台と、今表れている反応を別々に見て、近いところとずれるところ、負担が重なりやすい場面を一つの読み解きに組み立てます。',
   reproducibilityJa:
     '中核となる整理は、版管理された固定規則で行われます。同じ入力を同じ版で処理した場合、同じ読み解きの土台が再現されます。',
   boundaryJa: '診断、占い、未来予測、相手の気持ちの断定ではありません。',
@@ -165,12 +182,16 @@ export const M55_METHOD_CANONICAL_COPY = {
   // as a different product from 「プレミアムレポート」 in the heading above it.
   premiumDifferenceHeadingJa: '無料とプレミアムで重ねる情報の違い',
   premiumDifferenceFreeJa:
-    '無料では、土台と今の回答を重ねて、近い点とずれる点までを読み解きます。',
+    '無料では、暦の土台と今の回答を重ねて、近い点とずれる点までを読み解きます。',
   premiumDifferencePremiumJa:
-    'プレミアムでは、6つの回答を加えて、負担が出る場面と戻り方まで踏み込みます。読み解ける範囲が増えるという違いで、当たり方が上がるという意味ではありません。',
+    'プレミアムでは、6つの回答を加えて、重点的に読むところと、負担が出る場面と戻り方まで踏み込みます。読み解ける範囲が増えるという違いで、当たり方が上がるという意味ではありません。',
   compactFreeResultHeadingJa: 'この結果の組み立て',
   compactReportHeadingJa: 'このレポートの組み立て',
   homeHeadingJa: 'M55の読み解きの組み立て',
+  questionnaireBirthFoundationJa:
+    '生年月日から、暦に基づく土台を置いています。',
+  questionnaireFoundationJa:
+    '無料の5つの回答は、いまの出方です。次の6問では、プレミアムで深く読むところを合わせます。',
 } as const;
 
 /** LEVEL 1 — claimable today. Runtime copy may use these and nothing else. */
@@ -314,7 +335,6 @@ export const M55_METHOD_DETAIL_GROUP_LEAD_JA =
   'ここから先は、上の読み解きがどう組み立てられているかの説明です。読まなくても結果は使えます。' as const;
 
 const FREE_STAGE_INPUTS = M55_METHOD_INPUTS.filter((i) => i.stage === 'free');
-const PREMIUM_STAGE_INPUTS = M55_METHOD_INPUTS.filter((i) => i.stage === 'premium');
 
 export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
   {
@@ -358,7 +378,7 @@ export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
     group: 'value',
     bodyJa: [
       M55_METHOD_CANONICAL_COPY.premiumDifferencePremiumJa,
-      `加わるのは、${PREMIUM_STAGE_INPUTS.map((i) => i.publicLabelJa).join('と')}です。`,
+      '加わるのは、プレミアムの6つの回答です。そこから、重点的に読むところを合わせます。',
     ],
   },
   {
@@ -380,6 +400,7 @@ export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
       M55_METHOD_CANONICAL_COPY.boundaryJa,
       '医療・法律・投資などの専門的判断の代わりにはなりません。優劣や順位もつけません。',
       '相手の気持ちや、これから起きることを言い当てるものではありません。',
+      '十二支や四柱推命、西洋占星術など、別の体系を重ねた計算は使いません。',
     ],
   },
   {
@@ -398,10 +419,14 @@ export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
     titleJa: '入力として使うもの',
     group: 'method',
     bodyJa: [
-      '使うのは、生年月日と、あなたが選んだ回答だけです。ほかの利用者との比較や、外部から取得した情報は使いません。',
+      '本人が入力するのは、生年月日、無料の5つの回答、プレミアムを使うときの6つの回答です。暦の土台、いまの出方の重なりとずれ、プレミアムで読むところの重点は、その入力から読み解きで組み立てる手がかりであり、別の観察ではありません。ほかの利用者との比較や、外部から取得した情報は使いません。',
     ],
     itemsJa: M55_METHOD_INPUTS.map((input) => ({
-      labelJa: input.publicLabelJa,
+      labelJa: `${
+        input.sourceKind === 'user_provided'
+          ? '本人が入力するもの'
+          : '読み解きで組み立てる手がかり'
+      }｜${input.publicLabelJa}`,
       descriptionJa: input.publicDescriptionJa,
     })),
   },
@@ -412,6 +437,8 @@ export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
     group: 'method',
     bodyJa: [
       '生年月日から置く土台は、日や気分で入れ替わりません。読み解きの基準点として、いつも同じ場所に置かれます。',
+      'いまの土台は、暦の日の十干を使います。二十四節気は季節の手がかりであり、十干そのものではありません。',
+      '公開の自分用入力は、いまは生年月日までです。出生の時刻や場所からの星の配置は使いません。',
       '土台は良い悪いを表しません。動きやすい方向と、負担がたまりやすい方向を示す手がかりです。',
     ],
   },
@@ -432,7 +459,7 @@ export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
     group: 'method',
     bodyJa: [
       M55_METHOD_CANONICAL_COPY.reproducibilityJa,
-      '規則を更新するときは版を分けます。購入済みのレポートは、購入時の版のまま読み返せます。',
+      '規則を更新するときは版を分けます。購入済みのレポートは、購入時の入力を土台に読み返せます。表示の言い回しは、現在の製品表記に合わせて整うことがあります。',
       'これは統計的な検証を経た精度の主張ではありません。同じ入力から同じ土台が出るという、処理の一貫性についての説明です。',
     ],
   },

@@ -25,6 +25,8 @@ import {
 import DtrPaidResultContextStrip from './DtrPaidResultContextStrip';
 import DtrPaidJourneyStepRail from './DtrPaidJourneyStepRail';
 import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
+import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
+import { paidQuestionReportTraceLineJa } from '../../lib/m55/paidResult/paidQuestionReportTraceDisplayV1';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
@@ -216,6 +218,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
           <p className={styles.reviewStatus} data-testid="m55-paid-review-status">
             {total} / {total} 回答済み
           </p>
+          <p className={styles.lead}>{C.answerReviewValueJa}</p>
           <ul className={styles.answerList}>
             {PAID_QUESTIONNAIRE_COPY_V1.map((q) => {
               const answerId = answers[q.questionId] ?? '';
@@ -225,6 +228,11 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
                     <div className={styles.answerRowBody}>
                       <span className={styles.answerQ}>{q.shortLabelJa}</span>
                       <span className={styles.answerA}>{labelForAnswer(q.questionId, answerId)}</span>
+                      {answerId ? (
+                        <span className={styles.hint} data-testid={`m55-paid-answer-trace-${q.questionId}`}>
+                          {paidQuestionReportTraceLineJa(answerId)}
+                        </span>
+                      ) : null}
                     </div>
                     <button
                       type="button"
@@ -269,7 +277,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
               data-testid="m55-paid-review-continue"
               onClick={goToPlans}
             >
-              この回答でプランを見る
+              {C.reviewContinueJa}
             </button>
             <button
               type="button"
