@@ -48,6 +48,7 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   '/api/dtr/draft',
   '/api/dtr/report-snapshot-ready',
   '/api/dtr/report-snapshot/hide',
+  '/api/m55/attribution/creator-touch',
 ]);
 
 /** Prefix roots mirroring middleware createRouteMatcher `(.*)` groups. */
@@ -77,6 +78,7 @@ export const PROTECTED_PAGE_PATHS = [
   '/dev/dtr-processing-preview',
   '/dev/premium-share-preview',
   '/internal/creator-review',
+  '/m55/attribution/creator-touch/continue',
 ] as const;
 
 export const PROTECTED_API_PATHS = [
@@ -92,6 +94,7 @@ export const PROTECTED_API_PATHS = [
   '/api/creator/application',
   '/api/creator/portal',
   '/api/internal/creator-review',
+  '/api/m55/attribution/creator-touch/continue',
 ] as const;
 
 const PROTECTED_STATIC_PATHS = new Set<string>([
