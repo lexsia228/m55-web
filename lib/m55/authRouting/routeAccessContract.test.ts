@@ -140,6 +140,7 @@ const PUBLIC_API_SAMPLES = [
   '/api/dtr/report-snapshot-ready',
   '/api/dtr/report-snapshot/hide',
   '/api/creator/invite/sample-token',
+  '/api/m55/attribution/creator-touch',
 ] as const;
 
 describe('routeAccessContract — normalization', () => {
@@ -156,21 +157,21 @@ describe('routeAccessContract — exhaustive inventory', () => {
 
   it('discovers the current application route count', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 77);
+    assert.equal(templates.length, 80);
   });
 });
 
 describe('routeAccessContract — protected regression', () => {
-  it('keeps all 16 protected pages protected', () => {
-    assert.equal(PROTECTED_PAGE_PATHS.length, 16);
+  it('keeps all 17 protected pages protected', () => {
+    assert.equal(PROTECTED_PAGE_PATHS.length, 17);
     for (const path of PROTECTED_PAGE_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
     }
   });
 
-  it('keeps all 12 protected static Route Handlers protected', () => {
-    assert.equal(PROTECTED_API_PATHS.length, 12);
+  it('keeps all 13 protected static Route Handlers protected', () => {
+    assert.equal(PROTECTED_API_PATHS.length, 13);
     for (const path of PROTECTED_API_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
@@ -207,6 +208,12 @@ describe('routeAccessContract — dynamic boundaries', () => {
     assert.equal(classifyRouteAccess('/api/reply/session/abc'), 'protected');
     assert.equal(classifyRouteAccess('/api/reply/session'), 'unknown');
     assert.equal(classifyRouteAccess('/api/reply/session/abc/more'), 'unknown');
+  });
+
+  it('classifies attribution touch ingest routes', () => {
+    assert.equal(classifyRouteAccess('/api/m55/attribution/creator-touch'), 'public');
+    assert.equal(classifyRouteAccess('/api/m55/attribution/creator-touch/continue'), 'protected');
+    assert.equal(classifyRouteAccess('/m55/attribution/creator-touch/continue'), 'protected');
   });
 
   it('publishes only the one-segment Creator invite document and API families', () => {

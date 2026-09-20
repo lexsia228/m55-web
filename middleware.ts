@@ -46,6 +46,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/dtr/report-snapshot-ready',
   '/api/dtr/report-snapshot/hide',
   '/api/creator/invite/:token',
+  '/api/m55/attribution/creator-touch',
 ]);
 
 const isE2ECleanCaptureDevFixture = createRouteMatcher([
