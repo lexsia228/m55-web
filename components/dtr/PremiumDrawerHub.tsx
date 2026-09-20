@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
   PAID_DTR_CONSULT_GROUNDING_COPY,
-  PAID_DTR_DRAWER_CHAPTER_ENTRIES,
   PAID_DTR_DRAWER_HUB,
 } from '../../lib/m55/paidDtrProductCopy';
 import hubStyles from './PremiumDrawerHub.module.css';
@@ -26,16 +25,6 @@ type DrawerHubEntryRow = {
   sublabel: string;
   pill?: string;
 };
-
-const DRAWER_HUB_CHAPTER_ROWS: DrawerHubEntryRow[] = PAID_DTR_DRAWER_CHAPTER_ENTRIES.map(
-  (entry) => ({
-    entryId: entry.id,
-    panel: entry.panel,
-    label: entry.labelJa,
-    sublabel: entry.sublabelJa,
-    pill: entry.pillLabelJa,
-  }),
-);
 
 const DRAWER_HUB_SUMMARY_ROW: DrawerHubEntryRow = {
   entryId: 'summary',
@@ -106,26 +95,25 @@ function shouldMountPanelBody(
 
 function DrawerHubEntryListItem({
   item,
-  activeEntryId,
+  isActive,
   onSelect,
 }: {
   item: DrawerHubEntryRow;
-  activeEntryId: string | null;
-  onSelect: (item: DrawerHubEntryRow) => void;
+  isActive: boolean;
+  onSelect: () => void;
 }) {
-  const isEntryActive = activeEntryId === item.entryId;
   const isConsult = item.panel === 'consult';
   const isSummary = item.panel === 'summary';
 
   return (
     <li
-      className={`${hubStyles.drawerHubRow}${isEntryActive ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}${isSummary ? ` ${hubStyles.drawerHubRowSummary}` : ''}`}
+      className={`${hubStyles.drawerHubRow}${isActive ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}${isSummary ? ` ${hubStyles.drawerHubRowSummary}` : ''}`}
     >
       <button
         type="button"
         className={`${hubStyles.drawerHubTrigger}${isConsult ? ` ${hubStyles.drawerHubTriggerConsult}` : ''}${isSummary ? ` ${hubStyles.drawerHubTriggerSummary}` : ''}`}
-        onClick={() => onSelect(item)}
-        aria-expanded={isEntryActive}
+        onClick={onSelect}
+        aria-expanded={isActive}
         aria-controls={`drawer-hub-body-${item.panel}`}
       >
         {item.pill ? (
@@ -139,7 +127,7 @@ function DrawerHubEntryListItem({
           <span className={hubStyles.drawerHubLabel}>{item.label}</span>
           <span className={hubStyles.drawerHubSublabel}>{item.sublabel}</span>
         </span>
-        <DrawerHubChevron open={isEntryActive} />
+        <DrawerHubChevron open={isActive} />
       </button>
     </li>
   );
@@ -153,23 +141,8 @@ export function PremiumDrawerHub({
 }: Props) {
   const panelsToMount = drawerHubPanelsToMount(aiConsultIncluded);
 
-  /** Which Hub row looks active (chevron / highlight). Separate from openPanel (which body to show). */
-  const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
-
   const selectEntry = (item: DrawerHubEntryRow) => {
-    const isActiveEntry = activeEntryId === item.entryId;
-    const isPanelOpen = openPanel === item.panel;
-
-    if (isActiveEntry && isPanelOpen) {
-      setActiveEntryId(null);
-      onSelectPanel(null);
-      return;
-    }
-
-    setActiveEntryId(item.entryId);
-    if (!isPanelOpen) {
-      onSelectPanel(item.panel);
-    }
+    onSelectPanel(openPanel === item.panel ? null : item.panel);
   };
 
   const hasExpandedPanel = openPanel !== null;
@@ -177,8 +150,7 @@ export function PremiumDrawerHub({
   return (
     <section className={hubStyles.drawerHub} aria-label={PAID_DTR_DRAWER_HUB.ariaLabelJa}>
       <div
-        className={`${hubStyles.drawerHubEntryCard} ${hubStyles.drawerHubEntryAnchor}`}
-        data-m55-dtr-drawer-hub="true"
+        className={hubStyles.drawerHubEntryCard}
       >
         <span className={hubStyles.drawerHubShimmer} aria-hidden />
         <div className={hubStyles.drawerHubHeader}>
@@ -189,24 +161,16 @@ export function PremiumDrawerHub({
         <div className={hubStyles.drawerHubReadZone}>
           <p className={hubStyles.drawerHubZoneLead}>{PAID_DTR_DRAWER_HUB.leadJa}</p>
           <ul className={hubStyles.drawerHubList}>
-            {DRAWER_HUB_CHAPTER_ROWS.map((item) => (
-              <DrawerHubEntryListItem
-                key={item.entryId}
-                item={item}
-                activeEntryId={activeEntryId}
-                onSelect={selectEntry}
-              />
-            ))}
             <DrawerHubEntryListItem
               item={DRAWER_HUB_SUMMARY_ROW}
-              activeEntryId={activeEntryId}
-              onSelect={selectEntry}
+              isActive={openPanel === DRAWER_HUB_SUMMARY_ROW.panel}
+              onSelect={() => selectEntry(DRAWER_HUB_SUMMARY_ROW)}
             />
             {aiConsultIncluded ? (
               <DrawerHubEntryListItem
                 item={DRAWER_HUB_CONSULT_ROW}
-                activeEntryId={activeEntryId}
-                onSelect={selectEntry}
+                isActive={openPanel === DRAWER_HUB_CONSULT_ROW.panel}
+                onSelect={() => selectEntry(DRAWER_HUB_CONSULT_ROW)}
               />
             ) : null}
           </ul>

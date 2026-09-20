@@ -382,41 +382,7 @@
   color: rgba(225, 210, 255, 0.95);
 }
 
-/* ── TOC row identity (closed + open) — Chapter I / summary / consult only ── */
-
-.drawerHubRow:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubTrigger {
-  border-color: rgba(188, 168, 248, 0.38);
-  border-left: 3px solid rgba(175, 155, 235, 0.52);
-  background: linear-gradient(
-    165deg,
-    rgba(58, 48, 82, 0.78),
-    rgba(44, 36, 66, 0.66)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(188, 168, 248, 0.1),
-    inset 3px 0 10px -8px rgba(175, 155, 235, 0.16),
-    0 6px 18px rgba(0, 0, 0, 0.22);
-}
-
-.drawerHubRow:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubPill {
-  border-color: rgba(195, 178, 252, 0.44);
-  background: rgba(175, 155, 235, 0.24);
-  color: rgba(232, 222, 255, 0.96);
-}
-
-.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubTrigger {
-  border-color: rgba(205, 188, 252, 0.46);
-  border-left-color: rgba(195, 178, 252, 0.62);
-  background: linear-gradient(
-    165deg,
-    rgba(62, 52, 88, 0.88),
-    rgba(48, 40, 72, 0.76)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(188, 168, 248, 0.12),
-    inset 3px 0 12px -8px rgba(175, 155, 235, 0.2),
-    0 8px 22px rgba(0, 0, 0, 0.28);
-}
+/* ── TOC row identity — summary / consult only ── */
 
 .drawerHubRowSummary .drawerHubTriggerSummary {
   position: relative;
@@ -559,7 +525,6 @@
 }
 
 /* Scroll anchor: panel/card outer top clears sticky PublicHeader (+ fallback offset). */
-.drawerHubEntryAnchor,
 .drawerHubPanelAnchor {
   scroll-margin-top: var(
     --m55-dtr-scroll-offset,
@@ -624,42 +589,6 @@
   z-index: 2;
 }
 
-.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-2']) .drawerHubTrigger {
-  border-color: rgba(120, 175, 238, 0.34);
-  background: linear-gradient(
-    165deg,
-    rgba(46, 52, 76, 0.84),
-    rgba(34, 38, 58, 0.72)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(96, 155, 232, 0.08),
-    0 8px 22px rgba(0, 0, 0, 0.28);
-}
-
-.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-3']) .drawerHubTrigger {
-  border-color: rgba(228, 178, 78, 0.34);
-  background: linear-gradient(
-    165deg,
-    rgba(58, 48, 40, 0.84),
-    rgba(44, 36, 30, 0.72)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(218, 165, 64, 0.08),
-    0 8px 22px rgba(0, 0, 0, 0.28);
-}
-
-.drawerHubRowOpen:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-4']) .drawerHubTrigger {
-  border-color: rgba(108, 205, 162, 0.34);
-  background: linear-gradient(
-    165deg,
-    rgba(40, 54, 48, 0.84),
-    rgba(30, 42, 36, 0.72)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(88, 190, 148, 0.08),
-    0 8px 22px rgba(0, 0, 0, 0.28);
-}
-
 .drawerHubPanelSlot:global([data-m55-dtr-drawer-panel='chapter-1']) .drawerHubReadingSurface {
   border-left: 4px solid rgba(155, 135, 225, 0.46);
   box-shadow: inset 4px 0 12px -8px rgba(155, 135, 225, 0.15);
@@ -693,13 +622,6 @@
 @media (max-width: 320px) {
   .drawerHubRowSummary .drawerHubTriggerSummary::before {
     opacity: 0.62;
-  }
-
-  .drawerHubRow:has(.drawerHubTrigger[aria-controls='drawer-hub-body-chapter-1']) .drawerHubTrigger {
-    box-shadow:
-      inset 0 1px 0 rgba(188, 168, 248, 0.08),
-      inset 2px 0 8px -8px rgba(175, 155, 235, 0.12),
-      0 6px 16px rgba(0, 0, 0, 0.2);
   }
 
   .drawerHubReadingSurfaceSummary::after {
