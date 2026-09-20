@@ -625,6 +625,9 @@ function runSemanticSelfTests() {
       const nonCreatorExecutableGate = 'M55-GLOBAL-COMMERCIAL-INSIGHT-DEMAND-SSOT-V1';
       const nonCreatorExecutableGateState = {
         ...liveCreatorState,
+        completedSubGates: (liveCreatorState.completedSubGates ?? []).filter(
+          (gate) => gate !== nonCreatorExecutableGate,
+        ),
         currentExecutionGate: nonCreatorExecutableGate,
         nextSingleAction: nonCreatorExecutableGate,
         productWorkAfterControlTower: nonCreatorExecutableGate,
