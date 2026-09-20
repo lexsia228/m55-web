@@ -23,6 +23,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import DtrPaidResultContextStrip from './DtrPaidResultContextStrip';
+import SelfPremiumSamplePreview from './SelfPremiumSamplePreview';
 import DtrPaidJourneyStepRail from './DtrPaidJourneyStepRail';
 import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
@@ -307,6 +308,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       >
         <DtrPaidJourneyStepRail activeStep={0} />
         {index === 0 && !isEditingFromReview ? <DtrPaidResultContextStrip /> : null}
+        {index === 0 && !isEditingFromReview ? <SelfPremiumSamplePreview /> : null}
         <div className={styles.progressRow}>
           <p className={styles.overline}>プレミアムレポートの質問</p>
           <span className={styles.progressLabel} aria-live="polite">

@@ -1,0 +1,136 @@
+.root {
+  --sample-ink: #0b1a2b;
+  --sample-ivory: #f1e8d6;
+  --sample-ivory-muted: rgba(241, 232, 214, 0.88);
+  --sample-sheet: rgba(13, 11, 21, 0.72);
+  --sample-sheet-border: rgba(241, 232, 214, 0.16);
+  --sample-copper: #c46e5a;
+  --sample-copper-rule: rgba(196, 110, 90, 0.72);
+  --sample-copper-soft: rgba(196, 110, 90, 0.14);
+  --sample-serif: 'Shippori Mincho', 'Noto Serif JP', serif;
+  --sample-sans: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  margin: 0.35rem 0 0.15rem;
+  min-width: 0;
+}
+
+.sheet {
+  background: var(--sample-sheet);
+  border: 1px solid var(--sample-sheet-border);
+  border-top: 2px solid var(--sample-copper-rule);
+  box-sizing: border-box;
+  padding: 1.15rem 1rem 1.05rem;
+}
+
+.label {
+  margin: 0 0 0.4rem;
+  font-family: var(--sample-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--sample-copper);
+}
+
+.disclaimer {
+  margin: 0 0 0.85rem;
+  font-family: var(--sample-sans);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--sample-ivory-muted);
+}
+
+.product {
+  margin: 0 0 0.85rem;
+  font-family: var(--sample-serif);
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(241, 232, 214, 0.96);
+  word-break: keep-all;
+}
+
+.layers {
+  margin: 0 0 0.95rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.layerLine {
+  margin: 0;
+  font-family: var(--sample-sans);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--sample-ivory-muted);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 0.95rem;
+}
+
+.tab {
+  font-family: var(--sample-sans);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 0.38rem 0.62rem;
+  border-radius: 2px;
+  border: 1px solid rgba(241, 232, 214, 0.24);
+  background: transparent;
+  color: rgba(241, 232, 214, 0.82);
+  cursor: pointer;
+}
+
+.tabActive {
+  border-color: var(--sample-copper-rule);
+  background: var(--sample-copper-soft);
+  color: rgba(241, 232, 214, 0.98);
+}
+
+.chapterHeading {
+  margin: 0 0 0.35rem;
+  font-family: var(--sample-serif);
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--sample-ivory);
+}
+
+.chapterTag {
+  margin: 0 0 0.7rem;
+  font-family: var(--sample-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(241, 232, 214, 0.7);
+}
+
+.passages {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0 0 0.85rem;
+}
+
+.passage {
+  margin: 0;
+  font-family: var(--sample-sans);
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--sample-ivory-muted);
+}
+
+.revisit {
+  margin: 0;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(196, 110, 90, 0.35);
+  font-family: var(--sample-sans);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--sample-ivory-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .sheet {
+    transition: none;
+  }
+}
