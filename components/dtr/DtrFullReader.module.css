@@ -2809,6 +2809,12 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.personalReadingDepthStepActive {
+  border-color: rgba(205, 188, 252, 0.54);
+  background: rgba(155, 135, 225, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(205, 188, 252, 0.08);
+}
+
 .personalReadingDepthStep:focus-visible {
   outline: 2px solid rgba(196, 168, 232, 0.65);
   outline-offset: 2px;

@@ -99,7 +99,7 @@ import {
 import DtrMethodReportNote from './DtrMethodReportNote';
 import styles from './DtrFullReader.module.css';
 
-const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
+const M55_DTR_CHAPTER_MAP_SELECTOR = '[data-m55-dtr-chapter-map="true"]';
 
 function m55DtrDrawerPanelSelector(panel: DrawerHubPanelId): string {
   return `[data-m55-dtr-drawer-panel="${panel}"]`;
@@ -124,9 +124,9 @@ function m55DtrScrollToElement(el: HTMLElement): void {
   window.scrollTo({ top: Math.max(0, y), behavior: m55DtrScrollBehavior() });
 }
 
-function m55DtrScrollToDrawerHub(): void {
-  const hub = document.querySelector(M55_DTR_DRAWER_HUB_SELECTOR);
-  if (hub instanceof HTMLElement) m55DtrScrollToElement(hub);
+function m55DtrScrollToChapterMap(): void {
+  const chapterMap = document.querySelector(M55_DTR_CHAPTER_MAP_SELECTOR);
+  if (chapterMap instanceof HTMLElement) m55DtrScrollToElement(chapterMap);
 }
 
 function m55DtrScrollToDrawerPanel(panel: DrawerHubPanelId): void {
@@ -174,8 +174,8 @@ function DrawerHubScrollFab({ hidden = false }: { hidden?: boolean }) {
     <button
       type="button"
       className={`${styles.readingGuideFab}${visible && !hidden ? ` ${styles.readingGuideFabVisible}` : ''}`}
-      onClick={() => m55DtrScrollToDrawerHub()}
-      aria-label="プレミアムレポートの入口へ戻る"
+      onClick={() => m55DtrScrollToChapterMap()}
+      aria-label="あなただけの4章へ戻る"
       aria-hidden={!visible || hidden}
       tabIndex={visible && !hidden ? 0 : -1}
     >
@@ -762,10 +762,12 @@ function ChapterConsultNextAction({
 /** Four-part depth ladder — personal reading map before drawer hub opens. */
 function PersonalReadingDepthMap({
   nickname,
+  openPanel,
   onSelectPart,
 }: {
   nickname: string;
-  onSelectPart: (panel: DrawerHubPanelId) => void;
+  openPanel: DrawerHubOpenPanel;
+  onSelectPart: (panel: DrawerHubOpenPanel) => void;
 }) {
   const displayName = nickname.trim() || 'あなた';
   const roman: Record<PaidDtrReportPartId, string> = { '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', '4': 'Ⅳ' };
@@ -776,6 +778,7 @@ function PersonalReadingDepthMap({
       className={styles.personalReadingDepthMap}
       aria-label={`${displayName}の読みの地図`}
       data-testid="m55-personal-reading-depth-map"
+      data-m55-dtr-chapter-map="true"
       data-m55-visual-subsystem="self"
     >
       <p className={styles.personalReadingDepthOverline}>あなただけの4章</p>
@@ -786,12 +789,15 @@ function PersonalReadingDepthMap({
         {partIds.map((partId) => {
           const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partId];
           const panel = `chapter-${partId}` as DrawerHubPanelId;
+          const isActive = openPanel === panel;
           return (
             <li key={partId}>
               <button
                 type="button"
-                className={styles.personalReadingDepthStep}
-                onClick={() => onSelectPart(panel)}
+                className={`${styles.personalReadingDepthStep}${isActive ? ` ${styles.personalReadingDepthStepActive}` : ''}`}
+                onClick={() => onSelectPart(isActive ? null : panel)}
+                aria-expanded={isActive}
+                aria-controls={`drawer-hub-body-${panel}`}
               >
                 <span className={styles.personalReadingDepthRoman} aria-hidden>
                   {roman[partId]}
@@ -896,7 +902,11 @@ function PremiumHero({
 
       <PremiumIntroValueBand stemIdx={stemIdx} nickname={nickname} relationBody={relationBody} />
 
-      <PersonalReadingDepthMap nickname={nickname} onSelectPart={onSelectPanel} />
+      <PersonalReadingDepthMap
+        nickname={nickname}
+        openPanel={openPanel}
+        onSelectPart={onSelectPanel}
+      />
 
       <PremiumDrawerHub
         openPanel={openPanel}
@@ -3001,7 +3011,7 @@ function DtrFullReaderCore({
     setOpenPanel(panel);
     runAfterDrawerPanelPaint(() => {
       if (panel === null) {
-        m55DtrScrollToDrawerHub();
+        m55DtrScrollToChapterMap();
         return;
       }
       m55DtrScrollToDrawerPanel(panel);
@@ -3158,7 +3168,7 @@ function DtrFullReaderCore({
                   title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch1-five-axis']}
                   ariaLabel="5つの力の分布"
                   summary="5つの力は点数ではなく、今出やすい傾向として見ます。"
-                  defaultOpen={false}
+                  defaultOpen={true}
                   inDrawer
                 >
                   <FiveAxisModule stemIdx={stemIdx} />
@@ -3227,7 +3237,7 @@ function DtrFullReaderCore({
                     title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch2-trait-interaction']}
                     ariaLabel="傾向と負荷"
                     summary="力が出やすい場面と、無理が重なりやすい場面を並べて見ます。"
-                    defaultOpen={false}
+                    defaultOpen={true}
                     inDrawer
                     density="secondary"
                   >
@@ -3296,7 +3306,7 @@ function DtrFullReaderCore({
                     title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch3-domain-scenes']}
                     ariaLabel="生活での出方"
                     summary="仕事・人間関係・近い関係など、場面ごとの出方を見ます。"
-                    defaultOpen={false}
+                    defaultOpen={true}
                     inDrawer
                   >
                     <DomainMatrixModule

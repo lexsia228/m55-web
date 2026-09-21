@@ -1,6 +1,6 @@
 /**
  * Static checks for saved-report hub UX (layout / hierarchy only).
- * No copy, snapshot, generation, preselect, purchase CTA, or FAB changes.
+ * No copy, snapshot, generation, preselect, or purchase CTA changes.
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -42,11 +42,13 @@ describe('dtrSavedReportAsHubUx', () => {
     }
   });
 
-  it('PremiumDrawerHub separates read zone and consult zone', () => {
+  it('keeps only summary and consult navigation in PremiumDrawerHub', () => {
     const tsx = readFileSync(HUB_TSX, 'utf8');
     assert.ok(tsx.includes('drawerHubReadZone'));
     assert.ok(tsx.includes('drawerHubConsultZone'));
-    assert.ok(tsx.includes('DRAWER_HUB_CHAPTER_ROWS'));
+    assert.equal(tsx.includes('DRAWER_HUB_CHAPTER_ROWS'), false);
+    assert.equal(tsx.includes('PAID_DTR_DRAWER_CHAPTER_ENTRIES'), false);
+    assert.ok(tsx.includes('DRAWER_HUB_SUMMARY_ROW'));
     assert.ok(tsx.includes('DRAWER_HUB_CONSULT_ROW'));
     const readIdx = tsx.indexOf('drawerHubReadZone');
     const consultIdx = tsx.indexOf('drawerHubConsultZone');
@@ -89,13 +91,16 @@ describe('dtrSavedReportAsHubUx', () => {
     assert.equal(readFileSync(CONSULT_CSS, 'utf8').includes('.purchaseCtaPanel'), true);
   });
 
-  it('does not modify ConsultRoom wizard, paidDtrProductCopy source, or readingGuideFab', () => {
+  it('does not modify ConsultRoom wizard or paidDtrProductCopy source and keeps the FAB', () => {
     const consult = readFileSync(CONSULT_ROOM, 'utf8');
     assert.ok(consult.includes('replyWizard'));
     assert.equal(consult.includes('drawerHubReadZone'), false);
     const reader = readFileSync(READER_TSX, 'utf8');
     assert.ok(reader.includes('readingGuideFab'));
     assert.ok(reader.includes('DrawerHubScrollFab'));
+    assert.ok(reader.includes('data-m55-dtr-chapter-map="true"'));
+    assert.ok(reader.includes('m55DtrScrollToChapterMap'));
+    assert.equal(reader.includes('data-m55-dtr-drawer-hub="true"'), false);
     const copyBefore = readFileSync(PAID_COPY, 'utf8');
     assert.ok(copyBefore.includes('PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA'));
     assert.ok(copyBefore.includes('summaryLabelJa'));
@@ -132,11 +137,14 @@ describe('dtrSavedReportAsHubUx', () => {
     assert.equal((summaryBlock.match(/<PremiumNarrativeClose/g) ?? []).length, 1);
   });
 
-  it('orders hub rows I → II → III → IV → summary → consult with distinct destinations', () => {
+  it('uses the personal reading map as the sole controlled four-chapter selector', () => {
     const hub = readFileSync(HUB_TSX, 'utf8');
+    const reader = readFileSync(READER_TSX, 'utf8');
     const copy = readFileSync(PAID_COPY, 'utf8');
     assert.ok(hub.includes('DRAWER_HUB_CONSULT_ROW'));
     assert.ok(hub.includes('DRAWER_HUB_SUMMARY_ROW'));
+    assert.equal(hub.includes('DRAWER_HUB_CHAPTER_ROWS'), false);
+    assert.equal(hub.includes('activeEntryId'), false);
     assert.match(hub, /'chapter-4',\s*\n\s*'summary',\s*\n\s*'consult'/);
     assert.equal(
       copy.includes("consultLabelJa: '追加読み解きで整理する'"),
@@ -148,11 +156,9 @@ describe('dtrSavedReportAsHubUx', () => {
       hub.indexOf('drawerHubReadZone'),
       hub.indexOf('drawerHubConsultZone'),
     );
-    const chapterMapIdx = readZoneBlock.indexOf('DRAWER_HUB_CHAPTER_ROWS.map');
     const summaryItemIdx = readZoneBlock.indexOf('item={DRAWER_HUB_SUMMARY_ROW}');
     const consultItemIdx = readZoneBlock.indexOf('item={DRAWER_HUB_CONSULT_ROW}');
-    assert.ok(chapterMapIdx >= 0, 'chapter rows must render in read zone');
-    assert.ok(summaryItemIdx > chapterMapIdx, 'summary must follow chapter rows');
+    assert.ok(summaryItemIdx >= 0, 'summary must remain in the read zone');
     assert.ok(consultItemIdx > summaryItemIdx, 'consult row must follow summary in read zone');
     assert.equal(
       (readZoneBlock.match(/item=\{DRAWER_HUB_CONSULT_ROW\}/g) ?? []).length,
@@ -166,7 +172,15 @@ describe('dtrSavedReportAsHubUx', () => {
     );
 
     assert.match(hub, /aria-controls=\{`drawer-hub-body-\$\{item\.panel\}`\}/);
-    const reader = readFileSync(READER_TSX, 'utf8');
+    assert.match(hub, /isActive=\{openPanel === DRAWER_HUB_SUMMARY_ROW\.panel\}/);
+    assert.match(hub, /isActive=\{openPanel === DRAWER_HUB_CONSULT_ROW\.panel\}/);
+    assert.match(hub, /onSelectPanel\(openPanel === item\.panel \? null : item\.panel\)/);
+    assert.match(reader, /function PersonalReadingDepthMap\([\s\S]*openPanel/);
+    assert.match(reader, /const isActive = openPanel === panel/);
+    assert.match(reader, /onClick=\{\(\) => onSelectPart\(isActive \? null : panel\)\}/);
+    assert.match(reader, /aria-expanded=\{isActive\}/);
+    assert.match(reader, /aria-controls=\{`drawer-hub-body-\$\{panel\}`\}/);
+    assert.equal((reader.match(/data-testid="m55-personal-reading-depth-map"/g) ?? []).length, 1);
     assert.ok(reader.includes("case 'summary':"));
     assert.ok(reader.includes("case 'consult':"));
     assert.ok(reader.includes('ChapterConsultNextAction'));
@@ -176,5 +190,27 @@ describe('dtrSavedReportAsHubUx', () => {
     );
     assert.ok(previewClient.includes('CorePairReadingCrossSell'));
     assert.equal(previewClient.includes('DRAWER_HUB_CONSULT_ROW'), false);
+  });
+
+  it('opens exactly the three core paid modules initially and leaves Chapter IV inline', () => {
+    const reader = readFileSync(READER_TSX, 'utf8');
+    assert.equal((reader.match(/<PaidModuleShell/g) ?? []).length, 3);
+    assert.equal((reader.match(/defaultOpen=\{true\}/g) ?? []).length, 3);
+    assert.equal(reader.includes('defaultOpen={false}'), false);
+    assert.ok(chapterPanelBlock(reader, 'chapter-1').includes('defaultOpen={true}'));
+    assert.ok(chapterPanelBlock(reader, 'chapter-2').includes('defaultOpen={true}'));
+    assert.ok(chapterPanelBlock(reader, 'chapter-3').includes('defaultOpen={true}'));
+    const chapter4 = chapterPanelBlock(reader, 'chapter-4');
+    assert.equal(chapter4.includes('PaidModuleShell'), false);
+    assert.ok(chapter4.includes('FrictionRecoveryModule'));
+    assert.ok(chapter4.includes('PracticalGuidanceSection'));
+    const paidModuleShell = reader.slice(
+      reader.indexOf('function PaidModuleShell'),
+      reader.indexOf('function FiveAxisModule'),
+    );
+    assert.ok(paidModuleShell.includes('setOpen((o) => !o)'));
+    const consult = readFileSync(CONSULT_ROOM, 'utf8');
+    assert.ok(consult.includes('<details'));
+    assert.ok(consult.includes('showAllHistory'));
   });
 });

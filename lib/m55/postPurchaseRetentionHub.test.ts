@@ -126,9 +126,12 @@ describe('post-purchase retention hub wiring', () => {
     assert.match(source, /entReady && !ownedReady/);
   });
 
-  it('keeps chapters ahead of additional reading and provides the My Page return', () => {
+  it('keeps the canonical chapter map ahead of additional reading and provides the My Page return', () => {
+    const reader = readRepo('components/dtr/DtrFullReader.tsx');
     const hub = readRepo('components/dtr/PremiumDrawerHub.tsx');
-    assert.ok(hub.indexOf('DRAWER_HUB_CHAPTER_ROWS') < hub.indexOf('DRAWER_HUB_CONSULT_ROW'));
+    assert.equal(hub.includes('DRAWER_HUB_CHAPTER_ROWS'), false);
+    assert.ok(reader.indexOf('<PersonalReadingDepthMap') < reader.indexOf('<PremiumDrawerHub'));
+    assert.ok(hub.indexOf('DRAWER_HUB_SUMMARY_ROW') < hub.indexOf('DRAWER_HUB_CONSULT_ROW'));
     const layout = readRepo('app/dtr/core/layout.tsx');
     const headerState = readRepo('lib/m55/commercialUx/publicHeaderState.ts');
     assert.match(layout, /<PublicHeaderContainer \/>/);

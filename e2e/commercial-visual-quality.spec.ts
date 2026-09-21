@@ -810,7 +810,7 @@ test('paid DTR readability — painted contrast and shared-style isolation', asy
       await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
       await expect(page.getByTestId('m55-premium-narrative-close')).toHaveCount(0);
       await openDrawerSummaryPanel(page);
-      const fabBox = await page.getByRole('button', { name: 'プレミアムレポートの入口へ戻る' }).boundingBox();
+      const fabBox = await page.getByRole('button', { name: 'あなただけの4章へ戻る' }).boundingBox();
       expect(fabBox).not.toBeNull();
       if (fabBox) {
         expect(fabBox.width).toBeGreaterThanOrEqual(44);
