@@ -2,6 +2,8 @@
 
 ## A. Gate summary
 
+CI preflight profile for this SSOT-touching docs change: `FULL_REPO_PREFLIGHT`.
+
 | Field | Value |
 |---|---|
 | Gate | `M55-CREATOR-APPLICATION-PRODUCTION-E2E-SMOKE` |
