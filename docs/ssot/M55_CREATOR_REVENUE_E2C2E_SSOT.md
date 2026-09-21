@@ -1098,6 +1098,102 @@ Owns Stripe/provider integration, hosted onboarding, KYC readiness, payout batch
 
 Do **not** reorder stages without a real dependency invalidator + Human approval.
 
+
+### Production Creator application/review bounded Human smoke checkpoint — 2026-09-21
+
+Durable evidence authority:
+
+`docs/evidence/M55_CREATOR_APPLICATION_PRODUCTION_E2E_SMOKE_2026-09-21.md`
+
+Fresh Production source/deployment authority for this checkpoint:
+
+```text
+PRODUCTION_SOURCE_COMMIT = e898f2969649077175a9c8bcba499c545bd74cd6
+VERCEL_DEPLOYMENT = dpl_CsooHq5jFvpLxnyLZMPKhA2MY86D
+VERCEL_STATE = READY
+M55_CREATOR_APPLICATION_PRODUCTION_E2E_SMOKE_2026_09_21 =
+  CLOSED_GREEN_BOUNDED_WITH_FINDINGS
+```
+
+Human Production E2E proved the bounded Creator distribution/application workflow:
+
+```text
+PUBLIC_APPLICATION submit
+→ SUBMITTED
+→ Creator Portal reflects submitted
+→ Internal review queue receives same application
+→ START_REVIEW
+→ UNDER_REVIEW
+→ Creator Portal reflects 審査中
+→ NEED_MORE_INFO
+→ Creator Portal reflects 追加情報が必要です
+→ MEDIA_CHALLENGE (first attempt edge-middleware 404; reload + single retry succeeded)
+→ UNDER_REVIEW resumed
+→ Creator Portal reflects media action required
+→ MEDIA_VERIFIED
+→ Creator Portal returns to normal 審査中
+→ REJECT
+→ REJECTED
+→ internal review queue returns to 0
+→ Creator Portal reflects rejection + reapply date
+```
+
+Exactly two Production SQL diagnostics were used in addition to the initial required-object existence preflight. All SQL was read-only. Exact SQL and observed results are frozen in the evidence document.
+
+The following bounded steps are now CLOSED GREEN and must **not** be replayed absent a concrete invalidator:
+
+```text
+PUBLIC_APPLICATION_SUBMIT
+PORTAL_SUBMITTED
+INTERNAL_QUEUE_RECEIPT
+START_REVIEW
+PORTAL_UNDER_REVIEW
+NEED_MORE_INFO
+PORTAL_NEED_MORE_INFO
+MEDIA_CHALLENGE_AFTER_SINGLE_RETRY
+MEDIA_ACTION_REQUIRED_VISIBILITY_WHEN_UNDER_REVIEW
+MEDIA_VERIFIED
+REJECTED_CLEANUP
+REVIEW_QUEUE_ZERO
+PORTAL_REJECTED
+```
+
+`DO_NOT_RERUN_PASSED_CREATOR_APPLICATION_SMOKE_STEPS_WITHOUT_INVALIDATOR = TRUE`
+
+Concrete invalidators include a relevant change to Creator application/portal/review code, auth/middleware routing, Creator-distribution DB migration/RPC, reviewer authorization/environment contract, a contradictory Production incident, or an approved remediation that intentionally changes the tested state/UX contract.
+
+This checkpoint does **not** prove or authorize:
+
+- `APPROVE` / `APPROVED_PENDING_ACTIVATION`;
+- Creator profile creation;
+- six-dimension all-PASS approval;
+- terms reacceptance;
+- `BLOCKED` / `MEDIA_FAILED`;
+- scout invite lifecycle;
+- simultaneous multi-applicant behavior;
+- R5 attribution;
+- R6 commission ledger;
+- R7 earnings dashboard;
+- R8 Stripe/KYC/payout;
+- Production cash activation.
+
+Concrete Production findings captured for follow-up remediation:
+
+```text
+UX-01 no pre-submit application confirmation screen
+UX-02 review-card applicant identity weak for multi-applicant Human review
+UX-03 reason code entered through raw window.prompt enum text
+UX-04 media verification method entered through raw window.prompt enum text
+UX-05 NEED_MORE_INFO does not expose the requested information to the applicant
+UX-06 NEED_MORE_INFO masks concurrent media-action-required guidance
+UX-07 one transient MEDIA_CHALLENGE edge-middleware 404; fail-closed; reload + single retry succeeded
+UX-08 rejected reapply-date sentence contains unnatural Japanese full stop
+UX-09 reapply link is visible before the displayed reapply date
+```
+
+The evidence file is authoritative for exact SQL, exact bounded observations, privacy exclusions, and the delta-only retest rule. This checkpoint must not be used to infer Creator cash readiness.
+
+
 ---
 
 ## Implementation status summary
