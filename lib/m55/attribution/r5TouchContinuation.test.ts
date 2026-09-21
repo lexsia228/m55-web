@@ -53,6 +53,7 @@ describe('r5TouchContinuation', () => {
     assert.match(setCookie, /Secure/);
     assert.match(setCookie, /SameSite=Lax/);
     assert.match(setCookie, new RegExp(`Path=${M55_R5_TOUCH_CONTINUATION_COOKIE_PATH}`));
+    assert.equal(M55_R5_TOUCH_CONTINUATION_COOKIE_PATH, '/api');
     assert.match(setCookie, new RegExp(`Max-Age=${M55_R5_TOUCH_CONTINUATION_COOKIE_MAX_AGE_SECONDS}`));
 
     const clearCookie = buildContinuationClearCookieHeader();

@@ -16,6 +16,20 @@ import {
   validateReplyTicketCheckoutGate,
 } from '../../../../lib/m55/reply/replyTicketCheckoutValidate';
 import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalletProbe';
+import { deriveAttributionBuyerSubjectLookupDigestV1 } from '../../../../lib/m55/attribution/r5TouchSchemaContract';
+import { parseContinuationCookieValue } from '../../../../lib/m55/attribution/r5TouchContinuation';
+import { callLockPurchaseAttemptRpcV1 } from '../../../../lib/m55/attribution/r5LockPurchaseAttemptRpc';
+import {
+  callBindCheckoutSessionRpcV1,
+  loadAcceptedPayableBindingV1,
+} from '../../../../lib/m55/attribution/r5BindCheckoutSessionRpc';
+import { callTerminalizePurchaseAttemptRpcV1 } from '../../../../lib/m55/attribution/r5TerminalizePurchaseAttemptRpc';
+import {
+  M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY,
+  buildPurchaseAttemptStripeIdempotencyKeyV1,
+  resolveR5bCreatorCashProductMapV1,
+  stripeCheckoutExpiresAtToMsV1,
+} from '../../../../lib/m55/attribution/r5PurchaseAttemptContract';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -125,23 +139,118 @@ export async function POST(req: NextRequest) {
     undefined;
 
   const mdKey = REPLY_TICKET_CHECKOUT_METADATA_KEYS;
+  const isUpgrade = parsed.productKey === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY;
+
+  let purchaseAttemptId: string | null = null;
+  if (isUpgrade) {
+    const mapped = resolveR5bCreatorCashProductMapV1({
+      runtimeProductId: parsed.productKey,
+      repurchaseLane: false,
+    });
+    if (!mapped.ok) {
+      return jsonError('stripe_error', 500);
+    }
+    let clerkSubjectLookupDigest: string;
+    try {
+      clerkSubjectLookupDigest = deriveAttributionBuyerSubjectLookupDigestV1(userId);
+    } catch {
+      return jsonError('unauthenticated', 401);
+    }
+    const lockedAtMs = Date.now();
+    try {
+      const locked = await callLockPurchaseAttemptRpcV1({
+        clerkSubjectLookupDigest,
+        runtimeProductId: mapped.runtimeProductId,
+        policyProductId: mapped.policyProductId,
+        conversionKind: mapped.conversionKind,
+        purchaseScopeId: parsed.reportInstanceId,
+        cutoffAtMs: lockedAtMs,
+        attributionLockedAtMs: lockedAtMs,
+        pendingContinuationIdBytes: parseContinuationCookieValue(req.headers.get('cookie')),
+      });
+      if (locked.outcome === 'HOLD_PENDING_ADMISSION') {
+        return jsonError('stripe_error', 409, 'fulfillment_pending');
+      }
+      purchaseAttemptId = locked.purchaseAttemptId;
+      const existingBinding = await loadAcceptedPayableBindingV1(purchaseAttemptId);
+      if (existingBinding) {
+        try {
+          const existing = await stripe.checkout.sessions.retrieve(existingBinding.stripeCheckoutSessionId);
+          if (existing.status === 'open' && typeof existing.url === 'string' && existing.url.trim()) {
+            return NextResponse.json({ checkout_url: existing.url, session_id: existing.id });
+          }
+          if (existing.status === 'complete' && existing.payment_status === 'paid') {
+            return NextResponse.json({
+              checkout_url: `${origin}/dtr/core?checkout=complete`,
+              session_id: existing.id,
+            });
+          }
+          const terminalState = existing.status === 'expired' ? 'EXPIRED' : 'CANCELLED';
+          await callTerminalizePurchaseAttemptRpcV1({
+            purchaseAttemptId,
+            terminalState,
+          });
+          const relockedAtMs = Date.now();
+          const relocked = await callLockPurchaseAttemptRpcV1({
+            clerkSubjectLookupDigest,
+            runtimeProductId: mapped.runtimeProductId,
+            policyProductId: mapped.policyProductId,
+            conversionKind: mapped.conversionKind,
+            purchaseScopeId: parsed.reportInstanceId,
+            cutoffAtMs: relockedAtMs,
+            attributionLockedAtMs: relockedAtMs,
+            pendingContinuationIdBytes: parseContinuationCookieValue(req.headers.get('cookie')),
+          });
+          if (relocked.outcome === 'HOLD_PENDING_ADMISSION') {
+            return jsonError('stripe_error', 409, 'fulfillment_pending');
+          }
+          purchaseAttemptId = relocked.purchaseAttemptId;
+        } catch (e) {
+          const stripeError = e as { type?: string };
+          if (typeof stripeError?.type === 'string') {
+            return jsonError('stripe_error', 502);
+          }
+          return jsonError('stripe_error', 500);
+        }
+      }
+    } catch {
+      return jsonError('stripe_error', 500);
+    }
+  }
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: [{ price: priceId, quantity: REPLY_TICKET_PURCHASE_QUANTITY }],
-      success_url: `${origin}/dtr/core?checkout=complete`,
-      cancel_url: `${origin}/dtr/core?checkout=cancelled`,
-      client_reference_id: userId,
-      locale: 'ja',
-      metadata: {
-        [mdKey.productKey]: parsed.productKey,
-        [mdKey.reportInstanceId]: parsed.reportInstanceId,
-        [mdKey.userRefHash]: hashUserIdForLedgerLog(userId),
-        [mdKey.quantity]: String(REPLY_TICKET_PURCHASE_QUANTITY),
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'payment',
+        line_items: [{ price: priceId, quantity: REPLY_TICKET_PURCHASE_QUANTITY }],
+        success_url: `${origin}/dtr/core?checkout=complete`,
+        cancel_url: `${origin}/dtr/core?checkout=cancelled`,
+        client_reference_id: userId,
+        locale: 'ja',
+        metadata: {
+          [mdKey.productKey]: parsed.productKey,
+          [mdKey.reportInstanceId]: parsed.reportInstanceId,
+          [mdKey.userRefHash]: hashUserIdForLedgerLog(userId),
+          [mdKey.quantity]: String(REPLY_TICKET_PURCHASE_QUANTITY),
+          ...(purchaseAttemptId
+            ? { [M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY]: purchaseAttemptId }
+            : {}),
+        },
+        ...(purchaseAttemptId
+          ? {
+              payment_intent_data: {
+                metadata: {
+                  [M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY]: purchaseAttemptId,
+                },
+              },
+            }
+          : {}),
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
       },
-      ...(customerEmail ? { customer_email: customerEmail } : {}),
-    });
+      purchaseAttemptId
+        ? { idempotencyKey: buildPurchaseAttemptStripeIdempotencyKeyV1(purchaseAttemptId) }
+        : undefined,
+    );
 
     const checkout_url = session.url;
     const session_id = session.id;
@@ -158,6 +267,28 @@ export async function POST(req: NextRequest) {
         })
       );
       return jsonError('stripe_error', 502, 'Stripe session URL not created');
+    }
+
+    if (purchaseAttemptId) {
+      if (typeof session.expires_at !== 'number') {
+        return jsonError('stripe_error', 500);
+      }
+      const paymentIntentId =
+        typeof session.payment_intent === 'string'
+          ? session.payment_intent
+          : session.payment_intent && typeof session.payment_intent === 'object'
+            ? session.payment_intent.id
+            : null;
+      try {
+        await callBindCheckoutSessionRpcV1({
+          purchaseAttemptId,
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId: paymentIntentId,
+          lockExpiresAtMs: stripeCheckoutExpiresAtToMsV1(session.expires_at),
+        });
+      } catch {
+        return jsonError('stripe_error', 500);
+      }
     }
 
     console.info(
