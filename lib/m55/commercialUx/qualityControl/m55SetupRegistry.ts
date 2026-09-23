@@ -1151,25 +1151,21 @@ function methodPlacementPlan(placementId: string): NavigatePlan {
           const disclosureTimeoutMs = 15_000;
           await establishCoreResult(page, baseURL);
           const methodBlock = page.getByTestId('m55-method-core-free-result');
-          const innerDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
+          const methodDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
           const outerDisclosure = methodBlock.locator('xpath=ancestor::details[2]');
-          if ((await outerDisclosure.count()) !== 1) {
+          if ((await methodDisclosure.count()) !== 1) {
             throw new Error(
-              'SETUP_STATE_MISMATCH: expected one outer method disclosure for m55-method-core-free-result',
+              'SETUP_STATE_MISMATCH: expected one method disclosure for m55-method-core-free-result',
             );
           }
-          if ((await innerDisclosure.count()) !== 1) {
+          if ((await outerDisclosure.count()) !== 0) {
             throw new Error(
-              'SETUP_STATE_MISMATCH: expected one inner method disclosure for m55-method-core-free-result',
+              'SETUP_STATE_MISMATCH: expected no outer method disclosure for m55-method-core-free-result',
             );
           }
-          await outerDisclosure.locator(':scope > summary').click({ timeout: disclosureTimeoutMs });
-          if ((await outerDisclosure.getAttribute('open')) === null) {
-            throw new Error('SETUP_STATE_MISMATCH: outer method disclosure did not open');
-          }
-          await innerDisclosure.locator(':scope > summary').click({ timeout: disclosureTimeoutMs });
-          if ((await innerDisclosure.getAttribute('open')) === null) {
-            throw new Error('SETUP_STATE_MISMATCH: inner method disclosure did not open');
+          await methodDisclosure.locator(':scope > summary').click({ timeout: disclosureTimeoutMs });
+          if ((await methodDisclosure.getAttribute('open')) === null) {
+            throw new Error('SETUP_STATE_MISMATCH: method disclosure did not open');
           }
           await methodBlock.waitFor({ state: 'visible', timeout: disclosureTimeoutMs });
         },
