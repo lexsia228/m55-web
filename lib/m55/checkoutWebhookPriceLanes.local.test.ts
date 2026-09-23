@@ -49,6 +49,7 @@ describe('checkoutWebhookPriceLanes — legacy subscription runtime removal', ()
     assert.ok(src.includes('ALLOWED_ONE_TIME_PRODUCTS'));
     assert.ok(src.includes("from('entitlement_rights')"));
     assert.ok(src.includes("from('one_time_fulfillments')"));
+    assert.ok(src.includes("event.type === 'payment_intent.succeeded'"));
   });
 
   it('legacy subscription logs omit PII and payload fields', () => {

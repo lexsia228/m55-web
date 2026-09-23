@@ -54,6 +54,8 @@ export type FulfillFromCheckoutSessionResult =
 
 /**
  * Re-fetch session from Stripe, verify one-time paid lane, upsert DB rows.
+ * R5-B: buyer fulfillment must not invent Event.created, must not rescue or rewrite
+ * attribution locks, and must not block paid delivery on attribution HOLD.
  * @param eventIdForFulfillmentRow — webhook uses Stripe event id; success page uses synthetic id (one_time_fulfillments.event_id NOT NULL).
  */
 export async function fulfillDtrCoreFromCheckoutSessionId(params: {

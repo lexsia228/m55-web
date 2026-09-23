@@ -1,6 +1,7 @@
 /**
  * Stripe Webhook — additional reply-ticket lane (checkout.session.completed).
  * Delegates fulfillment to Postgres RPC; no wallet/ledger updates in app code.
+ * R5-B upgrade: do not rewrite locked winners and do not rescue attribution locks.
  * SSOT: docs/ssot/M55_REPLY_TICKET_WEBHOOK_RPC_CALL_IMPLEMENTATION_GATE_v1.md
  *
  * TODO(M55 reply ticket diagnostic): remove pending diagnostic + `[reply-ticket-diagnostic:*]` logs after observation SSOT.

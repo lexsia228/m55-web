@@ -9,7 +9,7 @@ export const M55_R5_TOUCH_INGEST_MIGRATION_FILENAME =
   '20260920000000_m55_r5_attribution_admit_qualified_touch_v1.sql' as const;
 
 export const M55_R5_TOUCH_CONTINUATION_COOKIE_NAME = 'm55_r5_ctc' as const;
-export const M55_R5_TOUCH_CONTINUATION_COOKIE_PATH = '/api/m55/attribution' as const;
+export const M55_R5_TOUCH_CONTINUATION_COOKIE_PATH = '/api' as const;
 export const M55_R5_TOUCH_CONTINUATION_COOKIE_MAX_AGE_SECONDS = 900 as const;
 export const M55_R5_S2_CONTINUATION_TTL_MS = 900_000 as const;
 

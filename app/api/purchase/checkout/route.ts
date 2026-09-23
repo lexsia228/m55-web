@@ -42,11 +42,24 @@ import {
   mergeBirthProfileWithDraftExtra,
 } from '../../../../lib/soul/birthProfileV2';
 import {
-  buildCheckoutIdempotencyKey,
   readPendingCheckoutExtra,
   resolveCheckoutPurchaseContextId,
 } from '../../../../lib/m55/purchaseCheckoutStartedAction';
 import type { BirthProfile } from '../../../../lib/soul/profile';
+import { deriveAttributionBuyerSubjectLookupDigestV1 } from '../../../../lib/m55/attribution/r5TouchSchemaContract';
+import { parseContinuationCookieValue } from '../../../../lib/m55/attribution/r5TouchContinuation';
+import { callLockPurchaseAttemptRpcV1 } from '../../../../lib/m55/attribution/r5LockPurchaseAttemptRpc';
+import {
+  callBindCheckoutSessionRpcV1,
+  loadAcceptedPayableBindingV1,
+} from '../../../../lib/m55/attribution/r5BindCheckoutSessionRpc';
+import { callTerminalizePurchaseAttemptRpcV1 } from '../../../../lib/m55/attribution/r5TerminalizePurchaseAttemptRpc';
+import {
+  M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY,
+  buildPurchaseAttemptStripeIdempotencyKeyV1,
+  resolveR5bCreatorCashProductMapV1,
+  stripeCheckoutExpiresAtToMsV1,
+} from '../../../../lib/m55/attribution/r5PurchaseAttemptContract';
 
 const CHECKOUT_PUBLIC_CODE = 'checkout_unavailable' as const;
 
@@ -226,6 +239,53 @@ async function logCheckout409(
   }
 }
 
+
+async function lockR5bPurchaseAttemptForCheckout(args: {
+  userId: string;
+  productId: string;
+  purchaseScopeId: string;
+  repurchaseLane: boolean;
+  cookieHeader: string | null;
+}): Promise<
+  | { ok: true; purchaseAttemptId: string }
+  | { ok: false; response: NextResponse }
+> {
+  const mapped = resolveR5bCreatorCashProductMapV1({
+    runtimeProductId: args.productId,
+    repurchaseLane: args.repurchaseLane,
+  });
+  if (!mapped.ok) {
+    return { ok: false, response: publicCheckoutError(500) };
+  }
+  let clerkSubjectLookupDigest: string;
+  try {
+    clerkSubjectLookupDigest = deriveAttributionBuyerSubjectLookupDigestV1(args.userId);
+  } catch {
+    return { ok: false, response: publicCheckoutError(401) };
+  }
+  const lockedAtMs = Date.now();
+  try {
+    const locked = await callLockPurchaseAttemptRpcV1({
+      clerkSubjectLookupDigest,
+      runtimeProductId: mapped.runtimeProductId,
+      policyProductId: mapped.policyProductId,
+      conversionKind: mapped.conversionKind,
+      purchaseScopeId: args.purchaseScopeId,
+      cutoffAtMs: lockedAtMs,
+      attributionLockedAtMs: lockedAtMs,
+      pendingContinuationIdBytes: parseContinuationCookieValue(args.cookieHeader),
+    });
+    if (locked.outcome === 'HOLD_PENDING_ADMISSION') {
+      return {
+        ok: false,
+        response: NextResponse.json({ code: 'fulfillment_pending' as const }, { status: 409 }),
+      };
+    }
+    return { ok: true, purchaseAttemptId: locked.purchaseAttemptId };
+  } catch {
+    return { ok: false, response: publicCheckoutError(500) };
+  }
+}
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -626,15 +686,65 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ code: 'fulfillment_pending' as const }, { status: 409 });
       }
       checkoutSessionGeneration += 1;
+      const priorLock = await lockR5bPurchaseAttemptForCheckout({
+        userId,
+        productId,
+        purchaseScopeId: purchaseContextId,
+        repurchaseLane: dtrRepurchaseLane,
+        cookieHeader: req.headers.get('cookie'),
+      });
+      if (!priorLock.ok) return priorLock.response;
+      let terminalState: 'EXPIRED' | 'CANCELLED' = 'CANCELLED';
+      try {
+        const unusableSession = await stripe.checkout.sessions.retrieve(
+          pendingMeta.pendingCheckoutSessionId,
+        );
+        if (unusableSession.status === 'expired') terminalState = 'EXPIRED';
+      } catch {
+        terminalState = 'CANCELLED';
+      }
+      try {
+        await callTerminalizePurchaseAttemptRpcV1({
+          purchaseAttemptId: priorLock.purchaseAttemptId,
+          terminalState,
+        });
+      } catch {
+        return publicCheckoutError(500);
+      }
     }
   }
 
-  const idempotencyKey = buildCheckoutIdempotencyKey(
+  const r5Lock = await lockR5bPurchaseAttemptForCheckout({
     userId,
     productId,
-    purchaseContextId,
-    checkoutSessionGeneration,
-  );
+    purchaseScopeId: purchaseContextId,
+    repurchaseLane: dtrRepurchaseLane,
+    cookieHeader: req.headers.get('cookie'),
+  });
+  if (!r5Lock.ok) return r5Lock.response;
+
+  try {
+    const existingBinding = await loadAcceptedPayableBindingV1(r5Lock.purchaseAttemptId);
+    if (existingBinding) {
+      const reuseBound = await resolveCheckoutSessionReuse(
+        stripe,
+        existingBinding.stripeCheckoutSessionId,
+        productId,
+        origin,
+      );
+      if (reuseBound.kind === 'open' || reuseBound.kind === 'paid') {
+        return NextResponse.json({ url: reuseBound.url });
+      }
+    }
+  } catch {
+    return publicCheckoutError(500);
+  }
+
+  const idempotencyKey = buildPurchaseAttemptStripeIdempotencyKeyV1(r5Lock.purchaseAttemptId);
+  metadata = {
+    ...metadata,
+    [M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY]: r5Lock.purchaseAttemptId,
+  };
 
   const paymentIntentDescription = resolveSavedReportPaymentIntentDescriptionJa(productId);
   if (!paymentIntentDescription) {
@@ -659,6 +769,9 @@ export async function POST(req: NextRequest) {
         locale: 'ja',
         payment_intent_data: {
           description: paymentIntentDescription,
+          metadata: {
+            [M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY]: r5Lock.purchaseAttemptId,
+          },
         },
         phone_number_collection: { enabled: false },
         ...(customerEmail ? { customer_email: customerEmail } : {}),
@@ -671,6 +784,25 @@ export async function POST(req: NextRequest) {
       console.error('[checkout] Stripe session URL not created', {
         session_id_present: !!session.id,
       });
+      return publicCheckoutError(500);
+    }
+    if (typeof session.expires_at !== 'number') {
+      return publicCheckoutError(500);
+    }
+    const paymentIntentId =
+      typeof session.payment_intent === 'string'
+        ? session.payment_intent
+        : session.payment_intent && typeof session.payment_intent === 'object'
+          ? session.payment_intent.id
+          : null;
+    try {
+      await callBindCheckoutSessionRpcV1({
+        purchaseAttemptId: r5Lock.purchaseAttemptId,
+        stripeCheckoutSessionId: session.id,
+        stripePaymentIntentId: paymentIntentId,
+        lockExpiresAtMs: stripeCheckoutExpiresAtToMsV1(session.expires_at),
+      });
+    } catch {
       return publicCheckoutError(500);
     }
 
