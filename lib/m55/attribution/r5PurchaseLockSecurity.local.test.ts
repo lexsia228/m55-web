@@ -5,13 +5,19 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import pg from 'pg';
 import { M55_R5_TOUCH_INGEST_MIGRATION_FILENAME } from './r5TouchIngestContract';
-import { M55_R5_TOUCH_SCHEMA_MIGRATION_FILENAME } from './r5TouchSchemaContract';
+import {
+  deriveAttributionBuyerSubjectLookupDigestV1,
+  M55_R5_TOUCH_SCHEMA_MIGRATION_FILENAME,
+} from './r5TouchSchemaContract';
 import { M55_R5_PURCHASE_LOCK_MIGRATION_FILENAME } from './r5PurchaseAttemptContract';
 
 const R4_MIGRATION = '20260914000000_m55_creator_distribution_foundation_v1.sql';
 const S1_MIGRATION = M55_R5_TOUCH_SCHEMA_MIGRATION_FILENAME;
 const S2_MIGRATION = M55_R5_TOUCH_INGEST_MIGRATION_FILENAME;
+const S2B_MIGRATION = '20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1.sql';
 const R5B_MIGRATION = M55_R5_PURCHASE_LOCK_MIGRATION_FILENAME;
+const ABUSE_GUARDS_MIGRATION =
+  '20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1.sql';
 
 const DENY_URL_PATTERNS = [
   'supabase.co',
@@ -136,7 +142,12 @@ async function insertCreator(
   suffix: string,
   status = 'ACTIVE',
   termsVersion = '2026-09-13-v1',
-): Promise<{ profileId: string; economicIdentityId: string; linkId: string }> {
+): Promise<{
+  profileId: string;
+  economicIdentityId: string;
+  linkId: string;
+  clerkUserId: string;
+}> {
   const clerkUserId = `creator_${suffix}`.slice(0, 128);
   const application = await client.query(
     `insert into public.m55_creator_applications (
@@ -165,7 +176,61 @@ async function insertCreator(
     profileId: profile.rows[0].id as string,
     economicIdentityId: profile.rows[0].economic_identity_id as string,
     linkId: link.rows[0].id as string,
+    clerkUserId,
   };
+}
+
+async function sqlClerkLookupDigest(client: pg.Client, clerkUserId: string): Promise<string> {
+  const result = await client.query(
+    `select public.m55_r5_attribution_clerk_lookup_digest_v1($1) as digest`,
+    [clerkUserId],
+  );
+  return result.rows[0].digest as string;
+}
+
+async function insertQualifiedTouch(
+  client: pg.Client,
+  args: {
+    buyerSubjectId: string;
+    linkId: string;
+    economicIdentityId: string;
+    touchAtMs: number;
+    touchKey?: Buffer;
+  },
+): Promise<void> {
+  await client.query(
+    `insert into public.m55_creator_qualified_touches (
+       buyer_subject_id, creator_referral_link_id, creator_economic_identity_id,
+       tracking_lane, qualified_touch_at_ms, touch_event_key_bytes, payload_fingerprint,
+       qualified_action_kind, tracking_contract_version, attribution_policy_version
+     ) values ($1, $2, $3, 'CREATOR', $4, $5, $6, 'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK', 'v1', 'v1')`,
+    [
+      args.buyerSubjectId,
+      args.linkId,
+      args.economicIdentityId,
+      args.touchAtMs,
+      args.touchKey ?? randomBytes(16),
+      sha256LowerHex(`fp-${randomUUID()}`),
+    ],
+  );
+}
+
+async function callLockPurchaseAttempt(
+  client: pg.Client,
+  args: {
+    buyerDigest: string;
+    scopeId: string;
+    cutoffMs: number;
+  },
+): Promise<Record<string, unknown>> {
+  const result = await client.query(
+    `select public.m55_r5_attribution_lock_purchase_attempt_v1(
+       $1, 'dtr_core_light_v1', 'M55_PREMIUM_REPORT_LIGHT', 'FIRST_ELIGIBLE_PAID',
+       $2, $3, $3, null, 'v1', 'v1'
+     ) as payload`,
+    [args.buyerDigest, args.scopeId, args.cutoffMs],
+  );
+  return result.rows[0].payload as Record<string, unknown>;
 }
 
 async function setupLockedWinnerWithBinding(
@@ -236,6 +301,45 @@ async function recordCanonicalPayment(
   );
 }
 
+const ABUSE_GUARDS_SQL = readFileSync(
+  join(process.cwd(), 'supabase/migrations', ABUSE_GUARDS_MIGRATION),
+  'utf8',
+);
+
+describe('PATCH-1 static reason precedence', () => {
+  it('PATCH-1 static reason precedence', () => {
+    const start = ABUSE_GUARDS_SQL.indexOf(
+      'create or replace function public.m55_r5_attribution_lock_purchase_attempt_v1',
+    );
+    const end = ABUSE_GUARDS_SQL.indexOf('$fn$;', start);
+    assert.ok(start >= 0 && end > start);
+    const lockSql = ABUSE_GUARDS_SQL.slice(start, end);
+
+    const touchStart = lockSql.indexOf('select t.* into v_touch');
+    const touchEnd = lockSql.indexOf('limit 1;', touchStart);
+    assert.ok(touchStart >= 0 && touchEnd > touchStart);
+    const touchQuery = lockSql.slice(touchStart, touchEnd);
+    assert.equal(touchQuery.includes('m55_creator_profiles'), false);
+    assert.equal(touchQuery.includes("status = 'ACTIVE'"), false);
+    assert.equal(touchQuery.includes('terms_version'), false);
+    assert.match(touchQuery, /order by t\.qualified_touch_at_ms desc, t\.touch_event_key_bytes asc/);
+
+    const profileLoad = lockSql.indexOf('select * into v_profile');
+    const digestAssign = lockSql.indexOf('v_winner_creator_digest :=');
+    const selfReferral = lockSql.indexOf("'SELF_REFERRAL'");
+    const circularAbuse = lockSql.indexOf("'CIRCULAR_ABUSE'");
+    const genericEligibility = lockSql.indexOf("v_profile.status is distinct from 'ACTIVE'");
+    const lockedWinner = lockSql.indexOf("'LOCKED_WINNER'");
+    assert.ok(profileLoad > touchEnd);
+    assert.ok(digestAssign > profileLoad);
+    assert.ok(selfReferral > digestAssign);
+    assert.ok(circularAbuse > selfReferral);
+    assert.ok(genericEligibility > circularAbuse);
+    assert.ok(lockedWinner > genericEligibility);
+    assert.match(lockSql, /v_profile\.terms_version is distinct from v_terms/);
+  });
+});
+
 const safety = evaluateLocalDatabaseSafety();
 
 describe('r5PurchaseLockSecurity.local — environment identity', () => {
@@ -277,6 +381,20 @@ if (!safety.ok) {
     }
     if (!(await tableExists(adminClient, 'm55_r5_attribution_purchase_attempts'))) {
       await applyMigration(adminClient, R5B_MIGRATION);
+    }
+    if (
+      !(await adminClient.query(
+        `select 1 from pg_proc where proname = 'm55_r5_attribution_qualified_touch_payload_fingerprint_v1'`,
+      )).rowCount
+    ) {
+      await applyMigration(adminClient, S2B_MIGRATION);
+    }
+    if (
+      !(await adminClient.query(
+        `select 1 from pg_proc where proname = 'm55_r5_attribution_clerk_lookup_digest_v1'`,
+      )).rowCount
+    ) {
+      await applyMigration(adminClient, ABUSE_GUARDS_MIGRATION);
     }
   });
 
@@ -700,6 +818,610 @@ if (!safety.ok) {
       assert.match(webhook, /insertPaymentIntentSucceededStripeEventV1/);
       const handler = webhook.slice(webhook.indexOf('async function handlePaymentIntentSucceededR5b'));
       assert.match(handler, /status: 500/);
+    });
+  });
+
+  describe('r5PurchaseLockSecurity.local — post-R5B abuse guards', () => {
+    it('matches SQL clerk lookup digest helper to deriveAttributionBuyerSubjectLookupDigestV1', async () => {
+      await adminClient.query('begin');
+      try {
+        await adminClient.query('set local role service_role');
+        const clerkUserId = `parity_${randomUUID().slice(0, 8)}`;
+        const tsDigest = deriveAttributionBuyerSubjectLookupDigestV1(clerkUserId);
+        const sqlDigest = await sqlClerkLookupDigest(adminClient, clerkUserId);
+        assert.equal(sqlDigest, tsDigest);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('locks LOCKED_WINNER for latest eligible creator touch', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const creator = await insertCreator(adminClient, suffix);
+        const buyerDigest = sha256LowerHex(`buyer-${suffix}`);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: creator.linkId,
+          economicIdentityId: creator.economicIdentityId,
+          touchAtMs: nowMs - 60_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_WINNER');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'CREATOR_WINNER');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'LAST_QUALIFIED_DIRECT_CREATOR_TOUCH');
+        assert.ok(attempt.rows[0].selected_touch_id);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns LOCKED_NONE with SELF_REFERRAL and no selected touch', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const creator = await insertCreator(adminClient, suffix);
+        const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(creator.clerkUserId);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: creator.linkId,
+          economicIdentityId: creator.economicIdentityId,
+          touchAtMs: nowMs - 60_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-self-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'NONE');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'SELF_REFERRAL');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('does not select an older eligible touch when latest is self-referral', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const olderCreator = await insertCreator(adminClient, `${suffix}-older`);
+        const selfCreator = await insertCreator(adminClient, `${suffix}-self`);
+        const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(selfCreator.clerkUserId);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: olderCreator.linkId,
+          economicIdentityId: olderCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: selfCreator.linkId,
+          economicIdentityId: selfCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-self-no-runner-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'SELF_REFERRAL');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns LOCKED_NONE with CIRCULAR_ABUSE and no selected touch', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const winnerCreator = await insertCreator(adminClient, `${suffix}-winner`);
+        const buyerCreator = await insertCreator(adminClient, `${suffix}-buyer`);
+        const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(buyerCreator.clerkUserId);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const winnerBuyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(
+          winnerCreator.clerkUserId,
+        );
+        const winnerBuyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [winnerBuyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: winnerBuyer.rows[0].id as string,
+          linkId: buyerCreator.linkId,
+          economicIdentityId: buyerCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: winnerCreator.linkId,
+          economicIdentityId: winnerCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-circular-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'NONE');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'CIRCULAR_ABUSE');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('does not select an older eligible touch when latest is circular abuse', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const olderCreator = await insertCreator(adminClient, `${suffix}-older`);
+        const winnerCreator = await insertCreator(adminClient, `${suffix}-winner`);
+        const buyerCreator = await insertCreator(adminClient, `${suffix}-buyer`);
+        const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(buyerCreator.clerkUserId);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const winnerBuyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(
+          winnerCreator.clerkUserId,
+        );
+        const winnerBuyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [winnerBuyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: olderCreator.linkId,
+          economicIdentityId: olderCreator.economicIdentityId,
+          touchAtMs: nowMs - 180_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: winnerBuyer.rows[0].id as string,
+          linkId: buyerCreator.linkId,
+          economicIdentityId: buyerCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: winnerCreator.linkId,
+          economicIdentityId: winnerCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-circular-no-runner-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'CIRCULAR_ABUSE');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns NONE for latest inactive creator without runner-up fallback', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const olderCreator = await insertCreator(adminClient, `${suffix}-older`);
+        const inactiveCreator = await insertCreator(
+          adminClient,
+          `${suffix}-inactive`,
+          'SUSPENDED',
+        );
+        const buyerDigest = sha256LowerHex(`buyer-${suffix}`);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: olderCreator.linkId,
+          economicIdentityId: olderCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: inactiveCreator.linkId,
+          economicIdentityId: inactiveCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-inactive-no-runner-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'NONE');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'NONE_NO_ELIGIBLE_WINNER');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns NONE for latest stale-terms creator without runner-up fallback', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const olderCreator = await insertCreator(adminClient, `${suffix}-older`);
+        const staleCreator = await insertCreator(
+          adminClient,
+          `${suffix}-stale`,
+          'ACTIVE',
+          'stale-terms',
+        );
+        const buyerDigest = sha256LowerHex(`buyer-${suffix}`);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: olderCreator.linkId,
+          economicIdentityId: olderCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: staleCreator.linkId,
+          economicIdentityId: staleCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-stale-no-runner-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'NONE');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'NONE_NO_ELIGIBLE_WINNER');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns SELF_REFERRAL when latest suspended creator is also the buyer', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const olderCreator = await insertCreator(adminClient, `${suffix}-older`);
+        const selfCreator = await insertCreator(
+          adminClient,
+          `${suffix}-self`,
+          'SUSPENDED',
+        );
+        const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(selfCreator.clerkUserId);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: olderCreator.linkId,
+          economicIdentityId: olderCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: selfCreator.linkId,
+          economicIdentityId: selfCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-self-before-status-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'NONE');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'SELF_REFERRAL');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns CIRCULAR_ABUSE when latest winner has stale terms', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const olderCreator = await insertCreator(adminClient, `${suffix}-older`);
+        const winnerCreator = await insertCreator(
+          adminClient,
+          `${suffix}-winner`,
+          'ACTIVE',
+          'stale-terms',
+        );
+        const buyerCreator = await insertCreator(adminClient, `${suffix}-buyer`);
+        const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(buyerCreator.clerkUserId);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const winnerBuyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(
+          winnerCreator.clerkUserId,
+        );
+        const winnerBuyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [winnerBuyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: olderCreator.linkId,
+          economicIdentityId: olderCreator.economicIdentityId,
+          touchAtMs: nowMs - 180_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: winnerBuyer.rows[0].id as string,
+          linkId: buyerCreator.linkId,
+          economicIdentityId: buyerCreator.economicIdentityId,
+          touchAtMs: nowMs - 120_000,
+        });
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: winnerCreator.linkId,
+          economicIdentityId: winnerCreator.economicIdentityId,
+          touchAtMs: nowMs - 30_000,
+        });
+        await adminClient.query('set local role service_role');
+        const locked = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-circular-before-terms-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(locked.outcome, 'LOCKED_NONE');
+        const attempt = await adminClient.query(
+          `select decision_kind, eligibility_reason_code, selected_touch_id
+           from public.m55_r5_attribution_purchase_attempts
+           where purchase_attempt_id = $1`,
+          [locked.purchase_attempt_id],
+        );
+        assert.equal(attempt.rows[0].decision_kind, 'NONE');
+        assert.equal(attempt.rows[0].eligibility_reason_code, 'CIRCULAR_ABUSE');
+        assert.equal(attempt.rows[0].selected_touch_id, null);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('returns HOLD_PENDING_ADMISSION without inserting attempt when cross-identity lock is unavailable', async () => {
+      const suffix = randomUUID().slice(0, 8);
+      const winnerCreator = await insertCreator(adminClient, `${suffix}-winner`);
+      const buyerCreator = await insertCreator(adminClient, `${suffix}-buyer`);
+      const buyerDigest = deriveAttributionBuyerSubjectLookupDigestV1(buyerCreator.clerkUserId);
+      const winnerDigest = deriveAttributionBuyerSubjectLookupDigestV1(winnerCreator.clerkUserId);
+      const buyer = await adminClient.query(
+        `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+         values ($1, 'ACTIVE') returning id`,
+        [buyerDigest],
+      );
+      const winnerBuyer = await adminClient.query(
+        `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+         values ($1, 'ACTIVE') returning id`,
+        [winnerDigest],
+      );
+      const nowMs = await currentEpochMs(adminClient);
+      await insertQualifiedTouch(adminClient, {
+        buyerSubjectId: winnerBuyer.rows[0].id as string,
+        linkId: buyerCreator.linkId,
+        economicIdentityId: buyerCreator.economicIdentityId,
+        touchAtMs: nowMs - 120_000,
+      });
+      await insertQualifiedTouch(adminClient, {
+        buyerSubjectId: buyer.rows[0].id as string,
+        linkId: winnerCreator.linkId,
+        economicIdentityId: winnerCreator.economicIdentityId,
+        touchAtMs: nowMs - 30_000,
+      });
+
+      const blocker = new pg.Client({ connectionString: safety.url });
+      const contender = new pg.Client({ connectionString: safety.url });
+      await blocker.connect();
+      await contender.connect();
+      try {
+        await blocker.query('begin');
+        await blocker.query('set local role service_role');
+        await blocker.query(`select pg_advisory_xact_lock(hashtextextended($1, 0))`, [
+          `m55_r5_attr_buyer_subject:${winnerDigest}`,
+        ]);
+
+        await contender.query('begin');
+        await contender.query('set local role service_role');
+        const held = await callLockPurchaseAttempt(contender, {
+          buyerDigest,
+          scopeId: `scope-hold-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(held.outcome, 'HOLD_PENDING_ADMISSION');
+        assert.equal(held.purchase_attempt_id, null);
+        const attempts = await contender.query(
+          `select count(*)::int as count
+           from public.m55_r5_attribution_purchase_attempts
+           where owner_clerk_subject_lookup_digest = $1`,
+          [buyerDigest],
+        );
+        assert.equal(attempts.rows[0].count, 0);
+
+        await contender.query('rollback');
+        await blocker.query('rollback');
+      } finally {
+        await blocker.end();
+        await contender.end();
+      }
+    });
+
+    it('converges identical open-attempt lock retries', async () => {
+      await adminClient.query('begin');
+      try {
+        const suffix = randomUUID().slice(0, 8);
+        const creator = await insertCreator(adminClient, suffix);
+        const buyerDigest = sha256LowerHex(`buyer-${suffix}`);
+        const buyer = await adminClient.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state)
+           values ($1, 'ACTIVE') returning id`,
+          [buyerDigest],
+        );
+        const nowMs = await currentEpochMs(adminClient);
+        await insertQualifiedTouch(adminClient, {
+          buyerSubjectId: buyer.rows[0].id as string,
+          linkId: creator.linkId,
+          economicIdentityId: creator.economicIdentityId,
+          touchAtMs: nowMs - 60_000,
+        });
+        await adminClient.query('set local role service_role');
+        const first = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-converge-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        const second = await callLockPurchaseAttempt(adminClient, {
+          buyerDigest,
+          scopeId: `scope-converge-${suffix}`,
+          cutoffMs: nowMs,
+        });
+        assert.equal(first.outcome, 'LOCKED_WINNER');
+        assert.equal(second.outcome, 'CONVERGED');
+        assert.equal(second.purchase_attempt_id, first.purchase_attempt_id);
+      } finally {
+        await adminClient.query('rollback');
+      }
+    });
+
+    it('keeps clerk digest helper and lock RPC service_role-only', async () => {
+      for (const role of ['anon', 'authenticated'] as const) {
+        const roleClient = new pg.Client({ connectionString: safety.url });
+        await roleClient.connect();
+        try {
+          await roleClient.query(`set role ${role}`);
+          await expectPgError(
+            () =>
+              roleClient.query(
+                `select public.m55_r5_attribution_clerk_lookup_digest_v1($1)`,
+                ['user_test_123'],
+              ),
+            /permission denied|must be owner|insufficient_privilege/i,
+          );
+          await expectPgError(
+            () =>
+              roleClient.query(
+                `select public.m55_r5_attribution_lock_purchase_attempt_v1(
+                   $1, 'dtr_core_light_v1', 'M55_PREMIUM_REPORT_LIGHT', 'FIRST_ELIGIBLE_PAID',
+                   $2, $3, $3, null, 'v1', 'v1'
+                 )`,
+                ['a'.repeat(64), `scope-${randomUUID()}`, Date.now()],
+              ),
+            /permission denied|must be owner|insufficient_privilege/i,
+          );
+        } finally {
+          await roleClient.query('reset role');
+          await roleClient.end();
+        }
+      }
     });
   });
 }
