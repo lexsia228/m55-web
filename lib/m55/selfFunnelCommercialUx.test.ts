@@ -48,13 +48,19 @@ describe('Self funnel commercial UX redesign', () => {
       slice.indexOf('<CoreFreeResultShareCTA'),
     );
     const bridgeIdx = slice.indexOf('<CoreEntryReportCTASection');
+    const followIdx = slice.indexOf('freeResultFollowOn');
     assert.ok(
       leadIdx >= 0 &&
         summaryIdx >= 0 &&
         sceneIdx > summaryIdx &&
-        shareIdx > sceneIdx &&
-        bridgeIdx > sceneIdx,
+        bridgeIdx > sceneIdx &&
+        shareIdx > bridgeIdx &&
+        followIdx > shareIdx,
     );
+    assert.match(slice, /divergeSummaryJa/);
+    assert.match(slice, /smallActionJa=\{composition\.synthesis\.smallActionJa\}/);
+    assert.match(read('components/core/CoreFreeResultSummaryHub.tsx'), /birthBaseJa/);
+    assert.match(read('components/core/CoreFreeResultScenesSection.tsx'), /m55-free-once-action/);
     assert.match(bridge, /premiumLockedHeadingsJa/);
     assert.doesNotMatch(bridge, /conversionBridgePlanGrid/);
     const ctaIdx = bridge.indexOf('m55-paid-bridge-primary');

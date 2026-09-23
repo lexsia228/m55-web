@@ -57,7 +57,7 @@ describe('m55CommercialFunnelContract — machine product truth', () => {
   it('records Self funnel alignment for pre-result theme removal', () => {
     assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection, false);
     assert.equal(M55_TARGET_COMMERCIAL_CONTRACT.selfFree.preResultThemeSelection, false);
-    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.freeResultIncludesActionSuggestions, false);
+    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.freeResultIncludesActionSuggestions, true);
     assert.equal(M55_LEGACY_RUNTIME_DEBT.preResultThemeSelectionStepJa, '今の関心');
   });
 

@@ -38,7 +38,8 @@ Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree` on **`origin/m
 - `preResultThemeSelection: false` — current machine contract, current target contract, and current tests all record **false**; UI has no pre-result theme-selection step
 - public copy の「見取り図」は free-tier / Pair standalone 比喩として **現行許容**（全面置換は別 wave）
 - 「保存版」は **INTERNAL_ONLY** — 公開 UI・metadata・aria・Legal・Support・購入後表示は Premium 系正式表記のみ；`premiumPublicTerminologyGuard` + stored snapshot display normalizer が境界を強制
-- 無料結果から「今日の一歩」等の行動提案は target では除去；merged runtime debt は machine contract / deferred assertions を参照
+- **現行（SELF-FREE-ACTION-01 = B）:** 無料結果には、決定的に選ばれる軽い観察・実験を**ちょうど一つ**表示する。低 stakes で、取り消せて、効果は保証しない。扱いの手順、回復プラン、改善の保証、臨床・療法的な指示にはしない。Premium の深い扱い・回復の代替にはしない。Machine truth は `freeResultIncludesActionSuggestions: true`（意味は「一つだけ」であり、複数の行動提案ではない）。
+- **履歴:** 以前の operative 文は、無料結果から「今日の一歩」等の行動提案を target で除去する、としていた（CQ-003 / `freeResultIncludesActionSuggestions=false`）。その「行動なし」規則は上記の Human 決定で置き換える。履歴の決定そのものは書き換えない。
 
 **Documentation correction (2026-08-06):** prior text in this file incorrectly stated `preResultThemeSelection: true` for merged runtime. That was stale documentation only — **not** a runtime change request. Evidence: `lib/m55/contracts/m55CommercialFunnelContract.ts` (`M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection: false`, `M55_TARGET_COMMERCIAL_CONTRACT.selfFree.preResultThemeSelection: false`), `lib/m55/contracts/m55CommercialFunnelContract.test.ts`, and absence of a pre-result theme-selection UI step.
 
@@ -68,10 +69,17 @@ Self funnel runtime source on WT-001 remains **uncommitted** and is **not** part
 - 負担が表れ始めるサイン
 - 表れやすい資質
 
+**含める（SELF-FREE-ACTION-01 = B）:**
+
+- 土台と今の表れ方の対比
+- 一つの場面と、活きる条件・重くなる条件の最初の確認
+- 軽い観察・実験を一つ（効果は保証しない）
+
 **含めない:**
 
 - 相手へどう対応するか
 - 詳細な解決策
+- 扱いの手順、回復プラン、複数ステップの立て直し
 - 仕事 / 恋愛等の theme 深掘り
 - 有料追加読み解き相当本文
 - 4章相当の背景・構造・扱い方
@@ -134,5 +142,6 @@ Canonical owner: `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` §「Commercial delig
 
 - Self primary commercial desire is **「自分をもっと知りたい」**.
 - **Free owns recognition** — 何が起きやすいか / 反応・傾向 / 自分では言葉にしづらかった輪郭.
-- **Paid owns supported deeper value** — なぜ・条件・力が出る場面・迷いと摩擦・疲れ・戻り方・再開条件・次の小さな一手, only where Product Truth supports it.
+- **Paid owns supported deeper value** — なぜ・条件・力が出る場面・迷いと摩擦・疲れ・戻り方・再開条件・扱いと回復を含む次の小さな一手, only where Product Truth supports it.
+- **Free light action boundary:** the one visible Free observation/experiment is not that paid handling move. Premium keeps application, handling, recovery, alternatives, and revisit.
 - Detailed paid-worthiness rules, question design standard, promise continuity, market evidence filter, and report change classes **A–E** live in `M55_COMMERCIAL_FUNNEL_SSOT.md`. Do not duplicate them here.
