@@ -19,10 +19,31 @@ const { buildCreateTouchContinuationRpcParamsV1 } = await import('./r5CreateTouc
 const { buildAdmitQualifiedTouchRpcParamsV1 } = await import('./r5AdmitQualifiedTouchRpc');
 
 const S2_MIGRATION = join(process.cwd(), 'supabase/migrations', M55_R5_TOUCH_INGEST_MIGRATION_FILENAME);
+const S2B_MIGRATION = join(
+  process.cwd(),
+  'supabase/migrations',
+  '20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1.sql',
+);
 const S1_MIGRATION = join(process.cwd(), 'supabase/migrations', M55_R5_TOUCH_SCHEMA_MIGRATION_FILENAME);
 
 function readS2Migration(): string {
   return readFileSync(S2_MIGRATION, 'utf8');
+}
+
+function readS2bMigration(): string {
+  return readFileSync(S2B_MIGRATION, 'utf8');
+}
+
+function extractCreateFunction(sql: string, functionName: string): string {
+  const needle = `create or replace function public.${functionName}`;
+  const altNeedle = `create function public.${functionName}`;
+  const start = sql.includes(needle) ? sql.indexOf(needle) : sql.indexOf(altNeedle);
+  assert.ok(start >= 0, `missing ${functionName}`);
+  const asDollar = sql.indexOf('as $$', start);
+  assert.ok(asDollar >= 0, `missing as $$ for ${functionName}`);
+  const end = sql.indexOf('$$;', asDollar + 5);
+  assert.ok(end >= 0, `missing function terminator for ${functionName}`);
+  return sql.slice(start, end + 3);
 }
 
 describe('r5TouchIngestRpcContract — migration SQL', () => {
@@ -209,5 +230,83 @@ describe('r5TouchIngestRpcContract — RPC_TRANSPORT_SHAPE_PROOF', () => {
     const serialized = JSON.stringify(params);
     assert.match(serialized, /"\\\\xffffffffffffffffffffffffffffffff"/);
     assert.equal(JSON.parse(serialized).p_candidate_touch_event_key_bytes, params.p_candidate_touch_event_key_bytes);
+  });
+});
+
+describe('r5TouchIngestRpcContract — S2B linearized acceptance migration', () => {
+  const frozenS2 = readS2Migration();
+  const sql = readS2bMigration();
+
+  it('keeps exact eight-argument admit signature without overload', () => {
+    assert.match(
+      sql,
+      /create or replace function public\.m55_r5_attribution_admit_qualified_touch_v1\(\s*p_continuation_id bytea,\s*p_clerk_subject_lookup_digest text,\s*p_qualified_action_kind text,\s*p_candidate_touch_event_key_bytes bytea,\s*p_candidate_qualified_touch_at_ms bigint,\s*p_payload_fingerprint text,\s*p_tracking_contract_version text,\s*p_attribution_policy_version text\s*\)/i,
+    );
+    assert.equal(
+      (sql.match(/m55_r5_attribution_admit_qualified_touch_v1/g) ?? []).length,
+      3,
+    );
+    assert.doesNotMatch(sql, /m55_r5_attribution_admit_qualified_touch_v2/i);
+    assert.doesNotMatch(frozenS2, /m55_r5_attribution_qualified_touch_payload_fingerprint_v1/i);
+  });
+
+  it('preserves syntactic p_candidate validation and mints DB authority after buyer lock', () => {
+    const admitSql = extractCreateFunction(sql, 'm55_r5_attribution_admit_qualified_touch_v1');
+    assert.match(admitSql, /octet_length\(p_candidate_touch_event_key_bytes\) <> 16/);
+    assert.match(admitSql, /p_candidate_qualified_touch_at_ms < 0/);
+    assert.match(admitSql, /p_payload_fingerprint !~ '\^\[0-9a-f\]\{64\}\$'/);
+    const buyerLock = admitSql.indexOf('perform pg_advisory_xact_lock');
+    const acceptMint = admitSql.indexOf('v_accept_ms := floor(extract(epoch from clock_timestamp())');
+    const touchKeyMint = admitSql.indexOf('v_touch_key := extensions.gen_random_bytes(16)');
+    assert.ok(buyerLock >= 0 && acceptMint > buyerLock);
+    assert.ok(touchKeyMint > buyerLock);
+    assert.match(
+      admitSql,
+      /touch_event_key_bytes = v_touch_key,\s+qualified_touch_at_ms = v_accept_ms,\s+payload_fingerprint = v_fingerprint/,
+    );
+    assert.doesNotMatch(
+      admitSql.slice(acceptMint),
+      /p_candidate_touch_event_key_bytes|p_candidate_qualified_touch_at_ms|p_payload_fingerprint/,
+    );
+  });
+
+  it('defines canonical SQL fingerprint helper with service_role-only ACL', () => {
+    const helperSql = extractCreateFunction(
+      sql,
+      'm55_r5_attribution_qualified_touch_payload_fingerprint_v1',
+    );
+    assert.match(sql, /create or replace function public\.m55_r5_attribution_qualified_touch_payload_fingerprint_v1/i);
+    assert.match(helperSql, /language sql/i);
+    assert.match(helperSql, /immutable/i);
+    assert.match(helperSql, /strict/i);
+    assert.match(helperSql, /security invoker/i);
+    assert.match(sql, /convert_to\('m55\.r5\.attribution\.qualified_touch\.payload\.v1', 'UTF8'\)/);
+    assert.match(sql, /decode\('00', 'hex'\)/);
+    assert.match(sql, /extensions\.digest\(/);
+    assert.match(
+      sql,
+      /revoke all on function public\.m55_r5_attribution_qualified_touch_payload_fingerprint_v1\(\s*text, text, text, bigint, text, text\s*\) from public, anon, authenticated/i,
+    );
+    assert.match(
+      sql,
+      /grant execute on function public\.m55_r5_attribution_qualified_touch_payload_fingerprint_v1\(\s*text, text, text, bigint, text, text\s*\) to service_role/i,
+    );
+    assert.match(sql, /grant execute on function extensions\.gen_random_bytes\(integer\) to service_role/i);
+  });
+
+  it('leaves frozen S2 migration and bound convergence block unchanged', () => {
+    const boundStart = frozenS2.indexOf('if v_cont.touch_event_key_bytes is not null then');
+    const boundEnd = frozenS2.indexOf('perform pg_advisory_xact_lock', boundStart);
+    const boundBlock = frozenS2.slice(boundStart, boundEnd);
+    assert.match(boundBlock, /outcome', 'CONVERGED'/);
+    const admitSql = extractCreateFunction(sql, 'm55_r5_attribution_admit_qualified_touch_v1');
+    const replaceBoundStart = admitSql.indexOf('if v_cont.touch_event_key_bytes is not null then');
+    const replaceBoundEnd = admitSql.indexOf('perform pg_advisory_xact_lock', replaceBoundStart);
+    const replaceBoundBlock = admitSql.slice(replaceBoundStart, replaceBoundEnd);
+    assert.match(replaceBoundBlock, /outcome', 'CONVERGED'/);
+    assert.doesNotMatch(
+      replaceBoundBlock,
+      /v_cont\.touch_event_key_bytes is distinct from p_candidate_touch_event_key_bytes/,
+    );
   });
 });

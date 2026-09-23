@@ -11,6 +11,7 @@ import { M55_R5_TOUCH_SCHEMA_MIGRATION_FILENAME } from './r5TouchSchemaContract'
 const R4_MIGRATION = '20260914000000_m55_creator_distribution_foundation_v1.sql';
 const S1_MIGRATION = M55_R5_TOUCH_SCHEMA_MIGRATION_FILENAME;
 const S2_MIGRATION = M55_R5_TOUCH_INGEST_MIGRATION_FILENAME;
+const S2B_MIGRATION = '20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1.sql';
 
 const DENY_URL_PATTERNS = [
   'supabase.co',
@@ -195,6 +196,48 @@ async function callAdmitRpc(
   return payload.outcome as string;
 }
 
+async function readContinuationTriple(
+  client: pg.Client,
+  continuationId: Buffer,
+): Promise<{ touchKey: Buffer; touchAtMs: number; fingerprint: string }> {
+  const row = await client.query(
+    `select touch_event_key_bytes, qualified_touch_at_ms, payload_fingerprint
+     from public.m55_r5_attribution_touch_continuations
+     where continuation_id = $1`,
+    [continuationId],
+  );
+  return {
+    touchKey: row.rows[0].touch_event_key_bytes as Buffer,
+    touchAtMs: Number(row.rows[0].qualified_touch_at_ms),
+    fingerprint: row.rows[0].payload_fingerprint as string,
+  };
+}
+
+async function sqlFingerprint(
+  client: pg.Client,
+  args: {
+    action: string;
+    tokenVersion: string;
+    tokenDigest: string;
+    touchAtMs: number;
+    trackingVersion: string;
+    policyVersion: string;
+  },
+): Promise<string> {
+  const result = await client.query(
+    `select public.m55_r5_attribution_qualified_touch_payload_fingerprint_v1($1,$2,$3,$4,$5,$6) as fp`,
+    [
+      args.action,
+      args.tokenVersion,
+      args.tokenDigest,
+      args.touchAtMs,
+      args.trackingVersion,
+      args.policyVersion,
+    ],
+  );
+  return result.rows[0].fp as string;
+}
+
 const S2_LOCAL_TEST_SOURCE = readFileSync(
   join(process.cwd(), 'lib/m55/attribution/r5TouchIngestSecurity.local.test.ts'),
   'utf8',
@@ -242,6 +285,13 @@ if (!safety.ok) {
     }
     if (!(await adminClient.query(`select to_regclass('public.m55_r5_attribution_touch_continuations')`)).rows[0].to_regclass) {
       await applyMigration(adminClient, S2_MIGRATION);
+    }
+    if (
+      !(await adminClient.query(
+        `select 1 from pg_proc where proname = 'm55_r5_attribution_qualified_touch_payload_fingerprint_v1'`,
+      )).rowCount
+    ) {
+      await applyMigration(adminClient, S2B_MIGRATION);
     }
   });
 
@@ -461,12 +511,16 @@ if (!safety.ok) {
       );
       assert.equal(continuationAfter.rows[0].direct_buyer_subject_lookup_digest, null);
 
+      const persisted = await readContinuationTriple(adminClient, continuationId);
+      assert.notEqual(persisted.touchKey.toString('hex'), touchKey.toString('hex'));
+      assert.notEqual(persisted.touchAtMs, touchAtMs);
+      assert.notEqual(persisted.fingerprint, fingerprint);
       const touchRow = await adminClient.query(
         `select t.qualified_action_kind, t.buyer_subject_id, b.clerk_subject_lookup_digest
          from public.m55_creator_qualified_touches as t
          join public.m55_attribution_buyer_subjects as b on b.id = t.buyer_subject_id
          where t.touch_event_key_bytes = $1`,
-        [touchKey],
+        [persisted.touchKey],
       );
       assert.equal(touchRow.rowCount, 1);
       assert.equal(
@@ -499,25 +553,32 @@ if (!safety.ok) {
         attributionPolicyVersion: 'v1',
       });
 
-      const inserted = await callAdmitRpc(adminClient, {
-        continuationId,
-        buyerDigest,
-        action: 'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK',
-        touchKey,
-        touchAtMs,
-        fingerprint,
-      });
-      assert.equal(inserted, 'INSERTED');
+      assert.equal(
+        await callAdmitRpc(adminClient, {
+          continuationId,
+          buyerDigest,
+          action: 'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK',
+          touchKey,
+          touchAtMs,
+          fingerprint,
+        }),
+        'INSERTED',
+      );
+      const persisted = await readContinuationTriple(adminClient, continuationId);
 
       const converged = await callAdmitRpc(adminClient, {
         continuationId,
         buyerDigest,
         action: 'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK',
-        touchKey,
-        touchAtMs,
-        fingerprint,
+        touchKey: uniqueTouchKeyBytes(),
+        touchAtMs: 1_700_000_009_999,
+        fingerprint: 'd'.repeat(64),
       });
       assert.equal(converged, 'CONVERGED');
+      const afterRetry = await readContinuationTriple(adminClient, continuationId);
+      assert.equal(afterRetry.touchKey.toString('hex'), persisted.touchKey.toString('hex'));
+      assert.equal(afterRetry.touchAtMs, persisted.touchAtMs);
+      assert.equal(afterRetry.fingerprint, persisted.fingerprint);
     });
 
     it('converges a legally bound unconsumed continuation without rewriting consumed_at or the touch triple', async () => {
@@ -916,14 +977,18 @@ if (!safety.ok) {
         action: 'VERIFIED_PREAUTH_LINK_THEN_SAME_ACTION_LOGIN_CONTINUATION',
         directDigest: null,
       });
-      await callAdmitRpc(adminClient, {
-        continuationId: continuationA,
-        buyerDigest,
-        action: 'VERIFIED_PREAUTH_LINK_THEN_SAME_ACTION_LOGIN_CONTINUATION',
-        touchKey,
-        touchAtMs,
-        fingerprint,
-      });
+      assert.equal(
+        await callAdmitRpc(adminClient, {
+          continuationId: continuationA,
+          buyerDigest,
+          action: 'VERIFIED_PREAUTH_LINK_THEN_SAME_ACTION_LOGIN_CONTINUATION',
+          touchKey,
+          touchAtMs,
+          fingerprint,
+        }),
+        'INSERTED',
+      );
+      const persistedKey = (await readContinuationTriple(adminClient, continuationA)).touchKey;
 
       const continuationB = randomBytes(16);
       await callCreateRpc(adminClient, {
@@ -939,7 +1004,7 @@ if (!safety.ok) {
             continuationId: continuationB,
             buyerDigest,
             action: 'VERIFIED_PREAUTH_LINK_THEN_SAME_ACTION_LOGIN_CONTINUATION',
-            touchKey,
+            touchKey: persistedKey,
             touchAtMs,
             fingerprint: sha256LowerHex('different-payload'),
           }),
@@ -1082,6 +1147,118 @@ if (!safety.ok) {
         [buyerDigest],
       );
       assert.equal(afterCount.rows[0].count, 0);
+    });
+  });
+
+  describe('r5TouchIngestSecurity.local — linearized DB acceptance', () => {
+    it('mints 16-byte DB key and SQL fingerprint parity for DIRECT and PREAUTH', async () => {
+      for (const action of [
+        'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK',
+        'VERIFIED_PREAUTH_LINK_THEN_SAME_ACTION_LOGIN_CONTINUATION',
+      ] as const) {
+        const fixture = await insertCreatorFixture(adminClient, `fp-${randomUUID()}`);
+        const buyerDigest = sha256LowerHex(`buyer-${randomUUID()}`);
+        const continuationId = randomBytes(16);
+        await callCreateRpc(adminClient, {
+          cookieId: null,
+          newId: continuationId,
+          tokenDigest: fixture.tokenDigest,
+          action,
+          directDigest: action === 'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK' ? buyerDigest : null,
+        });
+        const httpKey = uniqueTouchKeyBytes();
+        const httpAtMs = 1_700_000_000_001;
+        const httpFingerprint = computeQualifiedTouchPayloadFingerprintV1({
+          qualifiedActionKind: action,
+          tokenVersion: 'v1',
+          tokenDigest: fixture.tokenDigest,
+          qualifiedTouchAtMs: httpAtMs,
+          trackingContractVersion: 'v1',
+          attributionPolicyVersion: 'v1',
+        });
+        assert.equal(
+          await callAdmitRpc(adminClient, {
+            continuationId,
+            buyerDigest,
+            action,
+            touchKey: httpKey,
+            touchAtMs: httpAtMs,
+            fingerprint: httpFingerprint,
+          }),
+          'INSERTED',
+        );
+        const persisted = await readContinuationTriple(adminClient, continuationId);
+        assert.equal(persisted.touchKey.length, 16);
+        assert.notEqual(persisted.touchKey.toString('hex'), httpKey.toString('hex'));
+        assert.notEqual(persisted.touchAtMs, httpAtMs);
+        assert.notEqual(persisted.fingerprint, httpFingerprint);
+        const tsFingerprint = computeQualifiedTouchPayloadFingerprintV1({
+          qualifiedActionKind: action,
+          tokenVersion: 'v1',
+          tokenDigest: fixture.tokenDigest,
+          qualifiedTouchAtMs: persisted.touchAtMs,
+          trackingContractVersion: 'v1',
+          attributionPolicyVersion: 'v1',
+        });
+        const sqlFp = await sqlFingerprint(adminClient, {
+          action,
+          tokenVersion: 'v1',
+          tokenDigest: fixture.tokenDigest,
+          touchAtMs: persisted.touchAtMs,
+          trackingVersion: 'v1',
+          policyVersion: 'v1',
+        });
+        assert.equal(persisted.fingerprint, tsFingerprint);
+        assert.equal(sqlFp, tsFingerprint);
+      }
+    });
+
+    it('denies PUBLIC/anon/authenticated execute on fingerprint helper and allows service_role', async () => {
+      for (const role of ['anon', 'authenticated'] as const) {
+        const roleClient = new pg.Client({ connectionString: safety.url });
+        await roleClient.connect();
+        try {
+          await roleClient.query(`set role ${role}`);
+          await expectPgError(
+            () =>
+              roleClient.query(
+                `select public.m55_r5_attribution_qualified_touch_payload_fingerprint_v1($1,$2,$3,$4,$5,$6)`,
+                [
+                  'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK',
+                  'v1',
+                  'a'.repeat(64),
+                  1,
+                  'v1',
+                  'v1',
+                ],
+              ),
+            /permission denied|must be owner|insufficient_privilege/i,
+          );
+        } finally {
+          await roleClient.query('reset role');
+          await roleClient.end();
+        }
+      }
+      const service = new pg.Client({ connectionString: safety.url });
+      await service.connect();
+      try {
+        await service.query('set role service_role');
+        const result = await service.query(
+          `select public.m55_r5_attribution_qualified_touch_payload_fingerprint_v1($1,$2,$3,$4,$5,$6) as fp`,
+          [
+            'AUTHENTICATED_DIRECT_VERIFIED_CREATOR_LINK',
+            'v1',
+            'a'.repeat(64),
+            1_700_000_000_123,
+            'v1',
+            'v1',
+          ],
+        );
+        assert.match(result.rows[0].fp as string, /^[0-9a-f]{64}$/);
+      } finally {
+        await service.query('reset role');
+        await service.end();
+      }
     });
   });
 
