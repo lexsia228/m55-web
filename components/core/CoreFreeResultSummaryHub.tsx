@@ -5,37 +5,30 @@ import styles from './CoreExperience.module.css';
 
 type Props = {
   depth: FreeDepthAnalysisV1;
+  divergeSummaryJa?: string | null;
+  alignSummaryJa?: string | null;
 };
 
-const LAYERS = [
-  {
-    label: '具体的に出やすい場面',
-    key: 'scene' as const,
-  },
-  {
-    label: 'なぜこの読みになるか',
-    key: 'why' as const,
-  },
-  {
-    label: '生年月日から見えた土台',
-    key: 'birth' as const,
-  },
-  {
-    label: '回答で確認できた今の出方',
-    key: 'current' as const,
-  },
-] as const;
+function nonEmpty(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() ?? '';
+  return trimmed.length > 0 ? trimmed : null;
+}
 
 /**
- * Concise free-result reading — fused hit first, then provenance.
+ * Contrast-first free summary: foundation against current expression.
+ * Longer why stays in optional depth. Does not invent missing copy.
  */
-export default function CoreFreeResultSummaryHub({ depth }: Props) {
+export default function CoreFreeResultSummaryHub({
+  depth,
+  divergeSummaryJa,
+  alignSummaryJa,
+}: Props) {
+  const foundation = nonEmpty(depth.birthBaseJa);
+  const current = nonEmpty(depth.currentExpressionJa);
+  const relation = nonEmpty(divergeSummaryJa) ?? nonEmpty(alignSummaryJa);
+  const trust = nonEmpty(depth.trustCueJa);
   const whyLines = depth.conciseWhyJa.filter((line) => line.trim().length > 0);
-  const bodies = {
-    scene: depth.primarySceneJa,
-    birth: depth.birthBaseJa,
-    current: depth.currentExpressionJa,
-  };
+  const bothPoles = foundation !== null && current !== null;
 
   return (
     <section
@@ -44,31 +37,46 @@ export default function CoreFreeResultSummaryHub({ depth }: Props) {
       id="core-summary"
       data-testid="m55-free-result-summary"
     >
-      <span className={styles.tierAOverline}>なぜそう見えるか</span>
+      <span className={styles.tierAOverline}>土台と今</span>
       <h2 id="core-free-result-summary" className={styles.sectionTitle}>
-        回答から見えた理由
+        土台と、今の表れ方
       </h2>
-      <p className={styles.freeDepthBlockBody}>{depth.trustCueJa}</p>
 
-      <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">
-        <li className={styles.freeDepthReasonItem}>
-          <span className={styles.freeDepthBlockTitle}>{LAYERS[1].label}</span>
-          {whyLines.map((line) => (
-            <p key={line} className={styles.freeDepthBlockBody}>{line}</p>
-          ))}
-        </li>
-      </ol>
-      <details className={styles.freeDepthMore}>
-        <summary>背景をもう少し見る</summary>
-        <ol className={styles.freeDepthReasonList}>
-          {LAYERS.filter((layer) => layer.key !== 'why').map((layer) => (
-            <li key={layer.key} className={styles.freeDepthReasonItem}>
-              <span className={styles.freeDepthBlockTitle}>{layer.label}</span>
-              <p className={styles.freeDepthBlockBody}>{bodies[layer.key]}</p>
-            </li>
-          ))}
-        </ol>
-      </details>
+      {foundation || current ? (
+        <div
+          className={`${styles.freeContrastGroup}${bothPoles ? '' : ` ${styles.freeContrastGroupSingle}`}`}
+          data-testid="m55-free-foundation-current"
+        >
+          {foundation ? (
+            <div className={styles.freeContrastPole}>
+              <h3 className={styles.freeDepthBlockTitle}>生年月日から見えた土台</h3>
+              <p className={styles.freeDepthBlockBody}>{foundation}</p>
+            </div>
+          ) : null}
+          {current ? (
+            <div className={styles.freeContrastPole}>
+              <h3 className={styles.freeDepthBlockTitle}>今の表れ方</h3>
+              <p className={styles.freeDepthBlockBody}>{current}</p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {relation ? <p className={styles.freeContrastRelation}>{relation}</p> : null}
+      {trust ? <p className={styles.freeContrastTrust}>{trust}</p> : null}
+
+      {whyLines.length > 0 ? (
+        <details className={styles.freeDepthMore}>
+          <summary>回答から見えた理由</summary>
+          <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">
+            {whyLines.map((line) => (
+              <li key={line} className={styles.freeDepthReasonItem}>
+                <p className={styles.freeDepthBlockBody}>{line}</p>
+              </li>
+            ))}
+          </ol>
+        </details>
+      ) : null}
     </section>
   );
 }

@@ -291,14 +291,18 @@ describe('CQ-002 premium semantic projection', () => {
 });
 
 describe('CQ-003 free/paid boundary', () => {
-  it('machine contract keeps freeResultIncludesActionSuggestions false', () => {
-    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.freeResultIncludesActionSuggestions, false);
+  it('machine contract records one visible free action, not a handling sequence', () => {
+    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.freeResultIncludesActionSuggestions, true);
   });
 
-  it('free scenes section source has no public action suggestion block', () => {
+  it('free scenes expose one bounded action and leave handling to premium', () => {
     const src = readRepoFile('components/core/CoreFreeResultScenesSection.tsx');
-    assert.doesNotMatch(src, /次に一度だけ試すこと/);
-    assert.doesNotMatch(src, /m55-free-once-action/);
+    assert.match(src, /m55-free-once-action/);
+    assert.match(src, /smallActionJa/);
+    assert.doesNotMatch(src, /回復プラン|扱いの手順|必ず改善|治療/);
+    const actionIdx = src.indexOf('m55-free-once-action');
+    const questionIdx = src.indexOf('premiumOpenQuestionJa');
+    assert.ok(actionIdx >= 0 && questionIdx > actionIdx);
   });
 });
 

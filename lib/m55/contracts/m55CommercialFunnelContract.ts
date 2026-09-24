@@ -79,7 +79,8 @@ export const M55_CURRENT_RUNTIME_STATE = {
     themeSelectionStepLabelJa: null,
     questionnaireIncludesCurrentInterest: false,
     legacyTermsInPublicCopy: false,
-    freeResultIncludesActionSuggestions: false,
+    /** SELF-FREE-ACTION-01 = B: exactly one visible light observation. Not a handling plan. */
+    freeResultIncludesActionSuggestions: true,
     canonicalFreeResultCount: 'single canonical via DOB + five core answers',
   },
   selfPremium: {

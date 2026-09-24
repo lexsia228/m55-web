@@ -206,16 +206,16 @@ const DECISION_EXPRESSION_PHRASE: Readonly<Record<DecisionTendency, string>> = {
 };
 
 const RECOVERY_ACTION_PHRASE: Readonly<Record<RecoveryTendency, string>> = {
-  pause: '短い休みを先に入れてから次に進む',
-  shrink: 'やることを一つ小さくしてから戻る',
-  scene: '場所や空気を少し変えて整える',
+  pause: '短い休みを一度だけ挟んでみて、その前後で感じ方がどう変わるか見てみる',
+  shrink: '見る範囲を一度だけ狭くしてみて、その前後で感じ方がどう変わるか見てみる',
+  scene: '場所か空気を一度だけ少し変えてみて、その前後で感じ方がどう変わるか見てみる',
 };
 
 const FOCUS_SCENE_PREFIX_JA: Readonly<Record<ReplyThemeId, string>> = {
-  work: '仕事や物事の進め方に関係する場面なら、',
-  relation: '人との距離や関わり方に関係する場面なら、',
-  fatigue: '疲れたときの戻り方に関係する場面なら、',
-  tendency: '判断や迷いが出るときなら、',
+  work: '仕事や物事を進める場面なら、',
+  relation: '人との距離や関わり方が気になる場面なら、',
+  fatigue: '疲れを感じる場面なら、',
+  tendency: '判断や迷いが出る場面なら、',
   report: '',
 };
 
@@ -302,9 +302,9 @@ function buildCurrentExpressionSummaryJa(axes: ExpressionAxes): string {
 }
 
 function buildSmallActionJa(axes: ExpressionAxes, focusTheme: ReplyThemeId): string {
-  const base = `今日は、${RECOVERY_ACTION_PHRASE[axes.recovery]}ことを一つだけ試してみてください。`;
+  const body = RECOVERY_ACTION_PHRASE[axes.recovery];
   const prefix = FOCUS_SCENE_PREFIX_JA[focusTheme];
-  return prefix ? `${prefix}${base}` : base;
+  return prefix ? `${prefix}今日は${body}。` : `今日は、${body}。`;
 }
 
 function summarizeAlign(items: readonly AlignDivergeItem[]): string {

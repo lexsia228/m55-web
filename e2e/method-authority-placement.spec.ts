@@ -161,17 +161,14 @@ test.describe('M55 method placements', () => {
     await openFreeResult(page);
 
     const methodBlock = page.getByTestId('m55-method-core-free-result');
-    const innerDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
+    const methodDisclosure = methodBlock.locator('xpath=ancestor::details[1]');
     const outerDisclosure = methodBlock.locator('xpath=ancestor::details[2]');
 
-    await expect(innerDisclosure).toHaveCount(1);
-    await expect(outerDisclosure).toHaveCount(1);
+    await expect(methodDisclosure).toHaveCount(1);
+    await expect(outerDisclosure).toHaveCount(0);
 
-    await outerDisclosure.locator(':scope > summary').click();
-    await expect(outerDisclosure).toHaveJSProperty('open', true);
-
-    await innerDisclosure.locator(':scope > summary').click();
-    await expect(innerDisclosure).toHaveJSProperty('open', true);
+    await methodDisclosure.locator(':scope > summary').click();
+    await expect(methodDisclosure).toHaveJSProperty('open', true);
 
     await expect(methodBlock).toBeVisible({ timeout: 30_000 });
     const order = await page.evaluate(() => {

@@ -604,11 +604,66 @@ export default function CoreEssencePanel() {
                 data-m55-print-hide
               >
                 <a href="#core-lead">結果</a>
-                <a href="#core-summary">背景</a>
+                <a href="#core-summary">土台と今</a>
                 <a href="#core-scenes">場面</a>
                 <a href="#core-paid">プレミアム</a>
                 <a href="#core-share">共有</a>
               </nav>
+              {depthAnalysis ? (
+                <>
+                  <div className={CoreExperienceStyles.freeResultRevealItem}>
+                    <CoreFreeResultSummaryHub
+                      depth={depthAnalysis}
+                      divergeSummaryJa={composition.synthesis.divergeSummaryJa}
+                      alignSummaryJa={composition.synthesis.alignSummaryJa}
+                    />
+                  </div>
+                  <div className={CoreExperienceStyles.freeResultRevealItem}>
+                    <CoreFreeResultScenesSection
+                      depth={depthAnalysis}
+                      smallActionJa={composition.synthesis.smallActionJa}
+                      onRequestReanswer={handleRequestReanswer}
+                    />
+                  </div>
+                </>
+              ) : null}
+
+              {depthAnalysis ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <details className={CoreExperienceStyles.freeDepthMore}>
+                    <summary>読みの組み立て</summary>
+                    <CoreMethodCompact />
+                  </details>
+                </div>
+              ) : null}
+
+              {depthAnalysis ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <CoreEntryReportCTASection
+                    depth={depthAnalysis}
+                    traitName={shareCard?.traitNameJa ?? 'あなた'}
+                  />
+                </div>
+              ) : null}
+
+              {freeNarrativeContext && sealed.kind === 'ready' ? (
+                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`}>
+                  <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
+                    <ShareCardChooser
+                      input={{
+                        birthDate: sealed.profile.birthDate,
+                        stemLaneIndex: sealed.result.stemLaneIndex,
+                        freeAnswerSet: committedAnswers,
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : shareCard ? (
+                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`} id="core-share">
+                  <CoreFreeResultShareCTA card={shareCard} />
+                </div>
+              ) : null}
+
               <div className={CoreExperienceStyles.freeResultRevealItem} data-m55-print-hide>
                 <p className={CoreExperienceStyles.freeDobSummary} data-testid="m55-free-result-dob-summary">
                   {dobSummaryJa}
@@ -626,20 +681,6 @@ export default function CoreEssencePanel() {
                 </p>
               </div>
 
-              {depthAnalysis ? (
-                <>
-                  <div className={CoreExperienceStyles.freeResultRevealItem}>
-                    <CoreFreeResultSummaryHub depth={depthAnalysis} />
-                  </div>
-                  <div className={CoreExperienceStyles.freeResultRevealItem}>
-                    <CoreFreeResultScenesSection
-                      depth={depthAnalysis}
-                      onRequestReanswer={handleRequestReanswer}
-                    />
-                  </div>
-                </>
-              ) : null}
-
               <details className={CoreExperienceStyles.freeResultFollowOn}>
                 <summary>この先の読み方とつながり</summary>
                 <div className={CoreExperienceStyles.freeResultFollowOnBody}>
@@ -654,15 +695,6 @@ export default function CoreEssencePanel() {
                   <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
                     <PersonalFreeManualBlock manual={freeNarrativeContext.narrative.manualSpec} />
                   </div>
-                </div>
-              ) : null}
-
-              {depthAnalysis ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <details className={CoreExperienceStyles.freeDepthMore}>
-                    <summary>読みの組み立て</summary>
-                    <CoreMethodCompact />
-                  </details>
                 </div>
               ) : null}
 
@@ -696,33 +728,6 @@ export default function CoreEssencePanel() {
               ) : null}
                 </div>
               </details>
-
-              {depthAnalysis ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreEntryReportCTASection
-                    depth={depthAnalysis}
-                    traitName={shareCard?.traitNameJa ?? 'あなた'}
-                  />
-                </div>
-              ) : null}
-
-              {freeNarrativeContext && sealed.kind === 'ready' ? (
-                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`}>
-                  <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
-                    <ShareCardChooser
-                      input={{
-                        birthDate: sealed.profile.birthDate,
-                        stemLaneIndex: sealed.result.stemLaneIndex,
-                        freeAnswerSet: committedAnswers,
-                      }}
-                    />
-                  </div>
-                </div>
-              ) : shareCard ? (
-                <div className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.coreShareAnchor}`} id="core-share">
-                  <CoreFreeResultShareCTA card={shareCard} />
-                </div>
-              ) : null}
 
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>

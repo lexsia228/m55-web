@@ -240,4 +240,82 @@ describe('buildFreeFiveViewCompositionV1 — CATEGORY-2-M55-FREE-PERSONAL-RESULT
     assert.equal(composition.value.meta.selectorVersion, 'selectors-v1');
     assert.equal(composition.value.meta.fieldNamingVersion, 'gmfn-v2');
   });
+
+  it('covers all 15 small-action combinations as one low-stakes observation', () => {
+    const recoveries = {
+      pause: 'free.recovery_style.pause_short',
+      shrink: 'free.recovery_style.shrink_task',
+      scene: 'free.recovery_style.change_scene',
+    } as const;
+    const themes = {
+      work: 'free.primary_theme.work',
+      relation: 'free.primary_theme.relation',
+      fatigue: 'free.primary_theme.fatigue',
+      tendency: 'free.primary_theme.tendency',
+      report: 'free.primary_theme.report_preview',
+    } as const;
+    const expected: Record<string, string> = {
+      'work:pause':
+        '仕事や物事を進める場面なら、今日は短い休みを一度だけ挟んでみて、その前後で感じ方がどう変わるか見てみる。',
+      'work:shrink':
+        '仕事や物事を進める場面なら、今日は見る範囲を一度だけ狭くしてみて、その前後で感じ方がどう変わるか見てみる。',
+      'work:scene':
+        '仕事や物事を進める場面なら、今日は場所か空気を一度だけ少し変えてみて、その前後で感じ方がどう変わるか見てみる。',
+      'relation:pause':
+        '人との距離や関わり方が気になる場面なら、今日は短い休みを一度だけ挟んでみて、その前後で感じ方がどう変わるか見てみる。',
+      'relation:shrink':
+        '人との距離や関わり方が気になる場面なら、今日は見る範囲を一度だけ狭くしてみて、その前後で感じ方がどう変わるか見てみる。',
+      'relation:scene':
+        '人との距離や関わり方が気になる場面なら、今日は場所か空気を一度だけ少し変えてみて、その前後で感じ方がどう変わるか見てみる。',
+      'fatigue:pause':
+        '疲れを感じる場面なら、今日は短い休みを一度だけ挟んでみて、その前後で感じ方がどう変わるか見てみる。',
+      'fatigue:shrink':
+        '疲れを感じる場面なら、今日は見る範囲を一度だけ狭くしてみて、その前後で感じ方がどう変わるか見てみる。',
+      'fatigue:scene':
+        '疲れを感じる場面なら、今日は場所か空気を一度だけ少し変えてみて、その前後で感じ方がどう変わるか見てみる。',
+      'tendency:pause':
+        '判断や迷いが出る場面なら、今日は短い休みを一度だけ挟んでみて、その前後で感じ方がどう変わるか見てみる。',
+      'tendency:shrink':
+        '判断や迷いが出る場面なら、今日は見る範囲を一度だけ狭くしてみて、その前後で感じ方がどう変わるか見てみる。',
+      'tendency:scene':
+        '判断や迷いが出る場面なら、今日は場所か空気を一度だけ少し変えてみて、その前後で感じ方がどう変わるか見てみる。',
+      'report:pause':
+        '今日は、短い休みを一度だけ挟んでみて、その前後で感じ方がどう変わるか見てみる。',
+      'report:shrink':
+        '今日は、見る範囲を一度だけ狭くしてみて、その前後で感じ方がどう変わるか見てみる。',
+      'report:scene':
+        '今日は、場所か空気を一度だけ少し変えてみて、その前後で感じ方がどう変わるか見てみる。',
+    };
+
+    const seen = new Set<string>();
+    for (const [recovery, recoveryId] of Object.entries(recoveries)) {
+      for (const [theme, themeId] of Object.entries(themes)) {
+        const input = {
+          ...BASE,
+          freeAnswerSet: freeSet({
+            'free.recovery_style': recoveryId,
+            'free.primary_theme': themeId,
+          }),
+        };
+        const built = buildFreeFiveViewCompositionV1(input);
+        const again = buildFreeFiveViewCompositionV1(input);
+        assert.equal(built.ok && again.ok, true, `${theme}:${recovery}`);
+        if (!built.ok || !again.ok) return;
+        const action = built.value.synthesis.smallActionJa;
+        assert.equal(action, again.value.synthesis.smallActionJa);
+        assert.equal(action, expected[`${theme}:${recovery}`]);
+        assert.match(action, /一度だけ/);
+        assert.match(action, /見てみる/);
+        assert.equal(action.split('。').filter((part) => part.trim().length > 0).length, 1);
+        assert.doesNotMatch(
+          action,
+          /必ず|改善|治る|治療|診断|療法|回復|整える|戻し方|正解|してください|しましょう/,
+        );
+        assert.doesNotMatch(action, /してから次に|してから戻|まず.+次に|1\.|２、/);
+        assert.doesNotMatch(action, /free\.|strain__|selectors-v|fp-v1/);
+        seen.add(action);
+      }
+    }
+    assert.equal(seen.size, 15);
+  });
 });
