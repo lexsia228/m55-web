@@ -422,6 +422,30 @@
   }
 }
 
+/* 320-class only. 390px and up keep the ≤959px Premium CTA rule above. */
+@media (max-width: 359px) {
+  .header {
+    gap: 4px;
+    padding-left: max(6px, env(safe-area-inset-left, 6px));
+    padding-right: max(6px, env(safe-area-inset-right, 6px));
+  }
+
+  .mobilePremiumLink {
+    flex-shrink: 0;
+    max-width: none;
+    min-height: 44px;
+    padding: 6px;
+    font-size: 11.5px;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+
+  .menuTrigger {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
 .menuTrigger:focus-visible,
 .mobileFreeLink:focus-visible,
 .mobilePremiumLink:focus-visible {

@@ -3866,6 +3866,15 @@
   margin-top: 1.25rem;
 }
 
+/* 320-class only. Scenes heading is 10 characters; shared 24px + 0.028em tracking
+   leaves the last character on its own line inside the measured card. */
+@media (max-width: 359px) {
+  :global(#core-scenes).freeFiveViewSection .sectionTitle {
+    font-size: 23px;
+    letter-spacing: 0;
+  }
+}
+
 .freeQuestionnaireSection {
   max-width: 36rem;
 }
