@@ -382,6 +382,7 @@
   }
 
   .mobilePremiumLink {
+    min-height: 44px;
     color: rgba(255, 250, 241, 0.94);
     background: rgba(107, 95, 168, 0.42);
     border: 1px solid rgba(255, 255, 255, 0.16);
@@ -422,8 +423,8 @@
   }
 }
 
-/* 320-class only. 390px and up keep the ≤959px Premium CTA rule above. */
-@media (max-width: 359px) {
+/* ≤374px uses this compact Premium fit. 375px and up keep the ≤959px type size. */
+@media (max-width: 374px) {
   .header {
     gap: 4px;
     padding-left: max(6px, env(safe-area-inset-left, 6px));
@@ -443,6 +444,15 @@
   .menuTrigger {
     padding-left: 8px;
     padding-right: 8px;
+  }
+}
+
+/* 375–430 only. 42vw still clips the 12.5px Premium label here; ≤374px keeps the compact block above. */
+@media (min-width: 375px) and (max-width: 430px) {
+  .mobilePremiumLink {
+    flex-shrink: 0;
+    max-width: 13rem;
+    min-height: 44px;
   }
 }
 
