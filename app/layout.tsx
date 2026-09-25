@@ -58,6 +58,10 @@ const operatorJsonLd = {
     email: M55_PUBLIC_SUPPORT_EMAIL,
     availableLanguage: ["ja"],
   },
+  sameAs: [
+    "https://note.com/m55jp",
+    "https://x.com/M55log",
+  ],
 };
 
 const websiteJsonLd = {

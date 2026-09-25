@@ -3866,6 +3866,15 @@
   margin-top: 1.25rem;
 }
 
+/* 320-class only. Scenes heading is 10 characters; shared 24px + 0.028em tracking
+   leaves the last character on its own line inside the measured card. */
+@media (max-width: 359px) {
+  :global(#core-scenes).freeFiveViewSection .sectionTitle {
+    font-size: 23px;
+    letter-spacing: 0;
+  }
+}
+
 .freeQuestionnaireSection {
   max-width: 36rem;
 }
@@ -4691,10 +4700,58 @@
   background: rgba(255, 255, 255, 0.78);
 }
 
+.freeOnceActionTitle {
+  margin: 0 0 0.35rem;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.72);
+}
+
+.freeOnceActionBody {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: rgba(28, 24, 48, 0.9);
+}
+
+.freeContrastGroup {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem 1.25rem;
+  margin-top: 0.85rem;
+}
+
+.freeContrastRelation {
+  margin: 0.9rem 0 0;
+  font-size: 0.94rem;
+  line-height: 1.75;
+  color: rgba(40, 36, 58, 0.88);
+}
+
+.freeContrastTrust {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: rgba(62, 52, 88, 0.72);
+}
+
 @media (min-width: 720px) {
   .freeDepthConditionGrid {
     grid-template-columns: 1fr 1fr;
     align-items: stretch;
+  }
+
+  .freeDepthConditionGridSingle {
+    grid-template-columns: 1fr;
+  }
+
+  .freeContrastGroup {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .freeContrastGroupSingle {
+    grid-template-columns: 1fr;
   }
 }
 

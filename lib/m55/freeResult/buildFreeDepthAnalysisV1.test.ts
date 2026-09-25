@@ -228,21 +228,34 @@ describe('free result depth UI / questionnaire polish guards', () => {
     );
   });
 
-  it('summary hub is concise; scenes show one primary scene', () => {
+  it('summary hub is contrast-first; scenes wire one light action outside depth prose', () => {
     const hub = read('components/core/CoreFreeResultSummaryHub.tsx');
     const scenes = read('components/core/CoreFreeResultScenesSection.tsx');
     const panel = read('components/core/CoreEssencePanel.tsx');
+    const depthOwner = read('lib/m55/freeResult/buildFreeDepthAnalysisV1.ts');
+    assert.match(hub, /birthBaseJa/);
+    assert.match(hub, /currentExpressionJa/);
+    assert.match(hub, /divergeSummaryJa/);
+    assert.match(hub, /alignSummaryJa/);
+    assert.match(hub, /trustCueJa/);
     assert.match(hub, /conciseWhyJa/);
-    assert.match(hub, /なぜそう見えるか/);
+    assert.match(hub, /回答から見えた理由/);
+    assert.doesNotMatch(hub, /primarySceneJa/);
     assert.doesNotMatch(hub, /今回の結論/);
     assert.doesNotMatch(hub, /力が出やすい条件/);
     assert.match(scenes, /primarySceneJa/);
+    assert.match(scenes, /strengthConditionsJa/);
+    assert.match(scenes, /loadConditionsJa/);
     assert.doesNotMatch(scenes, /無料で読める範囲/);
     assert.match(panel, /CoreFreeResultScenesSection/);
     assert.doesNotMatch(panel, /CoreFiveViewResultSection/);
     assert.doesNotMatch(hub, /保存版/);
-    assert.doesNotMatch(scenes, /次に一度だけ試すこと/);
-    assert.doesNotMatch(scenes, /m55-free-once-action/);
-    assert.doesNotMatch(panel, /composition\.synthesis\.smallActionJa/);
+    assert.match(scenes, /m55-free-once-action/);
+    assert.match(scenes, /smallActionJa/);
+    const actionIdx = scenes.indexOf('m55-free-once-action');
+    const questionIdx = scenes.indexOf('premiumOpenQuestionJa');
+    assert.ok(actionIdx >= 0 && questionIdx > actionIdx);
+    assert.match(panel, /composition\.synthesis\.smallActionJa/);
+    assert.doesNotMatch(depthOwner, /smallActionJa/);
   });
 });
