@@ -117,4 +117,6 @@ ops/runs/local/
 # Allowlist: track Control Plane prompts only (does not un-ignore other *.txt)
 !prompts/ops/*.txt
 
+# IndexNow ownership verification key — public, intentionally tracked
+!public/7aa1f90553ee9ca92abdfd5eb3607478.txt
 .vercel
