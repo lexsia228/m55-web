@@ -93,7 +93,10 @@ export const PROTECTED_API_PATHS = [
   '/api/room/core/send',
   '/api/creator/application',
   '/api/creator/portal',
+  '/api/creator/compliance/content',
+  '/api/creator/compliance/appeal',
   '/api/internal/creator-review',
+  '/api/internal/creator-compliance',
   '/api/m55/attribution/creator-touch/continue',
 ] as const;
 
