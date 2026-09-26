@@ -158,7 +158,7 @@ describe('routeAccessContract — exhaustive inventory', () => {
 
   it('discovers the current application route count', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 81);
+    assert.equal(templates.length, 84);
   });
 });
 
@@ -171,8 +171,8 @@ describe('routeAccessContract — protected regression', () => {
     }
   });
 
-  it('keeps all 13 protected static Route Handlers protected', () => {
-    assert.equal(PROTECTED_API_PATHS.length, 13);
+  it('keeps all 16 protected static Route Handlers protected', () => {
+    assert.equal(PROTECTED_API_PATHS.length, 16);
     for (const path of PROTECTED_API_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
@@ -520,7 +520,8 @@ describe('routeAccessContract — middleware boundary', () => {
     }
     for (const protectedRoute of [
       '/internal/creator-review', '/api/creator/application', '/api/creator/portal',
-      '/api/internal/creator-review',
+      '/api/creator/compliance/content', '/api/creator/compliance/appeal',
+      '/api/internal/creator-review', '/api/internal/creator-compliance',
     ]) {
       assert.doesNotMatch(src, new RegExp(`['"]${protectedRoute.replace(/\//g, '\\/')}[^'"]*['"]`));
     }
