@@ -137,7 +137,7 @@ describe('dtrSavedReportAsHubUx', () => {
     assert.equal((summaryBlock.match(/<PremiumNarrativeClose/g) ?? []).length, 1);
   });
 
-  it('uses the personal reading map as the sole controlled four-chapter selector', () => {
+  it('keeps the chapter map canonical and limits question-first entry to existing panels', () => {
     const hub = readFileSync(HUB_TSX, 'utf8');
     const reader = readFileSync(READER_TSX, 'utf8');
     const copy = readFileSync(PAID_COPY, 'utf8');
@@ -181,6 +181,30 @@ describe('dtrSavedReportAsHubUx', () => {
     assert.match(reader, /aria-expanded=\{isActive\}/);
     assert.match(reader, /aria-controls=\{`drawer-hub-body-\$\{panel\}`\}/);
     assert.equal((reader.match(/data-testid="m55-personal-reading-depth-map"/g) ?? []).length, 1);
+
+    const hero = reader.slice(
+      reader.indexOf('function PremiumHero'),
+      reader.indexOf('function ReportFooterMetaCard'),
+    );
+    const introIdx = hero.indexOf('<PremiumIntroValueBand');
+    const guideIdx = hero.indexOf('<QuestionFirstPaidRevealGuide');
+    const mapIdx = hero.indexOf('<PersonalReadingDepthMap');
+    const drawerIdx = hero.indexOf('<PremiumDrawerHub');
+    assert.ok(introIdx >= 0 && guideIdx > introIdx, 'question-first guide follows the intro band');
+    assert.ok(mapIdx > guideIdx, 'chapter map follows the question-first guide');
+    assert.ok(drawerIdx > mapIdx, 'drawer hub follows the chapter map');
+    assert.equal((hero.match(/<PersonalReadingDepthMap/g) ?? []).length, 1);
+    assert.ok(reader.includes('projectPaidQuestionFirstGuideV1'));
+    assert.match(reader, /onClick=\{\(\) => onSelectPanel\(entry\.panel\)\}/);
+    const guideFn = reader.slice(
+      reader.indexOf('function QuestionFirstPaidRevealGuide'),
+      reader.indexOf('function PremiumHero'),
+    );
+    assert.equal(guideFn.includes('chapter-1'), false);
+    assert.equal(guideFn.includes('setOpenPanel'), false);
+    assert.equal(guideFn.includes('data-m55-dtr-chapter-map'), false);
+    assert.equal(hub.includes('QuestionFirstPaidRevealGuide'), false);
+
     assert.ok(reader.includes("case 'summary':"));
     assert.ok(reader.includes("case 'consult':"));
     assert.ok(reader.includes('ChapterConsultNextAction'));

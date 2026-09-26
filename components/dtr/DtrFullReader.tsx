@@ -73,6 +73,10 @@ import ConsultRoom from './ConsultRoom';
 import SavedSnapshotNotice from './SavedSnapshotNotice';
 import PremiumNarrativeClose from '../narrative/PremiumNarrativeClose';
 import type { PremiumPurchasedSemanticProjectionV1 } from '../../lib/m55/narrative/buildPremiumPurchasedSemanticProjectionV1';
+import {
+  projectPaidQuestionFirstGuideV1,
+  type PaidQuestionFirstGuideV1,
+} from '../../lib/m55/paidResult/projectPaidQuestionFirstGuideV1';
 import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
 import { PREMIUM_DEV_FIXTURE_READY_PROP } from '../../lib/m55/commercialUx/premiumExperience/premiumExperienceMountContract';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
@@ -816,6 +820,65 @@ function PersonalReadingDepthMap({
   );
 }
 
+/** Thematic front door into existing chapter panels. Display projection only. */
+function QuestionFirstPaidRevealGuide({
+  guide,
+  openPanel,
+  onSelectPanel,
+}: {
+  guide: PaidQuestionFirstGuideV1;
+  openPanel: DrawerHubOpenPanel;
+  onSelectPanel: (panel: DrawerHubOpenPanel) => void;
+}) {
+  return (
+    <section
+      className={styles.questionFirstGuide}
+      aria-label={guide.titleJa}
+      data-testid="m55-question-first-paid-reveal"
+      data-m55-question-first-reveal={guide.reveal}
+      data-m55-visual-subsystem="self"
+    >
+      <p className={styles.questionFirstOverline}>{guide.overlineJa}</p>
+      <h2 className={styles.questionFirstTitle}>{guide.titleJa}</h2>
+      <p className={styles.questionFirstLead}>{guide.leadJa}</p>
+      {guide.revealNoteJa ? (
+        <p className={styles.questionFirstReveal}>{guide.revealNoteJa}</p>
+      ) : null}
+      <ol className={styles.questionFirstList}>
+        {guide.entries.map((entry) => {
+          const isActive = openPanel === entry.panel;
+          return (
+            <li key={entry.id}>
+              <button
+                type="button"
+                className={`${styles.questionFirstEntry}${isActive ? ` ${styles.questionFirstEntryActive}` : ''}`}
+                onClick={() => onSelectPanel(entry.panel)}
+                aria-current={isActive ? 'true' : undefined}
+                aria-controls={`drawer-hub-body-${entry.panel}`}
+              >
+                <span className={styles.questionFirstHeading}>
+                  <span className={styles.questionFirstTopic}>{entry.labelJa}</span>
+                  <span className={styles.questionFirstDestination}>{entry.chapterLabelJa}</span>
+                </span>
+                <span className={styles.questionFirstSublabel}>{entry.sublabelJa}</span>
+                {entry.personalizedFocusLinesJa.length > 0 ? (
+                  <span className={styles.questionFirstFocusList}>
+                    {entry.personalizedFocusLinesJa.map((line, index) => (
+                      <span key={`${entry.id}-${index}`} className={styles.questionFirstFocusLine}>
+                        {line}
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    A. Premium hero — two-column feel: left copy stack + right type image (absolute).
    v0-inspired: brand line, badge row, Blueprint h1, inset type card, dense meta grid.
@@ -829,6 +892,7 @@ function PremiumHero({
   nickname,
   birthDate,
   relationBody,
+  premiumProjection,
   openPanel,
   onSelectPanel,
   renderPanelBody,
@@ -840,10 +904,15 @@ function PremiumHero({
   nickname: string;
   birthDate: string;
   relationBody?: string;
+  premiumProjection: PremiumPurchasedSemanticProjectionV1 | null;
   openPanel: DrawerHubOpenPanel;
   onSelectPanel: (panel: DrawerHubOpenPanel) => void;
   renderPanelBody: (panel: DrawerHubPanelId) => ReactNode;
 }) {
+  const questionFirstGuide = useMemo(
+    () => projectPaidQuestionFirstGuideV1(premiumProjection),
+    [premiumProjection],
+  );
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
   const nick = nickname.trim();
   const blueprintName = nick || 'You';
@@ -901,6 +970,12 @@ function PremiumHero({
       </div>
 
       <PremiumIntroValueBand stemIdx={stemIdx} nickname={nickname} relationBody={relationBody} />
+
+      <QuestionFirstPaidRevealGuide
+        guide={questionFirstGuide}
+        openPanel={openPanel}
+        onSelectPanel={onSelectPanel}
+      />
 
       <PersonalReadingDepthMap
         nickname={nickname}
@@ -3463,6 +3538,7 @@ function DtrFullReaderCore({
           nickname={view.nickname}
           birthDate={view.birthDate}
           relationBody={sec('s6_relation')?.body}
+          premiumProjection={premiumProjection}
           openPanel={openPanel}
           onSelectPanel={selectPanel}
           renderPanelBody={renderDrawerPanelBody}
