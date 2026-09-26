@@ -1,0 +1,74 @@
+/**
+ * /self-understanding — route-local editorial rhythm.
+ * Typography roles come from the shared PUBLIC_EDITORIAL utilities.
+ */
+
+.page {
+  box-sizing: border-box;
+  padding: 48px clamp(20px, 3vw, 32px) 56px;
+}
+
+.intro {
+  margin: 0 0 8px;
+}
+
+.title {
+  margin: 0 0 20px;
+}
+
+.copy {
+  margin: 0 0 0.9rem;
+}
+
+.copy:last-child {
+  margin-bottom: 0;
+}
+
+.preserveLines {
+  white-space: pre-line;
+}
+
+.subhead {
+  margin: 1.35rem 0 0.45rem;
+  font-family: var(--m55-font-sans);
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--m55-text-strong);
+}
+
+.list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.list li + li {
+  margin-top: 0.55rem;
+}
+
+.exercise {
+  margin: 0.35rem 0 0;
+  padding: 1.1rem 1.15rem 1.15rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 1rem 0 0;
+}
+
+.link {
+  color: var(--m55-purple);
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  color: var(--m55-text-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}

@@ -430,6 +430,9 @@ export default function HomePanel() {
             <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
               {homeCopy.mechanismHowLinkJa}
             </Link>
+            <Link href="/self-understanding" className={styles.textLink}>
+              自己理解について読む
+            </Link>
           </nav>
           <div className={styles.methodModelStage}>
             <HomeMethodModel />

@@ -21,6 +21,11 @@ const SITEMAP_EXPECTED = [
   '/ten-views',
   '/synastry',
   '/support',
+  '/legal/tokushoho',
+  '/legal/privacy',
+  '/legal/refund',
+  '/legal/terms',
+  '/self-understanding',
 ] as const;
 
 describe('G4 organic discovery — redirects', () => {
@@ -111,6 +116,7 @@ describe('G4 organic discovery — metadata identities and canonicals', () => {
       ['app/dtr/lp/page.tsx', '/dtr/lp'],
       ['app/how-m55-works/page.tsx', '/how-m55-works'],
       ['app/ten-views/page.tsx', '/ten-views'],
+      ['app/self-understanding/page.tsx', '/self-understanding'],
       ['app/synastry/page.tsx', '/synastry'],
       ['app/support/page.tsx', '/support'],
     ];
@@ -136,6 +142,7 @@ describe('G4 organic discovery — share images', () => {
     ['app/dtr/lp/page.tsx', '/dtr/lp'],
     ['app/how-m55-works/page.tsx', '/how-m55-works'],
     ['app/ten-views/page.tsx', '/ten-views'],
+    ['app/self-understanding/page.tsx', '/self-understanding'],
     ['app/synastry/page.tsx', '/synastry'],
   ];
 

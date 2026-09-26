@@ -15,6 +15,7 @@ const PUBLIC_DISCOVERY_PATHS = [
   "/legal/privacy",
   "/legal/refund",
   "/legal/terms",
+  "/self-understanding",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
