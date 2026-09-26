@@ -103,6 +103,7 @@ const PUBLIC_PAGE_SAMPLES = [
   '/my',
   '/how-m55-works',
   '/ten-views',
+  '/self-understanding',
   '/creator',
   '/creator/apply',
   '/creator/portal',
@@ -157,7 +158,7 @@ describe('routeAccessContract — exhaustive inventory', () => {
 
   it('discovers the current application route count', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 83);
+    assert.equal(templates.length, 84);
   });
 });
 

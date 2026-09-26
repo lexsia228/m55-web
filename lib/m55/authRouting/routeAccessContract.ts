@@ -27,6 +27,7 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   '/my',
   '/how-m55-works',
   '/ten-views',
+  '/self-understanding',
   '/creator',
   '/creator/apply',
   '/creator/portal',
