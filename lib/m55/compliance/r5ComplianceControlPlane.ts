@@ -6,7 +6,6 @@ import {
   scanContentComplianceV1,
   type ContentObservationKind,
   type R5HeuristicRiskSignal,
-  type R5ObjectiveReasonCode,
 } from './r5ComplianceControlPlaneContract';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -52,8 +51,6 @@ export async function registerOrRescanContentV1(input: {
     p_body_text: input.bodyText,
     p_disclosure_state: scan.disclosureState,
     p_claim_scan_state: scan.claimScanState,
-    p_disposition: scan.disposition,
-    p_reason_code: scan.reasonCode,
     p_rule_version: scan.ruleVersion,
   });
   if (error || !data) throw new Error('CONTENT_RECORD_FAILED');
@@ -95,9 +92,8 @@ export async function recordFraudGraphEdgeV1(input: {
   fromRef: string;
   toKind: string;
   toRef: string;
-  relationClass: 'OBJECTIVE' | 'HEURISTIC_RISK';
-  riskSignalClass: R5HeuristicRiskSignal | null;
-  objectiveReasonCode: R5ObjectiveReasonCode | null;
+  relationClass: 'HEURISTIC_RISK';
+  riskSignalClass: R5HeuristicRiskSignal;
   evidenceReference: string;
 }): Promise<Record<string, unknown>> {
   const db = getSupabaseAdmin() as any;
@@ -110,7 +106,7 @@ export async function recordFraudGraphEdgeV1(input: {
     p_to_ref: input.toRef,
     p_relation_class: input.relationClass,
     p_risk_signal_class: input.riskSignalClass,
-    p_objective_reason_code: input.objectiveReasonCode,
+    p_objective_reason_code: null,
     p_evidence_reference: input.evidenceReference,
   });
   if (error || !data) throw new Error('GRAPH_EDGE_RECORD_FAILED');

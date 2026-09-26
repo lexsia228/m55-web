@@ -173,7 +173,7 @@ describe('r5ComplianceControlPlane.local — disclosure boundary', () => {
     for (const text of ['PR｜M55を紹介します', '広告｜M55を紹介します', 'アフィリエイト｜M55を紹介します', '#ad M55を紹介します']) {
       assert.equal(
         scanContentComplianceV1({ observationKind: 'PRESENT', bodyText: text }, M55_PROHIBITED_CLAIMS).disposition,
-        'AUTO_PASS',
+        'AUTO_HOLD',
       );
     }
   });
@@ -270,8 +270,8 @@ if (safety.ok) {
         const recorded = await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, null, 'web', 'https://example.com/post/1', 'PRESENT',
-             '広告 アフィリエイトリンクを含みます。', 'PRESENT', 'CLEAN',
-             'AUTO_HOLD', 'PROHIBITED_CLAIM_MATCH', 'm55.r5.compliance.content_scan.v1'
+             '広告 アフィリエイトリンクを含みます。', 'PRESENT', 'PROHIBITED_MATCH',
+             'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId],
         );
@@ -577,7 +577,21 @@ if (safety.ok) {
         );
         assert.equal(multipleDecision.rows[0].reason_code, 'MULTIPLE_HEURISTIC_RISK_SIGNALS');
         assert.equal(multipleDecision.rows[0].evidence_reference, `fraud_graph_scope:${locked.attemptId}`);
-        await recordEdge('OBJECTIVE', null, 'CONFIRMED_CIRCULAR_ABUSE', 'objective-evidence-1');
+        await expectError(
+          admin,
+          () => recordEdge('OBJECTIVE', null, 'CONFIRMED_CIRCULAR_ABUSE', 'objective-evidence-1'),
+          /GRAPH_EDGE_OBJECTIVE_INGEST_FORBIDDEN/,
+        );
+        const beforeTerminal = await selectAsTableOwner(
+          admin,
+          `select row_to_json(a)::text as snapshot from public.m55_r5_attribution_purchase_attempts a where purchase_attempt_id = $1`,
+          [locked.attemptId],
+        );
+        assert.equal(beforeTerminal.rows[0].snapshot, locked.snapshot);
+        await admin.query(
+          `select public.m55_r5_attribution_terminalize_purchase_attempt_v1($1, 'CANCELLED')`,
+          [locked.attemptId],
+        );
         const objective = await admin.query(
           `select public.m55_r5_compliance_decide_fraud_v1($1, $2, false) as result`,
           [locked.creatorId, locked.attemptId],
@@ -589,8 +603,11 @@ if (safety.ok) {
           `select reason_code, evidence_reference from public.m55_r5_compliance_decisions where decision_id = $1`,
           [objective.rows[0].result.decision_id],
         );
-        assert.equal(objectiveDecision.rows[0].reason_code, 'CONFIRMED_CIRCULAR_ABUSE');
-        assert.equal(objectiveDecision.rows[0].evidence_reference, 'objective-evidence-1');
+        assert.equal(objectiveDecision.rows[0].reason_code, 'NONEXISTENT_OR_FAILED_PAYMENT');
+        assert.equal(
+          objectiveDecision.rows[0].evidence_reference,
+          `r5.attempt:${locked.attemptId}:derived_objective=NONEXISTENT_OR_FAILED_PAYMENT`,
+        );
         const cancelCases = await selectAsTableOwner(
           admin,
           `select count(*)::int as n from public.m55_r5_compliance_cases
@@ -602,29 +619,22 @@ if (safety.ok) {
           `select public.m55_r5_compliance_record_content_v1(
              $1, null, 'web', 'https://example.com/post/pass', 'PRESENT',
              '広告 アフィリエイトリンクを含みます。', 'PRESENT', 'CLEAN',
-             'AUTO_PASS', 'CONTENT_CHECKS_SATISFIED', 'm55.r5.compliance.content_scan.v1'
+             'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [locked.creatorId],
         );
-        assert.equal(passed.rows[0].result.machine_exception_case_id, null);
-        await expectError(
+        assert.equal(passed.rows[0].result.disposition, 'AUTO_HOLD');
+        assert.equal(passed.rows[0].result.reason_code, 'TRUSTED_OBSERVATION_REQUIRED');
+        assert.equal(passed.rows[0].result.content_provenance, 'CREATOR_SUPPLEMENTAL_UNTRUSTED');
+        assert.notEqual(passed.rows[0].result.machine_exception_case_id, null);
+        const winnerFields = await selectAsTableOwner(
           admin,
-          () => admin.query(
-            `select public.m55_r5_compliance_creator_case_v1(
-               $1, 'OPEN_APPEAL', null, $2, null, null, 'appeal pass', 'creator evidence'
-             )`,
-            [locked.creatorId, passed.rows[0].result.decision_id],
-          ),
-          /DECISION_NOT_APPEALABLE/,
-        );
-        const queue = await admin.query(`select public.m55_r5_compliance_list_open_cases_v1() as queue`);
-        assert.deepEqual(queue.rows[0].queue, []);
-        const after = await selectAsTableOwner(
-          admin,
-          `select row_to_json(a)::text as snapshot from public.m55_r5_attribution_purchase_attempts a where purchase_attempt_id = $1`,
+          `select decision_kind, creator_economic_identity_id::text as creator
+           from public.m55_r5_attribution_purchase_attempts where purchase_attempt_id = $1`,
           [locked.attemptId],
         );
-        assert.equal(after.rows[0].snapshot, locked.snapshot);
+        assert.equal(winnerFields.rows[0].decision_kind, 'CREATOR_WINNER');
+        assert.equal(winnerFields.rows[0].creator, locked.creatorId);
         const attemptsAfter = await selectAsTableOwner(
           admin,
           `select count(*)::int as n from public.m55_r5_attribution_purchase_attempts`,
@@ -645,7 +655,7 @@ if (safety.ok) {
           `select public.m55_r5_compliance_record_content_v1(
              $1, null, 'web', 'https://example.com/post/hold', 'PRESENT',
              'M55 PREMIUM REPORT を紹介します', 'MISSING', 'CLEAN',
-             'AUTO_HOLD', 'DISCLOSURE_MISSING', 'm55.r5.compliance.content_scan.v1'
+             'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId],
         );
@@ -657,19 +667,20 @@ if (safety.ok) {
           `select public.m55_r5_compliance_record_content_v1(
              $1, $2, 'web', 'https://example.com/post/hold', 'PRESENT',
              '広告｜M55を紹介します', 'PRESENT', 'CLEAN',
-             'AUTO_PASS', 'CONTENT_CHECKS_SATISFIED', 'm55.r5.compliance.content_scan.v1'
+             'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId, contentId],
         );
-        assert.equal(passed.rows[0].result.machine_exception_case_id, null);
+        assert.notEqual(passed.rows[0].result.machine_exception_case_id, null);
+        assert.equal(passed.rows[0].result.reason_code, 'TRUSTED_OBSERVATION_REQUIRED');
         const released = await selectAsTableOwner(
           admin,
           `select status, decision, decision_reason from public.m55_r5_compliance_cases where case_id = $1`,
           [machineCaseId],
         );
         assert.equal(released.rows[0].status, 'RESOLVED');
-        assert.equal(released.rows[0].decision, 'AUTO_RELEASE');
-        assert.equal(released.rows[0].decision_reason, 'CURRENT_CONTENT_SNAPSHOT_PASSED');
+        assert.equal(released.rows[0].decision, 'SUPERSEDED_BY_NEW_MACHINE_DECISION');
+        assert.equal(released.rows[0].decision_reason, 'NEWER_CONTENT_HOLD_DECISION');
         const immutableDecision = await selectAsTableOwner(
           admin,
           `select disposition from public.m55_r5_compliance_decisions where decision_id = $1`,
@@ -695,7 +706,7 @@ if (safety.ok) {
           `select public.m55_r5_compliance_record_content_v1(
              $1, $2, 'web', 'https://example.com/post/hold', 'PRESENT',
              '広告｜M55を紹介します', 'PRESENT', 'CLEAN',
-             'AUTO_PASS', 'CONTENT_CHECKS_SATISFIED', 'm55.r5.compliance.content_scan.v1'
+             'm55.r5.compliance.content_scan.v1'
            )`,
           [creatorId, contentId],
         );
@@ -710,7 +721,7 @@ if (safety.ok) {
         const kept = await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, null, 'web', 'https://example.com/post/kept', 'PRESENT',
-             '本文', 'MISSING', 'CLEAN', 'AUTO_HOLD', 'DISCLOSURE_MISSING', 'm55.r5.compliance.content_scan.v1'
+             '本文', 'MISSING', 'CLEAN', 'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId],
         );
@@ -721,7 +732,7 @@ if (safety.ok) {
         await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, $2, 'web', 'https://example.com/post/kept', 'PRESENT',
-             'PR｜修正しました', 'PRESENT', 'CLEAN', 'AUTO_PASS', 'CONTENT_CHECKS_SATISFIED', 'm55.r5.compliance.content_scan.v1'
+             'PR｜修正しました', 'PRESENT', 'CLEAN', 'm55.r5.compliance.content_scan.v1'
            )`,
           [creatorId, kept.rows[0].result.content_id],
         );
@@ -736,7 +747,7 @@ if (safety.ok) {
         const correction = await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, null, 'web', 'https://example.com/post/correct', 'PRESENT',
-             '本文', 'MISSING', 'CLEAN', 'AUTO_HOLD', 'DISCLOSURE_MISSING', 'm55.r5.compliance.content_scan.v1'
+             '本文', 'MISSING', 'CLEAN', 'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId],
         );
@@ -747,7 +758,7 @@ if (safety.ok) {
         await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, $2, 'web', 'https://example.com/post/correct', 'PRESENT',
-             '【広告】修正しました', 'PRESENT', 'CLEAN', 'AUTO_PASS', 'CONTENT_CHECKS_SATISFIED', 'm55.r5.compliance.content_scan.v1'
+             '【広告】修正しました', 'PRESENT', 'CLEAN', 'm55.r5.compliance.content_scan.v1'
            )`,
           [creatorId, correction.rows[0].result.content_id],
         );
@@ -757,19 +768,19 @@ if (safety.ok) {
           [correction.rows[0].result.machine_exception_case_id],
         );
         assert.equal(corrected.rows[0].status, 'RESOLVED');
-        assert.equal(corrected.rows[0].decision, 'AUTO_RELEASE');
+        assert.equal(corrected.rows[0].decision, 'SUPERSEDED_BY_NEW_MACHINE_DECISION');
 
         const repeatFirst = await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, null, 'web', 'https://example.com/post/repeat', 'PRESENT',
-             '本文', 'MISSING', 'CLEAN', 'AUTO_HOLD', 'DISCLOSURE_MISSING', 'm55.r5.compliance.content_scan.v1'
+             '本文', 'MISSING', 'CLEAN', 'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId],
         );
         const repeatSecond = await admin.query(
           `select public.m55_r5_compliance_record_content_v1(
              $1, $2, 'web', 'https://example.com/post/repeat', 'PRESENT',
-             '本文の再掲', 'MISSING', 'CLEAN', 'AUTO_HOLD', 'DISCLOSURE_MISSING', 'm55.r5.compliance.content_scan.v1'
+             '本文の再掲', 'MISSING', 'CLEAN', 'm55.r5.compliance.content_scan.v1'
            ) as result`,
           [creatorId, repeatFirst.rows[0].result.content_id],
         );
@@ -833,7 +844,19 @@ if (safety.ok) {
         );
         assert.equal(oldFraudCase.rows[0].decision, 'SUPERSEDED_BY_NEW_MACHINE_DECISION');
         assert.equal(oldFraudCase.rows[0].decision_reason, 'NEWER_FRAUD_HOLD_DECISION');
-        await recordEdge(null, 'CONFIRMED_SELF_REFERRAL', 'life-objective');
+        await expectError(
+          admin,
+          () => recordEdge(null, 'CONFIRMED_SELF_REFERRAL', 'life-objective'),
+          /GRAPH_EDGE_OBJECTIVE_INGEST_FORBIDDEN/,
+        );
+        await admin.query(
+          `select public.m55_r5_compliance_resolve_case_v1($1, $2, 'KEEP_HOLD', 'KEEP_HOLD', 'human keep fraud')`,
+          [fraudHold2.rows[0].result.machine_exception_case_id, reviewer],
+        );
+        await admin.query(
+          `select public.m55_r5_attribution_terminalize_purchase_attempt_v1($1, 'CANCELLED')`,
+          [locked.attemptId],
+        );
         const cancelled = await admin.query(
           `select public.m55_r5_compliance_decide_fraud_v1($1, $2, false) as result`,
           [locked.creatorId, locked.attemptId],
@@ -870,6 +893,7 @@ if (safety.ok) {
         assert.equal(packet.creator_economic_identity_id, creatorId);
         assert.equal(packet.content_id, repeatFirst.rows[0].result.content_id);
         assert.equal(packet.adverse_decision.decision_id, repeatSecond.rows[0].result.decision_id);
+        assert.equal(packet.latest_machine_decision.decision_id, repeatSecond.rows[0].result.decision_id);
         assert.equal(packet.latest_content_snapshot.observed_version, 2);
         assert.equal(packet.latest_content_snapshot.body_text, undefined);
         assert.equal(JSON.stringify(packet).includes('body_text'), false);
@@ -892,12 +916,346 @@ if (safety.ok) {
         );
         assert.ok(fraudPacket);
         assert.equal(fraudPacket.purchase_attempt_id, locked.attemptId);
-        assert.ok(fraudPacket.fraud_graph_evidence.some((edge: { evidence_reference: string }) => edge.evidence_reference === 'life-objective'));
+        assert.equal(
+          fraudPacket.fraud_graph_evidence.some((edge: { relation_class: string }) => edge.relation_class === 'OBJECTIVE'),
+          false,
+        );
         assert.equal(JSON.stringify(fraudPacket.fraud_graph_evidence).includes('other-scope-edge'), false);
         assert.equal(JSON.stringify(queue.rows[0].queue).includes('commission_amount'), false);
         assert.equal(JSON.stringify(queue.rows[0].queue).includes('payable'), false);
       } finally {
         await admin.query('rollback');
+      }
+    });
+
+    it('PATCH-1: SQL derives CONTENT_SCAN_UNKNOWN from null/blank body independently of caller scan states', async () => {
+      await admin.query('begin');
+      try {
+        await admin.query('set local role service_role');
+        const creatorId = await insertCreator(admin, randomUUID());
+        const cases = [
+          { label: 'null body', bodySql: 'null::text', locator: 'https://example.com/post/patch1-null' },
+          { label: 'empty body', bodySql: "''::text", locator: 'https://example.com/post/patch1-empty' },
+          { label: 'whitespace body', bodySql: `E'   \t  '::text`, locator: 'https://example.com/post/patch1-whitespace' },
+        ] as const;
+        for (const caseDef of cases) {
+          const result = await admin.query(
+            `select public.m55_r5_compliance_record_content_v1(
+               $1, null, 'web', $2, 'PRESENT', ${caseDef.bodySql}, 'PRESENT', 'CLEAN',
+               'm55.r5.compliance.content_scan.v1'
+             ) as result`,
+            [creatorId, caseDef.locator],
+          );
+          const row = result.rows[0].result as Record<string, unknown>;
+          assert.equal(row.disposition, 'AUTO_HOLD', caseDef.label);
+          assert.equal(row.reason_code, 'CONTENT_SCAN_UNKNOWN', caseDef.label);
+          assert.equal(row.content_provenance, 'CREATOR_SUPPLEMENTAL_UNTRUSTED', caseDef.label);
+          assert.notEqual(row.machine_exception_case_id, null, caseDef.label);
+          const machineCase = await selectAsTableOwner(
+            admin,
+            `select status, case_kind from public.m55_r5_compliance_cases where case_id = $1`,
+            [row.machine_exception_case_id],
+          );
+          assert.equal(machineCase.rows[0].case_kind, 'MACHINE_EXCEPTION', caseDef.label);
+          assert.equal(machineCase.rows[0].status, 'HOLD', caseDef.label);
+        }
+        const removed = await admin.query(
+          `select public.m55_r5_compliance_record_content_v1(
+             $1, null, 'web', 'https://example.com/post/patch1-removed', 'REMOVED', null, 'PRESENT', 'CLEAN',
+             'm55.r5.compliance.content_scan.v1'
+           ) as result`,
+          [creatorId],
+        );
+        assert.equal(removed.rows[0].result.disposition, 'AUTO_HOLD');
+        assert.equal(removed.rows[0].result.reason_code, 'CONTENT_REMOVAL_OBSERVED');
+      } finally {
+        await admin.query('rollback');
+      }
+    });
+
+    it('fails closed on untrusted content and blocks non-derivable objective cancellation', async () => {
+      await admin.query('begin');
+      try {
+        await admin.query('set local role service_role');
+        const creatorId = await insertCreator(admin, randomUUID());
+        const removal = await admin.query(
+          `select public.m55_r5_compliance_record_content_v1(
+             $1, null, 'web', 'https://example.com/post/removed', 'REMOVED', null, 'UNKNOWN', 'UNKNOWN',
+             'm55.r5.compliance.content_scan.v1'
+           ) as result`,
+          [creatorId],
+        );
+        assert.equal(removal.rows[0].result.disposition, 'AUTO_HOLD');
+        assert.equal(removal.rows[0].result.reason_code, 'CONTENT_REMOVAL_OBSERVED');
+        const empty = await admin.query(
+          `select public.m55_r5_compliance_record_content_v1(
+             $1, null, 'web', 'https://example.com/post/empty', 'PRESENT', '   ', 'UNKNOWN', 'UNKNOWN',
+             'm55.r5.compliance.content_scan.v1'
+           ) as result`,
+          [creatorId],
+        );
+        assert.equal(empty.rows[0].result.reason_code, 'CONTENT_SCAN_UNKNOWN');
+        const missing = await admin.query(
+          `select public.m55_r5_compliance_record_content_v1(
+             $1, null, 'web', 'https://example.com/post/missing', 'PRESENT', '本文のみ', 'MISSING', 'CLEAN',
+             'm55.r5.compliance.content_scan.v1'
+           ) as result`,
+          [creatorId],
+        );
+        assert.equal(missing.rows[0].result.reason_code, 'DISCLOSURE_MISSING');
+        const prohibited = await admin.query(
+          `select public.m55_r5_compliance_record_content_v1(
+             $1, null, 'web', 'https://example.com/post/claim', 'PRESENT', '広告 占い', 'PRESENT', 'PROHIBITED_MATCH',
+             'm55.r5.compliance.content_scan.v1'
+           ) as result`,
+          [creatorId],
+        );
+        assert.equal(prohibited.rows[0].result.reason_code, 'PROHIBITED_CLAIM_MATCH');
+        const provenance = await selectAsTableOwner(
+          admin,
+          `select content_provenance from public.m55_r5_compliance_content_snapshots where snapshot_id = $1`,
+          [removal.rows[0].result.snapshot_id],
+        );
+        assert.equal(provenance.rows[0].content_provenance, 'CREATOR_SUPPLEMENTAL_UNTRUSTED');
+        const passes = await selectAsTableOwner(
+          admin,
+          `select count(*)::int as n from public.m55_r5_compliance_decisions
+           where creator_economic_identity_id = $1 and content_id is not null and disposition = 'AUTO_PASS'`,
+          [creatorId],
+        );
+        assert.equal(passes.rows[0].n, 0);
+
+        const openWinner = await insertLockedWinnerAttempt(admin, randomUUID());
+        const openDecision = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, false) as result`,
+          [openWinner.creatorId, openWinner.attemptId],
+        );
+        assert.equal(openDecision.rows[0].result.outcome, 'NO_DISPOSITION');
+        const expired = await insertLockedWinnerAttempt(admin, randomUUID());
+        await admin.query(`select public.m55_r5_attribution_terminalize_purchase_attempt_v1($1, 'EXPIRED')`, [expired.attemptId]);
+        const expiredDecision = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, false) as result`,
+          [expired.creatorId, expired.attemptId],
+        );
+        assert.equal(expiredDecision.rows[0].result.disposition, 'AUTO_CANCEL_OBJECTIVE');
+        assert.equal(expiredDecision.rows[0].result.forfeiture, true);
+        const paid = await insertLockedWinnerAttempt(admin, randomUUID());
+        await admin.query('reset role');
+        await admin.query(
+          `update public.m55_r5_attribution_purchase_attempts set terminal_state = 'PAID_CANONICAL' where purchase_attempt_id = $1`,
+          [paid.attemptId],
+        );
+        await admin.query('set local role service_role');
+        const paidDecision = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, false) as result`,
+          [paid.creatorId, paid.attemptId],
+        );
+        assert.equal(paidDecision.rows[0].result.outcome, 'NO_DISPOSITION');
+        assert.notEqual(paidDecision.rows[0].result.disposition, 'AUTO_CANCEL_OBJECTIVE');
+
+        await admin.query('reset role');
+        const noneSuffix = randomUUID();
+        const noneClerk = `creator_${noneSuffix}`.slice(0, 128);
+        const noneApplication = await admin.query(
+          `insert into public.m55_creator_applications (
+             clerk_user_id, application_source, age_18_plus_attested, japan_resident_attested,
+             content_focus_safe, terms_version, terms_accepted_at, status
+           ) values ($1, 'PUBLIC_APPLICATION', true, true, 'test focus', '2026-09-13-v1', now(), 'APPROVED_PENDING_ACTIVATION')
+           returning id`,
+          [noneClerk],
+        );
+        const noneProfile = await admin.query(
+          `insert into public.m55_creator_profiles (
+             clerk_user_id, originating_application_id, creator_code, first_final_approved_at,
+             terms_version, terms_accepted_at, status
+           ) values ($1, $2, $3, now(), '2026-09-13-v1', now(), 'ACTIVE')
+           returning economic_identity_id`,
+          [noneClerk, noneApplication.rows[0].id, `cr_${noneSuffix}`.slice(0, 40)],
+        );
+        const noneCreator = noneProfile.rows[0].economic_identity_id as string;
+        const noneBuyerDigest = createHash('sha256').update(`none-${noneSuffix}`).digest('hex');
+        const noneNow = await admin.query(`select (extract(epoch from clock_timestamp()) * 1000)::bigint as ms`);
+        await admin.query(
+          `insert into public.m55_attribution_buyer_subjects (clerk_subject_lookup_digest, identity_state) values ($1, 'ACTIVE')`,
+          [noneBuyerDigest],
+        );
+        await admin.query('set local role service_role');
+        const noneLocked = await admin.query(
+          `select public.m55_r5_attribution_lock_purchase_attempt_v1(
+             $1, 'dtr_core_light_v1', 'M55_PREMIUM_REPORT_LIGHT', 'FIRST_ELIGIBLE_PAID',
+             $2, $3, $3, null, 'v1', 'v1'
+           ) as payload`,
+          [noneBuyerDigest, `none-${noneSuffix}`, Number(noneNow.rows[0].ms)],
+        );
+        assert.equal(noneLocked.rows[0].payload.outcome, 'LOCKED_NONE');
+        await expectError(
+          admin,
+          () => admin.query(
+            `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true)`,
+            [noneCreator, noneLocked.rows[0].payload.purchase_attempt_id],
+          ),
+          /PURCHASE_NOT_ATTRIBUTED_TO_CREATOR/,
+        );
+      } finally {
+        await admin.query('rollback');
+      }
+    });
+
+    it('reuses KEEP_HOLD and replaces REQUEST_CORRECTION for the same purchase', async () => {
+      await admin.query('begin');
+      try {
+        await admin.query('set local role service_role');
+        const reviewer = createHash('sha256').update('reviewer-fraud-reuse').digest('hex');
+        const kept = await insertLockedWinnerAttempt(admin, randomUUID());
+        const first = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true) as result`,
+          [kept.creatorId, kept.attemptId],
+        );
+        const keptCaseId = first.rows[0].result.machine_exception_case_id as string;
+        const adverseId = first.rows[0].result.decision_id as string;
+        await admin.query(
+          `select public.m55_r5_compliance_resolve_case_v1($1, $2, 'KEEP_HOLD', 'KEEP_HOLD', 'keep')`,
+          [keptCaseId, reviewer],
+        );
+        const again = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true) as result`,
+          [kept.creatorId, kept.attemptId],
+        );
+        assert.equal(again.rows[0].result.machine_exception_case_id, keptCaseId);
+        const keptRow = await selectAsTableOwner(
+          admin,
+          `select adverse_decision_id, status, decision from public.m55_r5_compliance_cases where case_id = $1`,
+          [keptCaseId],
+        );
+        assert.equal(keptRow.rows[0].adverse_decision_id, adverseId);
+        assert.equal(keptRow.rows[0].status, 'HOLD');
+        assert.equal(keptRow.rows[0].decision, 'KEEP_HOLD');
+        const linked = await selectAsTableOwner(
+          admin,
+          `select decision_id from public.m55_r5_compliance_decisions
+           where case_id = $1 and reviewer_type = 'MACHINE' and decision_id <> $2`,
+          [keptCaseId, adverseId],
+        );
+        assert.equal(linked.rowCount, 1);
+        const event = await selectAsTableOwner(
+          admin,
+          `select event_kind, actor_ref from public.m55_r5_compliance_case_events
+           where case_id = $1 and event_kind = 'MACHINE_REEVALUATION'`,
+          [keptCaseId],
+        );
+        assert.equal(event.rowCount, 1);
+        assert.equal(event.rows[0].actor_ref, 'MACHINE');
+        const queue = await admin.query(`select public.m55_r5_compliance_list_open_cases_v1() as queue`);
+        const packet = (queue.rows[0].queue as Array<Record<string, any>>).find((item) => item.case_id === keptCaseId);
+        assert.ok(packet);
+        assert.equal(packet.adverse_decision.decision_id, adverseId);
+        assert.equal(packet.latest_machine_decision.decision_id, linked.rows[0].decision_id);
+        assert.equal(JSON.stringify(packet).includes('body_text'), false);
+        const activeKept = await selectAsTableOwner(
+          admin,
+          `select count(*)::int as n from public.m55_r5_compliance_cases
+           where creator_economic_identity_id = $1 and purchase_attempt_id = $2
+             and case_kind = 'MACHINE_EXCEPTION' and status in ('OPEN', 'HOLD')`,
+          [kept.creatorId, kept.attemptId],
+        );
+        assert.equal(activeKept.rows[0].n, 1);
+
+        const corrected = await insertLockedWinnerAttempt(admin, randomUUID());
+        const correctionFirst = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true) as result`,
+          [corrected.creatorId, corrected.attemptId],
+        );
+        await admin.query(
+          `select public.m55_r5_compliance_resolve_case_v1($1, $2, 'KEEP_HOLD', 'REQUEST_CORRECTION', 'correct')`,
+          [correctionFirst.rows[0].result.machine_exception_case_id, reviewer],
+        );
+        const correctionSecond = await admin.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true) as result`,
+          [corrected.creatorId, corrected.attemptId],
+        );
+        const oldCorrection = await selectAsTableOwner(
+          admin,
+          `select status, decision from public.m55_r5_compliance_cases where case_id = $1`,
+          [correctionFirst.rows[0].result.machine_exception_case_id],
+        );
+        assert.equal(oldCorrection.rows[0].status, 'RESOLVED');
+        assert.equal(oldCorrection.rows[0].decision, 'SUPERSEDED_BY_NEW_MACHINE_DECISION');
+        assert.notEqual(correctionSecond.rows[0].result.machine_exception_case_id, correctionFirst.rows[0].result.machine_exception_case_id);
+        const activeCorrected = await selectAsTableOwner(
+          admin,
+          `select count(*)::int as n from public.m55_r5_compliance_cases
+           where creator_economic_identity_id = $1 and purchase_attempt_id = $2
+             and case_kind = 'MACHINE_EXCEPTION' and status in ('OPEN', 'HOLD')`,
+          [corrected.creatorId, corrected.attemptId],
+        );
+        assert.equal(activeCorrected.rows[0].n, 1);
+      } finally {
+        await admin.query('rollback');
+      }
+    });
+
+    it('serializes same-purchase fraud decisions across two independent clients', async () => {
+      await admin.query('begin');
+      const locked = await insertLockedWinnerAttempt(admin, randomUUID());
+      await admin.query('commit');
+      const clientA = new pg.Client({ connectionString: safety.url });
+      const clientB = new pg.Client({ connectionString: safety.url });
+      await clientA.connect();
+      await clientB.connect();
+      try {
+        await clientA.query('begin');
+        await clientA.query('set local role service_role');
+        const first = await clientA.query(
+          `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true) as result`,
+          [locked.creatorId, locked.attemptId],
+        );
+        assert.equal(first.rows[0].result.disposition, 'AUTO_HOLD');
+        const secondPromise = (async () => {
+          await clientB.query('begin');
+          await clientB.query('set local role service_role');
+          return clientB.query(
+            `select public.m55_r5_compliance_decide_fraud_v1($1, $2, true) as result`,
+            [locked.creatorId, locked.attemptId],
+          );
+        })();
+        let observedWait = false;
+        for (let attempt = 0; attempt < 40; attempt += 1) {
+          const waiting = await admin.query(
+            `select count(*)::int as n
+             from pg_stat_activity
+             where pid <> pg_backend_pid()
+               and wait_event_type = 'Lock'
+               and query ilike '%m55_r5_compliance_decide_fraud_v1%'`,
+          );
+          if (waiting.rows[0].n >= 1) {
+            observedWait = true;
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+        assert.equal(observedWait, true);
+        await clientA.query('commit');
+        const second = await secondPromise;
+        await clientB.query('commit');
+        assert.equal(second.rows[0].result.disposition, 'AUTO_HOLD');
+        const active = await admin.query(
+          `select count(*)::int as n from public.m55_r5_compliance_cases
+           where creator_economic_identity_id = $1
+             and purchase_attempt_id = $2
+             and case_kind = 'MACHINE_EXCEPTION'
+             and status in ('OPEN', 'HOLD')`,
+          [locked.creatorId, locked.attemptId],
+        );
+        assert.equal(active.rows[0].n, 1);
+        const decisions = await admin.query(
+          `select count(*)::int as n from public.m55_r5_compliance_decisions
+           where creator_economic_identity_id = $1 and purchase_attempt_id = $2 and disposition = 'AUTO_HOLD'`,
+          [locked.creatorId, locked.attemptId],
+        );
+        assert.equal(decisions.rows[0].n, 2);
+      } finally {
+        await clientA.end();
+        await clientB.end();
       }
     });
   });

@@ -70,7 +70,7 @@ describe('r5 compliance control plane contract', () => {
         { observationKind: 'PRESENT', bodyText: `広告｜${claim}について` },
         M55_PROHIBITED_CLAIMS,
       );
-      assert.notEqual(result.disposition, 'AUTO_PASS', claim);
+      assert.equal(result.disposition, 'AUTO_HOLD', claim);
       assert.equal(result.claimScanState, 'PROHIBITED_MATCH', claim);
       assert.equal(result.disposition, 'AUTO_HOLD', claim);
     }
@@ -94,9 +94,9 @@ describe('r5 compliance control plane contract', () => {
     );
   });
 
-  it('derives fraud disposition from persisted graph evidence only', () => {
+  it('derives fraud disposition from canonical objective derivation and heuristic edges', () => {
     const none = evaluateFraudDispositionV1({
-      persistedObjectiveReasons: [],
+      derivedObjectiveReason: null,
       persistedHeuristicSignalClasses: [],
       decisionRequired: false,
     });
@@ -105,7 +105,7 @@ describe('r5 compliance control plane contract', () => {
     assert.notEqual(none.disposition, 'AUTO_CANCEL_OBJECTIVE');
 
     const one = evaluateFraudDispositionV1({
-      persistedObjectiveReasons: [],
+      derivedObjectiveReason: null,
       persistedHeuristicSignalClasses: ['SAME_IP'],
       decisionRequired: true,
     });
@@ -114,14 +114,14 @@ describe('r5 compliance control plane contract', () => {
     assert.equal(one.forfeiture, false);
 
     const duplicateClass = evaluateFraudDispositionV1({
-      persistedObjectiveReasons: [],
+      derivedObjectiveReason: null,
       persistedHeuristicSignalClasses: ['SAME_IP', 'SAME_IP'],
       decisionRequired: false,
     });
     assert.equal(duplicateClass.disposition, null);
 
     const many = evaluateFraudDispositionV1({
-      persistedObjectiveReasons: [],
+      derivedObjectiveReason: null,
       persistedHeuristicSignalClasses: ['SAME_IP', 'SAME_DEVICE', 'SAME_IP'],
       decisionRequired: false,
     });
@@ -130,20 +130,28 @@ describe('r5 compliance control plane contract', () => {
     assert.equal(many.forfeiture, false);
 
     const incomplete = evaluateFraudDispositionV1({
-      persistedObjectiveReasons: [],
+      derivedObjectiveReason: null,
       persistedHeuristicSignalClasses: [],
       decisionRequired: true,
     });
     assert.equal(incomplete.disposition, 'AUTO_HOLD');
     assert.equal(incomplete.reasonCode, 'EVIDENCE_INCOMPLETE');
 
+    const unsupported = evaluateFraudDispositionV1({
+      derivedObjectiveReason: 'CONFIRMED_SELF_REFERRAL',
+      persistedHeuristicSignalClasses: [],
+      decisionRequired: false,
+    });
+    assert.equal(unsupported.disposition, null);
+    assert.notEqual(unsupported.disposition, 'AUTO_CANCEL_OBJECTIVE');
+
     const objective = evaluateFraudDispositionV1({
-      persistedObjectiveReasons: ['CONFIRMED_SELF_REFERRAL', 'DUPLICATE_ATTRIBUTION'],
+      derivedObjectiveReason: 'NONEXISTENT_OR_FAILED_PAYMENT',
       persistedHeuristicSignalClasses: ['SAME_IP', 'SAME_DEVICE'],
       decisionRequired: false,
     });
     assert.equal(objective.disposition, 'AUTO_CANCEL_OBJECTIVE');
-    assert.equal(objective.reasonCode, 'CONFIRMED_SELF_REFERRAL');
+    assert.equal(objective.reasonCode, 'NONEXISTENT_OR_FAILED_PAYMENT');
     assert.equal(objective.forfeiture, true);
   });
 
@@ -153,7 +161,14 @@ describe('r5 compliance control plane contract', () => {
         { observationKind: 'PRESENT', bodyText: '広告 アフィリエイトリンクを含みます。相性の読み方です。' },
         M55_PROHIBITED_CLAIMS,
       ).disposition,
-      'AUTO_PASS',
+      'AUTO_HOLD',
+    );
+    assert.equal(
+      scanContentComplianceV1(
+        { observationKind: 'PRESENT', bodyText: '広告 アフィリエイトリンクを含みます。相性の読み方です。' },
+        M55_PROHIBITED_CLAIMS,
+      ).reasonCode,
+      'TRUSTED_OBSERVATION_REQUIRED',
     );
     assert.equal(
       scanContentComplianceV1(
@@ -198,11 +213,13 @@ describe('r5 compliance control plane contract', () => {
       /m55_r5_compliance_decide_fraud_v1\(\s*p_creator_economic_identity_id uuid,\s*p_purchase_attempt_id uuid,\s*p_decision_required boolean\s*\)/,
     );
     assert.doesNotMatch(decideFn, /p_objective_proof|p_objective_reason|p_signal_classes|p_evidence_reference|text\[\]/);
-    assert.match(decideFn, /relation_class = 'OBJECTIVE'/);
-    assert.match(decideFn, /order by e\.observed_at asc, e\.edge_id asc/);
+    assert.doesNotMatch(decideFn, /relation_class = 'OBJECTIVE'/);
+    assert.match(decideFn, /for update/);
+    assert.match(decideFn, /m55_r5_compliance_derive_objective_reason_v1/);
+    assert.match(decideFn, /PURCHASE_NOT_ATTRIBUTED_TO_CREATOR/);
     assert.match(decideFn, /count\(distinct e\.risk_signal_class\)/);
     assert.match(decideFn, /fraud_graph_scope:/);
-    assert.match(decideFn, /v_disposition = 'AUTO_HOLD'/);
+    assert.match(decideFn, /v_disposition := 'AUTO_HOLD'/);
     assert.match(decideFn, /m55_r5_compliance_open_machine_exception_v1/);
     assert.doesNotMatch(migration, /decide_fraud_v1\(uuid, uuid, boolean, text, text\[\], boolean, text\)/);
     assert.match(migration, /OBJECTIVE_PROOF_REQUIRED/);
@@ -252,11 +269,19 @@ describe('r5 compliance control plane contract', () => {
     assert.match(appealRoute, /adverseDecisionId/);
   });
 
-  it('routes machine AUTO_HOLD into one exception and leaves AUTO_PASS uncased', () => {
+  it('routes creator content through hardcoded AUTO_HOLD and blocks caller disposition', () => {
     const contentStart = migration.indexOf('function public.m55_r5_compliance_record_content_v1');
     const contentFn = migration.slice(contentStart, migration.indexOf('create or replace function public.m55_r5_compliance_record_graph_edge_v1'));
-    assert.match(contentFn, /if p_disposition = 'AUTO_HOLD' then[\s\S]*m55_r5_compliance_open_machine_exception_v1/);
-    assert.doesNotMatch(contentFn, /AUTO_PASS' then[\s\S]*open_machine_exception/);
+    assert.match(
+      contentFn,
+      /m55_r5_compliance_record_content_v1\(\s*p_creator_economic_identity_id uuid,\s*p_content_id uuid,\s*p_platform_source text,\s*p_source_locator text,\s*p_observation_kind text,\s*p_body_text text,\s*p_disclosure_state text,\s*p_claim_scan_state text,\s*p_rule_version text\s*\)/,
+    );
+    assert.doesNotMatch(contentFn, /p_disposition|p_reason_code|p_content_provenance/);
+    assert.match(contentFn, /CREATOR_SUPPLEMENTAL_UNTRUSTED/);
+    assert.match(contentFn, /v_disposition text := 'AUTO_HOLD'/);
+    assert.match(contentFn, /TRUSTED_OBSERVATION_REQUIRED/);
+    assert.match(contentFn, /m55_r5_compliance_open_machine_exception_v1/);
+    assert.doesNotMatch(contentFn, /AUTO_PASS/);
     assert.match(migration, /m55_r5_compliance_one_machine_exception_per_decision/);
     assert.match(migration, /where case_kind = 'MACHINE_EXCEPTION'/);
     assert.match(migration, /'NO_CREATOR_EVIDENCE'/);
@@ -367,18 +392,20 @@ describe('r5 compliance control plane contract', () => {
       contentStart,
       migration.indexOf('create or replace function public.m55_r5_compliance_record_graph_edge_v1'),
     );
-    const holdAt = contentFn.indexOf("if p_disposition = 'AUTO_HOLD' then");
     const reconcileAt = contentFn.indexOf('m55_r5_compliance_reconcile_machine_exceptions_v1');
-    assert.ok(reconcileAt >= 0 && holdAt > reconcileAt);
+    const openAt = contentFn.indexOf('m55_r5_compliance_open_machine_exception_v1');
+    assert.ok(reconcileAt >= 0 && openAt > reconcileAt);
     const decideStart = migration.indexOf('function public.m55_r5_compliance_decide_fraud_v1');
     const decideFn = migration.slice(
       decideStart,
       migration.indexOf('create or replace function public.m55_r5_compliance_creator_case_v1'),
     );
     const noDispositionAt = decideFn.indexOf("'NO_DISPOSITION'");
-    const fraudReconcileAt = decideFn.indexOf('m55_r5_compliance_reconcile_machine_exceptions_v1');
-    assert.ok(noDispositionAt >= 0 && fraudReconcileAt > noDispositionAt);
-    assert.match(decideFn, /v_disposition in \('AUTO_HOLD', 'AUTO_CANCEL_OBJECTIVE'\)/);
+    assert.ok(noDispositionAt >= 0);
+    assert.doesNotMatch(decideFn.slice(noDispositionAt, noDispositionAt + 120), /reconcile_machine_exceptions/);
+    assert.match(decideFn, /AUTO_CANCEL_OBJECTIVE/);
+    assert.match(decideFn, /KEEP_HOLD/);
+    assert.match(decideFn, /MACHINE_REEVALUATION/);
     for (const decision of M55_R5_COMPLIANCE_CASE_DECISIONS) {
       assert.match(migration, new RegExp(decision));
     }
@@ -396,6 +423,7 @@ describe('r5 compliance control plane contract', () => {
       'machine_evidence',
       'decision_reason',
       'adverse_decision',
+      'latest_machine_decision',
       'latest_content_snapshot',
       'content_fingerprint',
       'observed_version',
@@ -425,6 +453,41 @@ describe('r5 compliance control plane contract', () => {
     assert.match(migration, /status in \('OPEN', 'HOLD'\) and resolved_at is null/);
     assert.match(migration, /KEEP_HOLD', 'REQUEST_CORRECTION/);
     assert.match(migration, /'RELEASE', 'PAUSE_CREATOR', 'TERMINATE_PARTNERSHIP/);
+  });
+
+  it('freezes remediation provenance, objective ingest, and active purchase cases', () => {
+    const contentRoute = readFileSync(join(process.cwd(), 'app/api/creator/compliance/content/route.ts'), 'utf8');
+    assert.match(contentRoute, /body\.action/);
+    assert.match(contentRoute, /body\.platformSource/);
+    assert.match(contentRoute, /body\.sourceLocator/);
+    assert.match(contentRoute, /body\.bodyText/);
+    assert.match(contentRoute, /body\.contentId/);
+    assert.doesNotMatch(contentRoute, /trusted|supplementalText|INTERNAL_TRUSTED_OBSERVATION/i);
+    assert.doesNotMatch(migration + runtime + contractSource, /INTERNAL_TRUSTED_OBSERVATION/);
+    assert.match(migration, /GRAPH_EDGE_OBJECTIVE_INGEST_FORBIDDEN/);
+    assert.match(
+      migration,
+      /m55_r5_compliance_derive_objective_reason_v1\(\s*p_creator_economic_identity_id uuid,\s*p_purchase_attempt_id uuid\s*\) returns text/,
+    );
+    assert.match(
+      migration,
+      /revoke all on function public\.m55_r5_compliance_derive_objective_reason_v1\(uuid, uuid\) from public, anon, authenticated, service_role/,
+    );
+    assert.doesNotMatch(
+      migration,
+      /grant execute on function public\.m55_r5_compliance_derive_objective_reason_v1/,
+    );
+    assert.match(migration, /terminal_state in \('EXPIRED', 'CANCELLED'\)/);
+    assert.match(migration, /NONEXISTENT_OR_FAILED_PAYMENT/);
+    assert.match(migration, /m55_r5_compliance_one_active_machine_exception_per_purchase/);
+    assert.match(migration, /status in \('OPEN', 'HOLD'\)/);
+    assert.match(migration, /MACHINE_REEVALUATION/);
+    const decideStart = migration.indexOf('function public.m55_r5_compliance_decide_fraud_v1');
+    const decideFn = migration.slice(decideStart, migration.indexOf('create or replace function public.m55_r5_compliance_creator_case_v1'));
+    const lockAt = decideFn.indexOf('for update');
+    const deriveAt = decideFn.indexOf('m55_r5_compliance_derive_objective_reason_v1');
+    const heuristicAt = decideFn.indexOf("relation_class = 'HEURISTIC_RISK'");
+    assert.ok(lockAt >= 0 && deriveAt > lockAt && heuristicAt > lockAt);
   });
 
   it('keeps R6 money fields out of the R5 contract', () => {

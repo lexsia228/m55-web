@@ -96,11 +96,13 @@ export type ContentObservationKind = 'PRESENT' | 'REMOVED';
 export type DisclosureState = 'PRESENT' | 'MISSING' | 'UNKNOWN';
 export type ClaimScanState = 'CLEAN' | 'PROHIBITED_MATCH' | 'UNKNOWN';
 
+export const M55_R5_COMPLIANCE_CONTENT_PROVENANCE = 'CREATOR_SUPPLEMENTAL_UNTRUSTED' as const;
+
 export type ContentScanResult = {
   ruleVersion: typeof M55_R5_COMPLIANCE_CONTENT_RULE_VERSION;
   disclosureState: DisclosureState;
   claimScanState: ClaimScanState;
-  disposition: 'AUTO_PASS' | 'AUTO_HOLD';
+  disposition: 'AUTO_HOLD';
   reasonCode: string;
 };
 
@@ -181,13 +183,13 @@ export function scanContentComplianceV1(
     ruleVersion: M55_R5_COMPLIANCE_CONTENT_RULE_VERSION,
     disclosureState,
     claimScanState,
-    disposition: 'AUTO_PASS',
-    reasonCode: 'CONTENT_CHECKS_SATISFIED',
+    disposition: 'AUTO_HOLD',
+    reasonCode: 'TRUSTED_OBSERVATION_REQUIRED',
   };
 }
 
 export function evaluateFraudDispositionV1(input: {
-  persistedObjectiveReasons: readonly R5ObjectiveReasonCode[];
+  derivedObjectiveReason: R5ObjectiveReasonCode | null;
   persistedHeuristicSignalClasses: readonly R5HeuristicRiskSignal[];
   decisionRequired: boolean;
 }): {
@@ -195,14 +197,10 @@ export function evaluateFraudDispositionV1(input: {
   reasonCode: string;
   forfeiture: boolean;
 } {
-  const objectiveReason = input.persistedObjectiveReasons[0];
-  if (objectiveReason) {
-    if (!M55_R5_COMPLIANCE_OBJECTIVE_REASON_CODES.includes(objectiveReason)) {
-      throw new Error('OBJECTIVE_REASON_REQUIRED');
-    }
+  if (input.derivedObjectiveReason === 'NONEXISTENT_OR_FAILED_PAYMENT') {
     return {
       disposition: 'AUTO_CANCEL_OBJECTIVE',
-      reasonCode: objectiveReason,
+      reasonCode: 'NONEXISTENT_OR_FAILED_PAYMENT',
       forfeiture: true,
     };
   }

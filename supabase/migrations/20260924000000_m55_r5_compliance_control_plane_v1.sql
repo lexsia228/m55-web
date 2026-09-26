@@ -21,6 +21,8 @@ create table public.m55_r5_compliance_content_snapshots (
   observed_version integer not null check (observed_version > 0),
   disclosure_state text not null check (disclosure_state in ('PRESENT', 'MISSING', 'UNKNOWN')),
   claim_scan_state text not null check (claim_scan_state in ('CLEAN', 'PROHIBITED_MATCH', 'UNKNOWN')),
+  content_provenance text not null default 'CREATOR_SUPPLEMENTAL_UNTRUSTED'
+    check (content_provenance = 'CREATOR_SUPPLEMENTAL_UNTRUSTED'),
   observed_at timestamptz not null default now(),
   unique (content_id, observed_version)
 );
@@ -46,7 +48,7 @@ create table public.m55_r5_compliance_graph_edges (
     references public.m55_creator_profiles (economic_identity_id),
   purchase_attempt_id uuid not null
     references public.m55_r5_attribution_purchase_attempts (purchase_attempt_id),
-  relation_class text not null check (relation_class in ('OBJECTIVE', 'HEURISTIC_RISK')),
+  relation_class text not null check (relation_class = 'HEURISTIC_RISK'),
   risk_signal_class text null check (
     risk_signal_class is null or risk_signal_class in (
       'SAME_IP', 'SAME_DEVICE', 'SAME_ADDRESS', 'SAME_SURNAME', 'HIGH_VELOCITY',
@@ -57,19 +59,9 @@ create table public.m55_r5_compliance_graph_edges (
   evidence_reference text not null check (char_length(evidence_reference) between 1 and 200),
   observed_at timestamptz not null default now(),
   constraint m55_r5_compliance_edge_class_chk check (
-    (
-      relation_class = 'OBJECTIVE'
-      and risk_signal_class is null
-      and objective_reason_code in (
-        'CONFIRMED_SELF_REFERRAL', 'CONFIRMED_CIRCULAR_ABUSE',
-        'DUPLICATE_ATTRIBUTION', 'NONEXISTENT_OR_FAILED_PAYMENT'
-      )
-    )
-    or (
-      relation_class = 'HEURISTIC_RISK'
-      and risk_signal_class is not null
-      and objective_reason_code is null
-    )
+    relation_class = 'HEURISTIC_RISK'
+    and risk_signal_class is not null
+    and objective_reason_code is null
   )
 );
 
@@ -147,11 +139,17 @@ create unique index m55_r5_compliance_one_machine_exception_per_decision
   on public.m55_r5_compliance_cases (adverse_decision_id)
   where case_kind = 'MACHINE_EXCEPTION';
 
+create unique index m55_r5_compliance_one_active_machine_exception_per_purchase
+  on public.m55_r5_compliance_cases (creator_economic_identity_id, purchase_attempt_id)
+  where case_kind = 'MACHINE_EXCEPTION'
+    and purchase_attempt_id is not null
+    and status in ('OPEN', 'HOLD');
+
 create table public.m55_r5_compliance_case_events (
   event_id uuid primary key default gen_random_uuid(),
   case_id uuid not null references public.m55_r5_compliance_cases (case_id),
   event_kind text not null check (event_kind in (
-    'OPENED', 'CREATOR_CORRECTION', 'REVIEWER_ACTIVITY', 'RESOLUTION'
+    'OPENED', 'CREATOR_CORRECTION', 'REVIEWER_ACTIVITY', 'RESOLUTION', 'MACHINE_REEVALUATION'
   )),
   actor_ref text not null check (actor_ref ~ '^[0-9a-f]{64}$' or actor_ref = 'MACHINE'),
   evidence text not null check (char_length(evidence) between 1 and 4000),
@@ -437,8 +435,6 @@ create or replace function public.m55_r5_compliance_record_content_v1(
   p_body_text text,
   p_disclosure_state text,
   p_claim_scan_state text,
-  p_disposition text,
-  p_reason_code text,
   p_rule_version text
 ) returns jsonb
 language plpgsql
@@ -452,9 +448,26 @@ declare
   v_snapshot_id uuid;
   v_decision_id uuid;
   v_machine_case uuid;
+  v_reason text;
+  v_disposition text := 'AUTO_HOLD';
 begin
-  if p_disposition not in ('AUTO_PASS', 'AUTO_HOLD') then
-    raise exception 'CONTENT_DISPOSITION_INVALID';
+  if p_rule_version is distinct from 'm55.r5.compliance.content_scan.v1' then
+    raise exception 'RULE_VERSION_INVALID';
+  end if;
+  if p_observation_kind = 'REMOVED' then
+    v_reason := 'CONTENT_REMOVAL_OBSERVED';
+  elsif p_body_text is null or length(regexp_replace(p_body_text, '\s', '', 'g')) = 0 then
+    v_reason := 'CONTENT_SCAN_UNKNOWN';
+  elsif p_disclosure_state = 'UNKNOWN' or p_claim_scan_state = 'UNKNOWN' then
+    v_reason := 'CONTENT_SCAN_UNKNOWN';
+  elsif p_disclosure_state = 'MISSING' then
+    v_reason := 'DISCLOSURE_MISSING';
+  elsif p_claim_scan_state = 'PROHIBITED_MATCH' then
+    v_reason := 'PROHIBITED_CLAIM_MATCH';
+  elsif p_disclosure_state = 'PRESENT' and p_claim_scan_state = 'CLEAN' then
+    v_reason := 'TRUSTED_OBSERVATION_REQUIRED';
+  else
+    v_reason := 'CONTENT_SCAN_UNKNOWN';
   end if;
   perform public.m55_r5_compliance_assert_locator_v1(p_source_locator);
   if p_content_id is null then
@@ -485,29 +498,29 @@ begin
   v_fingerprint := encode(extensions.digest(convert_to(coalesce(p_body_text, ''), 'UTF8'), 'sha256'), 'hex');
   insert into public.m55_r5_compliance_content_snapshots (
     content_id, observation_kind, body_text, content_fingerprint, observed_version,
-    disclosure_state, claim_scan_state
+    disclosure_state, claim_scan_state, content_provenance
   ) values (
     v_content.content_id, p_observation_kind, p_body_text, v_fingerprint, v_version,
-    p_disclosure_state, p_claim_scan_state
+    p_disclosure_state, p_claim_scan_state, 'CREATOR_SUPPLEMENTAL_UNTRUSTED'
   ) returning snapshot_id into v_snapshot_id;
   insert into public.m55_r5_compliance_decisions (
     creator_economic_identity_id, content_id, disposition, reason_code, rule_version,
     evidence_reference, reviewer_type, appeal_status
   ) values (
-    p_creator_economic_identity_id, v_content.content_id, p_disposition, p_reason_code, p_rule_version,
+    p_creator_economic_identity_id, v_content.content_id, v_disposition, v_reason, p_rule_version,
     v_snapshot_id::text, 'MACHINE', 'NONE'
   ) returning decision_id into v_decision_id;
   perform public.m55_r5_compliance_reconcile_machine_exceptions_v1(v_decision_id);
-  v_machine_case := null;
-  if p_disposition = 'AUTO_HOLD' then
-    v_machine_case := public.m55_r5_compliance_open_machine_exception_v1(v_decision_id);
-  end if;
+  v_machine_case := public.m55_r5_compliance_open_machine_exception_v1(v_decision_id);
   return jsonb_build_object(
     'ok', true,
     'content_id', v_content.content_id,
     'snapshot_id', v_snapshot_id,
     'decision_id', v_decision_id,
     'observed_version', v_version,
+    'disposition', v_disposition,
+    'reason_code', v_reason,
+    'content_provenance', 'CREATOR_SUPPLEMENTAL_UNTRUSTED',
     'machine_exception_case_id', v_machine_case
   );
 end;
@@ -534,6 +547,7 @@ declare
   v_to uuid;
   v_edge uuid;
   v_attempt_creator uuid;
+  v_attempt_kind text;
   v_from_ref text := lower(p_from_ref);
   v_to_ref text := lower(p_to_ref);
   v_uuid_re text := '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
@@ -544,14 +558,17 @@ begin
   ) then
     raise exception 'CREATOR_NOT_FOUND';
   end if;
-  select creator_economic_identity_id into v_attempt_creator
+  select decision_kind, creator_economic_identity_id
+  into v_attempt_kind, v_attempt_creator
   from public.m55_r5_attribution_purchase_attempts
   where purchase_attempt_id = p_purchase_attempt_id;
   if not found then
     raise exception 'PURCHASE_NOT_FOUND';
   end if;
-  if v_attempt_creator is not null and v_attempt_creator <> p_creator_economic_identity_id then
-    raise exception 'PURCHASE_CREATOR_MISMATCH';
+  if v_attempt_kind is distinct from 'CREATOR_WINNER'
+     or v_attempt_creator is null
+     or v_attempt_creator is distinct from p_creator_economic_identity_id then
+    raise exception 'PURCHASE_NOT_ATTRIBUTED_TO_CREATOR';
   end if;
   if p_from_ref ~* '^user_' or p_to_ref ~* '^user_'
      or (v_from_ref !~ v_uuid_re and v_from_ref !~ '^[0-9a-f]{64}$')
@@ -574,21 +591,15 @@ begin
      and v_to_ref is distinct from lower(p_purchase_attempt_id::text) then
     raise exception 'GRAPH_NODE_SCOPE_MISMATCH';
   end if;
-  if p_relation_class = 'OBJECTIVE' then
-    if p_risk_signal_class is not null or p_objective_reason_code not in (
-      'CONFIRMED_SELF_REFERRAL', 'CONFIRMED_CIRCULAR_ABUSE',
-      'DUPLICATE_ATTRIBUTION', 'NONEXISTENT_OR_FAILED_PAYMENT'
-    ) then
-      raise exception 'GRAPH_EDGE_CLASS_MISMATCH';
-    end if;
-  elsif p_relation_class = 'HEURISTIC_RISK' then
-    if p_objective_reason_code is not null or p_risk_signal_class is null or p_risk_signal_class not in (
+  if p_relation_class = 'OBJECTIVE' or p_objective_reason_code is not null then
+    raise exception 'GRAPH_EDGE_OBJECTIVE_INGEST_FORBIDDEN';
+  end if;
+  if p_relation_class is distinct from 'HEURISTIC_RISK'
+     or p_risk_signal_class is null
+     or p_risk_signal_class not in (
       'SAME_IP', 'SAME_DEVICE', 'SAME_ADDRESS', 'SAME_SURNAME', 'HIGH_VELOCITY',
       'ACCOUNT_CREATION_BURST', 'DEVICE_CLUSTER', 'PAYMENT_CLUSTER', 'UNUSUAL_GEOGRAPHIC_PATTERN'
     ) then
-      raise exception 'GRAPH_EDGE_CLASS_MISMATCH';
-    end if;
-  else
     raise exception 'GRAPH_EDGE_CLASS_MISMATCH';
   end if;
   insert into public.m55_r5_compliance_graph_nodes (node_kind, opaque_ref)
@@ -662,12 +673,35 @@ begin
   end if;
   insert into public.m55_r5_compliance_decisions (
     creator_economic_identity_id, purchase_attempt_id, content_id, case_id, disposition,
-    reason_code, rule_version, evidence_reference, reviewer_type, appeal_status
+    reason_code, rule_version, evidence_reference, reviewer_type, appeal_status, decision_timestamp
   ) values (
     p_creator_economic_identity_id, p_purchase_attempt_id, p_content_id, p_case_id, p_disposition,
-    p_reason_code, p_rule_version, p_evidence_reference, p_reviewer_type, p_appeal_status
+    p_reason_code, p_rule_version, p_evidence_reference, p_reviewer_type, p_appeal_status, clock_timestamp()
   ) returning decision_id into v_id;
   return jsonb_build_object('ok', true, 'decision_id', v_id, 'disposition', p_disposition);
+end;
+$$;
+
+create or replace function public.m55_r5_compliance_derive_objective_reason_v1(
+  p_creator_economic_identity_id uuid,
+  p_purchase_attempt_id uuid
+) returns text
+language plpgsql
+stable
+security definer
+set search_path = public, extensions
+as $$
+declare
+  v_reason text;
+begin
+  select 'NONEXISTENT_OR_FAILED_PAYMENT' into v_reason
+  from public.m55_r5_attribution_purchase_attempts a
+  where a.purchase_attempt_id = p_purchase_attempt_id
+    and a.creator_economic_identity_id = p_creator_economic_identity_id
+    and a.decision_kind = 'CREATOR_WINNER'
+    and a.terminal_state in ('EXPIRED', 'CANCELLED')
+  limit 1;
+  return v_reason;
 end;
 $$;
 
@@ -681,13 +715,15 @@ security definer
 set search_path = public, extensions
 as $$
 declare
-  v_attempt_creator uuid;
+  v_attempt public.m55_r5_attribution_purchase_attempts%rowtype;
+  v_active public.m55_r5_compliance_cases%rowtype;
   v_distinct integer;
   v_disposition text;
   v_reason text;
   v_evidence text;
   v_result jsonb;
   v_machine_case uuid;
+  v_derived text;
 begin
   if p_purchase_attempt_id is null then
     raise exception 'PURCHASE_ATTEMPT_REQUIRED';
@@ -698,55 +734,82 @@ begin
   ) then
     raise exception 'CREATOR_NOT_FOUND';
   end if;
-  select creator_economic_identity_id into v_attempt_creator
+  select * into v_attempt
   from public.m55_r5_attribution_purchase_attempts
-  where purchase_attempt_id = p_purchase_attempt_id;
+  where purchase_attempt_id = p_purchase_attempt_id
+  for update;
   if not found then
     raise exception 'PURCHASE_NOT_FOUND';
   end if;
-  if v_attempt_creator is not null and v_attempt_creator <> p_creator_economic_identity_id then
-    raise exception 'PURCHASE_CREATOR_MISMATCH';
+  if v_attempt.decision_kind is distinct from 'CREATOR_WINNER'
+     or v_attempt.creator_economic_identity_id is null
+     or v_attempt.creator_economic_identity_id is distinct from p_creator_economic_identity_id then
+    raise exception 'PURCHASE_NOT_ATTRIBUTED_TO_CREATOR';
   end if;
-  select e.objective_reason_code, e.evidence_reference
-  into v_reason, v_evidence
+  v_derived := public.m55_r5_compliance_derive_objective_reason_v1(
+    p_creator_economic_identity_id,
+    p_purchase_attempt_id
+  );
+  if v_derived is not null then
+    v_disposition := 'AUTO_CANCEL_OBJECTIVE';
+    v_reason := v_derived;
+    v_evidence := 'r5.attempt:' || p_purchase_attempt_id::text || ':derived_objective=NONEXISTENT_OR_FAILED_PAYMENT';
+    v_result := public.m55_r5_compliance_record_decision_v1(
+      p_creator_economic_identity_id, p_purchase_attempt_id, null, null, v_disposition, v_reason,
+      'm55.r5.compliance.fraud_graph.v1', v_evidence, 'MACHINE', 'NONE', true
+    );
+    perform public.m55_r5_compliance_reconcile_machine_exceptions_v1((v_result->>'decision_id')::uuid);
+    return v_result || jsonb_build_object('forfeiture', true);
+  end if;
+  select count(distinct e.risk_signal_class) into v_distinct
   from public.m55_r5_compliance_graph_edges e
   where e.creator_economic_identity_id = p_creator_economic_identity_id
     and e.purchase_attempt_id = p_purchase_attempt_id
-    and e.relation_class = 'OBJECTIVE'
-  order by e.observed_at asc, e.edge_id asc
-  limit 1;
-  if found then
-    v_disposition := 'AUTO_CANCEL_OBJECTIVE';
+    and e.relation_class = 'HEURISTIC_RISK';
+  v_evidence := 'fraud_graph_scope:' || p_purchase_attempt_id::text;
+  if v_distinct >= 2 then
+    v_disposition := 'AUTO_HOLD';
+    v_reason := 'MULTIPLE_HEURISTIC_RISK_SIGNALS';
+  elsif p_decision_required is true then
+    v_disposition := 'AUTO_HOLD';
+    v_reason := case when v_distinct = 1 then 'SINGLE_HEURISTIC_SIGNAL_UNRESOLVED' else 'EVIDENCE_INCOMPLETE' end;
   else
-    select count(distinct e.risk_signal_class) into v_distinct
-    from public.m55_r5_compliance_graph_edges e
-    where e.creator_economic_identity_id = p_creator_economic_identity_id
-      and e.purchase_attempt_id = p_purchase_attempt_id
-      and e.relation_class = 'HEURISTIC_RISK';
-    v_evidence := 'fraud_graph_scope:' || p_purchase_attempt_id::text;
-    if v_distinct >= 2 then
-      v_disposition := 'AUTO_HOLD';
-      v_reason := 'MULTIPLE_HEURISTIC_RISK_SIGNALS';
-    elsif p_decision_required is true then
-      v_disposition := 'AUTO_HOLD';
-      v_reason := case when v_distinct = 1 then 'SINGLE_HEURISTIC_SIGNAL_UNRESOLVED' else 'EVIDENCE_INCOMPLETE' end;
-    else
-      return jsonb_build_object('ok', true, 'outcome', 'NO_DISPOSITION', 'forfeiture', false);
-    end if;
+    return jsonb_build_object('ok', true, 'outcome', 'NO_DISPOSITION', 'forfeiture', false);
+  end if;
+  select * into v_active
+  from public.m55_r5_compliance_cases c
+  where c.case_kind = 'MACHINE_EXCEPTION'
+    and c.creator_economic_identity_id = p_creator_economic_identity_id
+    and c.purchase_attempt_id = p_purchase_attempt_id
+    and c.status in ('OPEN', 'HOLD')
+  for update;
+  if found and v_active.decision = 'KEEP_HOLD' then
+    v_result := public.m55_r5_compliance_record_decision_v1(
+      p_creator_economic_identity_id, p_purchase_attempt_id, null, v_active.case_id, v_disposition, v_reason,
+      'm55.r5.compliance.fraud_graph.v1', v_evidence, 'MACHINE', 'NONE', false
+    );
+    insert into public.m55_r5_compliance_case_events (case_id, event_kind, actor_ref, evidence)
+    values (
+      v_active.case_id,
+      'MACHINE_REEVALUATION',
+      'MACHINE',
+      'machine_decision_id=' || (v_result->>'decision_id') || '|reason_code=' || v_reason || '|rule_version=m55.r5.compliance.fraud_graph.v1'
+    );
+    return v_result || jsonb_build_object(
+      'machine_exception_case_id', v_active.case_id,
+      'forfeiture', false
+    );
   end if;
   v_result := public.m55_r5_compliance_record_decision_v1(
     p_creator_economic_identity_id, p_purchase_attempt_id, null, null, v_disposition, v_reason,
-    'm55.r5.compliance.fraud_graph.v1', v_evidence, 'MACHINE', 'NONE',
-    v_disposition = 'AUTO_CANCEL_OBJECTIVE'
+    'm55.r5.compliance.fraud_graph.v1', v_evidence, 'MACHINE', 'NONE', false
   );
-  if v_disposition in ('AUTO_HOLD', 'AUTO_CANCEL_OBJECTIVE') then
-    perform public.m55_r5_compliance_reconcile_machine_exceptions_v1((v_result->>'decision_id')::uuid);
-  end if;
-  if v_disposition = 'AUTO_HOLD' then
-    v_machine_case := public.m55_r5_compliance_open_machine_exception_v1((v_result->>'decision_id')::uuid);
-    v_result := v_result || jsonb_build_object('machine_exception_case_id', v_machine_case);
-  end if;
-  return v_result || jsonb_build_object('forfeiture', v_disposition = 'AUTO_CANCEL_OBJECTIVE');
+  perform public.m55_r5_compliance_reconcile_machine_exceptions_v1((v_result->>'decision_id')::uuid);
+  v_machine_case := public.m55_r5_compliance_open_machine_exception_v1((v_result->>'decision_id')::uuid);
+  return v_result || jsonb_build_object(
+    'machine_exception_case_id', v_machine_case,
+    'forfeiture', false
+  );
 end;
 $$;
 
@@ -905,6 +968,28 @@ begin
         from public.m55_r5_compliance_decisions d
         where d.decision_id = c.adverse_decision_id
       ),
+      'latest_machine_decision', (
+        select jsonb_build_object(
+          'decision_id', d.decision_id,
+          'disposition', d.disposition,
+          'reason_code', d.reason_code,
+          'rule_version', d.rule_version,
+          'evidence_reference', d.evidence_reference,
+          'decision_timestamp', d.decision_timestamp,
+          'reviewer_type', d.reviewer_type,
+          'appeal_status', d.appeal_status,
+          'content_id', d.content_id,
+          'purchase_attempt_id', d.purchase_attempt_id
+        )
+        from public.m55_r5_compliance_decisions d
+        where d.reviewer_type = 'MACHINE'
+          and (
+            d.decision_id = c.adverse_decision_id
+            or d.case_id = c.case_id
+          )
+        order by d.decision_timestamp desc, d.decision_id desc
+        limit 1
+      ),
       'latest_content_snapshot', (
         select jsonb_build_object(
           'snapshot_id', s.snapshot_id,
@@ -1028,7 +1113,8 @@ revoke all on public.m55_r5_compliance_decisions from public, anon, authenticate
 revoke all on public.m55_r5_compliance_cases from public, anon, authenticated, service_role;
 revoke all on public.m55_r5_compliance_case_events from public, anon, authenticated, service_role;
 
-revoke all on function public.m55_r5_compliance_record_content_v1(uuid, uuid, text, text, text, text, text, text, text, text, text) from public, anon, authenticated, service_role;
+revoke all on function public.m55_r5_compliance_record_content_v1(uuid, uuid, text, text, text, text, text, text, text) from public, anon, authenticated, service_role;
+revoke all on function public.m55_r5_compliance_derive_objective_reason_v1(uuid, uuid) from public, anon, authenticated, service_role;
 revoke all on function public.m55_r5_compliance_record_graph_edge_v1(uuid, uuid, text, text, text, text, text, text, text, text) from public, anon, authenticated, service_role;
 revoke all on function public.m55_r5_compliance_record_decision_v1(uuid, uuid, uuid, uuid, text, text, text, text, text, text, boolean) from public, anon, authenticated, service_role;
 revoke all on function public.m55_r5_compliance_open_machine_exception_v1(uuid) from public, anon, authenticated, service_role;
@@ -1039,7 +1125,7 @@ revoke all on function public.m55_r5_compliance_list_open_cases_v1() from public
 revoke all on function public.m55_r5_compliance_resolve_case_v1(uuid, text, text, text, text) from public, anon, authenticated, service_role;
 revoke all on function public.m55_r5_compliance_decision_machine_evidence_v1(uuid) from public, anon, authenticated, service_role;
 
-grant execute on function public.m55_r5_compliance_record_content_v1(uuid, uuid, text, text, text, text, text, text, text, text, text) to service_role;
+grant execute on function public.m55_r5_compliance_record_content_v1(uuid, uuid, text, text, text, text, text, text, text) to service_role;
 grant execute on function public.m55_r5_compliance_record_graph_edge_v1(uuid, uuid, text, text, text, text, text, text, text, text) to service_role;
 grant execute on function public.m55_r5_compliance_decide_fraud_v1(uuid, uuid, boolean) to service_role;
 grant execute on function public.m55_r5_compliance_creator_case_v1(uuid, text, uuid, uuid, uuid, uuid, text, text) to service_role;
