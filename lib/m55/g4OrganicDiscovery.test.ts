@@ -218,6 +218,19 @@ describe('G4 organic discovery — hard non-changes', () => {
     assert.equal(read('app/synastry/page.tsx').includes('isCompatibilityCommerceEnabled'), true);
   });
 
+  it('contextual editorial pages link once to the self-understanding guide', () => {
+    const method = read('app/how-m55-works/page.tsx');
+    const tenViews = read('components/pages/M55TenViews.tsx');
+    const anchor = '自己理解について読む';
+    assert.equal((method.match(/href="\/self-understanding"/g) ?? []).length, 1);
+    assert.equal((tenViews.match(/href="\/self-understanding"/g) ?? []).length, 1);
+    assert.equal((method.match(new RegExp(anchor, 'g')) ?? []).length, 1);
+    assert.equal((tenViews.match(new RegExp(anchor, 'g')) ?? []).length, 1);
+    assert.match(method, /href="\/core"/);
+    assert.match(tenViews, /href="\/how-m55-works"/);
+    assert.doesNotMatch(read('app/_components/PublicFooter.tsx'), /href="\/self-understanding"/);
+  });
+
   it('/how-m55-works promotes a single semantic h1', () => {
     const sections = read('components/pages/M55MethodSections.tsx');
     assert.match(sections, /<h1 id="m55-method-canonical-title"/);
