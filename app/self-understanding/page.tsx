@@ -143,8 +143,8 @@ export default function SelfUnderstandingPage() {
             </p>
           ))}
           <nav className={styles.links} aria-label="関連ページ">
-            <Link href="/home" className={styles.link}>
-              M55で無料の見取り図を見る
+            <Link href="/core" className={styles.link}>
+              無料で自分の傾向を見る
             </Link>
             <Link href={M55_METHOD_CANONICAL_ROUTE} className={styles.link}>
               {M55_METHOD_ROUTE_LINK_LABEL_JA}

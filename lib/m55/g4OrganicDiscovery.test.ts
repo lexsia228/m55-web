@@ -231,6 +231,17 @@ describe('G4 organic discovery — hard non-changes', () => {
     assert.doesNotMatch(read('app/_components/PublicFooter.tsx'), /href="\/self-understanding"/);
   });
 
+  it('/self-understanding body CTA routes directly to free entry', () => {
+    const page = read('app/self-understanding/page.tsx');
+    const anchor = '無料で自分の傾向を見る';
+    assert.equal((page.match(/href="\/core"/g) ?? []).length, 1);
+    assert.equal((page.match(new RegExp(anchor, 'g')) ?? []).length, 1);
+    assert.doesNotMatch(page, /M55で無料の見取り図を見る/);
+    assert.match(page, /M55_METHOD_CANONICAL_ROUTE/);
+    assert.match(page, /M55_METHOD_ROUTE_LINK_LABEL_JA/);
+    assert.doesNotMatch(read('app/_components/PublicFooter.tsx'), /href="\/core"/);
+  });
+
   it('/how-m55-works promotes a single semantic h1', () => {
     const sections = read('components/pages/M55MethodSections.tsx');
     assert.match(sections, /<h1 id="m55-method-canonical-title"/);
