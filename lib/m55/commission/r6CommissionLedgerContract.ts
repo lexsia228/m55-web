@@ -602,8 +602,55 @@ export function hasPurchaseSpecificPositiveAuthorityV1(
   return !activeHold;
 }
 
+export function isEconomicTerminalReversedV1(args: {
+  hasObjectiveCancellation: boolean;
+  targetRemainingEntitlementJpy: number;
+  effectiveReversalGrossJpy: number;
+}): boolean {
+  if (args.hasObjectiveCancellation) return false;
+  return (
+    args.targetRemainingEntitlementJpy === 0 &&
+    isSafeCommissionMoneyIntegerV1(args.effectiveReversalGrossJpy) &&
+    args.effectiveReversalGrossJpy > 0
+  );
+}
+
+export function computeEffectiveTargetEntitlementJpyV1(args: {
+  hasObjectiveCancellation: boolean;
+  original: R6OriginalMoneySnapshotV1;
+  effectiveReversalGrossJpy: number;
+}): { ok: true; targetRemainingEntitlementJpy: number } | { ok: false; reason: string } {
+  if (args.hasObjectiveCancellation) {
+    return { ok: true, targetRemainingEntitlementJpy: 0 };
+  }
+  const target = computeTargetRemainingEntitlementJpyV1({
+    original: args.original,
+    effectiveReversalGrossJpy: args.effectiveReversalGrossJpy,
+  });
+  if (!target.ok) {
+    return { ok: false, reason: target.reason ?? 'INVALID_TARGET' };
+  }
+  return target;
+}
+
+export function deriveLifecycleAfterEconomicEventV1(args: {
+  hasObjectiveCancellation: boolean;
+  entitlementAfterEventJpy: number;
+  effectiveReversalGrossJpy: number;
+  currentLifecycleState: string;
+}): string {
+  if (
+    args.hasObjectiveCancellation ||
+    (args.entitlementAfterEventJpy === 0 && args.effectiveReversalGrossJpy > 0)
+  ) {
+    return 'COMMISSION_REVERSED';
+  }
+  return args.currentLifecycleState;
+}
+
 export function deriveLifecycleStateV1(args: {
   hasObjectiveCancellation: boolean;
+  economicTerminalReversed: boolean;
   hasActiveHold: boolean;
   hasEconomicOverlapHold: boolean;
   hasActiveDisputeHold: boolean;
@@ -613,6 +660,7 @@ export function deriveLifecycleStateV1(args: {
   currentLifecycleState: string | null;
 }): string {
   if (args.hasObjectiveCancellation) return 'COMMISSION_REVERSED';
+  if (args.economicTerminalReversed) return 'COMMISSION_REVERSED';
   if (args.hasEconomicOverlapHold || args.hasActiveDisputeHold || args.hasActiveHold) {
     return 'COMMISSION_HOLD';
   }
@@ -812,6 +860,211 @@ export function modelSequentialLostDisputeConvergenceV1(args: {
     currentEntitlement = recon.targetRemainingEntitlementJpy;
   }
   return currentEntitlement;
+}
+
+export function modelObjectiveCancelThenPartialRefundConvergenceV1(args: {
+  original: R6OriginalMoneySnapshotV1;
+  originalEntitlementJpy: number;
+  partialRefundGrossJpy: number;
+}): {
+  entitlementJpy: number;
+  positiveEconomicDeltaEmitted: boolean;
+  lifecycleState: string;
+} {
+  const target = computeEffectiveTargetEntitlementJpyV1({
+    hasObjectiveCancellation: true,
+    original: args.original,
+    effectiveReversalGrossJpy: args.partialRefundGrossJpy,
+  });
+  if (!target.ok) throw new Error(target.reason);
+  const cancelDelta = target.targetRemainingEntitlementJpy - args.originalEntitlementJpy;
+  const entitlementAfterCancel = args.originalEntitlementJpy + cancelDelta;
+  const lifecycleAfterCancel = deriveLifecycleStateV1({
+    hasObjectiveCancellation: true,
+    economicTerminalReversed: false,
+    hasActiveHold: false,
+    hasEconomicOverlapHold: false,
+    hasActiveDisputeHold: false,
+    hasPositiveAuthority: true,
+    releaseAtMs: 0,
+    currentEpochMs: Number.MAX_SAFE_INTEGER,
+    currentLifecycleState: 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+  });
+  const laterTarget = computeEffectiveTargetEntitlementJpyV1({
+    hasObjectiveCancellation: true,
+    original: args.original,
+    effectiveReversalGrossJpy: args.partialRefundGrossJpy,
+  });
+  if (!laterTarget.ok) throw new Error(laterTarget.reason);
+  const laterDelta = laterTarget.targetRemainingEntitlementJpy - entitlementAfterCancel;
+  return {
+    entitlementJpy: entitlementAfterCancel + laterDelta,
+    positiveEconomicDeltaEmitted: laterDelta > 0,
+    lifecycleState: lifecycleAfterCancel,
+  };
+}
+
+export type R6LedgerProvenanceEventV1 = {
+  eventFamily: 'COMMISSION_REVERSED' | 'COMMISSION_ADJUSTED';
+  reasonCode: string;
+  deltaJpy: number;
+  sourceKind: 'NONE' | 'REFUND' | 'DISPUTE';
+  sourceId: string | null;
+  entitlementAfterJpy: number;
+  lifecycleAfter: 'COMMISSION_REVERSED';
+};
+
+export function modelObjectiveProvenanceBeforeEconomicSourceV1(args: {
+  currentEntitlementJpy: number;
+  currentLifecycleState: string;
+  objectiveAuthoritative: boolean;
+  objectiveMarkerAlreadyRecorded: boolean;
+  economicSource:
+    | { kind: 'NONE' }
+    | { kind: 'REFUND' | 'DISPUTE'; sourceId: string; reasonCode: string };
+}): R6LedgerProvenanceEventV1[] {
+  if (!args.objectiveAuthoritative) {
+    return [];
+  }
+  if (args.currentEntitlementJpy < 0) {
+    throw new Error('R6_OBJECTIVE_TERMINAL_ENTITLEMENT_INVARIANT_VIOLATION');
+  }
+  const events: R6LedgerProvenanceEventV1[] = [];
+  if (args.objectiveMarkerAlreadyRecorded) {
+    if (args.currentEntitlementJpy !== 0) {
+      throw new Error('R6_OBJECTIVE_TERMINAL_ENTITLEMENT_INVARIANT_VIOLATION');
+    }
+  } else {
+    events.push({
+      eventFamily: 'COMMISSION_REVERSED',
+      reasonCode: 'AUTO_CANCEL_OBJECTIVE',
+      deltaJpy: args.currentEntitlementJpy === 0 ? 0 : -args.currentEntitlementJpy,
+      sourceKind: 'NONE',
+      sourceId: null,
+      entitlementAfterJpy: 0,
+      lifecycleAfter: 'COMMISSION_REVERSED',
+    });
+  }
+  if (args.economicSource.kind !== 'NONE') {
+    events.push({
+      eventFamily: 'COMMISSION_ADJUSTED',
+      reasonCode: args.economicSource.reasonCode,
+      deltaJpy: 0,
+      sourceKind: args.economicSource.kind,
+      sourceId: args.economicSource.sourceId,
+      entitlementAfterJpy: 0,
+      lifecycleAfter: 'COMMISSION_REVERSED',
+    });
+  }
+  void args.currentLifecycleState;
+  return events;
+}
+
+export function modelTerminalFullReversalLifecycleV1(args: {
+  original: R6OriginalMoneySnapshotV1;
+  originalEntitlementJpy: number;
+  fullReversalGrossJpy: number;
+  currentLifecycleState: string;
+  releaseAtMs: number;
+  currentEpochMs: number;
+  hasPositiveAuthority: boolean;
+  hasActiveHold?: boolean;
+  hasEconomicOverlapHold?: boolean;
+  hasObjectiveCancellation?: boolean;
+}): {
+  moneyEventFamily: ReturnType<typeof classifyEconomicEventFamilyV1>;
+  lifecycleAfterMoneyEvent: string;
+  lifecycleAfterReleaseReconcile: string;
+  lifecycleAfterRepeatReconcile: string;
+  payableStateEventEmitted: boolean;
+  pendingStateEventEmitted: boolean;
+  holdStateEventEmitted: boolean;
+} {
+  const recon = computeAggregateReconciliationDeltaV1({
+    original: args.original,
+    effectiveReversalGrossJpy: args.fullReversalGrossJpy,
+    currentEntitlementJpy: args.originalEntitlementJpy,
+  });
+  if (!recon.ok) throw new Error(recon.reason);
+  const moneyEventFamily = classifyEconomicEventFamilyV1({
+    deltaJpy: recon.deltaJpy,
+    targetRemainingEntitlementJpy: recon.targetRemainingEntitlementJpy,
+    currentLifecycleState: args.currentLifecycleState,
+  });
+  const lifecycleAfterMoneyEvent = deriveLifecycleAfterEconomicEventV1({
+    hasObjectiveCancellation: false,
+    entitlementAfterEventJpy: recon.targetRemainingEntitlementJpy,
+    effectiveReversalGrossJpy: args.fullReversalGrossJpy,
+    currentLifecycleState: args.currentLifecycleState,
+  });
+  const hasObjectiveCancellation = args.hasObjectiveCancellation ?? false;
+  const economicTerminalReversed = isEconomicTerminalReversedV1({
+    hasObjectiveCancellation,
+    targetRemainingEntitlementJpy: recon.targetRemainingEntitlementJpy,
+    effectiveReversalGrossJpy: args.fullReversalGrossJpy,
+  });
+  const reconcileInputs = {
+    hasObjectiveCancellation,
+    economicTerminalReversed,
+    hasActiveHold: args.hasActiveHold ?? false,
+    hasEconomicOverlapHold: args.hasEconomicOverlapHold ?? false,
+    hasActiveDisputeHold: false,
+    hasPositiveAuthority: args.hasPositiveAuthority,
+    releaseAtMs: args.releaseAtMs,
+    currentEpochMs: args.currentEpochMs,
+    currentLifecycleState: lifecycleAfterMoneyEvent,
+  };
+  const lifecycleAfterReleaseReconcile = deriveLifecycleStateV1(reconcileInputs);
+  const lifecycleAfterRepeatReconcile = deriveLifecycleStateV1({
+    ...reconcileInputs,
+    currentLifecycleState: lifecycleAfterReleaseReconcile,
+  });
+  return {
+    moneyEventFamily,
+    lifecycleAfterMoneyEvent,
+    lifecycleAfterReleaseReconcile,
+    lifecycleAfterRepeatReconcile,
+    payableStateEventEmitted: lifecycleAfterReleaseReconcile === 'COMMISSION_PAYABLE',
+    pendingStateEventEmitted:
+      lifecycleAfterReleaseReconcile === 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+    holdStateEventEmitted: lifecycleAfterReleaseReconcile === 'COMMISSION_HOLD',
+  };
+}
+
+export type R6ConcurrentEvidenceLockStateV1 = 'IDLE' | 'LOCKED' | 'BLOCKED';
+
+export function modelConcurrentEvidenceLockScheduleV1(args: {
+  refundACommitted: boolean;
+  t1AcquiresLock: boolean;
+  t2AttemptsInsertWhileT1Locked: boolean;
+  t1ReleasesLock: boolean;
+  t2RetriesInsert: boolean;
+}): {
+  t2InsertVisibleDuringT1: boolean;
+  t2InsertVisibleAfterT1: boolean;
+  reconcileSeesConsistentEvidence: boolean;
+} {
+  const t2InsertVisibleDuringT1 =
+    args.refundACommitted && args.t2AttemptsInsertWhileT1Locked && !args.t1ReleasesLock
+      ? false
+      : args.refundACommitted && args.t2AttemptsInsertWhileT1Locked && args.t1AcquiresLock
+        ? false
+        : args.t2AttemptsInsertWhileT1Locked && args.t1AcquiresLock;
+  const t2InsertVisibleAfterT1 =
+    args.refundACommitted &&
+    args.t2AttemptsInsertWhileT1Locked &&
+    args.t1AcquiresLock &&
+    args.t1ReleasesLock &&
+    args.t2RetriesInsert;
+  const reconcileSeesConsistentEvidence =
+    args.refundACommitted &&
+    (!args.t2AttemptsInsertWhileT1Locked || args.t1AcquiresLock) &&
+    (!args.t2AttemptsInsertWhileT1Locked || args.t1ReleasesLock || !args.t2RetriesInsert);
+  return {
+    t2InsertVisibleDuringT1: args.t1AcquiresLock ? false : t2InsertVisibleDuringT1,
+    t2InsertVisibleAfterT1,
+    reconcileSeesConsistentEvidence,
+  };
 }
 
 function parseOriginalRpcResult(raw: unknown): {

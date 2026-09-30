@@ -169,6 +169,24 @@ create table public.m55_r6_commission_ledger_events (
       and source_economic_object_id is not null
       and economic_transition is not null
     )
+  ),
+  constraint m55_r6_commission_ledger_reversed_delta_chk check (
+    event_family <> 'COMMISSION_REVERSED'
+    or (
+      entitlement_after_event_jpy = 0
+      and (
+        commission_delta_jpy < 0
+        or (
+          commission_delta_jpy = 0
+          and reason_code = 'AUTO_CANCEL_OBJECTIVE'
+          and source_economic_object_type is null
+          and source_economic_object_id is null
+          and economic_transition is null
+          and canonical_event_state = 'COMMISSION_REVERSED'
+          and lifecycle_state_after_event = 'COMMISSION_REVERSED'
+        )
+      )
+    )
   )
 );
 
@@ -480,6 +498,83 @@ begin
 end
 $fn$;
 
+create function public.m55_r6_purchase_compliance_authority_snapshot_v1(
+  p_purchase_attempt_id uuid
+)
+returns table (
+  has_objective_cancel boolean,
+  has_active_hold boolean,
+  has_positive_authority boolean
+)
+language plpgsql
+security definer
+stable
+set search_path = ''
+as $fn$
+declare
+  v_has_objective_cancel boolean;
+  v_has_active_hold boolean;
+  v_has_positive_authority boolean;
+begin
+  v_has_objective_cancel := public.m55_r6_has_purchase_objective_cancel_v1(p_purchase_attempt_id);
+  v_has_active_hold := public.m55_r6_has_purchase_active_hold_v1(p_purchase_attempt_id);
+  v_has_positive_authority := exists (
+    select 1
+    from public.m55_r5_compliance_decisions d
+    where d.purchase_attempt_id = p_purchase_attempt_id
+      and d.disposition in ('AUTO_PASS', 'HUMAN_EXCEPTION')
+  ) and not v_has_active_hold;
+  return query
+  select v_has_objective_cancel, v_has_active_hold, v_has_positive_authority;
+end
+$fn$;
+
+create function public.m55_r6_lock_purchase_compliance_mutation_v1()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $fn$
+declare
+  v_attempts uuid[] := '{}';
+  v_pi text;
+begin
+  if tg_op in ('UPDATE', 'DELETE') and old.purchase_attempt_id is not null then
+    v_attempts := array_append(v_attempts, old.purchase_attempt_id);
+  end if;
+  if tg_op in ('INSERT', 'UPDATE')
+     and new.purchase_attempt_id is not null
+     and not new.purchase_attempt_id = any (v_attempts) then
+    v_attempts := array_append(v_attempts, new.purchase_attempt_id);
+  end if;
+
+  for v_pi in
+    select mapped.payment_intent_id
+    from public.m55_r5_attribution_canonical_payment_evidence mapped
+    where mapped.purchase_attempt_id = any (v_attempts)
+    group by mapped.payment_intent_id
+    order by mapped.payment_intent_id
+  loop
+    perform pg_advisory_xact_lock(
+      hashtextextended('m55_r6_commission:' || v_pi, 0)
+    );
+  end loop;
+
+  if tg_op = 'DELETE' then
+    return old;
+  end if;
+  return new;
+end
+$fn$;
+
+create trigger m55_r6_lock_compliance_decisions_purchase_v1
+  before insert or update or delete on public.m55_r5_compliance_decisions
+  for each row execute function public.m55_r6_lock_purchase_compliance_mutation_v1();
+
+create trigger m55_r6_lock_compliance_cases_purchase_v1
+  before insert or update or delete on public.m55_r5_compliance_cases
+  for each row execute function public.m55_r6_lock_purchase_compliance_mutation_v1();
+
 create function public.m55_r6_classify_dispute_authority_v1(
   p_stripe_event_type text,
   p_dispute_status text
@@ -707,10 +802,6 @@ begin
     raise exception 'INVALID_INPUT';
   end if;
 
-  perform pg_advisory_xact_lock(
-    hashtextextended('m55_r6_commission:' || p_payment_intent_id, 0)
-  );
-
   select *
     into v_evidence
   from public.m55_r5_attribution_canonical_payment_evidence
@@ -723,11 +814,16 @@ begin
   select *
     into v_attempt
   from public.m55_r5_attribution_purchase_attempts
-  where purchase_attempt_id = v_evidence.purchase_attempt_id;
+  where purchase_attempt_id = v_evidence.purchase_attempt_id
+  for key share;
 
   if not found then
-    raise exception 'COMMISSION_SOURCE_NOT_FOUND';
+    raise exception 'R6_PURCHASE_ATTEMPT_KEY_SHARE_NOT_FOUND';
   end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended('m55_r6_commission:' || p_payment_intent_id, 0)
+  );
 
   select *
     into v_money
@@ -1000,9 +1096,11 @@ declare
   v_reversal_exceeds_gross boolean := false;
   v_has_active_dispute_hold boolean := false;
   v_has_unknown_dispute_hold boolean := false;
-  v_has_objective_cancel boolean;
+  v_has_objective_cancel boolean := false;
+  v_objective_marker_exists boolean := false;
   v_has_active_hold boolean;
   v_has_positive_authority boolean;
+  v_economic_terminal_reversed boolean := false;
   v_recorded boolean := false;
   v_held boolean := false;
   v_refund record;
@@ -1011,10 +1109,30 @@ declare
   v_event_family text;
   v_canonical_state text;
   v_new_entitlement bigint;
+  v_event_lifecycle_after text;
   v_state_event_family text;
+  v_purchase_attempt_id uuid;
 begin
   if p_payment_intent_id is null or char_length(p_payment_intent_id) = 0 then
     raise exception 'INVALID_INPUT';
+  end if;
+
+  select mapped.purchase_attempt_id
+    into v_purchase_attempt_id
+  from public.m55_r5_attribution_canonical_payment_evidence mapped
+  where mapped.payment_intent_id = p_payment_intent_id;
+
+  if not found then
+    raise exception 'COMMISSION_SOURCE_NOT_FOUND';
+  end if;
+
+  perform 1
+  from public.m55_r5_attribution_purchase_attempts attempt
+  where attempt.purchase_attempt_id = v_purchase_attempt_id
+  for key share;
+
+  if not found then
+    raise exception 'R6_PURCHASE_ATTEMPT_KEY_SHARE_NOT_FOUND';
   end if;
 
   perform pg_advisory_xact_lock(
@@ -1038,7 +1156,77 @@ begin
     );
   end if;
 
+  select snapshot.has_objective_cancel, snapshot.has_active_hold, snapshot.has_positive_authority
+    into v_has_objective_cancel, v_has_active_hold, v_has_positive_authority
+  from public.m55_r6_purchase_compliance_authority_snapshot_v1(v_origin.purchase_attempt_id) snapshot;
+
   v_current_lifecycle := public.m55_r6_latest_lifecycle_state_v1(v_origin.commission_event_id);
+  v_current_entitlement := public.m55_r6_sum_economic_entitlement_v1(v_origin.commission_event_id);
+
+  if v_has_objective_cancel then
+    v_objective_marker_exists := exists (
+      select 1
+      from public.m55_r6_commission_ledger_events e
+      where e.origin_commission_event_id = v_origin.commission_event_id
+        and e.event_family = 'COMMISSION_REVERSED'
+        and e.reason_code = 'AUTO_CANCEL_OBJECTIVE'
+        and e.lifecycle_state_after_event = 'COMMISSION_REVERSED'
+    );
+    if v_objective_marker_exists then
+      if v_current_entitlement <> 0 then
+        raise exception 'R6_OBJECTIVE_TERMINAL_ENTITLEMENT_INVARIANT_VIOLATION';
+      end if;
+    else
+      if v_current_entitlement < 0 then
+        raise exception 'R6_OBJECTIVE_TERMINAL_ENTITLEMENT_INVARIANT_VIOLATION';
+      end if;
+      v_delta := -v_current_entitlement;
+      perform public.m55_r6_insert_ledger_event_v1(
+        v_origin.commission_event_id,
+        'COMMISSION_REVERSED',
+        'COMMISSION_REVERSED',
+        'COMMISSION_REVERSED',
+        v_origin.provider,
+        v_origin.payment_intent_id,
+        v_origin.purchase_money_evidence_id,
+        v_origin.canonical_payment_evidence_id,
+        v_origin.purchase_attempt_id,
+        v_origin.creator_economic_identity_id,
+        v_origin.creator_profile_id,
+        v_origin.runtime_product_id,
+        v_origin.policy_product_id,
+        v_origin.conversion_kind,
+        v_origin.attribution_policy_version,
+        v_origin.creator_terms_version,
+        v_origin.eligible_product_policy_version,
+        v_origin.financial_policy_version,
+        v_origin.calculation_version,
+        v_origin.rate_schedule_version,
+        v_origin.canonical_payment_succeeded_at_ms,
+        v_origin.creator_first_final_approved_at_ms,
+        v_origin.commission_rate_basis_points,
+        v_origin.gross_customer_paid_jpy,
+        v_origin.discount_amount_jpy,
+        v_origin.discount_state,
+        v_origin.authoritative_tax_amount_present,
+        v_origin.authoritative_purchase_tax_amount_jpy,
+        v_origin.tax_rate_bps,
+        v_origin.commission_base_tax_exclusion_jpy,
+        v_origin.immediately_ineligible_amount_jpy,
+        v_origin.commissionable_revenue_jpy,
+        v_delta,
+        0,
+        v_origin.release_at_ms,
+        null,
+        null,
+        null,
+        'AUTO_CANCEL_OBJECTIVE'
+      );
+      v_recorded := true;
+    end if;
+    v_current_lifecycle := public.m55_r6_latest_lifecycle_state_v1(v_origin.commission_event_id);
+    v_current_entitlement := public.m55_r6_sum_economic_entitlement_v1(v_origin.commission_event_id);
+  end if;
 
   for v_refund in
     with latest_refunds as (
@@ -1114,15 +1302,22 @@ begin
     end if;
 
     v_current_entitlement := public.m55_r6_sum_economic_entitlement_v1(v_origin.commission_event_id);
-    v_target_entitlement := public.m55_r6_compute_target_entitlement_v1(
-      v_origin.gross_customer_paid_jpy,
-      v_origin.authoritative_tax_amount_present,
-      coalesce(v_origin.authoritative_purchase_tax_amount_jpy, 0),
-      v_origin.tax_rate_bps,
-      v_origin.commission_rate_basis_points,
-      v_effective_reversal
-    );
+    if v_has_objective_cancel then
+      v_target_entitlement := 0;
+    else
+      v_target_entitlement := public.m55_r6_compute_target_entitlement_v1(
+        v_origin.gross_customer_paid_jpy,
+        v_origin.authoritative_tax_amount_present,
+        coalesce(v_origin.authoritative_purchase_tax_amount_jpy, 0),
+        v_origin.tax_rate_bps,
+        v_origin.commission_rate_basis_points,
+        v_effective_reversal
+      );
+    end if;
     v_aggregate_delta := v_target_entitlement - v_current_entitlement;
+    v_economic_terminal_reversed := not v_has_objective_cancel
+      and v_target_entitlement = 0
+      and v_effective_reversal > 0;
 
     for v_economic_source in
       with latest_refunds as (
@@ -1242,11 +1437,18 @@ begin
         v_new_entitlement := v_current_entitlement;
       end if;
 
+      if v_has_objective_cancel
+         or (v_new_entitlement = 0 and v_effective_reversal > 0) then
+        v_event_lifecycle_after := 'COMMISSION_REVERSED';
+      else
+        v_event_lifecycle_after := v_current_lifecycle;
+      end if;
+
       perform public.m55_r6_insert_ledger_event_v1(
         v_origin.commission_event_id,
         v_event_family,
         v_canonical_state,
-        v_current_lifecycle,
+        v_event_lifecycle_after,
         v_origin.provider,
         v_origin.payment_intent_id,
         v_origin.purchase_money_evidence_id,
@@ -1436,67 +1638,13 @@ begin
   v_current_lifecycle := public.m55_r6_latest_lifecycle_state_v1(v_origin.commission_event_id);
   v_current_entitlement := public.m55_r6_sum_economic_entitlement_v1(v_origin.commission_event_id);
 
-  v_has_objective_cancel := public.m55_r6_has_purchase_objective_cancel_v1(
-    v_origin.purchase_attempt_id
-  );
-  v_has_active_hold := public.m55_r6_has_purchase_active_hold_v1(v_origin.purchase_attempt_id);
-  v_has_positive_authority := public.m55_r6_has_purchase_positive_authority_v1(
-    v_origin.purchase_attempt_id
-  );
+  v_economic_terminal_reversed := not v_has_objective_cancel
+    and v_current_entitlement = 0
+    and v_effective_reversal > 0;
 
-  if v_has_objective_cancel
-     and v_current_entitlement > 0
-     and not exists (
-       select 1
-       from public.m55_r6_commission_ledger_events e
-       where e.origin_commission_event_id = v_origin.commission_event_id
-         and e.event_family = 'COMMISSION_REVERSED'
-         and e.reason_code = 'AUTO_CANCEL_OBJECTIVE'
-         and e.commission_delta_jpy < 0
-     ) then
-    v_delta := -v_current_entitlement;
-    perform public.m55_r6_insert_ledger_event_v1(
-      v_origin.commission_event_id,
-      'COMMISSION_REVERSED',
-      'COMMISSION_REVERSED',
-      'COMMISSION_REVERSED',
-      v_origin.provider,
-      v_origin.payment_intent_id,
-      v_origin.purchase_money_evidence_id,
-      v_origin.canonical_payment_evidence_id,
-      v_origin.purchase_attempt_id,
-      v_origin.creator_economic_identity_id,
-      v_origin.creator_profile_id,
-      v_origin.runtime_product_id,
-      v_origin.policy_product_id,
-      v_origin.conversion_kind,
-      v_origin.attribution_policy_version,
-      v_origin.creator_terms_version,
-      v_origin.eligible_product_policy_version,
-      v_origin.financial_policy_version,
-      v_origin.calculation_version,
-      v_origin.rate_schedule_version,
-      v_origin.canonical_payment_succeeded_at_ms,
-      v_origin.creator_first_final_approved_at_ms,
-      v_origin.commission_rate_basis_points,
-      v_origin.gross_customer_paid_jpy,
-      v_origin.discount_amount_jpy,
-      v_origin.discount_state,
-      v_origin.authoritative_tax_amount_present,
-      v_origin.authoritative_purchase_tax_amount_jpy,
-      v_origin.tax_rate_bps,
-      v_origin.commission_base_tax_exclusion_jpy,
-      v_origin.immediately_ineligible_amount_jpy,
-      v_origin.commissionable_revenue_jpy,
-      v_delta,
-      0,
-      v_origin.release_at_ms,
-      null,
-      null,
-      null,
-      'AUTO_CANCEL_OBJECTIVE'
-    );
-    v_recorded := true;
+  if v_has_objective_cancel then
+    v_target_lifecycle := 'COMMISSION_REVERSED';
+  elsif v_economic_terminal_reversed then
     v_target_lifecycle := 'COMMISSION_REVERSED';
   elsif v_overlap then
     v_target_lifecycle := 'COMMISSION_HOLD';
@@ -1518,19 +1666,15 @@ begin
     v_target_lifecycle := 'COMMISSION_PAYABLE';
   end if;
 
-  if v_has_objective_cancel then
-    v_target_lifecycle := 'COMMISSION_REVERSED';
-  end if;
-
-  if v_overlap and not v_has_objective_cancel then
-    v_target_lifecycle := 'COMMISSION_HOLD';
+  if v_target_lifecycle = 'COMMISSION_REVERSED'
+     and v_current_lifecycle is distinct from 'COMMISSION_REVERSED' then
+    raise exception 'R6_TERMINAL_LIFECYCLE_INVARIANT_VIOLATION';
   end if;
 
   if v_target_lifecycle is distinct from v_current_lifecycle then
     v_state_event_family := case v_target_lifecycle
       when 'COMMISSION_HOLD' then 'COMMISSION_HELD'
       when 'COMMISSION_PAYABLE' then 'COMMISSION_PAYABLE'
-      when 'COMMISSION_REVERSED' then 'COMMISSION_REVERSED'
       else
         case
           when v_current_lifecycle = 'COMMISSION_HOLD'
@@ -1548,7 +1692,6 @@ begin
         case
           when v_target_lifecycle = 'COMMISSION_PAYABLE' then 'COMMISSION_PAYABLE'
           when v_target_lifecycle = 'COMMISSION_HOLD' then 'COMMISSION_HOLD'
-          when v_target_lifecycle = 'COMMISSION_REVERSED' then 'COMMISSION_REVERSED'
           else 'COMMISSION_PENDING_COMPLIANCE_REVIEW'
         end,
         v_target_lifecycle,
@@ -1596,52 +1739,6 @@ begin
           when v_target_lifecycle = 'COMMISSION_PENDING_COMPLIANCE_REVIEW' then 'COMPLIANCE_PENDING'
           else 'LIFECYCLE_TRANSITION'
         end
-      );
-      v_recorded := true;
-    elsif v_state_event_family = 'COMMISSION_REVERSED'
-          and v_has_objective_cancel
-          and v_current_entitlement = 0
-          and v_current_lifecycle is distinct from 'COMMISSION_REVERSED' then
-      perform public.m55_r6_insert_ledger_event_v1(
-        v_origin.commission_event_id,
-        'COMMISSION_HELD',
-        'COMMISSION_REVERSED',
-        'COMMISSION_REVERSED',
-        v_origin.provider,
-        v_origin.payment_intent_id,
-        v_origin.purchase_money_evidence_id,
-        v_origin.canonical_payment_evidence_id,
-        v_origin.purchase_attempt_id,
-        v_origin.creator_economic_identity_id,
-        v_origin.creator_profile_id,
-        v_origin.runtime_product_id,
-        v_origin.policy_product_id,
-        v_origin.conversion_kind,
-        v_origin.attribution_policy_version,
-        v_origin.creator_terms_version,
-        v_origin.eligible_product_policy_version,
-        v_origin.financial_policy_version,
-        v_origin.calculation_version,
-        v_origin.rate_schedule_version,
-        v_origin.canonical_payment_succeeded_at_ms,
-        v_origin.creator_first_final_approved_at_ms,
-        v_origin.commission_rate_basis_points,
-        v_origin.gross_customer_paid_jpy,
-        v_origin.discount_amount_jpy,
-        v_origin.discount_state,
-        v_origin.authoritative_tax_amount_present,
-        v_origin.authoritative_purchase_tax_amount_jpy,
-        v_origin.tax_rate_bps,
-        v_origin.commission_base_tax_exclusion_jpy,
-        v_origin.immediately_ineligible_amount_jpy,
-        v_origin.commissionable_revenue_jpy,
-        0,
-        0,
-        v_origin.release_at_ms,
-        null,
-        null,
-        null,
-        'AUTO_CANCEL_OBJECTIVE'
       );
       v_recorded := true;
     end if;
@@ -1799,6 +1896,14 @@ revoke all on function public.m55_r6_has_purchase_positive_authority_v1(uuid)
   from public, anon, authenticated, service_role;
 grant execute on function public.m55_r6_has_purchase_positive_authority_v1(uuid)
   to service_role;
+
+revoke all on function public.m55_r6_purchase_compliance_authority_snapshot_v1(uuid)
+  from public, anon, authenticated, service_role;
+grant execute on function public.m55_r6_purchase_compliance_authority_snapshot_v1(uuid)
+  to service_role;
+
+revoke all on function public.m55_r6_lock_purchase_compliance_mutation_v1()
+  from public, anon, authenticated, service_role;
 
 revoke all on function public.m55_r6_classify_dispute_authority_v1(text, text)
   from public, anon, authenticated, service_role;

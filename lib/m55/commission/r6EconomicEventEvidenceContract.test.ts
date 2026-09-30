@@ -398,6 +398,51 @@ describe('r6EconomicEventEvidenceContract — RPC contract', () => {
   });
 });
 
+describe('r6EconomicEventEvidenceContract — PATCH-3 shared advisory lock', () => {
+  const ledgerSql = readFileSync(
+    join(process.cwd(), 'supabase/migrations/20260927200000_m55_r6_commission_ledger_v1.sql'),
+    'utf8',
+  );
+
+  function extractLedgerRpcBody(fnName: string): string {
+    const start = ledgerSql.search(new RegExp(`create function public\\.${fnName}`, 'i'));
+    const end = ledgerSql.search(new RegExp(`revoke all on function public\\.${fnName}`, 'i'));
+    if (start < 0 || end < 0 || end <= start) throw new Error(`LEDGER_RPC_BODY_NOT_FOUND:${fnName}`);
+    return ledgerSql.slice(start, end);
+  }
+
+  const commissionLockExpr = "hashtextextended('m55_r6_commission:' || p_payment_intent_id, 0)";
+
+  for (const fnName of [
+    M55_R6_RECORD_REFUND_ECONOMIC_EVIDENCE_RPC_NAME,
+    M55_R6_RECORD_DISPUTE_ECONOMIC_EVIDENCE_RPC_NAME,
+  ]) {
+    it(`${fnName} acquires transaction advisory lock before evidence INSERT`, () => {
+      const body = extractRpcBody(SQL, fnName);
+      const lockIdx = body.indexOf('pg_advisory_xact_lock');
+      const insertIdx = body.indexOf('insert into public.m55_r6_');
+      assert.ok(lockIdx > 0);
+      assert.ok(insertIdx > lockIdx);
+      assert.match(body, /pg_advisory_xact_lock/);
+      assert.match(body, /m55_r6_commission:/);
+      assert.equal(body.includes(commissionLockExpr), true);
+      assert.equal(/pg_advisory_lock\s*\(/i.test(body), false);
+      assert.equal(/pg_advisory_unlock/i.test(body), false);
+    });
+  }
+
+  it('A2 writers use the same lock namespace expression as ledger reconcile', () => {
+    const reconcileBody = extractLedgerRpcBody('m55_r6_reconcile_commission_v1');
+    const refundBody = extractRpcBody(SQL, M55_R6_RECORD_REFUND_ECONOMIC_EVIDENCE_RPC_NAME);
+    const disputeBody = extractRpcBody(SQL, M55_R6_RECORD_DISPUTE_ECONOMIC_EVIDENCE_RPC_NAME);
+    assert.match(reconcileBody, /pg_advisory_xact_lock/);
+    assert.match(reconcileBody, /m55_r6_commission:/);
+    assert.equal(refundBody.includes(commissionLockExpr), true);
+    assert.equal(disputeBody.includes(commissionLockExpr), true);
+    assert.equal(reconcileBody.includes(commissionLockExpr), true);
+  });
+});
+
 describe('r6EconomicEventEvidenceContract — webhook route contract', () => {
   it('dispatches A2 events before existing-event shortcut and generic soft-200', () => {
     const postIdx = WEBHOOK.indexOf('export async function POST');

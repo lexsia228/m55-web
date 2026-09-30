@@ -158,6 +158,10 @@ begin
     raise exception 'INVALID_INPUT';
   end if;
 
+  perform pg_advisory_xact_lock(
+    hashtextextended('m55_r6_commission:' || p_payment_intent_id, 0)
+  );
+
   select pme.purchase_money_evidence_id, pme.currency
     into v_purchase_money_evidence_id, v_purchase_currency
   from public.m55_r6_purchase_money_evidence pme
@@ -313,6 +317,10 @@ begin
      or char_length(p_dispute_status) > 128 then
     raise exception 'INVALID_INPUT';
   end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended('m55_r6_commission:' || p_payment_intent_id, 0)
+  );
 
   select pme.purchase_money_evidence_id, pme.currency
     into v_purchase_money_evidence_id, v_purchase_currency

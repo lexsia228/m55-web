@@ -43,17 +43,24 @@ const {
   computeOriginalCommissionMoneyV1,
   computeReleaseAtMsV1,
   computeTargetRemainingEntitlementJpyV1,
+  computeEffectiveTargetEntitlementJpyV1,
   deriveCommissionRateBasisPointsV1,
+  deriveLifecycleAfterEconomicEventV1,
   deriveLifecycleStateV1,
   floorDivBigIntV1,
+  isEconomicTerminalReversedV1,
   hasActivePurchaseSpecificHoldAuthorityV1,
   hasPurchaseSpecificObjectiveCancellationV1,
   hasPurchaseSpecificPositiveAuthorityV1,
   hasRefundDisputeEconomicOverlapV1,
   isAutoHoldDecisionStillActiveV1,
   isReversalGrossExceedsOriginalV1,
+  modelConcurrentEvidenceLockScheduleV1,
+  modelObjectiveCancelThenPartialRefundConvergenceV1,
+  modelObjectiveProvenanceBeforeEconomicSourceV1,
   modelSequentialLostDisputeConvergenceV1,
   modelSequentialRefundConvergenceV1,
+  modelTerminalFullReversalLifecycleV1,
   selectAggregateDeltaCarrierTransitionV1,
   selectEffectiveLostDisputesV1,
   selectEffectiveSucceededRefundsV1,
@@ -489,6 +496,7 @@ describe('r6CommissionLedgerContract — compliance lifecycle', () => {
     assert.equal(
       deriveLifecycleStateV1({
         hasObjectiveCancellation: true,
+        economicTerminalReversed: false,
         hasActiveHold: false,
         hasEconomicOverlapHold: false,
         hasActiveDisputeHold: false,
@@ -523,6 +531,7 @@ describe('r6CommissionLedgerContract — compliance lifecycle', () => {
     assert.equal(
       deriveLifecycleStateV1({
         hasObjectiveCancellation: false,
+        economicTerminalReversed: false,
         hasActiveHold: true,
         hasEconomicOverlapHold: false,
         hasActiveDisputeHold: false,
@@ -547,6 +556,7 @@ describe('r6CommissionLedgerContract — compliance lifecycle', () => {
     assert.equal(
       deriveLifecycleStateV1({
         hasObjectiveCancellation: false,
+        economicTerminalReversed: false,
         hasActiveHold: false,
         hasEconomicOverlapHold: false,
         hasActiveDisputeHold: false,
@@ -560,6 +570,7 @@ describe('r6CommissionLedgerContract — compliance lifecycle', () => {
     assert.equal(
       deriveLifecycleStateV1({
         hasObjectiveCancellation: false,
+        economicTerminalReversed: false,
         hasActiveHold: false,
         hasEconomicOverlapHold: false,
         hasActiveDisputeHold: false,
@@ -846,6 +857,222 @@ describe('r6CommissionLedgerContract — out-of-order economic convergence', () 
   });
 });
 
+describe('r6CommissionLedgerContract — PATCH-3 terminal reversal', () => {
+  it('CASE A: PENDING full refund stays REVERSED after release reconcile', () => {
+    const result = modelTerminalFullReversalLifecycleV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 1000,
+      fullReversalGrossJpy: 2000,
+      currentLifecycleState: 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+      releaseAtMs: 1,
+      currentEpochMs: 2,
+      hasPositiveAuthority: true,
+    });
+    assert.equal(result.moneyEventFamily, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterMoneyEvent, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterReleaseReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.payableStateEventEmitted, false);
+  });
+
+  it('CASE B: PAYABLE full refund uses CLAWBACK_ACCRUED and stays REVERSED', () => {
+    const result = modelTerminalFullReversalLifecycleV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 1000,
+      fullReversalGrossJpy: 2000,
+      currentLifecycleState: 'COMMISSION_PAYABLE',
+      releaseAtMs: 1,
+      currentEpochMs: 2,
+      hasPositiveAuthority: true,
+    });
+    assert.equal(result.moneyEventFamily, 'CLAWBACK_ACCRUED');
+    assert.equal(result.lifecycleAfterMoneyEvent, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterReleaseReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.payableStateEventEmitted, false);
+  });
+
+  it('derives economic terminal reversal from current authority not zero balance alone', () => {
+    assert.equal(
+      isEconomicTerminalReversedV1({
+        hasObjectiveCancellation: false,
+        targetRemainingEntitlementJpy: 0,
+        effectiveReversalGrossJpy: 2000,
+      }),
+      true,
+    );
+    assert.equal(
+      isEconomicTerminalReversedV1({
+        hasObjectiveCancellation: false,
+        targetRemainingEntitlementJpy: 0,
+        effectiveReversalGrossJpy: 0,
+      }),
+      false,
+    );
+    assert.equal(
+      deriveLifecycleAfterEconomicEventV1({
+        hasObjectiveCancellation: false,
+        entitlementAfterEventJpy: 0,
+        effectiveReversalGrossJpy: 2000,
+        currentLifecycleState: 'COMMISSION_PAYABLE',
+      }),
+      'COMMISSION_REVERSED',
+    );
+  });
+});
+
+describe('r6CommissionLedgerContract — PATCH-3A terminal lifecycle priority', () => {
+  it('no-positive authority + full refund stays REVERSED after reconcile', () => {
+    const result = modelTerminalFullReversalLifecycleV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 1000,
+      fullReversalGrossJpy: 2000,
+      currentLifecycleState: 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+      releaseAtMs: 1,
+      currentEpochMs: 2,
+      hasPositiveAuthority: false,
+    });
+    assert.equal(result.moneyEventFamily, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterMoneyEvent, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterReleaseReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterRepeatReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.pendingStateEventEmitted, false);
+    assert.equal(result.payableStateEventEmitted, false);
+  });
+
+  it('active hold + full refund outranks HOLD and stays REVERSED', () => {
+    const result = modelTerminalFullReversalLifecycleV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 1000,
+      fullReversalGrossJpy: 2000,
+      currentLifecycleState: 'COMMISSION_HOLD',
+      releaseAtMs: 1,
+      currentEpochMs: 2,
+      hasPositiveAuthority: true,
+      hasActiveHold: true,
+    });
+    assert.equal(result.lifecycleAfterReleaseReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.lifecycleAfterRepeatReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.holdStateEventEmitted, false);
+  });
+
+  it('positive authority pre-release full reversal stays REVERSED not PENDING', () => {
+    const result = modelTerminalFullReversalLifecycleV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 1000,
+      fullReversalGrossJpy: 2000,
+      currentLifecycleState: 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+      releaseAtMs: 100,
+      currentEpochMs: 50,
+      hasPositiveAuthority: true,
+    });
+    assert.equal(result.lifecycleAfterReleaseReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.pendingStateEventEmitted, false);
+  });
+
+  it('positive authority post-release full reversal stays REVERSED not PAYABLE', () => {
+    const result = modelTerminalFullReversalLifecycleV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 1000,
+      fullReversalGrossJpy: 2000,
+      currentLifecycleState: 'COMMISSION_PAYABLE',
+      releaseAtMs: 1,
+      currentEpochMs: 2,
+      hasPositiveAuthority: true,
+    });
+    assert.equal(result.moneyEventFamily, 'CLAWBACK_ACCRUED');
+    assert.equal(result.lifecycleAfterReleaseReconcile, 'COMMISSION_REVERSED');
+    assert.equal(result.payableStateEventEmitted, false);
+    assert.equal(result.lifecycleAfterRepeatReconcile, 'COMMISSION_REVERSED');
+  });
+
+  it('objective cancellation preservation keeps target zero without economicTerminalReversed', () => {
+    const result = modelObjectiveCancelThenPartialRefundConvergenceV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 5000,
+      partialRefundGrossJpy: 1000,
+    });
+    assert.equal(
+      isEconomicTerminalReversedV1({
+        hasObjectiveCancellation: true,
+        targetRemainingEntitlementJpy: 0,
+        effectiveReversalGrossJpy: 1000,
+      }),
+      false,
+    );
+    assert.equal(result.entitlementJpy, 0);
+    assert.equal(result.lifecycleState, 'COMMISSION_REVERSED');
+    assert.equal(result.positiveEconomicDeltaEmitted, false);
+  });
+});
+
+describe('r6CommissionLedgerContract — PATCH-3 objective cancellation terminality', () => {
+  it('objective cancel forces target zero before refund delta generation', () => {
+    const target = computeEffectiveTargetEntitlementJpyV1({
+      hasObjectiveCancellation: true,
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      effectiveReversalGrossJpy: 1000,
+    });
+    assert.equal(target.ok, true);
+    if (target.ok) assert.equal(target.targetRemainingEntitlementJpy, 0);
+  });
+
+  it('cancel then partial refund does not resurrect positive entitlement', () => {
+    const result = modelObjectiveCancelThenPartialRefundConvergenceV1({
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      originalEntitlementJpy: 5000,
+      partialRefundGrossJpy: 1000,
+    });
+    assert.equal(result.entitlementJpy, 0);
+    assert.equal(result.positiveEconomicDeltaEmitted, false);
+    assert.equal(result.lifecycleState, 'COMMISSION_REVERSED');
+  });
+
+  it('partial refund then cancel still converges to zero', () => {
+    const partialTarget = computeEffectiveTargetEntitlementJpyV1({
+      hasObjectiveCancellation: false,
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      effectiveReversalGrossJpy: 1000,
+    });
+    assert.equal(partialTarget.ok, true);
+    const afterCancel = computeEffectiveTargetEntitlementJpyV1({
+      hasObjectiveCancellation: true,
+      original: REFUND_CONVERGENCE_ORIGINAL,
+      effectiveReversalGrossJpy: 1000,
+    });
+    assert.equal(afterCancel.ok, true);
+    if (partialTarget.ok && afterCancel.ok) {
+      assert.ok(partialTarget.targetRemainingEntitlementJpy > 0);
+      assert.equal(afterCancel.targetRemainingEntitlementJpy, 0);
+    }
+  });
+});
+
+describe('r6CommissionLedgerContract — PATCH-3 concurrent evidence lock', () => {
+  it('blocks T2 evidence insert visibility while T1 holds commission lock', () => {
+    const blocked = modelConcurrentEvidenceLockScheduleV1({
+      refundACommitted: true,
+      t1AcquiresLock: true,
+      t2AttemptsInsertWhileT1Locked: true,
+      t1ReleasesLock: false,
+      t2RetriesInsert: false,
+    });
+    assert.equal(blocked.t2InsertVisibleDuringT1, false);
+    assert.equal(blocked.reconcileSeesConsistentEvidence, true);
+  });
+
+  it('allows T2 insert after T1 releases lock and converges consistently', () => {
+    const released = modelConcurrentEvidenceLockScheduleV1({
+      refundACommitted: true,
+      t1AcquiresLock: true,
+      t2AttemptsInsertWhileT1Locked: true,
+      t1ReleasesLock: true,
+      t2RetriesInsert: true,
+    });
+    assert.equal(released.t2InsertVisibleDuringT1, false);
+    assert.equal(released.t2InsertVisibleAfterT1, true);
+    assert.equal(released.reconcileSeesConsistentEvidence, true);
+  });
+});
+
 describe('r6CommissionLedgerContract — fail-closed reversal gross', () => {
   it('flags refund and lost-dispute totals above original gross', () => {
     assert.equal(
@@ -948,6 +1175,7 @@ describe('r6CommissionLedgerContract — SQL static contract', () => {
       'm55_r6_has_purchase_objective_cancel_v1',
       'm55_r6_has_purchase_active_hold_v1',
       'm55_r6_has_purchase_positive_authority_v1',
+      'm55_r6_purchase_compliance_authority_snapshot_v1',
       'm55_r6_classify_dispute_authority_v1',
       'm55_r6_classify_economic_event_family_v1',
       'm55_r6_insert_ledger_event_v1',
@@ -972,6 +1200,170 @@ describe('r6CommissionLedgerContract — SQL static contract', () => {
     assert.match(reconcileBody, /m55_r6_commission:/);
   });
 
+  it('PATCH-3: reconcile derives terminal lifecycle before PAYABLE and on economic events', () => {
+    const reconcileBody = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    assert.match(reconcileBody, /v_has_objective_cancel then\s+v_target_entitlement := 0/i);
+    assert.match(reconcileBody, /v_economic_terminal_reversed/);
+    assert.match(reconcileBody, /v_event_lifecycle_after := 'COMMISSION_REVERSED'/);
+    assert.match(reconcileBody, /if v_economic_terminal_reversed then/i);
+    assert.equal(
+      /not exists \([\s\S]*AUTO_CANCEL_OBJECTIVE[\s\S]*commission_delta_jpy < 0/i.test(
+        reconcileBody,
+      ),
+      false,
+    );
+  });
+
+  it('PATCH-3A: final lifecycle priority places economic terminal reversal before hold and pending', () => {
+    const reconcileBody = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    const finalLifecycleAnchor = reconcileBody.lastIndexOf(
+      'v_economic_terminal_reversed := not v_has_objective_cancel',
+    );
+    assert.ok(finalLifecycleAnchor > 0);
+    const finalLifecycleBlock = reconcileBody.slice(finalLifecycleAnchor);
+    const objectiveIdx = finalLifecycleBlock.indexOf('if v_has_objective_cancel then');
+    const terminalIdx = finalLifecycleBlock.indexOf('elsif v_economic_terminal_reversed then');
+    const overlapIdx = finalLifecycleBlock.indexOf('elsif v_overlap then');
+    const holdIdx = finalLifecycleBlock.indexOf(
+      'elsif v_held or v_has_unknown_dispute_hold or v_has_active_dispute_hold or v_has_active_hold then',
+    );
+    const noPositiveIdx = finalLifecycleBlock.indexOf('elsif not v_has_positive_authority then');
+    const preReleaseIdx = finalLifecycleBlock.indexOf(
+      'elsif v_current_epoch_ms < v_origin.release_at_ms then',
+    );
+    assert.ok(objectiveIdx >= 0);
+    assert.ok(terminalIdx > objectiveIdx);
+    assert.ok(overlapIdx > terminalIdx);
+    assert.ok(holdIdx > overlapIdx);
+    assert.ok(noPositiveIdx > holdIdx);
+    assert.ok(preReleaseIdx > noPositiveIdx);
+    assert.match(
+      reconcileBody,
+      /v_current_lifecycle := public\.m55_r6_latest_lifecycle_state_v1\(v_origin\.commission_event_id\);[\s\S]*v_economic_terminal_reversed := not v_has_objective_cancel/,
+    );
+    assert.equal(
+      /if v_overlap and not v_has_objective_cancel then[\s\S]*v_target_lifecycle := 'COMMISSION_HOLD'/i.test(
+        reconcileBody,
+      ),
+      false,
+    );
+  });
+
+  it('PATCH-3B: zero-money COMMISSION_REVERSED lifecycle carrier is absent', () => {
+    const reconcileBody = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    const invariantIdx = reconcileBody.indexOf("raise exception 'R6_TERMINAL_LIFECYCLE_INVARIANT_VIOLATION'");
+    assert.ok(invariantIdx > 0);
+    const afterInvariant = reconcileBody.slice(invariantIdx);
+    assert.equal(/v_state_event_family = 'COMMISSION_REVERSED'/i.test(afterInvariant), false);
+    assert.equal(
+      /else 'COMMISSION_REVERSED'[\s\S]*'LIFECYCLE_TRANSITION'/i.test(afterInvariant),
+      false,
+    );
+    assert.equal(
+      /'COMMISSION_REVERSED',\s*'COMMISSION_REVERSED',\s*'COMMISSION_REVERSED'[\s\S]{0,1600},\s*0\s*,\s*0[\s\S]{0,240}'LIFECYCLE_TRANSITION'/i.test(
+        reconcileBody,
+      ),
+      false,
+    );
+  });
+
+  it('PATCH-3B: no zero-money state family masquerades as COMMISSION_REVERSED', () => {
+    const reconcileBody = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    assert.equal(
+      /when v_has_objective_cancel then 'COMMISSION_HELD'[\s\S]*'COMMISSION_REVERSED'/i.test(
+        reconcileBody,
+      ),
+      false,
+    );
+    assert.equal(
+      /v_state_event_family[\s\S]{0,400}'COMMISSION_HELD'[\s\S]{0,800}'COMMISSION_REVERSED'[\s\S]{0,400},\s*0\s*,\s*0/i.test(
+        reconcileBody,
+      ),
+      false,
+    );
+  });
+
+  it('PATCH-3B: non-REVERSED current lifecycle fails closed when target is REVERSED', () => {
+    const reconcileBody = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    assert.match(reconcileBody, /R6_TERMINAL_LIFECYCLE_INVARIANT_VIOLATION/);
+    const invariantIdx = reconcileBody.lastIndexOf(
+      "raise exception 'R6_TERMINAL_LIFECYCLE_INVARIANT_VIOLATION'",
+    );
+    const stateInsertIdx = reconcileBody.lastIndexOf("v_state_event_family in ('COMMISSION_HELD'");
+    assert.ok(invariantIdx > 0);
+    assert.ok(stateInsertIdx > invariantIdx);
+    assert.match(
+      reconcileBody,
+      /if v_target_lifecycle = 'COMMISSION_REVERSED'\s+and v_current_lifecycle is distinct from 'COMMISSION_REVERSED' then\s+raise exception 'R6_TERMINAL_LIFECYCLE_INVARIANT_VIOLATION'/i,
+    );
+  });
+
+  it('PATCH-3C: zero original commission and full-tax commission are legal zero entitlements', () => {
+    const fallback = computeOriginalCommissionMoneyV1({
+      grossCustomerPaidJpy: 1,
+      authoritativeTaxAmountPresent: false,
+      authoritativePurchaseTaxAmountJpy: null,
+      taxRateBps: M55_R6_FALLBACK_TAX_RATE_BPS,
+      commissionRateBasisPoints: 5000,
+      immediatelyIneligibleAmountJpy: M55_R6_IMMEDIATELY_INELIGIBLE_AMOUNT_JPY,
+    });
+    assert.equal(fallback.ok, true);
+    if (fallback.ok) {
+      assert.equal(fallback.commissionBaseTaxExclusionJpy, 0);
+      assert.equal(fallback.commissionableRevenueJpy, 1);
+      assert.equal(fallback.grossCommissionJpy, 0);
+    }
+    const fullTax = computeOriginalCommissionMoneyV1({
+      grossCustomerPaidJpy: 2000,
+      authoritativeTaxAmountPresent: true,
+      authoritativePurchaseTaxAmountJpy: 2000,
+      taxRateBps: M55_R6_FALLBACK_TAX_RATE_BPS,
+      commissionRateBasisPoints: 5000,
+      immediatelyIneligibleAmountJpy: M55_R6_IMMEDIATELY_INELIGIBLE_AMOUNT_JPY,
+    });
+    assert.equal(fullTax.ok, true);
+    if (fullTax.ok) {
+      assert.equal(fullTax.commissionableRevenueJpy, 0);
+      assert.equal(fullTax.grossCommissionJpy, 0);
+    }
+  });
+
+  it('PATCH-3C: zero-entitlement objective cancel writes one AUTO_CANCEL_OBJECTIVE marker before the invariant', () => {
+    const reconcileBody = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    const objectiveBlock = reconcileBody.indexOf('if v_has_objective_cancel then');
+    const aggregateIdx = reconcileBody.indexOf('v_aggregate_delta := v_target_entitlement - v_current_entitlement');
+    const finalInvariant = reconcileBody.lastIndexOf(
+      "if v_target_lifecycle = 'COMMISSION_REVERSED'",
+    );
+    assert.ok(objectiveBlock > 0);
+    assert.ok(aggregateIdx > objectiveBlock);
+    assert.ok(finalInvariant > objectiveBlock);
+    const objectiveSlice = reconcileBody.slice(objectiveBlock, aggregateIdx);
+    assert.match(objectiveSlice, /v_delta := -v_current_entitlement/);
+    assert.match(objectiveSlice, /'AUTO_CANCEL_OBJECTIVE'/);
+    assert.equal(/current_lifecycle is distinct from 'COMMISSION_REVERSED'/.test(objectiveSlice), false);
+    assert.equal(/LIFECYCLE_TRANSITION/.test(objectiveSlice), false);
+  });
+
+  it('PATCH-3C: schema allows only the narrow zero-delta COMMISSION_REVERSED form', () => {
+    const guard = SQL.slice(
+      SQL.indexOf('constraint m55_r6_commission_ledger_reversed_delta_chk'),
+      SQL.indexOf('create unique index m55_r6_commission_ledger_one_accrual_uq'),
+    );
+    assert.match(guard, /event_family <> 'COMMISSION_REVERSED'/);
+    assert.match(guard, /entitlement_after_event_jpy = 0/);
+    assert.match(guard, /commission_delta_jpy < 0/);
+    assert.match(guard, /commission_delta_jpy = 0/);
+    assert.match(guard, /reason_code = 'AUTO_CANCEL_OBJECTIVE'/);
+    assert.match(guard, /source_economic_object_type is null/);
+    assert.match(guard, /source_economic_object_id is null/);
+    assert.match(guard, /economic_transition is null/);
+    assert.match(guard, /canonical_event_state = 'COMMISSION_REVERSED'/);
+    assert.match(guard, /lifecycle_state_after_event = 'COMMISSION_REVERSED'/);
+    assert.equal(/LIFECYCLE_TRANSITION/.test(guard), false);
+    assert.equal(/REFUND_SUCCEEDED/.test(guard), false);
+  });
+
   it('excludes current lifecycle from immutable original replay comparison', () => {
     const originalBody = extractRpcBody(SQL, M55_R6_RECORD_ORIGINAL_COMMISSION_RPC_NAME);
     const convergedBlock = originalBody.slice(
@@ -984,11 +1376,167 @@ describe('r6CommissionLedgerContract — SQL static contract', () => {
   });
 });
 
+function rpcBodyUntilNextFunction(sql: string, fnName: string): string {
+  const region = extractRpcBody(sql, fnName);
+  const nextFunction = region.indexOf('\ncreate function ', 1);
+  return nextFunction > 0 ? region.slice(0, nextFunction) : region;
+}
+
+describe('r6CommissionLedgerContract — PATCH-3E purchase key share before advisory', () => {
+  it('original commission locks the purchase row before the PI advisory lock and before ledger insert', () => {
+    const body = rpcBodyUntilNextFunction(SQL, M55_R6_RECORD_ORIGINAL_COMMISSION_RPC_NAME);
+    const keyShareIdx = body.search(/for key share/i);
+    const advisoryIdx = body.indexOf('pg_advisory_xact_lock');
+    const insertIdx = body.indexOf('m55_r6_insert_ledger_event_v1');
+    assert.ok(keyShareIdx > 0);
+    assert.ok(advisoryIdx > keyShareIdx);
+    assert.ok(insertIdx > advisoryIdx);
+    assert.match(body, /m55_r5_attribution_canonical_payment_evidence/);
+    assert.match(body, /m55_r5_attribution_purchase_attempts/);
+    assert.equal(/for update/i.test(body), false);
+    assert.equal(/for no key update/i.test(body), false);
+  });
+
+  it('reconcile locks the purchase row before the PI advisory lock and the compliance snapshot', () => {
+    const body = rpcBodyUntilNextFunction(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    const resolveIdx = body.indexOf('m55_r5_attribution_canonical_payment_evidence');
+    const keyShareIdx = body.search(/for key share/i);
+    const advisoryIdx = body.indexOf('pg_advisory_xact_lock');
+    const snapshotIdx = body.indexOf('m55_r6_purchase_compliance_authority_snapshot_v1');
+    const aggregateIdx = body.indexOf('v_aggregate_delta :=');
+    assert.ok(resolveIdx > 0);
+    assert.ok(keyShareIdx > resolveIdx);
+    assert.ok(advisoryIdx > keyShareIdx);
+    assert.ok(snapshotIdx > advisoryIdx);
+    assert.ok(aggregateIdx > snapshotIdx);
+    const afterAdvisory = body.slice(advisoryIdx + 'pg_advisory_xact_lock'.length);
+    assert.equal(/for key share/i.test(afterAdvisory), false);
+    assert.equal(/for update/i.test(body), false);
+    assert.equal(/for no key update/i.test(body), false);
+    assert.equal(/for share/i.test(body), false);
+    assert.equal(/m55_r5_compliance_decisions[\s\S]{0,200}for update/i.test(body), false);
+    assert.equal(/m55_r5_compliance_cases[\s\S]{0,200}for update/i.test(body), false);
+  });
+});
+
+describe('r6CommissionLedgerContract — PATCH-3D objective provenance and compliance serialization', () => {
+  it('objective forfeiture precedes a zero-delta partial refund marker', () => {
+    const events = modelObjectiveProvenanceBeforeEconomicSourceV1({
+      currentEntitlementJpy: 5000,
+      currentLifecycleState: 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+      objectiveAuthoritative: true,
+      objectiveMarkerAlreadyRecorded: false,
+      economicSource: {
+        kind: 'REFUND',
+        sourceId: 're_partial',
+        reasonCode: 'REFUND_SUCCEEDED',
+      },
+    });
+    assert.deepEqual(events, [
+      {
+        eventFamily: 'COMMISSION_REVERSED',
+        reasonCode: 'AUTO_CANCEL_OBJECTIVE',
+        deltaJpy: -5000,
+        sourceKind: 'NONE',
+        sourceId: null,
+        entitlementAfterJpy: 0,
+        lifecycleAfter: 'COMMISSION_REVERSED',
+      },
+      {
+        eventFamily: 'COMMISSION_ADJUSTED',
+        reasonCode: 'REFUND_SUCCEEDED',
+        deltaJpy: 0,
+        sourceKind: 'REFUND',
+        sourceId: 're_partial',
+        entitlementAfterJpy: 0,
+        lifecycleAfter: 'COMMISSION_REVERSED',
+      },
+    ]);
+    assert.equal(events.some((event) => event.sourceKind === 'REFUND' && event.deltaJpy === -5000), false);
+  });
+
+  it('objective forfeiture precedes a zero-delta lost-dispute marker', () => {
+    const events = modelObjectiveProvenanceBeforeEconomicSourceV1({
+      currentEntitlementJpy: 5000,
+      currentLifecycleState: 'COMMISSION_PENDING_COMPLIANCE_REVIEW',
+      objectiveAuthoritative: true,
+      objectiveMarkerAlreadyRecorded: false,
+      economicSource: {
+        kind: 'DISPUTE',
+        sourceId: 'dp_lost',
+        reasonCode: 'DISPUTE_LOST',
+      },
+    });
+    assert.equal(events[0]?.deltaJpy, -5000);
+    assert.equal(events[0]?.reasonCode, 'AUTO_CANCEL_OBJECTIVE');
+    assert.equal(events[1]?.deltaJpy, 0);
+    assert.equal(events[1]?.sourceId, 'dp_lost');
+    assert.equal(events[1]?.reasonCode, 'DISPUTE_LOST');
+  });
+
+  it('records one zero-delta objective marker after an already reversed economic terminal', () => {
+    const first = modelObjectiveProvenanceBeforeEconomicSourceV1({
+      currentEntitlementJpy: 0,
+      currentLifecycleState: 'COMMISSION_REVERSED',
+      objectiveAuthoritative: true,
+      objectiveMarkerAlreadyRecorded: false,
+      economicSource: { kind: 'NONE' },
+    });
+    assert.equal(first.length, 1);
+    assert.equal(first[0]?.deltaJpy, 0);
+    assert.equal(first[0]?.reasonCode, 'AUTO_CANCEL_OBJECTIVE');
+    const replay = modelObjectiveProvenanceBeforeEconomicSourceV1({
+      currentEntitlementJpy: 0,
+      currentLifecycleState: 'COMMISSION_REVERSED',
+      objectiveAuthoritative: true,
+      objectiveMarkerAlreadyRecorded: true,
+      economicSource: { kind: 'NONE' },
+    });
+    assert.deepEqual(replay, []);
+  });
+
+  it('serializes purchase compliance mutations on the R6 commission lock', () => {
+    const triggerBody = SQL.slice(
+      SQL.indexOf('create function public.m55_r6_lock_purchase_compliance_mutation_v1'),
+      SQL.indexOf('create function public.m55_r6_classify_dispute_authority_v1'),
+    );
+    assert.match(triggerBody, /before insert or update or delete on public\.m55_r5_compliance_decisions/i);
+    assert.match(triggerBody, /before insert or update or delete on public\.m55_r5_compliance_cases/i);
+    assert.match(triggerBody, /m55_r5_attribution_canonical_payment_evidence/);
+    assert.match(triggerBody, /pg_advisory_xact_lock/);
+    assert.match(triggerBody, /m55_r6_commission:/);
+    assert.match(triggerBody, /purchase_attempt_id is not null/);
+    assert.equal(/pg_advisory_lock\s*\(/i.test(triggerBody), false);
+    assert.equal(/m55_r6_compliance_lock/i.test(triggerBody), false);
+    assert.match(
+      SQL,
+      /revoke all on function public\.m55_r6_lock_purchase_compliance_mutation_v1\(\)\s+from public, anon, authenticated, service_role/i,
+    );
+    assert.equal(/grant execute on function public\.m55_r6_lock_purchase_compliance_mutation_v1/i.test(SQL), false);
+  });
+
+  it('captures compliance authority once inside reconcile', () => {
+    const reconcileRegion = extractRpcBody(SQL, M55_R6_RECONCILE_COMMISSION_RPC_NAME);
+    const nextFunction = reconcileRegion.indexOf('\ncreate function ', 1);
+    const reconcileBody = nextFunction > 0 ? reconcileRegion.slice(0, nextFunction) : reconcileRegion;
+    const snapshotCalls = reconcileBody.match(/m55_r6_purchase_compliance_authority_snapshot_v1/g) ?? [];
+    assert.equal(snapshotCalls.length, 1);
+    assert.equal(/m55_r6_has_purchase_objective_cancel_v1/.test(reconcileBody), false);
+    assert.equal(/m55_r6_has_purchase_active_hold_v1/.test(reconcileBody), false);
+    assert.equal(/m55_r6_has_purchase_positive_authority_v1/.test(reconcileBody), false);
+    const snapshotIdx = reconcileBody.indexOf('m55_r6_purchase_compliance_authority_snapshot_v1');
+    const aggregateIdx = reconcileBody.indexOf('v_aggregate_delta :=');
+    assert.ok(snapshotIdx > 0);
+    assert.ok(aggregateIdx > snapshotIdx);
+  });
+});
+
 describe('r6CommissionLedgerContract — PATCH-2 compliance privilege bridge', () => {
   const complianceReaders = [
     'm55_r6_has_purchase_objective_cancel_v1',
     'm55_r6_has_purchase_active_hold_v1',
     'm55_r6_has_purchase_positive_authority_v1',
+    'm55_r6_purchase_compliance_authority_snapshot_v1',
   ];
 
   it('keeps R5 compliance tables revoked from service_role direct SELECT', () => {
