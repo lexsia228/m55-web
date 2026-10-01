@@ -84,6 +84,9 @@ const PAIR_FIXTURES = [
 ] as const;
 
 const ABSTRACT = /一定の間隔|接点の入口|基調の寄り|土台の接点|距離を整え/;
+const MISREAD_CYCLE = /同じ型|薄れ|区別|持ち越され|続くと/u;
+const UNSUPPORTED_AB = /片方が|もう片方|話を閉じた側|次の用事へ移る側/u;
+const RETURN_EVIDENCE = /戻|再開|声|空白|区切り|言葉/u;
 const BARNUM = [
   '実は繊細',
   '周囲に気を遣う',
@@ -113,12 +116,14 @@ describe('pair free manifestation quality v4', () => {
     for (const fixture of PAIR_FIXTURES) {
       const spec = insight(fixture.answers, fixture.personA, fixture.personB);
       assert.match(spec.betweenThem, /^二人の間では/u);
-      assert.doesNotMatch(spec.betweenThem, /^あなたは|^あなた側はX、相手側はY/u);
-      assert.match(spec.betweenThem, /あなた側は/);
-      assert.match(spec.betweenThem, /相手側は/);
-      assert.match(spec.misreadLoop, /受け取りやすい|見えやすい/);
+      assert.doesNotMatch(spec.betweenThem, /^あなたは|^あなた側は/u);
+      assert.doesNotMatch(spec.betweenThem, /あなた側は|相手側は/u);
+      assert.notEqual(spec.mismatchEntry, spec.misreadLoop);
+      assert.match(spec.misreadLoop, MISREAD_CYCLE);
+      assert.doesNotMatch(spec.misreadLoop, UNSUPPORTED_AB);
       assert.doesNotMatch(spec.betweenThem, ABSTRACT);
       assert.doesNotMatch(spec.relationshipTriggerJa, /あなたは/);
+      assert.match(spec.evidenceSupportJa, RETURN_EVIDENCE);
     }
   });
 
@@ -153,10 +158,11 @@ describe('pair free manifestation quality v4', () => {
     }
   });
 
-  it('keeps the A→B→A loop and a return action', () => {
+  it('keeps a dyadic misread cycle and a return action', () => {
     const spec = insight(SPACE, '1955-03-01', '1997-06-15');
-    assert.match(spec.misreadLoop, /あなた/);
-    assert.match(spec.misreadLoop, /相手/);
+    assert.match(spec.misreadLoop, MISREAD_CYCLE);
+    assert.notEqual(spec.mismatchEntry, spec.misreadLoop);
+    assert.doesNotMatch(spec.misreadLoop, UNSUPPORTED_AB);
     assert.ok(spec.reset.length > 8);
     assert.match(spec.premiumContinuation, /六つの場面/);
   });
@@ -183,6 +189,7 @@ describe('pair free manifestation quality v4', () => {
     const spec = insight(SIMILAR);
     assert.match(spec.betweenThem, /^二人の間では/u);
     assert.doesNotMatch(spec.betweenThem, /先に動いて見えやすく/);
-    assert.match(spec.betweenThem, /そのため二人の間では/);
+    assert.notEqual(spec.betweenThem, spec.relationshipTriggerJa);
+    assert.match(spec.evidenceSupportJa, RETURN_EVIDENCE);
   });
 });

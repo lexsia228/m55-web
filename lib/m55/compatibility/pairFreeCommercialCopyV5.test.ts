@@ -94,6 +94,21 @@ function completeCopy(fixture: (typeof PAIR_V5_FIXTURES)[number]): string {
   ].join('\n');
 }
 
+function relationalStack(spec: ReturnType<typeof insight>): string {
+  return [
+    spec.relationshipTriggerJa,
+    spec.evidenceSupportJa,
+    spec.currentExpressionJa,
+    spec.mismatchEntry,
+    spec.misreadLoop,
+    spec.betweenThem,
+    ...spec.relationshipSequenceJa,
+  ].join('\n');
+}
+
+const MISREAD_CYCLE = /同じ型|薄れ|区別|持ち越され|続くと/u;
+const UNSUPPORTED_AB = /片方が|もう片方|話を閉じた側|次の用事へ移る側/u;
+
 describe('pair free commercial copy v5', () => {
   it('covers seven complete readings without engineering jargon', () => {
     const blobs = PAIR_V5_FIXTURES.map((fixture) => completeCopy(fixture));
@@ -103,11 +118,16 @@ describe('pair free commercial copy v5', () => {
     for (const fixture of PAIR_V5_FIXTURES) {
       const spec = insight(fixture);
       const blob = completeCopy(fixture);
-      assert.match(spec.betweenThem, /そのため二人の間では|二人の間では/u);
-      assert.match(`${spec.betweenThem}\n${spec.currentExpressionJa}`, /あなた|相手/u);
+      const stack = relationalStack(spec);
+      assert.match(spec.betweenThem, /^二人の間では/u);
+      assert.match(stack, /二人のあいだ|二人の間/u);
       assert.match(spec.currentExpressionJa, /二人|いま/u);
       assert.notEqual(spec.betweenThem, spec.currentExpressionJa);
-      assert.match(spec.misreadLoop, /受け取りやすい|見えやすい/);
+      assert.notEqual(spec.mismatchEntry, spec.misreadLoop);
+      assert.notEqual(spec.relationshipTriggerJa, spec.evidenceSupportJa);
+      assert.match(spec.misreadLoop, MISREAD_CYCLE);
+      assert.doesNotMatch(stack, UNSUPPORTED_AB);
+      assert.doesNotMatch(stack, /stemDelta|lunarAligned|dayBand|season3/u);
       assert.ok(spec.reset.length > 8);
       assert.match(spec.premiumContinuation, /六つの場面/);
       assert.doesNotMatch(blob, BANNED);
