@@ -1226,8 +1226,8 @@
       "nextAction": "CLOSE_LANE_NO_CODE_CHANGES"
     },
     "acceptedNonBlockingObservations": [
-      "Focused regression test does not assert the literal \u53cd\u5fdc independently, but implementation and Production HTML contain it; no patch required.",
-      "Existing shell navigation may contain \u30d7\u30ec\u30df\u30a2\u30e0\u30ec\u30dd\u30fc\u30c8 outside the acquisition block; the acquisition block itself contains no href and no Paid CTA."
+      "Focused regression test does not assert the literal 反応 independently, but implementation and Production HTML contain it; no patch required.",
+      "Existing shell navigation may contain プレミアムレポート outside the acquisition block; the acquisition block itself contains no href and no Paid CTA."
     ],
     "laneNextAction": "WAIT_FOR_QUERY_SHAPE_EVIDENCE",
     "newUrlDecision": "NOT_JUSTIFIED_UNTIL_DISTINCT_QUERY_INTENT_EVIDENCE",

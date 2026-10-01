@@ -99,6 +99,9 @@ export default function M55TenViews() {
           <Link href="/how-m55-works" className={styles.introSecondaryCta}>
             M55の見方を見る
           </Link>
+          <Link href="/self-understanding" className={styles.introSecondaryCta}>
+            自己理解について読む
+          </Link>
         </div>
       </section>
 

@@ -57,6 +57,9 @@ export default function HowM55WorksPage() {
             <Link href="/home" className={styles.secondaryCta}>
               ホームへ戻る
             </Link>
+            <Link href="/self-understanding" className={styles.secondaryCta}>
+              自己理解について読む
+            </Link>
           </div>
         </section>
       </div>
