@@ -4,6 +4,8 @@ Status: **Worktree authority (Tier E — operational)**
 Last semantic reconciliation: **2026-09-10 Worktree Cleanup Wave 2D registry closure** — durable ownership/lane only; live Git identity via **`npm run m55:context`**. Executable CURRENT / NEXT: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
 Source command for volatile facts: **`npm run m55:context`** (preferred) or manual `git fetch origin` + `git status` + `rev-list`.
 
+**WT-056 discoverability (2026-09-28):** Scoped R6 ownership reconciliation addendum **R6 WORKTREE OWNERSHIP RECONCILIATION (2026-09-28) — AUTHORITATIVE FOR WT-056** below registers `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` · `feat/m55-r6-commission-ledger-v1` · lifecycle **ACTIVE_PRODUCT** only. It does **not** supersede the **2026-09-10** global worktree inventory snapshot/count in **FINAL LIVE WORKTREES (2026-09-10)**. Volatile Git facts: **`npm run m55:context`**. Executable CURRENT / NEXT: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
+
 ## How to read this registry
 
 ### Static vs dynamic authority (permanent)
@@ -1297,6 +1299,35 @@ Historical post-merge transition snapshots remain recorded for audit.
 | transition evidence | `stpCommercialUiuxAutonomousFixAndReauditTransition` in `M55_EXECUTION_STATE.json` — **CLOSED_GREEN** |
 | product implementation authorized | **false** — lane closed; physical worktree retained |
 | removal eligibility | physical worktree retained; separate retirement authorization required |
+
+---
+
+### WT-056 — R6 Commission Ledger control-plane candidate (ACTIVE_PRODUCT)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` |
+| branch | `feat/m55-r6-commission-ledger-v1` |
+| intended upstream | `origin/main` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **ACTIVE_PRODUCT** |
+| macro lane | **M55_CREATOR_REVENUE_E2C2E** |
+| program identity | **COMMISSION_LEDGER** |
+| purpose | Authorized R6 COMMISSION_LEDGER cold-start revalidation candidate owner; carries P0-B1 execution-state overlay and prerequisite shared-chrome SSOT parity candidate while ledger body remains selected/not implemented |
+| executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` |
+| product implementation authorized | only per active execution-state gate; current cold-start revalidation does not authorize commission-ledger runtime/DB implementation |
+| provider/DB/Stripe/Clerk/env/deploy/payment mutation | **prohibited** unless separately authorized |
+| removal eligibility | **HARD PROTECT** while R6 candidate remains dirty / pending cold-start revalidation; no reset/stash/clean/remove/branch-delete without explicit Human scope |
+
+---
+
+## R6 WORKTREE OWNERSHIP RECONCILIATION (2026-09-28) — AUTHORITATIVE FOR WT-056
+
+Scope: WT-056 / R6 durable ownership registration only. This is **not** a global worktree reconciliation. It does **not** supersede the **FINAL LIVE WORKTREES (2026-09-10 Worktree Cleanup Wave 2D closure)** global inventory snapshot or its count **8**. Volatile Git facts (HEAD, divergence, dirty/staged, live worktree count) must be freshly observed via **`npm run m55:context`** — never inferred from this addendum or historical registry tables.
+
+| Path | Branch | Registry id | Classification | Lifecycle / notes |
+|---|---|---|---|---|
+| `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` | `feat/m55-r6-commission-ledger-v1` | WT-056 | **ACTIVE_PRODUCT** | R6 COMMISSION_LEDGER candidate owner; current dirty/runtime state is volatile and not frozen here |
 
 ---
 

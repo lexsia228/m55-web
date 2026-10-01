@@ -5,16 +5,21 @@ import {
   parseMetadataPurchaseAttemptIdV1,
 } from './r5PurchaseAttemptContract';
 
+export type VerifiedCheckoutSessionEconomicProofV1 = {
+  checkoutSessionId: string;
+  metadataPurchaseAttemptId: string | null;
+  sessionAmountTotal: number | null;
+  sessionCurrency: string | null;
+  automaticTax: Stripe.Checkout.Session.AutomaticTax | null;
+  totalDetails: Stripe.Checkout.Session.TotalDetails | null;
+};
+
 export type PaymentIntentCheckoutSessionProofV1 =
   | { status: 'PROVIDER_TRANSPORT_FAILURE'; errorName: string }
   | { status: 'PI_LOOKUP_ZERO' }
   | { status: 'PI_LOOKUP_MULTIPLE' }
   | { status: 'SESSION_NOT_PAYMENT' }
-  | {
-      status: 'PROVIDER_VERIFIED';
-      checkoutSessionId: string;
-      metadataPurchaseAttemptId: string | null;
-    };
+  | ({ status: 'PROVIDER_VERIFIED' } & VerifiedCheckoutSessionEconomicProofV1);
 
 function paymentIntentIdFromListArg(paymentIntentId: string): string {
   return paymentIntentId;
@@ -63,5 +68,9 @@ export async function verifyPaymentIntentCheckoutSessionProofV1(args: {
     status: 'PROVIDER_VERIFIED',
     checkoutSessionId: session.id,
     metadataPurchaseAttemptId: fromPi ?? fromSession,
+    sessionAmountTotal: session.amount_total,
+    sessionCurrency: session.currency,
+    automaticTax: session.automatic_tax,
+    totalDetails: session.total_details,
   };
 }

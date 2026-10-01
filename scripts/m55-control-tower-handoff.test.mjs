@@ -74,16 +74,17 @@ test('fresh session recovers Creator Revenue / E2C2E contract from execution sta
     'docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md',
   );
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.fourSurfaceCreatorReadiness, 'CLOSED_GREEN');
-  assert.equal(handoff.CREATOR_REVENUE_E2C2E.productWorkAfterControlTower, 'REVENUE_SAFETY_E2E');
-  assert.equal(handoff.CREATOR_REVENUE_E2C2E.currentStage, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.productWorkAfterControlTower, 'COMMISSION_LEDGER');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.currentStage, 'COMMISSION_LEDGER');
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.creatorReferralStatus, 'NOT_IMPLEMENTED');
-  assert.equal(handoff.CREATOR_REVENUE_E2C2E.attributionStatus, 'NOT_IMPLEMENTED');
-  assert.equal(handoff.CREATOR_REVENUE_E2C2E.commissionLedgerStatus, 'NOT_IMPLEMENTED');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.attributionStatus, 'CLOSED_GREEN');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.commissionLedgerStatus, 'SELECTED');
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.creatorDashboardStatus, 'NOT_IMPLEMENTED');
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.payoutSettlementStatus, 'NOT_IMPLEMENTED');
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.stripePayoutProviderStatus, 'UNSELECTED');
-  assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, 'COMMISSION_LEDGER');
   assert.ok(state.completedSubGates.includes('FOUR_SURFACE_CREATOR_READINESS'));
+  assert.ok(state.completedSubGates.includes('ATTRIBUTION_AND_COMPLIANCE'));
   assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('FOUR_SURFACE_CREATOR_READINESS'));
   assert.ok(handoff.CREATOR_REVENUE_E2C2E.stages.includes('REVENUE_SAFETY_E2E'));
   assert.ok(
@@ -96,7 +97,7 @@ test('fresh session does not expose stale Social Share nextDelta in influencer r
   const handoff = buildHandoff();
   assert.notEqual(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'CODEX_AFFECTED_DELTA_REAUDIT_THEN_SOCIAL_SHARE_EXPERIENCE');
   assert.notEqual(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'CLOSE_WAVE2_CREATOR_QUALITY_FOUNDATION');
-  assert.equal(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'REVENUE_SAFETY_E2E');
+  assert.equal(handoff.INFLUENCER_PLATFORM_READINESS.nextDelta, 'COMMISSION_LEDGER');
 });
 
 test('fresh session recovers dirty/index state', () => {

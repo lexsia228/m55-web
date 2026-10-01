@@ -22,6 +22,7 @@ describe('r5PurchaseWebhookCanonical', () => {
     assert.match(WEBHOOK, /verifyPaymentIntentCheckoutSessionProofV1/);
     assert.match(WEBHOOK, /callRecordCanonicalPaymentRpcV1/);
     assert.match(WEBHOOK, /callRecordCanonicalPaymentHoldRpcV1/);
+    assert.match(WEBHOOK, /callRecordPurchaseMoneyEvidenceRpcV1/);
   });
 
   it('fail-closes stripe_events insert after R5 claim and returns 500 on transport', () => {
@@ -33,9 +34,37 @@ describe('r5PurchaseWebhookCanonical', () => {
     assert.equal(handler.includes('as Stripe.Checkout.Session'), false);
   });
 
-  it('does not skip R5 solely because stripe_events already exists', () => {
-    assert.match(WEBHOOK, /r5CanonicalClaimExistsV1/);
-    assert.match(WEBHOOK, /if \(existing\) \{\s*const claimed = await r5CanonicalClaimExistsV1/s);
+  it('routes every payment_intent.succeeded through the R5+R6 handler', () => {
+    assert.match(
+      WEBHOOK,
+      /if \(event\.type === 'payment_intent\.succeeded'\) \{\s*return handlePaymentIntentSucceededR5b\(event, db\);\s*\}/s,
+    );
+    assert.match(WEBHOOK, /loadPurchaseMoneySnapshotByCanonicalIdentityV1/);
+    assert.match(WEBHOOK, /validateCompletedMoneyReplayV1/);
+    assert.match(WEBHOOK, /normalizePurchaseMoneyEvidenceFromProofV1/);
+  });
+
+  it('completes money only after canonical success and never from hold outcomes', () => {
+    const handler = WEBHOOK.slice(WEBHOOK.indexOf('async function handlePaymentIntentSucceededR5b'));
+    assert.match(handler, /if \(snapshot\?\.money\)/);
+    assert.match(handler, /recorded\.outcome === 'HOLD_RECONCILE'/);
+    assert.match(handler, /recorded\.outcome === 'NO_R5_BINDING'/);
+    assert.match(handler, /await callRecordPurchaseMoneyEvidenceRpcV1/);
+    assert.match(handler, /MONEY_PAYLOAD_CONFLICT/);
+    assert.match(handler, /EVIDENCE_NOT_FOUND/);
+  });
+
+  it('loads money snapshot before Stripe acquisition and fail-closes snapshot read errors', () => {
+    const handler = WEBHOOK.slice(WEBHOOK.indexOf('async function handlePaymentIntentSucceededR5b'));
+    const snapshotIdx = handler.indexOf('loadPurchaseMoneySnapshotByCanonicalIdentityV1');
+    const stripeIdx = handler.indexOf('getStripe()');
+    assert.equal(snapshotIdx > 0 && snapshotIdx < stripeIdx, true);
+    assert.match(handler, /PURCHASE_MONEY_SNAPSHOT_READ_FAILED/);
+    assert.match(
+      handler,
+      /error\.message === M55_R6_PURCHASE_MONEY_SNAPSHOT_READ_FAILED[\s\S]*status: 500/,
+    );
+    assert.equal(handler.indexOf('verifyPaymentIntentCheckoutSessionProofV1') > stripeIdx, true);
   });
 
   it('does not invent Event.created or rescue locks in buyer fulfillment', () => {

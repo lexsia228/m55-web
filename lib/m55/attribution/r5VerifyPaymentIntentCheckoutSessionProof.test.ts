@@ -30,8 +30,24 @@ describe('r5VerifyPaymentIntentCheckoutSessionProof', () => {
           sessions: {
             list: async () => ({
               data: [
-                { id: 'cs_1', mode: 'payment', metadata: { m55_pa: '11111111-2222-3333-4444-555555555555' } },
-                { id: 'cs_2', mode: 'payment', metadata: { m55_pa: '11111111-2222-3333-4444-555555555555' } },
+                {
+                  id: 'cs_1',
+                  mode: 'payment',
+                  metadata: { m55_pa: '11111111-2222-3333-4444-555555555555' },
+                  amount_total: 1000,
+                  currency: 'jpy',
+                  automatic_tax: { enabled: false },
+                  total_details: { amount_discount: 0, amount_tax: 0 },
+                },
+                {
+                  id: 'cs_2',
+                  mode: 'payment',
+                  metadata: { m55_pa: '11111111-2222-3333-4444-555555555555' },
+                  amount_total: 1000,
+                  currency: 'jpy',
+                  automatic_tax: { enabled: false },
+                  total_details: { amount_discount: 0, amount_tax: 0 },
+                },
               ],
             }),
           },
@@ -45,7 +61,7 @@ describe('r5VerifyPaymentIntentCheckoutSessionProof', () => {
     assert.equal(proof.status, 'PI_LOOKUP_MULTIPLE');
   });
 
-  it('rejects non-payment sessions and verifies a single payment-mode session', async () => {
+  it('rejects non-payment sessions and verifies a single payment-mode session with economics', async () => {
     const notPayment = await verifyPaymentIntentCheckoutSessionProofV1({
       stripe: {
         checkout: {
@@ -68,6 +84,10 @@ describe('r5VerifyPaymentIntentCheckoutSessionProof', () => {
                   id: 'cs_ok',
                   mode: 'payment',
                   metadata: { m55_pa: '11111111-2222-3333-4444-555555555555' },
+                  amount_total: 1480,
+                  currency: 'jpy',
+                  automatic_tax: { enabled: true, status: 'complete' },
+                  total_details: { amount_discount: 0, amount_tax: 134 },
                 },
               ],
             }),
@@ -80,6 +100,14 @@ describe('r5VerifyPaymentIntentCheckoutSessionProof', () => {
     if (verified.status === 'PROVIDER_VERIFIED') {
       assert.equal(verified.checkoutSessionId, 'cs_ok');
       assert.equal(verified.metadataPurchaseAttemptId, '11111111-2222-3333-4444-555555555555');
+      assert.equal(verified.sessionAmountTotal, 1480);
+      assert.equal(verified.sessionCurrency, 'jpy');
+      assert.ok(verified.automaticTax);
+      assert.equal(verified.automaticTax.enabled, true);
+      assert.equal(verified.automaticTax.status, 'complete');
+      assert.ok(verified.totalDetails);
+      assert.equal(verified.totalDetails.amount_discount, 0);
+      assert.equal(verified.totalDetails.amount_tax, 134);
     }
   });
 
