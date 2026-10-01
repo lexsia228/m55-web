@@ -191,13 +191,14 @@ describe('free pair result renders a relationship dynamic, not two profiles', ()
     assert.match(component, /PairFreeShareCTA/);
   });
 
-  it('names both sides and the consequence between them, across fixtures', () => {
+  it('surfaces dyadic relationship synthesis without A/B side templates, across fixtures', () => {
     for (let index = 0; index < FIXTURES.length; index += 1) {
       const value = buildFixture(index);
       const dynamic = value.free.relationshipDynamic;
-      assert.match(dynamic, /あなた側は/);
-      assert.match(dynamic, /相手側は/);
-      assert.match(dynamic, /そのため二人の間では/);
+      assert.match(dynamic, /^二人の間では/u);
+      assert.match(dynamic, /残るのは意見の中身より/u);
+      assert.doesNotMatch(dynamic, /あなた側は|相手側は|そのため二人の間では/);
+      assert.doesNotMatch(dynamic, /片方が|もう片方/u);
     }
   });
 

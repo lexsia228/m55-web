@@ -24,6 +24,10 @@ import { sharePayloadContainsSensitive } from '../freeResult/privacySafeShareCar
 const ROOT = join(import.meta.dirname, '../../..');
 const read = (rel: string) => readFileSync(join(ROOT, rel), 'utf8');
 
+function firstSentence(text: string): string {
+  return text.split('。')[0] ?? text;
+}
+
 function pairSpec(fixture: (typeof PAIR_V5_FIXTURES)[number]) {
   return buildPairFreeInsightSpecV2({
     answers: fixture.answers,
@@ -33,6 +37,56 @@ function pairSpec(fixture: (typeof PAIR_V5_FIXTURES)[number]) {
     personAUsesFirstPerspective: true,
     focusLabel: fixture.focus,
     relationStatusId: 'R3',
+  });
+}
+
+const ESTABLISHED_ANSWERS = {
+  decisionPace: 'decide_now' as const,
+  expressionPace: 'words_later' as const,
+  disagreement: 'talk_now' as const,
+  returnPattern: 'someone_reaches' as const,
+};
+
+function establishedSpec(relationStatusId: 'R3' | 'R6' = 'R3') {
+  return buildPairFreeInsightSpecV2({
+    answersV2: ESTABLISHED_ANSWERS,
+    pairAxisId: 'A2',
+    personABirthDate: '1990-01-15',
+    personBBirthDate: '1992-08-20',
+    personAUsesFirstPerspective: true,
+    focusLabel: '会話の進め方',
+    relationStatusId,
+  });
+}
+
+function partialGapSpec(relationStatusId: 'R3' | 'R6' = 'R3') {
+  return buildPairFreeInsightSpecV2({
+    answersV2: {
+      ...ESTABLISHED_ANSWERS,
+      decisionPace: 'no_shared_decision_yet',
+    },
+    pairAxisId: 'A2',
+    personABirthDate: '1990-01-15',
+    personBBirthDate: '1992-08-20',
+    personAUsesFirstPerspective: true,
+    focusLabel: '会話の進め方',
+    relationStatusId,
+  });
+}
+
+function r5Spec() {
+  return buildPairFreeInsightSpecV2({
+    answersV2: {
+      reapproachReadiness: 'not_considering_reapproach',
+      distance: 'go_quiet',
+      expressionPace: 'words_later',
+    },
+    pairAxisId: 'A2',
+    personABirthDate: '1990-01-15',
+    personBBirthDate: '1992-08-20',
+    personAUsesFirstPerspective: true,
+    focusLabel: '今の距離感',
+    relationStatusId: 'R5',
   });
 }
 
@@ -159,6 +213,61 @@ describe('pair free paid boundary — paid capability and commerce posture', () 
   });
 });
 
-function firstSentence(text: string): string {
-  return text.split('。')[0] ?? text;
-}
+describe('pair free paid boundary — patch-2 manual provenance regression', () => {
+  it('keeps complete mismatch and misread slots separate from free-depth angle', () => {
+    for (const relationStatusId of ['R3', 'R6'] as const) {
+      const spec = establishedSpec(relationStatusId);
+      assert.ok(spec.freeDepthAngleJa.length > 0);
+      assert.equal(spec.observationGapQuestionIds, undefined);
+      const complete = buildPairManualV1({ spec, completeness: 'complete' });
+      const short = buildPairManualV1({ spec, completeness: 'short' });
+
+      const mismatchSlot = complete.slots.find((slot) => slot.id === 'mismatch_entry');
+      const misreadSlot = complete.slots.find((slot) => slot.id === 'pair_misread');
+      const shortMismatchSlot = short.slots.find((slot) => slot.id === 'mismatch_entry');
+      const shortMisread = short.slots.find((slot) => slot.id === 'pair_misread');
+      assert.ok(mismatchSlot, relationStatusId);
+      assert.ok(misreadSlot, relationStatusId);
+      assert.equal(shortMismatchSlot, undefined, relationStatusId);
+      assert.ok(shortMisread, relationStatusId);
+      assert.equal(
+        short.slots.some((slot) => slot.bodyJa.includes(firstSentence(spec.freeDepthAngleJa))),
+        false,
+        relationStatusId,
+      );
+
+      assert.match(mismatchSlot!.bodyJa, /区切り|結論|言葉/u);
+      assert.match(misreadSlot!.bodyJa, /同じ型|薄れ|区別|持ち越され/u);
+      assert.notEqual(mismatchSlot!.bodyJa, misreadSlot!.bodyJa);
+      assert.notEqual(mismatchSlot!.bodyJa, spec.freeDepthAngleJa);
+      assert.notEqual(misreadSlot!.bodyJa, spec.freeDepthAngleJa);
+    }
+  });
+
+  it('keeps short freeDepth visible for established partial gaps only', () => {
+    const spec = partialGapSpec('R3');
+    assert.ok((spec.observationGapQuestionIds?.length ?? 0) > 0);
+    const short = buildPairManualV1({ spec, completeness: 'short' });
+    const shortMismatchSlot = short.slots.find((slot) => slot.id === 'mismatch_entry');
+    assert.ok(shortMismatchSlot);
+    assert.ok(shortMismatchSlot!.bodyJa.includes(firstSentence(spec.freeDepthAngleJa)));
+    assert.notEqual(shortMismatchSlot!.bodyJa, spec.mismatchEntry);
+  });
+
+  it('does not suppress short mismatch on a non-established relation', () => {
+    const spec = r5Spec();
+    assert.equal(spec.id.includes(':established_native:'), false);
+    const short = buildPairManualV1({ spec, completeness: 'short' });
+    assert.ok(short.slots.some((slot) => slot.id === 'mismatch_entry'));
+    assert.ok(short.slots.some((slot) => slot.id === 'pair_misread'));
+  });
+
+  it('keeps paid narrative on snapshot engine rather than freeDepthAngleJa', () => {
+    const paidNarrative = read('lib/m55/narrative/projectCompatibilityPaidNarrativeV1.ts');
+    assert.doesNotMatch(paidNarrative, /freeDepthAngleJa/);
+    assert.match(paidNarrative, /input\.snapshot\.relationshipSummary/);
+    assert.match(paidNarrative, /input\.snapshot\.recurringLoop/);
+    assert.match(paidNarrative, /snapshot\.chapters/);
+    assert.match(paidNarrative, /buildPairManualV1/);
+  });
+});

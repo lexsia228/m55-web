@@ -200,20 +200,37 @@ export function buildCompatibilityPublicResult(
   }) as [CompatibilityMappedChapter, CompatibilityMappedChapter];
 
   const baseContext = paidSnapshot.currentContext;
+  const establishedV2Route =
+    hasV2 && (state.relationStatusId === 'R3' || state.relationStatusId === 'R6');
+  const buildFailureMessage = '見取り図を組み立てられませんでした。入力を確認してください。';
+
+  if (establishedV2Route && !baseContext) {
+    return { ok: false, message: buildFailureMessage };
+  }
+
   const focusLabel = baseContext?.focusLabel ?? 'これからの進め方';
-  const freeContext = baseContext
-    ? overlayPairFreeInsight(baseContext, {
-        answersV2: publicContextV2,
-        answers: legacyAnswers,
-        pairAxisId: rendered.pairFingerprint.pairAxisId,
-        personABirthDate: guestInput.personA,
-        personBBirthDate: guestInput.personB,
-        personAUsesFirstPerspective,
-        focusLabel,
-        relationStatusId: state.relationStatusId,
-        axisOverlap: free.overlap,
-      })
-    : baseContext;
+  let freeContext = baseContext;
+  if (baseContext) {
+    const overlayArgs = {
+      answersV2: publicContextV2,
+      answers: legacyAnswers,
+      pairAxisId: rendered.pairFingerprint.pairAxisId,
+      personABirthDate: guestInput.personA,
+      personBBirthDate: guestInput.personB,
+      personAUsesFirstPerspective,
+      focusLabel,
+      relationStatusId: state.relationStatusId,
+    };
+    if (establishedV2Route) {
+      try {
+        freeContext = overlayPairFreeInsight(baseContext, overlayArgs);
+      } catch {
+        return { ok: false, message: buildFailureMessage };
+      }
+    } else {
+      freeContext = overlayPairFreeInsight(baseContext, overlayArgs);
+    }
+  }
 
   const freeTeaserCandidate =
     state.relationStatusId === 'R1'
@@ -271,7 +288,6 @@ function overlayPairFreeInsight(
     personAUsesFirstPerspective: boolean;
     focusLabel: string;
     relationStatusId: RelationStatusId;
-    axisOverlap: string;
   },
 ) {
   const insight = buildPairFreeInsightSpecV2({
@@ -284,11 +300,7 @@ function overlayPairFreeInsight(
     focusLabel: args.focusLabel,
     relationStatusId: args.relationStatusId,
   });
-  const relationshipLoopSteps = Object.freeze([
-    args.axisOverlap,
-    insight.mismatchEntry,
-    insight.misreadLoop,
-  ] as const);
+  const relationshipLoopSteps = insight.relationshipSequenceJa;
   return Object.freeze({
     ...base,
     currentExpression: insight.currentExpressionJa,

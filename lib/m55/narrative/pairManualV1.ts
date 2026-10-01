@@ -74,6 +74,14 @@ function pairSideTendenciesFromBetweenThem(
   return { oneJa: match[1]!.trim(), otherJa: match[2]!.trim() };
 }
 
+function isEstablishedFullObservationFreeDepthSuppressed(spec: PairFreeInsightSpecV2): boolean {
+  return (
+    (spec.relationStatusId === 'R3' || spec.relationStatusId === 'R6') &&
+    spec.id.includes(':established_native:') &&
+    (spec.observationGapQuestionIds?.length ?? 0) === 0
+  );
+}
+
 function pairManualRelationSides(
   spec: PairFreeInsightSpecV2,
 ): { oneJa: string; otherJa: string } | null {
@@ -101,6 +109,8 @@ export function buildPairManualV1(input: {
   const oneTendsJa =
     sides?.oneJa ?? manualSides?.oneJa ?? firstSentenceJa(spec.meshMoment);
   const otherTendsJa = sides?.otherJa ?? manualSides?.otherJa;
+  const suppressIndependentFreeDepth =
+    input.completeness === 'short' && isEstablishedFullObservationFreeDepthSuppressed(spec);
   const slots: ManualSlotV1[] = [
     slot('one_tends', '一方', oneTendsJa, ids),
     ...(otherTendsJa
@@ -108,7 +118,18 @@ export function buildPairManualV1(input: {
       : input.completeness === 'complete' && spec.relationStatusId !== 'R1'
         ? [slot('other_tends', 'もう一方', firstSentenceJa(spec.betweenThem), ids)]
         : []),
-    slot('mismatch_entry', labels.mismatch, firstSentenceJa(spec.mismatchEntry), ids),
+    ...(suppressIndependentFreeDepth
+      ? []
+      : [
+          slot(
+            'mismatch_entry',
+            labels.mismatch,
+            firstSentenceJa(
+              input.completeness === 'short' ? spec.freeDepthAngleJa : spec.mismatchEntry,
+            ),
+            ids,
+          ),
+        ]),
     slot('pair_misread', '誤読されやすいところ', firstSentenceJa(spec.misreadLoop), ids),
   ];
   if (input.completeness === 'complete' && spec.relationStatusId !== 'R1') {
