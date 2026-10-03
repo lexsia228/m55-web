@@ -70,9 +70,29 @@ export type CorePageData = {
   coreResult: CoreResult;
 };
 
+/**
+ * Factual continuity only. Previous identity is evidence of what was stored.
+ * It never overrides the current canonical live result.
+ */
+export type CoreIdentityContinuityV1 = {
+  version: 'core_identity_continuity_v1';
+  source: 'legacy_v1' | 'stale_v3';
+  /** Null when the stored envelope predates stemLaneIndex. */
+  previousStemLaneIndex: number | null;
+  previousPublicTitle: string | null;
+  /** Historical coreLabel evidence only. Never live authority. */
+  previousCoreLabel: string | null;
+  previousEngineVersion: string | null;
+  currentStemLaneIndex: number;
+  currentPublicTitle: string;
+  currentEngineVersion: string;
+  publicIdentityChanged: boolean;
+};
+
 /** Wrapper persisted in localStorage */
 export type SealedCoreEnvelopeV3 = {
   schemaVersion: 3;
   sealedInputs: { birthDate: string; nickname: string };
   coreResult: CoreResult;
+  identityContinuity?: CoreIdentityContinuityV1;
 };
