@@ -11,6 +11,10 @@ import {
 import { compactSentencesJa } from './narrativeSafetyV1';
 import { buildPairManualV1, buildPairPublicManualLines } from './pairManualV1';
 
+function openingHitSentenceLimit(spec: PairFreeInsightSpecV2): number {
+  return spec.relationStatusId === 'R3' || spec.relationStatusId === 'R6' ? 3 : 2;
+}
+
 export function projectCompatibilityFreeNarrativeV1(input: {
   spec: PairFreeInsightSpecV2;
 }): M55NarrativeSpecV1 {
@@ -33,7 +37,10 @@ export function projectCompatibilityFreeNarrativeV1(input: {
     version: M55_NARRATIVE_SPEC_VERSION,
     surface: 'compatibility_free',
     openingHit: {
-      text: compactSentencesJa(spec.relationshipTriggerJa || spec.betweenThem, 2),
+      text: compactSentencesJa(
+        spec.relationshipTriggerJa || spec.betweenThem,
+        openingHitSentenceLimit(spec),
+      ),
       provenanceIds: [spec.id, spec.interactionId],
     },
     trustCue: {
@@ -41,7 +48,7 @@ export function projectCompatibilityFreeNarrativeV1(input: {
       provenanceIds: ['pair_free_insight_v2'],
     },
     fusedDiscovery: {
-      text: compactSentencesJa(spec.betweenThem, 2),
+      text: compactSentencesJa(spec.evidenceSupportJa, 2),
       provenanceIds: [spec.interactionId],
     },
     contextSections: [
