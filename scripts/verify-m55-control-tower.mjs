@@ -56,6 +56,22 @@ const REQUIRED_CREATOR_CAPABILITY_ASSERTIONS = [
   ['fourSurfaceCreatorReadiness', 'CLOSED_GREEN'],
 ];
 
+const HISTORICAL_CREATOR_CAPABILITY_DEFAULTS = {
+  attributionStatus: 'NOT_IMPLEMENTED',
+  commissionLedgerStatus: 'NOT_IMPLEMENTED',
+  creatorDashboardStatus: 'NOT_IMPLEMENTED',
+  payoutSettlementStatus: 'NOT_IMPLEMENTED',
+  stripePayoutProviderStatus: 'UNSELECTED',
+};
+
+const COMMISSION_LEDGER_SELECTED_CAPABILITY_ASSERTIONS = [
+  ['attributionStatus', 'CLOSED_GREEN'],
+  ['commissionLedgerStatus', 'SELECTED'],
+  ['creatorDashboardStatus', 'NOT_IMPLEMENTED'],
+  ['payoutSettlementStatus', 'NOT_IMPLEMENTED'],
+  ['stripePayoutProviderStatus', 'UNSELECTED'],
+];
+
 const REQUIRED_CONTROL_TOWER_FILES = [
   'AGENTS.md',
   '.cursor/rules/m55-control-tower.mdc',
@@ -579,18 +595,20 @@ function runSemanticSelfTests() {
     const liveCreatorState = JSON.parse(read(EXECUTION_STATE_PATH));
     if (liveCreatorState.creatorRevenueRoadmapAuthority) {
       const { executionParentGate: _liveExecutionParentGate, ...liveWithoutParent } = liveCreatorState;
-      expectCreatorPolicyPass('creator pending cold-start revalidation state', liveCreatorState);
-      expectValidationPass('creator pending cold-start revalidation state', liveCreatorState);
+      expectCreatorPolicyPass('creator R6 B1 cold-start revalidation overlay', liveCreatorState);
+      expectValidationPass('creator R6 B1 cold-start revalidation overlay', liveCreatorState);
 
       const humanAcceptedCreatorState = {
         ...liveWithoutParent,
         completedSubGates: (liveWithoutParent.completedSubGates ?? []).filter(
           (gate) => gate !== 'REVENUE_SAFETY_E2E'
-            && gate !== 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT',
+            && gate !== 'M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT'
+            && gate !== 'ATTRIBUTION_AND_COMPLIANCE',
         ),
         productWorkAfterControlTower: 'REVENUE_SAFETY_E2E',
         currentExecutionGate: 'REVENUE_SAFETY_E2E',
         nextSingleAction: 'REVENUE_SAFETY_E2E',
+        executionParentGate: 'REVENUE_SAFETY_E2E',
         acceptance: {
           ...liveWithoutParent.acceptance,
           revalidationRequired: false,
@@ -602,6 +620,8 @@ function runSemanticSelfTests() {
         creatorRevenueRoadmapAuthority: {
           ...liveWithoutParent.creatorRevenueRoadmapAuthority,
           currentStage: 'REVENUE_SAFETY_E2E',
+          implementationBoundary: 'REVENUE_SAFETY_E2E',
+          ...HISTORICAL_CREATOR_CAPABILITY_DEFAULTS,
         },
       };
       expectCreatorPolicyPass('creator human-accepted REVENUE_SAFETY_E2E progression', humanAcceptedCreatorState);
@@ -614,9 +634,12 @@ function runSemanticSelfTests() {
         productWorkAfterControlTower: laterCreatorGate,
         currentExecutionGate: laterCreatorGate,
         nextSingleAction: laterCreatorGate,
+        executionParentGate: laterCreatorGate,
         creatorRevenueRoadmapAuthority: {
           ...humanAcceptedCreatorState.creatorRevenueRoadmapAuthority,
           currentStage: laterCreatorGate,
+          implementationBoundary: laterCreatorGate,
+          ...HISTORICAL_CREATOR_CAPABILITY_DEFAULTS,
         },
       };
       expectCreatorPolicyPass('creator later gate progression without verifier edit', laterCreatorGateState);
@@ -632,9 +655,17 @@ function runSemanticSelfTests() {
         nextSingleAction: nonCreatorExecutableGate,
         productWorkAfterControlTower: nonCreatorExecutableGate,
         executionParentGate: nonCreatorExecutableGate,
+        acceptance: {
+          ...liveCreatorState.acceptance,
+          revalidationRequired: false,
+          latestResult: 'HANDOFF_COLD_START_PASS',
+          latestResultAcceptedByHuman: true,
+        },
         creatorRevenueRoadmapAuthority: {
           ...liveCreatorState.creatorRevenueRoadmapAuthority,
           currentStage: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          implementationBoundary: 'M55-CREATOR-DISTRIBUTION-FOUNDATION',
+          ...HISTORICAL_CREATOR_CAPABILITY_DEFAULTS,
         },
       };
       expectCreatorPolicyPass(
@@ -644,6 +675,41 @@ function runSemanticSelfTests() {
       expectValidationPass(
         'non-Creator executable gate can coexist with Creator program memory',
         nonCreatorExecutableGateState,
+      );
+
+      const nonCreatorExecutableGateR6MemoryState = {
+        ...liveCreatorState,
+        completedSubGates: (liveCreatorState.completedSubGates ?? []).filter(
+          (gate) => gate !== nonCreatorExecutableGate,
+        ),
+        currentExecutionGate: nonCreatorExecutableGate,
+        nextSingleAction: nonCreatorExecutableGate,
+        productWorkAfterControlTower: nonCreatorExecutableGate,
+        executionParentGate: nonCreatorExecutableGate,
+        acceptance: {
+          ...liveCreatorState.acceptance,
+          revalidationRequired: false,
+          latestResult: 'HANDOFF_COLD_START_PASS',
+          latestResultAcceptedByHuman: true,
+        },
+        creatorRevenueRoadmapAuthority: {
+          ...liveCreatorState.creatorRevenueRoadmapAuthority,
+          currentStage: 'COMMISSION_LEDGER',
+          implementationBoundary: 'COMMISSION_LEDGER',
+          attributionStatus: 'CLOSED_GREEN',
+          commissionLedgerStatus: 'SELECTED',
+          creatorDashboardStatus: 'NOT_IMPLEMENTED',
+          payoutSettlementStatus: 'NOT_IMPLEMENTED',
+          stripePayoutProviderStatus: 'UNSELECTED',
+        },
+      };
+      expectCreatorPolicyPass(
+        'non-Creator executable gate preserves COMMISSION_LEDGER selected memory',
+        nonCreatorExecutableGateR6MemoryState,
+      );
+      expectValidationPass(
+        'non-Creator executable gate preserves COMMISSION_LEDGER selected memory',
+        nonCreatorExecutableGateR6MemoryState,
       );
 
       expectCreatorPolicyFail(
@@ -732,6 +798,255 @@ function runSemanticSelfTests() {
           },
         },
         'latestResult=HANDOFF_COLD_START_PASS',
+      );
+
+      const commissionLedgerBase = {
+        ...liveWithoutParent,
+        productWorkAfterControlTower: 'COMMISSION_LEDGER',
+        executionParentGate: 'COMMISSION_LEDGER',
+        currentExecutionGate: COLD_START_GATE,
+        nextSingleAction: COLD_START_GATE,
+        acceptance: liveWithoutParent.acceptance,
+        creatorRevenueRoadmapAuthority: {
+          ...liveWithoutParent.creatorRevenueRoadmapAuthority,
+          currentStage: 'COMMISSION_LEDGER',
+          implementationBoundary: 'COMMISSION_LEDGER',
+          attributionStatus: 'CLOSED_GREEN',
+          commissionLedgerStatus: 'SELECTED',
+          creatorDashboardStatus: 'NOT_IMPLEMENTED',
+          payoutSettlementStatus: 'NOT_IMPLEMENTED',
+          stripePayoutProviderStatus: 'UNSELECTED',
+        },
+      };
+
+      expectCreatorPolicyFail(
+        'R6 selected requires attributionStatus CLOSED_GREEN',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            attributionStatus: 'NOT_IMPLEMENTED',
+          },
+        },
+        'attributionStatus must be CLOSED_GREEN',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected requires commissionLedgerStatus SELECTED',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            commissionLedgerStatus: 'NOT_IMPLEMENTED',
+          },
+        },
+        'commissionLedgerStatus must be SELECTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects commissionLedgerStatus CLOSED_GREEN',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            commissionLedgerStatus: 'CLOSED_GREEN',
+          },
+        },
+        'commissionLedgerStatus must be SELECTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects unsupported commissionLedgerStatus token',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            commissionLedgerStatus: 'IN_PROGRESS',
+          },
+        },
+        'commissionLedgerStatus must be SELECTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects creatorDashboardStatus advanced early',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            creatorDashboardStatus: 'CLOSED_GREEN',
+          },
+        },
+        'creatorDashboardStatus must be NOT_IMPLEMENTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects payoutSettlementStatus advanced early',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            payoutSettlementStatus: 'CLOSED_GREEN',
+          },
+        },
+        'payoutSettlementStatus must be NOT_IMPLEMENTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects stripePayoutProviderStatus advanced early',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            stripePayoutProviderStatus: 'SELECTED',
+          },
+        },
+        'stripePayoutProviderStatus must be UNSELECTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects PRODUCTION_CASH_ACTIVATION true',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            stripeArchitecture: {
+              ...commissionLedgerBase.creatorRevenueRoadmapAuthority.stripeArchitecture,
+              PRODUCTION_CASH_ACTIVATION: true,
+            },
+          },
+        },
+        'PRODUCTION_CASH_ACTIVATION must be false',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects missing PRODUCTION_CASH_ACTIVATION',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            stripeArchitecture: {
+              ...commissionLedgerBase.creatorRevenueRoadmapAuthority.stripeArchitecture,
+              PRODUCTION_CASH_ACTIVATION: undefined,
+            },
+          },
+        },
+        'PRODUCTION_CASH_ACTIVATION must be false',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects non-boolean PRODUCTION_CASH_ACTIVATION',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            stripeArchitecture: {
+              ...commissionLedgerBase.creatorRevenueRoadmapAuthority.stripeArchitecture,
+              PRODUCTION_CASH_ACTIVATION: 'false',
+            },
+          },
+        },
+        'PRODUCTION_CASH_ACTIVATION must be false',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected requires currentStage equal productWorkAfterControlTower',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            currentStage: 'CREATOR_DASHBOARD',
+          },
+        },
+        'currentStage must equal productWorkAfterControlTower',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected requires ATTRIBUTION_AND_COMPLIANCE in completedSubGates',
+        {
+          ...commissionLedgerBase,
+          completedSubGates: (commissionLedgerBase.completedSubGates ?? []).filter(
+            (gate) => gate !== 'ATTRIBUTION_AND_COMPLIANCE',
+          ),
+        },
+        'ATTRIBUTION_AND_COMPLIANCE must be in completedSubGates',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects COMMISSION_LEDGER already completed',
+        {
+          ...commissionLedgerBase,
+          completedSubGates: [...(commissionLedgerBase.completedSubGates ?? []), 'COMMISSION_LEDGER'],
+        },
+        'COMMISSION_LEDGER must not be in completedSubGates while ledger is SELECTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects SELECTED in canonical stages array',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            stages: [...CANONICAL_CREATOR_REVENUE_STAGES, 'SELECTED'],
+          },
+        },
+        'must exactly match canonical Creator Revenue stage order',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects non-canonical currentStage',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            currentStage: 'FAKE_CREATOR_STAGE',
+          },
+        },
+        'currentStage must exist exactly once in stages',
+      );
+
+      expectValidationFail(
+        'completed ATTRIBUTION_AND_COMPLIANCE cannot be NEXT',
+        {
+          ...commissionLedgerBase,
+          acceptance: {
+            ...commissionLedgerBase.acceptance,
+            revalidationRequired: false,
+            latestResult: 'HANDOFF_COLD_START_PASS',
+            latestResultAcceptedByHuman: true,
+          },
+          currentExecutionGate: 'ATTRIBUTION_AND_COMPLIANCE',
+          nextSingleAction: 'ATTRIBUTION_AND_COMPLIANCE',
+        },
+        'NEXT SINGLE ACTION is already completed',
+      );
+
+      expectCreatorPolicyFail(
+        'R6 selected rejects implementationBoundary not COMMISSION_LEDGER',
+        {
+          ...commissionLedgerBase,
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            implementationBoundary: 'ATTRIBUTION_AND_COMPLIANCE',
+          },
+        },
+        'implementationBoundary must be COMMISSION_LEDGER',
+      );
+
+      expectCreatorPolicyFail(
+        'future R7 stage must not inherit R6 SELECTED commission semantics',
+        {
+          ...commissionLedgerBase,
+          productWorkAfterControlTower: 'CREATOR_DASHBOARD',
+          executionParentGate: 'CREATOR_DASHBOARD',
+          creatorRevenueRoadmapAuthority: {
+            ...commissionLedgerBase.creatorRevenueRoadmapAuthority,
+            currentStage: 'CREATOR_DASHBOARD',
+            implementationBoundary: 'CREATOR_DASHBOARD',
+            attributionStatus: 'CLOSED_GREEN',
+            commissionLedgerStatus: 'SELECTED',
+          },
+        },
+        'commissionLedgerStatus must be NOT_IMPLEMENTED',
       );
     }
   }
@@ -825,9 +1140,43 @@ function collectCreatorRevenueExecutionStateErrors(state) {
   ) {
     errors.push('bounded sub-gate must not appear in creatorRevenueRoadmapAuthority.stages');
   }
-  for (const [field, expected] of REQUIRED_CREATOR_CAPABILITY_ASSERTIONS) {
-    if (authority[field] !== expected) {
-      errors.push(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
+  const isCommissionLedgerSelectedMemory =
+    normalizeGateToken(currentStage) === 'COMMISSION_LEDGER';
+  if (isCommissionLedgerSelectedMemory) {
+    if (normalizeGateToken(authority.implementationBoundary) !== 'COMMISSION_LEDGER') {
+      errors.push('creatorRevenueRoadmapAuthority.implementationBoundary must be COMMISSION_LEDGER');
+    }
+    for (const [field, expected] of COMMISSION_LEDGER_SELECTED_CAPABILITY_ASSERTIONS) {
+      if (authority[field] !== expected) {
+        errors.push(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
+      }
+    }
+    if (authority.creatorReferralStatus !== 'NOT_IMPLEMENTED') {
+      errors.push('creatorRevenueRoadmapAuthority.creatorReferralStatus must be NOT_IMPLEMENTED');
+    }
+    if (authority.fourSurfaceCreatorReadiness !== 'CLOSED_GREEN') {
+      errors.push('creatorRevenueRoadmapAuthority.fourSurfaceCreatorReadiness must be CLOSED_GREEN');
+    }
+    if (!state.completedSubGates?.includes('ATTRIBUTION_AND_COMPLIANCE')) {
+      errors.push('ATTRIBUTION_AND_COMPLIANCE must be in completedSubGates');
+    }
+    if (state.completedSubGates?.includes('COMMISSION_LEDGER')) {
+      errors.push('COMMISSION_LEDGER must not be in completedSubGates while ledger is SELECTED');
+    }
+    const cashActivation = authority.stripeArchitecture?.PRODUCTION_CASH_ACTIVATION;
+    if (cashActivation !== false) {
+      errors.push(
+        'creatorRevenueRoadmapAuthority.stripeArchitecture.PRODUCTION_CASH_ACTIVATION must be false',
+      );
+    }
+    if (authority.stages?.includes('SELECTED')) {
+      errors.push('SELECTED must not appear in creatorRevenueRoadmapAuthority.stages');
+    }
+  } else {
+    for (const [field, expected] of REQUIRED_CREATOR_CAPABILITY_ASSERTIONS) {
+      if (authority[field] !== expected) {
+        errors.push(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
+      }
     }
   }
   if (!state.fourSurfaceCreatorReadinessTransition?.status?.includes('GREEN')) {
@@ -2271,8 +2620,11 @@ function checkColdStartContract() {
     'must FAIL',
     CREATOR_REVENUE_SSOT_PATH,
     'FOUR_SURFACE_CREATOR_READINESS',
-    'REVENUE_SAFETY_E2E',
+    'COMMISSION_LEDGER',
+    'CLOSED_GREEN',
+    'SELECTED',
     'NOT_IMPLEMENTED',
+    'PRODUCTION_CASH_ACTIVATION',
     'UNSELECTED',
     'HUMAN TARGET ONLY',
     'anti-MLM',

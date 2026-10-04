@@ -39,6 +39,26 @@ import {
   parseMetadataPurchaseAttemptIdV1,
   stripeEventCreatedToMsV1,
 } from '../../../../lib/m55/attribution/r5PurchaseAttemptContract';
+import {
+  callRecordPurchaseMoneyEvidenceRpcV1,
+  loadPurchaseMoneySnapshotByCanonicalIdentityV1,
+  M55_R6_MONEY_RPC_TRANSPORT_ERROR,
+  M55_R6_PURCHASE_MONEY_SNAPSHOT_READ_FAILED,
+  normalizePurchaseMoneyEvidenceFromProofV1,
+  validateCompletedMoneyReplayV1,
+} from '../../../../lib/m55/commission/r6PurchaseMoneyEvidenceContract';
+import {
+  callRecordDisputeEconomicEvidenceRpcV1,
+  callRecordRefundEconomicEvidenceRpcV1,
+  isR6EconomicEvidenceEventTypeV1,
+  M55_R6_ECONOMIC_RPC_TRANSPORT_ERROR,
+  normalizeDisputeEconomicEventV1,
+  normalizeRefundEconomicEventV1,
+} from '../../../../lib/m55/commission/r6EconomicEventEvidenceContract';
+import {
+  isCommissionLedgerRpcFailureMessageV1,
+  runR6CommissionLedgerPipelineForPaymentIntentV1,
+} from '../../../../lib/m55/commission/r6CommissionLedgerContract';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -94,13 +114,11 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (event.type === 'payment_intent.succeeded') {
-    if (existing) {
-      const claimed = await r5CanonicalClaimExistsV1(db, event.id);
-      if (claimed) {
-        return NextResponse.json({ received: true }, { status: 200 });
-      }
-    }
     return handlePaymentIntentSucceededR5b(event, db);
+  }
+
+  if (isR6EconomicEvidenceEventTypeV1(event.type)) {
+    return handleR6EconomicEvidenceEventV1(event, db);
   }
 
   if (existing) {
@@ -595,6 +613,69 @@ async function handleCheckoutCompletedOneTime(
  * - Partial: amount_refunded < amount → no revoke (policy: partial refund keeps access).
  * Subscription refunds are out of scope.
  */
+async function handleR6EconomicEvidenceEventV1(
+  event: Stripe.Event,
+  db: any,
+): Promise<NextResponse> {
+  const eventType = event.type ?? '';
+  let paymentIntentId = '';
+  try {
+    if (eventType === 'refund.created' || eventType === 'refund.updated') {
+      const normalized = normalizeRefundEconomicEventV1(event);
+      if (!normalized.ok) {
+        return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      }
+      paymentIntentId = normalized.payload.paymentIntentId;
+      await callRecordRefundEconomicEvidenceRpcV1({ db, payload: normalized.payload });
+    } else if (
+      eventType === 'charge.dispute.created' ||
+      eventType === 'charge.dispute.updated' ||
+      eventType === 'charge.dispute.closed' ||
+      eventType === 'charge.dispute.funds_withdrawn' ||
+      eventType === 'charge.dispute.funds_reinstated'
+    ) {
+      const normalized = normalizeDisputeEconomicEventV1(event);
+      if (!normalized.ok) {
+        return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      }
+      paymentIntentId = normalized.payload.paymentIntentId;
+      await callRecordDisputeEconomicEvidenceRpcV1({ db, payload: normalized.payload });
+    } else {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (
+      message === M55_R6_ECONOMIC_RPC_TRANSPORT_ERROR ||
+      message === 'INVALID_INPUT' ||
+      message === 'PURCHASE_MONEY_EVIDENCE_NOT_FOUND' ||
+      message === 'ECONOMIC_EVIDENCE_PAYLOAD_CONFLICT'
+    ) {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+    throw error;
+  }
+
+  try {
+    await runR6CommissionLedgerPipelineForPaymentIntentV1({ db, paymentIntentId });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (isCommissionLedgerRpcFailureMessageV1(message)) {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+    throw error;
+  }
+
+  const { error: insertErr } = await db.from('stripe_events').insert({
+    event_id: event.id,
+    event_type: eventType,
+  });
+  if (insertErr && insertErr.code !== '23505') {
+    return NextResponse.json({ error: 'Idempotency failed' }, { status: 500 });
+  }
+  return NextResponse.json({ received: true }, { status: 200 });
+}
+
 async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any): Promise<NextResponse> {
   const charge = event.data.object as Stripe.Charge;
   const amount = charge.amount ?? 0;
@@ -710,6 +791,44 @@ async function handlePaymentIntentSucceededR5b(
     pi.metadata?.[M55_R5_STRIPE_PURCHASE_ATTEMPT_METADATA_KEY],
   );
 
+  let snapshot;
+  try {
+    snapshot = await loadPurchaseMoneySnapshotByCanonicalIdentityV1({
+      db,
+      stripeCanonicalEventId: event.id,
+      paymentIntentId,
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === M55_R6_PURCHASE_MONEY_SNAPSHOT_READ_FAILED
+    ) {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+    throw error;
+  }
+
+  if (snapshot?.money) {
+    const replay = validateCompletedMoneyReplayV1({
+      paymentIntentAmountReceived: pi.amount_received,
+      paymentIntentCurrency: pi.currency,
+      stored: snapshot.money,
+    });
+    if (!replay.ok) {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+    try {
+      await runR6CommissionLedgerPipelineForPaymentIntentV1({ db, paymentIntentId });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (isCommissionLedgerRpcFailureMessageV1(message)) {
+        return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      }
+      throw error;
+    }
+    return insertPaymentIntentSucceededStripeEventV1(db, event.id);
+  }
+
   let stripe: ReturnType<typeof getStripe>;
   try {
     stripe = getStripe();
@@ -728,48 +847,87 @@ async function handlePaymentIntentSucceededR5b(
   }
 
   try {
-    if (
-      proof.status === 'PI_LOOKUP_ZERO' ||
-      proof.status === 'PI_LOOKUP_MULTIPLE' ||
-      proof.status === 'SESSION_NOT_PAYMENT'
-    ) {
-      const hold = await callRecordCanonicalPaymentHoldRpcV1({
+    if (!snapshot) {
+      if (
+        proof.status === 'PI_LOOKUP_ZERO' ||
+        proof.status === 'PI_LOOKUP_MULTIPLE' ||
+        proof.status === 'SESSION_NOT_PAYMENT'
+      ) {
+        const hold = await callRecordCanonicalPaymentHoldRpcV1({
+          stripeCanonicalEventId: event.id,
+          paymentIntentId,
+          canonicalEventCreatedAtMs: canonicalMs,
+          verifiedCheckoutSessionId: null,
+          metadataPurchaseAttemptId: metadataAttemptId,
+          resolvedPurchaseAttemptId: null,
+          reasonCode: proof.status,
+          providerCorrelationState:
+            proof.status === 'PI_LOOKUP_ZERO'
+              ? 'PROVIDER_ZERO'
+              : proof.status === 'PI_LOOKUP_MULTIPLE'
+                ? 'PROVIDER_MULTIPLE'
+                : 'PROVIDER_NOT_ATTEMPTED',
+        });
+        if (hold.outcome === 'CONFLICTING_EVIDENCE') {
+          const claimed = await r5CanonicalClaimExistsV1(db, event.id);
+          if (!claimed) {
+            return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+          }
+        }
+        return insertPaymentIntentSucceededStripeEventV1(db, event.id);
+      }
+
+      const recorded = await callRecordCanonicalPaymentRpcV1({
         stripeCanonicalEventId: event.id,
         paymentIntentId,
         canonicalEventCreatedAtMs: canonicalMs,
-        verifiedCheckoutSessionId: null,
-        metadataPurchaseAttemptId: metadataAttemptId,
-        resolvedPurchaseAttemptId: null,
-        reasonCode: proof.status,
-        providerCorrelationState:
-          proof.status === 'PI_LOOKUP_ZERO'
-            ? 'PROVIDER_ZERO'
-            : proof.status === 'PI_LOOKUP_MULTIPLE'
-              ? 'PROVIDER_MULTIPLE'
-              : 'PROVIDER_NOT_ATTEMPTED',
+        verifiedCheckoutSessionId: proof.checkoutSessionId,
+        metadataPurchaseAttemptId: proof.metadataPurchaseAttemptId,
       });
-      if (hold.outcome === 'CONFLICTING_EVIDENCE') {
+
+      if (recorded.outcome === 'CONFLICTING_EVIDENCE') {
         const claimed = await r5CanonicalClaimExistsV1(db, event.id);
         if (!claimed) {
           return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
         }
+        return insertPaymentIntentSucceededStripeEventV1(db, event.id);
       }
-      return insertPaymentIntentSucceededStripeEventV1(db, event.id);
+
+      if (
+        recorded.outcome === 'HOLD_RECONCILE' ||
+        recorded.outcome === 'NO_R5_BINDING'
+      ) {
+        return insertPaymentIntentSucceededStripeEventV1(db, event.id);
+      }
     }
 
-    const recorded = await callRecordCanonicalPaymentRpcV1({
+    if (proof.status !== 'PROVIDER_VERIFIED') {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+
+    const normalized = normalizePurchaseMoneyEvidenceFromProofV1({
+      paymentIntentAmountReceived: pi.amount_received,
+      paymentIntentCurrency: pi.currency,
+      proof,
+    });
+    if (!normalized.ok) {
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    }
+
+    await callRecordPurchaseMoneyEvidenceRpcV1({
       stripeCanonicalEventId: event.id,
       paymentIntentId,
-      canonicalEventCreatedAtMs: canonicalMs,
-      verifiedCheckoutSessionId: proof.checkoutSessionId,
-      metadataPurchaseAttemptId: proof.metadataPurchaseAttemptId,
+      payload: normalized.payload,
     });
 
-    if (recorded.outcome === 'CONFLICTING_EVIDENCE') {
-      const claimed = await r5CanonicalClaimExistsV1(db, event.id);
-      if (!claimed) {
+    try {
+      await runR6CommissionLedgerPipelineForPaymentIntentV1({ db, paymentIntentId });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (isCommissionLedgerRpcFailureMessageV1(message)) {
         return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
       }
+      throw error;
     }
 
     return insertPaymentIntentSucceededStripeEventV1(db, event.id);
@@ -784,7 +942,10 @@ async function handlePaymentIntentSucceededR5b(
     if (
       message === M55_R5_RECORD_RPC_TRANSPORT_ERROR ||
       message === M55_R5_HOLD_RPC_TRANSPORT_ERROR ||
+      message === M55_R6_MONEY_RPC_TRANSPORT_ERROR ||
       message === 'INVALID_INPUT' ||
+      message === 'EVIDENCE_NOT_FOUND' ||
+      message === 'MONEY_PAYLOAD_CONFLICT' ||
       message === 'HOLD_PAYLOAD_CONFLICT' ||
       message === 'CONFLICTING_EVIDENCE'
     ) {

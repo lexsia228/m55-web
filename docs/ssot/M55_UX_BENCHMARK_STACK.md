@@ -304,16 +304,40 @@ Freeze route/capability identity only; display labels remain copy/terminology au
 
 **Desktop (`data-testid="m55-desktop-auth"`):**
 
-- signed-out: Clerk `SignInButton` inside `<SignedOut>`
-- signed-in: `ACCOUNT_DROPDOWN_NAV` dropdown + Clerk `UserButton` inside `<SignedIn>`
+- loaded (`ClerkLoaded`):
+  - signed-out: Clerk `SignInButton` inside `<SignedOut>`
+  - signed-in: `ACCOUNT_DROPDOWN_NAV` dropdown + Clerk `UserButton` inside `<SignedIn>`
+- loading (`ClerkLoading`):
+  - renders `AuthLoginButton`
+  - `data-testid="m55-desktop-auth-fallback"`
+  - login fallback destination `/sign-in`
+- failed (`ClerkFailed`):
+  - renders `AuthLoginButton`
+  - `data-testid="m55-desktop-auth-fallback"`
+  - login fallback destination `/sign-in`
 
 **Mobile menu (`MOBILE_MENU_PUBLIC` + `styles.mobileMenuAuth`):**
 
 - public navigation: `MOBILE_MENU_PUBLIC` routes (separate from auth)
-- signed-out: Clerk `SignInButton` inside mobile `<SignedOut>`
-- signed-in: `ACCOUNT_DROPDOWN_NAV` routes + Clerk `UserButton` inside mobile `<SignedIn>`
+- loaded (`ClerkLoaded`):
+  - signed-out: Clerk `SignInButton` inside mobile `<SignedOut>`
+  - signed-in: `ACCOUNT_DROPDOWN_NAV` routes + Clerk `UserButton` inside mobile `<SignedIn>`
+- loading (`ClerkLoading`):
+  - renders `AuthLoginButton`
+  - `data-testid="m55-mobile-auth-fallback"`
+  - login fallback destination `/sign-in`
+- failed (`ClerkFailed`):
+  - renders `AuthLoginButton`
+  - `data-testid="m55-mobile-auth-fallback"`
+  - login fallback destination `/sign-in`
 
-`PublicHeader.tsx` must consume/render: `state.desktopPrimaryNav`, `state.aboutDropdownNav`, `state.mobileMenuPublic`, desktop and mobile `ACCOUNT_DROPDOWN_NAV`, brand `/home` link, desktop/mobile `SignedOut`/`SignedIn` auth blocks, `SignInButton`, and `UserButton`.
+**Auth availability fallback classification:**
+
+- `/sign-in` is an auth-availability/recovery fallback used while Clerk is loading or failed.
+- it is not a new primary/public navigation destination.
+- do not add `/sign-in` to the frozen Header route arrays solely because this fallback exists.
+
+`PublicHeader.tsx` must consume/render: `state.desktopPrimaryNav`, `state.aboutDropdownNav`, `state.mobileMenuPublic`, desktop and mobile `ACCOUNT_DROPDOWN_NAV`, brand `/home` link, desktop/mobile `ClerkLoaded`/`ClerkLoading`/`ClerkFailed` auth blocks, `AuthLoginButton` fallback behavior, desktop/mobile `SignedOut`/`SignedIn` auth blocks, `SignInButton`, and `UserButton`.
 
 ### Footer capability inventory
 
@@ -321,7 +345,7 @@ For routes using `PublicShell`, the shared Header and Footer **already exist**.
 
 Owner: `app/_components/PublicFooter.tsx`
 
-`PublicFooter` owns **site-wide discovery / navigation only** for support and legal destinations. It does **not** own canonical page content.
+`PublicFooter` owns **site-wide discovery / navigation only** — including support/legal destinations and selective Creator / Partner discovery. It does **not** own canonical destination-page content.
 
 **UTILITY (`UTILITY_GROUP`):**
 
@@ -337,6 +361,21 @@ Owner: `app/_components/PublicFooter.tsx`
 - `/legal/terms`
 - `/legal/privacy`
 - `/legal/tokushoho`
+
+**CREATOR / PARTNER DISCOVERY:**
+
+- owner: `app/_components/PublicFooter.tsx`
+- site-wide destination: `/creator`
+- rendered as a separate footer `nav`
+- `aria-label="Creator / Partner"`
+- link label: `Creator / Partner`
+- `data-testid="m55-creator-partner-footer-link"`
+- separate from `UTILITY_GROUP`
+- separate from `SUPPORT_LEGAL_GROUP`
+- canonical landing content owner: `app/creator/page.tsx`
+- selective Creator discovery remains footer-only
+- do not duplicate `/creator` into support/legal navigation
+- do not add `/creator` to shared Header (`PublicHeader.tsx` / `publicHeaderState.ts`) without a separate Product/Human decision
 
 **Canonical content owners (route → page owner):**
 
