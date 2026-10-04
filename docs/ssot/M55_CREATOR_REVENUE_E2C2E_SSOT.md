@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. Canonical current stage is R5 `ATTRIBUTION_AND_COMPLIANCE` — **NOT YET IMPLEMENTED**; separate Human GO required before R5 implementation. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. R5 `ATTRIBUTION_AND_COMPLIANCE` is **CLOSED GREEN**. R6 `COMMISSION_LEDGER` is **CLOSED GREEN**. Canonical current product stage is R7 `CREATOR_DASHBOARD` — **SELECTED / NOT YET IMPLEMENTED**. Executable CURRENT/NEXT is temporarily held at `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` (cold-start revalidation) until fresh PASS + Human acceptance; post–Control-Tower product work is `CREATOR_DASHBOARD`. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -919,10 +919,10 @@ A referred customer may later become an approved promoter, which can create anot
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final R2 acceptance 2026-09-13 |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR #204 merged · Human Preview visual GREEN · Production READY at merge SHA |
 | R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **CLOSED GREEN** — PR #210 **MERGED** · see R4 closure checkpoint below |
-| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CURRENT CANONICAL STAGE** — **NOT YET IMPLEMENTED** |
-| R6 | `COMMISSION_LEDGER` | future |
-| R7 | `CREATOR_DASHBOARD` | future |
-| R8 | `PAYOUT_AND_SETTLEMENT` | future |
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CLOSED GREEN** |
+| R6 | `COMMISSION_LEDGER` | **CLOSED GREEN** |
+| R7 | `CREATOR_DASHBOARD` | **SELECTED** — **NOT YET IMPLEMENTED** |
+| R8 | `PAYOUT_AND_SETTLEMENT` | future · **NOT_IMPLEMENTED** |
 | — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
 | — | `M55_CREATOR_REVENUE_READY` | future — **precedes** invite-only beta (Human decision 2026-09-16) |
 | — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
@@ -1201,11 +1201,11 @@ The evidence file is authoritative for exact SQL, exact bounded observations, pr
 | Capability | Status |
 |---|---|
 | Creator referral | **NOT_IMPLEMENTED** |
-| Attribution | **NOT_IMPLEMENTED** |
-| Commission ledger | **NOT_IMPLEMENTED** |
-| Creator dashboard | **NOT_IMPLEMENTED** |
+| Attribution | **CLOSED GREEN** |
+| Commission ledger | **CLOSED GREEN** |
+| Creator dashboard | **SELECTED** — **NOT_IMPLEMENTED** |
 | Payout/settlement | **NOT_IMPLEMENTED** |
-| Stripe payout provider | **REQUIRED TARGET = CONNECT** · runtime **NOT_IMPLEMENTED** / Production cash inactive |
+| Stripe payout provider runtime | **NOT_IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
 
 ---
 

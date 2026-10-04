@@ -4,7 +4,7 @@ Status: **Worktree authority (Tier E — operational)**
 Last semantic reconciliation: **2026-09-10 Worktree Cleanup Wave 2D registry closure** — durable ownership/lane only; live Git identity via **`npm run m55:context`**. Executable CURRENT / NEXT: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
 Source command for volatile facts: **`npm run m55:context`** (preferred) or manual `git fetch origin` + `git status` + `rev-list`.
 
-**WT-056 discoverability (2026-09-28):** Scoped R6 ownership reconciliation addendum **R6 WORKTREE OWNERSHIP RECONCILIATION (2026-09-28) — AUTHORITATIVE FOR WT-056** below registers `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` · `feat/m55-r6-commission-ledger-v1` · lifecycle **ACTIVE_PRODUCT** only. It does **not** supersede the **2026-09-10** global worktree inventory snapshot/count in **FINAL LIVE WORKTREES (2026-09-10)**. Volatile Git facts: **`npm run m55:context`**. Executable CURRENT / NEXT: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
+**WT-056 discoverability (2026-10-04):** Scoped R6 closure reconciliation addendum **R6 WORKTREE CLOSURE RECONCILIATION (2026-10-04) — AUTHORITATIVE FOR WT-056** below registers `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` · `feat/m55-r6-commission-ledger-v1` · lifecycle **CLOSED / RETAINED**. Historical 2026-09-28 registration remains below as dated evidence. **WT-057** registers the R6→R7 control-plane transition docs worktree. Neither addendum supersedes the **2026-09-10** global worktree inventory snapshot/count in **FINAL LIVE WORKTREES (2026-09-10)**. Volatile Git facts: **`npm run m55:context`**. Executable CURRENT / NEXT: **`docs/ssot/M55_EXECUTION_STATE.json`** only.
 
 ## How to read this registry
 
@@ -1302,7 +1302,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-### WT-056 — R6 Commission Ledger control-plane candidate (ACTIVE_PRODUCT)
+### WT-056 — R6 Commission Ledger implementation owner (CLOSED / RETAINED)
 
 | Field | Value |
 |---|---|
@@ -1310,24 +1310,53 @@ Historical post-merge transition snapshots remain recorded for audit.
 | branch | `feat/m55-r6-commission-ledger-v1` |
 | intended upstream | `origin/main` |
 | live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
-| lifecycle | **ACTIVE_PRODUCT** |
+| lifecycle | **CLOSED / RETAINED** |
 | macro lane | **M55_CREATOR_REVENUE_E2C2E** |
 | program identity | **COMMISSION_LEDGER** |
-| purpose | Authorized R6 COMMISSION_LEDGER cold-start revalidation candidate owner; carries P0-B1 execution-state overlay and prerequisite shared-chrome SSOT parity candidate while ledger body remains selected/not implemented |
+| purpose | Historical R6 COMMISSION_LEDGER implementation owner; R6 lane **CLOSED GREEN**; Production DB **CLOSED GREEN**; no longer current executable owner; no additional R6 implementation without an actual invalidator |
 | executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` |
-| product implementation authorized | only per active execution-state gate; current cold-start revalidation does not authorize commission-ledger runtime/DB implementation |
+| product implementation authorized | **false** — R6 lane closed; physical worktree retained |
 | provider/DB/Stripe/Clerk/env/deploy/payment mutation | **prohibited** unless separately authorized |
-| removal eligibility | **HARD PROTECT** while R6 candidate remains dirty / pending cold-start revalidation; no reset/stash/clean/remove/branch-delete without explicit Human scope |
+| removal eligibility | physical worktree retained; no reset/stash/clean/remove/branch-delete without explicit Human scope |
 
 ---
 
-## R6 WORKTREE OWNERSHIP RECONCILIATION (2026-09-28) — AUTHORITATIVE FOR WT-056
+## R6 WORKTREE CLOSURE RECONCILIATION (2026-10-04) — AUTHORITATIVE FOR WT-056
+
+Scope: WT-056 durable closure registration only. This is **not** a global worktree reconciliation. It does **not** supersede the **FINAL LIVE WORKTREES (2026-09-10 Worktree Cleanup Wave 2D closure)** global inventory snapshot or its count **8**. Physical worktree **not** removed.
+
+| Path | Branch | Registry id | Classification | Lifecycle / notes |
+|---|---|---|---|---|
+| `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` | `feat/m55-r6-commission-ledger-v1` | WT-056 | **CLOSED / RETAINED** | R6 COMMISSION_LEDGER historical implementation owner; R6 **CLOSED GREEN** |
+
+---
+
+## R6 WORKTREE OWNERSHIP RECONCILIATION (2026-09-28) — HISTORICAL FOR WT-056
 
 Scope: WT-056 / R6 durable ownership registration only. This is **not** a global worktree reconciliation. It does **not** supersede the **FINAL LIVE WORKTREES (2026-09-10 Worktree Cleanup Wave 2D closure)** global inventory snapshot or its count **8**. Volatile Git facts (HEAD, divergence, dirty/staged, live worktree count) must be freshly observed via **`npm run m55:context`** — never inferred from this addendum or historical registry tables.
 
 | Path | Branch | Registry id | Classification | Lifecycle / notes |
 |---|---|---|---|---|
 | `/Users/lexsia/Documents/M55_WORKTREE-r6-commission-ledger-v1` | `feat/m55-r6-commission-ledger-v1` | WT-056 | **ACTIVE_PRODUCT** | R6 COMMISSION_LEDGER candidate owner; current dirty/runtime state is volatile and not frozen here |
+
+---
+
+### WT-057 — R6→R7 Control-Plane Transition (DOCS_ONLY)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-r6-to-r7-creator-revenue-control-plane-transition-v1` |
+| branch | `docs/m55-r6-to-r7-creator-revenue-control-plane-transition-v1` |
+| intended upstream | `origin/main` |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **DOCS_ONLY** |
+| macro lane | **M55_CREATOR_REVENUE_E2C2E** |
+| program identity | **R6-TO-R7-CONTROL-PLANE-TRANSITION** |
+| purpose | Authorized control-plane transition owner; R6 **CLOSED GREEN** → R7 **SELECTED**; no R7 product/runtime implementation |
+| executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` |
+| product implementation authorized | **false** |
+| provider/DB/Stripe/Clerk/env/deploy/payment mutation | **prohibited** |
+| removal eligibility | retain until transition lifecycle is separately closed |
 
 ---
 
