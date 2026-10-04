@@ -2,6 +2,7 @@ import type {
   ChapterId,
   CompatibilityFreeResultFragments,
   PaidTopicId,
+  PairAxisId,
   RelationStatusId,
   TemperatureId,
 } from './pairReadingTypes';
@@ -62,6 +63,10 @@ export type CompatibilityMappedChapter = CompatibilityPublicChapter & {
 export type CompatibilityPublicResult = {
   free: CompatibilityFreeResultFragments;
   freeTeaser: string;
+  pairDerivation: {
+    pairAxisId: PairAxisId;
+    personAUsesFirstPerspective: boolean;
+  };
   currentContext?: CompatibilityCurrentContextDisplay;
   mappedChapters: [CompatibilityMappedChapter, CompatibilityMappedChapter];
   allChapters: CompatibilityPublicChapter[];

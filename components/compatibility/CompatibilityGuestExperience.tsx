@@ -379,10 +379,10 @@ export default function CompatibilityGuestExperience({
         answersV2: sanitizeGuestSessionAnswers(
           answers as CompatibilityCurrentContextAnswersV2,
         ),
-        pairAxisId: 'A2',
+        pairAxisId: result.pairDerivation.pairAxisId,
         personABirthDate: input.personA,
         personBBirthDate: input.personB,
-        personAUsesFirstPerspective: true,
+        personAUsesFirstPerspective: result.pairDerivation.personAUsesFirstPerspective,
         focusLabel: context.focusLabel,
         relationStatusId,
       });

@@ -13,6 +13,8 @@ import { buildPairManualV1 } from '../narrative/pairManualV1';
 import { projectCompatibilityFreeNarrativeV1 } from '../narrative/projectCompatibilityFreeNarrativeV1';
 import { projectCompatibilityPaidNarrativeV1 } from '../narrative/projectCompatibilityPaidNarrativeV1';
 import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1';
+import { buildCompatibilityPublicResult } from './pairReadingGuestResult';
+import { derivePairAxisId, hashDob } from './pairReadingFingerprint';
 import {
   projectPairPublicShareV1,
   resolvePublicShareSpecFromToken,
@@ -210,6 +212,34 @@ describe('pair free paid boundary — paid capability and commerce posture', () 
     const reader = read('components/compatibility/PaidCompatibilityReportReader.tsx');
     assert.doesNotMatch(reader, /M55_COMPATIBILITY_COMMERCE_ENABLED/);
     assert.doesNotMatch(reader, /checkout|stripe/i);
+  });
+});
+
+describe('pair free paid boundary — P4 source consistency', () => {
+  it('guest result UI consumes server pairDerivation instead of hardcoded axis/perspective', () => {
+    const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
+    assert.match(guest, /result\.pairDerivation\.pairAxisId/);
+    assert.match(guest, /result\.pairDerivation\.personAUsesFirstPerspective/);
+    assert.doesNotMatch(guest, /pairAxisId:\s*'A2'/);
+    assert.doesNotMatch(guest, /personAUsesFirstPerspective:\s*true/);
+  });
+
+  it('buildCompatibilityPublicResult exposes pairDerivation from server authority', () => {
+    const personA = '1990-01-15';
+    const personB = '1991-01-01';
+    const outcome = buildCompatibilityPublicResult(
+      { personA, personB },
+      'R3',
+      ESTABLISHED_ANSWERS,
+    );
+    assert.equal(outcome.ok, true);
+    if (!outcome.ok) return;
+
+    const { pairDerivation } = outcome.value;
+    assert.equal(pairDerivation.pairAxisId, derivePairAxisId(personA, personB));
+    const expectedPerspective = hashDob(personA) <= hashDob(personB);
+    assert.equal(pairDerivation.personAUsesFirstPerspective, expectedPerspective);
+    assert.equal(expectedPerspective, false);
   });
 });
 

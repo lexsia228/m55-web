@@ -259,6 +259,10 @@ export function buildCompatibilityPublicResult(
   return {
     ok: true,
     value: {
+      pairDerivation: {
+        pairAxisId: rendered.pairFingerprint.pairAxisId,
+        personAUsesFirstPerspective,
+      },
       free: overlayPairFreeDynamic(free, {
         answersV2: publicContextV2,
         answers: legacyAnswers,
