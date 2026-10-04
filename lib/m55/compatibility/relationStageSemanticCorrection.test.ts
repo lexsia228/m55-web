@@ -799,10 +799,22 @@ describe('relation stage semantic correction wave A', () => {
     const { built: r3Built, narrative: r3Narrative } = r3Surface;
     const { built: r6Built, narrative: r6Narrative } = r6Surface;
 
-    assert.match(r6Built.free.relationshipDynamic, R6_LONG_TERM_MARK);
-    assert.match(r6Built.currentContext?.currentExpression ?? '', R6_LONG_TERM_MARK);
-    assert.match(r6Narrative.openingHit.text, R6_LONG_TERM_MARK);
-    assert.match(r6Narrative.fusedDiscovery?.text ?? '', R6_LONG_TERM_MARK);
+    const R6_SCENE_CONDITION = /日常の用事/g;
+
+    assert.match(r6Narrative.openingHit.text, /日常の用事が一段落したあと/);
+
+    const r6MajorVisible = [
+      r6Built.free.relationshipDynamic,
+      r6Built.currentContext?.currentExpression ?? '',
+      r6Narrative.openingHit.text,
+      r6Narrative.fusedDiscovery?.text ?? '',
+      ...(r6Built.currentContext?.relationshipLoopSteps ?? []),
+      ...r6Narrative.contextSections.map((section) => section.text),
+    ].join('\n');
+    assert.equal(r6MajorVisible.match(R6_SCENE_CONDITION)?.length ?? 0, 1);
+    assert.doesNotMatch(r6Built.free.relationshipDynamic, R6_SCENE_CONDITION);
+    assert.doesNotMatch(r6Built.currentContext?.currentExpression ?? '', R6_SCENE_CONDITION);
+    assert.doesNotMatch(r6Narrative.fusedDiscovery?.text ?? '', R6_SCENE_CONDITION);
 
     const r3VisibleBlob = [
       r3Built.free.relationshipDynamic,
@@ -810,12 +822,9 @@ describe('relation stage semantic correction wave A', () => {
       r3Narrative.openingHit.text,
       r3Narrative.fusedDiscovery?.text ?? '',
     ].join('\n');
-    assert.doesNotMatch(r3VisibleBlob, R6_LONG_TERM_MARK);
+    assert.doesNotMatch(r3VisibleBlob, R6_SCENE_CONDITION);
 
-    assert.notEqual(r3Built.free.relationshipDynamic, r6Built.free.relationshipDynamic);
-    assert.notEqual(r3Built.currentContext?.currentExpression, r6Built.currentContext?.currentExpression);
     assert.notEqual(r3Narrative.openingHit.text, r6Narrative.openingHit.text);
-    assert.notEqual(r3Narrative.fusedDiscovery?.text, r6Narrative.fusedDiscovery?.text);
     assert.match(r3Built.free.relationshipDynamic, /関係が続いている場面/);
 
     const r6ProjectedFreeBlob = [
