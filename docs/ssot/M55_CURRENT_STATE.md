@@ -13,6 +13,24 @@ Product Authority Pack: **`.product-authority/`** (durable authority + observati
 
 **Fresh runtime authority:** `npm run m55:context` after `git fetch origin`. If remembered chat state contradicts `m55:context` for dynamic facts, **fresh context wins**.
 
+## CURRENT EXECUTION OVERLAY — 2026-10-04 R6→R7 control-plane transition / cold-start revalidation hold
+
+Human-approved durable overlay. This is the **newest** overlay: where it conflicts with any earlier overlay, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**.
+
+| Field | Value |
+|---|---|
+| SOLE EXECUTABLE AUTHORITY | `docs/ssot/M55_EXECUTION_STATE.json` |
+| CURRENT / NEXT | `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` |
+| PRODUCT WORK AFTER CONTROL TOWER | `CREATOR_DASHBOARD` |
+| EXECUTION PARENT GATE | `CREATOR_DASHBOARD` |
+| CREATOR REVENUE STATUS | R5 **CLOSED GREEN** · R6 **CLOSED GREEN** · R7 **SELECTED / NOT YET IMPLEMENTED** · R8 **NOT_IMPLEMENTED** |
+| R6 WT-056 | **CLOSED / RETAINED** — historical R6 implementation owner; no additional R6 without invalidator |
+| R7 transition WT-057 | **DOCS_ONLY** — current control-plane transition owner |
+| COLD-START | **REVALIDATION REQUIRED** — handoff mechanism changed; prior accepted cold-start evidence (2026-09-28 `HANDOFF_COLD_START_PASS`) remains historical/no-replay evidence |
+| CREATOR CASH | **NOT IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
+| R7 RUNTIME IMPLEMENTATION | **NOT AUTHORIZED** by this transition |
+| DB / ENV / PROVIDER / STRIPE / CREATOR-CASH MUTATION | **NONE** in this transition |
+
 ## CURRENT EXECUTION OVERLAY — 2026-09-18 R4 post-merge Production closure / R5 canonical entry
 
 Human-approved durable overlay. This is the **newest** overlay: where it conflicts with any earlier R4 ACTIVE overlay, pre-merge reconciliation overlay, mapping-checkpoint overlay, 2026-09-14 R3 overlay, or any older narrative `(CURRENT)` label, **this overlay and `docs/ssot/M55_EXECUTION_STATE.json` win**. It does **not** rewrite unrelated historical UIUX/Pair CLOSED GREEN evidence.

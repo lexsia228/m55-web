@@ -31,7 +31,7 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Current canonical stage: `ATTRIBUTION_AND_COMPLIANCE` (R5 entry). R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. R5 implementation is **NOT** authorized by this reconciliation alone.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. **Executable CURRENT/NEXT** (Phase-1 cold-start hold): `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`. **Post–Control-Tower selected product work:** `CREATOR_DASHBOARD` (R7). R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. R7 product/runtime implementation is **NOT** authorized by this control-plane transition alone.
 
 | Stage | Gate | Status |
 |---|---|---|
@@ -39,10 +39,10 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. Curre
 | R2 | `REVENUE_SAFETY_E2E` | **CLOSED GREEN** — Human final acceptance 2026-09-13 · R2 repo/Terms/reconciliation complete |
 | R3 | `M55-INFLUENCER-PRODUCT-LAUNCH-READINESS-CODEX-AUDIT` | **CLOSED GREEN** — PR **#204** merged @ `e8d9773cd7a04830f4cdb1208fbe2aa811027114` · Human Preview visual **GREEN** · Production **READY** at the same SHA · `/support` and `/legal/creator-affiliate-terms` HTTP **200** · no Creator cash activation |
 | R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **CLOSED GREEN** — see R4 closure checkpoint below · PR **#210** **MERGED** |
-| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CURRENT / ENTRY** — not yet implemented |
-| R6 | `COMMISSION_LEDGER` | future |
-| R7 | `CREATOR_DASHBOARD` | future |
-| R8 | `PAYOUT_AND_SETTLEMENT` | future |
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CLOSED GREEN** |
+| R6 | `COMMISSION_LEDGER` | **CLOSED GREEN** |
+| R7 | `CREATOR_DASHBOARD` | **SELECTED PRODUCT STAGE** — **NOT YET IMPLEMENTED** |
+| R8 | `PAYOUT_AND_SETTLEMENT` | future · **NOT_IMPLEMENTED** |
 | — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
 | — | `M55_CREATOR_REVENUE_READY` | future — **precedes** invite-only beta (Human decision 2026-09-16) |
 | — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
@@ -605,6 +605,25 @@ If a new P0 commercial defect is discovered:
 2. Explicitly change ACTIVE LANE in `M55_CURRENT_STATE.md`
 
 Do not silently skip or reorder steps.
+
+### R6→R7 Control-Tower transition reconciliation (2026-10-04)
+
+Scope: control-plane / docs-only transition from R6 **CLOSED GREEN** to R7 **SELECTED**; does **not** authorize R7 product/runtime implementation. Executable CURRENT/NEXT remains `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` until fresh cold-start PASS + Human acceptance. Post–Control-Tower selected product work: `CREATOR_DASHBOARD`.
+
+| Stage | Gate | Reconciled status |
+|---|---|---|
+| R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CLOSED GREEN** — reconciled from accepted R5 implementation authority |
+| R6 | `COMMISSION_LEDGER` | **CLOSED GREEN** — reconciled from accepted R6 implementation authority |
+| R7 | `CREATOR_DASHBOARD` | **SELECTED** — **NOT YET IMPLEMENTED** |
+| R8 | `PAYOUT_AND_SETTLEMENT` | **NOT_IMPLEMENTED** — future |
+
+Mixed-owner rows (frozen 2026-09-06 zero-omission matrix preserved in place; reconciliation notes only):
+
+| Topic | Reconciliation |
+|---|---|
+| Appeal/correction (R5 · R7) | R5 attribution/compliance/appeal intake machine contract **CLOSED GREEN**; R7 Creator intake UX portion remains **open** — do **not** claim R7 appeal UX is implemented |
+| Post-payout adjustment (R6 · R8) | R6 ledger adjustment semantics **CLOSED GREEN**; R8 payout/recovery execution remains **open** |
+| Idempotency (R6 · R8) | R6 commission creation/replay safety **CLOSED GREEN**; R8 payout instruction idempotency remains **open** |
 
 ## Superseded
 

@@ -622,7 +622,7 @@ Future record minimum bindings:
 - Integer minor units / exact decimal-safe representation preferred
 - For JPY, integer yen storage preferred where contract allows
 
-**`MUST_RESOLVE_BEFORE_COMMISSION_LEDGER_IMPLEMENTATION`:** exact tax-base rounding and final commission rounding rule. R6 is blocked until one deterministic rounding rule is Human/legal/accounting approved. Do **not** invent rounding silently.
+**`MUST_RESOLVE_BEFORE_COMMISSION_LEDGER_IMPLEMENTATION` (pre-R6 implementation precondition — satisfied):** exact tax-base rounding and final commission rounding rule. Human-authoritative R6 `COMMISSION_LEDGER` is now **CLOSED GREEN**; accepted R6 implementation contract and migration evidence (`lib/m55/commission/r6CommissionLedgerContract.ts`, migration `20260927200000_m55_r6_commission_ledger_v1.sql`) own the exact rounding/money semantics. Do **not** reopen rounding semantics in this control-plane transition. Do **not** invent rounding silently.
 
 ---
 
