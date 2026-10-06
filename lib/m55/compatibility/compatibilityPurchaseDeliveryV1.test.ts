@@ -359,6 +359,23 @@ describe('checkout source contract', () => {
     );
     assert.doesNotMatch(requestBody, /snapshot|chapter|price|amount/);
   });
+
+  it('prefills Stripe Checkout from the signed-in Clerk email when available', () => {
+    const checkout = read('app/api/compatibility/checkout/route.ts');
+    assert.match(
+      checkout,
+      /import \{ auth, currentUser \} from '@clerk\/nextjs\/server';/,
+    );
+    assert.match(checkout, /const clerkUser = await currentUser\(\);/);
+    assert.match(
+      checkout,
+      /clerkUser\?\.primaryEmailAddress\?\.emailAddress[\s\S]*clerkUser\?\.emailAddresses\?\.\[0\]\?\.emailAddress/,
+    );
+    assert.match(
+      checkout,
+      /\.\.\.\(customerEmail \? \{ customer_email: customerEmail \} : \{\}\)/,
+    );
+  });
 });
 
 describe('paid webhook fulfillment validation', () => {
