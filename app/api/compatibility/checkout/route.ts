@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '../../../../lib/stripe';
 import { buildCanonicalCompatibilityPurchaseSnapshot } from '../../../../lib/m55/compatibility/buildCanonicalCompatibilityPurchaseSnapshot';
@@ -129,6 +129,11 @@ export async function POST(req: NextRequest) {
   }
 
   const origin = req.nextUrl.origin;
+  const clerkUser = await currentUser();
+  const customerEmail =
+    clerkUser?.primaryEmailAddress?.emailAddress ??
+    clerkUser?.emailAddresses?.[0]?.emailAddress ??
+    undefined;
   try {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -146,6 +151,7 @@ export async function POST(req: NextRequest) {
         description: COMPATIBILITY_REPORT_PUBLIC_NAME,
       },
       phone_number_collection: { enabled: false },
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
     });
     if (!session.url) {
       return NextResponse.json({ error: 'checkout_failed' }, { status: 500 });
