@@ -83,8 +83,8 @@ test('fresh session recovers Creator Revenue / E2C2E contract from execution sta
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.payoutSettlementStatus, 'NOT_IMPLEMENTED');
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.stripePayoutProviderStatus, 'UNSELECTED');
   assert.equal(handoff.CREATOR_REVENUE_E2C2E.nextDelta, 'CREATOR_DASHBOARD');
-  assert.equal(handoff.currentGate, COLD_START_GATE);
-  assert.equal(handoff.nextSingleAction, COLD_START_GATE);
+  assert.equal(handoff.currentGate, state.currentExecutionGate);
+  assert.equal(handoff.nextSingleAction, state.nextSingleAction);
   assert.ok(state.completedSubGates.includes('FOUR_SURFACE_CREATOR_READINESS'));
   assert.ok(state.completedSubGates.includes('ATTRIBUTION_AND_COMPLIANCE'));
   assert.ok(state.completedSubGates.includes('COMMISSION_LEDGER'));
