@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. R5 `ATTRIBUTION_AND_COMPLIANCE` is **CLOSED GREEN**. R6 `COMMISSION_LEDGER` is **CLOSED GREEN**. Canonical current product stage is R7 `CREATOR_DASHBOARD` — **SELECTED / NOT YET IMPLEMENTED**. Executable CURRENT/NEXT is temporarily held at `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN` (cold-start revalidation) until fresh PASS + Human acceptance; post–Control-Tower product work is `CREATOR_DASHBOARD`. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. R5 `ATTRIBUTION_AND_COMPLIANCE` is **CLOSED GREEN**. R6 `COMMISSION_LEDGER` is **CLOSED GREEN**. Canonical current product stage is R7 `CREATOR_DASHBOARD` — **SELECTED / NOT YET IMPLEMENTED**. Executable CURRENT/NEXT is `CREATOR_DASHBOARD`. R8 `PAYOUT_AND_SETTLEMENT` is **NOT_IMPLEMENTED**. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -200,6 +200,160 @@ Launch scope: Japan resident / JPY / JP bank / 18+. Nonresident cash blocked. My
 Actual Stripe account pricing/tax invoice must be verified before Production cash activation. No external professional approval token is required.
 
 Late refund/chargeback waterfall is owned by Operating Model §26. Canonical persisted commission/payout state names remain the existing repo vocabulary.
+
+---
+
+## A-00A. Completed capability / no-replay registry
+
+This section is normative for implementation reuse.
+
+### General no-replay rule
+
+- R4/R5/R6 are **CLOSED GREEN**.
+- Their completed capabilities **MUST** be reused by R7/R8.
+- Do not recreate, replace, or independently redesign these capabilities merely because a later stage needs them.
+- A new chat, missing conversational memory, reassurance request, or stale subordinate comment is **NOT** an invalidator.
+- Reopening requires an actual changed dependency, discovered production defect, changed policy/contract, or explicit Human authorization.
+- **CLOSED_GREEN** does **NOT** mean Creator payout/cash is active.
+- R7 **SELECTED** does **NOT** mean completed.
+
+### R4 — `M55-CREATOR-DISTRIBUTION-FOUNDATION`
+
+**Status:** **CLOSED_GREEN / NO_REIMPLEMENT**
+
+**Completed/reusable substrate:**
+
+- Creator application submission
+- current Creator terms-version acceptance binding
+- review / approval evidence flow
+- application status lifecycle
+- Creator profile status lifecycle: `APPROVED_PENDING_ACTIVATION`, `ACTIVE`, `SUSPENDED`, `REVOKED`
+- Creator portal application/profile status read model
+- existing Creator entry surfaces/routes already closed under R4
+
+**Representative source owners:**
+
+- `lib/m55/creatorDistribution/contract.ts`
+- `lib/m55/creatorDistribution/repository.ts`
+- `lib/m55/creatorDistribution/review.ts`
+
+**Explicitly NOT claimed as R4-complete:**
+
+- Creator-facing referral URL issuance/management
+- Creator visit/click/conversion analytics
+- Creator earnings dashboard
+- payout execution
+
+### R5 — `ATTRIBUTION_AND_COMPLIANCE`
+
+**Status:** **CLOSED_GREEN / NO_REIMPLEMENT**
+
+**Completed/reusable substrate:**
+
+- opaque Creator tracking token wire/digest model
+- `m55_creator_referral_links` registry resolution
+- ACTIVE link validation
+- Creator profile identity / ACTIVE eligibility validation
+- Creator touch ingest
+- authenticated direct Creator-link qualification path
+- pre-authentication continuation path
+- continuation cookie / qualified-touch admission
+- self-referral fail-closed behavior
+- 30-day attribution window
+- `LAST_QUALIFIED_DIRECT_CREATOR_TOUCH` policy
+- max one Creator per eligible purchase
+- retroactive attribution prohibited
+- purchase-attempt attribution lock
+- checkout-session binding
+- purchase-attempt terminalization / canonical purchase attribution machinery
+
+**Representative runtime/source owners:**
+
+- `lib/m55/attribution/r5CreatorTrackingToken.ts`
+- `app/api/m55/attribution/creator-touch/route.ts`
+- `app/m55/attribution/creator-touch/continue/page.tsx`
+- `lib/m55/attribution/r5TouchIngestContract.ts`
+- `lib/m55/attribution/r5PurchaseAttemptContract.ts`
+- accepted R5 migrations/RPC contracts
+
+**Important semantic guard:**
+
+`creatorReferralStatus = NOT_IMPLEMENTED` **MUST NOT** be interpreted as: "R5 referral/attribution backend does not exist."
+
+Its current meaning is: the Creator-facing referral product surface for R7 is not yet complete.
+
+The existing R5 tracking/attribution substrate remains **CLOSED_GREEN** and reusable.
+
+Historical/subordinate comments such as `R5A_SEMANTICS_FROZEN_RUNTIME_NOT_IMPLEMENTED` or prose claiming R5-B/R5-C are still unimplemented **must NOT** override current executable state plus accepted R5 runtime closure.
+
+Do **NOT** modify those TypeScript files in this docs-only gate.
+
+### R6 — `COMMISSION_LEDGER`
+
+**Status:** **CLOSED_GREEN / NO_REIMPLEMENT**
+
+**Completed/reusable substrate:**
+
+- purchase money evidence
+- refund economic evidence
+- dispute/chargeback economic evidence
+- commission calculation/version bindings
+- rate-schedule/version bindings
+- eligible-product policy/version bindings
+- canonical commission states: `COMMISSION_PENDING_COMPLIANCE_REVIEW`, `COMMISSION_HOLD`, `COMMISSION_PAYABLE`, `COMMISSION_REVERSED`, `COMMISSION_ADJUSTED`
+- original commission recording
+- commission reconciliation
+- due-commission reconciliation contract
+- immutable/append-only economic correction model
+- Stripe webhook wiring into the R6 commission-ledger pipeline
+
+**Representative runtime/source owners:**
+
+- `lib/m55/commission/r6PurchaseMoneyEvidenceContract.ts`
+- `lib/m55/commission/r6EconomicEventEvidenceContract.ts`
+- `lib/m55/commission/r6CommissionLedgerContract.ts`
+- `app/api/stripe/webhook/route.ts`
+- `supabase/migrations/20260927200000_m55_r6_commission_ledger_v1.sql`
+
+**Explicitly NOT claimed as R6-complete:**
+
+- payout execution
+- Stripe Connect onboarding
+- KYC provider mutation
+- payout batches
+- transfers
+- bank payout lifecycle
+- returned/failed payout recovery
+- real-money activation
+
+### R7 implementation boundary
+
+R7 must consume the completed R4/R5/R6 substrate.
+
+R7 owns only the still-missing Creator-facing/read-model product surface, including as applicable:
+
+- Creator referral/link presentation/management
+- visit/click/conversion exposure
+- earnings/commission state visibility
+- commission explainability
+- rate/policy visibility
+- payout readiness/block reason/expectation display
+- privacy-safe event/purchase references
+- export
+- compliance/appeal surface integration
+
+Do not turn this docs patch into an implementation specification beyond the already-frozen R7 scope.
+
+### R8 boundary
+
+R8 remains **NOT_IMPLEMENTED** and owns payout/settlement execution.
+
+Preserve:
+
+- `PRODUCTION_CASH_ACTIVATION = FALSE`
+- `stripePayoutProviderStatus = UNSELECTED`
+
+Post-R8 sequence remains unchanged.
 
 ---
 

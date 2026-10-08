@@ -31,7 +31,7 @@ This section records the Human-approved **directional commercial strategy order*
 
 **Status:** Human **APPROVED** 2026-09-05 · durable contract: `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` · operating-model delta: `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md` (Rev4 FINAL, Human-frozen)
 
-Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. **Executable CURRENT/NEXT** (Phase-1 cold-start hold): `CONTROL-TOWER-COLD-START-ACCEPTANCE-RERUN`. **Post–Control-Tower selected product work:** `CREATOR_DASHBOARD` (R7). R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. R7 product/runtime implementation is **NOT** authorized by this control-plane transition alone.
+Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. **Executable CURRENT/NEXT:** `CREATOR_DASHBOARD`. R7 `CREATOR_DASHBOARD` remains **SELECTED PRODUCT STAGE / NOT YET IMPLEMENTED**. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. R7 product/runtime implementation requires separate Human GO.
 
 | Stage | Gate | Status |
 |---|---|---|
@@ -47,6 +47,8 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. **Exe
 | — | `M55_CREATOR_REVENUE_READY` | future — **precedes** invite-only beta (Human decision 2026-09-16) |
 | — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
 | — | `CONTROLLED_SCALE` | future |
+
+Completed R4/R5/R6 capability inventory and no-replay/reuse rules are owned by `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` § A-00A Completed capability / no-replay registry.
 
 ### R4 closure checkpoint (updated 2026-09-18 — post-merge Production closure)
 
