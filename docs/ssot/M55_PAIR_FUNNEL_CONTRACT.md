@@ -48,9 +48,9 @@ These facts coexist and must not be collapsed:
 
 | Layer | Status | Meaning |
 |---|---|---|
-| Product runtime (`M55_COMMERCIAL_PRODUCTS.pairPremium.status`) | **NOT_LIVE** | Machine product truth; not a full live purchasable product surface |
+| Product runtime (`M55_COMMERCIAL_PRODUCTS.pairPremium.status`) | **NOT_LIVE** *(stale / reconciliation-required)* | Machine registry value unchanged in this gate; Production runtime proof (2026-10-07) establishes purchasable Pair Paid delivery — see closeout SSOT |
 | Production commerce switch / control-plane (`pairPremium` in `M55_EXECUTION_STATE.json`) | **ACTIVATED** | `PAIR-PREMIUM-ACTIVATION-DECISION` is **CLOSED GREEN**; approved control-plane activation only |
-| Production real-payment E2E | **PAUSED_BEFORE_PAYMENT / NOT GREEN** | No payment E2E GREEN; fulfillment / owned-report revisit E2E not GREEN |
+| Production real-payment E2E | **CLOSED_GREEN / PRODUCTION / NO_REPLAY** | Proven 2026-10-07 — see `docs/ssot/M55_PAIR_P5_PRODUCTION_PAYMENT_E2E_CLOSEOUT_2026-10-07.md`. `M55_EXECUTION_STATE.json` Pair real-payment E2E substate remains **stale / reconciliation-required** (`PAUSED_BEFORE_PAYMENT` equivalent) until separate control-plane reconciliation; this closeout does **not** change executable CURRENT/NEXT. |
 
 Repo-verified product facts only (`lib/m55/compatibility/compatibilityCommerceAuthority.ts`):
 
@@ -60,14 +60,9 @@ Repo-verified product facts only (`lib/m55/compatibility/compatibilityCommerceAu
 - Commerce env-gated (`M55_COMPATIBILITY_COMMERCE_ENABLED`)
 - HOME paid CTA: **false**
 
-Control-plane activation **does not** establish:
+Control-plane activation alone **does not** establish full `ProductStatus` LIVE in the machine registry. Production real-payment E2E, fulfillment, and owned-report revisit are **CLOSED_GREEN / PRODUCTION / NO_REPLAY** per `docs/ssot/M55_PAIR_P5_PRODUCTION_PAYMENT_E2E_CLOSEOUT_2026-10-07.md` (durable E2E evidence authority). `M55_EXECUTION_STATE.json` Pair real-payment E2E substate remains **stale / reconciliation-required** until a separate bounded control-plane task; this docs-only freeze does **not** change executable CURRENT/NEXT.
 
-- full `ProductStatus` LIVE
-- payment E2E GREEN
-- fulfillment E2E GREEN
-- owned-report revisit E2E GREEN
-
-**Target value (not claimed as live):**
+**Target value (Pair Paid content contract — not re-audited by this E2E):**
 
 - なぜその流れになりやすいか
 - 二人の違い
@@ -76,7 +71,7 @@ Control-plane activation **does not** establish:
 - 違いをどう扱えるか
 - 次に試せること
 
-Do not describe unverified repo value as implemented or purchasable in production.
+The 2026-10-07 Production E2E closeout proves payment → fulfillment → owned-report **delivery and revisit** only. Content semantics for each paid-value bullet remain governed by existing product/content authority; this E2E is **not** an exhaustive semantic/content-quality audit.
 
 ## Pair Free / Paid value boundary (Human-approved — do not re-map)
 
@@ -107,8 +102,8 @@ Repeat mapping: **PROHIBITED**
 
 - Free must not leak paid handling, actionable steps, experiments, or durable revisit value.
 - Paid must not re-open the base relationship/overlap/mismatch recognition work that Free already owns.
-- `PAIR-PREMIUM-ACTIVATION-DECISION` is **CLOSED GREEN**. The Production commerce switch/control-plane is **ACTIVATED**. Full product runtime status remains **NOT_LIVE** until the separately owned Production E2E closure is proven.
-- Do not claim purchasable Pair Paid in production; real-payment E2E remains **PAUSED_BEFORE_PAYMENT / NOT GREEN**.
+- `PAIR-PREMIUM-ACTIVATION-DECISION` is **CLOSED GREEN**. The Production commerce switch/control-plane is **ACTIVATED**. Production real-payment E2E is **CLOSED_GREEN / PRODUCTION / NO_REPLAY** (`docs/ssot/M55_PAIR_P5_PRODUCTION_PAYMENT_E2E_CLOSEOUT_2026-10-07.md`). Machine registry `pairPremium.status` remains **NOT_LIVE** until separately reconciled; that machine value is **stale** relative to Production runtime proof.
+- **Repurchase policy (Human-approved 2026-10-07, not implemented here):** same already-owned Pair / same paid context must not encourage duplicate purchase; a genuinely different partner / new Pair may legitimately show a fresh purchase CTA. Stable same-Pair vs different-Pair identity is **not** frozen here — do not infer identity from nickname/display label alone. Residual post-purchase UX defects (`/synastry/purchase/success`, `/synastry/purchase/confirm`) are separate open items and do not invalidate the E2E proof.
 
 ## Commercial desire binding (2026-09-18)
 
