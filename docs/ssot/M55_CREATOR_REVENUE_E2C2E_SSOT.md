@@ -333,7 +333,7 @@ R7 must consume the completed R4/R5/R6 substrate.
 R7 owns only the still-missing Creator-facing/read-model product surface, including as applicable:
 
 - Creator referral/link presentation/management
-- visit/click/conversion exposure
+- source-backed performance/conversion exposure; qualified Creator touches must not be relabelled as raw visits/clicks, and unsupported metrics remain explicitly unavailable
 - earnings/commission state visibility
 - commission explainability
 - rate/policy visibility
@@ -354,6 +354,182 @@ Preserve:
 - `stripePayoutProviderStatus = UNSELECTED`
 
 Post-R8 sequence remains unchanged.
+
+---
+
+## A-00B. R7 implementation-plan freeze / no-replay registry (Human-approved 2026-10-08)
+
+This section is the durable implementation-plan authority for R7 `CREATOR_DASHBOARD`. It freezes the completed read-only planning/Codex/Human decisions so a new chat or implementer does **not** repeat the planning audit.
+
+**Plan status:** `FROZEN_GREEN`  
+**Independent audit:** `R7_IMPLEMENTATION_PLAN_CODEX_GREEN_READY_FOR_HUMAN_FREEZE` · P0 = 0 · P1 = 0  
+**Human decisions required:** `NONE`  
+**Runtime status:** R7 remains **SELECTED / NOT YET IMPLEMENTED**. This freeze does **not** claim source, migration, env, Preview, Production, payout, or cash activation.
+
+### Human-frozen R7 v1 decisions
+
+```text
+R7_V1_REFERRAL_CARDINALITY = ONE_CANONICAL_ACTIVE_URL_PER_CREATOR
+R7_V1_POST_TOUCH_DESTINATION = /home
+R7_V1_PERFORMANCE_METRIC_POLICY = NO_SYNTHETIC_OR_RELABELLED_METRICS
+R7_V1_EXPORT_REQUIRED_FOR_R7_CLOSURE = TRUE
+R7_DISPLAY_REFERENCE_DECISION = NO_HMAC_DISPLAY_REFERENCE_NEEDED
+R7_MIGRATION_CLASSIFICATION = R7_MINIMAL_SCHEMA_GUARD_MIGRATION_REQUIRED
+M55_CREATOR_REFERRAL_TOKEN_HMAC_SECRET_V1 = IMMUTABLE_FOR_TOKEN_VERSION_V1
+```
+
+### No-replay / ownership boundary
+
+- R4/R5/R6 remain **CLOSED_GREEN / NO_REIMPLEMENT** and must be reused.
+- R7 dashboard ownership is `/creator/dashboard`; do **not** expand R4 `/creator/portal` into the R7 dashboard. R4 may receive only a narrow handoff link and stale-notice correction.
+- Dashboard/compliance historical reads remain available to the authenticated owner for owned `ACTIVE`, `SUSPENDED`, or `REVOKED` Creator profiles.
+- Referral issue/rotate requires an `ACTIVE` Creator whose referral capability is currently permitted.
+- R8 remains **NOT_IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE` and `stripePayoutProviderStatus = UNSELECTED`.
+
+### Referral invariant / migration boundary
+
+The durable referral owner is `creator_economic_identity_id`.
+
+R7 requires one new forward-only migration. Historical R5/R6 migrations must not be edited. Permitted migration scope is only:
+
+1. fail-closed duplicate-ACTIVE precondition;
+2. partial unique guard enforcing at most one `ACTIVE` referral row per `creator_economic_identity_id`;
+3. transactional issue-or-get RPC;
+4. transactional rotate RPC with `expectedActiveLinkId` stale-request guard;
+5. service-role-only RPC execution;
+6. the proven Creator-oriented read indexes required by the frozen bounded queries.
+
+The migration must stop if duplicate ACTIVE rows already exist; it must not silently choose or retire a winner.
+
+### Canonical referral token / public flow
+
+Canonical Creator share form:
+
+`https://<canonical-host>/m55/r#<token>`
+
+Token v1 remains compatible with the existing R5 wire/digest contract:
+
+- wire prefix `m55ct1.`;
+- token body = unpadded base64url HMAC-SHA256 over the frozen purpose namespace + separator + canonical lowercase server-generated link UUID;
+- the server generates the candidate link UUID **before** deriving the token/digest and invoking the RPC;
+- `digestCreatorTrackingTokenV1()` remains unchanged;
+- the RPC receives UUID + digest only;
+- raw token is not persisted or explicitly logged;
+- `token_digest` is never returned;
+- only the owning Creator may receive the current share URL.
+
+`M55_CREATOR_REFERRAL_TOKEN_HMAC_SECRET_V1` is server-only, high-entropy, fail-closed, and immutable for token version v1. Silent replacement is prohibited. Compromise recovery requires separately authorized token/key version advancement plus explicit rotation/reissue. Do not reuse Stripe, Clerk, or Supabase secrets.
+
+Public entry `/m55/r` must capture/remove the URL fragment before its first network request, then delegate to the existing R5 `POST /api/m55/attribution/creator-touch` and existing continuation flow. No GET-side attribution mutation, client-provided redirect, or open redirect. After successful continuation, navigate to the fixed internal destination `/home`. The capture surface uses `Referrer-Policy: no-referrer` and `Cache-Control: private, no-store, max-age=0` and must not load third-party analytics/resources before fragment removal.
+
+### R7 metric truth contract
+
+Source-backed R7 v1 metrics may expose:
+
+- qualified Creator touches;
+- attributed conversions;
+- eligible paid conversions;
+- attributed sales;
+- R6 commission activity;
+- current commission entitlement by lifecycle;
+- commissionable revenue and applicable existing rate/policy versions.
+
+The following are explicitly unavailable until a separately authorized Creator-attributable upstream source exists:
+
+```text
+unique_tracked_visits = UNAVAILABLE
+valid_Free_completions = UNAVAILABLE
+visit_based_conversion_rate = UNAVAILABLE
+```
+
+`UNAVAILABLE` is a typed truth state: not numeric zero, not derived from qualified touches, not included in totals/denominators, and accompanied by a stable public explanation. Qualified touches must never be relabelled as visits/clicks/raw clicks/unique visitors.
+
+### Commission / privacy / compliance boundary
+
+- No second ledger.
+- Current entitlement = latest `entitlement_after_event_jpy` once per normalized commission origin, grouped by `lifecycle_state_after_event`.
+- `commission_delta_jpy` is activity only.
+- `release_at_ms` is a review/release eligibility boundary, never a payout date.
+- Public reason mapping uses a finite allowlist; unknown/internal reasons fall back to a safe generic public label.
+- Every R7 private request independently binds Clerk session → own Creator profile → own `creator_economic_identity_id`; client-supplied Creator identity has no authority.
+- Never expose purchaser PII, Stripe/payment/provider identifiers, token digests, buyer/touch digests or fingerprints, fraud/device/IP clusters, reviewer/internal evidence, bank/KYC/My Number data, raw internal economic IDs, or another Creator's data.
+- Creator compliance adds only an owned, public-safe case/history GET; reviewer/private APIs are not reused directly.
+- Display references use a versioned purpose-prefixed SHA-256 derivation from an existing random immutable UUID; no referral HMAC secret is required for display references.
+
+### R7 export / performance bounds
+
+R7 reconciliation export is mandatory for R7 closure:
+
+- explicit UTC `from` / `to`;
+- maximum range 366 days;
+- maximum 10,000 rows;
+- internal keyset pages max 500 rows;
+- detect a 10,001st row and return a bounded-range error rather than silently truncate;
+- privacy-safe fields only;
+- CSV formula-injection defense for `=`, `+`, `-`, `@`, tab, and carriage-return prefixes;
+- embedded CR/LF normalization plus ordinary CSV quoting.
+
+All dashboard/history reads use bounded time ranges and keyset cursors. No materialized aggregate, second ledger, speculative index, or unbounded reviewer-style query is permitted.
+
+### Frozen implementation allowlist
+
+**NEW**
+
+- `app/creator/dashboard/page.tsx`
+- `app/creator/dashboard/CreatorDashboardClient.tsx`
+- `app/creator/dashboard/dashboard.module.css`
+- `app/api/creator/referrals/current/route.ts`
+- `app/api/creator/referrals/issue/route.ts`
+- `app/api/creator/referrals/rotate/route.ts`
+- `app/api/creator/dashboard/route.ts`
+- `app/api/creator/dashboard/export/route.ts`
+- `app/api/creator/compliance/cases/route.ts`
+- `app/m55/r/page.tsx`
+- `app/m55/r/ReferralEntryClient.tsx`
+- `lib/m55/creatorDashboard/creatorContext.ts`
+- `lib/m55/creatorDashboard/referralToken.ts`
+- `lib/m55/creatorDashboard/referralLifecycle.ts`
+- `lib/m55/creatorDashboard/dashboardReadModel.ts`
+- `lib/m55/creatorDashboard/publicReasonMap.ts`
+- `lib/m55/creatorDashboard/displayReference.ts`
+- `lib/m55/creatorDashboard/reconciliationExport.ts`
+
+**MODIFY**
+
+- `app/creator/_components/CreatorPortalPanel.tsx` — handoff link / stale-notice correction only
+- `app/m55/attribution/creator-touch/continue/page.tsx` — fixed `/home` success navigation only
+- `lib/m55/authRouting/routeAccessContract.ts`
+- `lib/m55/authRouting/routeAccessContract.test.ts`
+- `middleware.ts`
+
+**MIGRATION**
+
+- `supabase/migrations/20261008000000_m55_r7_creator_dashboard_v1.sql`
+
+**TEST**
+
+- `lib/m55/creatorDashboard/referralToken.test.ts`
+- `lib/m55/creatorDashboard/referralLifecycle.local.test.ts`
+- `lib/m55/creatorDashboard/dashboardReadModel.local.test.ts`
+- `lib/m55/creatorDashboard/publicReasonMap.test.ts`
+- `lib/m55/creatorDashboard/displayReference.test.ts`
+- `lib/m55/creatorDashboard/reconciliationExport.test.ts`
+- `lib/m55/creatorDashboard/referralLanding.test.ts`
+- `lib/m55/creatorDashboard/creatorDashboardSurface.test.ts`
+
+**ENV CONTRACT**
+
+- `M55_CREATOR_REFERRAL_TOKEN_HMAC_SECRET_V1`
+
+`app/creator/portal/page.tsx` is not required by the frozen plan. Anything outside this allowlist requires new diff-scoped justification and Human authorization.
+
+### Validation / next-action rule
+
+- R7 validation is R7-only plus narrow dependency tests for actually touched R4/R5/R6 boundaries.
+- Do **not** replay complete R4/R5/R6 suites absent a real invalidator.
+- This plan freeze is not implementation GO.
+- Local source implementation, migration apply, env mutation, commit/push, PR/merge, Preview, Production, provider, and cash operations remain distinct authorization gates where applicable.
+- Executable CURRENT/NEXT remains owned solely by `docs/ssot/M55_EXECUTION_STATE.json` and remains `CREATOR_DASHBOARD`.
 
 ---
 
@@ -1162,7 +1338,7 @@ Mandatory before Founding Creator external operation. **Happy path alone is insu
 
 ### Dashboard phase boundary (Human-approved 2026-09-16)
 
-R4 portal exposes **application/profile status + clear next action only**. R7 dashboard owns referral/link state · authoritative visits/clicks · conversions · pending commission · payable commission · actionable hold/block reason · next payout expectation · payout history. **Do not implement R7 in R4.**
+R4 portal exposes **application/profile status + clear next action only**. R7 dashboard lives on its own `/creator/dashboard` surface and owns referral/link state · source-backed performance/conversion metrics · commission/earnings state and explainability · actionable hold/block reason · provider-neutral unavailable payout presentation while R8 is absent · Creator-safe compliance reads · reconciliation export. `unique_tracked_visits`, `valid_Free_completions`, and visit-based conversion rate remain explicitly **UNAVAILABLE** until a separately authorized Creator-attributable source exists. Payout execution/KYC/provider state/payout history/dates remain R8. **Do not implement R7 in R4.**
 
 ### Stripe architecture — unchanged (2026-09-16)
 

@@ -50,6 +50,8 @@ Sole executable CURRENT/NEXT remains `docs/ssot/M55_EXECUTION_STATE.json`. **Exe
 
 Completed R4/R5/R6 capability inventory and no-replay/reuse rules are owned by `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` § A-00A Completed capability / no-replay registry.
 
+R7 implementation planning is durably frozen in `docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md` § A-00B R7 implementation-plan freeze / no-replay registry. New chats/implementers must reuse that frozen plan and must not repeat R7 planning/Codex audits absent an actual invalidator.
+
 ### R4 closure checkpoint (updated 2026-09-18 — post-merge Production closure)
 
 R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN**. PR **#210** is **MERGED**. Canonical entry is now R5 `ATTRIBUTION_AND_COMPLIANCE`; R5 implementation is **not** started by this reconciliation.
@@ -131,7 +133,7 @@ Mandatory before Founding Creator external operation. **Happy path alone is insu
 
 ### Dashboard phase boundary (Human-approved 2026-09-16)
 
-R4 portal owns **application/profile status + clear next action only**. R7 dashboard owns referral/link state · authoritative visits/clicks · conversions · pending commission · payable commission · actionable hold/block reason · next payout expectation · payout history. **Do not implement R7 in R4.**
+R4 portal owns **application/profile status + clear next action only**. R7 dashboard lives separately at `/creator/dashboard` and owns referral/link state · source-backed performance/conversion metrics · commission/earnings state and explainability · actionable hold/block reason · provider-neutral unavailable payout presentation while R8 is absent · Creator-safe compliance reads · reconciliation export. `unique_tracked_visits`, `valid_Free_completions`, and visit-based conversion rate remain explicitly **UNAVAILABLE** until a separately authorized Creator-attributable source exists. Payout execution/KYC/provider state/payout history/dates remain R8. **Do not implement R7 in R4.**
 
 ### Stripe architecture — no change in this checkpoint (2026-09-16)
 
