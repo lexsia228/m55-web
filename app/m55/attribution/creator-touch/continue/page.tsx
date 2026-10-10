@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 type ContinueState =
@@ -8,6 +9,7 @@ type ContinueState =
   | { status: 'error'; error: string };
 
 export default function CreatorTouchContinuePage() {
+  const router = useRouter();
   const [state, setState] = useState<ContinueState>({ status: 'pending' });
 
   useEffect(() => {
@@ -25,6 +27,7 @@ export default function CreatorTouchContinuePage() {
           return;
         }
         setState({ status: 'success', outcome: payload.outcome ?? 'UNKNOWN' });
+        router.replace('/home');
       } catch {
         if (!cancelled) {
           setState({ status: 'error', error: 'NETWORK_ERROR' });
@@ -34,7 +37,7 @@ export default function CreatorTouchContinuePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
   if (state.status === 'pending') {
     return <main>続行処理を確認しています…</main>;
