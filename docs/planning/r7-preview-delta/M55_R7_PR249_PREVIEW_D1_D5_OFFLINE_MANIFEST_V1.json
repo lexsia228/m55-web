@@ -1,0 +1,1011 @@
+{
+  "identifier": "M55_R7_PR249_PREVIEW_D1_D5_OFFLINE_MANIFEST_V1",
+  "manifestSchemaVersion": "1.1.0",
+  "offlineAllowlistBundleIntegrity": {
+    "digestType": "SHA256_FILE_BYTES",
+    "files": {
+      "docs/planning/r7-preview-delta/M55_R7_PR249_PREVIEW_D1_D5_OFFLINE_MANIFEST_V1.json": "9c99fb03773809481ce75bfa9865ae0e8e47ea9d2d0f566ea8a24ebea9e6209e",
+      "lib/m55/previewRemoteApply/r7D1D5OfflinePlan.ts": "518d28c967b7738e1b3e4a7f41eebfff8e61e3007203a156465288d6569d49a3",
+      "lib/m55/previewRemoteApply/r7D1D5OfflinePlan.local.test.ts": "1cdab68f959ef23852d6c01f9e8f69fe28a3a25314e4624a5b49c596a2693036",
+      "scripts/m55/runR7PreviewD1D5OfflinePlan.ts": "f812e0a7b28d1f89e9a84452bc3d75da2c80984aaff11ebdbaac8396f78f36b3"
+    }
+  },
+  "repository": {
+    "root": "/Users/lexsia/Documents/M55_WORKTREE-r7-creator-dashboard-v1",
+    "branch": "feat/m55-r7-creator-dashboard-v1",
+    "reviewedBaseAncestorSha": "bb90d4f6e1f37e112a6ca950eebefdf949414cab"
+  },
+  "previewTarget": {
+    "organization": "m55-preview",
+    "project": "m55-soul-preview",
+    "projectRef": "sbogwyzldjxxouhqtpnq"
+  },
+  "historyProvenance": {
+    "evidenceType": "M55_R7_PR249_PREVIEW_MIGRATION_HISTORY_OBSERVATION",
+    "observedAtJst": "2026-10-11",
+    "sourceKind": "CONNECTED_SUPABASE_LIST_MIGRATIONS_READ_ONLY",
+    "projectName": "m55-soul-preview",
+    "projectId": "sbogwyzldjxxouhqtpnq",
+    "rowCount": 16,
+    "recordsCanonicalDigestSha256": "8847fb9a4ca66deeb47626a8f7c0c323cf94d5c26c9732b873790b5068ace6dc",
+    "orderPolicy": "AS_RETURNED_BY_LIST_MIGRATIONS",
+    "limitations": [
+      "This is an independent read-only observation, not DB apply approval or a cryptographic Supabase attestation.",
+      "At a later Preview apply preflight, repeat read-only history and state verification; do not assume this snapshot stays current.",
+      "Do not equate canonical SQL filenames with remote recorded history names; names for versions 20260922000000 and 20260923000000 include their version prefixes."
+    ]
+  },
+  "authorization": {
+    "executionAuthorized": false,
+    "databaseMutationAuthorized": false,
+    "remoteReady": false,
+    "remoteConnectionAttempted": false
+  },
+  "prohibitedOperations": [
+    "supabase db push",
+    "migration repair",
+    "supabase link",
+    "include-all migration apply",
+    "SQL Editor apply",
+    "unmodified CLI apply",
+    "P1_P8_LIVE_EXECUTOR_CLI_FOR_D1_D5"
+  ],
+  "startingHistoryPrefix": [
+    {
+      "version": "20260614000000",
+      "name": "preview_production_aligned_baseline_p1"
+    },
+    {
+      "version": "20260615000001",
+      "name": "failed_fulfillments_user_ref_hash"
+    },
+    {
+      "version": "20260615000002",
+      "name": "m55_account_deletion_ledger_v1"
+    },
+    {
+      "version": "20260615000003",
+      "name": "m55_account_deletion_process_rpc_v1"
+    },
+    {
+      "version": "20260615000004",
+      "name": "m55_entitlements_and_rights_access_security_v1"
+    },
+    {
+      "version": "20260615000005",
+      "name": "m55_dtr_visible_report_uniqueness_v1"
+    },
+    {
+      "version": "20260615000006",
+      "name": "m55_entitlements_unique_index_cleanup_v1"
+    },
+    {
+      "version": "20260617000001",
+      "name": "m55_clerk_webhook_user_ref_hash_v1"
+    },
+    {
+      "version": "20260626000000",
+      "name": "m55_consult_reply_assistant_length_v1"
+    },
+    {
+      "version": "20260713000000",
+      "name": "compatibility_purchase_delivery_v1"
+    },
+    {
+      "version": "20260914000000",
+      "name": "m55_creator_distribution_foundation_v1"
+    },
+    {
+      "version": "20260919000000",
+      "name": "m55_attribution_touch_schema_v1"
+    },
+    {
+      "version": "20260920000000",
+      "name": "m55_r5_attribution_admit_qualified_touch_v1"
+    },
+    {
+      "version": "20260921000000",
+      "name": "m55_r5_attribution_purchase_lock_v1"
+    },
+    {
+      "version": "20260922000000",
+      "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+    },
+    {
+      "version": "20260923000000",
+      "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+    }
+  ],
+  "steps": [
+    {
+      "stepId": "D1",
+      "source": {
+        "stepId": "D1",
+        "version": "20260924000000",
+        "name": "m55_r5_compliance_control_plane_v1",
+        "relativePath": "supabase/migrations/20260924000000_m55_r5_compliance_control_plane_v1.sql",
+        "bytes": 47569,
+        "sourceSha256": "be909ec8e3737f87f668d6504400fafde2c5d57203667aaedc93b3c0b308d159",
+        "sourceStatementCount": 63
+      },
+      "normalized": {
+        "normalizationMethod": "SUPABASE_CLI_SPLIT_AND_TRIM_IDENTITY",
+        "optionAPolicy": "NOT_APPLICABLE_OUTSIDE_P1_P7_LABELS",
+        "normalizedStatementCount": 63,
+        "normalizedStreamCompositeSha256": "a75610d21f75f791c6424817afed00dca5f21e3c9b16eed4955b8dd6d16023df",
+        "serialization": "m55.statement_stream.u64be_length_utf8.v1"
+      },
+      "historyPrefixPrior": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        }
+      ],
+      "historyPrefixPost": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        }
+      ],
+      "catalogProbes": {
+        "preProbeId": "R7_D1_PRE_CATALOG_R5_COMPLIANCE_ABSENT",
+        "postProbeId": "R7_D1_POST_CATALOG_R5_COMPLIANCE_PRESENT",
+        "preProbeReadiness": "NOT_IMPLEMENTED",
+        "postProbeReadiness": "NOT_IMPLEMENTED"
+      },
+      "historyInsertShape": "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2::text[], $3)"
+    },
+    {
+      "stepId": "D2",
+      "source": {
+        "stepId": "D2",
+        "version": "20260927000000",
+        "name": "m55_r6_purchase_money_evidence_v1",
+        "relativePath": "supabase/migrations/20260927000000_m55_r6_purchase_money_evidence_v1.sql",
+        "bytes": 7957,
+        "sourceSha256": "a36b1cbc0a8fca47c3796f57702a05aa4706775142380d8559714f622452b5c2",
+        "sourceStatementCount": 11
+      },
+      "normalized": {
+        "normalizationMethod": "SUPABASE_CLI_SPLIT_AND_TRIM_IDENTITY",
+        "optionAPolicy": "NOT_APPLICABLE_OUTSIDE_P1_P7_LABELS",
+        "normalizedStatementCount": 11,
+        "normalizedStreamCompositeSha256": "97a07e8deb1395812013ff15133116e99ebc5dabef212411d5e78dd24a9b15ea",
+        "serialization": "m55.statement_stream.u64be_length_utf8.v1"
+      },
+      "historyPrefixPrior": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        }
+      ],
+      "historyPrefixPost": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        }
+      ],
+      "catalogProbes": {
+        "preProbeId": "R7_D2_PRE_CATALOG_R6_PURCHASE_MONEY_ABSENT",
+        "postProbeId": "R7_D2_POST_CATALOG_R6_PURCHASE_MONEY_PRESENT",
+        "preProbeReadiness": "NOT_IMPLEMENTED",
+        "postProbeReadiness": "NOT_IMPLEMENTED"
+      },
+      "historyInsertShape": "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2::text[], $3)"
+    },
+    {
+      "stepId": "D3",
+      "source": {
+        "stepId": "D3",
+        "version": "20260927100000",
+        "name": "m55_r6_refund_dispute_economic_evidence_v1",
+        "relativePath": "supabase/migrations/20260927100000_m55_r6_refund_dispute_economic_evidence_v1.sql",
+        "bytes": 16508,
+        "sourceSha256": "4f47b1a14ef942e347dc4a7eb428825fd495c9f3d3b62f7c5c6b17127fa8b0c6",
+        "sourceStatementCount": 20
+      },
+      "normalized": {
+        "normalizationMethod": "SUPABASE_CLI_SPLIT_AND_TRIM_IDENTITY",
+        "optionAPolicy": "NOT_APPLICABLE_OUTSIDE_P1_P7_LABELS",
+        "normalizedStatementCount": 20,
+        "normalizedStreamCompositeSha256": "ddcf10b15831182577301364f694dafb7202fdfbf67ed8f772ea42b2b41d401c",
+        "serialization": "m55.statement_stream.u64be_length_utf8.v1"
+      },
+      "historyPrefixPrior": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        }
+      ],
+      "historyPrefixPost": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20260927100000",
+          "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        }
+      ],
+      "catalogProbes": {
+        "preProbeId": "R7_D3_PRE_CATALOG_R6_REFUND_DISPUTE_ABSENT",
+        "postProbeId": "R7_D3_POST_CATALOG_R6_REFUND_DISPUTE_PRESENT",
+        "preProbeReadiness": "NOT_IMPLEMENTED",
+        "postProbeReadiness": "NOT_IMPLEMENTED"
+      },
+      "historyInsertShape": "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2::text[], $3)"
+    },
+    {
+      "stepId": "D4",
+      "source": {
+        "stepId": "D4",
+        "version": "20260927200000",
+        "name": "m55_r6_commission_ledger_v1",
+        "relativePath": "supabase/migrations/20260927200000_m55_r6_commission_ledger_v1.sql",
+        "bytes": 67526,
+        "sourceSha256": "2bbd7231047f1bdcce2f7b4bb1b4d253fecd1868ebdc77848ddb367d4b13bcad",
+        "sourceStatementCount": 64
+      },
+      "normalized": {
+        "normalizationMethod": "SUPABASE_CLI_SPLIT_AND_TRIM_IDENTITY",
+        "optionAPolicy": "NOT_APPLICABLE_OUTSIDE_P1_P7_LABELS",
+        "normalizedStatementCount": 64,
+        "normalizedStreamCompositeSha256": "5f8bc286e9912d8d84c51eef6d6868ec1bea2ab23646b6a9ea5057715e3f67a4",
+        "serialization": "m55.statement_stream.u64be_length_utf8.v1"
+      },
+      "historyPrefixPrior": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20260927100000",
+          "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        }
+      ],
+      "historyPrefixPost": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20260927100000",
+          "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        },
+        {
+          "version": "20260927200000",
+          "name": "m55_r6_commission_ledger_v1"
+        }
+      ],
+      "catalogProbes": {
+        "preProbeId": "R7_D4_PRE_CATALOG_R6_COMMISSION_LEDGER_ABSENT",
+        "postProbeId": "R7_D4_POST_CATALOG_R6_COMMISSION_LEDGER_PRESENT",
+        "preProbeReadiness": "NOT_IMPLEMENTED",
+        "postProbeReadiness": "NOT_IMPLEMENTED"
+      },
+      "historyInsertShape": "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2::text[], $3)"
+    },
+    {
+      "stepId": "D5",
+      "source": {
+        "stepId": "D5",
+        "version": "20261008000000",
+        "name": "m55_r7_creator_dashboard_v1",
+        "relativePath": "supabase/migrations/20261008000000_m55_r7_creator_dashboard_v1.sql",
+        "bytes": 5445,
+        "sourceSha256": "a903a1e186b37b4e3be14af31e700a999947b91df1769cbb4c4c97c191e3c7e6",
+        "sourceStatementCount": 10
+      },
+      "normalized": {
+        "normalizationMethod": "SUPABASE_CLI_SPLIT_AND_TRIM_IDENTITY",
+        "optionAPolicy": "NOT_APPLICABLE_OUTSIDE_P1_P7_LABELS",
+        "normalizedStatementCount": 10,
+        "normalizedStreamCompositeSha256": "10bd7d078c535a389d7e5f1d10410591c8191657cfc3f1f161e31c54adaf49a4",
+        "serialization": "m55.statement_stream.u64be_length_utf8.v1"
+      },
+      "historyPrefixPrior": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20260927100000",
+          "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        },
+        {
+          "version": "20260927200000",
+          "name": "m55_r6_commission_ledger_v1"
+        }
+      ],
+      "historyPrefixPost": [
+        {
+          "version": "20260614000000",
+          "name": "preview_production_aligned_baseline_p1"
+        },
+        {
+          "version": "20260615000001",
+          "name": "failed_fulfillments_user_ref_hash"
+        },
+        {
+          "version": "20260615000002",
+          "name": "m55_account_deletion_ledger_v1"
+        },
+        {
+          "version": "20260615000003",
+          "name": "m55_account_deletion_process_rpc_v1"
+        },
+        {
+          "version": "20260615000004",
+          "name": "m55_entitlements_and_rights_access_security_v1"
+        },
+        {
+          "version": "20260615000005",
+          "name": "m55_dtr_visible_report_uniqueness_v1"
+        },
+        {
+          "version": "20260615000006",
+          "name": "m55_entitlements_unique_index_cleanup_v1"
+        },
+        {
+          "version": "20260617000001",
+          "name": "m55_clerk_webhook_user_ref_hash_v1"
+        },
+        {
+          "version": "20260626000000",
+          "name": "m55_consult_reply_assistant_length_v1"
+        },
+        {
+          "version": "20260713000000",
+          "name": "compatibility_purchase_delivery_v1"
+        },
+        {
+          "version": "20260914000000",
+          "name": "m55_creator_distribution_foundation_v1"
+        },
+        {
+          "version": "20260919000000",
+          "name": "m55_attribution_touch_schema_v1"
+        },
+        {
+          "version": "20260920000000",
+          "name": "m55_r5_attribution_admit_qualified_touch_v1"
+        },
+        {
+          "version": "20260921000000",
+          "name": "m55_r5_attribution_purchase_lock_v1"
+        },
+        {
+          "version": "20260922000000",
+          "name": "20260922000000_m55_r5_attribution_admit_acceptance_linearized_v1"
+        },
+        {
+          "version": "20260923000000",
+          "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20260924000000",
+          "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20260927000000",
+          "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20260927100000",
+          "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        },
+        {
+          "version": "20260927200000",
+          "name": "m55_r6_commission_ledger_v1"
+        },
+        {
+          "version": "20261008000000",
+          "name": "m55_r7_creator_dashboard_v1"
+        }
+      ],
+      "catalogProbes": {
+        "preProbeId": "R7_D5_PRE_CATALOG_R7_REFERRAL_RPC_ABSENT",
+        "postProbeId": "R7_D5_POST_CATALOG_R7_REFERRAL_RPC_PRESENT",
+        "preProbeReadiness": "NOT_IMPLEMENTED",
+        "postProbeReadiness": "NOT_IMPLEMENTED"
+      },
+      "historyInsertShape": "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2::text[], $3)"
+    }
+  ]
+}
