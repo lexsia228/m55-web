@@ -370,10 +370,26 @@ describe('r7D1D5OfflinePlan', () => {
     assert.equal(validateManifestPayloadStrict(tampered, expected), 'HOLD_MANIFEST_UNKNOWN_KEY');
   });
 
-  it('CLI path reaches READY under four-untracked workspace', () => {
+  it('synthetic injected four-untracked workspace reaches READY via evaluate (not live porcelain)', () => {
+    const result = evaluateR7D1D5OfflinePlan({
+      repoRoot: REPO_ROOT,
+      workspace: makeFourFileUntrackedWorkspace(),
+      manifestOnDisk: loadManifestOnDisk(),
+    });
+    assert.equal(result.mode, 'READY_FOR_INDEPENDENT_DELTA_REVIEW');
+    if (result.mode === 'READY_FOR_INDEPENDENT_DELTA_REVIEW') {
+      assert.equal(result.offlineWorkspaceStage, 'FOUR_FILE_UNTRACKED_AUDIT');
+    }
+  });
+
+  it('CLI on live post-commit repository does not reach untracked-audit READY', () => {
     const { exitCode, payload } = runR7PreviewD1D5OfflinePlanCli(REPO_ROOT);
-    assert.equal(exitCode, 0);
-    assert.equal((payload as { mode: string }).mode, 'READY_FOR_INDEPENDENT_DELTA_REVIEW');
+    assert.equal(exitCode, 1);
+    assert.notEqual((payload as { mode: string }).mode, 'READY_FOR_INDEPENDENT_DELTA_REVIEW');
+    const hold = (payload as { holdReasonCode?: string | null }).holdReasonCode;
+    if (hold) {
+      assert.notEqual(hold, 'HOLD_UNEXPECTED_INTERNAL');
+    }
   });
 
   it('CLI rejects forbidden --apply flag', () => {
@@ -387,9 +403,12 @@ describe('r7D1D5OfflinePlan', () => {
 
   it('CLI merge-base not-ancestor returns false without treating exit 1 as HOLD', () => {
     const ws = observeWorkspaceGit(REPO_ROOT);
-    assert.equal(ws.headCommitSha, R7_PR249_REVIEWED_BASE_ANCESTOR_SHA);
     assert.equal(
-      ws.isAncestor(ws.headCommitSha, '7126028d46631a8f4ebcf3daef9ba1e5eb25b063'),
+      ws.isAncestor(R7_PR249_REVIEWED_BASE_ANCESTOR_SHA, ws.headCommitSha),
+      true,
+    );
+    assert.equal(
+      ws.isAncestor(ws.headCommitSha, R7_PR249_REVIEWED_BASE_ANCESTOR_SHA),
       false,
     );
   });
