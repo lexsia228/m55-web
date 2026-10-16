@@ -1360,6 +1360,29 @@ Scope: WT-056 / R6 durable ownership registration only. This is **not** a global
 
 ---
 
+### WT-058 — R7 Creator Dashboard implementation (LOCAL CODE-ONLY)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-r7-creator-dashboard-v1` |
+| branch | `feat/m55-r7-creator-dashboard-v1` |
+| tracking remote branch | `origin/feat/m55-r7-creator-dashboard-v1` (fresh Git observation; not frozen here) |
+| intended integration base | `origin/main` (integration/rebase target; not conflated with tracking remote or Production) |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **ACTIVE** — R7 Creator Dashboard **LOCAL CODE-ONLY** implementation owner, subject to scoped Human approval; **not** a Production execution owner |
+| macro lane | **M55_CREATOR_REVENUE_E2C2E** |
+| program identity | **CREATOR_DASHBOARD** (R7 D1 implementation worktree) |
+| sole local mutation owner | **Cursor** — only for expressly Human-approved bounded tasks; **Codex** = read-only reviewer; **Control Tower** = authority coordinator; neither is an unapproved local co-writer |
+| executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` — CURRENT / NEXT authority; this entry does **not** override it and does **not** assert R7 D1 GREEN · live · or merged |
+| local permissions | Human-approved **code-only** / **docs-only** actions within bounded scope only; no blanket product implementation, broader file mutation, Git stage/commit/push/merge, provider/DB, Supabase migration apply, Stripe/Clerk, env, deployment, webhook, purchase, or Production access unless separately authorized |
+| product implementation authorized | **scoped Human GO only** — not unconditional `true` |
+| provider/DB/Stripe/Clerk/env/deploy/payment mutation | **prohibited** unless a separate Human authorization explicitly expands scope |
+| retention / protection | **DO NOT** reset, clean, stash, remove, prune, or branch-delete this worktree without separate Human authorization |
+| removal eligibility | retain while R7 Creator Dashboard local implementation lane is active |
+| relation to WT-057 | WT-057 remains **DOCS_ONLY** R6→R7 transition; WT-058 is the **separate** R7 implementation worktree — do not conflate |
+
+---
+
 ### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (CLOSED / RETAINED)
 
 | Field | Value |
