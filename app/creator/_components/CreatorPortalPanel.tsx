@@ -152,9 +152,24 @@ export function CreatorPortalPanel() {
           )}
         </div>
       )}
-      <p className={styles.callout}>
-        紹介計測・報酬レポート・支払機能はまだ有効ではありません。現在使えるアフィリエイトURLは表示していません。
-      </p>
+      {profile &&
+        (profile.status === 'ACTIVE' ||
+          profile.status === 'SUSPENDED' ||
+          profile.status === 'REVOKED') && (
+        <p className={styles.nextAction}>
+          紹介の記録とコミッション状況は
+          <Link href="/creator/dashboard" className={styles.tertiaryLink}>Creatorダッシュボード</Link>
+          で確認できます。
+          {profile.status === 'ACTIVE'
+            ? '支払い・出金は別途のご案内前は行われません。'
+            : '紹介URLの新規発行は有効なプロフィールのみ可能です。'}
+        </p>
+      )}
+      {!profile && (
+        <p className={styles.callout}>
+          紹介ダッシュボードは、Creatorプロフィールが有効化された後にご利用いただけます。
+        </p>
+      )}
     </section>
   );
 }
