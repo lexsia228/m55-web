@@ -39,11 +39,14 @@ import {
   R7_LIVE_BRIDGE_READONLY_MOCK_HONESTY_NOTE,
   assertR7LiveBridgeRuntimeAuthorization,
   executeR7DeltaStepLiveBridge,
+  isR7LiveBridgeHarnessSessionInstance,
+  readR7LocalNodeTestTransactionQuerySqlTraceFromLastRun,
+  runR7LiveBridgeLocalNodeTestDeterministicLifecycle,
+  type R7DeterministicHarnessSessionScenario,
+  type R7LiveBridgeLocalNodeTestHarnessConfig,
   validateR7LiveBridgePostConnectGuardResult,
   validateR7LiveBridgePreviewTargetBinding,
-  type ExecuteR7LiveBridgeInput,
-  type R7LiveBridgeFreshAckClassifier,
-  type R7LiveBridgeFreshReadonlyVerification,
+  type ExecuteR7LiveBridgePublicInput,
   type R7LiveBridgePgSession,
   type R7LiveBridgeTargetObservedFacts,
 } from './r7D1D5LiveBridge.ts';
@@ -56,6 +59,18 @@ import {
 
 const REPO_ROOT = R7_PR249_FROZEN_REPO_ROOT;
 const HEAD_SHA = 'b9ca07d8ca0559bb95ea949771c07e4a36fcea59';
+
+type LocalNodeTestBridgeInput = ExecuteR7LiveBridgePublicInput & {
+  readonly localNodeTestHarness: R7LiveBridgeLocalNodeTestHarnessConfig;
+};
+
+async function simulateLiveBridge(input: LocalNodeTestBridgeInput) {
+  return runR7LiveBridgeLocalNodeTestDeterministicLifecycle(input);
+}
+
+function transactionQuerySqlTrace(): readonly string[] {
+  return readR7LocalNodeTestTransactionQuerySqlTraceFromLastRun();
+}
 
 const EXPECTED_COMPOSITES: Record<R7DeltaStepId, string> = {
   D1: 'a75610d21f75f791c6424817afed00dca5f21e3c9b16eed4955b8dd6d16023df',
@@ -133,208 +148,29 @@ function d1PostPayload() {
   };
 }
 
-type MockFailure =
-  | 'connect'
-  | 'connect_and_close_throw'
-  | 'begin'
-  | 'lock'
-  | 'lock_throw'
-  | 'history'
-  | 'pre_probe'
-  | 'mutation'
-  | 'history_insert'
-  | 'post_probe'
-  | 'commit_throw'
-  | 'commit_and_close_throw'
-  | 'fresh_connect'
-  | 'fresh_connect_and_close_throw'
-  | 'begin_readonly'
-  | 'begin_readonly_and_close_throw'
-  | 'rollback_unack'
-  | 'close_throw';
 
-type MockSessionOptions = {
-  historyPrior: readonly string[];
-  historyPost?: readonly string[];
-  lockAvailable?: boolean;
-  failAt?: MockFailure;
-  commitResponse?: CommitResponseClass;
-  guardRow?: Record<string, unknown> | null;
-  rollbackAcknowledged?: boolean;
-};
-
-function historyRows(versions: readonly string[]) {
-  return versions.map((version) => ({ version }));
+function scenario(
+  opts: Omit<R7DeterministicHarnessSessionScenario, 'scenarioId'> & { readonly scenarioId?: string },
+): R7DeterministicHarnessSessionScenario {
+  return {
+    scenarioId: opts.scenarioId ?? 'scenario-default',
+    historyPrior: opts.historyPrior,
+    historyPost: opts.historyPost,
+    lockAvailable: opts.lockAvailable,
+    failAt: opts.failAt,
+    commitResponse: opts.commitResponse,
+    guardRow: opts.guardRow,
+    rollbackAcknowledged: opts.rollbackAcknowledged,
+  };
 }
-
-class MockLiveBridgeSession implements R7LiveBridgePgSession {
-  readonly queries: Array<{ sql: string; params?: readonly unknown[] }> = [];
-  private inTransaction = false;
-  private readOnlyEstablished = false;
-  private history: string[];
-  private readonly historyPost: string[];
-  private readonly lockAvailable: boolean;
-  private readonly failAt: MockFailure | null;
-  private readonly commitResponse: CommitResponseClass;
-  private readonly guardRow: Record<string, unknown> | null;
-  private readonly rollbackAcknowledged: boolean;
-  private mutationCount = 0;
-
-  constructor(opts: MockSessionOptions) {
-    this.history = [...opts.historyPrior];
-    this.historyPost = opts.historyPost ? [...opts.historyPost] : [...opts.historyPrior];
-    this.lockAvailable = opts.lockAvailable ?? true;
-    this.failAt = opts.failAt ?? null;
-    this.commitResponse = opts.commitResponse ?? 'DEFINITIVE_COMMIT_ACK';
-    this.guardRow =
-      opts.guardRow === undefined
-        ? { current_database_name: 'postgres', current_user_name: 'postgres' }
-        : opts.guardRow;
-    this.rollbackAcknowledged = opts.rollbackAcknowledged ?? true;
-  }
-
-  async connect(): Promise<void> {
-    this.queries.push({ sql: '__connect__' });
-    if (
-      this.failAt === 'connect' ||
-      this.failAt === 'connect_and_close_throw' ||
-      this.failAt === 'fresh_connect' ||
-      this.failAt === 'fresh_connect_and_close_throw'
-    ) {
-      throw new Error('MOCK_CONNECT_FORBIDDEN');
-    }
-  }
-
-  async begin(): Promise<void> {
-    if (this.failAt === 'begin') throw new Error('MOCK_BEGIN_FAILED');
-    this.inTransaction = true;
-  }
-
-  async beginReadOnly(): Promise<void> {
-    if (this.failAt === 'begin_readonly' || this.failAt === 'begin_readonly_and_close_throw') {
-      throw new Error('MOCK_BEGIN_READONLY_FAILED');
-    }
-    this.readOnlyEstablished = true;
-    this.queries.push({ sql: R7_LIVE_BRIDGE_READONLY_TX_SQL });
-  }
-
-  async query(sql: string, params?: readonly unknown[]): Promise<{ rows: Record<string, unknown>[]; rowCount: number }> {
-    this.queries.push({ sql, params });
-    if (sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL) {
-      if (this.failAt === 'lock_throw') {
-        throw new Error('MOCK_LOCK_QUERY_FAILED');
-      }
-      if (this.failAt === 'lock') {
-        return { rows: [{ lock_acquired: false }], rowCount: 1 };
-      }
-      return { rows: [{ lock_acquired: this.lockAvailable }], rowCount: 1 };
-    }
-    if (sql === POST_CONNECT_GUARD_SQL) {
-      if (this.guardRow === null) {
-        return { rows: [], rowCount: 0 };
-      }
-      return { rows: [this.guardRow], rowCount: 1 };
-    }
-    if (sql === R7_LIVE_BRIDGE_HISTORY_READONLY_SELECT_SQL) {
-      if (this.failAt === 'history') throw new Error('MOCK_HISTORY_FAILED');
-      const versions =
-        this.readOnlyEstablished || !this.inTransaction ? this.historyPost : this.history;
-      return { rows: historyRows(versions), rowCount: versions.length };
-    }
-    if (sql.includes('R7_PROBE_ID:R7_D1_PRE')) {
-      if (this.failAt === 'pre_probe') throw new Error('MOCK_PRE_PROBE_FAILED');
-      if (sql.includes('R7_PROBE_PHASE:pre')) {
-        return { rows: [d1PrePayload()], rowCount: 1 };
-      }
-    }
-    if (sql.includes('R7_PROBE_ID:R7_D1_POST')) {
-      if (this.failAt === 'post_probe') throw new Error('MOCK_POST_PROBE_FAILED');
-      return { rows: [d1PostPayload()], rowCount: 1 };
-    }
-    if (sql === HISTORY_INSERT_SQL_METADATA) {
-      if (this.failAt === 'history_insert') throw new Error('MOCK_HISTORY_INSERT_FAILED');
-      const version = String(params?.[0] ?? '');
-      if (version) this.history = [...this.history, version];
-      return { rows: [], rowCount: 1 };
-    }
-    if (this.inTransaction && !sql.startsWith('SELECT')) {
-      if (this.failAt === 'mutation' && this.mutationCount === 0) {
-        this.mutationCount += 1;
-        throw new Error('MOCK_MUTATION_FAILED');
-      }
-      this.mutationCount += 1;
-    }
-    return { rows: [], rowCount: 0 };
-  }
-
-  async commit(): Promise<{ responseClass: CommitResponseClass }> {
-    if (this.failAt === 'commit_throw' || this.failAt === 'commit_and_close_throw') {
-      throw new Error('MOCK_COMMIT_TRANSPORT_LOSS');
-    }
-    this.inTransaction = false;
-    return { responseClass: this.commitResponse };
-  }
-
-  async rollback(): Promise<{ acknowledged: boolean }> {
-    this.inTransaction = false;
-    return { acknowledged: this.rollbackAcknowledged };
-  }
-
-  async close(): Promise<void> {
-    this.queries.push({ sql: '__close__' });
-    if (
-      this.failAt === 'close_throw' ||
-      this.failAt === 'connect_and_close_throw' ||
-      this.failAt === 'commit_and_close_throw' ||
-      this.failAt === 'fresh_connect_and_close_throw' ||
-      this.failAt === 'begin_readonly_and_close_throw'
-    ) {
-      throw new Error('MOCK_CLOSE_FAILED');
-    }
-  }
-}
-
-function historyVersionsMatchPrefixStrings(
-  observed: readonly string[],
-  expected: readonly { version: string }[],
-): boolean {
-  if (observed.length !== expected.length) return false;
-  for (let i = 0; i < expected.length; i++) {
-    if (observed[i] !== expected[i].version) return false;
-  }
-  return true;
-}
-
-const defaultAckClassifier: R7LiveBridgeFreshAckClassifier = {
-  async classify(input) {
-    if (
-      !historyVersionsMatchPrefixStrings(input.freshHistoryVersions, input.expectedPostPrefix)
-    ) {
-      return { holdReasonCode: 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE' };
-    }
-    return { ackState: 'CONTRADICTORY_OR_DRIFTED' };
-  },
-};
-
-const defaultFreshVerification: R7LiveBridgeFreshReadonlyVerification = {
-  async verifyPostCommitCatalog() {
-    return { ok: true, catalogState: 'PENDING_FRESH_READONLY_CATALOG' };
-  },
-  async verifyFreshPriorCatalogState() {
-    return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
-  },
-};
 
 function baseInput(
   stepId: R7DeltaStepId,
-  session: MockLiveBridgeSession,
-  freshFactory: () => MockLiveBridgeSession,
-  overrides: Partial<ExecuteR7LiveBridgeInput> = {},
-): ExecuteR7LiveBridgeInput {
-  const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === stepId);
-  assert.ok(step);
-  const prior = step.historyPrefixPrior.map((e) => e.version);
-  const post = step.historyPrefixPost.map((e) => e.version);
+  transactionScenario: R7DeterministicHarnessSessionScenario,
+  freshScenario: R7DeterministicHarnessSessionScenario,
+  publicOverrides: Partial<ExecuteR7LiveBridgePublicInput> = {},
+  harnessOverrides: Partial<R7LiveBridgeLocalNodeTestHarnessConfig> = {},
+): LocalNodeTestBridgeInput {
   return {
     repoRoot: REPO_ROOT,
     branch: R7_PR249_FROZEN_BRANCH,
@@ -345,15 +181,15 @@ function baseInput(
     offlineManifestExecutionAuthorized: false,
     remoteExecutionAuthorized: true,
     targetObserved: approvedTargetFacts(),
-    deps: {
-      implementationMode: R7_LIVE_BRIDGE_IMPLEMENTATION_MODE,
-      simulationOnly: true,
-      transactionSession: session,
-      freshReadonlySessionFactory: () => freshFactory(),
-      freshAckClassifier: defaultAckClassifier,
-      freshReadonlyVerification: defaultFreshVerification,
+    ...publicOverrides,
+    localNodeTestHarness: {
+      transactionScenario,
+      freshScenario,
+      freshMaterializeThrows: harnessOverrides.freshMaterializeThrows,
+      freshFactoryReturnsTransactionSession: harnessOverrides.freshFactoryReturnsTransactionSession,
+      freshAckClassifierMode: harnessOverrides.freshAckClassifierMode,
+      freshCatalogVerifyMode: harnessOverrides.freshCatalogVerifyMode,
     },
-    ...overrides,
   };
 }
 
@@ -365,6 +201,141 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.match(R7_LIVE_BRIDGE_LOCAL_MOCK_BOUNDARY_NOTE, /NETWORK_ISOLATION/);
     assert.match(R7_LIVE_BRIDGE_READONLY_MOCK_HONESTY_NOTE, /MOCK_BEGIN_READONLY/);
     assert.match(R7_LIVE_BRIDGE_READONLY_MOCK_HONESTY_NOTE, /NOT_PROVE_POSTGRES_READ_ONLY/);
+  });
+
+  it('public executor holds before any caller-controlled session I/O (R01)', async () => {
+    const evidence = await executeR7DeltaStepLiveBridge({
+      repoRoot: REPO_ROOT,
+      branch: R7_PR249_FROZEN_BRANCH,
+      headCommitSha: HEAD_SHA,
+      stepId: 'D1',
+      reviewedCandidateBinding: makeBinding(),
+      humanAuthorization: makeHumanAuth('D1'),
+      offlineManifestExecutionAuthorized: false,
+      remoteExecutionAuthorized: true,
+      targetObserved: approvedTargetFacts(),
+    });
+    assert.equal(evidence.outcome, 'HOLD');
+    assert.equal(evidence.holdReasonCode, 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN');
+  });
+
+  it('materialized harness sessions are registered; wrapped pg clients are not (PATCH-4)', async () => {
+    await simulateLiveBridge(
+      baseInput('D1', scenario({ historyPrior: [] }), scenario({ historyPrior: [] })),
+    );
+    assert.ok(transactionQuerySqlTrace().length > 0);
+    const hostile: R7LiveBridgePgSession = {
+      async connect() {},
+      async query() {
+        return { rows: [], rowCount: 0 };
+      },
+      async begin() {},
+      async beginReadOnly() {},
+      async commit() {
+        return { responseClass: 'DEFINITIVE_COMMIT_ACK' };
+      },
+      async rollback() {
+        return { acknowledged: true };
+      },
+      async close() {},
+    };
+    assert.equal(isR7LiveBridgeHarnessSessionInstance(hostile as object), false);
+  });
+
+  it('pure harness config exposes SQL trace only, not session handles (PATCH-5)', async () => {
+    await simulateLiveBridge(
+      baseInput('D1', scenario({ historyPrior: [] }), scenario({ historyPrior: [] })),
+    );
+    const trace = transactionQuerySqlTrace();
+    assert.ok(trace.includes('__connect__'));
+    assert.equal(typeof trace[0], 'string');
+  });
+
+  it('SQL trace snapshot is frozen, detached in-flight, and immutable after completion (PATCH-6)', async () => {
+    const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
+    assert.ok(step);
+    const prior = step.historyPrefixPrior.map((e) => e.version);
+    const post = step.historyPrefixPost.map((e) => e.version);
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post, historyPost: post });
+    const HOSTILE_MARKER = 'HOSTILE_INJECTED_SQL_PATCH6';
+
+    let hostilePushCount = 0;
+    const hostilePush = () => {
+      hostilePushCount += 1;
+      return 0;
+    };
+
+    const pending = simulateLiveBridge(baseInput('D1', tx, fresh));
+    const inFlightSnapshot = readR7LocalNodeTestTransactionQuerySqlTraceFromLastRun();
+    assert.equal(Object.isFrozen(inFlightSnapshot), true);
+    const inFlightCopy = [...inFlightSnapshot];
+
+    assert.equal(Reflect.set(inFlightSnapshot, 'push', hostilePush), false);
+    assert.equal(
+      Reflect.defineProperty(inFlightSnapshot, 'push', {
+        value: hostilePush,
+        writable: true,
+        configurable: true,
+        enumerable: false,
+      }),
+      false,
+    );
+
+    const evidence = await pending;
+    assert.equal(hostilePushCount, 0);
+    assert.deepEqual([...inFlightSnapshot], inFlightCopy);
+    assert.ok(!inFlightSnapshot.includes(HOSTILE_MARKER));
+    assert.equal(evidence.outcome, 'HOLD');
+    assert.equal(evidence.holdReasonCode, 'HOLD_POST_COMMIT_CATALOG_VERIFICATION_PENDING');
+
+    const finalSnapshot = readR7LocalNodeTestTransactionQuerySqlTraceFromLastRun();
+    assert.equal(Object.isFrozen(finalSnapshot), true);
+    assert.notEqual(finalSnapshot, inFlightSnapshot);
+    assert.ok(finalSnapshot.includes('__connect__'));
+    assert.ok(finalSnapshot.includes(R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL));
+    assert.ok(finalSnapshot.some((sql) => sql === HISTORY_INSERT_SQL_METADATA));
+    assert.ok(!finalSnapshot.includes(HOSTILE_MARKER));
+
+    const finalCanonical = [...finalSnapshot];
+    assert.throws(() => {
+      (finalSnapshot as string[]).push(HOSTILE_MARKER);
+    });
+    const finalSnapshotAgain = readR7LocalNodeTestTransactionQuerySqlTraceFromLastRun();
+    assert.deepEqual([...finalSnapshotAgain], finalCanonical);
+  });
+
+  it('hostile pg session cannot reach connect via public executor (PATCH-5)', async () => {
+    const hostile: R7LiveBridgePgSession = {
+      async connect() {
+        throw new Error('HOSTILE_CONNECT_SHOULD_NOT_RUN');
+      },
+      async query() {
+        throw new Error('HOSTILE_QUERY_SHOULD_NOT_RUN');
+      },
+      async begin() {},
+      async beginReadOnly() {},
+      async commit() {
+        return { responseClass: 'DEFINITIVE_COMMIT_ACK' };
+      },
+      async rollback() {
+        return { acknowledged: true };
+      },
+      async close() {},
+    };
+    assert.equal(isR7LiveBridgeHarnessSessionInstance(hostile as object), false);
+    const evidence = await executeR7DeltaStepLiveBridge({
+      repoRoot: REPO_ROOT,
+      branch: R7_PR249_FROZEN_BRANCH,
+      headCommitSha: HEAD_SHA,
+      stepId: 'D1',
+      reviewedCandidateBinding: makeBinding(),
+      humanAuthorization: makeHumanAuth('D1'),
+      offlineManifestExecutionAuthorized: false,
+      remoteExecutionAuthorized: true,
+      targetObserved: approvedTargetFacts(),
+    });
+    assert.equal(evidence.holdReasonCode, 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN');
   });
 
   it('validates POST_CONNECT_GUARD query results fail closed', () => {
@@ -433,9 +404,9 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('holds on missing human authorization and forged binding', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({ historyPrior: step.historyPrefixPrior.map((e) => e.version) });
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', session, () => session, { humanAuthorization: null }),
+    const session = scenario({ historyPrior: step.historyPrefixPrior.map((e) => e.version) });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', session, session, { humanAuthorization: null }),
     );
     assert.equal(evidence.holdReasonCode, 'HOLD_AUTHORIZATION_GATE');
   });
@@ -443,11 +414,11 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('holds when migration coordination lock is unavailable', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       lockAvailable: false,
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => session));
+    const evidence = await simulateLiveBridge(baseInput('D1', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_MIGRATION_COORDINATION_LOCK_UNAVAILABLE');
   });
 
@@ -455,8 +426,8 @@ describe('r7D1D5LiveBridge local gate', () => {
     const d2 = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D2');
     assert.ok(d2);
     const d1PriorOnly = d2.historyPrefixPrior.slice(0, 16).map((e) => e.version);
-    const session = new MockLiveBridgeSession({ historyPrior: d1PriorOnly });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D2', session, () => session));
+    const session = scenario({ historyPrior: d1PriorOnly });
+    const evidence = await simulateLiveBridge(baseInput('D2', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_HISTORY_PREFIX_MISMATCH');
   });
 
@@ -465,29 +436,30 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({ historyPrior: post, historyPost: post });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post, historyPost: post });
+    const input = baseInput('D1', tx, fresh);
+    const evidence = await simulateLiveBridge(input);
     assert.equal(evidence.ackState, 'DEFINITELY_COMMITTED');
     assert.equal(evidence.postCommitVerificationState, 'HISTORY_READONLY_VERIFIED');
     assert.equal(evidence.postCommitCatalogVerificationState, 'PENDING_FRESH_READONLY_CATALOG');
     assert.equal(evidence.holdReasonCode, 'HOLD_POST_COMMIT_CATALOG_VERIFICATION_PENDING');
-    assert.ok(tx.queries.some((q) => q.sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL));
-    const guardIdx = tx.queries.findIndex((q) => q.sql === POST_CONNECT_GUARD_SQL);
-    const lockIdx = tx.queries.findIndex((q) => q.sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL);
+    const txQueries = transactionQuerySqlTrace();
+    assert.ok(txQueries.some((sql) => sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL));
+    const guardIdx = txQueries.findIndex((sql) => sql === POST_CONNECT_GUARD_SQL);
+    const lockIdx = txQueries.findIndex((sql) => sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL);
     assert.ok(guardIdx >= 0 && lockIdx > guardIdx);
-    assert.ok(fresh.queries.some((q) => q.sql === R7_LIVE_BRIDGE_READONLY_TX_SQL));
-    assert.ok(!JSON.stringify(tx.queries).match(/password|secret|Bearer|postgres:\/\//i));
+    assert.ok(!JSON.stringify(txQueries).match(/password|secret|Bearer|postgres:\/\//i));
   });
 
   it('rolls back on mutation failure', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'mutation',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => session));
+    const evidence = await simulateLiveBridge(baseInput('D1', session, session));
     assert.equal(evidence.outcome, 'PRE_COMMIT_FAILURE');
     assert.equal(evidence.holdReasonCode, 'HOLD_PRE_COMMIT_FAILURE_ROLLBACK');
   });
@@ -495,13 +467,13 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('handles commit transport loss with mandatory stop', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'commit_throw',
     });
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => fresh));
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(baseInput('D1', session, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE');
     assert.notEqual(evidence.ackState, 'DEFINITELY_COMMITTED');
     assert.notEqual(evidence.ackState, 'DEFINITELY_NOT_COMMITTED');
@@ -511,9 +483,9 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const tx = scenario({ historyPrior: prior });
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_POST_COMMIT_VERIFICATION_FAILED');
   });
 
@@ -522,20 +494,20 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({ historyPrior: post, failAt: 'fresh_connect' });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post, failAt: 'fresh_connect' });
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE');
   });
 
   it('holds on pre-probe mismatch', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'pre_probe',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => session));
+    const evidence = await simulateLiveBridge(baseInput('D1', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_PROBE_QUERY_FAILED');
   });
 
@@ -543,11 +515,11 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const insertFail = new MockLiveBridgeSession({ historyPrior: prior, failAt: 'history_insert' });
-    const insertEvidence = await executeR7DeltaStepLiveBridge(baseInput('D1', insertFail, () => insertFail));
+    const insertFail = scenario({ historyPrior: prior, failAt: 'history_insert' });
+    const insertEvidence = await simulateLiveBridge(baseInput('D1', insertFail, insertFail));
     assert.equal(insertEvidence.holdReasonCode, 'HOLD_HISTORY_INSERT_QUERY_FAILED');
-    const postFail = new MockLiveBridgeSession({ historyPrior: prior, failAt: 'post_probe' });
-    const postEvidence = await executeR7DeltaStepLiveBridge(baseInput('D1', postFail, () => postFail));
+    const postFail = scenario({ historyPrior: prior, failAt: 'post_probe' });
+    const postEvidence = await simulateLiveBridge(baseInput('D1', postFail, postFail));
     assert.equal(postEvidence.holdReasonCode, 'HOLD_PROBE_QUERY_FAILED');
   });
 
@@ -555,12 +527,12 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: prior,
       commitResponse: 'DEFINITIVE_TRANSACTION_REJECTION',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => fresh));
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(baseInput('D1', session, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE');
     assert.notEqual(evidence.ackState, 'DEFINITELY_NOT_COMMITTED');
   });
@@ -570,30 +542,30 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({
       historyPrior: post,
       guardRow: { current_database_name: 'wrong', current_user_name: 'postgres' },
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_POST_CONNECT_GUARD_FAILED');
   });
 
   it('holds on lock query exception and rollback cleanup uncertainty', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'lock_throw',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => session));
+    const evidence = await simulateLiveBridge(baseInput('D1', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_MIGRATION_COORDINATION_LOCK_QUERY_FAILED');
-    const session2 = new MockLiveBridgeSession({
+    const session2 = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'pre_probe',
       rollbackAcknowledged: false,
     });
-    const evidence2 = await executeR7DeltaStepLiveBridge(baseInput('D1', session2, () => session2));
+    const evidence2 = await simulateLiveBridge(baseInput('D1', session2, session2));
     assert.equal(evidence2.holdReasonCode, 'HOLD_TRANSACTION_CLEANUP_UNCERTAIN');
   });
 
@@ -602,20 +574,10 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({ historyPrior: post });
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', tx, () => fresh, {
-        deps: {
-          ...baseInput('D1', tx, () => fresh).deps,
-          freshReadonlyVerification: {
-            ...defaultFreshVerification,
-            async verifyPostCommitCatalog() {
-              return { ok: true, catalogState: 'VERIFIED' };
-            },
-          },
-        },
-      }),
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, fresh, {}, { freshCatalogVerifyMode: 'SIMULATE_POST_COMMIT_VERIFIED' }),
     );
     assert.equal(evidence.outcome, 'HOLD');
     assert.equal(evidence.postCommitCatalogVerificationState, 'PENDING_FRESH_READONLY_CATALOG');
@@ -626,8 +588,8 @@ describe('r7D1D5LiveBridge local gate', () => {
     const d5 = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D5');
     assert.ok(d5);
     const incomplete = d5.historyPrefixPrior.slice(0, 19).map((e) => e.version);
-    const session = new MockLiveBridgeSession({ historyPrior: incomplete });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D5', session, () => session));
+    const session = scenario({ historyPrior: incomplete });
+    const evidence = await simulateLiveBridge(baseInput('D5', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_HISTORY_PREFIX_MISMATCH');
   });
 
@@ -635,12 +597,14 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, guardRow: null });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const tx = scenario({ historyPrior: prior, guardRow: null });
+    const fresh = scenario({ historyPrior: prior });
+    const input = baseInput('D1', tx, fresh);
+    const evidence = await simulateLiveBridge(input);
     assert.equal(evidence.holdReasonCode, 'HOLD_POST_CONNECT_GUARD_FAILED');
-    assert.ok(!tx.queries.some((q) => q.sql === HISTORY_INSERT_SQL_METADATA));
-    assert.ok(!tx.queries.some((q) => q.sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL));
+    const txQueries = transactionQuerySqlTrace();
+    assert.ok(!txQueries.some((sql) => sql === HISTORY_INSERT_SQL_METADATA));
+    assert.ok(!txQueries.some((sql) => sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL));
   });
 
   it('holds when fresh readonly session factory throws', async () => {
@@ -648,11 +612,10 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', tx, () => {
-        throw new Error('MOCK_FACTORY_THROW');
-      }),
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, fresh, {}, { freshMaterializeThrows: true }),
     );
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE');
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
@@ -663,13 +626,13 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       historyPost: post,
       failAt: 'close_throw',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: post });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const fresh = scenario({ historyPrior: post });
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
   });
@@ -678,23 +641,13 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       commitResponse: 'ACK_UNCERTAIN_OR_MISSING',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const maliciousClassifier: R7LiveBridgeFreshAckClassifier = {
-      async classify() {
-        return { ackState: 'DEFINITELY_COMMITTED' };
-      },
-    };
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', tx, () => fresh, {
-        deps: {
-          ...baseInput('D1', tx, () => fresh).deps,
-          freshAckClassifier: maliciousClassifier,
-        },
-      }),
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, fresh, {}, { freshAckClassifierMode: 'FORCE_DEFINITELY_COMMITTED' }),
     );
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED');
     assert.notEqual(evidence.ackState, 'DEFINITELY_COMMITTED');
@@ -705,8 +658,10 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => tx));
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, tx, {}, { freshFactoryReturnsTransactionSession: true }),
+    );
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_SESSION_NOT_DISTINCT');
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
   });
@@ -716,9 +671,9 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({ historyPrior: post, failAt: 'begin_readonly' });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post, failAt: 'begin_readonly' });
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_READONLY_SESSION_NOT_ESTABLISHED');
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
   });
@@ -727,28 +682,15 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       commitResponse: 'ACK_UNCERTAIN_OR_MISSING',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const notCommittedClassifier: R7LiveBridgeFreshAckClassifier = {
-      async classify() {
-        return { ackState: 'DEFINITELY_NOT_COMMITTED' };
-      },
-    };
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', tx, () => fresh, {
-        deps: {
-          ...baseInput('D1', tx, () => fresh).deps,
-          freshAckClassifier: notCommittedClassifier,
-          freshReadonlyVerification: {
-            ...defaultFreshVerification,
-            async verifyFreshPriorCatalogState() {
-              return { ok: true, priorCatalogConsistent: true };
-            },
-          },
-        },
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, fresh, {}, {
+        freshAckClassifierMode: 'FORCE_DEFINITELY_NOT_COMMITTED',
+        freshCatalogVerifyMode: 'SIMULATE_PRIOR_CATALOG_OK',
       }),
     );
     assert.equal(evidence.outcome, 'HOLD');
@@ -761,29 +703,13 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       commitResponse: 'ACK_UNCERTAIN_OR_MISSING',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const notCommittedClassifier: R7LiveBridgeFreshAckClassifier = {
-      async classify() {
-        return { ackState: 'DEFINITELY_NOT_COMMITTED' };
-      },
-    };
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', tx, () => fresh, {
-        deps: {
-          ...baseInput('D1', tx, () => fresh).deps,
-          freshAckClassifier: notCommittedClassifier,
-          freshReadonlyVerification: {
-            ...defaultFreshVerification,
-            async verifyFreshPriorCatalogState() {
-              return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
-            },
-          },
-        },
-      }),
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, fresh, {}, { freshAckClassifierMode: 'FORCE_DEFINITELY_NOT_COMMITTED' }),
     );
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED');
     assert.notEqual(evidence.ackState, 'DEFINITELY_NOT_COMMITTED');
@@ -795,22 +721,10 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({ historyPrior: post });
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', tx, () => fresh, {
-        deps: {
-          ...baseInput('D1', tx, () => fresh).deps,
-          freshReadonlyVerification: {
-            async verifyPostCommitCatalog() {
-              return { ok: true, catalogState: 'VERIFIED' };
-            },
-            async verifyFreshPriorCatalogState() {
-              return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
-            },
-          },
-        },
-      }),
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({ historyPrior: post });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', tx, fresh, {}, { freshCatalogVerifyMode: 'SIMULATE_POST_COMMIT_VERIFIED' }),
     );
     assert.equal(evidence.postCommitCatalogVerificationState, 'PENDING_FRESH_READONLY_CATALOG');
     assert.equal(evidence.outcome, 'HOLD');
@@ -819,37 +733,41 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('holds on transaction connect failure without BEGIN or lock', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'connect',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => session));
+    const input = baseInput('D1', session, session);
+    const evidence = await simulateLiveBridge(input);
     assert.equal(evidence.holdReasonCode, 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN');
-    assert.ok(!session.queries.some((q) => q.sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL));
+    assert.ok(
+      !transactionQuerySqlTrace().some((sql) => sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL),
+    );
   });
 
   it('surfaces close failure after transaction connect failure', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: step.historyPrefixPrior.map((e) => e.version),
       failAt: 'connect_and_close_throw',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => session));
+    const input = baseInput('D1', session, session);
+    const evidence = await simulateLiveBridge(input);
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
-    assert.ok(session.queries.some((q) => q.sql === '__close__'));
+    assert.ok(transactionQuerySqlTrace().some((sql) => sql === '__close__'));
   });
 
   it('preserves commit response class on uncertain fresh-open failure', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       commitResponse: 'ACK_UNCERTAIN_OR_MISSING',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior, failAt: 'fresh_connect' });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const fresh = scenario({ historyPrior: prior, failAt: 'fresh_connect' });
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.commitResponseClass, 'ACK_UNCERTAIN_OR_MISSING');
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE');
     assert.ok(evidence.statementCount > 0);
@@ -860,12 +778,12 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({
       historyPrior: post,
       failAt: 'fresh_connect_and_close_throw',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
   });
@@ -875,13 +793,13 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({
       historyPrior: post,
       guardRow: null,
       failAt: 'close_throw',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
   });
@@ -891,12 +809,12 @@ describe('r7D1D5LiveBridge local gate', () => {
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
     const post = step.historyPrefixPost.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({ historyPrior: prior, historyPost: post });
-    const fresh = new MockLiveBridgeSession({
+    const tx = scenario({ historyPrior: prior, historyPost: post });
+    const fresh = scenario({
       historyPrior: post,
       failAt: 'begin_readonly_and_close_throw',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
     assert.equal(evidence.commitResponseClass, 'DEFINITIVE_COMMIT_ACK');
   });
@@ -905,25 +823,26 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       commitResponse: 'ACK_UNCERTAIN_OR_MISSING',
     });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => tx));
+    const input = baseInput('D1', tx, tx, {}, { freshFactoryReturnsTransactionSession: true });
+    const evidence = await simulateLiveBridge(input);
     assert.equal(evidence.holdReasonCode, 'HOLD_FRESH_SESSION_NOT_DISTINCT');
-    assert.equal(tx.queries.filter((q) => q.sql === '__close__').length, 1);
+    assert.equal(transactionQuerySqlTrace().filter((sql) => sql === '__close__').length, 1);
   });
 
   it('holds on COMMIT transport exception when original session close fails', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const session = new MockLiveBridgeSession({
+    const session = scenario({
       historyPrior: prior,
       failAt: 'commit_and_close_throw',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', session, () => fresh));
+    const fresh = scenario({ historyPrior: prior });
+    const evidence = await simulateLiveBridge(baseInput('D1', session, fresh));
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
     assert.equal(evidence.commitResponseClass, 'ACK_UNCERTAIN_OR_MISSING');
     assert.ok(evidence.statementCount > 0);
@@ -935,12 +854,12 @@ describe('r7D1D5LiveBridge local gate', () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
     const prior = step.historyPrefixPrior.map((e) => e.version);
-    const tx = new MockLiveBridgeSession({
+    const tx = scenario({
       historyPrior: prior,
       commitResponse: 'ACK_UNCERTAIN_OR_MISSING',
     });
-    const fresh = new MockLiveBridgeSession({ historyPrior: prior, failAt: 'close_throw' });
-    const evidence = await executeR7DeltaStepLiveBridge(baseInput('D1', tx, () => fresh));
+    const fresh = scenario({ historyPrior: prior, failAt: 'close_throw' });
+    const evidence = await simulateLiveBridge(baseInput('D1', tx, fresh));
     assert.equal(evidence.commitResponseClass, 'ACK_UNCERTAIN_OR_MISSING');
     assert.equal(evidence.holdReasonCode, 'HOLD_SESSION_CLOSE_FAILED');
   });
@@ -948,9 +867,9 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('holds on wrong repository branch identity', async () => {
     const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
     assert.ok(step);
-    const session = new MockLiveBridgeSession({ historyPrior: step.historyPrefixPrior.map((e) => e.version) });
-    const evidence = await executeR7DeltaStepLiveBridge(
-      baseInput('D1', session, () => session, { branch: 'wrong-branch' }),
+    const session = scenario({ historyPrior: step.historyPrefixPrior.map((e) => e.version) });
+    const evidence = await simulateLiveBridge(
+      baseInput('D1', session, session, { branch: 'wrong-branch' }),
     );
     assert.equal(evidence.holdReasonCode, 'HOLD_REPO_IDENTITY_MISMATCH');
   });

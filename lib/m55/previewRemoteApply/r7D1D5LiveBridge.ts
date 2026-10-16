@@ -60,6 +60,25 @@ import {
   type R7RemoteExecutionPublicEvidence,
 } from './r7D1D5RemoteExecution.ts';
 import { HISTORY_INSERT_SQL_METADATA } from './types.ts';
+import {
+  extractD1StaticCatalogExpectation,
+  verifyD1PinnedSourceAndNormalizedComposite,
+  verifyD1PostCommitCatalogObservation,
+  verifyD1PriorCatalogObservation,
+  R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE,
+  assertStepIsD1,
+} from './r7D1TrustedCatalogVerifier.ts';
+import {
+  assertR7D1LiveExecutionHumanAuthorizationPresent,
+  validateR7D1LiveImplementationCandidateBinding,
+  type R7D1LiveImplementationCandidateBinding,
+} from './r7D1LiveCandidateBinding.ts';
+import {
+  assertR7D1RealPgNetworkAccessAllowed,
+  compareR7LiveBridgeSessionUnderlyingTransport,
+  isR7LiveBridgeHarnessSessionInstance,
+  registerR7LiveBridgeHarnessSessionInstance,
+} from './r7D1RealPgAdapter.ts';
 
 /** Human execution authorization for live D1–D5 apply is not issued in this gate. */
 export const R7_D1_D5_REMOTE_EXECUTION_AUTHORIZED = false as const;
@@ -79,6 +98,9 @@ export const R7_LIVE_BRIDGE_READONLY_MOCK_HONESTY_NOTE =
   'MOCK_BEGIN_READONLY_DOES_NOT_PROVE_POSTGRES_READ_ONLY_ISOLATION_OR_DISTINCT_CONNECTION' as const;
 
 export const R7_LIVE_BRIDGE_CLI_LIVE_TRANSPORT_FORBIDDEN = true as const;
+
+/** Public exported executor must HOLD before any caller-controlled session I/O in local code-only gate. */
+export const R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN = true as const;
 
 /**
  * Advisory xact lock coordinates cooperating D1–D5 executors only.
@@ -134,7 +156,9 @@ export type R7LiveBridgeHoldCode =
   | 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED'
   | 'HOLD_FRESH_SESSION_NOT_DISTINCT'
   | 'HOLD_FRESH_READONLY_SESSION_NOT_ESTABLISHED'
-  | 'HOLD_POST_COMMIT_CATALOG_VERIFICATION_PENDING';
+  | 'HOLD_POST_COMMIT_CATALOG_VERIFICATION_PENDING'
+  | 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED'
+  | 'HOLD_CANDIDATE_MANIFEST_MISMATCH';
 
 export type R7LiveBridgePgQueryResult = {
   readonly rows: readonly Record<string, unknown>[];
@@ -197,7 +221,7 @@ export type R7LiveBridgeFreshReadonlyVerification = {
   }): Promise<R7LiveBridgeFreshPriorCatalogVerificationResult>;
 };
 
-export type R7LiveBridgeInjectedDeps = {
+type R7LiveBridgeInjectedDeps = {
   readonly implementationMode: typeof R7_LIVE_BRIDGE_IMPLEMENTATION_MODE;
   /** Local gate: injected session simulation only; never opens ambient `pg` connections. */
   readonly simulationOnly: true;
@@ -232,7 +256,8 @@ export type R7LiveBridgeCliResult =
       readonly evidence: R7RemoteExecutionPublicEvidence;
     };
 
-export type ExecuteR7LiveBridgeInput = {
+/** Public executor input — no caller-supplied session / deps (local code-only gate). */
+export type ExecuteR7LiveBridgePublicInput = {
   readonly repoRoot: string;
   readonly branch: string;
   readonly headCommitSha: string;
@@ -242,6 +267,9 @@ export type ExecuteR7LiveBridgeInput = {
   readonly offlineManifestExecutionAuthorized: boolean;
   readonly remoteExecutionAuthorized: boolean;
   readonly targetObserved: R7LiveBridgeTargetObservedFacts;
+};
+
+type ExecuteR7LiveBridgeInjectedInput = ExecuteR7LiveBridgePublicInput & {
   readonly deps: R7LiveBridgeInjectedDeps;
 };
 
@@ -327,7 +355,7 @@ async function validateTransactionPostConnectGuard(
 }
 
 async function evaluateTrustedFreshAckFromClassifier(
-  input: ExecuteR7LiveBridgeInput,
+  input: ExecuteR7LiveBridgeInjectedInput,
   classifierAck: AckStateIdentifier,
   freshHistory: readonly string[],
   freshSession: R7LiveBridgePgSession,
@@ -382,7 +410,7 @@ async function evaluateTrustedFreshAckFromClassifier(
 
 /** Declared pre-connect target facts only; live DB identity requires POST_CONNECT_GUARD on a fresh session. */
 export function validateR7LiveBridgeNonsecretTargetBinding(
-  input: ExecuteR7LiveBridgeInput,
+  input: ExecuteR7LiveBridgePublicInput,
 ): { readonly ok: true } | { readonly ok: false; readonly holdReasonCode: R7LiveBridgeHoldCode } {
   const preview = validateR7LiveBridgePreviewTargetBinding(input.targetObserved);
   if (!preview.ok) return preview;
@@ -526,10 +554,21 @@ type FreshReadonlySessionOpenResult =
 async function failFreshSessionOpenAfterCleanup(
   session: R7LiveBridgePgSession,
   primaryHoldReasonCode: R7LiveBridgeHoldCode,
+  options: { readonly transactionMayBeOpen: boolean } = { transactionMayBeOpen: false },
 ): Promise<FreshReadonlySessionOpenResult> {
-  const closeHold = await safeCloseSession(session);
-  if (closeHold) {
-    return { ok: false, holdReasonCode: closeHold };
+  if (options.transactionMayBeOpen) {
+    const cleanupHold = await safeEndTransactionalSession(session, {
+      attemptRollback: true,
+      possiblyCommitted: false,
+    });
+    if (cleanupHold) {
+      return { ok: false, holdReasonCode: cleanupHold };
+    }
+  } else {
+    const closeHold = await safeCloseSession(session);
+    if (closeHold) {
+      return { ok: false, holdReasonCode: closeHold };
+    }
   }
   return { ok: false, holdReasonCode: primaryHoldReasonCode };
 }
@@ -544,8 +583,17 @@ async function openFreshReadonlySessionWithGuard(
   } catch {
     return { ok: false, holdReasonCode: 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE' };
   }
-  if (options.distinctFrom !== undefined && session === options.distinctFrom) {
-    return { ok: false, holdReasonCode: 'HOLD_FRESH_SESSION_NOT_DISTINCT' };
+  if (!assertHarnessBackedPgSession(session)) {
+    return { ok: false, holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED' };
+  }
+  if (options.distinctFrom !== undefined) {
+    if (session === options.distinctFrom) {
+      return { ok: false, holdReasonCode: 'HOLD_FRESH_SESSION_NOT_DISTINCT' };
+    }
+    const relation = compareR7LiveBridgeSessionUnderlyingTransport(session, options.distinctFrom);
+    if (relation === 'known_same' || relation === 'unknown') {
+      return { ok: false, holdReasonCode: 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED' };
+    }
   }
   try {
     await session.connect();
@@ -559,10 +607,10 @@ async function openFreshReadonlySessionWithGuard(
   try {
     guardResult = await session.query(POST_CONNECT_GUARD_SQL);
   } catch {
-    return await failFreshSessionOpenAfterCleanup(session, 'HOLD_POST_CONNECT_GUARD_FAILED');
+    return await failFreshSessionOpenAfterCleanup(session, 'HOLD_POST_CONNECT_GUARD_FAILED', { transactionMayBeOpen: false });
   }
   if (!validateR7LiveBridgePostConnectGuardResult(guardResult)) {
-    return await failFreshSessionOpenAfterCleanup(session, 'HOLD_POST_CONNECT_GUARD_FAILED');
+    return await failFreshSessionOpenAfterCleanup(session, 'HOLD_POST_CONNECT_GUARD_FAILED', { transactionMayBeOpen: false });
   }
   try {
     await session.beginReadOnly();
@@ -570,13 +618,14 @@ async function openFreshReadonlySessionWithGuard(
     return await failFreshSessionOpenAfterCleanup(
       session,
       'HOLD_FRESH_READONLY_SESSION_NOT_ESTABLISHED',
+      { transactionMayBeOpen: true },
     );
   }
   return { ok: true, session };
 }
 
 async function resolveUncertainCommitWithFreshEvidence(
-  input: ExecuteR7LiveBridgeInput,
+  input: ExecuteR7LiveBridgeInjectedInput,
   lifecycle: R7ExecutionLifecycleStage[],
   statementCount: number,
   preProbeId: R7RuntimeProbeId,
@@ -688,7 +737,362 @@ async function resolveUncertainCommitWithFreshEvidence(
 }
 
 export async function executeR7DeltaStepLiveBridge(
-  input: ExecuteR7LiveBridgeInput,
+  input: ExecuteR7LiveBridgePublicInput,
+): Promise<R7RemoteExecutionPublicEvidence> {
+  const lifecycle: R7ExecutionLifecycleStage[] = ['TARGET_IDENTITY_CHECK'];
+  const defaultPre = 'R7_D1_PRE_CATALOG_R5_COMPLIANCE_ABSENT' as R7RuntimeProbeId;
+  const defaultPost = 'R7_D1_POST_CATALOG_R5_COMPLIANCE_PRESENT' as R7RuntimeProbeId;
+  if (R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN) {
+    return holdEvidence(
+      input.stepId,
+      lifecycle,
+      'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN',
+      defaultPre,
+      defaultPost,
+    );
+  }
+  return holdEvidence(
+    input.stepId,
+    lifecycle,
+    'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN',
+    defaultPre,
+    defaultPost,
+  );
+}
+
+export type R7DeterministicHarnessSessionScenario = {
+  readonly scenarioId: string;
+  readonly historyPrior: readonly string[];
+  readonly historyPost?: readonly string[];
+  readonly lockAvailable?: boolean;
+  readonly failAt?:
+    | 'connect'
+    | 'connect_and_close_throw'
+    | 'begin'
+    | 'lock'
+    | 'lock_throw'
+    | 'history'
+    | 'pre_probe'
+    | 'mutation'
+    | 'history_insert'
+    | 'post_probe'
+    | 'commit_throw'
+    | 'commit_and_close_throw'
+    | 'fresh_connect'
+    | 'fresh_connect_and_close_throw'
+    | 'begin_readonly'
+    | 'begin_readonly_and_close_throw'
+    | 'close_throw';
+  readonly commitResponse?: CommitResponseClass;
+  readonly guardRow?: Record<string, unknown> | null;
+  readonly rollbackAcknowledged?: boolean;
+};
+
+/** Data-only local node test modes — no injectable classifier/verifier/callback surfaces. */
+export type R7LocalNodeTestFreshAckClassifierMode =
+  | 'DEFAULT'
+  | 'FORCE_DEFINITELY_COMMITTED'
+  | 'FORCE_DEFINITELY_NOT_COMMITTED';
+
+export type R7LocalNodeTestFreshCatalogVerifyMode =
+  | 'DEFAULT'
+  | 'SIMULATE_POST_COMMIT_VERIFIED'
+  | 'SIMULATE_PRIOR_CATALOG_OK';
+
+export type R7LiveBridgeLocalNodeTestHarnessConfig = {
+  readonly transactionScenario: R7DeterministicHarnessSessionScenario;
+  readonly freshScenario: R7DeterministicHarnessSessionScenario;
+  readonly freshMaterializeThrows?: boolean;
+  readonly freshFactoryReturnsTransactionSession?: boolean;
+  readonly freshAckClassifierMode?: R7LocalNodeTestFreshAckClassifierMode;
+  readonly freshCatalogVerifyMode?: R7LocalNodeTestFreshCatalogVerifyMode;
+};
+
+let r7LocalNodeTestLastTransactionQuerySqlTraceSnapshot: readonly string[] = [];
+
+function finalizeLocalNodeTestTransactionQuerySqlTraceSnapshot(liveTrace: readonly string[]): void {
+  r7LocalNodeTestLastTransactionQuerySqlTraceSnapshot = Object.freeze([...liveTrace]);
+}
+
+/** SQL trace snapshot from the last completed local node test run (detached frozen copy; not the live harness buffer). */
+export function readR7LocalNodeTestTransactionQuerySqlTraceFromLastRun(): readonly string[] {
+  return Object.freeze([...r7LocalNodeTestLastTransactionQuerySqlTraceSnapshot]);
+}
+
+function buildLocalNodeTestFreshAckClassifier(
+  mode: R7LocalNodeTestFreshAckClassifierMode,
+): R7LiveBridgeFreshAckClassifier {
+  if (mode === 'FORCE_DEFINITELY_COMMITTED') {
+    return {
+      async classify() {
+        return { ackState: 'DEFINITELY_COMMITTED' };
+      },
+    };
+  }
+  if (mode === 'FORCE_DEFINITELY_NOT_COMMITTED') {
+    return {
+      async classify() {
+        return { ackState: 'DEFINITELY_NOT_COMMITTED' };
+      },
+    };
+  }
+  return {
+    async classify(input) {
+      const expectedPost = input.expectedPostPrefix.map((e) => e.version);
+      if (input.freshHistoryVersions.length !== expectedPost.length) {
+        return { holdReasonCode: 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE' };
+      }
+      for (let i = 0; i < expectedPost.length; i++) {
+        if (input.freshHistoryVersions[i] !== expectedPost[i]) {
+          return { holdReasonCode: 'HOLD_FRESH_READONLY_CLASSIFICATION_UNAVAILABLE' };
+        }
+      }
+      return { ackState: 'CONTRADICTORY_OR_DRIFTED' };
+    },
+  };
+}
+
+function buildLocalNodeTestFreshReadonlyVerification(
+  mode: R7LocalNodeTestFreshCatalogVerifyMode,
+  repoRoot: string,
+): R7LiveBridgeFreshReadonlyVerification {
+  const pinned = verifyD1PinnedSourceAndNormalizedComposite(repoRoot);
+  if (!pinned.ok) {
+    throw new Error(pinned.holdReasonCode);
+  }
+  if (mode === 'SIMULATE_POST_COMMIT_VERIFIED') {
+    return {
+      async verifyPostCommitCatalog(input) {
+        assertStepIsD1(input.stepId);
+        return { ok: true, catalogState: 'VERIFIED' };
+      },
+      async verifyFreshPriorCatalogState(input) {
+        assertStepIsD1(input.stepId);
+        return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
+      },
+    };
+  }
+  if (mode === 'SIMULATE_PRIOR_CATALOG_OK') {
+    return {
+      async verifyPostCommitCatalog(input) {
+        assertStepIsD1(input.stepId);
+        return { ok: true, catalogState: 'PENDING_FRESH_READONLY_CATALOG' };
+      },
+      async verifyFreshPriorCatalogState(input) {
+        assertStepIsD1(input.stepId);
+        return { ok: true, priorCatalogConsistent: true };
+      },
+    };
+  }
+  return {
+    async verifyPostCommitCatalog(input) {
+      assertStepIsD1(input.stepId);
+      return { ok: true, catalogState: 'PENDING_FRESH_READONLY_CATALOG' };
+    },
+    async verifyFreshPriorCatalogState(input) {
+      assertStepIsD1(input.stepId);
+      return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
+    },
+  };
+}
+
+function deterministicHarnessPreProbePayload(): Record<string, unknown> {
+  return { probe_payload: { anchor_table_count: 0 } };
+}
+
+function deterministicHarnessPostProbePayload(): Record<string, unknown> {
+  return {
+    probe_payload: {
+      anchor_table_count: 7,
+      reject_mutation_function_present: true,
+      reject_mutation_empty_args: true,
+      snapshots_content_fingerprint_text_column_ok: true,
+    },
+  };
+}
+
+class DeterministicHarnessSession implements R7LiveBridgePgSession {
+  readonly queries: Array<{ sql: string; params?: readonly unknown[] }> = [];
+  private inTransaction = false;
+  private readOnlyEstablished = false;
+  private history: string[];
+  private readonly historyPost: string[];
+  private readonly lockAvailable: boolean;
+  private readonly failAt: R7DeterministicHarnessSessionScenario['failAt'];
+  private readonly commitResponse: CommitResponseClass;
+  private readonly guardRow: Record<string, unknown> | null;
+  private readonly rollbackAcknowledged: boolean;
+  private mutationCount = 0;
+
+  constructor(
+    private readonly scenario: R7DeterministicHarnessSessionScenario,
+    private readonly transactionQueryTraceSink?: string[],
+  ) {
+    this.history = [...scenario.historyPrior];
+    this.historyPost = scenario.historyPost ? [...scenario.historyPost] : [...scenario.historyPrior];
+    this.lockAvailable = scenario.lockAvailable ?? true;
+    this.failAt = scenario.failAt ?? undefined;
+    this.commitResponse = scenario.commitResponse ?? 'DEFINITIVE_COMMIT_ACK';
+    this.guardRow =
+      scenario.guardRow === undefined
+        ? { current_database_name: 'postgres', current_user_name: 'postgres' }
+        : scenario.guardRow;
+    this.rollbackAcknowledged = scenario.rollbackAcknowledged ?? true;
+    registerR7LiveBridgeHarnessSessionInstance(this);
+  }
+
+  async connect(): Promise<void> {
+    this.queries.push({ sql: '__connect__' });
+    this.transactionQueryTraceSink?.push('__connect__');
+    if (
+      this.failAt === 'connect' ||
+      this.failAt === 'connect_and_close_throw' ||
+      this.failAt === 'fresh_connect' ||
+      this.failAt === 'fresh_connect_and_close_throw'
+    ) {
+      throw new Error('MOCK_CONNECT_FORBIDDEN');
+    }
+  }
+
+  async begin(): Promise<void> {
+    if (this.failAt === 'begin') throw new Error('MOCK_BEGIN_FAILED');
+    this.inTransaction = true;
+  }
+
+  async beginReadOnly(): Promise<void> {
+    if (this.failAt === 'begin_readonly' || this.failAt === 'begin_readonly_and_close_throw') {
+      throw new Error('MOCK_BEGIN_READONLY_FAILED');
+    }
+    await this.begin();
+    this.readOnlyEstablished = true;
+    this.queries.push({ sql: R7_LIVE_BRIDGE_READONLY_TX_SQL });
+  }
+
+  async query(sql: string, params?: readonly unknown[]): Promise<R7LiveBridgePgQueryResult> {
+    this.queries.push({ sql, params });
+    this.transactionQueryTraceSink?.push(sql);
+    if (sql === R7_D1_D5_MIGRATION_COORDINATION_TRY_LOCK_SQL) {
+      if (this.failAt === 'lock_throw') throw new Error('MOCK_LOCK_QUERY_FAILED');
+      if (this.failAt === 'lock') return { rows: [{ lock_acquired: false }], rowCount: 1 };
+      return { rows: [{ lock_acquired: this.lockAvailable }], rowCount: 1 };
+    }
+    if (sql === POST_CONNECT_GUARD_SQL) {
+      if (this.guardRow === null) return { rows: [], rowCount: 0 };
+      return { rows: [this.guardRow], rowCount: 1 };
+    }
+    if (sql === R7_LIVE_BRIDGE_HISTORY_READONLY_SELECT_SQL) {
+      if (this.failAt === 'history') throw new Error('MOCK_HISTORY_FAILED');
+      const versions = this.readOnlyEstablished || !this.inTransaction ? this.historyPost : this.history;
+      return { rows: versions.map((version) => ({ version })), rowCount: versions.length };
+    }
+    if (sql.includes('R7_PROBE_ID:R7_D1_PRE')) {
+      if (this.failAt === 'pre_probe') throw new Error('MOCK_PRE_PROBE_FAILED');
+      if (sql.includes('R7_PROBE_PHASE:pre')) return { rows: [deterministicHarnessPreProbePayload()], rowCount: 1 };
+    }
+    if (sql.includes('R7_PROBE_ID:R7_D1_POST')) {
+      if (this.failAt === 'post_probe') throw new Error('MOCK_POST_PROBE_FAILED');
+      return { rows: [deterministicHarnessPostProbePayload()], rowCount: 1 };
+    }
+    if (sql === HISTORY_INSERT_SQL_METADATA) {
+      if (this.failAt === 'history_insert') throw new Error('MOCK_HISTORY_INSERT_FAILED');
+      const version = String(params?.[0] ?? '');
+      if (version) this.history = [...this.history, version];
+      return { rows: [], rowCount: 1 };
+    }
+    if (this.inTransaction && !sql.startsWith('SELECT')) {
+      if (this.failAt === 'mutation' && this.mutationCount === 0) {
+        this.mutationCount += 1;
+        throw new Error('MOCK_MUTATION_FAILED');
+      }
+      this.mutationCount += 1;
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  async commit(): Promise<{ readonly responseClass: CommitResponseClass }> {
+    if (this.failAt === 'commit_throw' || this.failAt === 'commit_and_close_throw') {
+      throw new Error('MOCK_COMMIT_TRANSPORT_LOSS');
+    }
+    this.inTransaction = false;
+    return { responseClass: this.commitResponse };
+  }
+
+  async rollback(): Promise<{ readonly acknowledged: boolean }> {
+    this.inTransaction = false;
+    return { acknowledged: this.rollbackAcknowledged };
+  }
+
+  async close(): Promise<void> {
+    this.queries.push({ sql: '__close__' });
+    this.transactionQueryTraceSink?.push('__close__');
+    if (
+      this.failAt === 'close_throw' ||
+      this.failAt === 'connect_and_close_throw' ||
+      this.failAt === 'commit_and_close_throw' ||
+      this.failAt === 'fresh_connect_and_close_throw' ||
+      this.failAt === 'begin_readonly_and_close_throw'
+    ) {
+      throw new Error('MOCK_CLOSE_FAILED');
+    }
+  }
+}
+
+function buildLocalNodeTestHarnessDeps(
+  input: R7LiveBridgeLocalNodeTestHarnessConfig,
+  repoRoot: string,
+  transactionQueryTrace: string[],
+): R7LiveBridgeInjectedDeps {
+  const transactionSession = new DeterministicHarnessSession(input.transactionScenario, transactionQueryTrace);
+  const ackMode = input.freshAckClassifierMode ?? 'DEFAULT';
+  const catalogMode = input.freshCatalogVerifyMode ?? 'DEFAULT';
+  return {
+    implementationMode: R7_LIVE_BRIDGE_IMPLEMENTATION_MODE,
+    simulationOnly: true,
+    transactionSession,
+    freshReadonlySessionFactory: () => {
+      if (input.freshMaterializeThrows) {
+        throw new Error('MOCK_FACTORY_THROW');
+      }
+      if (input.freshFactoryReturnsTransactionSession) {
+        return transactionSession;
+      }
+      return new DeterministicHarnessSession(input.freshScenario);
+    },
+    freshAckClassifier: buildLocalNodeTestFreshAckClassifier(ackMode),
+    freshReadonlyVerification: buildLocalNodeTestFreshReadonlyVerification(catalogMode, repoRoot),
+  };
+}
+
+/**
+ * Node local-test lifecycle only — scenarios are compiled into module-private harness sessions.
+ * Callers cannot supply connect/query/commit implementations through the public input shape.
+ */
+export async function runR7LiveBridgeLocalNodeTestDeterministicLifecycle(
+  input: ExecuteR7LiveBridgePublicInput & { readonly localNodeTestHarness: R7LiveBridgeLocalNodeTestHarnessConfig },
+): Promise<R7RemoteExecutionPublicEvidence> {
+  r7LocalNodeTestLastTransactionQuerySqlTraceSnapshot = [];
+  const liveTransactionQueryTrace: string[] = [];
+  const deps = buildLocalNodeTestHarnessDeps(
+    input.localNodeTestHarness,
+    input.repoRoot,
+    liveTransactionQueryTrace,
+  );
+  try {
+    const evidence = await executeR7DeltaStepLiveBridgeInjectedDepsInternal({ ...input, deps });
+    finalizeLocalNodeTestTransactionQuerySqlTraceSnapshot(liveTransactionQueryTrace);
+    return evidence;
+  } catch (error) {
+    finalizeLocalNodeTestTransactionQuerySqlTraceSnapshot(liveTransactionQueryTrace);
+    throw error;
+  }
+}
+
+function assertHarnessBackedPgSession(session: R7LiveBridgePgSession): boolean {
+  return isR7LiveBridgeHarnessSessionInstance(session as object);
+}
+
+async function executeR7DeltaStepLiveBridgeInjectedDepsInternal(
+  input: ExecuteR7LiveBridgeInjectedInput,
 ): Promise<R7RemoteExecutionPublicEvidence> {
   const lifecycle: R7ExecutionLifecycleStage[] = [];
   const log = (stage: R7ExecutionLifecycleStage) => {
@@ -785,6 +1189,9 @@ export async function executeR7DeltaStepLiveBridge(
   }
 
   const session = input.deps.transactionSession;
+  if (!assertHarnessBackedPgSession(session)) {
+    return holdEvidence(input.stepId, lifecycle, 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED', preProbeId, postProbeId);
+  }
   let statementCount = 0;
 
   try {
@@ -1213,3 +1620,103 @@ export async function executeR7DeltaStepLiveBridge(
     holdReasonCode: 'HOLD_POST_COMMIT_CATALOG_VERIFICATION_PENDING',
   };
 }
+
+/** D1 live catalog observation is unavailable in local code-only gate — no fake pg_catalog query. */
+export function createR7D1TrustedFreshReadonlyVerification(
+  repoRoot: string,
+): R7LiveBridgeFreshReadonlyVerification {
+  const pinned = verifyD1PinnedSourceAndNormalizedComposite(repoRoot);
+  if (!pinned.ok) {
+    throw new Error(pinned.holdReasonCode);
+  }
+  return {
+    async verifyPostCommitCatalog(input) {
+      assertStepIsD1(input.stepId);
+      if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE) {
+        return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+      }
+      return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+    },
+    async verifyFreshPriorCatalogState(input) {
+      assertStepIsD1(input.stepId);
+      if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE) {
+        return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
+      }
+      return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
+    },
+  };
+}
+
+export function evaluateR7D1ProductionLiveBridgeEligibility(input: {
+  readonly repoRoot: string;
+  readonly branch: string;
+  readonly headCommitSha: string;
+  readonly stepId: R7DeltaStepId;
+  readonly liveImplementationBinding: R7D1LiveImplementationCandidateBinding | null;
+  readonly perD1HumanExecutionAuthorization: unknown;
+}): { readonly ok: true } | { readonly ok: false; readonly holdReasonCode: R7LiveBridgeHoldCode } {
+  if (input.stepId !== 'D1') {
+    return { ok: false, holdReasonCode: 'HOLD_STEP_NOT_FOUND' };
+  }
+  const network = assertR7D1RealPgNetworkAccessAllowed();
+  if (!network.ok) {
+    return { ok: false, holdReasonCode: 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN' };
+  }
+  const binding = validateR7D1LiveImplementationCandidateBinding(
+    input.repoRoot,
+    input.branch,
+    input.headCommitSha,
+    input.liveImplementationBinding,
+  );
+  if (!binding.ok) {
+    const code: R7LiveBridgeHoldCode =
+      binding.holdReasonCode === 'HOLD_REPO_IDENTITY_MISMATCH'
+        ? 'HOLD_REPO_IDENTITY_MISMATCH'
+        : binding.holdReasonCode === 'HOLD_CANDIDATE_MANIFEST_MISMATCH'
+          ? 'HOLD_CANDIDATE_MANIFEST_MISMATCH'
+          : binding.holdReasonCode === 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED'
+            ? 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED'
+            : 'HOLD_AUTHORIZATION_GATE';
+    return { ok: false, holdReasonCode: code };
+  }
+  const human = assertR7D1LiveExecutionHumanAuthorizationPresent(input.perD1HumanExecutionAuthorization);
+  if (!human.ok) {
+    return { ok: false, holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED' };
+  }
+  return { ok: false, holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED' };
+}
+
+export {
+  R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE,
+  assertR7D1RealPgNetworkAccessAllowed,
+  wrapExecutionPgClientAsR7LiveBridgeSession,
+  createR7D1InjectedExecutionPgTransport,
+  createR7LiveBridgeSessionFactoryFromPgTransport,
+  establishFreshReadOnlyPgSession,
+  compareR7LiveBridgeSessionUnderlyingTransport,
+  isR7LiveBridgeHarnessSessionInstance,
+  normalizePgQueryResult,
+  normalizePgDdlEmptyResult,
+} from './r7D1RealPgAdapter.ts';
+
+export {
+  R7_D1_PINNED_MIGRATION_VERSION,
+  R7_D1_PINNED_SOURCE_SHA256,
+  R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE,
+  extractD1StaticCatalogExpectation,
+  verifyD1PinnedSourceAndNormalizedComposite,
+  verifyD1PostCommitCatalogObservation,
+  verifyD1PriorCatalogObservation,
+  parseStrictD1CatalogObservationWirePayload,
+  assessD1NameInventoryOnlyObservation,
+  R7_D1_FULL_CATALOG_SEMANTIC_COVERAGE_PENDING_CATEGORIES,
+} from './r7D1TrustedCatalogVerifier.ts';
+
+export {
+  R7_D1_LIVE_IMPLEMENTATION_CANDIDATE_BUNDLE_ID,
+  R7_D1_FEATURE_BASE_COMMIT_SHA,
+  deriveDeterministicSixFileManifestIdentitySha256,
+  observeR7D1LiveImplementationWorkspaceSixFileDigests,
+  diffWorkspaceObservationAgainstIndependentlyReviewedManifest,
+  validateR7D1LiveImplementationCandidateBinding,
+} from './r7D1LiveCandidateBinding.ts';
