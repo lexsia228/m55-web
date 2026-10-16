@@ -282,19 +282,60 @@ describe('canonical snapshot privacy', () => {
   });
 
   it('uses Q6 for focus guidance only and keeps all six chapter bodies unchanged', () => {
-    const distance = canonicalSnapshot({ ...CONTEXT_A, focus: 'distance_focus' });
-    const conversation = canonicalSnapshot({
+    const r3QuestionIds = questionsForRelationStage('R3').map(
+      (question) => question.questionId,
+    );
+    assert.equal(r3QuestionIds.includes('focus'), false);
+
+    const legacyDistanceFocus = canonicalSnapshot({
+      ...CONTEXT_A,
+      focus: 'distance_focus',
+    });
+    const legacyConversationFocus = canonicalSnapshot({
       ...CONTEXT_A,
       focus: 'conversation_focus',
     });
-    assert.deepEqual(distance.chapters, conversation.chapters);
+    assert.deepEqual(legacyDistanceFocus.chapters, legacyConversationFocus.chapters);
+    assert.equal(
+      legacyDistanceFocus.currentContext?.readingGuide,
+      legacyConversationFocus.currentContext?.readingGuide,
+    );
+    assert.deepEqual(
+      legacyDistanceFocus.highlightedChapterKeys,
+      legacyConversationFocus.highlightedChapterKeys,
+    );
+
+    const baseR3 = toV2Context(CONTEXT_A, 'R3');
+    const guestInput = {
+      personA: '1990-01-01',
+      personB: '1992-02-02',
+    };
+    const distanceExplicit = buildCanonicalCompatibilityPurchaseSnapshot(
+      guestInput,
+      'R3',
+      { ...baseR3, focus: 'distance_focus' },
+    );
+    const conversationExplicit = buildCanonicalCompatibilityPurchaseSnapshot(
+      guestInput,
+      'R3',
+      { ...baseR3, focus: 'conversation_focus' },
+    );
+    assert.equal(distanceExplicit.ok, true);
+    assert.equal(conversationExplicit.ok, true);
+    if (!distanceExplicit.ok || !conversationExplicit.ok) {
+      throw new Error('explicit focus fixture failed');
+    }
+    assert.deepEqual(
+      distanceExplicit.snapshot.chapters,
+      conversationExplicit.snapshot.chapters,
+    );
     assert.notEqual(
-      distance.currentContext?.readingGuide,
-      conversation.currentContext?.readingGuide,
+      distanceExplicit.snapshot.currentContext?.readingGuide,
+      conversationExplicit.snapshot.currentContext?.readingGuide,
     );
     assert.notDeepEqual(
-      distance.highlightedChapterKeys,
-      conversation.highlightedChapterKeys,
+      distanceExplicit.snapshot.highlightedChapterKeys,
+      conversationExplicit.snapshot.highlightedChapterKeys,
     );
   });
 
