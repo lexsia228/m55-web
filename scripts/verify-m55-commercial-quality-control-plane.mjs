@@ -6,7 +6,7 @@
  * Enforces:
  * - ownership boundary (repository-independent engine imports no M55 authority)
  * - manifest schema v1 registration for every imported governed identity
- * - 52 ECP entries / 12 Premium states / 14 Premium captures / 6 visual cases
+ * - 53 ECP entries / 12 Premium states / 14 Premium captures / 6 visual cases
  * - candidate-only approval pack (never a canonical promotion)
  * - locked @axe-core/playwright dependency and CI wiring
  */
@@ -283,13 +283,13 @@ function checkRegistration() {
   REPORT.registrationFailures = report.failures.length;
   REPORT.consolidationPoints = consolidationPoints;
 
-  if (setupCounts.total !== 90) {
-    fail('registration.setup', `setup registry total must be 90 (received ${setupCounts.total})`);
+  if (setupCounts.total !== 91) {
+    fail('registration.setup', `setup registry total must be 91 (received ${setupCounts.total})`);
   }
-  if (setupCounts.executable !== 76) {
+  if (setupCounts.executable !== 77) {
     fail(
       'registration.setup',
-      `setup registry executable count must be 76 (received ${setupCounts.executable})`,
+      `setup registry executable count must be 77 (received ${setupCounts.executable})`,
     );
   }
   if (setupCounts.nonRuntime !== 14) {
@@ -330,8 +330,8 @@ function checkRegistration() {
       );
     }
   }
-  if (report.expectedCounts.ecpEntries !== 52) {
-    fail('registration.coverage', `expected 52 ECP entries, authority reports ${report.expectedCounts.ecpEntries}`);
+  if (report.expectedCounts.ecpEntries !== 53) {
+    fail('registration.coverage', `expected 53 ECP entries, authority reports ${report.expectedCounts.ecpEntries}`);
   }
   if (report.expectedCounts.premiumStates !== 12) {
     fail('registration.coverage', `expected 12 Premium states, authority reports ${report.expectedCounts.premiumStates}`);
@@ -700,13 +700,13 @@ function checkStateIdentityUniqueness() {
     REPORT.canonicalObservableStateCount = report.canonical;
     REPORT.registrationAliasCount = report.alias;
     REPORT.fixedAuthGateFixtureCount = report.authFixtures;
-    if (report.executable !== 76) {
-      fail('state_identity.executable', `expected 76 executable contracts, got ${report.executable}`);
+    if (report.executable !== 77) {
+      fail('state_identity.executable', `expected 77 executable contracts, got ${report.executable}`);
     }
-    if (report.canonical !== 43) {
+    if (report.canonical !== 44) {
       fail(
         'state_identity.canonical',
-        `expected 43 canonical observable states (recomputed), got ${report.canonical}`,
+        `expected 44 canonical observable states (recomputed), got ${report.canonical}`,
       );
     }
     if (report.alias !== 33) {
@@ -715,19 +715,19 @@ function checkStateIdentityUniqueness() {
         `expected 33 registration aliases (recomputed), got alias=${report.alias}`,
       );
     }
-    if (report.canonical + report.alias !== 76) {
+    if (report.canonical + report.alias !== 77) {
       fail(
         'state_identity.arithmetic',
-        `canonical+alias must equal 76, got ${report.canonical}+${report.alias}`,
+        `canonical+alias must equal 77, got ${report.canonical}+${report.alias}`,
       );
     }
-    if (report.mapping !== 76) {
-      fail('state_identity.mapping', `expected 76 registration mappings, got ${report.mapping}`);
+    if (report.mapping !== 77) {
+      fail('state_identity.mapping', `expected 77 registration mappings, got ${report.mapping}`);
     }
-    if (report.uniqueSignatures !== 43) {
+    if (report.uniqueSignatures !== 44) {
       fail(
         'state_identity.unique',
-        `expected 43 unique canonical observable signatures, got ${report.uniqueSignatures}`,
+        `expected 44 unique canonical observable signatures, got ${report.uniqueSignatures}`,
       );
     }
     if (report.projectionAliases !== 15 || report.projectionRegistrations !== 15) {

@@ -214,7 +214,7 @@ export function isDeferredAccessibilityFinding(
   });
 }
 
-/* ── ECP page surfaces (52) ────────────────────────────────────────── */
+/* ── ECP page surfaces (53) ────────────────────────────────────────── */
 
 function isImageResponseEcpEntry(entry: ExperienceRouteEntry): boolean {
   return entry.id === 'shared.og' || entry.id === 'shared.export';

@@ -23,7 +23,7 @@ const isPublicRoute = createRouteMatcher([
   '/my',
   '/how-m55-works',
   '/ten-views',
-  '/self-understanding',
+  '/self-understanding(.*)',
   '/creator',
   '/creator/apply',
   '/creator/portal',
