@@ -119,6 +119,32 @@ Do not store PaymentIntent IDs, customer IDs, price secret values, or webhook si
 
 ---
 
+## Creator application notification — Resend DNS verification (2026-10-19)
+
+**Evidence class:** Human-observed Resend and お名前.com Navi UI screenshots during the 2026-10-19 setup; record of completed external configuration, **not** an API-sent email proof or permission to activate Production.
+
+| Item | Verified fact / boundary |
+|---|---|
+| Resend sending domain | `notify.m-55.jp` — **VERIFIED** (Resend domain page and DNS-record statuses) |
+| Sending region | Tokyo (Resend UI) |
+| DNS manager | お名前.com Navi for zone `m-55.jp` |
+| Nameservers | Existing `01.dnsv.jp` through `04.dnsv.jp`; **nameserver change = しない** at DNS confirmation |
+| Domain DKIM | TXT `resend._domainkey.notify.m-55.jp` — Resend **Verified**; full public key intentionally not duplicated in repo |
+| Sending DNS CNAME 1 | `rsend.notify.m-55.jp` → `rsend-apne1.forge.rmta.net` — Resend **Verified** |
+| Sending DNS CNAME 2 | `send.notify.m-55.jp` → `send.forge.rmta.net` — Resend **Verified** |
+| DNS TTL | 3600 on the three added records in お名前.com |
+| Website / existing mail | Existing A, Clerk CNAME, MX and apex TXT/SPF preserved in Human DNS-confirmation screenshot; no nameserver change requested |
+| Receiving in Resend | OFF; inbound email is outside this notification task |
+| API-key and notification environment | **NOT CONFIGURED** as of 2026-10-19 Vercel read-only inventory: `M55_CREATOR_NOTIFY_ENABLED`, `M55_CREATOR_NOTIFY_TO`, `M55_CREATOR_NOTIFY_FROM`, `RESEND_API_KEY` absent from `m55-webv2`; no values recorded |
+| Sender / recipient | Planned sender `notifications@notify.m-55.jp`; notification recipient comes from private runtime environment, **not** this SSOT |
+| Live application-to-inbox proof | **NOT RUN**; no claim of an email sent, delivered or retried |
+| Production enablement | **NOT AUTHORIZED / NOT ENABLED**; separate Human gate for Preview proof followed by Production activation |
+| Code authority | Notification source merged through PR #252, merge commit `edfeedbce6f354f6097ddefeeaf47d9b46fa3dfe`; no change to current executable `CREATOR_DASHBOARD` gate |
+
+**No-replay / next gate:** Do **not** recreate the Resend domain, re-add the three DNS records, change nameservers, or repeat verification solely because a chat/worktree changes. Revisit DNS only on evidence of verification loss, domain/zone migration, or a changed Resend record contract. The next independent step is a **scoped, least-privilege Resend sending API-key setup** with secrets entered only into private provider/Vercel UIs, then Preview-only activation and a single controlled synthetic new-application delivery check. Keep Production notifications disabled until that evidence is reviewed and Human explicitly approves activation.
+
+---
+
 ## Boot cross-reference
 
 Every AI session boot must read, in order:
