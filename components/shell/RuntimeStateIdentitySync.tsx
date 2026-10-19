@@ -133,6 +133,13 @@ function deriveCanonicalObservableStateId(pathname: string): string | null {
     return 'ecp:public.ten_views:default';
   }
   if (
+    (pathname === '/self-understanding' ||
+      pathname.startsWith('/self-understanding/')) &&
+    has('[data-m55-experience-surface="PUBLIC_EDITORIAL"]')
+  ) {
+    return 'ecp:public.self_understanding:default';
+  }
+  if (
     pathname === '/pricing' &&
     has('[data-testid="m55-pricing-headline"], [data-testid="m55-pricing-plan-light"]')
   ) {
