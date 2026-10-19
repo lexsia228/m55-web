@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { applicationInput, CREATOR_TERMS_VERSION } from '../../../../lib/m55/creatorDistribution/contract';
+import { registerCreatorApplicationNotificationAfterSuccess } from '../../../../lib/m55/creatorDistribution/applicationNotificationEmail';
 import { submitCreatorApplication } from '../../../../lib/m55/creatorDistribution/repository';
 import { canonicalPublicMediaUrl, PRIVATE_RESPONSE_HEADERS, requireCreatorUserId } from '../../../../lib/m55/creatorDistribution/security';
 
@@ -26,10 +27,16 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'APPLICATION_INVALID' }, { status: 400 });
   const mediaUrl = canonicalPublicMediaUrl(parsed.data.mediaUrl);
   if (!mediaUrl) return NextResponse.json({ error: 'MEDIA_URL_INVALID' }, { status: 400 });
+  let id: string;
   try {
-    const id = await submitCreatorApplication(userId, parsed.data, mediaUrl);
-    return NextResponse.json({ ok: true, applicationId: id }, { status: 201, headers: PRIVATE_RESPONSE_HEADERS });
+    id = await submitCreatorApplication(userId, parsed.data, mediaUrl);
   } catch {
     return NextResponse.json({ error: 'APPLICATION_NOT_ACCEPTED' }, { status: 409, headers: PRIVATE_RESPONSE_HEADERS });
   }
+  try {
+    registerCreatorApplicationNotificationAfterSuccess(id, after);
+  } catch {
+    // Notification scheduling must not affect an already-accepted application.
+  }
+  return NextResponse.json({ ok: true, applicationId: id }, { status: 201, headers: PRIVATE_RESPONSE_HEADERS });
 }

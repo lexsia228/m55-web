@@ -1360,6 +1360,25 @@ Scope: WT-056 / R6 durable ownership registration only. This is **not** a global
 
 ---
 
+### WT-059 — Creator application email notification sidecar (ACTIVE_SIDECAR)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-creator-application-email-notification-v1` |
+| branch | `feat/m55-creator-application-email-notification-v1` |
+| intended upstream | `origin/main` (independent sidecar; not R7 child) |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **ACTIVE_SIDECAR / LOCAL_CODE_ONLY** |
+| macro lane | **M55_CREATOR_DISTRIBUTION_OPS_NOTIFY** |
+| program identity | **CREATOR-APPLICATION-EMAIL-NOTIFICATION** |
+| purpose | Best-effort Resend operations mail on successful new Creator application; isolated from WT-058 R7 dashboard |
+| executable gate owner | Human GO `M55_CREATOR_APPLICATION_EMAIL_NOTIFICATION_CODE_ONLY_GO` |
+| product implementation authorized | **true** (bounded server-only notifier + route hook only) |
+| provider/DB/Stripe/Clerk/env/deploy/payment mutation | **prohibited in CODE_ONLY gate** |
+| removal eligibility | retain until independent review merge or explicit Human closure |
+
+---
+
 ### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (CLOSED / RETAINED)
 
 | Field | Value |
