@@ -121,7 +121,7 @@ Do not store PaymentIntent IDs, customer IDs, price secret values, or webhook si
 
 ## Creator application notification — Resend DNS verification (2026-10-19)
 
-**Evidence class:** Human-observed Resend and お名前.com Navi UI screenshots during the 2026-10-19 setup; record of completed external configuration, **not** an API-sent email proof or permission to activate Production.
+**Evidence class:** Human-observed Resend and お名前.com Navi setup screenshots (2026-10-19), followed by one Human-observed Preview Creator application and Gmail inbox receipt (2026-10-22), independent Preview Supabase aggregate inspection and Vercel deployment/environment readback (2026-10-23). The Preview proof does **not** authorize Production activation.
 
 | Item | Verified fact / boundary |
 |---|---|
