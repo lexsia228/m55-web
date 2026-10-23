@@ -7,8 +7,43 @@ import {
   FROZEN_DELTA_SOURCE_SPECS,
   type R7DeltaStepId,
 } from './r7D1D5OfflinePlan.ts';
+import {
+  deriveD1ExactPostCatalogContract,
+  deriveExactCatalogObservationQueryPlanDigestSha256,
+  evaluateProducerBoundD1CatalogEvidence,
+  observationProvenanceTierAllowsVerifiedCatalogAttestation,
+  produceProducerBoundD1CatalogEvidenceFromQueryResults,
+  R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION,
+  registerTrustedCatalogQueryExecutionContextFromOwnedReadonlyCollector,
+  type R7D1CatalogObservationProvenanceTier,
+  R7_D1_EXACT_CATALOG_OBSERVATION_QUERY_PLAN,
+  type R7D1ExactCatalogObservationPhase,
+  type R7D1ExactCatalogQueryKey,
+  type R7D1ProducerBoundCatalogEvidence,
+  type R7D1TrustedCatalogQueryExecutionContext,
+} from './r7D1ExactCatalogContract.ts';
 
 export const R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE = true as const;
+
+/** Isolated local disposable PostgreSQL proof scope — does not open Preview/Production execution gates. */
+let localDisposableCatalogProofScopeDepth = 0;
+
+export type R7D1LocalDisposableCatalogProofScope = {
+  readonly exit: () => void;
+};
+
+export function enterR7D1LocalDisposableCatalogProofScope(): R7D1LocalDisposableCatalogProofScope {
+  localDisposableCatalogProofScopeDepth += 1;
+  return {
+    exit: () => {
+      localDisposableCatalogProofScopeDepth = Math.max(0, localDisposableCatalogProofScopeDepth - 1);
+    },
+  };
+}
+
+export function isR7D1LocalDisposableCatalogProofScopeActive(): boolean {
+  return localDisposableCatalogProofScopeDepth > 0;
+}
 
 export const R7_D1_PINNED_MIGRATION_VERSION = '20260924000000' as const;
 
@@ -86,10 +121,47 @@ export type R7D1CatalogObservation = {
   readonly rlsEnabledTablesPresent: readonly string[];
 };
 
+export type R7D1CatalogSemanticCategoryStatus = 'pass' | 'fail' | 'unobserved';
+
+/** Caller-supplied maps are forgeable — never used for trusted VERIFIED (EXR-02). */
+export type R7D1CatalogSemanticObservation = {
+  readonly supabaseMigrationVersion: string | null;
+  readonly categoryStatus: Readonly<Partial<Record<R7D1CatalogEvidenceCategory, R7D1CatalogSemanticCategoryStatus>>>;
+};
+
+export type R7D1TableColumnExpectation = {
+  readonly columnName: string;
+  readonly dataTypeToken: string;
+  readonly isNullable: boolean;
+};
+
+export type R7D1SemanticCatalogExpectation = R7D1StaticCatalogExpectation & {
+  readonly tableColumnsByTable: Readonly<Record<string, readonly R7D1TableColumnExpectation[]>>;
+  readonly expectedFunctionCount: number;
+  readonly expectedTriggerCount: number;
+};
+
+export const R7_D1_TRUSTED_COLLECTOR_PROVENANCE = 'D1_READONLY_QUERY_COLLECTOR_INTERNAL_V1' as const;
+
+export type R7D1TrustedCollectedCatalogObservation = {
+  readonly provenance: typeof R7_D1_TRUSTED_COLLECTOR_PROVENANCE;
+  readonly observationProvenanceTier: R7D1CatalogObservationProvenanceTier;
+  readonly observationDigestSha256: string;
+  readonly nameObservation: R7D1CatalogObservation;
+  readonly supabaseMigrationVersion: string | null;
+  readonly categoryOutcomes: Readonly<Partial<Record<R7D1CatalogEvidenceCategory, R7D1CatalogSemanticCategoryStatus>>>;
+};
+
+const trustedCollectedCatalogObservationRegistry = new WeakSet<R7D1TrustedCollectedCatalogObservation>();
+const trustedCollectedToProducerEvidence = new WeakMap<
+  R7D1TrustedCollectedCatalogObservation,
+  R7D1ProducerBoundCatalogEvidence
+>();
+
 export type R7D1TrustedCatalogVerificationResult =
   | {
       readonly ok: true;
-      readonly catalogState: 'PENDING_FRESH_READONLY_CATALOG';
+      readonly catalogState: 'VERIFIED' | 'PENDING_FRESH_READONLY_CATALOG';
       readonly staticDrift: false;
       readonly runtimeUnverifiedCategories: readonly R7D1CatalogEvidenceCategory[];
     }
@@ -100,7 +172,39 @@ export type R7D1TrustedCatalogVerificationResult =
         | 'HOLD_POST_COMMIT_VERIFICATION_FAILED'
         | 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED';
       readonly driftClass: 'PARTIAL' | 'EXTRA' | 'MISSING' | 'SHAPE';
+      readonly pendingCategories?: readonly R7D1CatalogEvidenceCategory[];
     };
+
+export const R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES: readonly R7D1CatalogEvidenceCategory[] = [
+  'TABLES',
+  'FUNCTIONS',
+  'TRIGGERS',
+  'EXPLICIT_INDEXES',
+  'RLS_ENABLEMENTS',
+  ...R7_D1_FULL_CATALOG_SEMANTIC_COVERAGE_PENDING_CATEGORIES,
+] as const;
+
+export type R7D1CatalogObservationQuerySession = {
+  query(
+    sql: string,
+    params?: readonly unknown[],
+  ): Promise<{ readonly rows: readonly Record<string, unknown>[]; readonly rowCount: number }>;
+};
+
+/** Read-only pg_catalog observation bundle — executed only when trusted catalog gate is open. */
+export type R7D1CatalogObservationQueryKey = R7D1ExactCatalogQueryKey;
+
+export const R7_D1_PG_CATALOG_OBSERVATION_QUERIES: readonly {
+  readonly key: R7D1CatalogObservationQueryKey;
+  readonly sql: string;
+}[] = R7_D1_EXACT_CATALOG_OBSERVATION_QUERY_PLAN.map((entry) => ({
+  key: entry.key as R7D1CatalogObservationQueryKey,
+  sql: entry.sql,
+}));
+
+export function listMandatoryD1CatalogEvidenceCategories(): readonly R7D1CatalogEvidenceCategory[] {
+  return R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES;
+}
 
 const D1_TABLE_PREFIX = 'm55_r5_compliance_';
 
@@ -174,6 +278,197 @@ export function extractD1StaticCatalogExpectation(repoRoot: string): R7D1StaticC
     staticVerifiedCategories: staticVerified,
     runtimeUnverifiedCategories: runtimeUnverified,
   };
+}
+
+function parseTableColumnExpectationsFromMigrationSql(sql: string): Record<string, R7D1TableColumnExpectation[]> {
+  const tableColumnsByTable: Record<string, R7D1TableColumnExpectation[]> = {};
+  const tableBlockPattern = /create table public\.([a-z0-9_]+)\s*\(([\s\S]*?)\);/gi;
+  for (const match of sql.matchAll(tableBlockPattern)) {
+    const tableName = match[1];
+    const body = match[2];
+    if (!tableName || !body) {
+      continue;
+    }
+    const columns: R7D1TableColumnExpectation[] = [];
+    for (const rawLine of body.split('\n')) {
+      const line = rawLine.trim().replace(/,$/, '');
+      if (
+        line.length === 0 ||
+        line.startsWith('constraint ') ||
+        line.startsWith('unique (') ||
+        line.startsWith('primary key') ||
+        line.startsWith('foreign key') ||
+        line.startsWith('check (')
+      ) {
+        continue;
+      }
+      const columnMatch = /^([a-z_][a-z0-9_]*)\s+([a-z][a-z0-9_]*(?:\s*\([^)]*\))?)/i.exec(line);
+      if (!columnMatch) {
+        continue;
+      }
+      const columnName = columnMatch[1];
+      const dataTypeToken = columnMatch[2].toLowerCase();
+      const isNullable = !/\bnot\s+null\b/i.test(line);
+      columns.push({ columnName, dataTypeToken, isNullable });
+    }
+    if (columns.length > 0) {
+      tableColumnsByTable[tableName] = columns;
+    }
+  }
+  return tableColumnsByTable;
+}
+
+export function extractD1SemanticCatalogExpectation(repoRoot: string): R7D1SemanticCatalogExpectation {
+  const staticExpectation = extractD1StaticCatalogExpectation(repoRoot);
+  const exact = deriveD1ExactPostCatalogContract(repoRoot);
+  const tableColumnsByTable: Record<string, R7D1TableColumnExpectation[]> = {};
+  for (const [table, cols] of Object.entries(exact.tableColumnsByTable)) {
+    tableColumnsByTable[table] = cols.map((col) => ({
+      columnName: col.columnName,
+      dataTypeToken: col.pgCanonicalType,
+      isNullable: col.isNullable,
+    }));
+  }
+  return {
+    ...staticExpectation,
+    tableColumnsByTable,
+    expectedFunctionCount: exact.functions.length,
+    expectedTriggerCount: exact.triggers.length,
+  };
+}
+
+function digestTrustedObservationPayload(parts: readonly string[]): string {
+  return createHash('sha256').update(parts.join('\n'), 'utf8').digest('hex');
+}
+
+function readStrictStringColumn(row: Record<string, unknown>, key: string): string | null {
+  const value = row[key];
+  return typeof value === 'string' && value.length > 0 ? value : null;
+}
+
+function decodeStringNameRows(
+  rows: readonly Record<string, unknown>[],
+  key: string,
+): { readonly ok: true; readonly names: string[] } | { readonly ok: false } {
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const name = readStrictStringColumn(row, key);
+    if (!name || seen.has(name)) {
+      return { ok: false };
+    }
+    seen.add(name);
+    names.push(name);
+  }
+  return { ok: true, names };
+}
+
+function compareObservedColumnsToExpectation(
+  expectation: R7D1SemanticCatalogExpectation,
+  rows: readonly Record<string, unknown>[],
+): R7D1CatalogSemanticCategoryStatus {
+  const observedByTable: Record<string, R7D1TableColumnExpectation[]> = {};
+  for (const row of rows) {
+    const tableName = readStrictStringColumn(row, 'table_name');
+    const columnName = readStrictStringColumn(row, 'column_name');
+    const dataType = readStrictStringColumn(row, 'data_type');
+    const nullableRaw = readStrictStringColumn(row, 'is_nullable');
+    if (!tableName || !columnName || !dataType || (nullableRaw !== 'YES' && nullableRaw !== 'NO')) {
+      return 'fail';
+    }
+    if (!observedByTable[tableName]) {
+      observedByTable[tableName] = [];
+    }
+    observedByTable[tableName].push({
+      columnName,
+      dataTypeToken: dataType.toLowerCase(),
+      isNullable: nullableRaw === 'YES',
+    });
+  }
+  for (const table of expectation.tables) {
+    const expectedCols = expectation.tableColumnsByTable[table];
+    const observedCols = observedByTable[table];
+    if (!expectedCols || !observedCols) {
+      return 'unobserved';
+    }
+    if (expectedCols.length !== observedCols.length) {
+      return 'fail';
+    }
+    for (let i = 0; i < expectedCols.length; i++) {
+      const expected = expectedCols[i];
+      const observed = observedCols[i];
+      if (
+        expected.columnName !== observed.columnName ||
+        expected.dataTypeToken !== observed.dataTypeToken ||
+        expected.isNullable !== observed.isNullable
+      ) {
+        return 'fail';
+      }
+    }
+  }
+  return 'pass';
+}
+
+export function buildTrustedCollectedCatalogObservationFromQueryResults(
+  repoRoot: string,
+  resultsByKey: Readonly<Partial<Record<R7D1CatalogObservationQueryKey, readonly Record<string, unknown>[]>>>,
+  input: {
+    readonly trustedQueryExecutionContext: R7D1TrustedCatalogQueryExecutionContext;
+    readonly phase: R7D1ExactCatalogObservationPhase;
+    readonly boundPreCatalogProofDigestSha256?: string | null;
+  },
+): { readonly ok: true; readonly trusted: R7D1TrustedCollectedCatalogObservation } | { readonly ok: false } {
+  const produced = produceProducerBoundD1CatalogEvidenceFromQueryResults(
+    repoRoot,
+    resultsByKey as Readonly<Partial<Record<R7D1ExactCatalogQueryKey, readonly Record<string, unknown>[]>>>,
+    input.phase,
+    {
+      trustedQueryExecutionContext: input.trustedQueryExecutionContext,
+      boundPreCatalogProofDigestSha256: input.boundPreCatalogProofDigestSha256 ?? null,
+    },
+  );
+  if (!produced.ok) {
+    return { ok: false };
+  }
+  const evidence = produced.evidence;
+  const nameObservation: R7D1CatalogObservation = {
+    anchorTableCount: evidence.tablesPresent.length,
+    tablesPresent: evidence.tablesPresent,
+    functionsPresent: evidence.functionsPresent,
+    triggersPresent: evidence.triggersPresent,
+    explicitIndexesPresent: evidence.explicitIndexesPresent,
+    rlsEnabledTablesPresent: evidence.rlsEnabledTablesPresent,
+  };
+  const trusted: R7D1TrustedCollectedCatalogObservation = Object.freeze({
+    provenance: R7_D1_TRUSTED_COLLECTOR_PROVENANCE,
+    observationProvenanceTier: input.trustedQueryExecutionContext.observationProvenanceTier,
+    observationDigestSha256: evidence.evidenceDigestSha256,
+    nameObservation: Object.freeze(nameObservation),
+    supabaseMigrationVersion: evidence.migrationVersionTail,
+    categoryOutcomes: Object.freeze(
+      evidence.categoryOutcomes as Partial<Record<R7D1CatalogEvidenceCategory, R7D1CatalogSemanticCategoryStatus>>,
+    ),
+  });
+  trustedCollectedCatalogObservationRegistry.add(trusted);
+  trustedCollectedToProducerEvidence.set(trusted, evidence);
+  return { ok: true, trusted };
+}
+
+export function isTrustedCollectedCatalogObservationProducedInternally(
+  trusted: R7D1TrustedCollectedCatalogObservation,
+): boolean {
+  return trustedCollectedCatalogObservationRegistry.has(trusted);
+}
+
+export function evaluateTrustedCollectedCatalogObservationEvidence(
+  repoRoot: string,
+  trusted: R7D1TrustedCollectedCatalogObservation,
+): ReturnType<typeof evaluateProducerBoundD1CatalogEvidence> {
+  const producer = trustedCollectedToProducerEvidence.get(trusted);
+  if (!producer) {
+    return { ok: false, pendingCategories: [] };
+  }
+  return evaluateProducerBoundD1CatalogEvidence(repoRoot, producer);
 }
 
 function sortedSetEqual(a: readonly string[], b: readonly string[]): boolean {
@@ -293,81 +588,250 @@ export function assessD1NameInventoryOnlyObservation(
   };
 }
 
-export function verifyD1PostCommitCatalogObservation(
+function verifyD1NameInventoryParity(
   expectation: R7D1StaticCatalogExpectation,
   observation: R7D1CatalogObservation,
+): { readonly ok: true } | { readonly ok: false; readonly driftClass: 'PARTIAL' | 'EXTRA' | 'MISSING' } {
+  if (observation.anchorTableCount !== expectation.tables.length) {
+    return { ok: false, driftClass: 'PARTIAL' };
+  }
+  if (!sortedSetEqual([...observation.tablesPresent].sort(), [...expectation.tables].sort())) {
+    return { ok: false, driftClass: 'MISSING' };
+  }
+  if (!sortedSetEqual([...observation.functionsPresent].sort(), [...expectation.functions].sort())) {
+    return { ok: false, driftClass: 'MISSING' };
+  }
+  if (!sortedSetEqual([...observation.triggersPresent].sort(), [...expectation.triggers].sort())) {
+    return { ok: false, driftClass: 'MISSING' };
+  }
+  if (!sortedSetEqual([...observation.explicitIndexesPresent].sort(), [...expectation.explicitIndexes].sort())) {
+    return { ok: false, driftClass: 'MISSING' };
+  }
+  if (!sortedSetEqual([...observation.rlsEnabledTablesPresent].sort(), [...expectation.rlsEnabledTables].sort())) {
+    return { ok: false, driftClass: 'MISSING' };
+  }
+  for (const table of observation.tablesPresent) {
+    if (!allTablesAreD1Compliance([table])) {
+      return { ok: false, driftClass: 'EXTRA' };
+    }
+  }
+  const expectedTableSet = new Set(expectation.tables);
+  for (const table of observation.tablesPresent) {
+    if (!expectedTableSet.has(table)) {
+      return { ok: false, driftClass: 'EXTRA' };
+    }
+  }
+  return { ok: true };
+}
+
+function evaluateStaticNameInventoryCategory(
+  category: R7D1CatalogEvidenceCategory,
+  expectation: R7D1StaticCatalogExpectation,
+  observation: R7D1CatalogObservation,
+): R7D1CatalogSemanticCategoryStatus {
+  switch (category) {
+    case 'TABLES':
+      return sortedSetEqual([...observation.tablesPresent].sort(), [...expectation.tables].sort()) ? 'pass' : 'fail';
+    case 'FUNCTIONS':
+      return sortedSetEqual([...observation.functionsPresent].sort(), [...expectation.functions].sort())
+        ? 'pass'
+        : 'fail';
+    case 'TRIGGERS':
+      return sortedSetEqual([...observation.triggersPresent].sort(), [...expectation.triggers].sort())
+        ? 'pass'
+        : 'fail';
+    case 'EXPLICIT_INDEXES':
+      return sortedSetEqual([...observation.explicitIndexesPresent].sort(), [...expectation.explicitIndexes].sort())
+        ? 'pass'
+        : 'fail';
+    case 'RLS_ENABLEMENTS':
+      return sortedSetEqual([...observation.rlsEnabledTablesPresent].sort(), [...expectation.rlsEnabledTables].sort())
+        ? 'pass'
+        : 'fail';
+    case 'POST_UNEXPECTED_EXTRA':
+      for (const table of observation.tablesPresent) {
+        if (!expectation.tables.includes(table)) {
+          return 'fail';
+        }
+      }
+      return 'pass';
+    case 'PRE_STATE_ABSENCE':
+      return 'unobserved';
+    default:
+      return 'unobserved';
+  }
+}
+
+/** EXR-02: forgeable caller maps are never trusted verification input. */
+export function verifyD1FullCatalogSemanticParity(
+  expectation: R7D1StaticCatalogExpectation,
+  observation: R7D1CatalogObservation,
+  untrustedSemantic: R7D1CatalogSemanticObservation,
+): R7D1TrustedCatalogVerificationResult {
+  void expectation;
+  void observation;
+  void untrustedSemantic;
+  return {
+    ok: false,
+    holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+    driftClass: 'SHAPE',
+    pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+  };
+}
+
+export function verifyD1TrustedCollectedCatalogParity(
+  repoRoot: string,
+  trusted: R7D1TrustedCollectedCatalogObservation,
 ): R7D1TrustedCatalogVerificationResult {
   if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE) {
     return {
       ok: false,
       holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
       driftClass: 'SHAPE',
+      pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
     };
   }
-  const nameOnly = assessD1NameInventoryOnlyObservation(expectation);
-  if (!nameOnly.ok) {
+  if (trusted.provenance !== R7_D1_TRUSTED_COLLECTOR_PROVENANCE) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: 'SHAPE',
+      pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+    };
+  }
+  if (!observationProvenanceTierAllowsVerifiedCatalogAttestation(trusted.observationProvenanceTier)) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: 'SHAPE',
+      pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+    };
+  }
+  if (!trustedCollectedCatalogObservationRegistry.has(trusted)) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: 'SHAPE',
+      pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+    };
+  }
+  const producerEvidence = trustedCollectedToProducerEvidence.get(trusted);
+  if (!producerEvidence) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: 'SHAPE',
+      pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+    };
+  }
+  const expectation = extractD1SemanticCatalogExpectation(repoRoot);
+  const nameParity = verifyD1NameInventoryParity(expectation, trusted.nameObservation);
+  if (!nameParity.ok) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: nameParity.driftClass,
+    };
+  }
+  const evaluated = evaluateProducerBoundD1CatalogEvidence(repoRoot, producerEvidence);
+  if (!evaluated.ok) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: evaluated.pendingCategories.some((c) => producerEvidence.categoryOutcomes[c] === 'fail')
+        ? 'PARTIAL'
+        : 'SHAPE',
+      pendingCategories: evaluated.pendingCategories,
+    };
+  }
+  return {
+    ok: true,
+    catalogState: 'VERIFIED',
+    staticDrift: false,
+    runtimeUnverifiedCategories: [],
+  };
+}
+
+export function verifyD1PostCommitCatalogObservation(
+  repoRoot: string,
+  observation: R7D1CatalogObservation,
+  trusted: R7D1TrustedCollectedCatalogObservation | null = null,
+): R7D1TrustedCatalogVerificationResult {
+  if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+      driftClass: 'SHAPE',
+      pendingCategories: R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+    };
+  }
+  const expectation = extractD1StaticCatalogExpectation(repoRoot);
+  if (!trusted) {
+    const nameOnly = assessD1NameInventoryOnlyObservation(expectation);
+    void observation;
     return {
       ok: false,
       holdReasonCode: nameOnly.holdReasonCode,
       driftClass: 'SHAPE',
+      pendingCategories: nameOnly.pendingCategories,
     };
   }
-  if (observation.anchorTableCount !== expectation.tables.length) {
-    return {
-      ok: false,
-      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-      driftClass: 'PARTIAL',
-    };
+  void observation;
+  return verifyD1TrustedCollectedCatalogParity(repoRoot, trusted);
+}
+
+export async function collectD1CatalogObservationFromReadonlySession(
+  session: R7D1CatalogObservationQuerySession,
+  repoRoot: string,
+  phase: R7D1ExactCatalogObservationPhase = 'POST_READONLY',
+  boundPreCatalogProofDigestSha256: string | null = null,
+): Promise<
+  | { readonly ok: true; readonly trusted: R7D1TrustedCollectedCatalogObservation }
+  | { readonly ok: false; readonly holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' }
+> {
+  const disposableScope = isR7D1LocalDisposableCatalogProofScopeActive();
+  if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE && !disposableScope) {
+    return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
   }
-  if (!sortedSetEqual([...observation.tablesPresent].sort(), [...expectation.tables].sort())) {
-    return {
-      ok: false,
-      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-      driftClass: 'MISSING',
-    };
-  }
-  if (!sortedSetEqual([...observation.functionsPresent].sort(), [...expectation.functions].sort())) {
-    return {
-      ok: false,
-      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-      driftClass: 'MISSING',
-    };
-  }
-  if (!sortedSetEqual([...observation.triggersPresent].sort(), [...expectation.triggers].sort())) {
-    return {
-      ok: false,
-      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-      driftClass: 'MISSING',
-    };
-  }
-  if (!sortedSetEqual([...observation.explicitIndexesPresent].sort(), [...expectation.explicitIndexes].sort())) {
-    return {
-      ok: false,
-      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-      driftClass: 'MISSING',
-    };
-  }
-  if (!sortedSetEqual([...observation.rlsEnabledTablesPresent].sort(), [...expectation.rlsEnabledTables].sort())) {
-    return {
-      ok: false,
-      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-      driftClass: 'MISSING',
-    };
-  }
-  for (const table of observation.tablesPresent) {
-    if (!allTablesAreD1Compliance([table])) {
-      return {
-        ok: false,
-        holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-        driftClass: 'EXTRA',
-      };
+  const sessionIdentity = session as object;
+  try {
+    let observationProvenanceTier: R7D1CatalogObservationProvenanceTier;
+    if (disposableScope) {
+      observationProvenanceTier = 'local_code_only_mock';
+    } else if (R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION) {
+      observationProvenanceTier = 'readonly_pg_verified';
+    } else {
+      return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
     }
+    const trustedQueryExecutionContext = registerTrustedCatalogQueryExecutionContextFromOwnedReadonlyCollector(
+      sessionIdentity,
+      deriveExactCatalogObservationQueryPlanDigestSha256(),
+      observationProvenanceTier,
+    );
+    if (!trustedQueryExecutionContext) {
+      return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+    }
+    const resultsByKey: Partial<Record<R7D1CatalogObservationQueryKey, readonly Record<string, unknown>[]>> = {};
+    try {
+      for (const entry of R7_D1_PG_CATALOG_OBSERVATION_QUERIES) {
+        const result = await session.query(entry.sql);
+        resultsByKey[entry.key] = result.rows;
+      }
+    } catch {
+      return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+    }
+    const built = buildTrustedCollectedCatalogObservationFromQueryResults(repoRoot, resultsByKey, {
+      trustedQueryExecutionContext,
+      phase,
+      boundPreCatalogProofDigestSha256,
+    });
+    if (!built.ok) {
+      return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+    }
+    return { ok: true, trusted: built.trusted };
+  } catch {
+    return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
   }
-  return {
-    ok: false,
-    holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
-    driftClass: 'SHAPE',
-  };
 }
 
 export function verifyD1PriorCatalogObservation(
@@ -403,12 +867,11 @@ export function assertStepIsD1(stepId: R7DeltaStepId): void {
   }
 }
 
-/** Never returns public VERIFIED — runtime semantics remain unverified without a live PG fixture. */
 export function mapTrustedD1ResultToBridgeCatalogState(
   result: R7D1TrustedCatalogVerificationResult,
-): 'PENDING_FRESH_READONLY_CATALOG' | null {
+): 'VERIFIED' | 'PENDING_FRESH_READONLY_CATALOG' | null {
   if (!result.ok) {
     return null;
   }
-  return 'PENDING_FRESH_READONLY_CATALOG';
+  return result.catalogState;
 }

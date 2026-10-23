@@ -7,8 +7,48 @@ import { R7_PR249_FROZEN_BRANCH, R7_PR249_FROZEN_REPO_ROOT } from './r7D1D5Offli
 export const R7_D1_LIVE_IMPLEMENTATION_CANDIDATE_BUNDLE_ID =
   'M55_R7_D1_LIVE_PG_AND_CATALOG_IMPLEMENTATION_CANDIDATE_V1' as const;
 
-/** Committed feature HEAD on PR #249 — base only; does not include uncommitted six-file candidate bytes. */
+/** Registry WT-058 parent commit — historical anchor only; not required for workspace digest observation. */
 export const R7_D1_FEATURE_BASE_COMMIT_SHA = '74d084ab11eae11fb5432d067f39bd818761ec45' as const;
+
+/** Commit where an independent reviewer recorded the published six-file digest manifest (metadata only). */
+export const R7_D1_INDEPENDENTLY_REVIEWED_SOURCE_COMMIT_SHA =
+  '206ee0d7750c17cc36a797a96fb7eb73efccb8e4' as const;
+
+/** Reviewer-published six-file SHA-256 table at `R7_D1_INDEPENDENTLY_REVIEWED_SOURCE_COMMIT_SHA` — not self-referential workspace proof. */
+export const R7_D1_INDEPENDENTLY_REVIEWED_SIX_FILE_DIGESTS: Readonly<Record<string, string>> = {
+  'lib/m55/previewRemoteApply/r7D1D5LiveBridge.ts':
+    '4727922a681919d53112f3769b1c12d26f505cc594c980562c66a2cda0cea724',
+  'lib/m55/previewRemoteApply/r7D1D5LiveBridge.local.test.ts':
+    'c6a3417b64e0f705e8c39890af9ac978127ae4c03e44496f2d836b2bb24f3b75',
+  'lib/m55/previewRemoteApply/r7D1RealPgAdapter.ts':
+    '82d2bf3d60b9cc06b1f03805166e36948db1dbd7d8577a0b7d88f72eef543e40',
+  'lib/m55/previewRemoteApply/r7D1TrustedCatalogVerifier.ts':
+    '92dde0571c148ca207bb52e0628ab5130e923eb39f54e1300869e5f27fe14b6e',
+  'lib/m55/previewRemoteApply/r7D1LiveCandidateBinding.ts':
+    'a7406e6d9c4f5001079ff6337e7bc5a260c7decc635be2ea4ea90e46c046c7fa',
+  'lib/m55/previewRemoteApply/r7D1LivePgAndCatalog.local.test.ts':
+    'f151f652911ff9815f8214171ec8d911a9d583b888840e1bd770b370d5cdeeaf',
+};
+
+export const R7_D1_INDEPENDENTLY_REVIEWED_MANIFEST_IDENTITY_SHA256 =
+  '4bdf49171dfe2f833abebebfe92cb2e10eb912b08b6d725af8c39bf1c6759402' as const;
+
+/** Post-patch workspace digest is not frozen — independent review must publish a new manifest (EXR-05). */
+export const R7_D1_POST_PATCH_CANDIDATE_DIGEST_NOT_EXTERNALLY_FROZEN = true as const;
+
+/** Human-published external review attestation digest — format-only caller values are UNVERIFIED until set. */
+export const R7_D1_PUBLISHED_EXTERNAL_INDEPENDENT_REVIEW_ATTESTATION_SHA256: string | null = null;
+
+/** Historical 206ee0d7 reviewer snapshot — lacks live execution attestation; alignment-only reference. */
+export function buildHistoricalExternalReviewManifestSnapshot206ee0d7(): R7D1LiveImplementationCandidateBinding {
+  return {
+    bundleId: R7_D1_LIVE_IMPLEMENTATION_CANDIDATE_BUNDLE_ID,
+    declaredCandidateIdentitySha256: R7_D1_INDEPENDENTLY_REVIEWED_MANIFEST_IDENTITY_SHA256,
+    repositoryRoot: R7_PR249_FROZEN_REPO_ROOT,
+    branch: R7_PR249_FROZEN_BRANCH,
+    fileSha256ByRelativePath: R7_D1_INDEPENDENTLY_REVIEWED_SIX_FILE_DIGESTS,
+  };
+}
 
 export const R7_D1_LIVE_IMPLEMENTATION_SIX_FILE_DIGEST_PATHS: readonly string[] = [
   'lib/m55/previewRemoteApply/r7D1D5LiveBridge.ts',
@@ -26,6 +66,8 @@ export type R7D1LiveImplementationCandidateBinding = {
   readonly repositoryRoot: typeof R7_PR249_FROZEN_REPO_ROOT;
   readonly branch: typeof R7_PR249_FROZEN_BRANCH;
   readonly fileSha256ByRelativePath: Readonly<Record<string, string>>;
+  /** Externally issued attestation digest — never derived from workspace bytes alone (EXR-05). */
+  readonly externalIndependentReviewAttestationSha256?: string;
 };
 
 export type R7D1LiveImplementationBindingHoldCode =
@@ -157,6 +199,16 @@ export function diffWorkspaceObservationAgainstIndependentlyReviewedManifest(
   if (!manifestKeysetExact(independentlyReviewedManifest.fileSha256ByRelativePath)) {
     return { ok: false, holdReasonCode: 'HOLD_CANDIDATE_MANIFEST_MISMATCH' };
   }
+  const attestation = independentlyReviewedManifest.externalIndependentReviewAttestationSha256;
+  if (!attestation || !sha256FormatValid(attestation)) {
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORIZATION_GATE' };
+  }
+  if (R7_D1_PUBLISHED_EXTERNAL_INDEPENDENT_REVIEW_ATTESTATION_SHA256 === null) {
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORIZATION_GATE' };
+  }
+  if (attestation !== R7_D1_PUBLISHED_EXTERNAL_INDEPENDENT_REVIEW_ATTESTATION_SHA256) {
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORIZATION_GATE' };
+  }
   for (const relativePath of R7_D1_LIVE_IMPLEMENTATION_SIX_FILE_DIGEST_PATHS) {
     const manifestDigest = independentlyReviewedManifest.fileSha256ByRelativePath[relativePath];
     const observedDigest = observation.fileSha256ByRelativePath[relativePath];
@@ -174,16 +226,16 @@ export function diffWorkspaceObservationAgainstIndependentlyReviewedManifest(
 export function validateR7D1LiveImplementationCandidateBinding(
   repoRoot: string,
   branch: string,
-  featureBaseCommitSha: string,
+  observedAtCommitSha: string,
   independentlyReviewedManifest: R7D1LiveImplementationCandidateBinding | null,
 ): { readonly ok: false; readonly holdReasonCode: R7D1LiveImplementationBindingHoldCode } {
   if (repoRoot !== R7_PR249_FROZEN_REPO_ROOT || branch !== R7_PR249_FROZEN_BRANCH) {
     return { ok: false, holdReasonCode: 'HOLD_REPO_IDENTITY_MISMATCH' };
   }
-  if (featureBaseCommitSha !== R7_D1_FEATURE_BASE_COMMIT_SHA) {
+  if (!gitCommitShaFormatValid(observedAtCommitSha)) {
     return { ok: false, holdReasonCode: 'HOLD_AUTHORIZATION_GATE' };
   }
-  const observed = observeR7D1LiveImplementationWorkspaceSixFileDigests(repoRoot, featureBaseCommitSha);
+  const observed = observeR7D1LiveImplementationWorkspaceSixFileDigests(repoRoot, observedAtCommitSha);
   if (!observed.ok) {
     return observed;
   }
@@ -194,7 +246,7 @@ export function validateR7D1LiveImplementationCandidateBinding(
   if (!diff.ok) {
     return diff;
   }
-  return { ok: false, holdReasonCode: 'HOLD_AUTHORIZATION_GATE' };
+  return { ok: false, holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED' };
 }
 
 export function assertR7D1LiveExecutionHumanAuthorizationPresent(

@@ -6,6 +6,7 @@ import {
   createExecutionPgTransport,
   type ExecutionPgClient,
   type ExecutionPgClientConfig,
+  type ExecutionPgPhysicalEvidenceV1,
   type ExecutionPgQueryResult,
   type ExecutionPgTransport,
   type ExecutionPgTransportFactoryDeps,
@@ -48,6 +49,7 @@ export type R7RealPgAdapterHoldCode =
 export type R7SessionUnderlyingTransportRelation = 'known_same' | 'known_not_same' | 'unknown';
 
 const sessionToUnderlyingTransport = new WeakMap<object, string>();
+const sessionToExecutionPgClient = new WeakMap<object, ExecutionPgClient>();
 
 let harnessSessionInstanceCounter = 0;
 
@@ -62,7 +64,7 @@ export function isR7LiveBridgeHarnessSessionInstance(session: object): boolean {
   return typeof transportId === 'string' && transportId.startsWith('r7-harness-instance-');
 }
 
-export function registerR7LiveBridgeWrappedPgClientSession(session: object, client: object): void {
+function registerR7LiveBridgeWrappedPgClientSession(session: object, client: object): void {
   sessionToUnderlyingTransport.set(session, `r7-wrapped-pg-${String(client)}`);
 }
 
@@ -231,12 +233,48 @@ export function compareR7LiveBridgeSessionUnderlyingTransport(
   a: R7LiveBridgePgSessionShape,
   b: R7LiveBridgePgSessionShape,
 ): R7SessionUnderlyingTransportRelation {
+  if (R7_D1_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED_IN_LOCAL_CODE_GATE) {
+    const harnessA = isR7LiveBridgeHarnessSessionInstance(a as object);
+    const harnessB = isR7LiveBridgeHarnessSessionInstance(b as object);
+    if (!harnessA || !harnessB) {
+      return 'unknown';
+    }
+  }
   const underlyingA = sessionToUnderlyingTransport.get(a as object);
   const underlyingB = sessionToUnderlyingTransport.get(b as object);
   if (underlyingA === undefined || underlyingB === undefined) {
     return 'unknown';
   }
   if (underlyingA === underlyingB) {
+    return 'known_same';
+  }
+  return 'known_not_same';
+}
+
+export function readR7LiveBridgeSessionPhysicalEvidence(
+  session: R7LiveBridgePgSessionShape,
+): ExecutionPgPhysicalEvidenceV1 {
+  const client = sessionToExecutionPgClient.get(session as object);
+  if (!client) {
+    return { kind: 'UNAVAILABLE_CODE_ONLY_GATE' };
+  }
+  return client.getExecutionPgPhysicalEvidenceV1();
+}
+
+/** Affirmative physical proof requires trusted transport evidence — not available in code-only gate. */
+export function compareR7LiveBridgePhysicalBackendProof(
+  a: R7LiveBridgePgSessionShape,
+  b: R7LiveBridgePgSessionShape,
+): R7SessionUnderlyingTransportRelation {
+  if (R7_D1_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED_IN_LOCAL_CODE_GATE) {
+    return 'unknown';
+  }
+  const evidenceA = readR7LiveBridgeSessionPhysicalEvidence(a);
+  const evidenceB = readR7LiveBridgeSessionPhysicalEvidence(b);
+  if (evidenceA.kind !== 'TRUSTED_BACKEND_LOCATOR' || evidenceB.kind !== 'TRUSTED_BACKEND_LOCATOR') {
+    return 'unknown';
+  }
+  if (evidenceA.locatorSha256 === evidenceB.locatorSha256) {
     return 'known_same';
   }
   return 'known_not_same';
@@ -280,6 +318,7 @@ export function wrapExecutionPgClientAsR7LiveBridgeSession(
     },
   };
   registerR7LiveBridgeWrappedPgClientSession(session as object, client as object);
+  sessionToExecutionPgClient.set(session as object, client);
   return session;
 }
 
@@ -302,14 +341,31 @@ export function assertR7D1RealPgNetworkAccessAllowed():
 }
 
 export function createR7LiveBridgeSessionFactoryFromPgTransport(
-  _transport: ExecutionPgTransport,
-  _config: ExecutionPgClientConfig,
-): { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode } {
+  transport: ExecutionPgTransport,
+  config: ExecutionPgClientConfig,
+):
+  | { readonly ok: true; readonly createSession: () => R7LiveBridgePgSessionShape }
+  | { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode } {
   const network = assertR7D1RealPgNetworkAccessAllowed();
   if (!network.ok) {
     return network;
   }
-  return { ok: false, holdReasonCode: 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN' };
+  return {
+    ok: true,
+    createSession: () => {
+      const client = transport.createClient(config);
+      return wrapExecutionPgClientAsR7LiveBridgeSession(client);
+    },
+  };
+}
+
+export function assertR7D1PhysicalBackendDistinctnessAvailable():
+  | { readonly ok: true }
+  | { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode } {
+  if (R7_D1_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED_IN_LOCAL_CODE_GATE) {
+    return { ok: false, holdReasonCode: 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED' };
+  }
+  return { ok: true };
 }
 
 export async function establishFreshReadOnlyPgSession(

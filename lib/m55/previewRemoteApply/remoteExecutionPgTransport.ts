@@ -36,6 +36,14 @@ export type ExecutionPgQueryResult = {
   readonly rowCount: number | null;
 };
 
+export type ExecutionPgPhysicalEvidenceV1 =
+  | { readonly kind: 'UNAVAILABLE_CODE_ONLY_GATE' }
+  | {
+      readonly kind: 'TRUSTED_BACKEND_LOCATOR';
+      readonly locatorSha256: string;
+      readonly transportProfile: typeof EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.PG_REAL_SESSION_POOLER_TLS_PINNED_V1;
+    };
+
 export type ExecutionPgClient = {
   connect(): Promise<void>;
   query(sql: string, values?: readonly unknown[]): Promise<ExecutionPgQueryResult>;
@@ -45,6 +53,7 @@ export type ExecutionPgClient = {
   close(): Promise<void>;
   getConnectionState(): ExecutionConnectionState;
   markUnusable(): void;
+  getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1;
 };
 
 export type ExecutionPgTransport = {
@@ -241,6 +250,10 @@ class LazyExecutionPgClient implements ExecutionPgClient {
     return this.state;
   }
 
+  getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
+    return this.inner.getExecutionPgPhysicalEvidenceV1();
+  }
+
   markUnusable(): void {
     this.state = 'unusable';
     this.connected = false;
@@ -374,6 +387,10 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
     return this.state;
   }
 
+  getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
+    return { kind: 'UNAVAILABLE_CODE_ONLY_GATE' };
+  }
+
   markUnusable(): void {
     this.state = 'unusable';
     this.connected = false;
@@ -497,6 +514,10 @@ export class FakeExecutionPgClient implements ExecutionPgClient {
 
   getConnectionState(): ExecutionConnectionState {
     return this.state;
+  }
+
+  getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
+    return { kind: 'UNAVAILABLE_CODE_ONLY_GATE' };
   }
 
   markUnusable(): void {

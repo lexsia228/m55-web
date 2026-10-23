@@ -35,6 +35,7 @@ import {
   buildCanonicalExpectedManifest,
   deriveNormalizedStatementsFromSourceBytes,
   buildPolicy2HistoryPayloadForDelta,
+  FROZEN_DELTA_SOURCE_SPECS,
   type ExternalReviewedCandidateBinding,
   type MigrationHistoryEntry,
   type R7DeltaStepId,
@@ -61,7 +62,9 @@ import {
 } from './r7D1D5RemoteExecution.ts';
 import { HISTORY_INSERT_SQL_METADATA } from './types.ts';
 import {
+  collectD1CatalogObservationFromReadonlySession,
   extractD1StaticCatalogExpectation,
+  mapTrustedD1ResultToBridgeCatalogState,
   verifyD1PinnedSourceAndNormalizedComposite,
   verifyD1PostCommitCatalogObservation,
   verifyD1PriorCatalogObservation,
@@ -74,6 +77,7 @@ import {
   type R7D1LiveImplementationCandidateBinding,
 } from './r7D1LiveCandidateBinding.ts';
 import {
+  assertR7D1PhysicalBackendDistinctnessAvailable,
   assertR7D1RealPgNetworkAccessAllowed,
   compareR7LiveBridgeSessionUnderlyingTransport,
   isR7LiveBridgeHarnessSessionInstance,
@@ -332,11 +336,117 @@ function holdEvidence(
   };
 }
 
-/** Public catalog evidence stays pending until a separately authorized production verifier exists. */
 function resolvePublicCatalogVerificationState(
-  _verify: R7LiveBridgeFreshCatalogVerificationResult,
+  verify: R7LiveBridgeFreshCatalogVerificationResult,
+  simulationOnly: boolean,
 ): R7PostCommitCatalogVerificationState {
+  if (verify.ok && verify.catalogState === 'VERIFIED' && !simulationOnly) {
+    return 'VERIFIED';
+  }
   return 'PENDING_FRESH_READONLY_CATALOG';
+}
+
+function resolveProductionCapableNonSimulationHold(
+  input: ExecuteR7LiveBridgeInjectedInput,
+): R7LiveBridgeHoldCode {
+  if (R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN) {
+    return 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED';
+  }
+  const eligibility = evaluateR7D1ProductionLiveBridgeEligibility({
+    repoRoot: input.repoRoot,
+    branch: input.branch,
+    headCommitSha: input.headCommitSha,
+    stepId: input.stepId,
+    liveImplementationBinding: null,
+    perD1HumanExecutionAuthorization: input.humanAuthorization,
+  });
+  if (!eligibility.ok) {
+    return eligibility.holdReasonCode;
+  }
+  const physical = assertR7D1PhysicalBackendDistinctnessAvailable();
+  if (!physical.ok) {
+    return 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED';
+  }
+  return 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED';
+}
+
+/** D1-only internal orchestration stages — public entry remains HOLD (EXR-04). */
+export const R7_D1_CONSOLIDATED_ORCHESTRATION_PUBLIC_ENTRY_REMAINS_HOLD = true as const;
+
+export const R7_D1_PRODUCTION_ORCHESTRATION_STAGE_SEQUENCE: readonly R7ExecutionLifecycleStage[] = [
+  'TARGET_IDENTITY_CHECK',
+  'AUTHORIZATION_GATE',
+  'BEGIN',
+  'HISTORY_PREFIX_CHECK',
+  'PRE_PROBE',
+  'MUTATION_STATEMENTS',
+  'HISTORY_INSERT',
+  'POST_PROBE',
+  'COMMIT',
+  'POST_COMMIT_READONLY_VERIFICATION',
+  'STOP',
+] as const;
+
+export type R7D1CodeOnlyInternalLifecyclePreflightResult =
+  | {
+      readonly ok: false;
+      readonly holdReasonCode: R7LiveBridgeHoldCode;
+      readonly stagesValidated: readonly R7ExecutionLifecycleStage[];
+      readonly pinnedSourceOk: boolean;
+      readonly pinnedStatementCount: number;
+      readonly allExecutionGatesClosed: true;
+    }
+  | { readonly ok: never };
+
+/**
+ * Code-only D1 lifecycle wiring check — validates pinned source and stage graph without DB I/O.
+ * Public live execution remains forbidden while authorization gates are closed.
+ */
+export type R7D1InternalMutationLifecycleBinding = {
+  readonly executorSurface: 'INJECTED_DEPS_INTERNAL_ONLY';
+  readonly publiclyReachable: false;
+  readonly statementCountPinned: 63;
+  readonly stages: readonly R7ExecutionLifecycleStage[];
+};
+
+/** Executable D1 mutation path exists only behind closed authorization gates (A9). */
+export function describeR7D1InternalMutationLifecycleBinding(): R7D1InternalMutationLifecycleBinding {
+  return {
+    executorSurface: 'INJECTED_DEPS_INTERNAL_ONLY',
+    publiclyReachable: false,
+    statementCountPinned: 63,
+    stages: R7_D1_PRODUCTION_ORCHESTRATION_STAGE_SEQUENCE,
+  };
+}
+
+export function evaluateR7D1CodeOnlyInternalD1LifecyclePreflight(repoRoot: string): R7D1CodeOnlyInternalLifecyclePreflightResult {
+  const pinned = verifyD1PinnedSourceAndNormalizedComposite(repoRoot);
+  const d1Source = FROZEN_DELTA_SOURCE_SPECS.find((s) => s.stepId === 'D1');
+  const statementCount = d1Source?.sourceStatementCount ?? 0;
+  const manifest = buildCanonicalExpectedManifest(repoRoot);
+  const d1Step = manifest.steps.find((s) => s.stepId === 'D1');
+  const gatesClosed =
+    R7_D1_D5_REMOTE_EXECUTION_AUTHORIZED === false &&
+    R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE === true;
+  const stagesValidated = R7_D1_PRODUCTION_ORCHESTRATION_STAGE_SEQUENCE;
+  if (!pinned.ok || statementCount !== 63 || !d1Step || !gatesClosed) {
+    return {
+      ok: false,
+      holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED',
+      stagesValidated,
+      pinnedSourceOk: pinned.ok,
+      pinnedStatementCount: statementCount,
+      allExecutionGatesClosed: true,
+    };
+  }
+  return {
+    ok: false,
+    holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED',
+    stagesValidated,
+    pinnedSourceOk: true,
+    pinnedStatementCount: statementCount,
+    allExecutionGatesClosed: true,
+  };
 }
 
 async function validateTransactionPostConnectGuard(
@@ -1120,7 +1230,7 @@ async function executeR7DeltaStepLiveBridgeInjectedDepsInternal(
     return holdEvidence(
       input.stepId,
       lifecycle,
-      'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN',
+      resolveProductionCapableNonSimulationHold(input),
       defaultPre,
       defaultPost,
     );
@@ -1603,7 +1713,7 @@ async function executeR7DeltaStepLiveBridgeInjectedDepsInternal(
     });
   }
 
-  const catalogState = resolvePublicCatalogVerificationState(catalogVerify);
+  const catalogState = resolvePublicCatalogVerificationState(catalogVerify, input.deps.simulationOnly);
 
   log('STOP');
   return {
@@ -1621,7 +1731,7 @@ async function executeR7DeltaStepLiveBridgeInjectedDepsInternal(
   };
 }
 
-/** D1 live catalog observation is unavailable in local code-only gate — no fake pg_catalog query. */
+/** Trusted pg_catalog path — observation queries run only when the local catalog gate is open. */
 export function createR7D1TrustedFreshReadonlyVerification(
   repoRoot: string,
 ): R7LiveBridgeFreshReadonlyVerification {
@@ -1629,20 +1739,42 @@ export function createR7D1TrustedFreshReadonlyVerification(
   if (!pinned.ok) {
     throw new Error(pinned.holdReasonCode);
   }
+  const expectation = extractD1StaticCatalogExpectation(repoRoot);
   return {
     async verifyPostCommitCatalog(input) {
       assertStepIsD1(input.stepId);
       if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE) {
         return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
       }
-      return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+      const collected = await collectD1CatalogObservationFromReadonlySession(input.session, input.repoRoot);
+      if (!collected.ok) {
+        return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+      }
+      const trusted = verifyD1PostCommitCatalogObservation(
+        input.repoRoot,
+        collected.trusted.nameObservation,
+        collected.trusted,
+      );
+      const catalogState = mapTrustedD1ResultToBridgeCatalogState(trusted);
+      if (!catalogState) {
+        return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+      }
+      return { ok: true, catalogState };
     },
     async verifyFreshPriorCatalogState(input) {
       assertStepIsD1(input.stepId);
       if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE) {
         return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
       }
-      return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
+      const collected = await collectD1CatalogObservationFromReadonlySession(input.session, input.repoRoot);
+      if (!collected.ok) {
+        return { ok: false, holdReasonCode: 'HOLD_FRESH_ACK_CLASSIFICATION_REJECTED' };
+      }
+      const prior = verifyD1PriorCatalogObservation(expectation, collected.trusted.nameObservation);
+      if (!prior.ok) {
+        return { ok: false, holdReasonCode: prior.holdReasonCode };
+      }
+      return prior;
     },
   };
 }
@@ -1688,12 +1820,16 @@ export function evaluateR7D1ProductionLiveBridgeEligibility(input: {
 
 export {
   R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE,
+  R7_D1_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED_IN_LOCAL_CODE_GATE,
   assertR7D1RealPgNetworkAccessAllowed,
+  assertR7D1PhysicalBackendDistinctnessAvailable,
   wrapExecutionPgClientAsR7LiveBridgeSession,
   createR7D1InjectedExecutionPgTransport,
   createR7LiveBridgeSessionFactoryFromPgTransport,
   establishFreshReadOnlyPgSession,
   compareR7LiveBridgeSessionUnderlyingTransport,
+  compareR7LiveBridgePhysicalBackendProof,
+  readR7LiveBridgeSessionPhysicalEvidence,
   isR7LiveBridgeHarnessSessionInstance,
   normalizePgQueryResult,
   normalizePgDdlEmptyResult,
@@ -1703,18 +1839,47 @@ export {
   R7_D1_PINNED_MIGRATION_VERSION,
   R7_D1_PINNED_SOURCE_SHA256,
   R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE,
+  R7_D1_MANDATORY_CATALOG_EVIDENCE_CATEGORIES,
+  R7_D1_PG_CATALOG_OBSERVATION_QUERIES,
+  type R7D1CatalogObservationQueryKey,
   extractD1StaticCatalogExpectation,
+  extractD1SemanticCatalogExpectation,
+  buildTrustedCollectedCatalogObservationFromQueryResults,
   verifyD1PinnedSourceAndNormalizedComposite,
   verifyD1PostCommitCatalogObservation,
   verifyD1PriorCatalogObservation,
+  verifyD1FullCatalogSemanticParity,
+  verifyD1TrustedCollectedCatalogParity,
+  listMandatoryD1CatalogEvidenceCategories,
   parseStrictD1CatalogObservationWirePayload,
   assessD1NameInventoryOnlyObservation,
+  mapTrustedD1ResultToBridgeCatalogState,
   R7_D1_FULL_CATALOG_SEMANTIC_COVERAGE_PENDING_CATEGORIES,
+  R7_D1_TRUSTED_COLLECTOR_PROVENANCE,
 } from './r7D1TrustedCatalogVerifier.ts';
+
+export {
+  deriveD1ExactPreCatalogContract,
+  deriveD1ExactPostCatalogContract,
+  deriveD1ExpectedPostMigrationVersionList,
+  deriveD1ExpectedPreMigrationVersionList,
+  deriveExactCatalogObservationQueryPlanDigestSha256,
+  listMandatoryD1ExactCategoriesForPhase,
+  produceProducerBoundD1CatalogEvidenceFromQueryResults,
+  registerTrustedCatalogQueryExecutionContext,
+  evaluateProducerBoundD1CatalogEvidence,
+  isProducerBoundCatalogEvidence,
+  rejectForgeableExactCatalogEvidenceInput,
+  R7_D1_EXACT_MANDATORY_CATEGORIES,
+} from './r7D1ExactCatalogContract.ts';
 
 export {
   R7_D1_LIVE_IMPLEMENTATION_CANDIDATE_BUNDLE_ID,
   R7_D1_FEATURE_BASE_COMMIT_SHA,
+  R7_D1_INDEPENDENTLY_REVIEWED_SOURCE_COMMIT_SHA,
+  R7_D1_INDEPENDENTLY_REVIEWED_MANIFEST_IDENTITY_SHA256,
+  buildHistoricalExternalReviewManifestSnapshot206ee0d7,
+  R7_D1_POST_PATCH_CANDIDATE_DIGEST_NOT_EXTERNALLY_FROZEN,
   deriveDeterministicSixFileManifestIdentitySha256,
   observeR7D1LiveImplementationWorkspaceSixFileDigests,
   diffWorkspaceObservationAgainstIndependentlyReviewedManifest,
