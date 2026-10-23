@@ -193,9 +193,9 @@ describe('routeAccessContract — exhaustive inventory', () => {
     assert.doesNotThrow(() => assertApplicationRouteInventoryClassified(ROOT));
   });
 
-  it('discovers the current application route count (R7: 84 + 8 templates)', () => {
+  it('discovers the current application route count (R7: 84 + 8 templates + main SEO)', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 92);
+    assert.equal(templates.length, 93);
     for (const template of R7_APPLICATION_ROUTE_TEMPLATES) {
       assert.equal(templates.includes(template), true, `missing R7 template ${template}`);
     }
