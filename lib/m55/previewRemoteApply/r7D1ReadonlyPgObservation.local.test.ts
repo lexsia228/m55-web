@@ -21,13 +21,12 @@ import {
 } from './r7D1ReadonlyPgObservationOrchestration.ts';
 import {
   buildTrustedCollectedCatalogObservationFromQueryResults,
-  collectD1CatalogObservationFromReadonlySession,
   R7_D1_PG_CATALOG_OBSERVATION_QUERIES,
 } from './r7D1TrustedCatalogVerifier.ts';
 import type { R7D1TrustedCollectedCatalogObservation } from './r7D1TrustedCatalogVerifier.ts';
 import {
   bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter,
-  isR7D1AdapterOwnedLiveBridgeSession,
+  isR7D1ReadonlyPgVerifiedSession,
 } from './r7D1ReadonlyPgSessionProvenance.ts';
 import {
   establishFreshReadOnlyPgSession,
@@ -133,11 +132,13 @@ describe('r7D1 readonly_pg_verified session provenance (no global flag flip)', (
     assert.equal(forged, null);
   });
 
-  it('rejects arbitrary session forged verified provenance bind', () => {
+  it('rejects forged verified bind without real pg transport client', () => {
     const digest = deriveExactCatalogObservationQueryPlanDigestSha256();
     const locator = 'a'.repeat(64);
+    const fakeClient = new FakeExecutionPgClient(TEST_PG_CONFIG);
     const bound = bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter(
       { forged: true },
+      fakeClient,
       {
         previewProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
         queryPlanDigestSha256: digest,
@@ -148,26 +149,24 @@ describe('r7D1 readonly_pg_verified session provenance (no global flag flip)', (
     assert.equal(bound.ok, false);
   });
 
-  it('allows readonly_pg_verified registration only after adapter-owned establish', async () => {
+  it('cannot establish readonly_pg_verified on fake transport even with operator channel', async () => {
     process.env[R7_D1_READONLY_PG_OBSERVATION_CHANNEL_ENV] = R7_D1_READONLY_PG_OBSERVATION_CHANNEL_V1;
-    const locator = 'c'.repeat(64);
     const aligned = buildUnitTestAlignedExactCatalogQueryResults(R7_PR249_FROZEN_REPO_ROOT, 'PRE_READONLY');
     const client = new FakeExecutionPgClient(TEST_PG_CONFIG, {
-      trustedBackendLocatorSha256: locator,
       queryHandler: buildReadonlyObservationQueryHandler(aligned),
     });
     const session = wrapExecutionPgClientAsR7LiveBridgeSession(client);
-    assert.equal(isR7D1AdapterOwnedLiveBridgeSession(session), true);
     const established = await establishFreshReadOnlyPgSession(session);
-    assert.equal(established.ok, true);
+    assert.equal(established.ok, false);
+    if (!established.ok) {
+      assert.equal(established.holdReasonCode, 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED');
+    }
+    assert.equal(isR7D1ReadonlyPgVerifiedSession(session), false);
     const digest = deriveExactCatalogObservationQueryPlanDigestSha256();
-    const trusted = registerTrustedCatalogQueryExecutionContextFromOwnedReadonlyCollector(
-      session,
-      digest,
-      'readonly_pg_verified',
+    assert.equal(
+      registerTrustedCatalogQueryExecutionContextFromOwnedReadonlyCollector(session, digest, 'readonly_pg_verified'),
+      null,
     );
-    assert.notEqual(trusted, null);
-    assert.equal(trusted?.observationProvenanceTier, 'readonly_pg_verified');
   });
 });
 
@@ -250,38 +249,6 @@ describe('r7D1 readonly PG observation PRE finalize (negative)', () => {
     }
   });
 
-  it('succeeds only with readonly_pg_verified provenance and session-bound collector path', async () => {
-    process.env[R7_D1_READONLY_PG_OBSERVATION_CHANNEL_ENV] = R7_D1_READONLY_PG_OBSERVATION_CHANNEL_V1;
-    const locator = 'd'.repeat(64);
-    const aligned = buildUnitTestAlignedExactCatalogQueryResults(R7_PR249_FROZEN_REPO_ROOT, 'PRE_READONLY');
-    const client = new FakeExecutionPgClient(TEST_PG_CONFIG, {
-      trustedBackendLocatorSha256: locator,
-      queryHandler: buildReadonlyObservationQueryHandler(aligned),
-    });
-    const session = wrapExecutionPgClientAsR7LiveBridgeSession(client);
-    const established = await establishFreshReadOnlyPgSession(session);
-    assert.equal(established.ok, true);
-    const collected = await collectD1CatalogObservationFromReadonlySession(
-      session,
-      R7_PR249_FROZEN_REPO_ROOT,
-      'PRE_READONLY',
-      null,
-    );
-    assert.equal(collected.ok, true);
-    if (!collected.ok) {
-      return;
-    }
-    const result = finalizeR7D1ReadonlyPgObservationFromTrustedCollected(
-      R7_PR249_FROZEN_REPO_ROOT,
-      collected.trusted,
-    );
-    assert.equal(result.mode, 'R7_D1_READONLY_PG_CATALOG_OBSERVATION');
-    if (result.mode === 'R7_D1_READONLY_PG_CATALOG_OBSERVATION') {
-      assert.notEqual(result.categoryOutcomesDigestSha256, result.evidenceDigestSha256);
-      assert.equal(result.observedMigrationVersions.length, 16);
-      assert.equal(result.observationProvenanceTier, 'readonly_pg_verified');
-    }
-  });
 });
 
 describe('r7D1 readonly PG observation session teardown', () => {

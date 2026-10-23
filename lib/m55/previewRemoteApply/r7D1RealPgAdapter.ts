@@ -1,10 +1,7 @@
 import { deriveExactCatalogObservationQueryPlanDigestSha256 } from './r7D1ExactCatalogContract.ts';
 import { R7_PREVIEW_TARGET_PROJECT_REF } from './r7D1D5OfflinePlan.ts';
 import { isR7D1ReadonlyPgObservationIoPermitted } from './r7D1ReadonlyPgObservationRuntimeAuthorization.ts';
-import {
-  bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter,
-  registerR7D1AdapterOwnedLiveBridgeSession,
-} from './r7D1ReadonlyPgSessionProvenance.ts';
+import { bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter } from './r7D1ReadonlyPgSessionProvenance.ts';
 import {
   POST_CONNECT_GUARD_BINDING,
   POST_CONNECT_GUARD_SQL,
@@ -14,6 +11,7 @@ import {
 } from './remoteConnectionAuthority.ts';
 import {
   createExecutionPgTransport,
+  executionPgClientHasRealPgBackendProvenanceSource,
   type ExecutionPgClient,
   type ExecutionPgClientConfig,
   type ExecutionPgPhysicalEvidenceV1,
@@ -329,7 +327,6 @@ export function wrapExecutionPgClientAsR7LiveBridgeSession(
     },
   };
   registerR7LiveBridgeWrappedPgClientSession(session as object, client as object);
-  registerR7D1AdapterOwnedLiveBridgeSession(session as object);
   sessionToExecutionPgClient.set(session as object, client);
   return session;
 }
@@ -439,6 +436,17 @@ export async function establishFreshReadOnlyPgSession(
     }
     return { ok: false, holdReasonCode: 'HOLD_FRESH_READONLY_SESSION_NOT_ESTABLISHED' };
   }
+  const executionPgClient = sessionToExecutionPgClient.get(session as object);
+  if (
+    executionPgClient === undefined ||
+    !executionPgClientHasRealPgBackendProvenanceSource(executionPgClient)
+  ) {
+    const closeHold = await safeCloseAfterFailure(session, { transactionOpen: true });
+    if (closeHold) {
+      return { ok: false, holdReasonCode: closeHold };
+    }
+    return { ok: false, holdReasonCode: 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED' };
+  }
   const physicalEvidence = readR7LiveBridgeSessionPhysicalEvidence(session);
   if (physicalEvidence.kind !== 'TRUSTED_BACKEND_LOCATOR') {
     const closeHold = await safeCloseAfterFailure(session, { transactionOpen: true });
@@ -449,6 +457,7 @@ export async function establishFreshReadOnlyPgSession(
   }
   const provenanceBind = bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter(
     session as object,
+    executionPgClient,
     {
       previewProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
       queryPlanDigestSha256: deriveExactCatalogObservationQueryPlanDigestSha256(),

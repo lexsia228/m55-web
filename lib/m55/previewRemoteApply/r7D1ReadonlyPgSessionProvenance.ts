@@ -1,4 +1,8 @@
 import { R7_PREVIEW_TARGET_PROJECT_REF } from './r7D1D5OfflinePlan.ts';
+import {
+  executionPgClientHasRealPgBackendProvenanceSource,
+  type ExecutionPgClient,
+} from './remoteExecutionPgTransport.ts';
 
 export type R7D1ReadonlyPgVerifiedSessionBinding = {
   readonly previewProjectRef: typeof R7_PREVIEW_TARGET_PROJECT_REF;
@@ -7,33 +11,25 @@ export type R7D1ReadonlyPgVerifiedSessionBinding = {
 };
 
 const readonlyPgVerifiedSessionBindings = new WeakMap<object, R7D1ReadonlyPgVerifiedSessionBinding>();
-const adapterOwnedLiveBridgeSessions = new WeakSet<object>();
+const verifiedSessionToRealPgClient = new WeakMap<object, ExecutionPgClient>();
 
 function isHexSha256(value: string): boolean {
   return /^[0-9a-f]{64}$/.test(value);
 }
 
-/** Called only from `wrapExecutionPgClientAsR7LiveBridgeSession` in r7D1RealPgAdapter.ts. */
-export function registerR7D1AdapterOwnedLiveBridgeSession(session: object): void {
-  adapterOwnedLiveBridgeSessions.add(session);
-}
-
-export function isR7D1AdapterOwnedLiveBridgeSession(session: object): boolean {
-  return adapterOwnedLiveBridgeSessions.has(session);
-}
-
 /**
- * Session-bound provenance after PostgreSQL read-only establishment — adapter-owned sessions only.
- * Not exported for arbitrary caller registration.
+ * Session-bound provenance after PostgreSQL read-only establishment on a real `pg` transport client.
+ * Callable only from `establishFreshReadOnlyPgSession` in r7D1RealPgAdapter.ts.
  */
 export function bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter(
   session: object,
+  executionPgClient: ExecutionPgClient,
   binding: R7D1ReadonlyPgVerifiedSessionBinding,
   physicalEvidenceLocatorSha256: string,
 ):
   | { readonly ok: true }
   | { readonly ok: false; readonly holdReasonCode: 'HOLD_READONLY_PG_SESSION_PROVENANCE_BINDING_INVALID' } {
-  if (!adapterOwnedLiveBridgeSessions.has(session)) {
+  if (!executionPgClientHasRealPgBackendProvenanceSource(executionPgClient)) {
     return { ok: false, holdReasonCode: 'HOLD_READONLY_PG_SESSION_PROVENANCE_BINDING_INVALID' };
   }
   if (
@@ -45,6 +41,7 @@ export function bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapte
     return { ok: false, holdReasonCode: 'HOLD_READONLY_PG_SESSION_PROVENANCE_BINDING_INVALID' };
   }
   readonlyPgVerifiedSessionBindings.set(session, Object.freeze(binding));
+  verifiedSessionToRealPgClient.set(session, executionPgClient);
   return { ok: true };
 }
 
@@ -55,7 +52,15 @@ export function resolveR7D1ReadonlyPgVerifiedSessionBinding(
 }
 
 export function isR7D1ReadonlyPgVerifiedSession(session: object): boolean {
-  return readonlyPgVerifiedSessionBindings.has(session);
+  const binding = readonlyPgVerifiedSessionBindings.get(session);
+  if (binding === undefined) {
+    return false;
+  }
+  const client = verifiedSessionToRealPgClient.get(session);
+  if (client === undefined || !executionPgClientHasRealPgBackendProvenanceSource(client)) {
+    return false;
+  }
+  return true;
 }
 
 const trustedCollectedToReadonlySession = new WeakMap<object, object>();

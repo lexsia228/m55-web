@@ -47,6 +47,25 @@ export type ExecutionPgPhysicalEvidenceV1 =
       readonly transportProfile: typeof EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.PG_REAL_SESSION_POOLER_TLS_PINNED_V1;
     };
 
+/** Set only after successful `pg` connect + backend pid locator on RealLazyPgExecutionClient. */
+const realPgBackendProvenanceSources = new WeakSet<object>();
+
+function markRealPgBackendProvenanceSource(client: object): void {
+  realPgBackendProvenanceSources.add(client);
+}
+
+function unwrapLazyExecutionPgClient(client: ExecutionPgClient): ExecutionPgClient {
+  if (client instanceof LazyExecutionPgClient) {
+    return client.getInnerExecutionPgClient();
+  }
+  return client;
+}
+
+export function executionPgClientHasRealPgBackendProvenanceSource(client: ExecutionPgClient): boolean {
+  const resolved = unwrapLazyExecutionPgClient(client);
+  return realPgBackendProvenanceSources.has(resolved as object);
+}
+
 export type ExecutionPgClient = {
   connect(): Promise<void>;
   query(sql: string, values?: readonly unknown[]): Promise<ExecutionPgQueryResult>;
@@ -190,6 +209,10 @@ class LazyExecutionPgClient implements ExecutionPgClient {
     this.inner = inner;
   }
 
+  getInnerExecutionPgClient(): ExecutionPgClient {
+    return this.inner;
+  }
+
   async connect(): Promise<void> {
     if (this.state !== 'open') {
       throw new Error('HOLD_UNEXPECTED_INTERNAL');
@@ -324,6 +347,7 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
     this.backendLocatorSha256 = createHash('sha256')
       .update(`pg_backend_pid:${pid}|db:${database}|host:${this.connectHost}`)
       .digest('hex');
+    markRealPgBackendProvenanceSource(this);
     this.connectPassword = '';
     this.connected = true;
   }
@@ -405,6 +429,7 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
   getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
     if (
       this.backendLocatorSha256 !== null &&
+      realPgBackendProvenanceSources.has(this) &&
       isR7D1ReadonlyPgObservationIoPermitted() &&
       this.connected &&
       this.state === 'open'
@@ -456,7 +481,6 @@ export type FakeExecutionPgClientOptions = {
   readonly failClose?: boolean;
   readonly failQuery?: boolean;
   readonly transportLossOnCommit?: boolean;
-  readonly trustedBackendLocatorSha256?: string;
 };
 
 export type FakeExecutionPgClientFactory = {
@@ -550,18 +574,6 @@ export class FakeExecutionPgClient implements ExecutionPgClient {
   }
 
   getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
-    if (
-      this.options.trustedBackendLocatorSha256 !== undefined &&
-      isR7D1ReadonlyPgObservationIoPermitted() &&
-      this.connected &&
-      this.state === 'open'
-    ) {
-      return {
-        kind: 'TRUSTED_BACKEND_LOCATOR',
-        locatorSha256: this.options.trustedBackendLocatorSha256,
-        transportProfile: EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.PG_REAL_SESSION_POOLER_TLS_PINNED_V1,
-      };
-    }
     return { kind: 'UNAVAILABLE_CODE_ONLY_GATE' };
   }
 
