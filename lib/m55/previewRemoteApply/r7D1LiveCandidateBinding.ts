@@ -2,7 +2,22 @@ import { createHash } from 'node:crypto';
 import { lstatSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-import { R7_PR249_FROZEN_BRANCH, R7_PR249_FROZEN_REPO_ROOT } from './r7D1D5OfflinePlan.ts';
+import {
+  R7_PREVIEW_TARGET_PROJECT,
+  R7_PREVIEW_TARGET_PROJECT_REF,
+  R7_PR249_FROZEN_BRANCH,
+  R7_PR249_FROZEN_REPO_ROOT,
+} from './r7D1D5OfflinePlan.ts';
+import { R7_HUMAN_EXECUTION_AUTHORIZATION_DOCUMENT_ID } from './r7D1D5ExecutionAuthorization.ts';
+import {
+  R7_D1_EXACT_CONTRACT_PINNED_SOURCE_SHA256,
+  R7_D1_EXACT_CONTRACT_PINNED_NORMALIZED_COMPOSITE_SHA256,
+  R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION,
+} from './r7D1ExactCatalogContract.ts';
+import {
+  R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE,
+  verifyD1PinnedSourceAndNormalizedComposite,
+} from './r7D1TrustedCatalogVerifier.ts';
 
 export const R7_D1_LIVE_IMPLEMENTATION_CANDIDATE_BUNDLE_ID =
   'M55_R7_D1_LIVE_PG_AND_CATALOG_IMPLEMENTATION_CANDIDATE_V1' as const;
@@ -253,4 +268,143 @@ export function assertR7D1LiveExecutionHumanAuthorizationPresent(
   _document: unknown,
 ): { readonly ok: false; readonly holdReasonCode: R7D1LiveImplementationBindingHoldCode } {
   return { ok: false, holdReasonCode: 'HOLD_LIVE_EXECUTION_NOT_AUTHORIZED' };
+}
+
+/** Human GO for Preview apply / live PG connect is separate — never implied by prep observation. */
+export const R7_D1_PREVIEW_D1_APPLY_NOT_AUTHORIZED_IN_CODE_ONLY_PREP = true as const;
+
+export type R7D1PreviewExecutionPrepHoldCode = 'HOLD_PREVIEW_EXECUTION_NOT_AUTHORIZED';
+
+export type R7D1CandidateDigestDeltaRow = {
+  readonly relativePath: string;
+  readonly observedSha256: string;
+  readonly historicalReviewSha256: string | null;
+  readonly matchesHistoricalReview: boolean;
+};
+
+/** Local workspace observation — not third-party review attestation. */
+export type R7D1CurrentCandidateLocalObservation = {
+  readonly label: 'LOCAL_WORKSPACE_OBSERVATION_PENDING_INDEPENDENT_REVIEW';
+  readonly repositoryRoot: typeof R7_PR249_FROZEN_REPO_ROOT;
+  readonly branch: typeof R7_PR249_FROZEN_BRANCH;
+  readonly observedAtCommitSha: string;
+  readonly fileSha256ByRelativePath: Readonly<Record<string, string>>;
+  readonly manifestIdentitySha256: string | null;
+  readonly digestDeltasAgainstHistoricalReview206ee0d7: readonly R7D1CandidateDigestDeltaRow[];
+  readonly allPathsMatchHistoricalReview206ee0d7: boolean;
+  readonly historicalReviewAnchorCommitSha: typeof R7_D1_INDEPENDENTLY_REVIEWED_SOURCE_COMMIT_SHA;
+};
+
+export type R7D1PreviewExecutionCodeOnlyPrepResult = {
+  readonly prepObservationComplete: true;
+  readonly previewD1ApplyAuthorized: false;
+  readonly holdReasonCode: R7D1PreviewExecutionPrepHoldCode;
+  readonly candidateLocalObservation: R7D1CurrentCandidateLocalObservation;
+  readonly pinnedMigrationSourceSha256: typeof R7_D1_EXACT_CONTRACT_PINNED_SOURCE_SHA256;
+  readonly pinnedNormalizedStatementStreamSha256: typeof R7_D1_EXACT_CONTRACT_PINNED_NORMALIZED_COMPOSITE_SHA256;
+  readonly pinnedD1SourceIntegrityOk: boolean;
+  readonly previewTargetProject: typeof R7_PREVIEW_TARGET_PROJECT;
+  readonly previewTargetProjectRef: typeof R7_PREVIEW_TARGET_PROJECT_REF;
+  readonly executionGatesClosed: true;
+  readonly realPgProvenanceEstablished: false;
+  readonly postPatchCandidateDigestNotExternallyFrozen: true;
+  readonly externalIndependentReviewAttestationSha256: null;
+  readonly humanExecutionAuthorizationDocumentId: typeof R7_HUMAN_EXECUTION_AUTHORIZATION_DOCUMENT_ID;
+  readonly humanExecutionAuthorizationIssuedByThisPrep: false;
+};
+
+export function summarizeCandidateDigestDeltasAgainstHistoricalReview(
+  observation: R7D1WorkspaceSixFileDigestObservation,
+): readonly R7D1CandidateDigestDeltaRow[] {
+  return R7_D1_LIVE_IMPLEMENTATION_SIX_FILE_DIGEST_PATHS.map((relativePath) => {
+    const observedSha256 = observation.fileSha256ByRelativePath[relativePath] ?? '';
+    const historicalReviewSha256 = R7_D1_INDEPENDENTLY_REVIEWED_SIX_FILE_DIGESTS[relativePath] ?? null;
+    const matchesHistoricalReview =
+      historicalReviewSha256 !== null && observedSha256 === historicalReviewSha256;
+    return {
+      relativePath,
+      observedSha256,
+      historicalReviewSha256,
+      matchesHistoricalReview,
+    };
+  });
+}
+
+export function buildR7D1CurrentWorkspaceCandidateLocalObservation(
+  repoRoot: string,
+  observedAtCommitSha: string,
+):
+  | { readonly ok: true; readonly observation: R7D1CurrentCandidateLocalObservation }
+  | { readonly ok: false; readonly holdReasonCode: R7D1LiveImplementationBindingHoldCode } {
+  const observed = observeR7D1LiveImplementationWorkspaceSixFileDigests(repoRoot, observedAtCommitSha);
+  if (!observed.ok) {
+    return observed;
+  }
+  const digestDeltas = summarizeCandidateDigestDeltasAgainstHistoricalReview(observed.observation);
+  const allPathsMatchHistoricalReview206ee0d7 = digestDeltas.every((row) => row.matchesHistoricalReview);
+  return {
+    ok: true,
+    observation: {
+      label: 'LOCAL_WORKSPACE_OBSERVATION_PENDING_INDEPENDENT_REVIEW',
+      repositoryRoot: R7_PR249_FROZEN_REPO_ROOT,
+      branch: R7_PR249_FROZEN_BRANCH,
+      observedAtCommitSha,
+      fileSha256ByRelativePath: observed.observation.fileSha256ByRelativePath,
+      manifestIdentitySha256: deriveDeterministicSixFileManifestIdentitySha256(
+        observed.observation.fileSha256ByRelativePath,
+      ),
+      digestDeltasAgainstHistoricalReview206ee0d7: digestDeltas,
+      allPathsMatchHistoricalReview206ee0d7,
+      historicalReviewAnchorCommitSha: R7_D1_INDEPENDENTLY_REVIEWED_SOURCE_COMMIT_SHA,
+    },
+  };
+}
+
+/**
+ * CODE-ONLY Preview execution preparation — observes candidate bytes and D1 pin integrity only.
+ * Does not connect to Preview DB, issue Human execution authorization, or enable live gates.
+ */
+export function evaluateR7D1PreviewExecutionCodeOnlyPrep(
+  repoRoot: string,
+  observedAtCommitSha: string,
+  gateObservation: {
+    readonly remoteExecutionAuthorized: boolean;
+    readonly cliLiveTransportForbidden: boolean;
+    readonly localCodeOnlyPublicExecutorForbidden: boolean;
+  },
+): R7D1PreviewExecutionCodeOnlyPrepResult | { readonly ok: false; readonly holdReasonCode: R7D1LiveImplementationBindingHoldCode } {
+  const local = buildR7D1CurrentWorkspaceCandidateLocalObservation(repoRoot, observedAtCommitSha);
+  if (!local.ok) {
+    return local;
+  }
+  const pinned = verifyD1PinnedSourceAndNormalizedComposite(repoRoot);
+  const gatesClosed =
+    gateObservation.remoteExecutionAuthorized === false &&
+    gateObservation.cliLiveTransportForbidden === true &&
+    gateObservation.localCodeOnlyPublicExecutorForbidden === true &&
+    R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE === true &&
+    R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION === false &&
+    R7_D1_POST_PATCH_CANDIDATE_DIGEST_NOT_EXTERNALLY_FROZEN === true &&
+    R7_D1_PUBLISHED_EXTERNAL_INDEPENDENT_REVIEW_ATTESTATION_SHA256 === null &&
+    R7_D1_PREVIEW_D1_APPLY_NOT_AUTHORIZED_IN_CODE_ONLY_PREP === true;
+  if (!gatesClosed || !pinned.ok) {
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORIZATION_GATE' };
+  }
+  return {
+    prepObservationComplete: true,
+    previewD1ApplyAuthorized: false,
+    holdReasonCode: 'HOLD_PREVIEW_EXECUTION_NOT_AUTHORIZED',
+    candidateLocalObservation: local.observation,
+    pinnedMigrationSourceSha256: R7_D1_EXACT_CONTRACT_PINNED_SOURCE_SHA256,
+    pinnedNormalizedStatementStreamSha256: R7_D1_EXACT_CONTRACT_PINNED_NORMALIZED_COMPOSITE_SHA256,
+    pinnedD1SourceIntegrityOk: true,
+    previewTargetProject: R7_PREVIEW_TARGET_PROJECT,
+    previewTargetProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
+    executionGatesClosed: true,
+    realPgProvenanceEstablished: false,
+    postPatchCandidateDigestNotExternallyFrozen: true,
+    externalIndependentReviewAttestationSha256: null,
+    humanExecutionAuthorizationDocumentId: R7_HUMAN_EXECUTION_AUTHORIZATION_DOCUMENT_ID,
+    humanExecutionAuthorizationIssuedByThisPrep: false,
+  };
 }

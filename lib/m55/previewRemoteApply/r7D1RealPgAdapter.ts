@@ -1,6 +1,10 @@
+import { R7_PREVIEW_TARGET_PROJECT_REF } from './r7D1D5OfflinePlan.ts';
 import {
   POST_CONNECT_GUARD_BINDING,
   POST_CONNECT_GUARD_SQL,
+  SESSION_POOLER_HOST,
+  TLS_TRUST_PROFILE,
+  expectedConnectionUserForProjectRef,
 } from './remoteConnectionAuthority.ts';
 import {
   createExecutionPgTransport,
@@ -44,7 +48,8 @@ export type R7RealPgAdapterHoldCode =
   | 'HOLD_SESSION_CLOSE_FAILED'
   | 'HOLD_TRANSACTION_CLEANUP_UNCERTAIN'
   | 'HOLD_UNEXPECTED_INTERNAL'
-  | 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED';
+  | 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED'
+  | 'HOLD_PREVIEW_TARGET_BINDING_MISMATCH';
 
 export type R7SessionUnderlyingTransportRelation = 'known_same' | 'known_not_same' | 'unknown';
 
@@ -336,6 +341,22 @@ export function assertR7D1RealPgNetworkAccessAllowed():
   | { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode } {
   if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE) {
     return { ok: false, holdReasonCode: 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN' };
+  }
+  return { ok: true };
+}
+
+/** Structural Preview target binding — no network I/O (prep for future readonly session establishment). */
+export function validateR7D1ExecutionPgClientConfigPreviewTargetBinding(
+  config: ExecutionPgClientConfig,
+): { readonly ok: true } | { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode } {
+  const expectedUser = expectedConnectionUserForProjectRef(R7_PREVIEW_TARGET_PROJECT_REF);
+  if (
+    config.host !== SESSION_POOLER_HOST ||
+    config.user !== expectedUser ||
+    config.sslmode !== 'require' ||
+    config.tlsTrustProfile !== TLS_TRUST_PROFILE
+  ) {
+    return { ok: false, holdReasonCode: 'HOLD_PREVIEW_TARGET_BINDING_MISMATCH' };
   }
   return { ok: true };
 }

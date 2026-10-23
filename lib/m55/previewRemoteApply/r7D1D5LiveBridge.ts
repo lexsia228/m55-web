@@ -73,6 +73,7 @@ import {
 } from './r7D1TrustedCatalogVerifier.ts';
 import {
   assertR7D1LiveExecutionHumanAuthorizationPresent,
+  evaluateR7D1PreviewExecutionCodeOnlyPrep,
   validateR7D1LiveImplementationCandidateBinding,
   type R7D1LiveImplementationCandidateBinding,
 } from './r7D1LiveCandidateBinding.ts';
@@ -82,6 +83,7 @@ import {
   compareR7LiveBridgeSessionUnderlyingTransport,
   isR7LiveBridgeHarnessSessionInstance,
   registerR7LiveBridgeHarnessSessionInstance,
+  validateR7D1ExecutionPgClientConfigPreviewTargetBinding,
 } from './r7D1RealPgAdapter.ts';
 
 /** Human execution authorization for live D1–D5 apply is not issued in this gate. */
@@ -417,6 +419,17 @@ export function describeR7D1InternalMutationLifecycleBinding(): R7D1InternalMuta
     statementCountPinned: 63,
     stages: R7_D1_PRODUCTION_ORCHESTRATION_STAGE_SEQUENCE,
   };
+}
+
+export function evaluateR7D1PreviewExecutionCodeOnlyPrepForWorkspace(
+  repoRoot: string,
+  observedAtCommitSha: string,
+) {
+  return evaluateR7D1PreviewExecutionCodeOnlyPrep(repoRoot, observedAtCommitSha, {
+    remoteExecutionAuthorized: R7_D1_D5_REMOTE_EXECUTION_AUTHORIZED,
+    cliLiveTransportForbidden: R7_LIVE_BRIDGE_CLI_LIVE_TRANSPORT_FORBIDDEN,
+    localCodeOnlyPublicExecutorForbidden: R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN,
+  });
 }
 
 export function evaluateR7D1CodeOnlyInternalD1LifecyclePreflight(repoRoot: string): R7D1CodeOnlyInternalLifecyclePreflightResult {
@@ -1833,6 +1846,7 @@ export {
   isR7LiveBridgeHarnessSessionInstance,
   normalizePgQueryResult,
   normalizePgDdlEmptyResult,
+  validateR7D1ExecutionPgClientConfigPreviewTargetBinding,
 } from './r7D1RealPgAdapter.ts';
 
 export {
@@ -1884,4 +1898,7 @@ export {
   observeR7D1LiveImplementationWorkspaceSixFileDigests,
   diffWorkspaceObservationAgainstIndependentlyReviewedManifest,
   validateR7D1LiveImplementationCandidateBinding,
+  evaluateR7D1PreviewExecutionCodeOnlyPrep,
+  buildR7D1CurrentWorkspaceCandidateLocalObservation,
+  R7_D1_PREVIEW_D1_APPLY_NOT_AUTHORIZED_IN_CODE_ONLY_PREP,
 } from './r7D1LiveCandidateBinding.ts';
