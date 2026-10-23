@@ -13,15 +13,16 @@ import {
   evaluateProducerBoundD1CatalogEvidence,
   observationProvenanceTierAllowsVerifiedCatalogAttestation,
   produceProducerBoundD1CatalogEvidenceFromQueryResults,
-  R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION,
   registerTrustedCatalogQueryExecutionContextFromOwnedReadonlyCollector,
-  type R7D1CatalogObservationProvenanceTier,
   R7_D1_EXACT_CATALOG_OBSERVATION_QUERY_PLAN,
+  R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION,
+  type R7D1CatalogObservationProvenanceTier,
   type R7D1ExactCatalogObservationPhase,
   type R7D1ExactCatalogQueryKey,
   type R7D1ProducerBoundCatalogEvidence,
   type R7D1TrustedCatalogQueryExecutionContext,
 } from './r7D1ExactCatalogContract.ts';
+import { isR7D1ReadonlyPgVerifiedSession } from './r7D1ReadonlyPgSessionProvenance.ts';
 
 export const R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE = true as const;
 
@@ -460,6 +461,12 @@ export function isTrustedCollectedCatalogObservationProducedInternally(
   return trustedCollectedCatalogObservationRegistry.has(trusted);
 }
 
+export function readR7D1ProducerBoundEvidenceFromTrustedCollected(
+  trusted: R7D1TrustedCollectedCatalogObservation,
+): R7D1ProducerBoundCatalogEvidence | null {
+  return trustedCollectedToProducerEvidence.get(trusted) ?? null;
+}
+
 export function evaluateTrustedCollectedCatalogObservationEvidence(
   repoRoot: string,
   trusted: R7D1TrustedCollectedCatalogObservation,
@@ -790,14 +797,21 @@ export async function collectD1CatalogObservationFromReadonlySession(
   | { readonly ok: false; readonly holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' }
 > {
   const disposableScope = isR7D1LocalDisposableCatalogProofScopeActive();
-  if (R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE && !disposableScope) {
+  const sessionIdentity = session as object;
+  const readonlyPgVerifiedSession = isR7D1ReadonlyPgVerifiedSession(sessionIdentity);
+  if (
+    R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE &&
+    !disposableScope &&
+    !readonlyPgVerifiedSession
+  ) {
     return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
   }
-  const sessionIdentity = session as object;
   try {
     let observationProvenanceTier: R7D1CatalogObservationProvenanceTier;
     if (disposableScope) {
       observationProvenanceTier = 'local_code_only_mock';
+    } else if (readonlyPgVerifiedSession) {
+      observationProvenanceTier = 'readonly_pg_verified';
     } else if (R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION) {
       observationProvenanceTier = 'readonly_pg_verified';
     } else {

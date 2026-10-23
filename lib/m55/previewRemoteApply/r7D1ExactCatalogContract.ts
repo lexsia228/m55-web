@@ -7,6 +7,7 @@ import {
   FROZEN_DELTA_SOURCE_SPECS,
   FROZEN_PREVIEW_HISTORY_SNAPSHOT,
 } from './r7D1D5OfflinePlan.ts';
+import { resolveR7D1ReadonlyPgVerifiedSessionBinding } from './r7D1ReadonlyPgSessionProvenance.ts';
 import { canonicalSerializePreviewRemoteApply } from './types.ts';
 
 export const R7_D1_EXACT_CONTRACT_PINNED_MIGRATION_VERSION = '20260924000000' as const;
@@ -403,7 +404,10 @@ export function registerTrustedCatalogQueryExecutionContextFromOwnedReadonlyColl
     return null;
   }
   if (observationProvenanceTier === 'readonly_pg_verified') {
-    if (!R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION) {
+    const binding = resolveR7D1ReadonlyPgVerifiedSessionBinding(session);
+    const sessionProvenanceOk =
+      binding !== null && binding.queryPlanDigestSha256 === queryPlanDigestSha256;
+    if (!sessionProvenanceOk && !R7_D1_REAL_PG_OBSERVATION_PROVENANCE_ESTABLISHED_FOR_TRUSTED_REGISTRATION) {
       return null;
     }
   }

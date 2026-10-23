@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto';
+
+import { isR7D1ReadonlyPgObservationIoPermitted } from './r7D1ReadonlyPgObservationRuntimeAuthorization.ts';
 import type { ExpectedAuthorizationBinding } from './remoteConnectionAuthority.ts';
 import {
   SESSION_POOLER_HOST,
@@ -266,6 +269,7 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
   private state: ExecutionConnectionState = 'open';
   private connected = false;
   private inTransaction = false;
+  private backendLocatorSha256: string | null = null;
   private pgClient: PgModuleClient | null = null;
   private readonly connectionTimeoutMillis: number;
   private readonly connectHost: string;
@@ -309,6 +313,17 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
       ssl: this.sslConfig,
     });
     await this.pgClient.connect();
+    const locatorRow = await this.pgClient.query(
+      'SELECT pg_backend_pid()::int AS backend_pid, current_database()::text AS current_database_name',
+    );
+    const pid = locatorRow.rows[0]?.backend_pid;
+    const database = locatorRow.rows[0]?.current_database_name;
+    if (typeof pid !== 'number' || !Number.isInteger(pid) || pid <= 0 || typeof database !== 'string') {
+      throw new Error('HOLD_UNEXPECTED_INTERNAL');
+    }
+    this.backendLocatorSha256 = createHash('sha256')
+      .update(`pg_backend_pid:${pid}|db:${database}|host:${this.connectHost}`)
+      .digest('hex');
     this.connectPassword = '';
     this.connected = true;
   }
@@ -388,6 +403,18 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
   }
 
   getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
+    if (
+      this.backendLocatorSha256 !== null &&
+      isR7D1ReadonlyPgObservationIoPermitted() &&
+      this.connected &&
+      this.state === 'open'
+    ) {
+      return {
+        kind: 'TRUSTED_BACKEND_LOCATOR',
+        locatorSha256: this.backendLocatorSha256,
+        transportProfile: EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.PG_REAL_SESSION_POOLER_TLS_PINNED_V1,
+      };
+    }
     return { kind: 'UNAVAILABLE_CODE_ONLY_GATE' };
   }
 
@@ -396,6 +423,7 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
     this.connected = false;
     this.inTransaction = false;
     this.pgClient = null;
+    this.backendLocatorSha256 = null;
   }
 }
 

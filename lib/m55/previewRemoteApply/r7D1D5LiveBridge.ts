@@ -86,8 +86,17 @@ import {
   validateR7D1ExecutionPgClientConfigPreviewTargetBinding,
 } from './r7D1RealPgAdapter.ts';
 
-/** Human execution authorization for live D1–D5 apply is not issued in this gate. */
-export const R7_D1_D5_REMOTE_EXECUTION_AUTHORIZED = false as const;
+import {
+  R7_D1_D5_REMOTE_EXECUTION_AUTHORIZED,
+  R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN,
+  R7_LIVE_BRIDGE_CLI_LIVE_TRANSPORT_FORBIDDEN,
+} from './r7D1LiveExecutionGateConstants.ts';
+
+export {
+  R7_D1_D5_REMOTE_EXECUTION_AUTHORIZED,
+  R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN,
+  R7_LIVE_BRIDGE_CLI_LIVE_TRANSPORT_FORBIDDEN,
+};
 
 export const R7_LIVE_BRIDGE_IMPLEMENTATION_MODE = 'LOCAL_INJECTED_PG_SESSION_ONLY' as const;
 
@@ -102,11 +111,6 @@ export const R7_LIVE_BRIDGE_LOCAL_MOCK_BOUNDARY_NOTE =
  */
 export const R7_LIVE_BRIDGE_READONLY_MOCK_HONESTY_NOTE =
   'MOCK_BEGIN_READONLY_DOES_NOT_PROVE_POSTGRES_READ_ONLY_ISOLATION_OR_DISTINCT_CONNECTION' as const;
-
-export const R7_LIVE_BRIDGE_CLI_LIVE_TRANSPORT_FORBIDDEN = true as const;
-
-/** Public exported executor must HOLD before any caller-controlled session I/O in local code-only gate. */
-export const R7_D1_LOCAL_CODE_ONLY_PUBLIC_EXECUTOR_FORBIDDEN = true as const;
 
 /**
  * Advisory xact lock coordinates cooperating D1–D5 executors only.

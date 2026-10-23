@@ -1,4 +1,7 @@
+import { deriveExactCatalogObservationQueryPlanDigestSha256 } from './r7D1ExactCatalogContract.ts';
 import { R7_PREVIEW_TARGET_PROJECT_REF } from './r7D1D5OfflinePlan.ts';
+import { isR7D1ReadonlyPgObservationIoPermitted } from './r7D1ReadonlyPgObservationRuntimeAuthorization.ts';
+import { bindR7D1ReadonlyPgVerifiedSessionProvenance } from './r7D1ReadonlyPgSessionProvenance.ts';
 import {
   POST_CONNECT_GUARD_BINDING,
   POST_CONNECT_GUARD_SQL,
@@ -74,7 +77,7 @@ function registerR7LiveBridgeWrappedPgClientSession(session: object, client: obj
 }
 
 function assertLocalCodeOnlyPgIoForbidden(): void {
-  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE) {
+  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE && !isR7D1ReadonlyPgObservationIoPermitted()) {
     throw new Error('HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN');
   }
 }
@@ -330,7 +333,7 @@ export function wrapExecutionPgClientAsR7LiveBridgeSession(
 export function createR7D1InjectedExecutionPgTransport(
   deps: ExecutionPgTransportFactoryDeps = {},
 ): ExecutionPgTransport {
-  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE) {
+  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE && !isR7D1ReadonlyPgObservationIoPermitted()) {
     throw new Error('HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN');
   }
   return createExecutionPgTransport(deps);
@@ -339,7 +342,7 @@ export function createR7D1InjectedExecutionPgTransport(
 export function assertR7D1RealPgNetworkAccessAllowed():
   | { readonly ok: true }
   | { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode } {
-  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE) {
+  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE && !isR7D1ReadonlyPgObservationIoPermitted()) {
     return { ok: false, holdReasonCode: 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN' };
   }
   return { ok: true };
@@ -392,7 +395,7 @@ export function assertR7D1PhysicalBackendDistinctnessAvailable():
 export async function establishFreshReadOnlyPgSession(
   session: R7LiveBridgePgSessionShape,
 ): Promise<{ readonly ok: true } | { readonly ok: false; readonly holdReasonCode: R7RealPgAdapterHoldCode }> {
-  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE) {
+  if (R7_D1_REAL_PG_NETWORK_FORBIDDEN_IN_LOCAL_CODE_GATE && !isR7D1ReadonlyPgObservationIoPermitted()) {
     return { ok: false, holdReasonCode: 'HOLD_LIVE_NETWORK_CONNECT_FORBIDDEN' };
   }
   let transactionOpen = false;
@@ -431,6 +434,26 @@ export async function establishFreshReadOnlyPgSession(
       return { ok: false, holdReasonCode: closeHold };
     }
     return { ok: false, holdReasonCode: 'HOLD_FRESH_READONLY_SESSION_NOT_ESTABLISHED' };
+  }
+  const physicalEvidence = readR7LiveBridgeSessionPhysicalEvidence(session);
+  if (physicalEvidence.kind !== 'TRUSTED_BACKEND_LOCATOR') {
+    const closeHold = await safeCloseAfterFailure(session, { transactionOpen: true });
+    if (closeHold) {
+      return { ok: false, holdReasonCode: closeHold };
+    }
+    return { ok: false, holdReasonCode: 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED' };
+  }
+  const provenanceBind = bindR7D1ReadonlyPgVerifiedSessionProvenance(session as object, {
+    previewProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
+    queryPlanDigestSha256: deriveExactCatalogObservationQueryPlanDigestSha256(),
+    physicalBackendLocatorSha256: physicalEvidence.locatorSha256,
+  });
+  if (!provenanceBind.ok) {
+    const closeHold = await safeCloseAfterFailure(session, { transactionOpen: true });
+    if (closeHold) {
+      return { ok: false, holdReasonCode: closeHold };
+    }
+    return { ok: false, holdReasonCode: 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED' };
   }
   return { ok: true };
 }

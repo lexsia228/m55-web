@@ -38,7 +38,7 @@ import {
 import { FakeExecutionPgClient } from './remoteExecutionPgTransport.ts';
 
 const REPO_ROOT = R7_PR249_FROZEN_REPO_ROOT;
-const HEAD_SHA = '2e4051cf6672d12b88b945247a65ff61ef5d8c76';
+const HEAD_SHA = 'a3e86bc8be5133dcd9278bd2f7112972663bb9a8';
 
 describe('r7D1 Preview execution prep (code-only)', () => {
   it('observes current six-file digests as local-only — not historical review manifest', () => {
