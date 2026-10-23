@@ -93,6 +93,11 @@ export default function SelfUnderstandingPage() {
           <p className={`${styles.copy} m55-exp-body`}>
             少し戻れたときに、距離、時間、順番、場所、会話、休みの取り方のどれが違っていたかを見ます。ここで書くのは、自分で試せる振り返りの手がかりです。
           </p>
+          <p className={`${styles.copy} m55-exp-body`}>
+            <Link href="/self-understanding/people-fatigue" className={styles.link}>
+              人といると疲れるときの整理方法
+            </Link>
+          </p>
         </section>
 
         <section className="m55-exp-section" aria-labelledby="self-understanding-exercise">

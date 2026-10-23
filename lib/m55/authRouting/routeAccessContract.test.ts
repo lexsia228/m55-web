@@ -104,6 +104,7 @@ const PUBLIC_PAGE_SAMPLES = [
   '/how-m55-works',
   '/ten-views',
   '/self-understanding',
+  '/self-understanding/people-fatigue',
   '/creator',
   '/creator/apply',
   '/creator/portal',
@@ -491,6 +492,18 @@ describe('routeAccessContract — unknown documents and APIs', () => {
       cleanCaptureBypass: false,
     });
     assert.equal(outcome.action, 'unknown_document_rewrite');
+  });
+
+  it('does not rewrite nested self-understanding public pages matched by middleware', () => {
+    const outcome = resolveAuthRoutingOutcome({
+      pathname: '/self-understanding/people-fatigue',
+      isPublicRoute: true,
+      nonProdReplyBypass: false,
+      cleanCaptureBypass: false,
+    });
+    assert.notEqual(outcome.action, 'unknown_document_rewrite');
+    assert.equal(outcome.action, 'continue');
+    assert.equal(outcome.accessClass, 'public');
   });
 
   it('returns plain unknown API 404 without HTML or redirect', async () => {

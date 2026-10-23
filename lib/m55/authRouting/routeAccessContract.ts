@@ -27,7 +27,6 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   '/my',
   '/how-m55-works',
   '/ten-views',
-  '/self-understanding',
   '/creator',
   '/creator/apply',
   '/creator/portal',
@@ -61,6 +60,7 @@ const PUBLIC_PREFIX_ROOTS = [
   '/legal',
   '/sign-in',
   '/sign-up',
+  '/self-understanding',
 ] as const;
 
 export const PROTECTED_PAGE_PATHS = [

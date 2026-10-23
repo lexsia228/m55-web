@@ -28,6 +28,22 @@ import styles from './CompatibilityPurchaseExperience.module.css';
 import { fetchJsonWithTimeout, useBoundedReadiness } from '../../lib/m55/commercialUx/boundedAsync';
 import BoundedRecoveryState from '../common/BoundedRecoveryState';
 import { buildPairDisplayIdentity, isSpecificPairPartnerLabel } from '../../lib/m55/compatibility/pairDisplayIdentity';
+import {
+  classifyOwnedReportsRelativeToBaseline,
+  clearPairPostPurchaseSuccessMarker,
+  computeBoundedPollDelayMs,
+  computeBoundedPollFetchTimeoutMs,
+  extractOwnedReportIdsFromReportsApiPayload,
+  readPairPostPurchaseSuccessMarker,
+  writePairPostPurchaseSuccessMarker,
+} from '../../lib/m55/compatibility/pairPostPurchaseSuccessTransition';
+
+const PAIR_POST_PURCHASE_BASELINE_FETCH_MS = 3_000;
+const PAIR_POST_PURCHASE_SUCCESS_POLL_INTERVAL_MS = 1_500;
+const PAIR_POST_PURCHASE_SUCCESS_POLL_DEADLINE_MS = 20_000;
+const PAIR_POST_PURCHASE_SUCCESS_FETCH_MS = 5_000;
+
+type PairPurchaseSuccessViewState = 'auth_loading' | 'processing' | 'ready' | 'manual';
 
 type PreviewAuthState = 'signed_in' | 'signed_out' | 'redirecting';
 
@@ -210,22 +226,61 @@ export function CompatibilityPurchaseConfirmation({
       'compatibility_purchase',
     );
     try {
-      const { response, data } = await fetchJsonWithTimeout<{ url?: unknown }>('/api/compatibility/checkout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          personA: journey.input.personA,
-          personB: journey.input.personB,
-          relationStatusId: journey.relationStatusId,
-          currentContext: journey.currentContext,
-          displayIdentity: journey.displayIdentity
-            ?? buildPairDisplayIdentity('', journey.relationStatusId),
-        }),
-      });
+      const sessionStorageRef =
+        typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+      const clerkUserId = user?.id ?? null;
+
+      const baselineReportsPromise = fetchJsonWithTimeout<{ reports?: { id?: unknown }[] }>(
+        '/api/compatibility/reports',
+        {
+          credentials: 'include',
+          cache: 'no-store',
+        },
+        PAIR_POST_PURCHASE_BASELINE_FETCH_MS,
+      )
+        .then(({ response, data }) => {
+          if (!response.ok) return null;
+          return extractOwnedReportIdsFromReportsApiPayload(data);
+        })
+        .catch(() => null);
+
+      const checkoutPromise = fetchJsonWithTimeout<{ url?: unknown }>(
+        '/api/compatibility/checkout',
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            personA: journey.input.personA,
+            personB: journey.input.personB,
+            relationStatusId: journey.relationStatusId,
+            currentContext: journey.currentContext,
+            displayIdentity: journey.displayIdentity
+              ?? buildPairDisplayIdentity('', journey.relationStatusId),
+          }),
+        },
+      );
+
+      const [baselineReportIds, checkoutResult] = await Promise.all([
+        baselineReportsPromise,
+        checkoutPromise,
+      ]);
+
+      const { response, data } = checkoutResult;
       if (!response.ok || typeof data.url !== 'string') {
         throw new Error('checkout unavailable');
       }
+
+      if (clerkUserId && baselineReportIds !== null) {
+        writePairPostPurchaseSuccessMarker(
+          sessionStorageRef,
+          clerkUserId,
+          baselineReportIds,
+        );
+      } else {
+        clearPairPostPurchaseSuccessMarker(sessionStorageRef);
+      }
+
       trackFunnelAction(
         M55_FUNNEL_EVENTS.compatibilityCheckoutRedirect,
         'compatibility_purchase',
@@ -371,6 +426,167 @@ export function CompatibilityPurchaseConfirmation({
 }
 
 export function CompatibilityPurchaseSuccess() {
+  const { user, isLoaded } = useUser();
+  const successAuthReadiness = useBoundedReadiness(isLoaded);
+  const [viewState, setViewState] = useState<PairPurchaseSuccessViewState>('auth_loading');
+  const [readyReportId, setReadyReportId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      if (successAuthReadiness.timedOut) {
+        setReadyReportId(null);
+        setViewState('manual');
+      } else {
+        setViewState('auth_loading');
+      }
+      return;
+    }
+
+    const sessionStorageRef =
+      typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+    const clerkUserId = user?.id ?? null;
+
+    if (!clerkUserId) {
+      setReadyReportId(null);
+      setViewState('manual');
+      return;
+    }
+
+    const marker = readPairPostPurchaseSuccessMarker(sessionStorageRef, clerkUserId);
+    if (!marker) {
+      setReadyReportId(null);
+      setViewState('manual');
+      return;
+    }
+
+    setViewState('processing');
+    setReadyReportId(null);
+
+    let cancelled = false;
+    let pollTimer: ReturnType<typeof setTimeout> | null = null;
+    const deadlineAt = Date.now() + PAIR_POST_PURCHASE_SUCCESS_POLL_DEADLINE_MS;
+
+    const finishManual = () => {
+      if (cancelled) return;
+      setReadyReportId(null);
+      setViewState('manual');
+    };
+
+    const scheduleNext = () => {
+      if (cancelled) return;
+      const pollDelayMs = computeBoundedPollDelayMs(
+        deadlineAt,
+        Date.now(),
+        PAIR_POST_PURCHASE_SUCCESS_POLL_INTERVAL_MS,
+      );
+      if (pollDelayMs === null) {
+        finishManual();
+        return;
+      }
+      pollTimer = setTimeout(() => {
+        void pollOnce();
+      }, pollDelayMs);
+    };
+
+    const pollOnce = async () => {
+      if (cancelled) return;
+      const fetchTimeoutMs = computeBoundedPollFetchTimeoutMs(
+        deadlineAt,
+        Date.now(),
+        PAIR_POST_PURCHASE_SUCCESS_FETCH_MS,
+      );
+      if (fetchTimeoutMs === null) {
+        finishManual();
+        return;
+      }
+
+      try {
+        const { response, data } = await fetchJsonWithTimeout<{ reports?: { id?: unknown }[] }>(
+          '/api/compatibility/reports',
+          {
+            credentials: 'include',
+            cache: 'no-store',
+          },
+          fetchTimeoutMs,
+        );
+        if (!response.ok) throw new Error('reports unavailable');
+        const currentIds = extractOwnedReportIdsFromReportsApiPayload(data);
+        if (!currentIds) throw new Error('reports malformed');
+
+        const classification = classifyOwnedReportsRelativeToBaseline(
+          marker.baselineReportIds,
+          currentIds,
+        );
+
+        if (classification.kind === 'ambiguous') {
+          finishManual();
+          return;
+        }
+        if (classification.kind === 'ready') {
+          if (cancelled) return;
+          setReadyReportId(classification.reportId);
+          setViewState('ready');
+          return;
+        }
+      } catch {
+        // bounded retry until deadline
+      }
+
+      scheduleNext();
+    };
+
+    void pollOnce();
+
+    return () => {
+      cancelled = true;
+      if (pollTimer !== null) clearTimeout(pollTimer);
+    };
+  }, [isLoaded, user?.id, successAuthReadiness.timedOut]);
+
+  if (viewState === 'ready' && readyReportId) {
+    return (
+      <main className={styles.page} data-testid="compatibility-purchase-ready">
+        <article className={styles.card}>
+          <p className={styles.eyebrow}>支払い確認済み</p>
+          <h1>レポートの準備ができました</h1>
+          <p className={styles.lead}>
+            購入した6章レポートを開けます。マイページからもいつでも読み返せます。
+          </p>
+          <div className={styles.personalization} role="status">
+            <strong>レポートを開く準備ができました</strong>
+            <span>この画面からすぐ開くか、マイページで確認できます。</span>
+          </div>
+          <Link className={styles.primaryLink} href={`/synastry/report/${readyReportId}`}>
+            レポートを開く
+          </Link>
+          <Link className={styles.quietLink} href="/my">マイページで見る</Link>
+        </article>
+      </main>
+    );
+  }
+
+  if (viewState === 'manual') {
+    return (
+      <main className={styles.page} data-testid="compatibility-purchase-manual">
+        <article className={styles.card}>
+          <p className={styles.eyebrow}>支払い確認中</p>
+          <h1>レポートをマイページで確認してください</h1>
+          <p className={styles.lead}>
+            支払いの確認とレポートの準備は続いている場合があります。マイページがいちばん確実な確認場所です。
+          </p>
+          <div className={styles.personalization} role="status">
+            <strong>この画面だけではレポートを特定できません</strong>
+            <span>表示が遅い場合も、支払いが失敗したとは限りません。</span>
+            <small>マイページに6章レポートが出たら、そのまま開けます。</small>
+          </div>
+          <Link className={styles.primaryLink} href="/my">マイページで確認する</Link>
+          <Link className={styles.quietLink} href="/synastry">無料結果へ戻る</Link>
+          <Link className={styles.quietLink} href="/support">確認が続く場合はサポートへ</Link>
+        </article>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.page} data-testid="compatibility-purchase-processing">
       <article className={styles.card}>
