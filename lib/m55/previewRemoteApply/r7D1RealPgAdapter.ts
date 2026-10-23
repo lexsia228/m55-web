@@ -1,7 +1,10 @@
 import { deriveExactCatalogObservationQueryPlanDigestSha256 } from './r7D1ExactCatalogContract.ts';
 import { R7_PREVIEW_TARGET_PROJECT_REF } from './r7D1D5OfflinePlan.ts';
 import { isR7D1ReadonlyPgObservationIoPermitted } from './r7D1ReadonlyPgObservationRuntimeAuthorization.ts';
-import { bindR7D1ReadonlyPgVerifiedSessionProvenance } from './r7D1ReadonlyPgSessionProvenance.ts';
+import {
+  bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter,
+  registerR7D1AdapterOwnedLiveBridgeSession,
+} from './r7D1ReadonlyPgSessionProvenance.ts';
 import {
   POST_CONNECT_GUARD_BINDING,
   POST_CONNECT_GUARD_SQL,
@@ -326,6 +329,7 @@ export function wrapExecutionPgClientAsR7LiveBridgeSession(
     },
   };
   registerR7LiveBridgeWrappedPgClientSession(session as object, client as object);
+  registerR7D1AdapterOwnedLiveBridgeSession(session as object);
   sessionToExecutionPgClient.set(session as object, client);
   return session;
 }
@@ -443,11 +447,15 @@ export async function establishFreshReadOnlyPgSession(
     }
     return { ok: false, holdReasonCode: 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED' };
   }
-  const provenanceBind = bindR7D1ReadonlyPgVerifiedSessionProvenance(session as object, {
-    previewProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
-    queryPlanDigestSha256: deriveExactCatalogObservationQueryPlanDigestSha256(),
-    physicalBackendLocatorSha256: physicalEvidence.locatorSha256,
-  });
+  const provenanceBind = bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter(
+    session as object,
+    {
+      previewProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
+      queryPlanDigestSha256: deriveExactCatalogObservationQueryPlanDigestSha256(),
+      physicalBackendLocatorSha256: physicalEvidence.locatorSha256,
+    },
+    physicalEvidence.locatorSha256,
+  );
   if (!provenanceBind.ok) {
     const closeHold = await safeCloseAfterFailure(session, { transactionOpen: true });
     if (closeHold) {

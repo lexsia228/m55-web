@@ -7,21 +7,40 @@ export type R7D1ReadonlyPgVerifiedSessionBinding = {
 };
 
 const readonlyPgVerifiedSessionBindings = new WeakMap<object, R7D1ReadonlyPgVerifiedSessionBinding>();
+const adapterOwnedLiveBridgeSessions = new WeakSet<object>();
 
 function isHexSha256(value: string): boolean {
   return /^[0-9a-f]{64}$/.test(value);
 }
 
-export function bindR7D1ReadonlyPgVerifiedSessionProvenance(
+/** Called only from `wrapExecutionPgClientAsR7LiveBridgeSession` in r7D1RealPgAdapter.ts. */
+export function registerR7D1AdapterOwnedLiveBridgeSession(session: object): void {
+  adapterOwnedLiveBridgeSessions.add(session);
+}
+
+export function isR7D1AdapterOwnedLiveBridgeSession(session: object): boolean {
+  return adapterOwnedLiveBridgeSessions.has(session);
+}
+
+/**
+ * Session-bound provenance after PostgreSQL read-only establishment — adapter-owned sessions only.
+ * Not exported for arbitrary caller registration.
+ */
+export function bindR7D1ReadonlyPgVerifiedSessionProvenanceFromEstablishedAdapter(
   session: object,
   binding: R7D1ReadonlyPgVerifiedSessionBinding,
+  physicalEvidenceLocatorSha256: string,
 ):
   | { readonly ok: true }
   | { readonly ok: false; readonly holdReasonCode: 'HOLD_READONLY_PG_SESSION_PROVENANCE_BINDING_INVALID' } {
+  if (!adapterOwnedLiveBridgeSessions.has(session)) {
+    return { ok: false, holdReasonCode: 'HOLD_READONLY_PG_SESSION_PROVENANCE_BINDING_INVALID' };
+  }
   if (
     binding.previewProjectRef !== R7_PREVIEW_TARGET_PROJECT_REF ||
     !isHexSha256(binding.queryPlanDigestSha256) ||
-    !isHexSha256(binding.physicalBackendLocatorSha256)
+    !isHexSha256(binding.physicalBackendLocatorSha256) ||
+    binding.physicalBackendLocatorSha256 !== physicalEvidenceLocatorSha256
   ) {
     return { ok: false, holdReasonCode: 'HOLD_READONLY_PG_SESSION_PROVENANCE_BINDING_INVALID' };
   }
@@ -39,13 +58,15 @@ export function isR7D1ReadonlyPgVerifiedSession(session: object): boolean {
   return readonlyPgVerifiedSessionBindings.has(session);
 }
 
-/** Test-only: never use for operational readonly_pg_verified tier in production paths. */
-export function bindR7D1ReadonlyPgVerifiedSessionProvenanceForTestsOnly(
+const trustedCollectedToReadonlySession = new WeakMap<object, object>();
+
+export function registerTrustedCollectedCatalogObservationReadonlySession(
+  trustedCollected: object,
   session: object,
-  binding: R7D1ReadonlyPgVerifiedSessionBinding,
-): boolean {
-  if (process.env.NODE_ENV === 'production') {
-    return false;
-  }
-  return bindR7D1ReadonlyPgVerifiedSessionProvenance(session, binding).ok;
+): void {
+  trustedCollectedToReadonlySession.set(trustedCollected, session);
+}
+
+export function resolveTrustedCollectedCatalogObservationReadonlySession(trustedCollected: object): object | null {
+  return trustedCollectedToReadonlySession.get(trustedCollected) ?? null;
 }

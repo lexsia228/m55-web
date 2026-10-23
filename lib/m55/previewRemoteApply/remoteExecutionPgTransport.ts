@@ -453,8 +453,10 @@ export type FakeExecutionPgClientOptions = {
   readonly failBegin?: boolean;
   readonly failCommit?: boolean;
   readonly failRollback?: boolean;
+  readonly failClose?: boolean;
   readonly failQuery?: boolean;
   readonly transportLossOnCommit?: boolean;
+  readonly trustedBackendLocatorSha256?: string;
 };
 
 export type FakeExecutionPgClientFactory = {
@@ -535,6 +537,9 @@ export class FakeExecutionPgClient implements ExecutionPgClient {
 
   async close(): Promise<void> {
     this.calls.push('close');
+    if (this.options.failClose) {
+      throw new Error('HOLD_UNEXPECTED_INTERNAL');
+    }
     this.state = 'closed';
     this.connected = false;
     this.inTransaction = false;
@@ -545,6 +550,18 @@ export class FakeExecutionPgClient implements ExecutionPgClient {
   }
 
   getExecutionPgPhysicalEvidenceV1(): ExecutionPgPhysicalEvidenceV1 {
+    if (
+      this.options.trustedBackendLocatorSha256 !== undefined &&
+      isR7D1ReadonlyPgObservationIoPermitted() &&
+      this.connected &&
+      this.state === 'open'
+    ) {
+      return {
+        kind: 'TRUSTED_BACKEND_LOCATOR',
+        locatorSha256: this.options.trustedBackendLocatorSha256,
+        transportProfile: EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.PG_REAL_SESSION_POOLER_TLS_PINNED_V1,
+      };
+    }
     return { kind: 'UNAVAILABLE_CODE_ONLY_GATE' };
   }
 

@@ -22,7 +22,10 @@ import {
   type R7D1ProducerBoundCatalogEvidence,
   type R7D1TrustedCatalogQueryExecutionContext,
 } from './r7D1ExactCatalogContract.ts';
-import { isR7D1ReadonlyPgVerifiedSession } from './r7D1ReadonlyPgSessionProvenance.ts';
+import {
+  isR7D1ReadonlyPgVerifiedSession,
+  registerTrustedCollectedCatalogObservationReadonlySession,
+} from './r7D1ReadonlyPgSessionProvenance.ts';
 
 export const R7_D1_TRUSTED_CATALOG_VERIFICATION_UNAVAILABLE_IN_LOCAL_CODE_GATE = true as const;
 
@@ -841,6 +844,9 @@ export async function collectD1CatalogObservationFromReadonlySession(
     });
     if (!built.ok) {
       return { ok: false, holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED' };
+    }
+    if (readonlyPgVerifiedSession) {
+      registerTrustedCollectedCatalogObservationReadonlySession(built.trusted, sessionIdentity);
     }
     return { ok: true, trusted: built.trusted };
   } catch {
