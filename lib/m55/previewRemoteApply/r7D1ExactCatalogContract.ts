@@ -2008,6 +2008,27 @@ export function produceProducerBoundD1CatalogEvidenceFromQueryResults(
   return { ok: true, evidence };
 }
 
+export function deriveProducerBoundCategoryOutcomesDigestSha256(
+  evidence: Pick<R7D1ProducerBoundCatalogEvidence, 'observationPhase' | 'categoryOutcomes'>,
+): string {
+  const mandatory = [...listMandatoryD1ExactCategoriesForPhase(evidence.observationPhase)].sort();
+  const mandatoryCategoryOutcomes: Record<string, R7D1ExactCategoryStatus> = {};
+  for (const category of mandatory) {
+    mandatoryCategoryOutcomes[category] = evidence.categoryOutcomes[category] ?? 'unobserved';
+  }
+  return createHash('sha256')
+    .update(
+      Buffer.from(
+        canonicalSerializePreviewRemoteApply({
+          observationPhase: evidence.observationPhase,
+          mandatoryCategoryOutcomes,
+        }),
+        'utf8',
+      ),
+    )
+    .digest('hex');
+}
+
 export function evaluateProducerBoundD1CatalogEvidence(
   repoRoot: string,
   evidence: R7D1ProducerBoundCatalogEvidence,

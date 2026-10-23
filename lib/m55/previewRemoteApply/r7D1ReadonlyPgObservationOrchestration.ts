@@ -4,8 +4,13 @@ import {
   R7_PR249_FROZEN_REPO_ROOT,
 } from './r7D1D5OfflinePlan.ts';
 import {
+  deriveProducerBoundCategoryOutcomesDigestSha256,
+  evaluateProducerBoundD1CatalogEvidence,
+} from './r7D1ExactCatalogContract.ts';
+import {
   collectD1CatalogObservationFromReadonlySession,
   readR7D1ProducerBoundEvidenceFromTrustedCollected,
+  type R7D1TrustedCollectedCatalogObservation,
 } from './r7D1TrustedCatalogVerifier.ts';
 import {
   createR7D1InjectedExecutionPgTransport,
@@ -46,6 +51,9 @@ export type R7D1ReadonlyPgObservationHoldCode =
   | 'HOLD_PHYSICAL_BACKEND_DISTINCTNESS_UNVERIFIED'
   | 'HOLD_POST_COMMIT_VERIFICATION_FAILED'
   | 'HOLD_REPO_IDENTITY_MISMATCH'
+  | 'HOLD_PRODUCER_BOUND_EVIDENCE_MISSING'
+  | 'HOLD_PRE_READONLY_CATALOG_EVALUATION_FAILED'
+  | 'HOLD_READONLY_SESSION_CLEANUP_UNCERTAIN'
   | R7RealPgAdapterHoldCode;
 
 export type R7D1ReadonlyPgObservationSuccess = {
@@ -130,6 +138,62 @@ export function redactR7D1ReadonlyPgObservationWireForEvidence(
   };
 }
 
+export function finalizeR7D1ReadonlyPgObservationFromTrustedCollected(
+  repoRoot: string,
+  trusted: R7D1TrustedCollectedCatalogObservation,
+):
+  | R7D1ReadonlyPgObservationSuccess
+  | { readonly mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD'; readonly holdReasonCode: R7D1ReadonlyPgObservationHoldCode } {
+  const producerEvidence = readR7D1ProducerBoundEvidenceFromTrustedCollected(trusted);
+  if (producerEvidence === null) {
+    return {
+      mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD',
+      holdReasonCode: 'HOLD_PRODUCER_BOUND_EVIDENCE_MISSING',
+    };
+  }
+  const evaluated = evaluateProducerBoundD1CatalogEvidence(repoRoot, producerEvidence);
+  if (!evaluated.ok) {
+    return {
+      mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD',
+      holdReasonCode: 'HOLD_PRE_READONLY_CATALOG_EVALUATION_FAILED',
+    };
+  }
+  const categoryOutcomesDigestSha256 = deriveProducerBoundCategoryOutcomesDigestSha256(producerEvidence);
+  return {
+    mode: 'R7_D1_READONLY_PG_CATALOG_OBSERVATION',
+    previewD1ApplyAuthorized: false,
+    previewTargetProject: R7_PREVIEW_TARGET_PROJECT,
+    previewTargetProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
+    observationProvenanceTier: 'readonly_pg_verified',
+    observationPhase: 'PRE_READONLY',
+    evidenceDigestSha256: producerEvidence.evidenceDigestSha256,
+    observedMigrationVersions: producerEvidence.observedMigrationVersions,
+    migrationVersionTail: producerEvidence.migrationVersionTail,
+    categoryOutcomesDigestSha256,
+  };
+}
+
+async function teardownR7D1ReadonlyPgObservationSession(
+  session: R7LiveBridgePgSessionShape,
+): Promise<{ readonly ok: true } | { readonly ok: false; readonly holdReasonCode: 'HOLD_READONLY_SESSION_CLEANUP_UNCERTAIN' }> {
+  let rollbackAcknowledged = false;
+  try {
+    const rollback = await session.rollback();
+    rollbackAcknowledged = rollback.acknowledged === true;
+  } catch {
+    rollbackAcknowledged = false;
+  }
+  if (!rollbackAcknowledged) {
+    return { ok: false, holdReasonCode: 'HOLD_READONLY_SESSION_CLEANUP_UNCERTAIN' };
+  }
+  try {
+    await session.close();
+  } catch {
+    return { ok: false, holdReasonCode: 'HOLD_READONLY_SESSION_CLEANUP_UNCERTAIN' };
+  }
+  return { ok: true };
+}
+
 function wireToExecutionPgClientConfig(wire: R7D1ReadonlyPgObservationWireV1): ExecutionPgClientConfig {
   return {
     host: wire.host,
@@ -176,6 +240,10 @@ export async function executeR7D1PreviewReadonlyPgCatalogObservation(input: {
   if (!established.ok) {
     return { mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD', holdReasonCode: established.holdReasonCode };
   }
+  let finalized:
+    | R7D1ReadonlyPgObservationSuccess
+    | { readonly mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD'; readonly holdReasonCode: R7D1ReadonlyPgObservationHoldCode }
+    | null = null;
   try {
     const collected = await collectD1CatalogObservationFromReadonlySession(
       session,
@@ -184,35 +252,26 @@ export async function executeR7D1PreviewReadonlyPgCatalogObservation(input: {
       null,
     );
     if (!collected.ok) {
-      return {
+      finalized = {
         mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD',
         holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
       };
+    } else {
+      finalized = finalizeR7D1ReadonlyPgObservationFromTrustedCollected(input.repoRoot, collected.trusted);
     }
-    const trusted = collected.trusted;
-    const producerEvidence = readR7D1ProducerBoundEvidenceFromTrustedCollected(trusted);
-    return {
-      mode: 'R7_D1_READONLY_PG_CATALOG_OBSERVATION',
-      previewD1ApplyAuthorized: false,
-      previewTargetProject: R7_PREVIEW_TARGET_PROJECT,
-      previewTargetProjectRef: R7_PREVIEW_TARGET_PROJECT_REF,
-      observationProvenanceTier: 'readonly_pg_verified',
-      observationPhase: 'PRE_READONLY',
-      evidenceDigestSha256: trusted.observationDigestSha256,
-      observedMigrationVersions: producerEvidence?.observedMigrationVersions ?? [],
-      migrationVersionTail: trusted.supabaseMigrationVersion,
-      categoryOutcomesDigestSha256: trusted.observationDigestSha256,
-    };
   } finally {
-    try {
-      await session.rollback();
-    } catch {
-      // best-effort
-    }
-    try {
-      await session.close();
-    } catch {
-      // best-effort
+    const teardown = await teardownR7D1ReadonlyPgObservationSession(session);
+    if (!teardown.ok) {
+      finalized = {
+        mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD',
+        holdReasonCode: teardown.holdReasonCode,
+      };
     }
   }
+  return (
+    finalized ?? {
+      mode: 'R7_D1_READONLY_PG_OBSERVATION_HOLD',
+      holdReasonCode: 'HOLD_POST_COMMIT_VERIFICATION_FAILED',
+    }
+  );
 }
