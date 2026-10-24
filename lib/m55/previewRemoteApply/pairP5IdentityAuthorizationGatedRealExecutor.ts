@@ -82,6 +82,7 @@ export const PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID =
   'M55_PAIR_P5_IDENTITY_AUTHORIZATION_GATED_REAL_EXECUTOR_v1' as const;
 
 import {
+  PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE,
   PAIR_P5_DEDICATED_RECEIPT_CREDENTIAL_METHOD,
   PAIR_P5_LEGACY_TARGET_BINDING_RECEIPT_CAST_FROM_DEDICATED_FORBIDDEN,
   PAIR_P5_LIVE_CREDENTIAL_PATH_ORDERING,
@@ -96,6 +97,7 @@ import {
   resolvePairP5LiveMutationLedgerBindingFromDedicatedReceipt,
   type PairP5DedicatedTargetBindingReceipt,
 } from './pairP5DedicatedTargetBindingReceipt.ts';
+import { PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS } from './pairP5HumanPreviewUiAttestation.ts';
 import {
   PAIR_P5_POST_CONNECT_LEDGER_ATOMIC_CLAIM_INTEGRATION_STATUS,
   type PairP5DedicatedReceiptConsumptionBinding,
@@ -185,15 +187,26 @@ export type PairP5FulfillRpcBodyFingerprintVerificationStatus =
 /** Scoped P5-1 apply path enabled with registered Human trust anchor; cryptographic receipt + attestation still required. */
 export const PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED = true as const;
 
-/** Frozen false — stdin credential read + PG connect only when Human explicitly authorizes. */
-export const PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED = false as const;
+/** Stdin credential wiring enabled only with registered Human trust anchor; receipt/signature/ledger gates still required at runtime. */
+function pairP5OperationalLiveCredentialWiringReady(): boolean {
+  return (
+    PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE &&
+    PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS.length > 0 &&
+    PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED
+  );
+}
+
+export const PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED =
+  pairP5OperationalLiveCredentialWiringReady() as boolean;
 
 export function isPairP5LiveCredentialAcquisitionAuthorized(): boolean {
-  return PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED;
+  return pairP5OperationalLiveCredentialWiringReady();
 }
 
 export const PAIR_P5_LIVE_PG_ORCHESTRATION_IMPLEMENTATION_STATUS =
-  'IMPLEMENTED_BEHIND_HARD_FALSE_AUTHORIZATION' as const;
+  pairP5OperationalLiveCredentialWiringReady()
+    ? ('READY_BEHIND_OPERATIONAL_RECEIPT_AND_SECURE_STDIN' as const)
+    : ('IMPLEMENTED_BEHIND_HARD_FALSE_AUTHORIZATION' as const);
 
 export const PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS = {
   humanPreviewApplyAuthorizationGranted: PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED,
@@ -215,7 +228,7 @@ export const PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS = {
   dedicatedTargetBindingReceiptSchemaImplemented: true as const,
   operationalDedicatedReceiptIssuancePermitted: false as const,
   liveDedicatedPathUsesLegacyTargetBindingReceiptTerminal: false as const,
-  liveCredentialAcquisitionAuthorized: false as const,
+  liveCredentialAcquisitionAuthorized: PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED,
   operationalIndependentWitnessObserved: PAIR_P5_OPERATIONAL_RECEIPT_READINESS.independentPreviewUiWitnessObserved,
   authorizedExternalAttestationIssuerAvailable:
     PAIR_P5_OPERATIONAL_RECEIPT_READINESS.authorizedExternalAttestationIssuerAvailable,
@@ -342,6 +355,15 @@ export type PairP5AuthGatedRealExecutionResult =
       readonly querySequence: readonly string[];
       readonly simulationOnly: true;
       readonly simulationCannotAuthorizeApply: true;
+    } & typeof PAIR_P5_STATIC_EXECUTION_GATE
+  | {
+      readonly mode: 'PAIR_P5_AUTH_GATED_LIVE_MUTATION_COMPLETE';
+      readonly holdReasonCode: null;
+      readonly executorId: typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID;
+      readonly evidence: PairP5AuthGatedExecutionEvidence;
+      readonly querySequence: readonly string[];
+      readonly liveMutationOnly: true;
+      readonly liveExecutionRequiresOperationalReceiptAndLedger: true;
     } & typeof PAIR_P5_STATIC_EXECUTION_GATE;
 
 function emptyEvidence(): PairP5AuthGatedExecutionEvidence {
@@ -829,12 +851,26 @@ function pickAllowlistedFakeClientOptions(
   return picked;
 }
 
+/** Default live path: SECURE_STDIN_CONNECTION_CONFIG_v1 via acquireSecureStdinConnectionConfig({}). */
+export const PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS: CredentialAcquirerDeps = {};
+
 const PAIR_P5_LIVE_STDIN_FORBIDDEN_DEPS: CredentialAcquirerDeps = {
   readBytes: () => {
     pairP5LiveCredentialAcquisitionProbeCount += 1;
     throw new Error('HOLD_PAIR_P5_CREDENTIAL_ACQUISITION_NOT_WIRED_IN_THIS_GATE');
   },
 };
+
+function resolvePairP5LiveCredentialAcquirerDeps(
+  surfaceDeps: CredentialAcquirerDeps | undefined,
+): CredentialAcquirerDeps {
+  if (surfaceDeps !== undefined) {
+    return surfaceDeps;
+  }
+  return isPairP5LiveCredentialAcquisitionAuthorized()
+    ? PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS
+    : PAIR_P5_LIVE_STDIN_FORBIDDEN_DEPS;
+}
 
 function wrapPairP5SimulationMutationClientCloseFailureAfterCommit(
   client: ExecutionPgClient,
@@ -1091,7 +1127,7 @@ async function buildMutationClientForSurface(
       input,
       binding,
       surface.transportFactory,
-      surface.credentialAcquirerDeps ?? PAIR_P5_LIVE_STDIN_FORBIDDEN_DEPS,
+      resolvePairP5LiveCredentialAcquirerDeps(surface.credentialAcquirerDeps),
       surface.dedicatedTargetBindingReceipt,
     );
     if (typeof live === 'string') {
@@ -1732,12 +1768,39 @@ function mapOrchestrationOutcomeToExecutionResult(
     };
   }
   return {
-    mode: 'PAIR_P5_AUTH_GATED_REAL_HOLD',
-    holdReasonCode: 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED',
+    mode: 'PAIR_P5_AUTH_GATED_LIVE_MUTATION_COMPLETE',
+    holdReasonCode: null,
     executorId: PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID,
     evidence: outcome.evidence,
+    querySequence: outcome.querySequence,
+    liveMutationOnly: true,
+    liveExecutionRequiresOperationalReceiptAndLedger: true,
     ...baseGate,
   };
+}
+
+export type PairP5AuthGatedOrchestrationOutcome = {
+  readonly holdReasonCode: string | null;
+  readonly evidence: PairP5AuthGatedExecutionEvidence;
+  readonly querySequence: readonly string[];
+  readonly simulationOnly: boolean;
+};
+
+export function mapPairP5AuthGatedOrchestrationOutcomeToExecutionResult(
+  outcome: PairP5AuthGatedOrchestrationOutcome,
+  simulationOnly: boolean,
+): PairP5AuthGatedRealExecutionResult {
+  return mapOrchestrationOutcomeToExecutionResult(outcome, { ...PAIR_P5_STATIC_EXECUTION_GATE }, simulationOnly);
+}
+
+export function pairP5AuthGatedRealExecutionCliExitCode(result: PairP5AuthGatedRealExecutionResult): number {
+  if (
+    result.mode === 'PAIR_P5_AUTH_GATED_OFFLINE_SIMULATION_COMPLETE' ||
+    result.mode === 'PAIR_P5_AUTH_GATED_LIVE_MUTATION_COMPLETE'
+  ) {
+    return 0;
+  }
+  return 1;
 }
 
 export function preparePairP5LiveSessionPoolerOrchestrationSurface(
@@ -1756,7 +1819,7 @@ export function preparePairP5LiveSessionPoolerOrchestrationSurface(
   }
   return {
     kind: 'LIVE_SESSION_POOLER',
-    credentialAcquirerDeps: PAIR_P5_LIVE_STDIN_FORBIDDEN_DEPS,
+    credentialAcquirerDeps: PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS,
     dedicatedTargetBindingReceipt: resolved.receipt,
     postConnectDedicatedReceiptLedgerBinding: resolved.binding,
   };

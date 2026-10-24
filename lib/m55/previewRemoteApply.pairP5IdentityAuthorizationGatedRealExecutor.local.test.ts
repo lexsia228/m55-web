@@ -30,6 +30,9 @@ import {
   validatePairP5PreviewStructuralAuthorityContract,
   getPairP5LiveCredentialAcquisitionProbeCountForTestsOnly,
   resetPairP5LiveCredentialAcquisitionProbeForTestsOnly,
+  mapPairP5AuthGatedOrchestrationOutcomeToExecutionResult,
+  pairP5AuthGatedRealExecutionCliExitCode,
+  PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS,
 } from './previewRemoteApply/pairP5IdentityAuthorizationGatedRealExecutor.ts';
 import {
   PAIR_P5_DEDICATED_TARGET_BINDING_RECEIPT_SCHEMA_ID,
@@ -148,18 +151,23 @@ function baseInput(
 }
 
 describe('pair P5 authorization-gated real executor', () => {
-  it('documents scoped apply authorization with credential still frozen', () => {
+  it('documents scoped apply authorization with secure stdin credential wiring behind operational receipt', () => {
     assert.equal(PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED, true);
     assert.equal(isPairP5HumanPreviewApplyAuthorizationGranted(), true);
-    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, false);
-    assert.equal(PAIR_P5_LIVE_PG_ORCHESTRATION_IMPLEMENTATION_STATUS, 'IMPLEMENTED_BEHIND_HARD_FALSE_AUTHORIZATION');
+    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, true);
+    assert.equal(isPairP5LiveCredentialAcquisitionAuthorized(), true);
+    assert.equal(
+      PAIR_P5_LIVE_PG_ORCHESTRATION_IMPLEMENTATION_STATUS,
+      'READY_BEHIND_OPERATIONAL_RECEIPT_AND_SECURE_STDIN',
+    );
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.livePgTransactionOrchestrationImplemented, true);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.livePgConnectionImplementedAsInertStub, false);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.applyReadyClaimForbidden, true);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.dedicatedTargetBindingReceiptSchemaImplemented, true);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.operationalDedicatedReceiptIssuancePermitted, false);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.liveDedicatedPathUsesLegacyTargetBindingReceiptTerminal, false);
-    assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.liveCredentialAcquisitionAuthorized, false);
+    assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.liveCredentialAcquisitionAuthorized, true);
+    assert.deepEqual(PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS, {});
     assert.equal(PAIR_P5_OPERATIONAL_RECEIPT_READINESS.operationalIssuancePermitted, false);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.liveFreshReadonlyProbeAuthorizationGranted, false);
     assert.equal(PAIR_P5_PREVIEW_UI_WITNESS_FIELD_EVIDENCE.witnessedDatabaseNameUiObserved, false);
@@ -386,9 +394,25 @@ describe('pair P5 authorization-gated real executor', () => {
     assert.equal(result.evidence.freshReadonlyDistinctClientSession, true);
   });
 
-  it('live credential acquisition remains frozen false with wiring behind gate', () => {
-    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, false);
-    assert.equal(isPairP5LiveCredentialAcquisitionAuthorized(), false);
+  it('maps successful live orchestration to LIVE_MUTATION_COMPLETE with CLI exit 0', async () => {
+    const sim = await simulatePairP5AuthorizationGatedTransactionOffline(baseInput(), {
+      fakeClientOptions: { commitResponseClass: 'DEFINITIVE_COMMIT_ACK' },
+    });
+    assert.equal(sim.mode, 'PAIR_P5_AUTH_GATED_OFFLINE_SIMULATION_COMPLETE');
+    const live = mapPairP5AuthGatedOrchestrationOutcomeToExecutionResult(
+      {
+        holdReasonCode: null,
+        evidence: sim.evidence,
+        querySequence: sim.querySequence,
+        simulationOnly: false,
+      },
+      false,
+    );
+    assert.equal(live.mode, 'PAIR_P5_AUTH_GATED_LIVE_MUTATION_COMPLETE');
+    assert.equal(live.holdReasonCode, null);
+    assert.equal(live.liveMutationOnly, true);
+    assert.equal(pairP5AuthGatedRealExecutionCliExitCode(live), 0);
+    assert.equal(pairP5AuthGatedRealExecutionCliExitCode(sim), 0);
   });
 
   it('live surface preparation requires dedicated receipt and rejects test-only as operational', async () => {
@@ -511,7 +535,7 @@ describe('pair P5 authorization-gated real executor', () => {
     assert.equal(result.migrationApplyAuthorized, false);
     assert.equal(result.evidence.applyReadyFromProbeGreen, false);
     assert.equal(isPairP5HumanPreviewApplyAuthorizationGranted(), true);
-    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, false);
+    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, true);
   });
 
   it('rolls back on failed prior probe in simulation', async () => {

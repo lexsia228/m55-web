@@ -9,6 +9,7 @@ import {
   assertPairP5PrerequisiteLocalCodeIntegrity,
   executePairP5IdentityAuthorizationGatedRealExecution,
   PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS,
+  pairP5AuthGatedRealExecutionCliExitCode,
   serializePairP5AuthGatedRealExecutionResult,
 } from '../../lib/m55/previewRemoteApply/pairP5IdentityAuthorizationGatedRealExecutor.ts';
 import {
@@ -212,7 +213,7 @@ export async function runPreviewPairP5IdentityAuthorizationGatedRealExecutionCli
   if (parsed.outputPath) {
     writeFileSync(parsed.outputPath, serialized, 'utf8');
   }
-  const exitCode = result.mode === 'PAIR_P5_AUTH_GATED_OFFLINE_SIMULATION_COMPLETE' ? 0 : 1;
+  const exitCode = pairP5AuthGatedRealExecutionCliExitCode(result);
   return { exitCode, stdout: serialized };
 }
 
