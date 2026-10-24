@@ -4,7 +4,10 @@ import { describe, it } from 'node:test';
 import {
   buildUnitTestAlignedExactCatalogQueryResults,
   canonicalizePgInformationSchemaType,
+  classifyMigrationHistoryObservation,
   deriveD1ExpectedPostMigrationVersionList,
+  deriveD1ExpectedPreMigrationVersionList,
+  deriveD1HistoricalFrozenPreMigrationVersionList,
   deriveD1ExactPostCatalogContract,
   deriveD1ExactPreCatalogContract,
   evaluateProducerBoundD1CatalogEvidence,
@@ -30,6 +33,19 @@ describe('r7D1ExactCatalogContract', () => {
     assert.equal(pre.complianceTablesAbsent, true);
     assert.equal(pre.complianceFunctionsAbsent, true);
     assert.equal(pre.complianceTriggersAbsent, true);
+  });
+
+  it('rejects historical 16-only PRE migration history for current execution-start baseline', () => {
+    assert.equal(
+      classifyMigrationHistoryObservation(deriveD1HistoricalFrozenPreMigrationVersionList(), 'PRE_READONLY'),
+      'fail',
+    );
+    assert.equal(
+      classifyMigrationHistoryObservation(deriveD1ExpectedPreMigrationVersionList(), 'PRE_READONLY'),
+      'pass',
+    );
+    assert.equal(deriveD1ExpectedPreMigrationVersionList().length, 17);
+    assert.equal(deriveD1ExpectedPostMigrationVersionList().length, 18);
   });
 
   it('PRE_READONLY reaches evaluated pass when compliance inventory absent and frozen history matches', () => {

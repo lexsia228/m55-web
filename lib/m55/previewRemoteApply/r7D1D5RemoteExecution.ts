@@ -429,7 +429,7 @@ export function createR7FakeTransport(initialHistory: readonly MigrationHistoryE
       if (sql === HISTORY_INSERT_SQL_METADATA || sql.startsWith('INSERT INTO supabase_migrations')) {
         const version = String(params?.[0] ?? '');
         if (this.inTransaction && version) {
-          this.historyVersions = [...this.historyVersions, version];
+          this.historyVersions = [...this.historyVersions, version].sort((a, b) => a.localeCompare(b, 'en'));
         }
         return { rows: [], rowCount: 1 };
       }

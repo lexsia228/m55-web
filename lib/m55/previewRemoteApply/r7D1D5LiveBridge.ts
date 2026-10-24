@@ -1123,7 +1123,9 @@ class DeterministicHarnessSession implements R7LiveBridgePgSession {
     if (sql === HISTORY_INSERT_SQL_METADATA) {
       if (this.failAt === 'history_insert') throw new Error('MOCK_HISTORY_INSERT_FAILED');
       const version = String(params?.[0] ?? '');
-      if (version) this.history = [...this.history, version];
+      if (version) {
+        this.history = [...this.history, version].sort((a, b) => a.localeCompare(b, 'en'));
+      }
       return { rows: [], rowCount: 1 };
     }
     if (this.inTransaction && !sql.startsWith('SELECT')) {

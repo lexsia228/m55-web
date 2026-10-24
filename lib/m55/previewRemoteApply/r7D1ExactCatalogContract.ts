@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import {
   deriveNormalizedStatementsFromSourceBytes,
   FROZEN_DELTA_SOURCE_SPECS,
+  FRESH_EXECUTION_START_HISTORY_SNAPSHOT,
+  insertMigrationHistoryEntrySorted,
   FROZEN_PREVIEW_HISTORY_SNAPSHOT,
 } from './r7D1D5OfflinePlan.ts';
 import { resolveR7D1ReadonlyPgVerifiedSessionBinding } from './r7D1ReadonlyPgSessionProvenance.ts';
@@ -476,6 +478,11 @@ export function resolveBoundPreCatalogProofCategoryOutcomes(
 export type R7D1ExactCatalogObservationPhase = 'PRE_READONLY' | 'POST_READONLY';
 
 export function deriveD1ExpectedPreMigrationVersionList(): readonly string[] {
+  return FRESH_EXECUTION_START_HISTORY_SNAPSHOT.map((entry) => entry.version);
+}
+
+/** Historical 16-row observation only — not the current R7 execution-start PRE baseline. */
+export function deriveD1HistoricalFrozenPreMigrationVersionList(): readonly string[] {
   return FROZEN_PREVIEW_HISTORY_SNAPSHOT.map((entry) => entry.version);
 }
 
@@ -509,7 +516,14 @@ export function listFrozenPreviewHistoryMigrationSqlPaths(
 }
 
 export function deriveD1ExpectedPostMigrationVersionList(): readonly string[] {
-  return [...deriveD1ExpectedPreMigrationVersionList(), R7_D1_EXACT_CONTRACT_PINNED_MIGRATION_VERSION];
+  const d1Spec = FROZEN_DELTA_SOURCE_SPECS.find((s) => s.stepId === 'D1');
+  if (!d1Spec || d1Spec.version !== R7_D1_EXACT_CONTRACT_PINNED_MIGRATION_VERSION) {
+    throw new Error('HOLD_SOURCE_DIGEST_MISMATCH');
+  }
+  return insertMigrationHistoryEntrySorted(FRESH_EXECUTION_START_HISTORY_SNAPSHOT, {
+    version: d1Spec.version,
+    name: d1Spec.name,
+  }).map((entry) => entry.version);
 }
 
 function orderedVersionListEqual(a: readonly string[], b: readonly string[]): boolean {

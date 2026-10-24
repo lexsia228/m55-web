@@ -15,8 +15,14 @@ import { compositeStreamSha256 } from '../transactionNormalized/statementStream.
 
 import {
   FROZEN_DELTA_SOURCE_SPECS,
+  FRESH_EXECUTION_START_HISTORY_SNAPSHOT,
+  FRESH_EXECUTION_START_HISTORY_OBSERVATION_DIGEST_SHA256,
   FROZEN_PREVIEW_HISTORY_SNAPSHOT,
   INDEPENDENT_HISTORY_OBSERVATION_DIGEST_SHA256,
+  insertMigrationHistoryEntrySorted,
+  PAIR_P5_PREAPPLIED_LEDGER_HISTORY_ENTRY,
+  R7_POST_D5_FULL_HISTORY_SORTED_TAIL_VERSION,
+  sortedMigrationHistoryVersionTail,
   R7_OFFLINE_ALLOWLIST_RELATIVE_PATHS,
   R7_PR249_FROZEN_BRANCH,
   R7_PR249_FROZEN_REPO_ROOT,
@@ -92,6 +98,28 @@ describe('r7D1D5OfflinePlan', () => {
       verifyIndependentHistoryObservationDigest(FROZEN_PREVIEW_HISTORY_SNAPSHOT),
       INDEPENDENT_HISTORY_OBSERVATION_DIGEST_SHA256,
     );
+  });
+
+  it('fresh execution-start 17-row digest is local-only and distinct from historical 16-row independent digest', () => {
+    assert.equal(
+      verifyIndependentHistoryObservationDigest(FRESH_EXECUTION_START_HISTORY_SNAPSHOT),
+      FRESH_EXECUTION_START_HISTORY_OBSERVATION_DIGEST_SHA256,
+    );
+    assert.notEqual(FRESH_EXECUTION_START_HISTORY_OBSERVATION_DIGEST_SHA256, INDEPENDENT_HISTORY_OBSERVATION_DIGEST_SHA256);
+    assert.equal(FRESH_EXECUTION_START_HISTORY_SNAPSHOT.length, 17);
+    assert.deepEqual(FRESH_EXECUTION_START_HISTORY_SNAPSHOT.at(-1), PAIR_P5_PREAPPLIED_LEDGER_HISTORY_ENTRY);
+  });
+
+  it('inserts R7 migration versions in ascending order while keeping pre-applied ledger at sorted tail', () => {
+    const d1Spec = FROZEN_DELTA_SOURCE_SPECS[0];
+    const postD1 = insertMigrationHistoryEntrySorted(FRESH_EXECUTION_START_HISTORY_SNAPSHOT, {
+      version: d1Spec.version,
+      name: d1Spec.name,
+    });
+    assert.equal(postD1.length, 18);
+    assert.equal(sortedMigrationHistoryVersionTail(postD1), R7_POST_D5_FULL_HISTORY_SORTED_TAIL_VERSION);
+    assert.equal(postD1[postD1.length - 1].version, '20261008200000');
+    assert.ok(postD1.some((row) => row.version === '20260924000000'));
   });
 
   it('derives stable normalized composite digests for all five deltas', () => {
@@ -419,11 +447,16 @@ describe('r7D1D5OfflinePlan', () => {
     assert.deepEqual(parsed.trackedChanges, ['b.txt']);
   });
 
-  it('history prefix lengths D1=16 through D5=20 post', () => {
+  it('history prefix lengths D1 PRE17→POST18 through D5 PRE21→POST22', () => {
     const manifest = buildCanonicalExpectedManifest(REPO_ROOT);
-    assert.equal(manifest.steps[0].historyPrefixPrior.length, 16);
-    assert.equal(manifest.steps[0].historyPrefixPost.length, 17);
-    assert.equal(manifest.steps[4].historyPrefixPrior.length, 20);
-    assert.equal(manifest.steps[4].historyPrefixPost.length, 21);
+    assert.equal(manifest.startingHistoryPrefix.length, 17);
+    assert.equal(manifest.steps[0].historyPrefixPrior.length, 17);
+    assert.equal(manifest.steps[0].historyPrefixPost.length, 18);
+    assert.equal(manifest.steps[4].historyPrefixPrior.length, 21);
+    assert.equal(manifest.steps[4].historyPrefixPost.length, 22);
+    assert.equal(
+      sortedMigrationHistoryVersionTail(manifest.steps[4].historyPrefixPost),
+      R7_POST_D5_FULL_HISTORY_SORTED_TAIL_VERSION,
+    );
   });
 });

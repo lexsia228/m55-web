@@ -1,12 +1,12 @@
 {
   "identifier": "M55_R7_PR249_PREVIEW_D1_D5_OFFLINE_MANIFEST_V1",
-  "manifestSchemaVersion": "1.1.0",
+  "manifestSchemaVersion": "1.2.0",
   "offlineAllowlistBundleIntegrity": {
     "digestType": "SHA256_FILE_BYTES",
     "files": {
-      "docs/planning/r7-preview-delta/M55_R7_PR249_PREVIEW_D1_D5_OFFLINE_MANIFEST_V1.json": "c9148c47237500ffc78c9513c1ad966575b7afe200b1cef38dd3f0a9c396fa94",
-      "lib/m55/previewRemoteApply/r7D1D5OfflinePlan.ts": "518d28c967b7738e1b3e4a7f41eebfff8e61e3007203a156465288d6569d49a3",
-      "lib/m55/previewRemoteApply/r7D1D5OfflinePlan.local.test.ts": "4d30fe4bdbf4be01891fe98a519ed44b99d8845ad398b1f5cfae407a718b95d3",
+      "docs/planning/r7-preview-delta/M55_R7_PR249_PREVIEW_D1_D5_OFFLINE_MANIFEST_V1.json": "357613dceec4f7568581fe151a6edc909a388d8dde5aea0775887df190207ede",
+      "lib/m55/previewRemoteApply/r7D1D5OfflinePlan.ts": "0cab7343d7cd0c7c8c4bfbd7248c7e95836a4d5def27e72e112656ff157e382f",
+      "lib/m55/previewRemoteApply/r7D1D5OfflinePlan.local.test.ts": "f14050b611de6e1fc8e0b771550a8af9e29a9480980f73ca44b1ccd1da43c937",
       "scripts/m55/runR7PreviewD1D5OfflinePlan.ts": "f812e0a7b28d1f89e9a84452bc3d75da2c80984aaff11ebdbaac8396f78f36b3"
     }
   },
@@ -33,6 +33,24 @@
       "This is an independent read-only observation, not DB apply approval or a cryptographic Supabase attestation.",
       "At a later Preview apply preflight, repeat read-only history and state verification; do not assume this snapshot stays current.",
       "Do not equate canonical SQL filenames with remote recorded history names; names for versions 20260922000000 and 20260923000000 include their version prefixes."
+    ]
+  },
+  "executionStartHistoryProvenance": {
+    "evidenceType": "M55_R7_PR249_PREVIEW_EXECUTION_START_HISTORY_OBSERVATION",
+    "observedAtJst": "2026-10-24",
+    "sourceKind": "CONNECTED_SUPABASE_LIST_MIGRATIONS_READ_ONLY",
+    "attestationClass": "LOCAL_OPERATOR_READ_ONLY_OBSERVATION_NOT_INDEPENDENTLY_REVIEWED",
+    "projectName": "m55-soul-preview",
+    "projectId": "sbogwyzldjxxouhqtpnq",
+    "rowCount": 17,
+    "recordsCanonicalDigestSha256": "5d93eb3641fbc121c4953dc06ffe6f34464ff135dea2c56e35f55a16c432af46",
+    "orderPolicy": "VERSION_TEXT_ASCENDING",
+    "preappliedPairLedgerVersion": "20261008200000",
+    "preappliedPairLedgerName": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1",
+    "limitations": [
+      "This is a local operator read-only observation for current execution-start planning only; it is not independent external review.",
+      "Sorted highest migration version in a prefix is not evidence of the most recently executed migration step when older R7 versions are inserted after a newer ledger row already exists.",
+      "Before any live R7 apply, repeat read-only history and catalog verification; do not assume this snapshot stays current."
     ]
   },
   "authorization": {
@@ -114,6 +132,10 @@
     {
       "version": "20260923000000",
       "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+    },
+    {
+      "version": "20261008200000",
+      "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
     }
   ],
   "steps": [
@@ -199,6 +221,10 @@
         {
           "version": "20260923000000",
           "name": "20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "historyPrefixPost": [
@@ -269,6 +295,10 @@
         {
           "version": "20260924000000",
           "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "catalogProbes": {
@@ -365,6 +395,10 @@
         {
           "version": "20260924000000",
           "name": "m55_r5_compliance_control_plane_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "historyPrefixPost": [
@@ -439,6 +473,10 @@
         {
           "version": "20260927000000",
           "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "catalogProbes": {
@@ -539,6 +577,10 @@
         {
           "version": "20260927000000",
           "name": "m55_r6_purchase_money_evidence_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "historyPrefixPost": [
@@ -617,6 +659,10 @@
         {
           "version": "20260927100000",
           "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "catalogProbes": {
@@ -721,6 +767,10 @@
         {
           "version": "20260927100000",
           "name": "m55_r6_refund_dispute_economic_evidence_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "historyPrefixPost": [
@@ -803,6 +853,10 @@
         {
           "version": "20260927200000",
           "name": "m55_r6_commission_ledger_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "catalogProbes": {
@@ -911,6 +965,10 @@
         {
           "version": "20260927200000",
           "name": "m55_r6_commission_ledger_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "historyPrefixPost": [
@@ -997,6 +1055,10 @@
         {
           "version": "20261008000000",
           "name": "m55_r7_creator_dashboard_v1"
+        },
+        {
+          "version": "20261008200000",
+          "name": "m55_pair_p5_dedicated_receipt_one_use_ledger_v1"
         }
       ],
       "catalogProbes": {

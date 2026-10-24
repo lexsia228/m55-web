@@ -13,7 +13,7 @@ import { validateMigrationSourceBytes } from '../transactionNormalized/transacti
 import { HISTORY_INSERT_SQL_METADATA } from './types.ts';
 
 export const R7_D1_D5_MANIFEST_IDENTIFIER = 'M55_R7_PR249_PREVIEW_D1_D5_OFFLINE_MANIFEST_V1' as const;
-export const R7_D1_D5_MANIFEST_SCHEMA_VERSION = '1.1.0' as const;
+export const R7_D1_D5_MANIFEST_SCHEMA_VERSION = '1.2.0' as const;
 export const R7_D1_D5_NORMALIZATION_METHOD = 'SUPABASE_CLI_SPLIT_AND_TRIM_IDENTITY' as const;
 export const R7_D1_D5_OPTION_A_POLICY = 'NOT_APPLICABLE_OUTSIDE_P1_P7_LABELS' as const;
 
@@ -115,6 +115,22 @@ export type HistoryProvenanceMetadata = {
   readonly limitations: readonly string[];
 };
 
+/** Fresh Preview execution-start observation (2026-10-24 JST) — local read-only, not independent external review. */
+export type ExecutionStartHistoryProvenanceMetadata = {
+  readonly evidenceType: 'M55_R7_PR249_PREVIEW_EXECUTION_START_HISTORY_OBSERVATION';
+  readonly observedAtJst: '2026-10-24';
+  readonly sourceKind: 'CONNECTED_SUPABASE_LIST_MIGRATIONS_READ_ONLY';
+  readonly attestationClass: 'LOCAL_OPERATOR_READ_ONLY_OBSERVATION_NOT_INDEPENDENTLY_REVIEWED';
+  readonly projectName: typeof R7_PREVIEW_TARGET_PROJECT;
+  readonly projectId: typeof R7_PREVIEW_TARGET_PROJECT_REF;
+  readonly rowCount: 17;
+  readonly recordsCanonicalDigestSha256: string;
+  readonly orderPolicy: 'VERSION_TEXT_ASCENDING';
+  readonly preappliedPairLedgerVersion: '20261008200000';
+  readonly preappliedPairLedgerName: 'm55_pair_p5_dedicated_receipt_one_use_ledger_v1';
+  readonly limitations: readonly string[];
+};
+
 export type OfflineAllowlistBundleIntegrity = {
   readonly digestType: 'SHA256_FILE_BYTES';
   readonly files: Readonly<Record<string, string>>;
@@ -135,6 +151,7 @@ export type R7D1D5OfflineManifest = {
     readonly projectRef: typeof R7_PREVIEW_TARGET_PROJECT_REF;
   };
   readonly historyProvenance: HistoryProvenanceMetadata;
+  readonly executionStartHistoryProvenance: ExecutionStartHistoryProvenanceMetadata;
   readonly authorization: {
     readonly executionAuthorized: false;
     readonly databaseMutationAuthorized: false;
@@ -208,6 +225,20 @@ export const FROZEN_PREVIEW_HISTORY_SNAPSHOT: readonly MigrationHistoryEntry[] =
     name: '20260923000000_m55_r5_attribution_purchase_lock_abuse_guards_v1',
   },
 ] as const;
+
+/** PAIR P5 ledger already applied on Preview before R7 D1–D5 execution (READ-ONLY observed 2026-10-24 JST). */
+export const PAIR_P5_PREAPPLIED_LEDGER_HISTORY_ENTRY: MigrationHistoryEntry = {
+  version: '20261008200000',
+  name: 'm55_pair_p5_dedicated_receipt_one_use_ledger_v1',
+};
+
+/** Current R7 execution-start baseline: frozen historical 16 + pre-applied PAIR ledger (17 rows, version ascending). */
+export const FRESH_EXECUTION_START_HISTORY_SNAPSHOT: readonly MigrationHistoryEntry[] = [
+  ...FROZEN_PREVIEW_HISTORY_SNAPSHOT,
+  PAIR_P5_PREAPPLIED_LEDGER_HISTORY_ENTRY,
+] as const;
+
+export const R7_POST_D5_FULL_HISTORY_SORTED_TAIL_VERSION = PAIR_P5_PREAPPLIED_LEDGER_HISTORY_ENTRY.version;
 
 export const FROZEN_DELTA_SOURCE_SPECS: readonly R7DeltaSourceIdentity[] = [
   {
@@ -614,7 +645,23 @@ export function validateHistoryProvenanceAgainstFrozenSnapshot(
   if (hp.rowCount !== 16) {
     return 'HOLD_HISTORY_PROVENANCE_MISMATCH';
   }
-  if (!deepEqualJson(manifest.startingHistoryPrefix, FROZEN_PREVIEW_HISTORY_SNAPSHOT)) {
+  if (hp.observedAtJst !== '2026-10-11') {
+    return 'HOLD_HISTORY_PROVENANCE_MISMATCH';
+  }
+  const executionHp = manifest.executionStartHistoryProvenance;
+  if (executionHp.rowCount !== 17) {
+    return 'HOLD_HISTORY_PROVENANCE_MISMATCH';
+  }
+  if (
+    executionHp.recordsCanonicalDigestSha256 !==
+    verifyIndependentHistoryObservationDigest(FRESH_EXECUTION_START_HISTORY_SNAPSHOT)
+  ) {
+    return 'HOLD_HISTORY_PROVENANCE_MISMATCH';
+  }
+  if (executionHp.attestationClass !== 'LOCAL_OPERATOR_READ_ONLY_OBSERVATION_NOT_INDEPENDENTLY_REVIEWED') {
+    return 'HOLD_HISTORY_PROVENANCE_MISMATCH';
+  }
+  if (!deepEqualJson(manifest.startingHistoryPrefix, FRESH_EXECUTION_START_HISTORY_SNAPSHOT)) {
     return 'HOLD_HISTORY_PREFIX_ORDER_DRIFT';
   }
   return null;
@@ -635,6 +682,7 @@ export function validateManifestPayloadStrict(
     'repository',
     'previewTarget',
     'historyProvenance',
+    'executionStartHistoryProvenance',
     'authorization',
     'prohibitedOperations',
     'startingHistoryPrefix',
@@ -697,12 +745,32 @@ export function buildPolicy2HistoryPayloadForDelta(
   };
 }
 
-function appendHistoryEntry(
+export function insertMigrationHistoryEntrySorted(
   prefix: readonly MigrationHistoryEntry[],
   entry: MigrationHistoryEntry,
 ): MigrationHistoryEntry[] {
-  return [...prefix, entry];
+  const combined: MigrationHistoryEntry[] = [...prefix, entry];
+  return combined.sort((a, b) => a.version.localeCompare(b.version, 'en'));
 }
+
+export function sortedMigrationHistoryVersionTail(prefix: readonly MigrationHistoryEntry[]): string {
+  if (prefix.length === 0) {
+    throw new Error('HOLD_EMPTY_HISTORY_PREFIX');
+  }
+  let highest = prefix[0].version;
+  for (const row of prefix) {
+    if (row.version.localeCompare(highest, 'en') > 0) {
+      highest = row.version;
+    }
+  }
+  return highest;
+}
+
+const EXECUTION_START_HISTORY_PROVENANCE_LIMITATIONS: readonly string[] = [
+  'This is a local operator read-only observation for current execution-start planning only; it is not independent external review.',
+  'Sorted highest migration version in a prefix is not evidence of the most recently executed migration step when older R7 versions are inserted after a newer ledger row already exists.',
+  'Before any live R7 apply, repeat read-only history and catalog verification; do not assume this snapshot stays current.',
+] as const;
 
 export function buildHistoryProvenanceMetadata(): HistoryProvenanceMetadata {
   return {
@@ -718,9 +786,28 @@ export function buildHistoryProvenanceMetadata(): HistoryProvenanceMetadata {
   };
 }
 
+export function buildExecutionStartHistoryProvenanceMetadata(): ExecutionStartHistoryProvenanceMetadata {
+  return {
+    evidenceType: 'M55_R7_PR249_PREVIEW_EXECUTION_START_HISTORY_OBSERVATION',
+    observedAtJst: '2026-10-24',
+    sourceKind: 'CONNECTED_SUPABASE_LIST_MIGRATIONS_READ_ONLY',
+    attestationClass: 'LOCAL_OPERATOR_READ_ONLY_OBSERVATION_NOT_INDEPENDENTLY_REVIEWED',
+    projectName: R7_PREVIEW_TARGET_PROJECT,
+    projectId: R7_PREVIEW_TARGET_PROJECT_REF,
+    rowCount: 17,
+    recordsCanonicalDigestSha256: verifyIndependentHistoryObservationDigest(
+      FRESH_EXECUTION_START_HISTORY_SNAPSHOT,
+    ),
+    orderPolicy: 'VERSION_TEXT_ASCENDING',
+    preappliedPairLedgerVersion: '20261008200000',
+    preappliedPairLedgerName: 'm55_pair_p5_dedicated_receipt_one_use_ledger_v1',
+    limitations: [...EXECUTION_START_HISTORY_PROVENANCE_LIMITATIONS],
+  };
+}
+
 export function buildCanonicalExpectedManifest(repoRoot: string): R7D1D5OfflineManifest {
   const steps: R7DeltaStepPlan[] = [];
-  let rollingPrefix: MigrationHistoryEntry[] = [...FROZEN_PREVIEW_HISTORY_SNAPSHOT];
+  let rollingPrefix: MigrationHistoryEntry[] = [...FRESH_EXECUTION_START_HISTORY_SNAPSHOT];
 
   for (const sourceSpec of FROZEN_DELTA_SOURCE_SPECS) {
     const absPath = join(repoRoot, sourceSpec.relativePath);
@@ -735,7 +822,10 @@ export function buildCanonicalExpectedManifest(repoRoot: string): R7D1D5OfflineM
     const rawBytes = readFileSync(absPath);
     const { normalized } = deriveNormalizedStatementsFromSourceBytes(rawBytes, sourceSpec);
     const prior = [...rollingPrefix];
-    const post = appendHistoryEntry(prior, { version: sourceSpec.version, name: sourceSpec.name });
+    const post = insertMigrationHistoryEntrySorted(prior, {
+      version: sourceSpec.version,
+      name: sourceSpec.name,
+    });
 
     steps.push({
       stepId: sourceSpec.stepId,
@@ -770,6 +860,7 @@ export function buildCanonicalExpectedManifest(repoRoot: string): R7D1D5OfflineM
       projectRef: R7_PREVIEW_TARGET_PROJECT_REF,
     },
     historyProvenance: buildHistoryProvenanceMetadata(),
+    executionStartHistoryProvenance: buildExecutionStartHistoryProvenanceMetadata(),
     authorization: {
       executionAuthorized: false,
       databaseMutationAuthorized: false,
@@ -777,10 +868,13 @@ export function buildCanonicalExpectedManifest(repoRoot: string): R7D1D5OfflineM
       remoteConnectionAttempted: false,
     },
     prohibitedOperations: [...R7_D1_D5_PROHIBITED_OPERATIONS],
-    startingHistoryPrefix: [...FROZEN_PREVIEW_HISTORY_SNAPSHOT],
+    startingHistoryPrefix: [...FRESH_EXECUTION_START_HISTORY_SNAPSHOT],
     steps,
   };
 }
+
+export const FRESH_EXECUTION_START_HISTORY_OBSERVATION_DIGEST_SHA256 =
+  verifyIndependentHistoryObservationDigest(FRESH_EXECUTION_START_HISTORY_SNAPSHOT);
 
 /** @deprecated alias */
 export const buildR7D1D5OfflineManifest = buildCanonicalExpectedManifest;

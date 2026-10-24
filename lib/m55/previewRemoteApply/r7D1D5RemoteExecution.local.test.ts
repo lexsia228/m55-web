@@ -100,12 +100,24 @@ describe('r7D1D5RemoteExecution local gate', () => {
     assert.match(R7_LIVE_EXECUTION_MIGRATION_LOCK_REQUIREMENT, /FAIL_CLOSED/);
   });
 
+  it('expects D1 history insert with pre-applied ledger retained at sorted tail (PRE17→POST18)', () => {
+    const d1 = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D1');
+    assert.ok(d1);
+    const prior = d1.historyPrefixPrior.map((e) => e.version);
+    const post = d1.historyPrefixPost.map((e) => e.version);
+    assert.equal(prior.length, 17);
+    assert.equal(post.length, 18);
+    assert.ok(prior.includes('20261008200000'));
+    assert.ok(post.includes('20260924000000'));
+    assert.equal(post.at(-1), '20261008200000');
+  });
+
   it('enforces exact five-step order and statement counts', () => {
     assert.deepEqual(R7_DELTA_STEP_ORDER, ['D1', 'D2', 'D3', 'D4', 'D5']);
     for (const spec of FROZEN_DELTA_SOURCE_SPECS) {
       const step = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === spec.stepId);
       assert.equal(step?.source.sourceStatementCount, spec.sourceStatementCount);
-      assert.equal(step?.historyPrefixPrior.length, 16 + R7_DELTA_STEP_ORDER.indexOf(spec.stepId));
+      assert.equal(step?.historyPrefixPrior.length, 17 + R7_DELTA_STEP_ORDER.indexOf(spec.stepId));
       assert.equal(step?.historyPrefixPost.length, step?.historyPrefixPrior.length + 1);
     }
   });

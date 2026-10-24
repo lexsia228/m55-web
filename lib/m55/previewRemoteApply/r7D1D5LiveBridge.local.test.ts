@@ -425,7 +425,7 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('holds on history prefix mismatch (D2 before D1)', async () => {
     const d2 = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D2');
     assert.ok(d2);
-    const d1PriorOnly = d2.historyPrefixPrior.slice(0, 16).map((e) => e.version);
+    const d1PriorOnly = d2.historyPrefixPrior.slice(0, 17).map((e) => e.version);
     const session = scenario({ historyPrior: d1PriorOnly });
     const evidence = await simulateLiveBridge(baseInput('D2', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_HISTORY_PREFIX_MISMATCH');
@@ -587,7 +587,7 @@ describe('r7D1D5LiveBridge local gate', () => {
   it('holds on D5 history prefix mismatch without D1 fake success', async () => {
     const d5 = buildCanonicalExpectedManifest(REPO_ROOT).steps.find((s) => s.stepId === 'D5');
     assert.ok(d5);
-    const incomplete = d5.historyPrefixPrior.slice(0, 19).map((e) => e.version);
+    const incomplete = d5.historyPrefixPrior.slice(0, 20).map((e) => e.version);
     const session = scenario({ historyPrior: incomplete });
     const evidence = await simulateLiveBridge(baseInput('D5', session, session));
     assert.equal(evidence.holdReasonCode, 'HOLD_HISTORY_PREFIX_MISMATCH');
