@@ -11,6 +11,10 @@ import {
   persistCompletedPairJourney,
   readCompatibilityGuestJourneyV3FromSession,
   readLastCompletedPairJourney,
+  captureCheckoutTabIdentity,
+  readPairOwnedStateIdentityForSession,
+  readPairOwnedStateIdentityForUser,
+  verifyCheckoutTabBindingStillCoherent,
   resolveSignedInPurchaseHandoff,
   resolveSignedOutPurchaseHandoff,
   type CompatibilityPurchaseHandoffResolution,
@@ -37,8 +41,15 @@ import {
   readPairPostPurchaseSuccessMarker,
   writePairPostPurchaseSuccessMarker,
 } from '../../lib/m55/compatibility/pairPostPurchaseSuccessTransition';
+import {
+  classifyPairOwnedState,
+  parseCompatibilityCheckoutResponse,
+  type PairOwnedStateClassification,
+  type PairOwnedStateIdentityV1,
+} from '../../lib/m55/compatibility/pairOwnedStateIdentity';
 
 const PAIR_POST_PURCHASE_BASELINE_FETCH_MS = 3_000;
+const PAIR_OWNED_STATE_LOOKUP_MS = 4_000;
 const PAIR_POST_PURCHASE_SUCCESS_POLL_INTERVAL_MS = 1_500;
 const PAIR_POST_PURCHASE_SUCCESS_POLL_DEADLINE_MS = 20_000;
 const PAIR_POST_PURCHASE_SUCCESS_FETCH_MS = 5_000;
@@ -135,6 +146,12 @@ export function CompatibilityPurchaseConfirmation({
   const [loading, setLoading] = useState(previewAuthState === 'redirecting');
   const [error, setError] = useState('');
   const [legacyPartnerLabel, setLegacyPartnerLabel] = useState('');
+  const [ownedState, setOwnedState] = useState<
+    PairOwnedStateClassification | 'pending' | 'lookup_failed'
+  >('pending');
+  const checkoutInFlightRef = useRef(false);
+  const checkoutTabIdentityRef = useRef<PairOwnedStateIdentityV1 | null>(null);
+  const ownedLookupRequestIdRef = useRef(0);
   const authReadiness = useBoundedReadiness(Boolean(previewAuthState) || isLoaded);
 
   useEffect(() => {
@@ -209,8 +226,95 @@ export function CompatibilityPurchaseConfirmation({
     );
   }, [previewAuthState, isLoaded, user?.id]);
 
+  useEffect(() => {
+    if (previewAuthState || !journey) {
+      checkoutTabIdentityRef.current = null;
+      return;
+    }
+    const sessionStorageRef =
+      typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+    checkoutTabIdentityRef.current = captureCheckoutTabIdentity({
+      clerkUserId: user?.id ?? null,
+      sessionStorageRef,
+      tabJourney: journey,
+    });
+  }, [previewAuthState, journey, user?.id]);
+
+  useEffect(() => {
+    if (previewAuthState) return;
+
+    ownedLookupRequestIdRef.current += 1;
+    const requestId = ownedLookupRequestIdRef.current;
+
+    if (!isLoaded || !user?.id) {
+      setOwnedState('pending');
+      return () => {
+        ownedLookupRequestIdRef.current += 1;
+      };
+    }
+    if (
+      handoff !== 'pending' &&
+      handoff.kind !== 'session' &&
+      handoff.kind !== 'persisted'
+    ) {
+      setOwnedState('pending');
+      return () => {
+        ownedLookupRequestIdRef.current += 1;
+      };
+    }
+    if (!journey || !isSpecificPairPartnerLabel(journey.displayIdentity?.partnerLabel)) {
+      setOwnedState('pending');
+      return () => {
+        ownedLookupRequestIdRef.current += 1;
+      };
+    }
+
+    const sessionStorageRef =
+      typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+    const identity =
+      readPairOwnedStateIdentityForUser(user.id) ??
+      readPairOwnedStateIdentityForSession(sessionStorageRef);
+    if (!identity) {
+      setOwnedState({ kind: 'unknown' });
+      return () => {
+        ownedLookupRequestIdRef.current += 1;
+      };
+    }
+
+    setOwnedState('pending');
+
+    void fetchJsonWithTimeout<unknown>(
+      '/api/compatibility/reports',
+      { credentials: 'include', cache: 'no-store' },
+      PAIR_OWNED_STATE_LOOKUP_MS,
+    )
+      .then(({ response, data }) => {
+        if (ownedLookupRequestIdRef.current !== requestId) return;
+        if (!response.ok) {
+          setOwnedState('lookup_failed');
+          return;
+        }
+        setOwnedState(
+          classifyPairOwnedState({
+            currentIdentity: identity,
+            reportsPayload: data,
+          }),
+        );
+      })
+      .catch(() => {
+        if (ownedLookupRequestIdRef.current !== requestId) return;
+        setOwnedState('lookup_failed');
+      });
+
+    return () => {
+      ownedLookupRequestIdRef.current += 1;
+    };
+  }, [previewAuthState, isLoaded, user?.id, handoff, journey]);
+
   async function startCheckout() {
-    if (!journey || !commerceEnabled || loading) return;
+    if (!journey || !commerceEnabled || loading || checkoutInFlightRef.current) return;
+    if (ownedState === 'pending' || ownedState === 'lookup_failed') return;
+    if (ownedState.kind === 'exact_owned' || ownedState.kind === 'unknown') return;
     if (!isSpecificPairPartnerLabel(journey.displayIdentity?.partnerLabel)) {
       setError('購入する二人を区別するため、相手の短い呼び名を入力してください。');
       return;
@@ -219,6 +323,26 @@ export function CompatibilityPurchaseConfirmation({
       setLoading(true);
       return;
     }
+    const sessionStorageRef =
+      typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+    const clerkUserId = user?.id ?? null;
+    const identity = checkoutTabIdentityRef.current;
+    if (
+      !identity ||
+      !verifyCheckoutTabBindingStillCoherent({
+        clerkUserId,
+        sessionStorageRef,
+        tabJourney: journey,
+        tabIdentity: identity,
+      })
+    ) {
+      setError(
+        'このタブの入力内容が別の画面と一致しません。ページを更新してから、もう一度お試しください。',
+      );
+      return;
+    }
+
+    checkoutInFlightRef.current = true;
     setLoading(true);
     setError('');
     trackFunnelAction(
@@ -226,9 +350,6 @@ export function CompatibilityPurchaseConfirmation({
       'compatibility_purchase',
     );
     try {
-      const sessionStorageRef =
-        typeof sessionStorage !== 'undefined' ? sessionStorage : null;
-      const clerkUserId = user?.id ?? null;
 
       const baselineReportsPromise = fetchJsonWithTimeout<{ reports?: { id?: unknown }[] }>(
         '/api/compatibility/reports',
@@ -244,7 +365,7 @@ export function CompatibilityPurchaseConfirmation({
         })
         .catch(() => null);
 
-      const checkoutPromise = fetchJsonWithTimeout<{ url?: unknown }>(
+      const checkoutPromise = fetchJsonWithTimeout<unknown>(
         '/api/compatibility/checkout',
         {
           method: 'POST',
@@ -257,6 +378,8 @@ export function CompatibilityPurchaseConfirmation({
             currentContext: journey.currentContext,
             displayIdentity: journey.displayIdentity
               ?? buildPairDisplayIdentity('', journey.relationStatusId),
+            pairIdentityId: identity.pairIdentityId,
+            paidContextId: identity.paidContextId,
           }),
         },
       );
@@ -267,7 +390,28 @@ export function CompatibilityPurchaseConfirmation({
       ]);
 
       const { response, data } = checkoutResult;
-      if (!response.ok || typeof data.url !== 'string') {
+      const parsedCheckout = parseCompatibilityCheckoutResponse(data);
+      if (parsedCheckout?.kind === 'checkout_unknown') {
+        setError('購入手続きを確認できませんでした。マイページで状況を確認するか、時間をおいてお試しください。');
+        setLoading(false);
+        checkoutInFlightRef.current = false;
+        return;
+      }
+      if (!response.ok || !parsedCheckout) {
+        throw new Error('checkout unavailable');
+      }
+
+      if (parsedCheckout.kind === 'already_owned') {
+        window.location.assign(`/synastry/report/${parsedCheckout.reportId}`);
+        return;
+      }
+      if (parsedCheckout.kind === 'checkout_in_progress') {
+        setError('購入手続きを確認できませんでした。マイページで状況を確認するか、時間をおいてお試しください。');
+        setLoading(false);
+        checkoutInFlightRef.current = false;
+        return;
+      }
+      if (parsedCheckout.kind !== 'checkout') {
         throw new Error('checkout unavailable');
       }
 
@@ -285,10 +429,11 @@ export function CompatibilityPurchaseConfirmation({
         M55_FUNNEL_EVENTS.compatibilityCheckoutRedirect,
         'compatibility_purchase',
       );
-      window.location.assign(data.url);
+      window.location.assign(parsedCheckout.url);
     } catch {
       setError('購入手続きを開始できませんでした。時間をおいてもう一度お試しください。');
       setLoading(false);
+      checkoutInFlightRef.current = false;
     }
   }
 
@@ -356,6 +501,29 @@ export function CompatibilityPurchaseConfirmation({
               この呼び名で購入内容を確認する
             </button>
           </div>
+        ) : ownedState === 'lookup_failed' ||
+          (ownedState !== 'pending' && ownedState.kind === 'unknown') ? (
+          <BoundedRecoveryState
+            title="購入可否を確認できませんでした"
+            description="所有状況を確認できないため、ここから新しい購入手続きは開始できません。マイページで確認するか、もう一度お試しください。"
+            onRetry={() => window.location.reload()}
+            escapeHref="/my"
+            escapeLabel="マイページへ"
+          />
+        ) : ownedState !== 'pending' && ownedState.kind === 'exact_owned' ? (
+          <>
+            <div className={styles.personalization}>
+              <strong>{purchaseIdentity?.selfLabel} × {purchaseIdentity?.partnerLabel}</strong>
+              <span>この二人・この内容のレポートはすでに購入済みです。</span>
+            </div>
+            <Link
+              className={styles.primaryLink}
+              href={`/synastry/report/${ownedState.reportId}`}
+            >
+              購入済みレポートを開く
+            </Link>
+            <Link className={styles.quietLink} href="/my">マイページで見る</Link>
+          </>
         ) : (
         <>
           <div className={styles.personalization}>
@@ -363,12 +531,15 @@ export function CompatibilityPurchaseConfirmation({
             <span>現在の二人に合わせた6章 · {purchaseIdentity?.relationLabel}</span>
             <span>今の焦点：{contextDisplay?.focusLabel}</span>
             <small>無料結果で答えた現在の状況を、購入後の6章にも反映します。</small>
+            {ownedState !== 'pending' && ownedState.kind === 'same_pair_new_context' && (
+              <small>現在の状況に合わせた新しい6章レポートの購入です。</small>
+            )}
           </div>
           <button
             type="button"
             className={styles.primary}
             onClick={() => void startCheckout()}
-            disabled={loading}
+            disabled={loading || ownedState === 'pending'}
             aria-busy={loading}
           >
             {loading ? '支払い画面を準備しています…' : '¥1,480で購入手続きへ'}
