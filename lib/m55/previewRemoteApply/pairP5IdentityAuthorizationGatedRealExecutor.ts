@@ -50,8 +50,9 @@ import {
   buildMockPairP5PriorProbeRow,
   PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
   PAIR_P5_EXPECTED_BRANCH,
-  PAIR_P5_EXPECTED_HEAD_COMMIT_SHA,
   PAIR_P5_EXPECTED_REPO_ROOT,
+  validatePairP5OperationalLiveGitHeadAuthorityBinding,
+  validatePairP5RuntimeGitHeadAuthorityBinding,
   PAIR_P5_IDENTITY_MIGRATION_NAME,
   PAIR_P5_IDENTITY_MIGRATION_REL_PATH,
   PAIR_P5_IDENTITY_MIGRATION_SHA256,
@@ -698,8 +699,27 @@ function validatePreMutationContext(input: PairP5AuthGatedRealExecutionInput): s
   if (input.repository.branch !== PAIR_P5_EXPECTED_BRANCH) {
     return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
   }
-  if (input.repository.headCommitSha !== PAIR_P5_EXPECTED_HEAD_COMMIT_SHA) {
-    return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
+  const receipt = input.dedicatedTargetBindingReceipt ?? null;
+  const headBindingHold =
+    receipt?.body.receiptClass === 'OPERATIONAL'
+      ? validatePairP5OperationalLiveGitHeadAuthorityBinding({
+          observedHeadCommitSha: input.repository.headCommitSha,
+          observedTreeSha: input.repository.treeSha,
+          receiptAuthorizedHeadCommitSha: receipt.body.git.headCommitSha,
+          receiptAuthorizedTreeSha: receipt.body.git.treeSha,
+          signedAttestationGitHeadCommitSha:
+            receipt.body.signedHumanPreviewUiAttestation?.payload.gitHeadCommitSha ?? null,
+        })
+      : validatePairP5RuntimeGitHeadAuthorityBinding({
+          observedHeadCommitSha: input.repository.headCommitSha,
+          observedTreeSha: input.repository.treeSha,
+          receiptAuthorizedHeadCommitSha: receipt?.body.git.headCommitSha ?? null,
+          receiptAuthorizedTreeSha: receipt?.body.git.treeSha ?? null,
+          signedAttestationGitHeadCommitSha:
+            receipt?.body.signedHumanPreviewUiAttestation?.payload.gitHeadCommitSha ?? null,
+        });
+  if (headBindingHold) {
+    return headBindingHold;
   }
   return null;
 }

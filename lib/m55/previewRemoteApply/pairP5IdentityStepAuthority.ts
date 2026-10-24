@@ -17,8 +17,108 @@ export type PairP5CallableStepId = typeof PAIR_P5_IDENTITY_STEP_ID;
 export const PAIR_P5_EXPECTED_REPO_ROOT =
   '/Users/lexsia/Documents/M55_WORKTREE-pair-p5-owned-state-identity-v1' as const;
 export const PAIR_P5_EXPECTED_BRANCH = 'feat/m55-pair-p5-owned-state-identity-v1' as const;
-export const PAIR_P5_EXPECTED_HEAD_COMMIT_SHA =
+
+/** Historical pair-source baseline at first P5 executor landing; not a runtime LIVE authority pin. */
+export const PAIR_P5_HISTORICAL_FROZEN_SOURCE_BASELINE_HEAD_COMMIT_SHA =
   'e56066890f1d3e091fe13caa0ecd10360cb0b724' as const;
+
+/** Backward-compatible alias for synthetic fixtures referencing the historical baseline only. */
+export const PAIR_P5_EXPECTED_HEAD_COMMIT_SHA =
+  PAIR_P5_HISTORICAL_FROZEN_SOURCE_BASELINE_HEAD_COMMIT_SHA;
+
+export const PAIR_P5_R7_D5_MIGRATION_REL_PATH =
+  'supabase/migrations/20261008000000_m55_r7_creator_dashboard_v1.sql' as const;
+export const PAIR_P5_R7_D5_MIGRATION_SHA256 =
+  'a903a1e186b37b4e3be14af31e700a999947b91df1769cbb4c4c97c191e3c7e6' as const;
+
+export function isPairP5GitObjectSha40(value: string): boolean {
+  return /^[0-9a-f]{40}$/.test(value);
+}
+
+export function validatePairP5RuntimeGitHeadAuthorityBinding(input: {
+  readonly observedHeadCommitSha: string;
+  readonly observedTreeSha: string;
+  readonly receiptAuthorizedHeadCommitSha: string | null;
+  readonly receiptAuthorizedTreeSha: string | null;
+  readonly signedAttestationGitHeadCommitSha: string | null;
+}):
+  | 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH'
+  | 'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH'
+  | null {
+  if (
+    !isPairP5GitObjectSha40(input.observedHeadCommitSha) ||
+    !isPairP5GitObjectSha40(input.observedTreeSha)
+  ) {
+    return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
+  }
+  if (input.receiptAuthorizedHeadCommitSha === null) {
+    return null;
+  }
+  if (
+    !isPairP5GitObjectSha40(input.receiptAuthorizedHeadCommitSha) ||
+    (input.receiptAuthorizedTreeSha !== null &&
+      !isPairP5GitObjectSha40(input.receiptAuthorizedTreeSha))
+  ) {
+    return 'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH';
+  }
+  if (input.observedHeadCommitSha !== input.receiptAuthorizedHeadCommitSha) {
+    return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
+  }
+  if (
+    input.receiptAuthorizedTreeSha !== null &&
+    input.observedTreeSha !== input.receiptAuthorizedTreeSha
+  ) {
+    return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
+  }
+  if (
+    input.signedAttestationGitHeadCommitSha !== null &&
+    input.signedAttestationGitHeadCommitSha !== input.receiptAuthorizedHeadCommitSha
+  ) {
+    return 'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH';
+  }
+  return null;
+}
+
+/** OPERATIONAL LIVE: receipt + attestation must authorize a concrete HEAD/tree; null is never approval. */
+export function validatePairP5OperationalLiveGitHeadAuthorityBinding(input: {
+  readonly observedHeadCommitSha: string;
+  readonly observedTreeSha: string;
+  readonly receiptAuthorizedHeadCommitSha: string;
+  readonly receiptAuthorizedTreeSha: string;
+  readonly signedAttestationGitHeadCommitSha: string | null;
+}):
+  | 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH'
+  | 'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH'
+  | null {
+  if (
+    !isPairP5GitObjectSha40(input.receiptAuthorizedHeadCommitSha) ||
+    !isPairP5GitObjectSha40(input.receiptAuthorizedTreeSha)
+  ) {
+    return 'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH';
+  }
+  if (
+    input.signedAttestationGitHeadCommitSha === null ||
+    !isPairP5GitObjectSha40(input.signedAttestationGitHeadCommitSha)
+  ) {
+    return 'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH';
+  }
+  return validatePairP5RuntimeGitHeadAuthorityBinding({
+    observedHeadCommitSha: input.observedHeadCommitSha,
+    observedTreeSha: input.observedTreeSha,
+    receiptAuthorizedHeadCommitSha: input.receiptAuthorizedHeadCommitSha,
+    receiptAuthorizedTreeSha: input.receiptAuthorizedTreeSha,
+    signedAttestationGitHeadCommitSha: input.signedAttestationGitHeadCommitSha,
+  });
+}
+
+export function assertPairP5R7D5MigrationExactBytesPresent(repoRoot: string): void {
+  const raw = readFileSync(join(repoRoot, PAIR_P5_R7_D5_MIGRATION_REL_PATH));
+  const sha = createHash('sha256').update(raw).digest('hex');
+  if (sha !== PAIR_P5_R7_D5_MIGRATION_SHA256) {
+    throw new Error('HOLD_PAIR_P5_R7_D5_MIGRATION_BYTES_MISMATCH');
+  }
+}
+
 export const PAIR_P5_APPROVED_PREVIEW_PROJECT_REF = 'sbogwyzldjxxouhqtpnq' as const;
 
 export const PAIR_P5_IDENTITY_MIGRATION_VERSION = '20261009000000' as const;

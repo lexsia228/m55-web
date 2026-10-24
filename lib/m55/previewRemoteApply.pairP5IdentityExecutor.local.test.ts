@@ -47,6 +47,7 @@ import { REPOSITORY_FACTS_SOURCE } from './previewRemoteApply/types.ts';
 import {
   PAIR_P5_EXPECTED_BRANCH,
   PAIR_P5_EXPECTED_HEAD_COMMIT_SHA,
+  isPairP5GitObjectSha40,
   PAIR_P5_EXPECTED_REPO_ROOT,
   PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
 } from './previewRemoteApply/pairP5IdentityStepAuthority.ts';
@@ -167,7 +168,8 @@ describe('pair P5 identity offline executor', () => {
     const observed = readPairP5RepositoryIdentityFromGit(ROOT);
     assert.equal(observed.provenance, 'GIT_READ_ONLY_OBSERVED');
     assert.equal(observed.facts.repoRoot, ROOT);
-    assert.equal(observed.facts.headCommitSha, PAIR_P5_EXPECTED_HEAD_COMMIT_SHA);
+    assert.equal(isPairP5GitObjectSha40(observed.facts.headCommitSha), true);
+    assert.equal(isPairP5GitObjectSha40(observed.facts.treeSha), true);
     assert.equal(observed.facts.factsSource, REPOSITORY_FACTS_SOURCE);
   });
 

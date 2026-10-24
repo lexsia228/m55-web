@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
 
 import {
@@ -49,8 +52,10 @@ import {
   buildPairP5TestOnlyWitnessedPreviewObservationFixture,
   computePairP5DedicatedReceiptHashesForBody,
   guardPairP5CredentialPathWithDedicatedReceipt,
+  HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_PATH_INVALID,
   issuePairP5TestOnlyDedicatedTargetBindingReceipt,
   issuePairP5TestOnlyDedicatedTargetBindingReceiptFromInjectedTestFixture,
+  loadPairP5DedicatedTargetBindingReceiptFromOwnerControlledJsonFile,
   readPairP5DedicatedReceiptGitProvenance,
   resetPairP5DedicatedReceiptConsumptionRegistryForTestsOnly,
   validatePairP5DedicatedTargetBindingReceipt,
@@ -92,7 +97,11 @@ import {
   PAIR_P5_IDENTITY_MIGRATION_SHA256,
   PAIR_P5_EXPECTED_HEAD_COMMIT_SHA,
   PAIR_P5_EXPECTED_REPO_ROOT,
+  PAIR_P5_HISTORICAL_FROZEN_SOURCE_BASELINE_HEAD_COMMIT_SHA,
   PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+  assertPairP5R7D5MigrationExactBytesPresent,
+  validatePairP5OperationalLiveGitHeadAuthorityBinding,
+  validatePairP5RuntimeGitHeadAuthorityBinding,
 } from './previewRemoteApply/pairP5IdentityStepAuthority.ts';
 import {
   PAIR_P5_STATIC_EXECUTION_GATE,
@@ -221,6 +230,87 @@ describe('pair P5 authorization-gated real executor', () => {
       assert.ok('holdReasonCode' in parsed);
       assert.equal(parsed.holdReasonCode, 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED');
     }
+  });
+
+  it('imports authoritative R7 D5 migration bytes in worktree', () => {
+    assertPairP5R7D5MigrationExactBytesPresent(PAIR_P5_EXPECTED_REPO_ROOT);
+  });
+
+  it('binds runtime git head to receipt-authorized commit, not historical baseline pin', () => {
+    const authorized = '23f86d8b2250624f1c40dd04212552238d22b99b';
+    const tree = '488bd28566fece29220cfaf11a1a9cc2efc5c92f';
+    assert.equal(
+      validatePairP5RuntimeGitHeadAuthorityBinding({
+        observedHeadCommitSha: authorized,
+        observedTreeSha: tree,
+        receiptAuthorizedHeadCommitSha: authorized,
+        receiptAuthorizedTreeSha: tree,
+        signedAttestationGitHeadCommitSha: authorized,
+      }),
+      null,
+    );
+    assert.equal(
+      validatePairP5RuntimeGitHeadAuthorityBinding({
+        observedHeadCommitSha: authorized,
+        observedTreeSha: tree,
+        receiptAuthorizedHeadCommitSha: PAIR_P5_HISTORICAL_FROZEN_SOURCE_BASELINE_HEAD_COMMIT_SHA,
+        receiptAuthorizedTreeSha: null,
+        signedAttestationGitHeadCommitSha: null,
+      }),
+      'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH',
+    );
+    assert.equal(PAIR_P5_EXPECTED_HEAD_COMMIT_SHA, PAIR_P5_HISTORICAL_FROZEN_SOURCE_BASELINE_HEAD_COMMIT_SHA);
+    assert.equal(
+      validatePairP5OperationalLiveGitHeadAuthorityBinding({
+        observedHeadCommitSha: authorized,
+        observedTreeSha: tree,
+        receiptAuthorizedHeadCommitSha: authorized,
+        receiptAuthorizedTreeSha: tree,
+        signedAttestationGitHeadCommitSha: null,
+      }),
+      'HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH',
+    );
+  });
+
+  it('CLI rejects missing dedicated receipt json path and malformed json files', async () => {
+    const missing = await runPreviewPairP5IdentityAuthorizationGatedRealExecutionCli([
+      '--step',
+      PAIR_P5_IDENTITY_STEP_ID,
+      '--project-ref',
+      PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+      '--host-fingerprint-sha256',
+      SESSION_POOLER_HOST_FINGERPRINT_SHA256,
+      '--repository-source',
+      'synthetic-fixture',
+      '--dedicated-receipt-json-path',
+      join(tmpdir(), 'm55-pair-p5-nonexistent-receipt.json'),
+    ]);
+    assert.equal(missing.exitCode, 1);
+    const missingBody = JSON.parse(missing.stdout) as { holdReasonCode: string };
+    assert.equal(missingBody.holdReasonCode, HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_PATH_INVALID);
+
+    const dir = mkdtempSync(join(tmpdir(), 'm55-pair-p5-receipt-'));
+    const badJsonPath = join(dir, 'bad-receipt.json');
+    writeFileSync(badJsonPath, '{not-json', 'utf8');
+    chmodSync(badJsonPath, 0o600);
+    const bad = await runPreviewPairP5IdentityAuthorizationGatedRealExecutionCli([
+      '--step',
+      PAIR_P5_IDENTITY_STEP_ID,
+      '--project-ref',
+      PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+      '--host-fingerprint-sha256',
+      SESSION_POOLER_HOST_FINGERPRINT_SHA256,
+      '--repository-source',
+      'synthetic-fixture',
+      '--dedicated-receipt-json-path',
+      badJsonPath,
+    ]);
+    assert.equal(bad.exitCode, 1);
+    const badBody = JSON.parse(bad.stdout) as { holdReasonCode: string };
+    assert.equal(badBody.holdReasonCode, 'HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID');
+
+    const loaded = loadPairP5DedicatedTargetBindingReceiptFromOwnerControlledJsonFile(badJsonPath);
+    assert.equal(loaded.ok, false);
   });
 
   it('CLI default invocation exits nonzero with execution disabled', async () => {

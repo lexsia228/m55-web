@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { realpathSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import {
@@ -28,7 +28,6 @@ import {
 import {
   PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
   PAIR_P5_EXPECTED_BRANCH,
-  PAIR_P5_EXPECTED_HEAD_COMMIT_SHA,
   PAIR_P5_EXPECTED_REPO_ROOT,
   PAIR_P5_IDENTITY_MIGRATION_NAME,
   PAIR_P5_IDENTITY_MIGRATION_SHA256,
@@ -100,6 +99,12 @@ export const HOLD_PAIR_P5_OPERATIONAL_RECEIPT_PREFLIGHT_TRUST_ANCHOR_UNAVAILABLE
   'HOLD_PAIR_P5_OPERATIONAL_RECEIPT_PREFLIGHT_TRUST_ANCHOR_UNAVAILABLE' as const;
 export const HOLD_PAIR_P5_OPERATIONAL_RECEIPT_HUMAN_AUTHORIZATION_REQUIRED =
   'HOLD_PAIR_P5_OPERATIONAL_RECEIPT_HUMAN_AUTHORIZATION_REQUIRED' as const;
+export const HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_PATH_INVALID =
+  'HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_PATH_INVALID' as const;
+export const HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_READ_FAILED =
+  'HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_READ_FAILED' as const;
+
+export const PAIR_P5_DEDICATED_RECEIPT_JSON_MAX_BYTES = 262_144 as const;
 
 const FORBIDDEN_RECEIPT_KEY_FRAGMENTS = [
   'password',
@@ -405,7 +410,6 @@ export type PairP5DedicatedReceiptFrozenPolicy = {
   readonly tlsServerName: typeof SESSION_POOLER_TLS_SERVER_NAME;
   readonly credentialMethod: typeof PAIR_P5_DEDICATED_RECEIPT_CREDENTIAL_METHOD;
   readonly expectedBranch: typeof PAIR_P5_EXPECTED_BRANCH;
-  readonly expectedHeadCommitSha: typeof PAIR_P5_EXPECTED_HEAD_COMMIT_SHA;
   readonly expectedWorktreeRealpath: typeof PAIR_P5_EXPECTED_REPO_ROOT;
 };
 
@@ -587,7 +591,6 @@ export function buildPairP5DedicatedReceiptFrozenPolicyFromPinnedPairSource(): P
     tlsServerName: SESSION_POOLER_TLS_SERVER_NAME,
     credentialMethod: PAIR_P5_DEDICATED_RECEIPT_CREDENTIAL_METHOD,
     expectedBranch: PAIR_P5_EXPECTED_BRANCH,
-    expectedHeadCommitSha: PAIR_P5_EXPECTED_HEAD_COMMIT_SHA,
     expectedWorktreeRealpath: PAIR_P5_EXPECTED_REPO_ROOT,
   };
 }
@@ -1131,7 +1134,7 @@ function validateSharedReceiptBodyPolicyFields(
   ) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH };
   }
-  if (git.branch !== policy.expectedBranch || git.headCommitSha !== policy.expectedHeadCommitSha) {
+  if (git.branch !== policy.expectedBranch) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH };
   }
   if (!git.worktreeContentPresent) {
@@ -1172,6 +1175,13 @@ function validateOperationalReceiptBodyAgainstPolicy(
   const shared = validateSharedReceiptBodyPolicyFields(b, context);
   if (!shared.ok) {
     return shared;
+  }
+  const attestationGitHead = b.signedHumanPreviewUiAttestation.payload.gitHeadCommitSha;
+  if (attestationGitHead === null || !/^[0-9a-f]{40}$/.test(attestationGitHead)) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH };
+  }
+  if (attestationGitHead !== b.git.headCommitSha) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_PROVENANCE_MISMATCH };
   }
   const witness = acceptPairP5OperationalIndependentPreviewUiWitness(b.witnessedObservation, {
     signedHumanAttestation: b.signedHumanPreviewUiAttestation,
@@ -1658,4 +1668,80 @@ export function guardPairP5CredentialPathWithDedicatedReceipt(
     return validated;
   }
   return { ok: true };
+}
+
+function isOwnerControlledRegularJsonFile(jsonPath: string): boolean {
+  if (typeof jsonPath !== 'string' || jsonPath.trim().length === 0) {
+    return false;
+  }
+  const resolved = resolve(jsonPath);
+  if (!existsSync(resolved)) {
+    return false;
+  }
+  let stat;
+  try {
+    stat = lstatSync(resolved);
+  } catch {
+    return false;
+  }
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    return false;
+  }
+  if ((stat.mode & 0o004) !== 0) {
+    return false;
+  }
+  try {
+    realpathSync(resolved);
+  } catch {
+    return false;
+  }
+  return true;
+}
+
+export function loadPairP5DedicatedTargetBindingReceiptFromOwnerControlledJsonFile(
+  jsonPath: string,
+):
+  | { readonly ok: true; readonly receipt: PairP5DedicatedTargetBindingReceipt }
+  | {
+      readonly ok: false;
+      readonly holdReasonCode:
+        | typeof HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_PATH_INVALID
+        | typeof HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_READ_FAILED
+        | typeof HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID;
+    } {
+  if (!isOwnerControlledRegularJsonFile(jsonPath)) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_PATH_INVALID };
+  }
+  const resolved = resolve(jsonPath);
+  let raw: Buffer;
+  try {
+    raw = readFileSync(resolved);
+  } catch {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_READ_FAILED };
+  }
+  if (raw.byteLength === 0 || raw.byteLength > PAIR_P5_DEDICATED_RECEIPT_JSON_MAX_BYTES) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_JSON_READ_FAILED };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw.toString('utf8'));
+  } catch {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
+  if (!isPlainObject(parsed) || !hasExactAllowlistedKeys(parsed, RECEIPT_ENVELOPE_KEYS)) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
+  if (!assertNoForbiddenKeys(parsed)) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
+  const receipt = parsed as PairP5DedicatedTargetBindingReceipt;
+  if (
+    typeof receipt.canonicalSerializationSha256 !== 'string' ||
+    typeof receipt.receiptIdentifierSha256 !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(receipt.canonicalSerializationSha256) ||
+    !/^[0-9a-f]{64}$/.test(receipt.receiptIdentifierSha256)
+  ) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
+  return { ok: true, receipt };
 }

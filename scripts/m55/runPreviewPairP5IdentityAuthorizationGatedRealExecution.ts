@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { writeFileSync } from 'node:fs';
 
+import { loadPairP5DedicatedTargetBindingReceiptFromOwnerControlledJsonFile } from '../../lib/m55/previewRemoteApply/pairP5DedicatedTargetBindingReceipt.ts';
+
 import {
   assertPairP5PrerequisiteLocalCodeIntegrity,
   executePairP5IdentityAuthorizationGatedRealExecution,
@@ -26,6 +28,7 @@ const ALLOWED_FLAGS = new Set([
   '--host-fingerprint-sha256',
   '--repository-source',
   '--output',
+  '--dedicated-receipt-json-path',
 ]);
 
 const FORBIDDEN_FLAG_FRAGMENTS = [
@@ -49,6 +52,7 @@ type CliArgs = {
   hostFingerprintSha256: string | null;
   repositorySource: RepositorySource;
   outputPath: string | null;
+  dedicatedReceiptJsonPath: string | null;
 };
 
 function classifyForbiddenFlag(token: string): 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED' | null {
@@ -70,6 +74,7 @@ export function parsePairP5AuthGatedRealExecutionCliArgs(
     hostFingerprintSha256: null,
     repositorySource: 'git',
     outputPath: null,
+    dedicatedReceiptJsonPath: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
@@ -105,6 +110,9 @@ export function parsePairP5AuthGatedRealExecutionCliArgs(
         break;
       case '--output':
         args.outputPath = value;
+        break;
+      case '--dedicated-receipt-json-path':
+        args.dedicatedReceiptJsonPath = value;
         break;
       default:
         return { holdReasonCode: 'HOLD_PAIR_P5_STEP_SELECTION_INVALID' };
@@ -168,6 +176,23 @@ export async function runPreviewPairP5IdentityAuthorizationGatedRealExecutionCli
       ? readPairP5RepositoryIdentityFromGit(PAIR_P5_EXPECTED_REPO_ROOT)
       : buildPairP5SyntheticFixtureRepositoryIdentity();
 
+  let dedicatedTargetBindingReceipt = null;
+  if (parsed.dedicatedReceiptJsonPath !== null) {
+    const loaded = loadPairP5DedicatedTargetBindingReceiptFromOwnerControlledJsonFile(
+      parsed.dedicatedReceiptJsonPath,
+    );
+    if (!loaded.ok) {
+      const envelope = {
+        mode: 'PAIR_P5_AUTH_GATED_REAL_HOLD',
+        ...PAIR_P5_STATIC_EXECUTION_GATE,
+        readiness: PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS,
+        holdReasonCode: loaded.holdReasonCode,
+      };
+      return { exitCode: 1, stdout: `${JSON.stringify(envelope, null, 2)}\n` };
+    }
+    dedicatedTargetBindingReceipt = loaded.receipt;
+  }
+
   const result = await executePairP5IdentityAuthorizationGatedRealExecution({
     repoRoot: PAIR_P5_EXPECTED_REPO_ROOT,
     repository: repositoryBinding.facts,
@@ -180,6 +205,7 @@ export async function runPreviewPairP5IdentityAuthorizationGatedRealExecutionCli
       hostFingerprintSha256: parsed.hostFingerprintSha256,
     },
     selectedStep: PAIR_P5_IDENTITY_STEP_ID,
+    dedicatedTargetBindingReceipt,
   });
 
   const serialized = `${serializePairP5AuthGatedRealExecutionResult(result)}\n`;

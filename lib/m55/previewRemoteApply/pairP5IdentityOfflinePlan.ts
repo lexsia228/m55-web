@@ -22,6 +22,7 @@ import {
   PAIR_P5_EXPECTED_BRANCH,
   PAIR_P5_EXPECTED_HEAD_COMMIT_SHA,
   PAIR_P5_EXPECTED_REPO_ROOT,
+  isPairP5GitObjectSha40,
   PAIR_P5_FROZEN_NON_CALLABLE_STEPS,
   PAIR_P5_IDENTITY_MIGRATION_BYTES,
   PAIR_P5_IDENTITY_MIGRATION_NAME,
@@ -163,7 +164,10 @@ export function validatePairP5RepositoryIdentity(
   if (repository.branch !== PAIR_P5_EXPECTED_BRANCH) {
     return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
   }
-  if (repository.headCommitSha !== PAIR_P5_EXPECTED_HEAD_COMMIT_SHA) {
+  if (
+    !isPairP5GitObjectSha40(repository.headCommitSha) ||
+    !isPairP5GitObjectSha40(repository.treeSha)
+  ) {
     return 'HOLD_PAIR_P5_REPO_IDENTITY_MISMATCH';
   }
   if (repository.trackedWorktreeClean !== true || repository.indexEmpty !== true) {
