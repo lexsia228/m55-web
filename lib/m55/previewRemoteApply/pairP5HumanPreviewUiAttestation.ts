@@ -53,9 +53,35 @@ export type PairP5HumanAttestationTrustAnchor = {
   readonly status: 'ACTIVE' | 'REVOKED';
 };
 
-/** Human-approved operational anchors only; empty until Human registers production keys. */
+export const PAIR_P5_OPERATIONAL_HUMAN_TRUST_KEY_ID = 'm55-pair-p5-human-ed25519-v1' as const;
+
+export const PAIR_P5_OPERATIONAL_HUMAN_PUBLIC_KEY_SPKI_DER_SHA256 =
+  'ed26629878b8dba852a1e7d74ca1ee05f4d6bba3209aa57454be14290b8367ee' as const;
+
+const PAIR_P5_OPERATIONAL_HUMAN_TRUST_ANCHOR_ACTIVE: PairP5HumanAttestationTrustAnchor = {
+  trustKeyId: PAIR_P5_OPERATIONAL_HUMAN_TRUST_KEY_ID,
+  publicKeySpkiDerBase64:
+    'MCowBQYDK2VwAyEAFRYHPu/aI935ejZlFFVJjg/Le7Pik+Pj80m9HYt9nYg=' as const,
+  status: 'ACTIVE',
+};
+
+function assertPairP5OperationalHumanTrustAnchorIntegrity(): void {
+  const der = Buffer.from(PAIR_P5_OPERATIONAL_HUMAN_TRUST_ANCHOR_ACTIVE.publicKeySpkiDerBase64, 'base64');
+  const sha256 = createHash('sha256').update(der).digest('hex');
+  if (sha256 !== PAIR_P5_OPERATIONAL_HUMAN_PUBLIC_KEY_SPKI_DER_SHA256) {
+    throw new Error('HOLD_PAIR_P5_OPERATIONAL_HUMAN_TRUST_ANCHOR_SPKI_MISMATCH');
+  }
+  const keyObject = createPublicKey({ key: der, format: 'der', type: 'spki' });
+  if (keyObject.asymmetricKeyType !== 'ed25519') {
+    throw new Error('HOLD_PAIR_P5_OPERATIONAL_HUMAN_TRUST_ANCHOR_NOT_ED25519');
+  }
+}
+
+assertPairP5OperationalHumanTrustAnchorIntegrity();
+
+/** Human-approved operational anchors only; production keys registered by explicit Human GO. */
 export const PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS: readonly PairP5HumanAttestationTrustAnchor[] =
-  [];
+  [PAIR_P5_OPERATIONAL_HUMAN_TRUST_ANCHOR_ACTIVE];
 
 export const HOLD_PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_ISSUER_NOT_AUTHORIZED =
   'HOLD_PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_ISSUER_NOT_AUTHORIZED' as const;

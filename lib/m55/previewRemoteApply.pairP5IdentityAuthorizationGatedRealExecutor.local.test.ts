@@ -43,6 +43,7 @@ import {
   PAIR_P5_OPERATIONAL_RECEIPT_READINESS,
   PAIR_P5_OPERATIONAL_ISSUANCE_EXTERNAL_HOLDS,
   HOLD_PAIR_P5_OPERATIONAL_HUMAN_APPLY_GO_REQUIRED,
+  HOLD_PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_NOT_AUTHORIZED,
   HOLD_PAIR_P5_LIVE_FRESH_READONLY_PROBE_NOT_AUTHORIZED,
   evaluatePairP5LiveDedicatedPathPreCredentialBoundary,
   attemptPairP5OperationalDedicatedTargetBindingReceiptIssuance,
@@ -147,9 +148,10 @@ function baseInput(
 }
 
 describe('pair P5 authorization-gated real executor', () => {
-  it('freezes human authorization false and documents live orchestration status', () => {
-    assert.equal(PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED, false);
-    assert.equal(isPairP5HumanPreviewApplyAuthorizationGranted(), false);
+  it('documents scoped apply authorization with credential still frozen', () => {
+    assert.equal(PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED, true);
+    assert.equal(isPairP5HumanPreviewApplyAuthorizationGranted(), true);
+    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, false);
     assert.equal(PAIR_P5_LIVE_PG_ORCHESTRATION_IMPLEMENTATION_STATUS, 'IMPLEMENTED_BEHIND_HARD_FALSE_AUTHORIZATION');
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.livePgTransactionOrchestrationImplemented, true);
     assert.equal(PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS.livePgConnectionImplementedAsInertStub, false);
@@ -366,10 +368,10 @@ describe('pair P5 authorization-gated real executor', () => {
     assert.equal(legacy.holdReasonCode, HOLD_PAIR_P5_LEGACY_TARGET_BINDING_RECEIPT_INCOMPATIBLE_WITH_DEDICATED_STEP);
   });
 
-  it('live fresh readonly classifier is fail-closed while Human GO remains false', async () => {
+  it('live fresh readonly classifier stays fail-closed without operational receipt', async () => {
     const fresh = await probePairP5LiveFreshReadonlyPostCommitClassifierWhenHumanGateClosed(baseInput());
     assert.equal(fresh.classifierRan, false);
-    assert.equal(fresh.evidencePatch.liveFreshReadonlyHumanAuthorizationGateClosed, true);
+    assert.equal(fresh.evidencePatch.liveFreshReadonlyHumanAuthorizationGateClosed, false);
     assert.equal(fresh.ok, false);
   });
 
@@ -508,7 +510,8 @@ describe('pair P5 authorization-gated real executor', () => {
     assert.equal(result.executionAuthorized, false);
     assert.equal(result.migrationApplyAuthorized, false);
     assert.equal(result.evidence.applyReadyFromProbeGreen, false);
-    assert.equal(isPairP5HumanPreviewApplyAuthorizationGranted(), false);
+    assert.equal(isPairP5HumanPreviewApplyAuthorizationGranted(), true);
+    assert.equal(PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED, false);
   });
 
   it('rolls back on failed prior probe in simulation', async () => {
@@ -746,7 +749,7 @@ describe('pair P5 authorization-gated real executor', () => {
       }
     });
 
-    it('human authorization id and durable replay remain unwired under false flags', async () => {
+    it('human authorization id without attestation context and durable replay stay fail-closed', async () => {
       resetPairP5HumanPreviewApplyAuthorizationRegistryForTestsOnly();
       const human = validatePairP5HumanPreviewApplyAuthorizationRecord('HUMAN_APPLY_NOT_ISSUED', 'LIVE_MUTATION');
       assert.equal(human.ok, false);
@@ -765,7 +768,7 @@ describe('pair P5 authorization-gated real executor', () => {
       assert.equal(missing, HOLD_PAIR_P5_DEDICATED_RECEIPT_MISSING);
       const receipt = issueTestReceipt();
       const okPath = probePairP5DedicatedReceiptBeforeCredentialsForTestsOnly(baseInput(), receipt, true);
-      assert.equal(okPath, HOLD_PAIR_P5_OPERATIONAL_HUMAN_APPLY_GO_REQUIRED);
+      assert.equal(okPath, HOLD_PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_NOT_AUTHORIZED);
       assert.notEqual(okPath, HOLD_PAIR_P5_LEGACY_TARGET_BINDING_RECEIPT_INCOMPATIBLE_WITH_DEDICATED_STEP);
       validatePairP5DedicatedTargetBindingReceipt(receipt, freshValidationContext(true));
       const replay = guardPairP5CredentialPathWithDedicatedReceipt(receipt, freshValidationContext(true));

@@ -182,8 +182,8 @@ export const PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL = buildPairP5FunctionBodyCa
 export type PairP5FulfillRpcBodyFingerprintVerificationStatus =
   'SOURCE_DERIVED_EXPECTATION_ONLY_NOT_PG_OBSERVED';
 
-/** Frozen false — cannot be flipped by env/CLI in this gate. Separate Human P5-1 apply GO required later. */
-export const PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED = false as const;
+/** Scoped P5-1 apply path enabled with registered Human trust anchor; cryptographic receipt + attestation still required. */
+export const PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED = true as const;
 
 /** Frozen false — stdin credential read + PG connect only when Human explicitly authorizes. */
 export const PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_AUTHORIZED = false as const;
@@ -196,7 +196,7 @@ export const PAIR_P5_LIVE_PG_ORCHESTRATION_IMPLEMENTATION_STATUS =
   'IMPLEMENTED_BEHIND_HARD_FALSE_AUTHORIZATION' as const;
 
 export const PAIR_P5_AUTH_GATED_REAL_EXECUTION_READINESS = {
-  humanPreviewApplyAuthorizationGranted: false as const,
+  humanPreviewApplyAuthorizationGranted: PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED,
   staticExecutionGateExecutionAuthorized: false as const,
   staticMigrationApplyAuthorized: false as const,
   livePgTransactionOrchestrationImplemented: true as const,

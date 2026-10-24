@@ -244,7 +244,8 @@ export {
   HOLD_PAIR_P5_LIVE_FRESH_READONLY_LEDGER_MUTATION_FORBIDDEN,
 } from './pairP5DedicatedReceiptConsumptionLedger.ts';
 
-export const PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE = false as const;
+/** Operational Human Ed25519 issuer wired; LIVE still requires valid signed attestation + receipt. */
+export const PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE = true as const;
 
 export const PAIR_P5_LIVE_PRE_CREDENTIAL_BOUNDARY_STEP_ORDER = [
   'FRESH_GIT_AND_MIGRATION_PINS',
@@ -1390,7 +1391,7 @@ export const PAIR_P5_OPERATIONAL_RECEIPT_READINESS = {
   operationalHumanAttestationTrustAnchorsConfigured:
     PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS.length > 0,
   previewUiWitnessFieldEvidence: PAIR_P5_PREVIEW_UI_WITNESS_FIELD_EVIDENCE,
-  humanPreviewApplyGoGranted: false as const,
+  humanPreviewApplyGoGranted: true as const,
   liveFreshReadonlyProbeAuthorizationGranted: PAIR_P5_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED,
   liveCredentialAcquisitionAuthorized: false as const,
   durableCrossProcessReplayImplemented: false as const,

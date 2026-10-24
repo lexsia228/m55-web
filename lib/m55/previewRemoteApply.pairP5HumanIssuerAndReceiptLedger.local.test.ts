@@ -24,6 +24,8 @@ import {
   HOLD_PAIR_P5_HUMAN_ATTESTATION_SIGNATURE_INVALID,
   HOLD_PAIR_P5_HUMAN_ATTESTATION_TRUST_ANCHOR_UNKNOWN,
   PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS,
+  PAIR_P5_OPERATIONAL_HUMAN_PUBLIC_KEY_SPKI_DER_SHA256,
+  PAIR_P5_OPERATIONAL_HUMAN_TRUST_KEY_ID,
   buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly,
   generatePairP5HumanAttestationTestKeyMaterialForTestsOnly,
   signPairP5HumanPreviewUiAttestationForTestsOnly,
@@ -59,6 +61,14 @@ import {
 } from './previewRemoteApply/pairP5IdentityStepAuthority.ts';
 
 describe('Pair P5 human attestation + receipt ledger (local)', () => {
+  it('pins operational Human Ed25519 SPKI fingerprint at module load', () => {
+    assert.equal(PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS.length, 1);
+    const anchor = PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS[0];
+    assert.equal(anchor.trustKeyId, PAIR_P5_OPERATIONAL_HUMAN_TRUST_KEY_ID);
+    assert.equal(anchor.status, 'ACTIVE');
+    assert.equal(PAIR_P5_OPERATIONAL_HUMAN_PUBLIC_KEY_SPKI_DER_SHA256.length, 64);
+  });
+
   it('verifies signed attestation with test-only key and rejects operational anchors', () => {
     const key = generatePairP5HumanAttestationTestKeyMaterialForTestsOnly('TEST_KEY_v1');
     const payload = buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly({
@@ -199,14 +209,26 @@ describe('Pair P5 human attestation + receipt ledger (local)', () => {
       payload,
       privateKeyPkcs8DerBase64: key.privateKeyPkcs8DerBase64,
     });
-    const live = verifyPairP5OperationalHumanPreviewUiAttestationForDedicatedReceipt({
+    const liveIssuerDisabled = verifyPairP5OperationalHumanPreviewUiAttestationForDedicatedReceipt({
+      signed,
+      expectedPurpose: 'LIVE_MUTATION',
+      authorizedExternalAttestationIssuerAvailable: false,
+    });
+    assert.equal(liveIssuerDisabled.ok, false);
+    if (!liveIssuerDisabled.ok) {
+      assert.equal(
+        liveIssuerDisabled.holdReasonCode,
+        HOLD_PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_ISSUER_NOT_AUTHORIZED,
+      );
+    }
+    const liveTestKeyRejected = verifyPairP5OperationalHumanPreviewUiAttestationForDedicatedReceipt({
       signed,
       expectedPurpose: 'LIVE_MUTATION',
       authorizedExternalAttestationIssuerAvailable: PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE,
     });
-    assert.equal(live.ok, false);
-    if (!live.ok) {
-      assert.equal(live.holdReasonCode, HOLD_PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_ISSUER_NOT_AUTHORIZED);
+    assert.equal(liveTestKeyRejected.ok, false);
+    if (!liveTestKeyRejected.ok) {
+      assert.equal(liveTestKeyRejected.holdReasonCode, HOLD_PAIR_P5_HUMAN_ATTESTATION_TRUST_ANCHOR_UNKNOWN);
     }
   });
 
