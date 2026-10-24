@@ -1,4 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { normalizePathname } from './lib/m55/authRouting/routeAccessContract';
 import {
   createPlainUnknownApi404Response,
   createUnknownDocumentRecoveryRewrite,
@@ -27,6 +29,7 @@ const isPublicRoute = createRouteMatcher([
   '/creator',
   '/creator/apply',
   '/creator/portal',
+  '/m55/r',
   '/creator/invite/:token',
   '/synastry',
   '/synastry/purchase/confirm',
@@ -87,6 +90,12 @@ export default clerkMiddleware(async (auth, req) => {
 
   switch (outcome.action) {
     case 'continue':
+      if (normalizePathname(pathname) === '/m55/r') {
+        const referralEntry = NextResponse.next();
+        referralEntry.headers.set('Referrer-Policy', 'no-referrer');
+        referralEntry.headers.set('Cache-Control', 'private, no-store, max-age=0');
+        return referralEntry;
+      }
       return;
     case 'protect':
       await auth.protect();
