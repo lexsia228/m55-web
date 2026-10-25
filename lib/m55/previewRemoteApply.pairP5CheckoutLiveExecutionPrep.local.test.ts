@@ -213,6 +213,7 @@ describe('pairP5 checkout LIVE execution prep', () => {
     const sim = await simulatePairP5CheckoutAuthorizationGatedTransactionOffline(baseInput(), {
       fakeClientOptions: { commitResponseClass: 'DEFINITIVE_COMMIT_ACK' },
     });
+    assert.equal(sim.mode, 'PAIR_P5_AUTH_GATED_OFFLINE_SIMULATION_COMPLETE');
     const live = mapPairP5AuthGatedOrchestrationOutcomeToExecutionResult(
       {
         holdReasonCode: null,

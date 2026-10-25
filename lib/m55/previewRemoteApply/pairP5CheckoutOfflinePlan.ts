@@ -39,9 +39,13 @@ const CHECKOUT_FROZEN_VERSION_TOKENS = new Set<string>([
   'PAIR_P5_FULFILL_20261013',
 ]);
 
+export type PairP5CheckoutDedicatedStepSelectionResult =
+  | { readonly ok: true; readonly stepId: PairP5CheckoutCallableStepId }
+  | { readonly ok: false; readonly error: PairP5DedicatedStepSelectionError };
+
 export function validateDedicatedPairP5CheckoutStepSelection(
   raw: string | readonly string[] | null | undefined,
-): PairP5DedicatedStepSelectionResult {
+): PairP5CheckoutDedicatedStepSelectionResult {
   const tokens = normalizePairP5StepTokens(raw);
   if (tokens.length === 0) {
     return { ok: false, error: 'HOLD_DEDICATED_STEP_EMPTY' };

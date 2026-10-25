@@ -61,6 +61,7 @@ import {
   PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT,
   PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256,
   PAIR_P5_IDENTITY_STEP_ID,
+  type PairP5CallableStepId,
   PAIR_P5_POST_PROBE_SQL,
   PAIR_P5_POST_PROBE_SQL_SHA256_LITERAL,
   PAIR_P5_PRE_IDENTITY_EXECUTION_HISTORY_VERSIONS,
@@ -82,12 +83,23 @@ import type {
   PairP5OrchestrationPlan,
   PairP5OrchestrationProbeSuite,
 } from './pairP5OrchestrationShared.ts';
-import { PAIR_P5_CHECKOUT_STEP_ID } from './pairP5CheckoutStepAuthority.ts';
-import { isPairP5CheckoutHumanPreviewApplyAuthorizationGranted } from './pairP5CheckoutLiveExecutionAuthority.ts';
+import {
+  PAIR_P5_CHECKOUT_MIGRATION_VERSION,
+  PAIR_P5_CHECKOUT_STEP_ID,
+  type PairP5CheckoutCallableStepId,
+} from './pairP5CheckoutStepAuthority.ts';
+import {
+  PAIR_P5_CHECKOUT_AUTH_GATED_REAL_EXECUTOR_ID,
+  isPairP5CheckoutHumanPreviewApplyAuthorizationGranted,
+} from './pairP5CheckoutLiveExecutionAuthority.ts';
 import { validatePairP5CheckoutPreviewStructuralAuthorityContract } from './pairP5CheckoutStructuralAuthority.ts';
 
 export const PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID =
   'M55_PAIR_P5_IDENTITY_AUTHORIZATION_GATED_REAL_EXECUTOR_v1' as const;
+
+export type PairP5AuthGatedRealExecutorId =
+  | typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID
+  | typeof PAIR_P5_CHECKOUT_AUTH_GATED_REAL_EXECUTOR_ID;
 
 import {
   PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE,
@@ -354,20 +366,20 @@ export type PairP5AuthGatedRealExecutionResult =
   | {
       readonly mode: 'PAIR_P5_AUTH_GATED_REAL_EXECUTION_DISABLED';
       readonly holdReasonCode: 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED';
-      readonly executorId: typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID;
+      readonly executorId: PairP5AuthGatedRealExecutorId;
       readonly evidence: PairP5AuthGatedExecutionEvidence;
     } & typeof PAIR_P5_STATIC_EXECUTION_GATE
   | {
       readonly mode: 'PAIR_P5_AUTH_GATED_REAL_HOLD';
       readonly holdReasonCode: string;
-      readonly executorId: typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID;
+      readonly executorId: PairP5AuthGatedRealExecutorId;
       readonly evidence: PairP5AuthGatedExecutionEvidence;
       readonly querySequence?: readonly string[];
     } & typeof PAIR_P5_STATIC_EXECUTION_GATE
   | {
       readonly mode: 'PAIR_P5_AUTH_GATED_OFFLINE_SIMULATION_COMPLETE';
       readonly holdReasonCode: null;
-      readonly executorId: typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID;
+      readonly executorId: PairP5AuthGatedRealExecutorId;
       readonly evidence: PairP5AuthGatedExecutionEvidence;
       readonly querySequence: readonly string[];
       readonly simulationOnly: true;
@@ -376,7 +388,7 @@ export type PairP5AuthGatedRealExecutionResult =
   | {
       readonly mode: 'PAIR_P5_AUTH_GATED_LIVE_MUTATION_COMPLETE';
       readonly holdReasonCode: null;
-      readonly executorId: typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID;
+      readonly executorId: PairP5AuthGatedRealExecutorId;
       readonly evidence: PairP5AuthGatedExecutionEvidence;
       readonly querySequence: readonly string[];
       readonly liveMutationOnly: true;
@@ -593,8 +605,10 @@ export function buildMockPairP5FunctionBodyCatalogProbeRow(): ExecutionPgQueryRe
 }
 
 export type PairP5DedicatedPreviewConnectionIntent = {
-  readonly dedicatedPairStepId: typeof PAIR_P5_IDENTITY_STEP_ID;
-  readonly migrationVersion: typeof PAIR_P5_IDENTITY_MIGRATION_VERSION;
+  readonly dedicatedPairStepId: PairP5CallableStepId | PairP5CheckoutCallableStepId;
+  readonly migrationVersion:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_VERSION
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION;
   readonly repositoryBranch: string;
   readonly repositoryHeadCommitSha: string;
   readonly previewOrganization: string;
@@ -1264,6 +1278,8 @@ type PairP5AuthGatedOrchestrationSurface =
       readonly mutationCloseFailsAfterCommit?: boolean;
       readonly internalLiveFreshReadonlyStructureExercise?: boolean;
       readonly postConnectDedicatedReceiptLedgerBinding?: PairP5DedicatedReceiptConsumptionBinding | null;
+      /** Test-only: throw before mutation PG client is constructed (orchestration catch / cleanup regression). */
+      readonly mutationClientConstructThrowsForTestsOnly?: boolean;
     };
 
 type PairP5FreshReadonlyClassifierSurface =
@@ -1361,6 +1377,9 @@ async function buildMutationClientForSurface(
       return live;
     }
     return { client: live.client, evidencePatch: live.evidencePatch, cleanup: live.cleanup };
+  }
+  if (surface.mutationClientConstructThrowsForTestsOnly === true) {
+    throw new Error('HOLD_UNEXPECTED_INTERNAL');
   }
   const mutationFactory = createFakeExecutionPgClientFactory(surface.mutationFakeOptions);
   const transport = createExecutionPgTransport({
@@ -1709,7 +1728,7 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
   }
 
   let credentialCleanup: PairP5LivePgClientCredentialCleanup = null;
-  let client!: ExecutionPgClient;
+  let mutationClient: ExecutionPgClient | null = null;
   let preCommitFailurePhase:
     | 'CONNECT'
     | 'PRIOR_PROBE'
@@ -1743,8 +1762,9 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       return { holdReasonCode: clientBuild, evidence, querySequence, simulationOnly };
     }
     evidence = { ...evidence, ...clientBuild.evidencePatch };
-    client = clientBuild.client;
+    mutationClient = clientBuild.client;
     credentialCleanup = clientBuild.cleanup;
+    const client = mutationClient;
 
     preCommitFailurePhase = 'CONNECT';
     await client.connect();
@@ -1999,6 +2019,15 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       simulationOnly,
     };
   } catch {
+    if (mutationClient === null) {
+      return {
+        holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL',
+        evidence,
+        querySequence,
+        simulationOnly,
+      };
+    }
+    const client = mutationClient;
     if (evidence.commitSent) {
       const closeCompleted = await safeCloseExecutionClient(client);
       evidence = {
