@@ -246,6 +246,26 @@ function publicWrongRelkindIndexSameNameZeroSql(indexRelname: string): string {
   return `(SELECT count(*)::int FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname = '${indexRelname}' AND c.relkind <> 'i') = 0`;
 }
 
+const PAIR_P5_FORBIDDEN_TABLE_PRIVILEGE_TYPES_SQL =
+  "('SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER')";
+
+/** PUBLIC is ACL grantee 0 — not a pg_roles row; never pass 'PUBLIC' to has_*_privilege. */
+export function pairP5IdentityLinksPublicTableAclGrantCountSql(): string {
+  return `(SELECT count(*)::int FROM pg_catalog.pg_class c CROSS JOIN LATERAL pg_catalog.aclexplode(COALESCE(c.relacl, pg_catalog.acldefault('r', c.relowner))) AS acl WHERE c.oid = ${IL_REL_OID_SQL} AND acl.grantee = 0 AND acl.privilege_type IN ${PAIR_P5_FORBIDDEN_TABLE_PRIVILEGE_TYPES_SQL})`;
+}
+
+export function pairP5FulfillRpcPublicExecuteAclGrantCountSql(): string {
+  return `(SELECT count(*)::int FROM pg_catalog.pg_proc p CROSS JOIN LATERAL pg_catalog.aclexplode(COALESCE(p.proacl, pg_catalog.acldefault('f', p.proowner))) AS acl WHERE p.oid = to_regprocedure('public.m55_fulfill_compatibility_report_v1(uuid, text, text)') AND acl.grantee = 0 AND acl.privilege_type = 'EXECUTE')`;
+}
+
+function identityLinksForbiddenRoleTableGrantsZeroSql(): string {
+  return `(SELECT count(*)::int FROM (VALUES ('anon'), ('authenticated')) AS roles(role_name) CROSS JOIN (VALUES ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')) AS privs(priv) WHERE has_table_privilege(roles.role_name, 'public.compatibility_owned_report_identity_links', privs.priv)) = 0`;
+}
+
+function identityLinksForbiddenTableGrantsZeroSql(): string {
+  return `(${identityLinksForbiddenRoleTableGrantsZeroSql()} AND ${pairP5IdentityLinksPublicTableAclGrantCountSql()} = 0)`;
+}
+
 /** PostgreSQL trigger type mask: ROW(1) + BEFORE(2) + UPDATE(16) = 19. */
 export const PAIR_P5_PG_TRIGGER_BEFORE_UPDATE_ROW_TGTYPE = 19 as const;
 
@@ -436,16 +456,13 @@ function buildPairP5PostProbeSql(): string {
     ],
     [
       'fulfill_rpc_execute_service_role_only_public',
-      "(SELECT count(*)::int FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'public' AND p.oid = to_regprocedure('public.m55_fulfill_compatibility_report_v1(uuid, text, text)') AND has_function_privilege('service_role', p.oid, 'EXECUTE') AND NOT has_function_privilege('PUBLIC', p.oid, 'EXECUTE') AND NOT has_function_privilege('anon', p.oid, 'EXECUTE') AND NOT has_function_privilege('authenticated', p.oid, 'EXECUTE')) = 1",
+      `(SELECT count(*)::int FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'public' AND p.oid = to_regprocedure('public.m55_fulfill_compatibility_report_v1(uuid, text, text)') AND has_function_privilege('service_role', p.oid, 'EXECUTE') AND NOT has_function_privilege('anon', p.oid, 'EXECUTE') AND NOT has_function_privilege('authenticated', p.oid, 'EXECUTE') AND ${pairP5FulfillRpcPublicExecuteAclGrantCountSql()} = 0) = 1`,
     ],
     [
       'identity_links_service_role_table_grants_exact',
       "((SELECT count(*)::int FROM (VALUES ('SELECT'), ('INSERT'), ('DELETE')) AS req(priv) WHERE NOT has_table_privilege('service_role', 'public.compatibility_owned_report_identity_links', req.priv)) = 0 AND (SELECT count(*)::int FROM (VALUES ('UPDATE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')) AS forbid(priv) WHERE has_table_privilege('service_role', 'public.compatibility_owned_report_identity_links', forbid.priv)) = 0)",
     ],
-    [
-      'identity_links_forbidden_table_grants_zero',
-      "(SELECT count(*)::int FROM (VALUES ('anon'), ('authenticated'), ('PUBLIC')) AS roles(role_name) CROSS JOIN (VALUES ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')) AS privs(priv) WHERE has_table_privilege(roles.role_name, 'public.compatibility_owned_report_identity_links', privs.priv)) = 0",
-    ],
+    ['identity_links_forbidden_table_grants_zero', identityLinksForbiddenTableGrantsZeroSql()],
     ['p52_reservation_column_absent', `${cpcColumnCountSql('checkout_origin_frozen')} = 0`],
     [
       'pending_tuple_index_absent',
@@ -470,7 +487,7 @@ export const PAIR_P5_POST_PROBE_SQL = buildPairP5PostProbeSql();
 export const PAIR_P5_PRIOR_PROBE_SQL_SHA256_LITERAL =
   '5f9b3fa5e63181ede9faeeee6f60f2861749734244cd25347053b4d3abe82f50' as const;
 export const PAIR_P5_POST_PROBE_SQL_SHA256_LITERAL =
-  'd135fd5a6aad8e50983ba46f3230c0825ac0b52730acac1e0f8d2e6987076875' as const;
+  '807a523f2980548b64f2767f5f05a694fdd2c247be0ef64198afedd5d1209338' as const;
 
 export const PAIR_P5_PRIOR_PROBE_SQL_SHA256 = PAIR_P5_PRIOR_PROBE_SQL_SHA256_LITERAL;
 export const PAIR_P5_POST_PROBE_SQL_SHA256 = PAIR_P5_POST_PROBE_SQL_SHA256_LITERAL;

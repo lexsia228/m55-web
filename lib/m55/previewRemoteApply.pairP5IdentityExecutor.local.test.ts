@@ -329,10 +329,14 @@ describe('pair P5 identity offline executor', () => {
     assert.equal(identityTriggerChunk.includes("position('BEFORE UPDATE'"), false);
     const grantsChunk = PAIR_P5_POST_PROBE_SQL.slice(
       PAIR_P5_POST_PROBE_SQL.indexOf('identity_links_service_role_table_grants_exact'),
-      PAIR_P5_POST_PROBE_SQL.indexOf('identity_links_service_role_table_grants_exact') + 650,
+      PAIR_P5_POST_PROBE_SQL.indexOf('p52_reservation_column_absent'),
     );
     assert.ok(grantsChunk.includes("'UPDATE'"));
     assert.ok(grantsChunk.includes('forbid(priv)'));
+    assert.equal(grantsChunk.includes("has_table_privilege('PUBLIC'"), false);
+    assert.equal(grantsChunk.includes("has_function_privilege('PUBLIC'"), false);
+    assert.ok(grantsChunk.includes('pg_catalog.aclexplode'));
+    assert.ok(grantsChunk.includes('acl.grantee = 0'));
   });
 
   it('rejects tampered post probe digest pin (B2)', () => {

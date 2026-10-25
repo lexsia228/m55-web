@@ -1455,6 +1455,16 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
   const client = clientBuild.client;
   const credentialCleanup = clientBuild.cleanup;
 
+  let preCommitFailurePhase:
+    | 'CONNECT'
+    | 'PRIOR_PROBE'
+    | 'LEDGER_CLAIM'
+    | 'MUTATION'
+    | 'HISTORY_INSERT'
+    | 'POST_PROBE'
+    | 'FUNCTION_BODY_CATALOG_PROBE'
+    | 'COMMIT' = 'CONNECT';
+
   try {
     await client.connect();
     if (surface.kind === 'LIVE_SESSION_POOLER') {
@@ -1477,6 +1487,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     await client.begin();
     evidence = { ...evidence, beginExecuted: true };
 
+    preCommitFailurePhase = 'PRIOR_PROBE';
     const priorResult = await client.query(PAIR_P5_PRIOR_PROBE_SQL);
     querySequence.push('PRIOR_PROBE');
     evidence = { ...evidence, priorProbeExecuted: true };
@@ -1492,6 +1503,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     }
 
     if (surface.kind === 'LIVE_SESSION_POOLER') {
+      preCommitFailurePhase = 'LEDGER_CLAIM';
       const ledgerPort = createPairP5PostgresTransactionalLedgerClaimPortFromExecutionPgClient(client);
       const ledgerHold = await attemptPairP5PostConnectLedgerAtomicClaimInMutationTransaction({
         binding: surface.postConnectDedicatedReceiptLedgerBinding,
@@ -1510,6 +1522,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     } else {
       const ledgerBinding = surface.postConnectDedicatedReceiptLedgerBinding ?? null;
       if (ledgerBinding !== null) {
+        preCommitFailurePhase = 'LEDGER_CLAIM';
         const ledgerPort = createPairP5PostgresTransactionalLedgerClaimPortFromExecutionPgClient(client);
         const ledgerHold = await attemptPairP5PostConnectLedgerAtomicClaimInMutationTransaction({
           binding: ledgerBinding,
@@ -1528,6 +1541,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       }
     }
 
+    preCommitFailurePhase = 'MUTATION';
     for (const statement of plan.historyInsert.statements) {
       await client.query(statement);
       querySequence.push('MUTATION_STATEMENT');
@@ -1546,6 +1560,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       };
     }
 
+    preCommitFailurePhase = 'HISTORY_INSERT';
     await client.query(HISTORY_INSERT_SQL_METADATA, [
       plan.historyInsert.version,
       plan.historyInsert.statements,
@@ -1558,6 +1573,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       historyInsertParameterized: true,
     };
 
+    preCommitFailurePhase = 'POST_PROBE';
     const postResult = await client.query(PAIR_P5_POST_PROBE_SQL);
     querySequence.push('POST_PROBE');
     evidence = { ...evidence, postProbeExecuted: true };
@@ -1572,6 +1588,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       };
     }
 
+    preCommitFailurePhase = 'FUNCTION_BODY_CATALOG_PROBE';
     const catalogResult = await client.query(PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL);
     querySequence.push('FUNCTION_BODY_CATALOG_PROBE');
     evidence = {
@@ -1729,8 +1746,14 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       };
     }
     evidence = await attemptRollback(client, evidence);
+    const holdReasonCode =
+      preCommitFailurePhase === 'POST_PROBE'
+        ? 'HOLD_PAIR_P5_PROBE_MISMATCH'
+        : preCommitFailurePhase === 'FUNCTION_BODY_CATALOG_PROBE'
+          ? HOLD_PAIR_P5_FUNCTION_BODY_CATALOG_MISMATCH
+          : 'HOLD_UNEXPECTED_INTERNAL';
     return {
-      holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL',
+      holdReasonCode,
       evidence,
       querySequence,
       simulationOnly,
