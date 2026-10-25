@@ -56,6 +56,8 @@ import {
   type PairP5HumanPreviewUiAttestationPurpose,
   type PairP5HumanPreviewUiAttestationPayload,
   type PairP5HumanAttestationTrustAnchor,
+  buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly,
+  signPairP5HumanPreviewUiAttestationForTestsOnly,
 } from './pairP5HumanPreviewUiAttestation.ts';
 import {
   claimPairP5DedicatedReceiptAtomicOneUse,
@@ -155,6 +157,7 @@ const RECEIPT_BODY_KEYS = new Set([
   'witnessedObservation',
   'humanAuthorizationId',
   'signedHumanPreviewUiAttestation',
+  'signedHumanPreviewUiAttestationPostCommitReadonly',
 ]);
 const GIT_PROVENANCE_KEYS = new Set([
   'worktreeRealpath',
@@ -211,8 +214,10 @@ export type PairP5HumanPreviewApplyAuthorizationPurpose = 'LIVE_MUTATION' | 'LIV
 export type PairP5HumanPreviewApplyAuthorizationRecord = {
   readonly authorizationId: string;
   readonly purpose: PairP5HumanPreviewApplyAuthorizationPurpose;
-  readonly selectedStep: typeof PAIR_P5_IDENTITY_STEP_ID;
-  readonly migrationSourceSha256: typeof PAIR_P5_IDENTITY_MIGRATION_SHA256;
+  readonly selectedStep: PairP5DedicatedCallableStepId;
+  readonly migrationSourceSha256:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
   readonly previewProjectRef: typeof PAIR_P5_APPROVED_PREVIEW_PROJECT_REF;
 };
 
@@ -405,6 +410,7 @@ export type PairP5DedicatedTargetBindingReceiptBody = {
   readonly witnessedObservation: PairP5WitnessedPreviewObservation;
   readonly humanAuthorizationId: string | null;
   readonly signedHumanPreviewUiAttestation: PairP5SignedHumanPreviewUiAttestation | null;
+  readonly signedHumanPreviewUiAttestationPostCommitReadonly: PairP5SignedHumanPreviewUiAttestation | null;
 };
 
 export type PairP5DedicatedTargetBindingReceipt = {
@@ -964,6 +970,7 @@ export function validatePairP5IndependentPreviewUiWitnessObservation(
 export function validatePairP5HumanPreviewApplyAuthorizationRecordForTestsOnly(
   authorizationId: string | null | undefined,
   expectedPurpose: PairP5HumanPreviewApplyAuthorizationPurpose,
+  expectedCallableStep: PairP5DedicatedCallableStepId = PAIR_P5_IDENTITY_STEP_ID,
 ):
   | { readonly ok: true; readonly authorization: PairP5HumanPreviewApplyAuthorizationRecord }
   | { readonly ok: false; readonly holdReasonCode: typeof HOLD_PAIR_P5_HUMAN_AUTHORIZATION_ID_INVALID } {
@@ -974,10 +981,14 @@ export function validatePairP5HumanPreviewApplyAuthorizationRecordForTestsOnly(
   if (registered === undefined) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_HUMAN_AUTHORIZATION_ID_INVALID };
   }
+  const expectedMigrationSha256 =
+    expectedCallableStep === PAIR_P5_CHECKOUT_STEP_ID
+      ? PAIR_P5_CHECKOUT_MIGRATION_SHA256
+      : PAIR_P5_IDENTITY_MIGRATION_SHA256;
   if (
     registered.purpose !== expectedPurpose ||
-    registered.selectedStep !== PAIR_P5_IDENTITY_STEP_ID ||
-    registered.migrationSourceSha256 !== PAIR_P5_IDENTITY_MIGRATION_SHA256 ||
+    registered.selectedStep !== expectedCallableStep ||
+    registered.migrationSourceSha256 !== expectedMigrationSha256 ||
     registered.previewProjectRef !== PAIR_P5_APPROVED_PREVIEW_PROJECT_REF
   ) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_HUMAN_AUTHORIZATION_ID_INVALID };
@@ -1027,13 +1038,21 @@ export function validatePairP5HumanPreviewApplyAuthorizationRecord(
   if (authorizationDigest !== applyDigest) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_HUMAN_AUTHORIZATION_ID_INVALID };
   }
+  const selectedStep = payload.selectedStep;
+  const migrationSourceSha256 = payload.migrationSourceSha256;
+  if (
+    selectedStep !== PAIR_P5_IDENTITY_STEP_ID &&
+    selectedStep !== PAIR_P5_CHECKOUT_STEP_ID
+  ) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_HUMAN_AUTHORIZATION_ID_INVALID };
+  }
   return {
     ok: true,
     authorization: {
       authorizationId: authorizationId.trim(),
       purpose: expectedPurpose,
-      selectedStep: PAIR_P5_IDENTITY_STEP_ID,
-      migrationSourceSha256: PAIR_P5_IDENTITY_MIGRATION_SHA256,
+      selectedStep,
+      migrationSourceSha256,
       previewProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
     },
   };
@@ -1276,17 +1295,43 @@ function validateOperationalReceiptBodyAgainstPolicy(
     }
     return witness;
   }
+  const callableStep = pairP5CallableStepFromReceiptBody(b);
+  if (callableStep === null) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
+  const humanCallableStep =
+    callableStep === 'CHECKOUT' ? PAIR_P5_CHECKOUT_STEP_ID : PAIR_P5_IDENTITY_STEP_ID;
   const human =
     context.permitOperationalHumanAuthorizationRegistryForTestsOnly === true
       ? validatePairP5HumanPreviewApplyAuthorizationRecordForTestsOnly(
           b.humanAuthorizationId,
           'LIVE_MUTATION',
+          humanCallableStep,
         )
       : validatePairP5HumanPreviewApplyAuthorizationRecord(b.humanAuthorizationId, 'LIVE_MUTATION', {
           verifiedAttestationPayload: b.signedHumanPreviewUiAttestation.payload,
         });
   if (!human.ok) {
     return human;
+  }
+  if (callableStep === 'CHECKOUT') {
+    const readonlySigned = b.signedHumanPreviewUiAttestationPostCommitReadonly;
+    if (readonlySigned === null) {
+      return { ok: false, holdReasonCode: HOLD_PAIR_P5_SIGNED_HUMAN_ATTESTATION_REQUIRED };
+    }
+    const readonlyWitness = acceptPairP5OperationalIndependentPreviewUiWitness(b.witnessedObservation, {
+      signedHumanAttestation: readonlySigned,
+      expectedPurpose: 'LIVE_FRESH_READONLY',
+      trustAnchorsOverrideForTestsOnly: context.operationalTrustAnchorsOverrideForTestsOnly,
+    });
+    if (!readonlyWitness.ok) {
+      return readonlyWitness;
+    }
+    if (readonlySigned.payload.selectedStep !== PAIR_P5_CHECKOUT_STEP_ID) {
+      return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+    }
+  } else if (b.signedHumanPreviewUiAttestationPostCommitReadonly !== null) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
   }
   if (context.operationalTrustAnchorsOverrideForTestsOnly !== undefined) {
     return { ok: true, body: b };
@@ -1325,6 +1370,9 @@ function validateReceiptBodyAgainstPolicy(
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
   }
   if (b.signedHumanPreviewUiAttestation !== null) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
+  if (b.signedHumanPreviewUiAttestationPostCommitReadonly !== null) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
   }
   const shared = validateSharedReceiptBodyPolicyFields(b, context);
@@ -1368,6 +1416,7 @@ function buildReceiptBodyFromObservedGit(
     witnessedObservation,
     humanAuthorizationId: null,
     signedHumanPreviewUiAttestation: null,
+    signedHumanPreviewUiAttestationPostCommitReadonly: null,
   };
 }
 
@@ -1458,6 +1507,100 @@ export function issuePairP5TestOnlyCheckoutDedicatedTargetBindingReceiptFromInje
   return { ok: true, receipt };
 }
 
+/** TEST seam: OPERATIONAL checkout receipt with dual attestations; not valid against fresh-git operational context. */
+export function issuePairP5TestOnlyOperationalCheckoutDedicatedReceiptForTestsOnly(input: {
+  readonly injectedGit: PairP5DedicatedReceiptGitProvenance;
+  readonly humanAuthorizationId: string;
+  readonly trustAnchors: readonly PairP5HumanAttestationTrustAnchor[];
+  readonly privateKeyPkcs8DerBase64: string;
+  readonly trustKeyId: string;
+  readonly attestationId: string;
+  readonly witnessedObservation?: PairP5WitnessedPreviewObservation;
+}):
+  | { readonly ok: true; readonly receipt: PairP5DedicatedTargetBindingReceipt }
+  | { readonly ok: false; readonly holdReasonCode: string } {
+  const witnessedObservation = input.witnessedObservation ?? {
+    sourceKind: 'INDEPENDENT_PREVIEW_UI_WITNESS_v1' as const,
+    witnessedOrganization: APPROVED_PREVIEW_ORGANIZATION,
+    witnessedProject: APPROVED_PREVIEW_PROJECT,
+    witnessedProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+    witnessedDatabaseTier: APPROVED_PREVIEW_DATABASE_TIER,
+    witnessedDatabaseName: PAIR_P5_WITNESS_DATABASE_NAME_UI_UNOBSERVED_SENTINEL,
+    observationTimeIso: '2026-10-25T06:00:00.000Z',
+    attestationId: input.attestationId,
+  };
+  const humanDigest = digestPairP5HumanAuthorizationIdentity(input.humanAuthorizationId);
+  const mutationPayload = buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly({
+    trustKeyId: input.trustKeyId,
+    attestationId: input.attestationId,
+    nonce: 'checkout-mutation-nonce',
+    purpose: 'LIVE_MUTATION',
+    selectedStep: PAIR_P5_CHECKOUT_STEP_ID,
+    migrationSourceSha256: PAIR_P5_CHECKOUT_MIGRATION_SHA256,
+    gitHeadCommitSha: input.injectedGit.headCommitSha,
+    humanUiEvidenceDigestSha256: 'c'.repeat(64),
+    humanP51ApplyAuthorizationIdDigestSha256: humanDigest,
+  });
+  const readonlyPayload = buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly({
+    trustKeyId: input.trustKeyId,
+    attestationId: input.attestationId,
+    nonce: 'checkout-readonly-nonce',
+    purpose: 'LIVE_FRESH_READONLY',
+    selectedStep: PAIR_P5_CHECKOUT_STEP_ID,
+    migrationSourceSha256: PAIR_P5_CHECKOUT_MIGRATION_SHA256,
+    gitHeadCommitSha: input.injectedGit.headCommitSha,
+    humanUiEvidenceDigestSha256: 'd'.repeat(64),
+    humanP51ApplyAuthorizationIdDigestSha256: humanDigest,
+  });
+  const signedMutation = signPairP5HumanPreviewUiAttestationForTestsOnly({
+    payload: mutationPayload,
+    privateKeyPkcs8DerBase64: input.privateKeyPkcs8DerBase64,
+  });
+  const signedReadonly = signPairP5HumanPreviewUiAttestationForTestsOnly({
+    payload: readonlyPayload,
+    privateKeyPkcs8DerBase64: input.privateKeyPkcs8DerBase64,
+  });
+  const policy = buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSource();
+  const baseBody = buildReceiptBodyFromObservedGit(input.injectedGit, witnessedObservation, policy);
+  const body: PairP5DedicatedTargetBindingReceiptBody = {
+    ...baseBody,
+    receiptClass: 'OPERATIONAL',
+    humanAuthorizationId: input.humanAuthorizationId,
+    signedHumanPreviewUiAttestation: signedMutation,
+    signedHumanPreviewUiAttestationPostCommitReadonly: signedReadonly,
+  };
+  const hashes = computePairP5DedicatedReceiptHashesForBody(body);
+  const receipt: PairP5DedicatedTargetBindingReceipt = {
+    body,
+    canonicalSerializationSha256: hashes.canonicalSerializationSha256,
+    receiptIdentifierSha256: hashes.receiptIdentifierSha256,
+  };
+  const mutationWitness = acceptPairP5OperationalIndependentPreviewUiWitness(witnessedObservation, {
+    signedHumanAttestation: signedMutation,
+    expectedPurpose: 'LIVE_MUTATION',
+    trustAnchorsOverrideForTestsOnly: input.trustAnchors,
+  });
+  if (!mutationWitness.ok) {
+    return mutationWitness;
+  }
+  const readonlyWitness = acceptPairP5OperationalIndependentPreviewUiWitness(witnessedObservation, {
+    signedHumanAttestation: signedReadonly,
+    expectedPurpose: 'LIVE_FRESH_READONLY',
+    trustAnchorsOverrideForTestsOnly: input.trustAnchors,
+  });
+  if (!readonlyWitness.ok) {
+    return readonlyWitness;
+  }
+  const humanLive = validatePairP5HumanPreviewApplyAuthorizationRecord(input.humanAuthorizationId, 'LIVE_MUTATION', {
+    verifiedAttestationPayload: signedMutation.payload,
+  });
+  if (!humanLive.ok) {
+    return humanLive;
+  }
+  registerPairP5DedicatedReceiptIssuanceOrigin(receipt, 'TEST_INJECTED_FIXTURE_NOT_OPERATIONAL');
+  return { ok: true, receipt };
+}
+
 export const HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED =
   'HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED' as const;
 
@@ -1473,6 +1616,27 @@ export const HOLD_PAIR_P5_LIVE_FRESH_READONLY_PROBE_NOT_AUTHORIZED =
 export type PairP5LiveDedicatedPathPurpose = 'LIVE_MUTATION' | 'LIVE_FRESH_READONLY';
 
 export const PAIR_P5_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED = false as const;
+
+export const PAIR_P5_CHECKOUT_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED = true as const;
+
+export function pairP5LiveFreshReadonlyProbeAuthorizationGrantedForCallableStep(
+  callableStep: PairP5DedicatedCallableStepId | 'IDENTITY' | 'CHECKOUT' | null,
+): boolean {
+  if (callableStep === PAIR_P5_CHECKOUT_STEP_ID || callableStep === 'CHECKOUT') {
+    return PAIR_P5_CHECKOUT_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED;
+  }
+  return PAIR_P5_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED;
+}
+
+function pairP5SignedAttestationForLiveDedicatedPurpose(
+  body: PairP5DedicatedTargetBindingReceiptBody,
+  purpose: PairP5LiveDedicatedPathPurpose,
+): PairP5SignedHumanPreviewUiAttestation | null {
+  if (purpose === 'LIVE_MUTATION') {
+    return body.signedHumanPreviewUiAttestation;
+  }
+  return body.signedHumanPreviewUiAttestationPostCommitReadonly;
+}
 
 export const PAIR_P5_OPERATIONAL_ISSUANCE_EXTERNAL_HOLDS = {
   independentPreviewUiWitness:
@@ -1640,9 +1804,14 @@ export function evaluatePairP5LiveDedicatedPathPreCredentialBoundary(input: {
   readonly purpose: PairP5LiveDedicatedPathPurpose;
   readonly humanPreviewApplyAuthorizationGranted: boolean;
 }): string | null {
+  const callableStep =
+    input.dedicatedReceipt !== null && input.dedicatedReceipt !== undefined
+      ? pairP5CallableStepFromReceiptBody(input.dedicatedReceipt.body)
+      : null;
   const freshContext = buildPairP5DedicatedReceiptValidationContextFromFreshGitRead({
     repoRoot: input.repoRoot,
     permitTestOnlyReceipt: false,
+    callableStep: callableStep ?? 'IDENTITY',
   });
   if (!freshContext.ok) {
     return freshContext.holdReasonCode;
@@ -1650,10 +1819,14 @@ export function evaluatePairP5LiveDedicatedPathPreCredentialBoundary(input: {
   if (input.dedicatedReceipt === null || input.dedicatedReceipt === undefined) {
     return HOLD_PAIR_P5_DEDICATED_RECEIPT_MISSING;
   }
+  const signedForPurpose = pairP5SignedAttestationForLiveDedicatedPurpose(
+    input.dedicatedReceipt.body,
+    input.purpose,
+  );
   const operationalWitness = acceptPairP5OperationalIndependentPreviewUiWitness(
     input.dedicatedReceipt.body.witnessedObservation,
     {
-      signedHumanAttestation: input.dedicatedReceipt.body.signedHumanPreviewUiAttestation,
+      signedHumanAttestation: signedForPurpose,
       expectedPurpose: input.purpose,
     },
   );
@@ -1663,7 +1836,8 @@ export function evaluatePairP5LiveDedicatedPathPreCredentialBoundary(input: {
   const purposeHold = pairP5ResolveLiveDedicatedPathPurposeAuthorizationHold({
     purpose: input.purpose,
     humanPreviewApplyAuthorizationGranted: input.humanPreviewApplyAuthorizationGranted,
-    liveFreshReadonlyProbeAuthorizationGranted: PAIR_P5_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED,
+    liveFreshReadonlyProbeAuthorizationGranted:
+      pairP5LiveFreshReadonlyProbeAuthorizationGrantedForCallableStep(callableStep),
   });
   if (purposeHold !== null) {
     return purposeHold;

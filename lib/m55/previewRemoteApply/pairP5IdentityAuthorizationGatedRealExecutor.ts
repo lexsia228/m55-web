@@ -82,6 +82,7 @@ import type {
   PairP5OrchestrationProbeSuite,
 } from './pairP5OrchestrationShared.ts';
 import { PAIR_P5_CHECKOUT_STEP_ID } from './pairP5CheckoutStepAuthority.ts';
+import { isPairP5CheckoutHumanPreviewApplyAuthorizationGranted } from './pairP5CheckoutLiveExecutionAuthority.ts';
 import { validatePairP5CheckoutPreviewStructuralAuthorityContract } from './pairP5CheckoutStructuralAuthority.ts';
 
 export const PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID =
@@ -447,6 +448,15 @@ export function classifyPairP5PostCommitAckFromFreshObservations(
 export function isPairP5HumanPreviewApplyAuthorizationGranted(): boolean {
   const granted: boolean = PAIR_P5_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED;
   return granted;
+}
+
+function isPairP5HumanPreviewApplyAuthorizationGrantedForInput(
+  input: PairP5AuthGatedRealExecutionInput,
+): boolean {
+  if (input.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
+    return isPairP5CheckoutHumanPreviewApplyAuthorizationGranted();
+  }
+  return isPairP5HumanPreviewApplyAuthorizationGranted();
 }
 
 function extractMigrationFunctionProsrcBody(migrationSql: string, anchorFunctionName: string): string {
@@ -970,7 +980,7 @@ async function acquirePairP5LiveMutationClient(
     repoRoot: input.repoRoot,
     dedicatedReceipt,
     purpose: 'LIVE_MUTATION',
-    humanPreviewApplyAuthorizationGranted: isPairP5HumanPreviewApplyAuthorizationGranted(),
+    humanPreviewApplyAuthorizationGranted: isPairP5HumanPreviewApplyAuthorizationGrantedForInput(input),
   });
   if (preCredentialHold !== null) {
     return preCredentialHold;
@@ -1007,6 +1017,62 @@ async function acquirePairP5LiveMutationClient(
       dedicatedTargetBindingReceiptValidated: true,
       dedicatedTargetBindingReceiptIdentifierSha256: dedicatedReceipt.receiptIdentifierSha256,
     },
+  };
+}
+
+async function acquirePairP5LiveFreshReadonlyClient(
+  input: PairP5AuthGatedRealExecutionInput,
+  binding: ExpectedAuthorizationBinding,
+  transportFactory: ExecutionPgTransportFactoryDeps | undefined,
+  credentialDeps: CredentialAcquirerDeps,
+  dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null = null,
+): Promise<
+  | {
+      readonly client: ExecutionPgClient;
+      readonly cleanup: () => void;
+    }
+  | string
+> {
+  const structural = validatePairP5PreviewStructuralAuthorityContract(input);
+  if (!structural.ok) {
+    return structural.holdReasonCode;
+  }
+  if (dedicatedReceipt === null) {
+    return HOLD_PAIR_P5_DEDICATED_RECEIPT_MISSING;
+  }
+  const preCredentialHold = evaluatePairP5LiveDedicatedPathPreCredentialBoundary({
+    repoRoot: input.repoRoot,
+    dedicatedReceipt,
+    purpose: 'LIVE_FRESH_READONLY',
+    humanPreviewApplyAuthorizationGranted: isPairP5HumanPreviewApplyAuthorizationGrantedForInput(input),
+  });
+  if (preCredentialHold !== null) {
+    return preCredentialHold;
+  }
+  const receiptBindingHold = validatePairP5DedicatedReceiptMatchesExecutionBinding(
+    dedicatedReceipt,
+    binding,
+  );
+  if (receiptBindingHold !== null) {
+    return receiptBindingHold;
+  }
+  if (!isPairP5LiveCredentialAcquisitionAuthorized()) {
+    return HOLD_PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_NOT_AUTHORIZED;
+  }
+  const credentialResult = await acquireSecureStdinConnectionConfig(credentialDeps);
+  if (!credentialResult.ok) {
+    return credentialResult.holdReasonCode;
+  }
+  const configResult = buildClientConfig(binding, credentialResult.releaseConnectionSecrets());
+  if (typeof configResult === 'string') {
+    credentialResult.cleanup();
+    return configResult;
+  }
+  const transport = createExecutionPgTransport(transportFactory ?? {});
+  const client = transport.createClient(configResult);
+  return {
+    client,
+    cleanup: credentialResult.cleanup,
   };
 }
 
@@ -1129,7 +1195,7 @@ async function buildMutationClientForSurface(
   | string
 > {
   if (surface.kind === 'LIVE_SESSION_POOLER') {
-    if (!isPairP5HumanPreviewApplyAuthorizationGranted()) {
+    if (!isPairP5HumanPreviewApplyAuthorizationGrantedForInput(input)) {
       return 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED';
     }
     const live = await acquirePairP5LiveMutationClient(
@@ -1252,7 +1318,7 @@ function buildFreshClassifierResult(
 }
 
 type FreshReadonlyOpenOutcome =
-  | { readonly kind: 'client'; readonly client: ExecutionPgClient }
+  | { readonly kind: 'client'; readonly client: ExecutionPgClient; readonly credentialCleanup?: () => void }
   | { readonly kind: 'blocked'; readonly humanGateClosed: boolean; readonly holdReasonCode: string };
 
 async function openPairP5LiveFreshReadonlyPgClient(
@@ -1262,28 +1328,32 @@ async function openPairP5LiveFreshReadonlyPgClient(
   dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null,
 ): Promise<FreshReadonlyOpenOutcome> {
   if (!internalFakeOnly) {
-    if (!isPairP5HumanPreviewApplyAuthorizationGranted()) {
+    if (surface.kind !== 'LIVE_SESSION_POOLER') {
+      return {
+        kind: 'blocked',
+        humanGateClosed: false,
+        holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL',
+      };
+    }
+    if (!isPairP5HumanPreviewApplyAuthorizationGrantedForInput(input)) {
       return {
         kind: 'blocked',
         humanGateClosed: true,
         holdReasonCode: 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED',
       };
     }
-    const structural = validatePairP5PreviewStructuralAuthorityContract(input);
-    if (!structural.ok) {
-      return { kind: 'blocked', humanGateClosed: false, holdReasonCode: structural.holdReasonCode };
-    }
-    const boundary = evaluatePairP5LiveDedicatedPathPreCredentialBoundary({
-      repoRoot: input.repoRoot,
+    const livePoolerSurface = surface as PairP5AuthGatedLiveSessionPoolerSurface;
+    const live = await acquirePairP5LiveFreshReadonlyClient(
+      input,
+      buildPairP5ExpectedAuthorizationBinding(input),
+      livePoolerSurface.transportFactory,
+      resolvePairP5LiveCredentialAcquirerDeps(livePoolerSurface.credentialAcquirerDeps),
       dedicatedReceipt,
-      purpose: 'LIVE_FRESH_READONLY',
-      humanPreviewApplyAuthorizationGranted: isPairP5HumanPreviewApplyAuthorizationGranted(),
-    });
-    return {
-      kind: 'blocked',
-      humanGateClosed: false,
-      holdReasonCode: boundary ?? HOLD_PAIR_P5_DEDICATED_RECEIPT_MISSING,
-    };
+    );
+    if (typeof live === 'string') {
+      return { kind: 'blocked', humanGateClosed: false, holdReasonCode: live };
+    }
+    return { kind: 'client', client: live.client, credentialCleanup: live.cleanup };
   }
   if (surface.kind !== 'INTERNAL_OFFLINE_SIMULATION_ONLY') {
     return {
@@ -1321,6 +1391,7 @@ async function runFreshReadonlyPostCommitClassifier(
   let sessionOpened = false;
   let work: FreshReadonlyProbeWork = emptyWork;
   let freshClient: ExecutionPgClient | null = null;
+  let freshCredentialCleanup: (() => void) | null = null;
   let humanGateClosed = false;
   let result: FreshPostCommitClassifierResult = buildFreshClassifierResult(sequence, false, emptyWork, false);
 
@@ -1351,6 +1422,7 @@ async function runFreshReadonlyPostCommitClassifier(
         };
       }
       freshClient = opened.client;
+      freshCredentialCleanup = opened.credentialCleanup ?? null;
     } else if (surface.kind === 'INTERNAL_OFFLINE_SIMULATION_ONLY') {
       const freshFactory = createFakeExecutionPgClientFactory(surface.freshReadonlyFakeOptions);
       const freshTransport = createExecutionPgTransport({
@@ -1369,6 +1441,7 @@ async function runFreshReadonlyPostCommitClassifier(
     work = emptyWork;
   } finally {
     const closeCompleted = freshClient ? await safeCloseExecutionClient(freshClient) : false;
+    freshCredentialCleanup?.();
     result = buildFreshClassifierResult(sequence, sessionOpened, work, closeCompleted);
     if (humanGateClosed) {
       result = {

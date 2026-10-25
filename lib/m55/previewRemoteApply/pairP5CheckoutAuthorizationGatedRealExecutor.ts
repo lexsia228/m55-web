@@ -20,6 +20,7 @@ import {
   HOLD_PAIR_P5_DEDICATED_RECEIPT_MISSING,
   resolvePairP5LiveMutationLedgerBindingFromDedicatedReceipt,
 } from './pairP5DedicatedTargetBindingReceipt.ts';
+import { PAIR_P5_DEDICATED_RECEIPT_ATOMIC_CONSUME_SQL } from './pairP5DedicatedReceiptConsumptionLedger.ts';
 import {
   PAIR_P5_STATIC_EXECUTION_GATE,
   validatePairP5RepositoryIdentity,
@@ -36,7 +37,8 @@ import {
   PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL,
   buildMockPairP5FunctionBodyCatalogProbeRow,
   emptyEvidence,
-  isPairP5HumanPreviewApplyAuthorizationGranted,
+  PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS,
+  serializePairP5AuthGatedRealExecutionResult,
   mapPairP5AuthGatedOrchestrationOutcomeToExecutionResult,
   pairP5AuthGatedRealExecutionCliExitCode,
   runPairP5AuthorizationGatedPgTransactionOrchestration,
@@ -45,7 +47,13 @@ import {
   type PairP5AuthGatedRealExecutionInput,
   type PairP5AuthGatedRealExecutionResult,
 } from './pairP5IdentityAuthorizationGatedRealExecutor.ts';
+import {
+  assertPairP5CheckoutPrerequisiteLocalCodeIntegrity,
+  isPairP5CheckoutHumanPreviewApplyAuthorizationGranted,
+} from './pairP5CheckoutLiveExecutionAuthority.ts';
 import { HISTORY_INSERT_SQL_METADATA } from './types.ts';
+
+export { assertPairP5CheckoutPrerequisiteLocalCodeIntegrity, serializePairP5AuthGatedRealExecutionResult };
 
 export const PAIR_P5_CHECKOUT_AUTH_GATED_REAL_EXECUTOR_ID =
   'M55_PAIR_P5_CHECKOUT_AUTHORIZATION_GATED_REAL_EXECUTOR_v1' as const;
@@ -159,6 +167,7 @@ export function preparePairP5CheckoutLiveSessionPoolerOrchestrationSurface(
   }
   return {
     kind: 'LIVE_SESSION_POOLER',
+    credentialAcquirerDeps: PAIR_P5_LIVE_SECURE_STDIN_CREDENTIAL_DEPS,
     dedicatedTargetBindingReceipt: resolved.receipt,
     postConnectDedicatedReceiptLedgerBinding: resolved.binding,
   };
@@ -189,7 +198,7 @@ export async function executePairP5CheckoutAuthorizationGatedRealExecution(
       ...baseGate,
     };
   }
-  if (!isPairP5HumanPreviewApplyAuthorizationGranted()) {
+  if (!isPairP5CheckoutHumanPreviewApplyAuthorizationGranted()) {
     return {
       mode: 'PAIR_P5_AUTH_GATED_REAL_EXECUTION_DISABLED',
       holdReasonCode: 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED',
@@ -250,6 +259,8 @@ export async function simulatePairP5CheckoutAuthorizationGatedTransactionOffline
   const freshPriorRow = buildMockPairP5PostProbeRow(
     options.freshPriorProbeFieldOverrides ?? { history_total_twenty_three: false, probe_green: false },
   );
+  const simulatedLedgerConsumed = new Set<string>();
+  const ledgerBinding = options.postConnectDedicatedReceiptLedgerBinding ?? null;
   const outcome = await runPairP5AuthorizationGatedPgTransactionOrchestration(
     input,
     planOrHold,
@@ -258,6 +269,23 @@ export async function simulatePairP5CheckoutAuthorizationGatedTransactionOffline
       mutationFakeOptions: {
         ...options.fakeClientOptions,
         queryHandler: (sql, values) => {
+          if (
+            ledgerBinding !== null &&
+            sql.trim() === PAIR_P5_DEDICATED_RECEIPT_ATOMIC_CONSUME_SQL.trim()
+          ) {
+            const receiptId = typeof values?.[0] === 'string' ? values[0] : '';
+            if (options.postConnectDedicatedReceiptLedgerSimulateAlreadyConsumed === true) {
+              return { rowCount: 0, rows: [] };
+            }
+            if (simulatedLedgerConsumed.has(receiptId)) {
+              return { rowCount: 0, rows: [] };
+            }
+            simulatedLedgerConsumed.add(receiptId);
+            return {
+              rowCount: 1,
+              rows: [{ receipt_identifier_sha256: receiptId }],
+            };
+          }
           if (sql.trim() === PAIR_P5_CHECKOUT_PRIOR_PROBE_SQL.trim()) {
             return { rowCount: priorRow.rowCount, rows: [...priorRow.rows] };
           }
@@ -281,9 +309,11 @@ export async function simulatePairP5CheckoutAuthorizationGatedTransactionOffline
           return { rows: [], rowCount: 1 };
         },
       },
-      freshReadonlyFakeOptions: options.freshReadonlyFakeOptions,
+      freshReadonlyFakeOptions: options.freshReadonlyFakeOptions ?? {},
       freshPostProbeRow: freshPostRow,
       freshPriorProbeRow: freshPriorRow,
+      mutationCloseFailsAfterCommit: options.mutationCloseFailsAfterSuccessfulCommit === true,
+      internalLiveFreshReadonlyStructureExercise: options.internalLiveFreshReadonlyStructureExercise === true,
       postConnectDedicatedReceiptLedgerBinding: options.postConnectDedicatedReceiptLedgerBinding ?? null,
     },
     PAIR_P5_CHECKOUT_ORCHESTRATION_PROBE_SUITE,

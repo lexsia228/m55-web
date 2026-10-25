@@ -6,6 +6,10 @@ import {
   APPROVED_PREVIEW_PROJECT,
 } from './types.ts';
 import {
+  PAIR_P5_CHECKOUT_MIGRATION_SHA256,
+  PAIR_P5_CHECKOUT_STEP_ID,
+} from './pairP5CheckoutStepAuthority.ts';
+import {
   PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
   PAIR_P5_IDENTITY_MIGRATION_SHA256,
   PAIR_P5_IDENTITY_STEP_ID,
@@ -35,8 +39,10 @@ export type PairP5HumanPreviewUiAttestationPayload = {
   readonly previewDatabaseTier: string;
   readonly databaseNameUiObservationStatus: typeof PAIR_P5_HUMAN_ATTESTATION_DATABASE_NAME_UI_STATUS;
   readonly witnessedDatabaseNameSentinel: typeof PAIR_P5_WITNESS_DATABASE_NAME_UI_UNOBSERVED_SENTINEL;
-  readonly selectedStep: typeof PAIR_P5_IDENTITY_STEP_ID;
-  readonly migrationSourceSha256: typeof PAIR_P5_IDENTITY_MIGRATION_SHA256;
+  readonly selectedStep: typeof PAIR_P5_IDENTITY_STEP_ID | typeof PAIR_P5_CHECKOUT_STEP_ID;
+  readonly migrationSourceSha256:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
   readonly gitHeadCommitSha: string | null;
   readonly humanUiEvidenceDigestSha256: string | null;
   readonly humanP51ApplyAuthorizationIdDigestSha256: string | null;
@@ -224,7 +230,12 @@ function validatePayloadShape(payload: unknown): PairP5HumanPreviewUiAttestation
   ) {
     return null;
   }
-  if (p.selectedStep !== PAIR_P5_IDENTITY_STEP_ID || p.migrationSourceSha256 !== PAIR_P5_IDENTITY_MIGRATION_SHA256) {
+  const stepMigrationOk =
+    (p.selectedStep === PAIR_P5_IDENTITY_STEP_ID &&
+      p.migrationSourceSha256 === PAIR_P5_IDENTITY_MIGRATION_SHA256) ||
+    (p.selectedStep === PAIR_P5_CHECKOUT_STEP_ID &&
+      p.migrationSourceSha256 === PAIR_P5_CHECKOUT_MIGRATION_SHA256);
+  if (!stepMigrationOk) {
     return null;
   }
   if (p.gitHeadCommitSha !== null && !/^[0-9a-f]{40}$/.test(p.gitHeadCommitSha)) {
@@ -363,8 +374,8 @@ export function buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly(
     previewDatabaseTier: APPROVED_PREVIEW_DATABASE_TIER,
     databaseNameUiObservationStatus: PAIR_P5_HUMAN_ATTESTATION_DATABASE_NAME_UI_STATUS,
     witnessedDatabaseNameSentinel: PAIR_P5_WITNESS_DATABASE_NAME_UI_UNOBSERVED_SENTINEL,
-    selectedStep: PAIR_P5_IDENTITY_STEP_ID,
-    migrationSourceSha256: PAIR_P5_IDENTITY_MIGRATION_SHA256,
+    selectedStep: overrides.selectedStep ?? PAIR_P5_IDENTITY_STEP_ID,
+    migrationSourceSha256: overrides.migrationSourceSha256 ?? PAIR_P5_IDENTITY_MIGRATION_SHA256,
     gitHeadCommitSha: overrides.gitHeadCommitSha ?? null,
     humanUiEvidenceDigestSha256: overrides.humanUiEvidenceDigestSha256 ?? null,
     humanP51ApplyAuthorizationIdDigestSha256: overrides.humanP51ApplyAuthorizationIdDigestSha256 ?? null,
