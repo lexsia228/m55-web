@@ -273,6 +273,9 @@ export type PairP5LiveSessionCredentialBundle = {
   readonly cleanup: () => void;
 };
 
+/** Per-client cleanup when credentials are owned by the client acquire path; null when orchestration owns the shared bundle. */
+export type PairP5LivePgClientCredentialCleanup = (() => void) | null;
+
 const PLACEHOLDER_CLIENT_CONFIG: ExecutionPgClientConfig = {
   host: 'pair-p5-auth-gated.placeholder.invalid',
   port: 5432,
@@ -1074,7 +1077,7 @@ async function acquirePairP5LiveMutationClient(
 ): Promise<
   | {
       readonly client: ExecutionPgClient;
-      readonly cleanup: () => void;
+      readonly cleanup: PairP5LivePgClientCredentialCleanup;
       readonly evidencePatch: Partial<PairP5AuthGatedExecutionEvidence>;
     }
   | string
@@ -1097,7 +1100,7 @@ async function acquirePairP5LiveMutationClient(
     }
     return {
       client: built.client,
-      cleanup: null,
+      cleanup: null as PairP5LivePgClientCredentialCleanup,
       evidencePatch: {
         remoteConnectionAttempted: false,
         pgClientConstructed: true,
@@ -1161,7 +1164,7 @@ async function acquirePairP5LiveFreshReadonlyClient(
 ): Promise<
   | {
       readonly client: ExecutionPgClient;
-      readonly cleanup: () => void;
+      readonly cleanup: PairP5LivePgClientCredentialCleanup;
     }
   | string
 > {
@@ -1202,7 +1205,7 @@ async function acquirePairP5LiveFreshReadonlyClient(
     }
     return {
       client: built.client,
-      cleanup: null,
+      cleanup: null as PairP5LivePgClientCredentialCleanup,
     };
   }
   pairP5LiveCredentialAcquisitionProbeCount += 1;
@@ -1338,7 +1341,7 @@ async function buildMutationClientForSurface(
   | {
       readonly client: ExecutionPgClient;
       readonly evidencePatch: Partial<PairP5AuthGatedExecutionEvidence>;
-      readonly cleanup: (() => void) | null;
+      readonly cleanup: PairP5LivePgClientCredentialCleanup;
     }
   | string
 > {
@@ -1467,7 +1470,11 @@ function buildFreshClassifierResult(
 }
 
 type FreshReadonlyOpenOutcome =
-  | { readonly kind: 'client'; readonly client: ExecutionPgClient; readonly credentialCleanup?: () => void }
+  | {
+      readonly kind: 'client';
+      readonly client: ExecutionPgClient;
+      readonly credentialCleanup?: PairP5LivePgClientCredentialCleanup;
+    }
   | { readonly kind: 'blocked'; readonly humanGateClosed: boolean; readonly holdReasonCode: string };
 
 async function openPairP5LiveFreshReadonlyPgClient(
@@ -1701,31 +1708,8 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     return { holdReasonCode: structuralAuthority.holdReasonCode, evidence, querySequence, simulationOnly };
   }
 
-  if (surface.kind === 'LIVE_SESSION_POOLER') {
-    const acquired = await acquirePairP5LiveSessionCredentialBundleOnce(
-      input,
-      binding,
-      resolvePairP5LiveCredentialAcquirerDeps(surface.credentialAcquirerDeps),
-      surface.dedicatedTargetBindingReceipt,
-    );
-    if (typeof acquired === 'string') {
-      return { holdReasonCode: acquired, evidence, querySequence, simulationOnly };
-    }
-    liveCredentialBundle = acquired;
-    evidence = {
-      ...evidence,
-      credentialAcquisitionAttempted: true,
-    };
-  }
-
-  const clientBuild = await buildMutationClientForSurface(input, surface, binding, liveCredentialBundle);
-  if (typeof clientBuild === 'string') {
-    return { holdReasonCode: clientBuild, evidence, querySequence, simulationOnly };
-  }
-  evidence = { ...evidence, ...clientBuild.evidencePatch };
-  const client = clientBuild.client;
-  const credentialCleanup = clientBuild.cleanup;
-
+  let credentialCleanup: PairP5LivePgClientCredentialCleanup = null;
+  let client!: ExecutionPgClient;
   let preCommitFailurePhase:
     | 'CONNECT'
     | 'PRIOR_PROBE'
@@ -1737,6 +1721,32 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     | 'COMMIT' = 'CONNECT';
 
   try {
+    if (surface.kind === 'LIVE_SESSION_POOLER') {
+      const acquired = await acquirePairP5LiveSessionCredentialBundleOnce(
+        input,
+        binding,
+        resolvePairP5LiveCredentialAcquirerDeps(surface.credentialAcquirerDeps),
+        surface.dedicatedTargetBindingReceipt,
+      );
+      if (typeof acquired === 'string') {
+        return { holdReasonCode: acquired, evidence, querySequence, simulationOnly };
+      }
+      liveCredentialBundle = acquired;
+      evidence = {
+        ...evidence,
+        credentialAcquisitionAttempted: true,
+      };
+    }
+
+    const clientBuild = await buildMutationClientForSurface(input, surface, binding, liveCredentialBundle);
+    if (typeof clientBuild === 'string') {
+      return { holdReasonCode: clientBuild, evidence, querySequence, simulationOnly };
+    }
+    evidence = { ...evidence, ...clientBuild.evidencePatch };
+    client = clientBuild.client;
+    credentialCleanup = clientBuild.cleanup;
+
+    preCommitFailurePhase = 'CONNECT';
     await client.connect();
     if (surface.kind === 'LIVE_SESSION_POOLER') {
       const guardResult = await client.query(POST_CONNECT_GUARD_SQL);

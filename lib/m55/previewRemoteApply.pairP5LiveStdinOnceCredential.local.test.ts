@@ -145,9 +145,11 @@ describe('pairP5 live stdin-once credential bundle', () => {
   });
 
   it('acquires secure stdin once and builds mutation and fresh readonly PG clients', async () => {
-    if (!isPairP5LiveCredentialAcquisitionAuthorized()) {
-      return;
-    }
+    assert.equal(
+      isPairP5LiveCredentialAcquisitionAuthorized(),
+      true,
+      'stdin-once regression requires operational live credential wiring to be authorized',
+    );
     const executionInput = {
       repoRoot: PAIR_P5_EXPECTED_REPO_ROOT,
       repository: REPOSITORY,
@@ -170,6 +172,34 @@ describe('pairP5 live stdin-once credential bundle', () => {
       throw new Error('unexpected hold');
     }
     assert.equal(result.credentialAcquisitionProbeCount, 1);
+    assert.equal(stdinReads, 1);
+  });
+
+  it('cleans up shared bundle after stdin acquire when PG client config build fails', async () => {
+    assert.equal(isPairP5LiveCredentialAcquisitionAuthorized(), true);
+    const executionInput = {
+      repoRoot: PAIR_P5_EXPECTED_REPO_ROOT,
+      repository: REPOSITORY,
+      repositoryFactsProvenance: 'GIT_READ_ONLY_OBSERVED' as const,
+      target: TARGET,
+      selectedStep: PAIR_P5_CHECKOUT_STEP_ID,
+    };
+    const binding = buildPairP5ExpectedAuthorizationBindingForTestsOnly(executionInput);
+    const bindingHostMismatch = { ...binding, host: 'pair-p5-stdin-once-cleanup-host-mismatch.invalid' };
+    let stdinReads = 0;
+    const result = await pairP5LiveSingleStdinDualPgClientExerciseForTestsOnly({
+      binding: bindingHostMismatch,
+      credentialDeps: {
+        readBytes: () => {
+          stdinReads += 1;
+          return validStdinBytes();
+        },
+      },
+    });
+    assert.equal(result.ok, false);
+    if (result.ok) {
+      throw new Error('expected config hold after single stdin acquire');
+    }
     assert.equal(stdinReads, 1);
   });
 });
