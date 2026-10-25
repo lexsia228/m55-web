@@ -77,6 +77,12 @@ import {
   validatePairP5RepositoryIdentity,
   validatePairP5TargetIdentity,
 } from './pairP5IdentityOfflinePlan.ts';
+import type {
+  PairP5OrchestrationPlan,
+  PairP5OrchestrationProbeSuite,
+} from './pairP5OrchestrationShared.ts';
+import { PAIR_P5_CHECKOUT_STEP_ID } from './pairP5CheckoutStepAuthority.ts';
+import { validatePairP5CheckoutPreviewStructuralAuthorityContract } from './pairP5CheckoutStructuralAuthority.ts';
 
 export const PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID =
   'M55_PAIR_P5_IDENTITY_AUTHORIZATION_GATED_REAL_EXECUTOR_v1' as const;
@@ -366,7 +372,7 @@ export type PairP5AuthGatedRealExecutionResult =
       readonly liveExecutionRequiresOperationalReceiptAndLedger: true;
     } & typeof PAIR_P5_STATIC_EXECUTION_GATE;
 
-function emptyEvidence(): PairP5AuthGatedExecutionEvidence {
+export function emptyEvidence(): PairP5AuthGatedExecutionEvidence {
   return {
     authorizationCheckedFirst: true,
     humanAuthorizationGranted: false,
@@ -611,6 +617,9 @@ export type PairP5StructuralAuthorityContractResult =
 export function validatePairP5PreviewStructuralAuthorityContract(
   input: PairP5AuthGatedRealExecutionInput,
 ): PairP5StructuralAuthorityContractResult {
+  if (input.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
+    return validatePairP5CheckoutPreviewStructuralAuthorityContract(input);
+  }
   const contextHold = validatePreMutationContext(input);
   if (contextHold) {
     return { ok: false, holdReasonCode: contextHold };
@@ -1175,6 +1184,7 @@ async function executeFreshReadonlyProbeWork(
   freshClient: ExecutionPgClient,
   binding: ExpectedAuthorizationBinding,
   sequence: string[],
+  probes: PairP5OrchestrationProbeSuite,
 ): Promise<FreshReadonlyProbeWork> {
   const guardResult = await freshClient.query(POST_CONNECT_GUARD_SQL);
   if (!pairP5ValidatePostConnectGuard(guardResult, binding)) {
@@ -1193,20 +1203,20 @@ async function executeFreshReadonlyProbeWork(
     buildFreshLocalStatementTimeoutSql(TIMEOUT_POLICY.values.postCommitVerificationMs),
   );
   sequence.push('FRESH_READONLY_STATEMENT_TIMEOUT');
-  const freshPriorResult = await freshClient.query(PAIR_P5_PRIOR_PROBE_SQL);
+  const freshPriorResult = await freshClient.query(probes.priorProbeSql);
   sequence.push('FRESH_READONLY_PRIOR_PROBE');
-  const freshPostResult = await freshClient.query(PAIR_P5_POST_PROBE_SQL);
+  const freshPostResult = await freshClient.query(probes.postProbeSql);
   sequence.push('FRESH_READONLY_POST_PROBE');
   const catalogResult = await freshClient.query(PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL);
   sequence.push('FRESH_READONLY_FUNCTION_BODY_CATALOG_PROBE');
   const catalogOk = validatePairP5FunctionBodyCatalogProbeResult(catalogResult).ok;
   const freshPostOk =
-    validatePairP5PostProbeResult(freshPostResult).ok &&
+    probes.validatePostProbe(freshPostResult).ok &&
     catalogOk;
   return {
     guardPassed: true,
     probesExecuted: true,
-    freshPriorOk: validatePairP5PriorProbeResult(freshPriorResult).ok,
+    freshPriorOk: probes.validatePriorProbe(freshPriorResult).ok,
     freshPostOk,
     catalogOk,
   };
@@ -1249,6 +1259,7 @@ async function openPairP5LiveFreshReadonlyPgClient(
   input: PairP5AuthGatedRealExecutionInput,
   surface: PairP5FreshReadonlyClassifierSurface,
   internalFakeOnly: boolean,
+  dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null,
 ): Promise<FreshReadonlyOpenOutcome> {
   if (!internalFakeOnly) {
     if (!isPairP5HumanPreviewApplyAuthorizationGranted()) {
@@ -1262,10 +1273,9 @@ async function openPairP5LiveFreshReadonlyPgClient(
     if (!structural.ok) {
       return { kind: 'blocked', humanGateClosed: false, holdReasonCode: structural.holdReasonCode };
     }
-    // Operational dedicated receipt is not threaded here until Human-authorized issuance exists; boundary fails closed on missing receipt.
     const boundary = evaluatePairP5LiveDedicatedPathPreCredentialBoundary({
       repoRoot: input.repoRoot,
-      dedicatedReceipt: null,
+      dedicatedReceipt,
       purpose: 'LIVE_FRESH_READONLY',
       humanPreviewApplyAuthorizationGranted: isPairP5HumanPreviewApplyAuthorizationGranted(),
     });
@@ -1297,6 +1307,8 @@ async function runFreshReadonlyPostCommitClassifier(
   input: PairP5AuthGatedRealExecutionInput,
   surface: PairP5FreshReadonlyClassifierSurface,
   binding: ExpectedAuthorizationBinding,
+  probes: PairP5OrchestrationProbeSuite,
+  dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null,
 ): Promise<FreshPostCommitClassifierResult> {
   const sequence: string[] = [];
   const emptyWork: FreshReadonlyProbeWork = {
@@ -1322,7 +1334,12 @@ async function runFreshReadonlyPostCommitClassifier(
       const internalFakeOnly =
         surface.kind === 'INTERNAL_OFFLINE_SIMULATION_ONLY' &&
         surface.internalLiveFreshReadonlyStructureExercise === true;
-      const opened = await openPairP5LiveFreshReadonlyPgClient(input, surface, internalFakeOnly);
+      const opened = await openPairP5LiveFreshReadonlyPgClient(
+        input,
+        surface,
+        internalFakeOnly,
+        dedicatedReceipt,
+      );
       if (opened.kind === 'blocked') {
         humanGateClosed = opened.humanGateClosed;
         return {
@@ -1347,7 +1364,7 @@ async function runFreshReadonlyPostCommitClassifier(
     await freshClient.connect();
     sessionOpened = true;
     sequence.push('FRESH_READONLY_CONNECT');
-    work = await executeFreshReadonlyProbeWork(freshClient, binding, sequence);
+    work = await executeFreshReadonlyProbeWork(freshClient, binding, sequence, probes);
   } catch {
     work = emptyWork;
   } finally {
@@ -1370,11 +1387,18 @@ export async function probePairP5LiveFreshReadonlyPostCommitClassifierWhenHumanG
   input: PairP5AuthGatedRealExecutionInput,
 ): Promise<FreshPostCommitClassifierResult> {
   const binding = buildPairP5ExpectedAuthorizationBinding(input);
-  return runFreshReadonlyPostCommitClassifier(input, { kind: 'LIVE_SESSION_POOLER' }, binding);
+  return runFreshReadonlyPostCommitClassifier(
+    input,
+    { kind: 'LIVE_SESSION_POOLER' },
+    binding,
+    PAIR_P5_IDENTITY_ORCHESTRATION_PROBE_SUITE,
+    null,
+  );
 }
 
 function buildInternalFreshReadonlySurface(
   surface: Extract<PairP5AuthGatedOrchestrationSurface, { kind: 'INTERNAL_OFFLINE_SIMULATION_ONLY' }>,
+  probes: PairP5OrchestrationProbeSuite,
 ): Extract<PairP5AuthGatedOrchestrationSurface, { kind: 'INTERNAL_OFFLINE_SIMULATION_ONLY' }> {
   return {
     kind: 'INTERNAL_OFFLINE_SIMULATION_ONLY',
@@ -1395,13 +1419,13 @@ function buildInternalFreshReadonlySurface(
             ],
           };
         }
-        if (sql.trim() === PAIR_P5_PRIOR_PROBE_SQL.trim()) {
+        if (sql.trim() === probes.priorProbeSql.trim()) {
           return {
             rowCount: surface.freshPriorProbeRow.rowCount,
             rows: [...surface.freshPriorProbeRow.rows],
           };
         }
-        if (sql.trim() === PAIR_P5_POST_PROBE_SQL.trim()) {
+        if (sql.trim() === probes.postProbeSql.trim()) {
           return {
             rowCount: surface.freshPostProbeRow.rowCount,
             rows: [...surface.freshPostProbeRow.rows],
@@ -1423,13 +1447,14 @@ function buildInternalFreshReadonlySurface(
 }
 
 /**
- * Shared P5-1 transaction orchestration for future live Session pooler execution and offline simulation.
- * Not exported — live surface requires Human GO; simulation uses `simulatePairP5AuthorizationGatedTransactionOffline` only.
+ * Shared Pair P5 transaction orchestration (identity / checkout steps).
  */
-async function runPairP5AuthorizationGatedPgTransactionOrchestration(
+export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
   input: PairP5AuthGatedRealExecutionInput,
-  plan: PairP5IdentityOfflinePlanSuccess,
+  plan: PairP5OrchestrationPlan,
   surface: PairP5AuthGatedOrchestrationSurface,
+  probes: PairP5OrchestrationProbeSuite,
+  dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null,
 ): Promise<OrchestrationOutcome> {
   const binding = buildPairP5ExpectedAuthorizationBinding(input);
   const simulationOnly = surface.kind === 'INTERNAL_OFFLINE_SIMULATION_ONLY';
@@ -1488,10 +1513,10 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     evidence = { ...evidence, beginExecuted: true };
 
     preCommitFailurePhase = 'PRIOR_PROBE';
-    const priorResult = await client.query(PAIR_P5_PRIOR_PROBE_SQL);
+    const priorResult = await client.query(probes.priorProbeSql);
     querySequence.push('PRIOR_PROBE');
     evidence = { ...evidence, priorProbeExecuted: true };
-    const priorValidation = validatePairP5PriorProbeResult(priorResult);
+    const priorValidation = probes.validatePriorProbe(priorResult);
     if (!priorValidation.ok) {
       evidence = await attemptRollback(client, evidence);
       return {
@@ -1550,7 +1575,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
         mutationStatementsExecuted: evidence.mutationStatementsExecuted + 1,
       };
     }
-    if (evidence.mutationStatementsExecuted !== PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT) {
+    if (evidence.mutationStatementsExecuted !== probes.normalizedStatementCount) {
       evidence = await attemptRollback(client, evidence);
       return {
         holdReasonCode: 'HOLD_PAIR_P5_NORMALIZED_STREAM_MISMATCH',
@@ -1574,10 +1599,10 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     };
 
     preCommitFailurePhase = 'POST_PROBE';
-    const postResult = await client.query(PAIR_P5_POST_PROBE_SQL);
+    const postResult = await client.query(probes.postProbeSql);
     querySequence.push('POST_PROBE');
     evidence = { ...evidence, postProbeExecuted: true };
-    const postValidation = validatePairP5PostProbeResult(postResult);
+    const postValidation = probes.validatePostProbe(postResult);
     if (!postValidation.ok) {
       evidence = await attemptRollback(client, evidence);
       return {
@@ -1651,7 +1676,7 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
 
     const freshSurfaceForRun =
       surface.kind === 'INTERNAL_OFFLINE_SIMULATION_ONLY'
-        ? buildInternalFreshReadonlySurface(surface)
+        ? buildInternalFreshReadonlySurface(surface, probes)
         : surface;
 
     let freshAfterCommit: FreshPostCommitClassifierResult = {
@@ -1663,7 +1688,13 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       querySequence: [],
     };
     if (branch.ok && branch.lifecycle) {
-      freshAfterCommit = await runFreshReadonlyPostCommitClassifier(input, freshSurfaceForRun, binding);
+      freshAfterCommit = await runFreshReadonlyPostCommitClassifier(
+        input,
+        freshSurfaceForRun,
+        binding,
+        probes,
+        dedicatedReceipt,
+      );
       querySequence.push(...freshAfterCommit.querySequence);
       evidence = { ...evidence, ...freshAfterCommit.evidencePatch };
     }
@@ -1723,9 +1754,15 @@ async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       };
       const freshSurfaceForRun =
         surface.kind === 'INTERNAL_OFFLINE_SIMULATION_ONLY'
-          ? buildInternalFreshReadonlySurface(surface)
+          ? buildInternalFreshReadonlySurface(surface, probes)
           : surface;
-      const freshAfterCommit = await runFreshReadonlyPostCommitClassifier(input, freshSurfaceForRun, binding);
+      const freshAfterCommit = await runFreshReadonlyPostCommitClassifier(
+        input,
+        freshSurfaceForRun,
+        binding,
+        probes,
+        dedicatedReceipt,
+      );
       querySequence.push(...freshAfterCommit.querySequence);
       evidence = {
         ...evidence,
@@ -1898,7 +1935,13 @@ export async function executePairP5IdentityAuthorizationGatedRealExecution(
   }
 
   try {
-    const outcome = await runPairP5AuthorizationGatedPgTransactionOrchestration(input, plan, liveSurface);
+    const outcome = await runPairP5AuthorizationGatedPgTransactionOrchestration(
+      input,
+      plan,
+      liveSurface,
+      PAIR_P5_IDENTITY_ORCHESTRATION_PROBE_SUITE,
+      liveSurface.dedicatedTargetBindingReceipt,
+    );
     return mapOrchestrationOutcomeToExecutionResult(outcome, baseGate, false);
   } catch {
     return {
@@ -1986,16 +2029,22 @@ export async function simulatePairP5AuthorizationGatedTransactionOffline(
     },
   };
 
-  const outcome = await runPairP5AuthorizationGatedPgTransactionOrchestration(input, plan, {
-    kind: 'INTERNAL_OFFLINE_SIMULATION_ONLY',
-    mutationFakeOptions,
-    freshReadonlyFakeOptions: pickAllowlistedFakeClientOptions(options.freshReadonlyFakeOptions),
-    freshPostProbeRow: freshPostRow,
-    freshPriorProbeRow: freshPriorRow,
-    mutationCloseFailsAfterCommit: options.mutationCloseFailsAfterSuccessfulCommit === true,
-    internalLiveFreshReadonlyStructureExercise: options.internalLiveFreshReadonlyStructureExercise === true,
-    postConnectDedicatedReceiptLedgerBinding: ledgerBinding,
-  });
+  const outcome = await runPairP5AuthorizationGatedPgTransactionOrchestration(
+    input,
+    plan,
+    {
+      kind: 'INTERNAL_OFFLINE_SIMULATION_ONLY',
+      mutationFakeOptions,
+      freshReadonlyFakeOptions: pickAllowlistedFakeClientOptions(options.freshReadonlyFakeOptions),
+      freshPostProbeRow: freshPostRow,
+      freshPriorProbeRow: freshPriorRow,
+      mutationCloseFailsAfterCommit: options.mutationCloseFailsAfterSuccessfulCommit === true,
+      internalLiveFreshReadonlyStructureExercise: options.internalLiveFreshReadonlyStructureExercise === true,
+      postConnectDedicatedReceiptLedgerBinding: ledgerBinding,
+    },
+    PAIR_P5_IDENTITY_ORCHESTRATION_PROBE_SUITE,
+    input.dedicatedTargetBindingReceipt ?? null,
+  );
 
   return mapOrchestrationOutcomeToExecutionResult(outcome, baseGate, true);
 }
@@ -2007,3 +2056,11 @@ export function serializePairP5AuthGatedRealExecutionResult(
 }
 
 export const PAIR_P5_EXPECTED_PRIOR_HISTORY_VERSIONS = PAIR_P5_PRE_IDENTITY_EXECUTION_HISTORY_VERSIONS;
+
+export const PAIR_P5_IDENTITY_ORCHESTRATION_PROBE_SUITE: PairP5OrchestrationProbeSuite = {
+  priorProbeSql: PAIR_P5_PRIOR_PROBE_SQL,
+  postProbeSql: PAIR_P5_POST_PROBE_SQL,
+  validatePriorProbe: validatePairP5PriorProbeResult,
+  validatePostProbe: validatePairP5PostProbeResult,
+  normalizedStatementCount: PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT,
+};

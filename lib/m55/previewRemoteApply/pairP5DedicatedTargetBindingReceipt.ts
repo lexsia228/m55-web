@@ -37,6 +37,14 @@ import {
   PAIR_P5_IDENTITY_STEP_ID,
 } from './pairP5IdentityStepAuthority.ts';
 import {
+  PAIR_P5_CHECKOUT_MIGRATION_NAME,
+  PAIR_P5_CHECKOUT_MIGRATION_SHA256,
+  PAIR_P5_CHECKOUT_MIGRATION_VERSION,
+  PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT,
+  PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256,
+  PAIR_P5_CHECKOUT_STEP_ID,
+} from './pairP5CheckoutStepAuthority.ts';
+import {
   type PairP5SignedHumanPreviewUiAttestation,
   PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS,
   verifyPairP5SignedHumanPreviewUiAttestation,
@@ -300,6 +308,7 @@ export function claimPairP5DurableDedicatedReceiptOneTimeUse(
 
 export function buildPairP5DedicatedReceiptConsumptionBinding(input: {
   readonly receiptIdentifierSha256: string;
+  readonly selectedStep: PairP5DedicatedCallableStepId;
   readonly operationPurpose: PairP5HumanPreviewApplyAuthorizationPurpose;
   readonly attestationIdentityDigestSha256: string;
   readonly humanAuthorizationId: string | null | undefined;
@@ -307,7 +316,7 @@ export function buildPairP5DedicatedReceiptConsumptionBinding(input: {
   return {
     receiptIdentifierSha256: input.receiptIdentifierSha256,
     previewProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
-    selectedStep: PAIR_P5_IDENTITY_STEP_ID,
+    selectedStep: input.selectedStep,
     operationPurpose: input.operationPurpose,
     attestationIdentityDigestSha256: input.attestationIdentityDigestSha256,
     humanAuthorizationIdentityDigestSha256: digestPairP5HumanAuthorizationIdentity(
@@ -357,15 +366,29 @@ export type PairP5DedicatedReceiptGitEvidenceKind =
 
 export type PairP5DedicatedTargetBindingReceiptClass = 'TEST_ONLY' | 'OPERATIONAL';
 
+export type PairP5DedicatedCallableStepId =
+  | typeof PAIR_P5_IDENTITY_STEP_ID
+  | typeof PAIR_P5_CHECKOUT_STEP_ID;
+
 export type PairP5DedicatedTargetBindingReceiptBody = {
   readonly schemaId: typeof PAIR_P5_DEDICATED_TARGET_BINDING_RECEIPT_SCHEMA_ID;
   readonly receiptClass: PairP5DedicatedTargetBindingReceiptClass;
-  readonly selectedStep: typeof PAIR_P5_IDENTITY_STEP_ID;
-  readonly migrationVersion: typeof PAIR_P5_IDENTITY_MIGRATION_VERSION;
-  readonly migrationName: typeof PAIR_P5_IDENTITY_MIGRATION_NAME;
-  readonly migrationSourceSha256: typeof PAIR_P5_IDENTITY_MIGRATION_SHA256;
-  readonly normalizedStatementCount: typeof PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT;
-  readonly normalizedStreamCompositeSha256: typeof PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256;
+  readonly selectedStep: PairP5DedicatedCallableStepId;
+  readonly migrationVersion:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_VERSION
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION;
+  readonly migrationName:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_NAME
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_NAME;
+  readonly migrationSourceSha256:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
+  readonly normalizedStatementCount:
+    | typeof PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT;
+  readonly normalizedStreamCompositeSha256:
+    | typeof PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256;
   readonly git: PairP5DedicatedReceiptGitProvenance;
   readonly previewOrganization: string;
   readonly previewProject: string;
@@ -392,12 +415,22 @@ export type PairP5DedicatedTargetBindingReceipt = {
 
 export type PairP5DedicatedReceiptFrozenPolicy = {
   readonly schemaId: typeof PAIR_P5_DEDICATED_TARGET_BINDING_RECEIPT_SCHEMA_ID;
-  readonly selectedStep: typeof PAIR_P5_IDENTITY_STEP_ID;
-  readonly migrationVersion: typeof PAIR_P5_IDENTITY_MIGRATION_VERSION;
-  readonly migrationName: typeof PAIR_P5_IDENTITY_MIGRATION_NAME;
-  readonly migrationSourceSha256: typeof PAIR_P5_IDENTITY_MIGRATION_SHA256;
-  readonly normalizedStatementCount: typeof PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT;
-  readonly normalizedStreamCompositeSha256: typeof PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256;
+  readonly selectedStep: PairP5DedicatedCallableStepId;
+  readonly migrationVersion:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_VERSION
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION;
+  readonly migrationName:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_NAME
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_NAME;
+  readonly migrationSourceSha256:
+    | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
+  readonly normalizedStatementCount:
+    | typeof PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT;
+  readonly normalizedStreamCompositeSha256:
+    | typeof PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256;
   readonly previewOrganization: typeof APPROVED_PREVIEW_ORGANIZATION;
   readonly previewProject: typeof APPROVED_PREVIEW_PROJECT;
   readonly previewProjectRef: typeof PAIR_P5_APPROVED_PREVIEW_PROJECT_REF;
@@ -596,6 +629,53 @@ export function buildPairP5DedicatedReceiptFrozenPolicyFromPinnedPairSource(): P
   };
 }
 
+export function buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSource(): PairP5DedicatedReceiptFrozenPolicy {
+  const connectionUser = expectedConnectionUserForProjectRef(PAIR_P5_APPROVED_PREVIEW_PROJECT_REF);
+  return {
+    schemaId: PAIR_P5_DEDICATED_TARGET_BINDING_RECEIPT_SCHEMA_ID,
+    selectedStep: PAIR_P5_CHECKOUT_STEP_ID,
+    migrationVersion: PAIR_P5_CHECKOUT_MIGRATION_VERSION,
+    migrationName: PAIR_P5_CHECKOUT_MIGRATION_NAME,
+    migrationSourceSha256: PAIR_P5_CHECKOUT_MIGRATION_SHA256,
+    normalizedStatementCount: PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT,
+    normalizedStreamCompositeSha256: PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256,
+    previewOrganization: APPROVED_PREVIEW_ORGANIZATION,
+    previewProject: APPROVED_PREVIEW_PROJECT,
+    previewProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+    connectionEndpointProfile: SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+    sessionPoolerHost: SESSION_POOLER_HOST,
+    hostFingerprintSha256: SESSION_POOLER_HOST_FINGERPRINT_SHA256,
+    connectionUser,
+    port: EXPECTED_PORT,
+    sslmode: EXPECTED_SSLMODE,
+    tlsTrustProfile: TLS_TRUST_PROFILE,
+    tlsServerName: SESSION_POOLER_TLS_SERVER_NAME,
+    credentialMethod: PAIR_P5_DEDICATED_RECEIPT_CREDENTIAL_METHOD,
+    expectedBranch: PAIR_P5_EXPECTED_BRANCH,
+    expectedWorktreeRealpath: PAIR_P5_EXPECTED_REPO_ROOT,
+  };
+}
+
+function pairP5DedicatedReceiptFrozenPolicyForCallableStep(
+  callableStep: 'IDENTITY' | 'CHECKOUT',
+): PairP5DedicatedReceiptFrozenPolicy {
+  return callableStep === 'CHECKOUT'
+    ? buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSource()
+    : buildPairP5DedicatedReceiptFrozenPolicyFromPinnedPairSource();
+}
+
+function pairP5CallableStepFromReceiptBody(
+  body: PairP5DedicatedTargetBindingReceiptBody,
+): 'IDENTITY' | 'CHECKOUT' | null {
+  if (body.selectedStep === PAIR_P5_IDENTITY_STEP_ID) {
+    return 'IDENTITY';
+  }
+  if (body.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
+    return 'CHECKOUT';
+  }
+  return null;
+}
+
 export function readPairP5DedicatedReceiptGitProvenance(repoRoot: string): PairP5DedicatedReceiptGitProvenance {
   const top = realpathSync(gitExec(repoRoot, ['rev-parse', '--show-toplevel']));
   const branch = gitExec(repoRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
@@ -626,12 +706,13 @@ export function readPairP5DedicatedReceiptGitProvenance(repoRoot: string): PairP
 export function buildPairP5DedicatedReceiptValidationContextFromFreshGitRead(input: {
   readonly repoRoot: string;
   readonly permitTestOnlyReceipt: boolean;
+  readonly callableStep?: 'IDENTITY' | 'CHECKOUT';
 }):
   | { readonly ok: true; readonly context: PairP5DedicatedReceiptValidationContext }
   | { readonly ok: false; readonly holdReasonCode: typeof HOLD_PAIR_P5_DEDICATED_RECEIPT_FRESH_CONTEXT_UNAVAILABLE } {
   try {
     const observedGit = readPairP5DedicatedReceiptGitProvenance(input.repoRoot);
-    const policy = buildPairP5DedicatedReceiptFrozenPolicyFromPinnedPairSource();
+    const policy = pairP5DedicatedReceiptFrozenPolicyForCallableStep(input.callableStep ?? 'IDENTITY');
     if (connectionUserInvalid(policy.connectionUser)) {
       return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_FRESH_CONTEXT_UNAVAILABLE };
     }
@@ -1354,6 +1435,29 @@ export function issuePairP5TestOnlyDedicatedTargetBindingReceiptFromInjectedTest
   return { ok: true, receipt };
 }
 
+export function issuePairP5TestOnlyCheckoutDedicatedTargetBindingReceiptFromInjectedTestFixture(input: {
+  readonly injectedGit: PairP5DedicatedReceiptGitProvenance;
+  readonly witnessedObservation?: PairP5WitnessedPreviewObservation;
+}):
+  | { readonly ok: true; readonly receipt: PairP5DedicatedTargetBindingReceipt }
+  | { readonly ok: false; readonly holdReasonCode: string } {
+  const witnessedObservation = input.witnessedObservation ?? buildPairP5TestOnlyWitnessedPreviewObservationFixture();
+  const witnessHold = validatePairP5WitnessedPreviewObservation(witnessedObservation);
+  if (!witnessHold.ok) {
+    return witnessHold;
+  }
+  const policy = buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSource();
+  const body = buildReceiptBodyFromObservedGit(input.injectedGit, witnessedObservation, policy);
+  const hashes = computePairP5DedicatedReceiptHashesForBody(body);
+  const receipt = {
+    body,
+    canonicalSerializationSha256: hashes.canonicalSerializationSha256,
+    receiptIdentifierSha256: hashes.receiptIdentifierSha256,
+  };
+  registerPairP5DedicatedReceiptIssuanceOrigin(receipt, 'TEST_INJECTED_FIXTURE_NOT_OPERATIONAL');
+  return { ok: true, receipt };
+}
+
 export const HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED =
   'HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED' as const;
 
@@ -1475,9 +1579,14 @@ export function resolvePairP5LiveMutationLedgerBindingFromDedicatedReceipt(input
   if (input.dedicatedReceipt.body.receiptClass !== 'OPERATIONAL') {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED };
   }
+  const callableStep = pairP5CallableStepFromReceiptBody(input.dedicatedReceipt.body);
+  if (callableStep === null) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
+  }
   const freshContext = buildPairP5DedicatedReceiptValidationContextFromFreshGitRead({
     repoRoot: input.repoRoot,
     permitTestOnlyReceipt: false,
+    callableStep,
   });
   if (!freshContext.ok) {
     return freshContext;
@@ -1506,6 +1615,7 @@ export function resolvePairP5LiveMutationLedgerBindingFromDedicatedReceipt(input
   );
   const binding = buildPairP5DedicatedReceiptConsumptionBinding({
     receiptIdentifierSha256: preflight.receipt.receiptIdentifierSha256,
+    selectedStep: body.selectedStep,
     operationPurpose: 'LIVE_MUTATION',
     attestationIdentityDigestSha256: attestationDigest,
     humanAuthorizationId: body.humanAuthorizationId,
@@ -1513,8 +1623,7 @@ export function resolvePairP5LiveMutationLedgerBindingFromDedicatedReceipt(input
   if (
     binding.previewProjectRef !== body.previewProjectRef ||
     binding.selectedStep !== body.selectedStep ||
-    binding.selectedStep !== PAIR_P5_IDENTITY_STEP_ID ||
-    body.migrationSourceSha256 !== PAIR_P5_IDENTITY_MIGRATION_SHA256
+    body.migrationSourceSha256 !== freshContext.context.policy.migrationSourceSha256
   ) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
   }
