@@ -13,6 +13,7 @@ import {
   HOLD_PAIR_P5_PROBE_MISMATCH,
   PAIR_P5_FROZEN_NON_CALLABLE_STEPS,
   PAIR_P5_IDENTITY_MIGRATION_VERSION,
+  PAIR_P5_IDENTITY_PAIR_CHECK_CONSTRAINTDEF_PG_GET_FALSE,
   PAIR_P5_POST_IDENTITY_HISTORY_VERSIONS,
   PAIR_P5_POST_PROBE_SQL,
   PAIR_P5_PROBE_OUTPUT_COLUMN,
@@ -53,8 +54,47 @@ function historyPrefixExactSql(versions: readonly string[]): string {
   return `(COALESCE((SELECT array_agg(version::text ORDER BY version::text) FROM supabase_migrations.schema_migrations WHERE version::text = ANY (${versionsSql})), ARRAY[]::text[]) = ${versionsSql})`;
 }
 
+const CPC_REL_OID_SQL =
+  "(SELECT c.oid FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname = 'compatibility_purchase_contexts' AND c.relkind = 'r')";
+
+const CPC_BASELINE_SIX_CHECK_NAMES_SQL =
+  "ARRAY['compatibility_purchase_contexts_check'::text,'compatibility_purchase_contexts_owner_user_id_check'::text,'compatibility_purchase_contexts_product_key_check'::text,'compatibility_purchase_contexts_snapshot_version_check'::text,'compatibility_purchase_contexts_status_check'::text,'compatibility_purchase_contexts_identity_pair_check'::text]";
+
 function cpcColumnCountSql(columnName: string): string {
   return `(SELECT count(*)::int FROM pg_catalog.pg_attribute a JOIN pg_catalog.pg_class c ON c.oid = a.attrelid JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname = 'compatibility_purchase_contexts' AND c.relkind = 'r' AND a.attname = '${columnName}' AND a.attnum > 0 AND NOT a.attisdropped)`;
+}
+
+function cpcColumnShapeSql(columnName: string, typeName: string, expectNullable: boolean): string {
+  const nullSql = expectNullable ? 'NOT a.attnotnull' : 'a.attnotnull';
+  return `(SELECT count(*)::int FROM pg_catalog.pg_attribute a JOIN pg_catalog.pg_class c ON c.oid = a.attrelid JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace JOIN pg_catalog.pg_type t ON t.oid = a.atttypid LEFT JOIN pg_catalog.pg_attrdef ad ON ad.adrelid = a.attrelid AND ad.adnum = a.attnum WHERE n.nspname = 'public' AND c.relname = 'compatibility_purchase_contexts' AND c.relkind = 'r' AND a.attname = '${columnName}' AND a.attnum > 0 AND NOT a.attisdropped AND t.typname = '${typeName}' AND ${nullSql} AND ad.adbin IS NULL) = 1`;
+}
+
+function cpcNamedCheckDefinitionSql(constraintName: string, constraintDef: string): string {
+  const escapedDef = constraintDef.replace(/'/g, "''");
+  return `(SELECT count(*)::int FROM pg_catalog.pg_constraint con WHERE con.conrelid = ${CPC_REL_OID_SQL} AND con.contype = 'c' AND con.conname = '${constraintName}' AND con.convalidated = true AND pg_catalog.pg_get_constraintdef(con.oid, false) = '${escapedDef}') = 1`;
+}
+
+const PAIR_P5_CHECKOUT_POST_STATUS_CHECK_CONSTRAINTDEF =
+  "CHECK ((status = ANY (ARRAY['pending'::text, 'fulfilled'::text, 'expired'::text])))" as const;
+
+const PAIR_P5_CHECKOUT_POST_DOMAIN_CHECK_CONSTRAINTDEF =
+  "CHECK ((((status = 'pending'::text) AND (fulfilled_at IS NULL)) OR ((status = 'fulfilled'::text) AND (fulfilled_at IS NOT NULL)) OR ((status = 'expired'::text) AND (fulfilled_at IS NULL))))" as const;
+
+const PAIR_P5_CHECKOUT_POST_OWNER_CHECK_CONSTRAINTDEF =
+  'CHECK ((length(btrim(owner_user_id)) > 0))' as const;
+
+const PAIR_P5_CHECKOUT_POST_PRODUCT_CHECK_CONSTRAINTDEF =
+  "CHECK ((product_key = 'compatibility_report_full_v1'::text))" as const;
+
+const PAIR_P5_CHECKOUT_POST_SNAPSHOT_CHECK_CONSTRAINTDEF =
+  "CHECK ((snapshot_version = 'paid_compatibility_report_v1'::text))" as const;
+
+const PAIR_P5_CHECKOUT_PENDING_TUPLE_INDEX_PREDICATE =
+  "((status = 'pending'::text) AND (pair_identity_id IS NOT NULL) AND (paid_context_id IS NOT NULL))" as const;
+
+function checkoutReservationRpcContractSql(regprocedureExpr: string, expectSecdef: boolean): string {
+  const secdefSql = expectSecdef ? 'p.prosecdef = true' : 'p.prosecdef = false';
+  return `(SELECT count(*)::int FROM pg_catalog.pg_proc p WHERE p.oid = ${regprocedureExpr} AND ${secdefSql} AND EXISTS (SELECT 1 FROM unnest(COALESCE(p.proconfig, ARRAY[]::text[])) AS cfg WHERE cfg = 'search_path=public, pg_temp') AND has_function_privilege('service_role', p.oid, 'EXECUTE') AND NOT has_function_privilege('anon', p.oid, 'EXECUTE') AND NOT has_function_privilege('authenticated', p.oid, 'EXECUTE')) = 1`;
 }
 
 function buildProbeSql(greenFields: ReadonlyArray<readonly [string, string]>): string {
@@ -95,15 +135,112 @@ function buildPairP5CheckoutPostProbeSql(): string {
       'p5_3_target_version_absent',
       `(SELECT count(*)::int FROM supabase_migrations.schema_migrations WHERE version::text = '${P5_3_VERSION}') = 0`,
     ],
-    ['checkout_origin_frozen_column_present', `${cpcColumnCountSql('checkout_origin_frozen')} = 1`],
-    ['stripe_create_first_attempt_column_present', `${cpcColumnCountSql('stripe_create_first_attempt_at')} = 1`],
+    ['checkout_origin_frozen_text_nullable', cpcColumnShapeSql('checkout_origin_frozen', 'text', true)],
+    [
+      'stripe_create_first_attempt_timestamptz_nullable',
+      cpcColumnShapeSql('stripe_create_first_attempt_at', 'timestamptz', true),
+    ],
+    ['stripe_create_lease_token_uuid_nullable', cpcColumnShapeSql('stripe_create_lease_token', 'uuid', true)],
+    [
+      'stripe_create_lease_until_timestamptz_nullable',
+      cpcColumnShapeSql('stripe_create_lease_until', 'timestamptz', true),
+    ],
+    [
+      'cpc_six_checks_validated',
+      `(SELECT count(*)::int FROM pg_catalog.pg_constraint con WHERE con.conrelid = ${CPC_REL_OID_SQL} AND con.contype = 'c' AND con.convalidated = true) = 6`,
+    ],
+    [
+      'unexpected_cpc_check_zero',
+      `(SELECT count(*)::int FROM pg_catalog.pg_constraint con WHERE con.conrelid = ${CPC_REL_OID_SQL} AND con.contype = 'c' AND con.conname <> ALL (${CPC_BASELINE_SIX_CHECK_NAMES_SQL})) = 0`,
+    ],
+    [
+      'checkout_status_check_definition_exact',
+      cpcNamedCheckDefinitionSql(
+        'compatibility_purchase_contexts_status_check',
+        PAIR_P5_CHECKOUT_POST_STATUS_CHECK_CONSTRAINTDEF,
+      ),
+    ],
+    [
+      'checkout_domain_check_definition_exact',
+      cpcNamedCheckDefinitionSql(
+        'compatibility_purchase_contexts_check',
+        PAIR_P5_CHECKOUT_POST_DOMAIN_CHECK_CONSTRAINTDEF,
+      ),
+    ],
+    [
+      'legacy_owner_user_id_check_preserved',
+      cpcNamedCheckDefinitionSql(
+        'compatibility_purchase_contexts_owner_user_id_check',
+        PAIR_P5_CHECKOUT_POST_OWNER_CHECK_CONSTRAINTDEF,
+      ),
+    ],
+    [
+      'legacy_product_key_check_preserved',
+      cpcNamedCheckDefinitionSql(
+        'compatibility_purchase_contexts_product_key_check',
+        PAIR_P5_CHECKOUT_POST_PRODUCT_CHECK_CONSTRAINTDEF,
+      ),
+    ],
+    [
+      'legacy_snapshot_version_check_preserved',
+      cpcNamedCheckDefinitionSql(
+        'compatibility_purchase_contexts_snapshot_version_check',
+        PAIR_P5_CHECKOUT_POST_SNAPSHOT_CHECK_CONSTRAINTDEF,
+      ),
+    ],
+    [
+      'legacy_identity_pair_check_preserved',
+      cpcNamedCheckDefinitionSql(
+        'compatibility_purchase_contexts_identity_pair_check',
+        PAIR_P5_IDENTITY_PAIR_CHECK_CONSTRAINTDEF_PG_GET_FALSE,
+      ),
+    ],
     [
       'pending_tuple_partial_unique_index_present',
       "(SELECT count(*)::int FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname = 'compatibility_purchase_contexts_pending_tuple_uidx' AND c.relkind = 'i') = 1",
     ],
     [
-      'reservation_rpcs_present_five',
-      `(SELECT count(*)::int FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'public' AND p.proname = ANY (${RESERVE_RPC_NAMES_SQL})) = 5`,
+      'pending_tuple_unique_index_key_columns',
+      `(SELECT count(*)::int FROM pg_catalog.pg_index i JOIN pg_catalog.pg_class c ON c.oid = i.indexrelid WHERE c.relname = 'compatibility_purchase_contexts_pending_tuple_uidx' AND i.indisunique AND array_to_string(ARRAY(SELECT a.attname FROM pg_catalog.pg_attribute a WHERE a.attrelid = i.indrelid AND a.attnum = ANY (i.indkey) AND a.attnum > 0 ORDER BY a.attnum), ',') = 'owner_user_id,pair_identity_id,paid_context_id') = 1`,
+    ],
+    [
+      'pending_tuple_unique_index_predicate_exact',
+      `(SELECT count(*)::int FROM pg_catalog.pg_index i JOIN pg_catalog.pg_class c ON c.oid = i.indexrelid WHERE c.relname = 'compatibility_purchase_contexts_pending_tuple_uidx' AND pg_catalog.pg_get_expr(i.indpred, i.indrelid) = '${PAIR_P5_CHECKOUT_PENDING_TUPLE_INDEX_PREDICATE.replace(/'/g, "''")}') = 1`,
+    ],
+    [
+      'reserve_rpc_contract',
+      checkoutReservationRpcContractSql(
+        "to_regprocedure('public.m55_reserve_compatibility_checkout_v1(uuid, text, uuid, uuid, jsonb, text)')",
+        true,
+      ),
+    ],
+    [
+      'classify_rpc_contract',
+      checkoutReservationRpcContractSql(
+        "to_regprocedure('public.m55_classify_pending_checkout_context_v1(compatibility_purchase_contexts)')",
+        false,
+      ),
+    ],
+    [
+      'acquire_slot_rpc_contract',
+      checkoutReservationRpcContractSql(
+        "to_regprocedure('public.m55_acquire_compatibility_checkout_create_slot_v1(uuid, text, uuid)')",
+        true,
+      ),
+    ],
+    [
+      'attach_session_rpc_contract',
+      checkoutReservationRpcContractSql(
+        "to_regprocedure('public.m55_cas_attach_compatibility_checkout_session_v1(uuid, text, text, timestamptz, uuid)')",
+        true,
+      ),
+    ],
+    [
+      'release_expired_rpc_contract',
+      checkoutReservationRpcContractSql(
+        "to_regprocedure('public.m55_cas_release_compatibility_checkout_expired_v1(uuid, text, text, text, text)')",
+        true,
+      ),
     ],
     [
       'identity_links_ordinary_table_still_one',
@@ -125,7 +262,7 @@ function digestProbeSql(sql: string): string {
 
 /** Independently pinned at probe contract freeze; verified by assertPairP5CheckoutProbeSqlPinnedIntegrity(). */
 export const PAIR_P5_CHECKOUT_POST_PROBE_SQL_SHA256_LITERAL =
-  '4f18581b70666b7d04dedb7b36da3a432be3e5faf1700cae2ad224eb192024b6' as const;
+  'db936faaeab576e5facfea413c08ae00cf1d663bd538c0ca61c0571138cf69f2' as const;
 
 export const PAIR_P5_CHECKOUT_POST_GREEN_PROBE_FIELDS = [
   'history_total_twenty_four',
@@ -136,10 +273,26 @@ export const PAIR_P5_CHECKOUT_POST_GREEN_PROBE_FIELDS = [
   'target_version_present_once',
   'p5_1_identity_version_still_present_once',
   'p5_3_target_version_absent',
-  'checkout_origin_frozen_column_present',
-  'stripe_create_first_attempt_column_present',
+  'checkout_origin_frozen_text_nullable',
+  'stripe_create_first_attempt_timestamptz_nullable',
+  'stripe_create_lease_token_uuid_nullable',
+  'stripe_create_lease_until_timestamptz_nullable',
+  'cpc_six_checks_validated',
+  'unexpected_cpc_check_zero',
+  'checkout_status_check_definition_exact',
+  'checkout_domain_check_definition_exact',
+  'legacy_owner_user_id_check_preserved',
+  'legacy_product_key_check_preserved',
+  'legacy_snapshot_version_check_preserved',
+  'legacy_identity_pair_check_preserved',
   'pending_tuple_partial_unique_index_present',
-  'reservation_rpcs_present_five',
+  'pending_tuple_unique_index_key_columns',
+  'pending_tuple_unique_index_predicate_exact',
+  'reserve_rpc_contract',
+  'classify_rpc_contract',
+  'acquire_slot_rpc_contract',
+  'attach_session_rpc_contract',
+  'release_expired_rpc_contract',
   'identity_links_ordinary_table_still_one',
   'pair_identity_column_still_present',
 ] as const;

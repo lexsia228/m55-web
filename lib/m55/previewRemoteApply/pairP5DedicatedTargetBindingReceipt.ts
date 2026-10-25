@@ -223,8 +223,23 @@ export type PairP5HumanPreviewApplyAuthorizationRecord = {
 
 const humanPreviewApplyAuthorizationRegistry = new Map<string, PairP5HumanPreviewApplyAuthorizationRecord>();
 
+const testAttestationTrustAnchorRegistry = new Map<string, PairP5HumanAttestationTrustAnchor>();
+
 export function resetPairP5HumanPreviewApplyAuthorizationRegistryForTestsOnly(): void {
   humanPreviewApplyAuthorizationRegistry.clear();
+  testAttestationTrustAnchorRegistry.clear();
+}
+
+export function registerPairP5TestAttestationTrustAnchorForTestsOnly(
+  anchor: PairP5HumanAttestationTrustAnchor,
+): void {
+  testAttestationTrustAnchorRegistry.set(anchor.trustKeyId, anchor);
+}
+
+export function resolvePairP5TestAttestationTrustAnchorForTestsOnly(
+  trustKeyId: string,
+): PairP5HumanAttestationTrustAnchor | undefined {
+  return testAttestationTrustAnchorRegistry.get(trustKeyId);
 }
 
 export function registerPairP5HumanPreviewApplyAuthorizationForTestsOnly(

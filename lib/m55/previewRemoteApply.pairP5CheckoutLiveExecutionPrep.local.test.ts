@@ -14,8 +14,10 @@ import {
   simulatePairP5CheckoutAuthorizationGatedTransactionOffline,
 } from './previewRemoteApply/pairP5CheckoutAuthorizationGatedRealExecutor.ts';
 import {
+  PAIR_P5_CHECKOUT_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED,
   PAIR_P5_CHECKOUT_LIVE_EXECUTION_PREP_READINESS,
   PAIR_P5_CHECKOUT_STATIC_EXECUTION_GATE,
+  isPairP5CheckoutHumanPreviewApplyAuthorizationGranted,
   pairP5CheckoutLiveFreshReadonlyProbeAuthorizationGranted,
 } from './previewRemoteApply/pairP5CheckoutLiveExecutionAuthority.ts';
 import {
@@ -29,6 +31,7 @@ import {
   pairP5LiveFreshReadonlyProbeAuthorizationGrantedForCallableStep,
   readPairP5DedicatedReceiptGitProvenance,
   registerPairP5HumanPreviewApplyAuthorizationForTestsOnly,
+  registerPairP5TestAttestationTrustAnchorForTestsOnly,
   resetPairP5HumanPreviewApplyAuthorizationRegistryForTestsOnly,
 } from './previewRemoteApply/pairP5DedicatedTargetBindingReceipt.ts';
 import { HOLD_PAIR_P5_DURABLE_RECEIPT_ALREADY_CONSUMED } from './previewRemoteApply/pairP5DedicatedReceiptConsumptionLedger.ts';
@@ -82,6 +85,11 @@ function issueOperationalCheckoutFixture() {
     previewProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
   });
   const key = generatePairP5HumanAttestationTestKeyMaterialForTestsOnly('TEST_CHECKOUT_OPS_KEY');
+  registerPairP5TestAttestationTrustAnchorForTestsOnly({
+    trustKeyId: key.trustKeyId,
+    publicKeySpkiDerBase64: key.publicKeySpkiDerBase64,
+    status: 'ACTIVE',
+  });
   const git = readPairP5DedicatedReceiptGitProvenance(PAIR_P5_EXPECTED_REPO_ROOT);
   const issued = issuePairP5TestOnlyOperationalCheckoutDedicatedReceiptForTestsOnly({
     injectedGit: git,
@@ -106,7 +114,10 @@ function issueOperationalCheckoutFixture() {
 
 describe('pairP5 checkout LIVE execution prep', () => {
   it('exposes prep readiness without authorizing Preview APPLY', () => {
+    assert.equal(PAIR_P5_CHECKOUT_HUMAN_PREVIEW_APPLY_AUTHORIZATION_GRANTED, false);
+    assert.equal(PAIR_P5_CHECKOUT_LIVE_EXECUTION_PREP_READINESS.checkoutHumanPreviewApplyAuthorizationGranted, false);
     assert.equal(PAIR_P5_CHECKOUT_LIVE_EXECUTION_PREP_READINESS.previewApplyReady, false);
+    assert.equal(isPairP5CheckoutHumanPreviewApplyAuthorizationGranted(), false);
     assert.equal(pairP5CheckoutLiveFreshReadonlyProbeAuthorizationGranted(), true);
     assert.equal(pairP5LiveFreshReadonlyProbeAuthorizationGrantedForCallableStep(PAIR_P5_CHECKOUT_STEP_ID), true);
     assert.equal(pairP5LiveFreshReadonlyProbeAuthorizationGrantedForCallableStep(PAIR_P5_IDENTITY_STEP_ID), false);
@@ -234,11 +245,11 @@ describe('pairP5 checkout LIVE execution prep', () => {
     assert.equal(result.evidence.rollbackSent, false);
   });
 
-  it('live execute without stdin receipt holds before credential acquisition', async () => {
-    const result = await executePairP5CheckoutAuthorizationGatedRealExecution({
-      ...baseInput(),
-      dedicatedTargetBindingReceipt: issueOperationalCheckoutFixture(),
-    });
+  it('live execute with operational test receipt passes Human gate then holds before stdin (surface preflight)', async () => {
+    const receipt = issueOperationalCheckoutFixture();
+    const input = { ...baseInput(), dedicatedTargetBindingReceipt: receipt };
+    assert.equal(isPairP5CheckoutHumanPreviewApplyAuthorizationGranted(input), true);
+    const result = await executePairP5CheckoutAuthorizationGatedRealExecution(input);
     assert.equal(result.mode, 'PAIR_P5_AUTH_GATED_REAL_HOLD');
     assert.notEqual(result.holdReasonCode, null);
     assert.equal(result.evidence.credentialAcquisitionAttempted, false);

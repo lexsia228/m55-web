@@ -198,7 +198,7 @@ export async function executePairP5CheckoutAuthorizationGatedRealExecution(
       ...baseGate,
     };
   }
-  if (!isPairP5CheckoutHumanPreviewApplyAuthorizationGranted()) {
+  if (!isPairP5CheckoutHumanPreviewApplyAuthorizationGranted(input)) {
     return {
       mode: 'PAIR_P5_AUTH_GATED_REAL_EXECUTION_DISABLED',
       holdReasonCode: 'HOLD_PAIR_P5_EXECUTION_NOT_AUTHORIZED',

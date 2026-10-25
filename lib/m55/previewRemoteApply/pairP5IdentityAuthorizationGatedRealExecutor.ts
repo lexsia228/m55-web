@@ -24,6 +24,7 @@ import {
 import {
   acquireSecureStdinConnectionConfig,
   type CredentialAcquirerDeps,
+  type ParsedConnectionSecrets,
 } from './remoteExecutionCredentialAcquirer.ts';
 import {
   POST_CONNECT_GUARD_BINDING,
@@ -266,6 +267,12 @@ export function getPairP5LiveCredentialAcquisitionProbeCountForTestsOnly(): numb
   return pairP5LiveCredentialAcquisitionProbeCount;
 }
 
+/** One stdin acquisition; releaseConnectionSecrets may be called twice for two PG sessions; cleanup zeroizes once. */
+export type PairP5LiveSessionCredentialBundle = {
+  readonly releaseConnectionSecrets: () => ParsedConnectionSecrets;
+  readonly cleanup: () => void;
+};
+
 const PLACEHOLDER_CLIENT_CONFIG: ExecutionPgClientConfig = {
   host: 'pair-p5-auth-gated.placeholder.invalid',
   port: 5432,
@@ -454,7 +461,7 @@ function isPairP5HumanPreviewApplyAuthorizationGrantedForInput(
   input: PairP5AuthGatedRealExecutionInput,
 ): boolean {
   if (input.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
-    return isPairP5CheckoutHumanPreviewApplyAuthorizationGranted();
+    return isPairP5CheckoutHumanPreviewApplyAuthorizationGranted(input);
   }
   return isPairP5HumanPreviewApplyAuthorizationGranted();
 }
@@ -796,6 +803,12 @@ function buildOfflinePlanOrHold(
   return planResult;
 }
 
+export function buildPairP5ExpectedAuthorizationBindingForTestsOnly(
+  input: PairP5AuthGatedRealExecutionInput,
+): ExpectedAuthorizationBinding {
+  return buildPairP5ExpectedAuthorizationBinding(input);
+}
+
 function buildPairP5ExpectedAuthorizationBinding(
   input: PairP5AuthGatedRealExecutionInput,
 ): ExpectedAuthorizationBinding {
@@ -955,12 +968,109 @@ function validatePairP5DedicatedReceiptMatchesExecutionBinding(
   return null;
 }
 
+function buildPairP5LivePgClientFromCredentialBundle(
+  binding: ExpectedAuthorizationBinding,
+  bundle: PairP5LiveSessionCredentialBundle,
+  transportFactory: ExecutionPgTransportFactoryDeps | undefined,
+): { readonly client: ExecutionPgClient } | string {
+  const configResult = buildClientConfig(binding, bundle.releaseConnectionSecrets());
+  if (typeof configResult === 'string') {
+    return configResult;
+  }
+  const transport = createExecutionPgTransport(transportFactory ?? {});
+  return { client: transport.createClient(configResult) };
+}
+
+async function acquirePairP5LiveSessionCredentialBundleOnce(
+  input: PairP5AuthGatedRealExecutionInput,
+  binding: ExpectedAuthorizationBinding,
+  credentialDeps: CredentialAcquirerDeps,
+  dedicatedReceipt: PairP5DedicatedTargetBindingReceipt,
+): Promise<PairP5LiveSessionCredentialBundle | string> {
+  const structural = validatePairP5PreviewStructuralAuthorityContract(input);
+  if (!structural.ok) {
+    return structural.holdReasonCode;
+  }
+  const preCredentialHold = evaluatePairP5LiveDedicatedPathPreCredentialBoundary({
+    repoRoot: input.repoRoot,
+    dedicatedReceipt,
+    purpose: 'LIVE_MUTATION',
+    humanPreviewApplyAuthorizationGranted: isPairP5HumanPreviewApplyAuthorizationGrantedForInput(input),
+  });
+  if (preCredentialHold !== null) {
+    return preCredentialHold;
+  }
+  const receiptBindingHold = validatePairP5DedicatedReceiptMatchesExecutionBinding(
+    dedicatedReceipt,
+    binding,
+  );
+  if (receiptBindingHold !== null) {
+    return receiptBindingHold;
+  }
+  if (!isPairP5LiveCredentialAcquisitionAuthorized()) {
+    return HOLD_PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_NOT_AUTHORIZED;
+  }
+  pairP5LiveCredentialAcquisitionProbeCount += 1;
+  const credentialResult = await acquireSecureStdinConnectionConfig(credentialDeps);
+  if (!credentialResult.ok) {
+    return credentialResult.holdReasonCode;
+  }
+  return {
+    releaseConnectionSecrets: credentialResult.releaseConnectionSecrets,
+    cleanup: credentialResult.cleanup,
+  };
+}
+
+/** LIVE-equivalent stdin regression: one secure-stdin acquisition, two PG client configs, one cleanup. */
+export async function pairP5LiveSingleStdinDualPgClientExerciseForTestsOnly(input: {
+  readonly binding: ExpectedAuthorizationBinding;
+  readonly credentialDeps: CredentialAcquirerDeps;
+}): Promise<
+  | { readonly ok: true; readonly credentialAcquisitionProbeCount: number }
+  | { readonly ok: false; readonly holdReasonCode: string }
+> {
+  resetPairP5LiveCredentialAcquisitionProbeForTestsOnly();
+  if (!isPairP5LiveCredentialAcquisitionAuthorized()) {
+    return { ok: false, holdReasonCode: HOLD_PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_NOT_AUTHORIZED };
+  }
+  pairP5LiveCredentialAcquisitionProbeCount += 1;
+  const credentialResult = await acquireSecureStdinConnectionConfig(input.credentialDeps);
+  if (!credentialResult.ok) {
+    return { ok: false, holdReasonCode: credentialResult.holdReasonCode };
+  }
+  const bundle: PairP5LiveSessionCredentialBundle = {
+    releaseConnectionSecrets: credentialResult.releaseConnectionSecrets,
+    cleanup: credentialResult.cleanup,
+  };
+  const mutationBuilt = buildPairP5LivePgClientFromCredentialBundle(
+    input.binding,
+    bundle,
+    undefined,
+  );
+  const freshBuilt = buildPairP5LivePgClientFromCredentialBundle(input.binding, bundle, undefined);
+  const probeCount = getPairP5LiveCredentialAcquisitionProbeCountForTestsOnly();
+  if (typeof mutationBuilt === 'string') {
+    bundle.cleanup();
+    return { ok: false, holdReasonCode: mutationBuilt };
+  }
+  if (typeof freshBuilt === 'string') {
+    await safeCloseExecutionClient(mutationBuilt.client);
+    bundle.cleanup();
+    return { ok: false, holdReasonCode: freshBuilt };
+  }
+  await safeCloseExecutionClient(mutationBuilt.client);
+  await safeCloseExecutionClient(freshBuilt.client);
+  bundle.cleanup();
+  return { ok: true, credentialAcquisitionProbeCount: probeCount };
+}
+
 async function acquirePairP5LiveMutationClient(
   input: PairP5AuthGatedRealExecutionInput,
   binding: ExpectedAuthorizationBinding,
   transportFactory: ExecutionPgTransportFactoryDeps | undefined,
   credentialDeps: CredentialAcquirerDeps,
   dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null = null,
+  liveCredentialBundle: PairP5LiveSessionCredentialBundle | null = null,
 ): Promise<
   | {
       readonly client: ExecutionPgClient;
@@ -975,6 +1085,27 @@ async function acquirePairP5LiveMutationClient(
   }
   if (dedicatedReceipt === null) {
     return HOLD_PAIR_P5_DEDICATED_RECEIPT_MISSING;
+  }
+  if (liveCredentialBundle !== null) {
+    const built = buildPairP5LivePgClientFromCredentialBundle(
+      binding,
+      liveCredentialBundle,
+      transportFactory,
+    );
+    if (typeof built === 'string') {
+      return built;
+    }
+    return {
+      client: built.client,
+      cleanup: null,
+      evidencePatch: {
+        remoteConnectionAttempted: false,
+        pgClientConstructed: true,
+        credentialAcquisitionAttempted: true,
+        dedicatedTargetBindingReceiptValidated: true,
+        dedicatedTargetBindingReceiptIdentifierSha256: dedicatedReceipt.receiptIdentifierSha256,
+      },
+    };
   }
   const preCredentialHold = evaluatePairP5LiveDedicatedPathPreCredentialBoundary({
     repoRoot: input.repoRoot,
@@ -1026,6 +1157,7 @@ async function acquirePairP5LiveFreshReadonlyClient(
   transportFactory: ExecutionPgTransportFactoryDeps | undefined,
   credentialDeps: CredentialAcquirerDeps,
   dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null = null,
+  liveCredentialBundle: PairP5LiveSessionCredentialBundle | null = null,
 ): Promise<
   | {
       readonly client: ExecutionPgClient;
@@ -1059,6 +1191,21 @@ async function acquirePairP5LiveFreshReadonlyClient(
   if (!isPairP5LiveCredentialAcquisitionAuthorized()) {
     return HOLD_PAIR_P5_LIVE_CREDENTIAL_ACQUISITION_NOT_AUTHORIZED;
   }
+  if (liveCredentialBundle !== null) {
+    const built = buildPairP5LivePgClientFromCredentialBundle(
+      binding,
+      liveCredentialBundle,
+      transportFactory,
+    );
+    if (typeof built === 'string') {
+      return built;
+    }
+    return {
+      client: built.client,
+      cleanup: null,
+    };
+  }
+  pairP5LiveCredentialAcquisitionProbeCount += 1;
   const credentialResult = await acquireSecureStdinConnectionConfig(credentialDeps);
   if (!credentialResult.ok) {
     return credentialResult.holdReasonCode;
@@ -1186,6 +1333,7 @@ async function buildMutationClientForSurface(
   input: PairP5AuthGatedRealExecutionInput,
   surface: PairP5AuthGatedOrchestrationSurface,
   binding: ExpectedAuthorizationBinding,
+  liveCredentialBundle: PairP5LiveSessionCredentialBundle | null = null,
 ): Promise<
   | {
       readonly client: ExecutionPgClient;
@@ -1204,6 +1352,7 @@ async function buildMutationClientForSurface(
       surface.transportFactory,
       resolvePairP5LiveCredentialAcquirerDeps(surface.credentialAcquirerDeps),
       surface.dedicatedTargetBindingReceipt,
+      liveCredentialBundle,
     );
     if (typeof live === 'string') {
       return live;
@@ -1326,6 +1475,7 @@ async function openPairP5LiveFreshReadonlyPgClient(
   surface: PairP5FreshReadonlyClassifierSurface,
   internalFakeOnly: boolean,
   dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null,
+  liveCredentialBundle: PairP5LiveSessionCredentialBundle | null = null,
 ): Promise<FreshReadonlyOpenOutcome> {
   if (!internalFakeOnly) {
     if (surface.kind !== 'LIVE_SESSION_POOLER') {
@@ -1349,6 +1499,7 @@ async function openPairP5LiveFreshReadonlyPgClient(
       livePoolerSurface.transportFactory,
       resolvePairP5LiveCredentialAcquirerDeps(livePoolerSurface.credentialAcquirerDeps),
       dedicatedReceipt,
+      liveCredentialBundle,
     );
     if (typeof live === 'string') {
       return { kind: 'blocked', humanGateClosed: false, holdReasonCode: live };
@@ -1379,6 +1530,7 @@ async function runFreshReadonlyPostCommitClassifier(
   binding: ExpectedAuthorizationBinding,
   probes: PairP5OrchestrationProbeSuite,
   dedicatedReceipt: PairP5DedicatedTargetBindingReceipt | null,
+  liveCredentialBundle: PairP5LiveSessionCredentialBundle | null = null,
 ): Promise<FreshPostCommitClassifierResult> {
   const sequence: string[] = [];
   const emptyWork: FreshReadonlyProbeWork = {
@@ -1410,6 +1562,7 @@ async function runFreshReadonlyPostCommitClassifier(
         surface,
         internalFakeOnly,
         dedicatedReceipt,
+        liveCredentialBundle,
       );
       if (opened.kind === 'blocked') {
         humanGateClosed = opened.humanGateClosed;
@@ -1441,7 +1594,9 @@ async function runFreshReadonlyPostCommitClassifier(
     work = emptyWork;
   } finally {
     const closeCompleted = freshClient ? await safeCloseExecutionClient(freshClient) : false;
-    freshCredentialCleanup?.();
+    if (liveCredentialBundle === null) {
+      freshCredentialCleanup?.();
+    }
     result = buildFreshClassifierResult(sequence, sessionOpened, work, closeCompleted);
     if (humanGateClosed) {
       result = {
@@ -1533,6 +1688,7 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
   const simulationOnly = surface.kind === 'INTERNAL_OFFLINE_SIMULATION_ONLY';
   let evidence = emptyEvidence();
   const querySequence: string[] = [];
+  let liveCredentialBundle: PairP5LiveSessionCredentialBundle | null = null;
 
   const structuralAuthority = validatePairP5PreviewStructuralAuthorityContract(input);
   evidence = {
@@ -1545,7 +1701,24 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     return { holdReasonCode: structuralAuthority.holdReasonCode, evidence, querySequence, simulationOnly };
   }
 
-  const clientBuild = await buildMutationClientForSurface(input, surface, binding);
+  if (surface.kind === 'LIVE_SESSION_POOLER') {
+    const acquired = await acquirePairP5LiveSessionCredentialBundleOnce(
+      input,
+      binding,
+      resolvePairP5LiveCredentialAcquirerDeps(surface.credentialAcquirerDeps),
+      surface.dedicatedTargetBindingReceipt,
+    );
+    if (typeof acquired === 'string') {
+      return { holdReasonCode: acquired, evidence, querySequence, simulationOnly };
+    }
+    liveCredentialBundle = acquired;
+    evidence = {
+      ...evidence,
+      credentialAcquisitionAttempted: true,
+    };
+  }
+
+  const clientBuild = await buildMutationClientForSurface(input, surface, binding, liveCredentialBundle);
   if (typeof clientBuild === 'string') {
     return { holdReasonCode: clientBuild, evidence, querySequence, simulationOnly };
   }
@@ -1767,6 +1940,7 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
         binding,
         probes,
         dedicatedReceipt,
+        liveCredentialBundle,
       );
       querySequence.push(...freshAfterCommit.querySequence);
       evidence = { ...evidence, ...freshAfterCommit.evidencePatch };
@@ -1835,6 +2009,7 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
         binding,
         probes,
         dedicatedReceipt,
+        liveCredentialBundle,
       );
       querySequence.push(...freshAfterCommit.querySequence);
       evidence = {
@@ -1869,7 +2044,11 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
       simulationOnly,
     };
   } finally {
-    credentialCleanup?.();
+    if (liveCredentialBundle !== null) {
+      liveCredentialBundle.cleanup();
+    } else {
+      credentialCleanup?.();
+    }
   }
 }
 
