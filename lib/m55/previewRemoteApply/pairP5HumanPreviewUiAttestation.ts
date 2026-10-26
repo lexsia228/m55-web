@@ -10,6 +10,10 @@ import {
   PAIR_P5_CHECKOUT_STEP_ID,
 } from './pairP5CheckoutStepAuthority.ts';
 import {
+  PAIR_P5_FULFILL_MIGRATION_SHA256,
+  PAIR_P5_FULFILL_STEP_ID,
+} from './pairP5FulfillStepAuthority.ts';
+import {
   PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
   PAIR_P5_IDENTITY_MIGRATION_SHA256,
   PAIR_P5_IDENTITY_STEP_ID,
@@ -39,10 +43,14 @@ export type PairP5HumanPreviewUiAttestationPayload = {
   readonly previewDatabaseTier: string;
   readonly databaseNameUiObservationStatus: typeof PAIR_P5_HUMAN_ATTESTATION_DATABASE_NAME_UI_STATUS;
   readonly witnessedDatabaseNameSentinel: typeof PAIR_P5_WITNESS_DATABASE_NAME_UI_UNOBSERVED_SENTINEL;
-  readonly selectedStep: typeof PAIR_P5_IDENTITY_STEP_ID | typeof PAIR_P5_CHECKOUT_STEP_ID;
+  readonly selectedStep:
+    | typeof PAIR_P5_IDENTITY_STEP_ID
+    | typeof PAIR_P5_CHECKOUT_STEP_ID
+    | typeof PAIR_P5_FULFILL_STEP_ID;
   readonly migrationSourceSha256:
     | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256
+    | typeof PAIR_P5_FULFILL_MIGRATION_SHA256;
   readonly gitHeadCommitSha: string | null;
   readonly humanUiEvidenceDigestSha256: string | null;
   readonly humanP51ApplyAuthorizationIdDigestSha256: string | null;
@@ -234,7 +242,9 @@ function validatePayloadShape(payload: unknown): PairP5HumanPreviewUiAttestation
     (p.selectedStep === PAIR_P5_IDENTITY_STEP_ID &&
       p.migrationSourceSha256 === PAIR_P5_IDENTITY_MIGRATION_SHA256) ||
     (p.selectedStep === PAIR_P5_CHECKOUT_STEP_ID &&
-      p.migrationSourceSha256 === PAIR_P5_CHECKOUT_MIGRATION_SHA256);
+      p.migrationSourceSha256 === PAIR_P5_CHECKOUT_MIGRATION_SHA256) ||
+    (p.selectedStep === PAIR_P5_FULFILL_STEP_ID &&
+      p.migrationSourceSha256 === PAIR_P5_FULFILL_MIGRATION_SHA256);
   if (!stepMigrationOk) {
     return null;
   }

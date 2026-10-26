@@ -45,6 +45,14 @@ import {
   PAIR_P5_CHECKOUT_STEP_ID,
 } from './pairP5CheckoutStepAuthority.ts';
 import {
+  PAIR_P5_FULFILL_MIGRATION_NAME,
+  PAIR_P5_FULFILL_MIGRATION_SHA256,
+  PAIR_P5_FULFILL_MIGRATION_VERSION,
+  PAIR_P5_FULFILL_NORMALIZED_STATEMENT_COUNT,
+  PAIR_P5_FULFILL_NORMALIZED_STREAM_COMPOSITE_SHA256,
+  PAIR_P5_FULFILL_STEP_ID,
+} from './pairP5FulfillStepAuthority.ts';
+import {
   type PairP5SignedHumanPreviewUiAttestation,
   PAIR_P5_OPERATIONAL_HUMAN_ATTESTATION_TRUST_ANCHORS,
   verifyPairP5SignedHumanPreviewUiAttestation,
@@ -217,7 +225,8 @@ export type PairP5HumanPreviewApplyAuthorizationRecord = {
   readonly selectedStep: PairP5DedicatedCallableStepId;
   readonly migrationSourceSha256:
     | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256
+    | typeof PAIR_P5_FULFILL_MIGRATION_SHA256;
   readonly previewProjectRef: typeof PAIR_P5_APPROVED_PREVIEW_PROJECT_REF;
 };
 
@@ -388,7 +397,8 @@ export type PairP5DedicatedTargetBindingReceiptClass = 'TEST_ONLY' | 'OPERATIONA
 
 export type PairP5DedicatedCallableStepId =
   | typeof PAIR_P5_IDENTITY_STEP_ID
-  | typeof PAIR_P5_CHECKOUT_STEP_ID;
+  | typeof PAIR_P5_CHECKOUT_STEP_ID
+  | typeof PAIR_P5_FULFILL_STEP_ID;
 
 export type PairP5DedicatedTargetBindingReceiptBody = {
   readonly schemaId: typeof PAIR_P5_DEDICATED_TARGET_BINDING_RECEIPT_SCHEMA_ID;
@@ -396,19 +406,24 @@ export type PairP5DedicatedTargetBindingReceiptBody = {
   readonly selectedStep: PairP5DedicatedCallableStepId;
   readonly migrationVersion:
     | typeof PAIR_P5_IDENTITY_MIGRATION_VERSION
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION
+    | typeof PAIR_P5_FULFILL_MIGRATION_VERSION;
   readonly migrationName:
     | typeof PAIR_P5_IDENTITY_MIGRATION_NAME
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_NAME;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_NAME
+    | typeof PAIR_P5_FULFILL_MIGRATION_NAME;
   readonly migrationSourceSha256:
     | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256
+    | typeof PAIR_P5_FULFILL_MIGRATION_SHA256;
   readonly normalizedStatementCount:
     | typeof PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT
-    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT;
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT
+    | typeof PAIR_P5_FULFILL_NORMALIZED_STATEMENT_COUNT;
   readonly normalizedStreamCompositeSha256:
     | typeof PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256
-    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256;
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256
+    | typeof PAIR_P5_FULFILL_NORMALIZED_STREAM_COMPOSITE_SHA256;
   readonly git: PairP5DedicatedReceiptGitProvenance;
   readonly previewOrganization: string;
   readonly previewProject: string;
@@ -439,19 +454,24 @@ export type PairP5DedicatedReceiptFrozenPolicy = {
   readonly selectedStep: PairP5DedicatedCallableStepId;
   readonly migrationVersion:
     | typeof PAIR_P5_IDENTITY_MIGRATION_VERSION
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION
+    | typeof PAIR_P5_FULFILL_MIGRATION_VERSION;
   readonly migrationName:
     | typeof PAIR_P5_IDENTITY_MIGRATION_NAME
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_NAME;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_NAME
+    | typeof PAIR_P5_FULFILL_MIGRATION_NAME;
   readonly migrationSourceSha256:
     | typeof PAIR_P5_IDENTITY_MIGRATION_SHA256
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_SHA256
+    | typeof PAIR_P5_FULFILL_MIGRATION_SHA256;
   readonly normalizedStatementCount:
     | typeof PAIR_P5_IDENTITY_NORMALIZED_STATEMENT_COUNT
-    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT;
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STATEMENT_COUNT
+    | typeof PAIR_P5_FULFILL_NORMALIZED_STATEMENT_COUNT;
   readonly normalizedStreamCompositeSha256:
     | typeof PAIR_P5_IDENTITY_NORMALIZED_STREAM_COMPOSITE_SHA256
-    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256;
+    | typeof PAIR_P5_CHECKOUT_NORMALIZED_STREAM_COMPOSITE_SHA256
+    | typeof PAIR_P5_FULFILL_NORMALIZED_STREAM_COMPOSITE_SHA256;
   readonly previewOrganization: typeof APPROVED_PREVIEW_ORGANIZATION;
   readonly previewProject: typeof APPROVED_PREVIEW_PROJECT;
   readonly previewProjectRef: typeof PAIR_P5_APPROVED_PREVIEW_PROJECT_REF;
@@ -677,22 +697,56 @@ export function buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSou
   };
 }
 
+export function buildPairP5FulfillDedicatedReceiptFrozenPolicyFromPinnedPairSource(): PairP5DedicatedReceiptFrozenPolicy {
+  const connectionUser = expectedConnectionUserForProjectRef(PAIR_P5_APPROVED_PREVIEW_PROJECT_REF);
+  return {
+    schemaId: PAIR_P5_DEDICATED_TARGET_BINDING_RECEIPT_SCHEMA_ID,
+    selectedStep: PAIR_P5_FULFILL_STEP_ID,
+    migrationVersion: PAIR_P5_FULFILL_MIGRATION_VERSION,
+    migrationName: PAIR_P5_FULFILL_MIGRATION_NAME,
+    migrationSourceSha256: PAIR_P5_FULFILL_MIGRATION_SHA256,
+    normalizedStatementCount: PAIR_P5_FULFILL_NORMALIZED_STATEMENT_COUNT,
+    normalizedStreamCompositeSha256: PAIR_P5_FULFILL_NORMALIZED_STREAM_COMPOSITE_SHA256,
+    previewOrganization: APPROVED_PREVIEW_ORGANIZATION,
+    previewProject: APPROVED_PREVIEW_PROJECT,
+    previewProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+    connectionEndpointProfile: SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+    sessionPoolerHost: SESSION_POOLER_HOST,
+    hostFingerprintSha256: SESSION_POOLER_HOST_FINGERPRINT_SHA256,
+    connectionUser,
+    port: EXPECTED_PORT,
+    sslmode: EXPECTED_SSLMODE,
+    tlsTrustProfile: TLS_TRUST_PROFILE,
+    tlsServerName: SESSION_POOLER_TLS_SERVER_NAME,
+    credentialMethod: PAIR_P5_DEDICATED_RECEIPT_CREDENTIAL_METHOD,
+    expectedBranch: PAIR_P5_EXPECTED_BRANCH,
+    expectedWorktreeRealpath: PAIR_P5_EXPECTED_REPO_ROOT,
+  };
+}
+
 function pairP5DedicatedReceiptFrozenPolicyForCallableStep(
-  callableStep: 'IDENTITY' | 'CHECKOUT',
+  callableStep: 'IDENTITY' | 'CHECKOUT' | 'FULFILL',
 ): PairP5DedicatedReceiptFrozenPolicy {
-  return callableStep === 'CHECKOUT'
-    ? buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSource()
-    : buildPairP5DedicatedReceiptFrozenPolicyFromPinnedPairSource();
+  if (callableStep === 'CHECKOUT') {
+    return buildPairP5CheckoutDedicatedReceiptFrozenPolicyFromPinnedPairSource();
+  }
+  if (callableStep === 'FULFILL') {
+    return buildPairP5FulfillDedicatedReceiptFrozenPolicyFromPinnedPairSource();
+  }
+  return buildPairP5DedicatedReceiptFrozenPolicyFromPinnedPairSource();
 }
 
 function pairP5CallableStepFromReceiptBody(
   body: PairP5DedicatedTargetBindingReceiptBody,
-): 'IDENTITY' | 'CHECKOUT' | null {
+): 'IDENTITY' | 'CHECKOUT' | 'FULFILL' | null {
   if (body.selectedStep === PAIR_P5_IDENTITY_STEP_ID) {
     return 'IDENTITY';
   }
   if (body.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
     return 'CHECKOUT';
+  }
+  if (body.selectedStep === PAIR_P5_FULFILL_STEP_ID) {
+    return 'FULFILL';
   }
   return null;
 }
@@ -727,7 +781,7 @@ export function readPairP5DedicatedReceiptGitProvenance(repoRoot: string): PairP
 export function buildPairP5DedicatedReceiptValidationContextFromFreshGitRead(input: {
   readonly repoRoot: string;
   readonly permitTestOnlyReceipt: boolean;
-  readonly callableStep?: 'IDENTITY' | 'CHECKOUT';
+  readonly callableStep?: 'IDENTITY' | 'CHECKOUT' | 'FULFILL';
 }):
   | { readonly ok: true; readonly context: PairP5DedicatedReceiptValidationContext }
   | { readonly ok: false; readonly holdReasonCode: typeof HOLD_PAIR_P5_DEDICATED_RECEIPT_FRESH_CONTEXT_UNAVAILABLE } {
@@ -999,7 +1053,9 @@ export function validatePairP5HumanPreviewApplyAuthorizationRecordForTestsOnly(
   const expectedMigrationSha256 =
     expectedCallableStep === PAIR_P5_CHECKOUT_STEP_ID
       ? PAIR_P5_CHECKOUT_MIGRATION_SHA256
-      : PAIR_P5_IDENTITY_MIGRATION_SHA256;
+      : expectedCallableStep === PAIR_P5_FULFILL_STEP_ID
+        ? PAIR_P5_FULFILL_MIGRATION_SHA256
+        : PAIR_P5_IDENTITY_MIGRATION_SHA256;
   if (
     registered.purpose !== expectedPurpose ||
     registered.selectedStep !== expectedCallableStep ||
@@ -1057,7 +1113,8 @@ export function validatePairP5HumanPreviewApplyAuthorizationRecord(
   const migrationSourceSha256 = payload.migrationSourceSha256;
   if (
     selectedStep !== PAIR_P5_IDENTITY_STEP_ID &&
-    selectedStep !== PAIR_P5_CHECKOUT_STEP_ID
+    selectedStep !== PAIR_P5_CHECKOUT_STEP_ID &&
+    selectedStep !== PAIR_P5_FULFILL_STEP_ID
   ) {
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_HUMAN_AUTHORIZATION_ID_INVALID };
   }
@@ -1315,7 +1372,11 @@ function validateOperationalReceiptBodyAgainstPolicy(
     return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
   }
   const humanCallableStep =
-    callableStep === 'CHECKOUT' ? PAIR_P5_CHECKOUT_STEP_ID : PAIR_P5_IDENTITY_STEP_ID;
+    callableStep === 'CHECKOUT'
+      ? PAIR_P5_CHECKOUT_STEP_ID
+      : callableStep === 'FULFILL'
+        ? PAIR_P5_FULFILL_STEP_ID
+        : PAIR_P5_IDENTITY_STEP_ID;
   const human =
     context.permitOperationalHumanAuthorizationRegistryForTestsOnly === true
       ? validatePairP5HumanPreviewApplyAuthorizationRecordForTestsOnly(
@@ -1329,7 +1390,7 @@ function validateOperationalReceiptBodyAgainstPolicy(
   if (!human.ok) {
     return human;
   }
-  if (callableStep === 'CHECKOUT') {
+  if (callableStep === 'CHECKOUT' || callableStep === 'FULFILL') {
     const readonlySigned = b.signedHumanPreviewUiAttestationPostCommitReadonly;
     if (readonlySigned === null) {
       return { ok: false, holdReasonCode: HOLD_PAIR_P5_SIGNED_HUMAN_ATTESTATION_REQUIRED };
@@ -1342,7 +1403,9 @@ function validateOperationalReceiptBodyAgainstPolicy(
     if (!readonlyWitness.ok) {
       return readonlyWitness;
     }
-    if (readonlySigned.payload.selectedStep !== PAIR_P5_CHECKOUT_STEP_ID) {
+    const expectedReadonlyStep =
+      callableStep === 'CHECKOUT' ? PAIR_P5_CHECKOUT_STEP_ID : PAIR_P5_FULFILL_STEP_ID;
+    if (readonlySigned.payload.selectedStep !== expectedReadonlyStep) {
       return { ok: false, holdReasonCode: HOLD_PAIR_P5_DEDICATED_RECEIPT_INVALID };
     }
   } else if (b.signedHumanPreviewUiAttestationPostCommitReadonly !== null) {
@@ -1616,6 +1679,100 @@ export function issuePairP5TestOnlyOperationalCheckoutDedicatedReceiptForTestsOn
   return { ok: true, receipt };
 }
 
+/** TEST seam: OPERATIONAL fulfill receipt with dual attestations; not valid against fresh-git operational context. */
+export function issuePairP5TestOnlyOperationalFulfillDedicatedReceiptForTestsOnly(input: {
+  readonly injectedGit: PairP5DedicatedReceiptGitProvenance;
+  readonly humanAuthorizationId: string;
+  readonly trustAnchors: readonly PairP5HumanAttestationTrustAnchor[];
+  readonly privateKeyPkcs8DerBase64: string;
+  readonly trustKeyId: string;
+  readonly attestationId: string;
+  readonly witnessedObservation?: PairP5WitnessedPreviewObservation;
+}):
+  | { readonly ok: true; readonly receipt: PairP5DedicatedTargetBindingReceipt }
+  | { readonly ok: false; readonly holdReasonCode: string } {
+  const witnessedObservation = input.witnessedObservation ?? {
+    sourceKind: 'INDEPENDENT_PREVIEW_UI_WITNESS_v1' as const,
+    witnessedOrganization: APPROVED_PREVIEW_ORGANIZATION,
+    witnessedProject: APPROVED_PREVIEW_PROJECT,
+    witnessedProjectRef: PAIR_P5_APPROVED_PREVIEW_PROJECT_REF,
+    witnessedDatabaseTier: APPROVED_PREVIEW_DATABASE_TIER,
+    witnessedDatabaseName: PAIR_P5_WITNESS_DATABASE_NAME_UI_UNOBSERVED_SENTINEL,
+    observationTimeIso: '2026-10-26T06:00:00.000Z',
+    attestationId: input.attestationId,
+  };
+  const humanDigest = digestPairP5HumanAuthorizationIdentity(input.humanAuthorizationId);
+  const mutationPayload = buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly({
+    trustKeyId: input.trustKeyId,
+    attestationId: input.attestationId,
+    nonce: 'fulfill-mutation-nonce',
+    purpose: 'LIVE_MUTATION',
+    selectedStep: PAIR_P5_FULFILL_STEP_ID,
+    migrationSourceSha256: PAIR_P5_FULFILL_MIGRATION_SHA256,
+    gitHeadCommitSha: input.injectedGit.headCommitSha,
+    humanUiEvidenceDigestSha256: 'e'.repeat(64),
+    humanP51ApplyAuthorizationIdDigestSha256: humanDigest,
+  });
+  const readonlyPayload = buildPairP5HumanPreviewUiAttestationTestPayloadForTestsOnly({
+    trustKeyId: input.trustKeyId,
+    attestationId: input.attestationId,
+    nonce: 'fulfill-readonly-nonce',
+    purpose: 'LIVE_FRESH_READONLY',
+    selectedStep: PAIR_P5_FULFILL_STEP_ID,
+    migrationSourceSha256: PAIR_P5_FULFILL_MIGRATION_SHA256,
+    gitHeadCommitSha: input.injectedGit.headCommitSha,
+    humanUiEvidenceDigestSha256: 'f'.repeat(64),
+    humanP51ApplyAuthorizationIdDigestSha256: humanDigest,
+  });
+  const signedMutation = signPairP5HumanPreviewUiAttestationForTestsOnly({
+    payload: mutationPayload,
+    privateKeyPkcs8DerBase64: input.privateKeyPkcs8DerBase64,
+  });
+  const signedReadonly = signPairP5HumanPreviewUiAttestationForTestsOnly({
+    payload: readonlyPayload,
+    privateKeyPkcs8DerBase64: input.privateKeyPkcs8DerBase64,
+  });
+  const policy = buildPairP5FulfillDedicatedReceiptFrozenPolicyFromPinnedPairSource();
+  const baseBody = buildReceiptBodyFromObservedGit(input.injectedGit, witnessedObservation, policy);
+  const body: PairP5DedicatedTargetBindingReceiptBody = {
+    ...baseBody,
+    receiptClass: 'OPERATIONAL',
+    humanAuthorizationId: input.humanAuthorizationId,
+    signedHumanPreviewUiAttestation: signedMutation,
+    signedHumanPreviewUiAttestationPostCommitReadonly: signedReadonly,
+  };
+  const hashes = computePairP5DedicatedReceiptHashesForBody(body);
+  const receipt: PairP5DedicatedTargetBindingReceipt = {
+    body,
+    canonicalSerializationSha256: hashes.canonicalSerializationSha256,
+    receiptIdentifierSha256: hashes.receiptIdentifierSha256,
+  };
+  const mutationWitness = acceptPairP5OperationalIndependentPreviewUiWitness(witnessedObservation, {
+    signedHumanAttestation: signedMutation,
+    expectedPurpose: 'LIVE_MUTATION',
+    trustAnchorsOverrideForTestsOnly: input.trustAnchors,
+  });
+  if (!mutationWitness.ok) {
+    return mutationWitness;
+  }
+  const readonlyWitness = acceptPairP5OperationalIndependentPreviewUiWitness(witnessedObservation, {
+    signedHumanAttestation: signedReadonly,
+    expectedPurpose: 'LIVE_FRESH_READONLY',
+    trustAnchorsOverrideForTestsOnly: input.trustAnchors,
+  });
+  if (!readonlyWitness.ok) {
+    return readonlyWitness;
+  }
+  const humanLive = validatePairP5HumanPreviewApplyAuthorizationRecord(input.humanAuthorizationId, 'LIVE_MUTATION', {
+    verifiedAttestationPayload: signedMutation.payload,
+  });
+  if (!humanLive.ok) {
+    return humanLive;
+  }
+  registerPairP5DedicatedReceiptIssuanceOrigin(receipt, 'TEST_INJECTED_FIXTURE_NOT_OPERATIONAL');
+  return { ok: true, receipt };
+}
+
 export const HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED =
   'HOLD_PAIR_P5_LIVE_MUTATION_OPERATIONAL_RECEIPT_REQUIRED' as const;
 
@@ -1634,11 +1791,16 @@ export const PAIR_P5_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED = false as 
 
 export const PAIR_P5_CHECKOUT_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED = true as const;
 
+export const PAIR_P5_FULFILL_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED = true as const;
+
 export function pairP5LiveFreshReadonlyProbeAuthorizationGrantedForCallableStep(
-  callableStep: PairP5DedicatedCallableStepId | 'IDENTITY' | 'CHECKOUT' | null,
+  callableStep: PairP5DedicatedCallableStepId | 'IDENTITY' | 'CHECKOUT' | 'FULFILL' | null,
 ): boolean {
   if (callableStep === PAIR_P5_CHECKOUT_STEP_ID || callableStep === 'CHECKOUT') {
     return PAIR_P5_CHECKOUT_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED;
+  }
+  if (callableStep === PAIR_P5_FULFILL_STEP_ID || callableStep === 'FULFILL') {
+    return PAIR_P5_FULFILL_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED;
   }
   return PAIR_P5_LIVE_FRESH_READONLY_PROBE_AUTHORIZATION_GRANTED;
 }

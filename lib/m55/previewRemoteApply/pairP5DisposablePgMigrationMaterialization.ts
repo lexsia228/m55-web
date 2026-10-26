@@ -5,6 +5,7 @@ import type { Client } from 'pg';
 
 import { buildRoleBootstrapSql } from '../../../scripts/m55/previewBaselineDisposableRuntime.ts';
 import { splitAndTrim } from '../transactionNormalized/splitAndTrim.ts';
+import { PAIR_P5_CHECKOUT_MIGRATION_VERSION } from './pairP5CheckoutStepAuthority.ts';
 import { PAIR_P5_POST_IDENTITY_HISTORY_VERSIONS } from './pairP5IdentityStepAuthority.ts';
 import { HISTORY_INSERT_SQL_METADATA } from './types.ts';
 
@@ -80,6 +81,16 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations (
 
 export const PAIR_P5_POST_IDENTITY_HISTORY_VERSION_COUNT =
   PAIR_P5_POST_IDENTITY_HISTORY_VERSIONS.length;
+
+export const PAIR_P5_POST_CHECKOUT_HISTORY_VERSION_COUNT = PAIR_P5_POST_IDENTITY_HISTORY_VERSION_COUNT + 1;
+
+export async function materializePairP5PostCheckoutPreviewHistory(
+  client: Client,
+  repoRoot: string,
+): Promise<void> {
+  await materializePairP5PostIdentityPreviewHistory(client, repoRoot);
+  await applyPairP5RecordedMigration(client, repoRoot, PAIR_P5_CHECKOUT_MIGRATION_VERSION);
+}
 
 const PAIR_P5_DISPOSABLE_PG_EXTENSIONS_BOOTSTRAP_SQL = `
 CREATE SCHEMA IF NOT EXISTS extensions;

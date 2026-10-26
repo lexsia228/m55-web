@@ -93,13 +93,24 @@ import {
   isPairP5CheckoutHumanPreviewApplyAuthorizationGranted,
 } from './pairP5CheckoutLiveExecutionAuthority.ts';
 import { validatePairP5CheckoutPreviewStructuralAuthorityContract } from './pairP5CheckoutStructuralAuthority.ts';
+import {
+  PAIR_P5_FULFILL_MIGRATION_VERSION,
+  PAIR_P5_FULFILL_STEP_ID,
+  type PairP5FulfillCallableStepId,
+} from './pairP5FulfillStepAuthority.ts';
+import {
+  PAIR_P5_FULFILL_AUTH_GATED_REAL_EXECUTOR_ID,
+  isPairP5FulfillHumanPreviewApplyAuthorizationGranted,
+} from './pairP5FulfillLiveExecutionAuthority.ts';
+import { validatePairP5FulfillPreviewStructuralAuthorityContract } from './pairP5FulfillStructuralAuthority.ts';
 
 export const PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID =
   'M55_PAIR_P5_IDENTITY_AUTHORIZATION_GATED_REAL_EXECUTOR_v1' as const;
 
 export type PairP5AuthGatedRealExecutorId =
   | typeof PAIR_P5_AUTH_GATED_REAL_EXECUTOR_ID
-  | typeof PAIR_P5_CHECKOUT_AUTH_GATED_REAL_EXECUTOR_ID;
+  | typeof PAIR_P5_CHECKOUT_AUTH_GATED_REAL_EXECUTOR_ID
+  | typeof PAIR_P5_FULFILL_AUTH_GATED_REAL_EXECUTOR_ID;
 
 import {
   PAIR_P5_AUTHORIZED_EXTERNAL_ATTESTATION_ISSUER_AVAILABLE,
@@ -149,12 +160,15 @@ const PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_FIELD_NAMES = [
   'probe_green',
 ] as const;
 
-function buildPairP5FunctionBodyCatalogProbeSql(): string {
+export function buildPairP5FunctionBodyCatalogProbeSql(input?: {
+  readonly fulfillRpcBodyMd5?: string;
+}): string {
   const { m55_compatibility_snapshot_columns_immutable_v1: md5Snap } =
     PAIR_P5_MIGRATION_SOURCE_FUNCTION_BODY_MD5;
   const { m55_compatibility_owned_report_identity_immutable_v1: md5Owned } =
     PAIR_P5_MIGRATION_SOURCE_FUNCTION_BODY_MD5;
-  const { m55_fulfill_compatibility_report_v1: md5Fulfill } = PAIR_P5_MIGRATION_SOURCE_FUNCTION_BODY_MD5;
+  const md5Fulfill =
+    input?.fulfillRpcBodyMd5 ?? PAIR_P5_MIGRATION_SOURCE_FUNCTION_BODY_MD5.m55_fulfill_compatibility_report_v1;
   const threeMd5In = `('${md5Snap}','${md5Owned}','${md5Fulfill}')`;
   const fields: Array<readonly [string, string]> = [
     [
@@ -196,10 +210,10 @@ function buildPairP5FunctionBodyCatalogProbeSql(): string {
   return `SELECT json_build_object(\n${entries.join(',\n')}\n) AS json_build_object`;
 }
 
+export const PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL = buildPairP5FunctionBodyCatalogProbeSql();
+
 export const PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL_SHA256_LITERAL =
   'fb28f3c10eeccd73cab51867b01506498cdf3c791d4a9fab9dd9a2814e8bddae' as const;
-
-export const PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL = buildPairP5FunctionBodyCatalogProbeSql();
 
 export type PairP5FulfillRpcBodyFingerprintVerificationStatus =
   'SOURCE_DERIVED_EXPECTATION_ONLY_NOT_PG_OBSERVED';
@@ -478,6 +492,9 @@ function isPairP5HumanPreviewApplyAuthorizationGrantedForInput(
   if (input.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
     return isPairP5CheckoutHumanPreviewApplyAuthorizationGranted(input);
   }
+  if (input.selectedStep === PAIR_P5_FULFILL_STEP_ID) {
+    return isPairP5FulfillHumanPreviewApplyAuthorizationGranted(input);
+  }
   return isPairP5HumanPreviewApplyAuthorizationGranted();
 }
 
@@ -605,10 +622,11 @@ export function buildMockPairP5FunctionBodyCatalogProbeRow(): ExecutionPgQueryRe
 }
 
 export type PairP5DedicatedPreviewConnectionIntent = {
-  readonly dedicatedPairStepId: PairP5CallableStepId | PairP5CheckoutCallableStepId;
+  readonly dedicatedPairStepId: PairP5CallableStepId | PairP5CheckoutCallableStepId | PairP5FulfillCallableStepId;
   readonly migrationVersion:
     | typeof PAIR_P5_IDENTITY_MIGRATION_VERSION
-    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION;
+    | typeof PAIR_P5_CHECKOUT_MIGRATION_VERSION
+    | typeof PAIR_P5_FULFILL_MIGRATION_VERSION;
   readonly repositoryBranch: string;
   readonly repositoryHeadCommitSha: string;
   readonly previewOrganization: string;
@@ -653,6 +671,9 @@ export function validatePairP5PreviewStructuralAuthorityContract(
 ): PairP5StructuralAuthorityContractResult {
   if (input.selectedStep === PAIR_P5_CHECKOUT_STEP_ID) {
     return validatePairP5CheckoutPreviewStructuralAuthorityContract(input);
+  }
+  if (input.selectedStep === PAIR_P5_FULFILL_STEP_ID) {
+    return validatePairP5FulfillPreviewStructuralAuthorityContract(input);
   }
   const contextHold = validatePreMutationContext(input);
   if (contextHold) {
@@ -1444,7 +1465,9 @@ async function executeFreshReadonlyProbeWork(
   sequence.push('FRESH_READONLY_PRIOR_PROBE');
   const freshPostResult = await freshClient.query(probes.postProbeSql);
   sequence.push('FRESH_READONLY_POST_PROBE');
-  const catalogResult = await freshClient.query(PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL);
+  const catalogResult = await freshClient.query(
+    probes.functionBodyCatalogProbeSql ?? PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL,
+  );
   sequence.push('FRESH_READONLY_FUNCTION_BODY_CATALOG_PROBE');
   const catalogOk = validatePairP5FunctionBodyCatalogProbeResult(catalogResult).ok;
   const freshPostOk =
@@ -1685,7 +1708,9 @@ function buildInternalFreshReadonlySurface(
             rows: [...surface.freshPostProbeRow.rows],
           };
         }
-        if (sql.trim() === PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL.trim()) {
+        const freshCatalogProbeSql =
+          probes.functionBodyCatalogProbeSql ?? PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL;
+        if (sql.trim() === freshCatalogProbeSql.trim()) {
           return buildMockPairP5FunctionBodyCatalogProbeRow();
         }
         if (sql.trim() === FRESH_READONLY_BEGIN_SQL.trim()) {
@@ -1890,7 +1915,8 @@ export async function runPairP5AuthorizationGatedPgTransactionOrchestration(
     }
 
     preCommitFailurePhase = 'FUNCTION_BODY_CATALOG_PROBE';
-    const catalogResult = await client.query(PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL);
+    const catalogProbeSql = probes.functionBodyCatalogProbeSql ?? PAIR_P5_FUNCTION_BODY_CATALOG_PROBE_SQL;
+    const catalogResult = await client.query(catalogProbeSql);
     querySequence.push('FUNCTION_BODY_CATALOG_PROBE');
     evidence = {
       ...evidence,

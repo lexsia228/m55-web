@@ -20,4 +20,6 @@ export type PairP5OrchestrationProbeSuite = {
   readonly validatePriorProbe: (result: ExecutionPgQueryResult) => PairP5ProbeValidationOutcome;
   readonly validatePostProbe: (result: ExecutionPgQueryResult) => PairP5ProbeValidationOutcome;
   readonly normalizedStatementCount: number;
+  /** When set (P5-3 fulfill apply), overrides default pre-P5-3 function-body catalog probe SQL. */
+  readonly functionBodyCatalogProbeSql?: string;
 };
