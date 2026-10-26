@@ -8,6 +8,7 @@ import {
   validatePairP5FulfillPriorProbeResult,
 } from './pairP5FulfillStepAuthority.ts';
 import { PAIR_P5_FULFILL_ORCHESTRATION_PROBE_SUITE } from './pairP5FulfillAuthorizationGatedRealExecutor.ts';
+import { validatePairP5FunctionBodyCatalogProbeResult } from './pairP5IdentityAuthorizationGatedRealExecutor.ts';
 import { HISTORY_INSERT_SQL_METADATA } from './types.ts';
 
 export type PairP5FulfillDisposablePgApplyResult =
@@ -79,6 +80,18 @@ export async function executePairP5FulfillSingleTransactionOnPgClient(
     if (!validatePairP5FulfillPostProbeResult(post).ok) {
       await client.query('ROLLBACK');
       return { ok: false, phase: 'POST_PROBE', error: 'HOLD_PAIR_P5_PROBE_MISMATCH' };
+    }
+    const catalogProbeSql =
+      probes.functionBodyCatalogProbeSql ??
+      PAIR_P5_FULFILL_ORCHESTRATION_PROBE_SUITE.functionBodyCatalogProbeSql;
+    if (catalogProbeSql === undefined) {
+      await client.query('ROLLBACK');
+      return { ok: false, phase: 'FUNCTION_BODY_CATALOG_PROBE', error: 'HOLD_PAIR_P5_FUNCTION_BODY_CATALOG_MISSING' };
+    }
+    const catalog = await client.query(catalogProbeSql);
+    if (!validatePairP5FunctionBodyCatalogProbeResult(catalog).ok) {
+      await client.query('ROLLBACK');
+      return { ok: false, phase: 'FUNCTION_BODY_CATALOG_PROBE', error: 'HOLD_PAIR_P5_FUNCTION_BODY_CATALOG_MISMATCH' };
     }
     await client.query('COMMIT');
     return { ok: true, committed: true };
