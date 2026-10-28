@@ -17,7 +17,8 @@ import { PRIVATE_RESPONSE_HEADERS } from '../../../../../lib/m55/creatorDistribu
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const EXPORT_HEADERS = [
+/** Stable row keys; CSV header row uses Japanese labels for Creator readability. */
+const EXPORT_FIELD_KEYS = [
   'displayReference',
   'recordedAt',
   'lifecycleState',
@@ -27,6 +28,19 @@ const EXPORT_HEADERS = [
   'publicReasonLabel',
   'eventFamily',
 ] as const;
+
+const EXPORT_HEADER_LABELS_JA: Record<(typeof EXPORT_FIELD_KEYS)[number], string> = {
+  displayReference: '参照ID',
+  recordedAt: '記録日時（UTC）',
+  lifecycleState: 'コミッション状態',
+  commissionDeltaJpy: '活動額（円）',
+  entitlementAfterEventJpy: 'イベント後残高（円）',
+  releaseAtMs: '解放目安（Unix ms）',
+  publicReasonLabel: '公開理由',
+  eventFamily: 'イベント種別',
+};
+
+const EXPORT_HEADERS_JA = EXPORT_FIELD_KEYS.map((key) => EXPORT_HEADER_LABELS_JA[key]);
 
 export async function GET(request: Request) {
   const ctx = await resolveCreatorContextFromSession();
@@ -77,7 +91,7 @@ export async function GET(request: Request) {
     if (rows.length > M55_R7_EXPORT_MAX_ROWS) {
       return NextResponse.json(
         { error: 'EXPORT_ROW_LIMIT_EXCEEDED' },
-        { status: 400, headers: PRIVATE_RESPONSE_HEADERS },
+        { status: 400, headers: { ...PRIVATE_RESPONSE_HEADERS } },
       );
     }
     if (!page.nextCursor) break;
@@ -95,12 +109,21 @@ export async function GET(request: Request) {
     );
   }
 
-  const csv = serializeExportCsvV1(EXPORT_HEADERS, rows);
+  const csvRows = rows.map((row) => {
+    const localized: Record<string, string | number> = {};
+    for (const key of EXPORT_FIELD_KEYS) {
+      localized[EXPORT_HEADER_LABELS_JA[key]] = row[key] ?? '';
+    }
+    return localized;
+  });
+
+  const csv = serializeExportCsvV1(EXPORT_HEADERS_JA, csvRows);
   return new NextResponse(csv, {
     status: 200,
     headers: {
       ...PRIVATE_RESPONSE_HEADERS,
       'content-type': 'text/csv; charset=utf-8',
+      'content-disposition': 'attachment; filename="m55-creator-reconciliation.csv"',
     },
   });
 }

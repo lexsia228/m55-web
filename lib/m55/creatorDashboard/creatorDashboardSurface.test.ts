@@ -75,6 +75,40 @@ describe('creator dashboard surface contracts', () => {
     assert.match(clientSrc, /\.\.\.prev, \.\.\.\(payload\.cases/);
   });
 
+  it('surfaces referral copy, rotate confirm, scoped errors, and export feedback', () => {
+    const clientSrc = readFileSync(
+      join(root, 'app/creator/dashboard/CreatorDashboardClient.tsx'),
+      'utf8',
+    );
+    assert.match(clientSrc, /URLをコピー/);
+    assert.match(clientSrc, /ROTATE_CONFIRM_MESSAGE/);
+    assert.match(clientSrc, /loadError/);
+    assert.match(clientSrc, /referralActionError/);
+    assert.match(clientSrc, /exportError/);
+    assert.match(clientSrc, /referralLoadStatus/);
+    assert.match(clientSrc, /downloadExport/);
+    assert.doesNotMatch(clientSrc, /if \(error\) \{\s*return/);
+    assert.doesNotMatch(clientSrc, /引き続き有効/);
+    assert.match(clientSrc, /REFERRAL_ROTATE_UNCERTAIN_MESSAGE/);
+    assert.match(clientSrc, /REFERRAL_ISSUE_UNCERTAIN_MESSAGE/);
+    assert.match(clientSrc, /loadReferralCurrentIndependent/);
+    assert.match(clientSrc, /tryInputToUtcZ/);
+    assert.match(
+      clientSrc,
+      /setExportBusy\(true\);[\s\S]*try \{[\s\S]*tryInputToUtcZ\(exportFrom\)/,
+    );
+  });
+
+  it('exports reconciliation CSV with Japanese column headers', () => {
+    const exportRoute = readFileSync(
+      join(root, 'app/api/creator/dashboard/export/route.ts'),
+      'utf8',
+    );
+    assert.match(exportRoute, /参照ID/);
+    assert.match(exportRoute, /活動額（円）/);
+    assert.match(exportRoute, /EXPORT_HEADERS_JA/);
+  });
+
   it('migration enforces service-role-only RPC grants', () => {
     const sql = readFileSync(
       join(root, 'supabase/migrations/20261008000000_m55_r7_creator_dashboard_v1.sql'),

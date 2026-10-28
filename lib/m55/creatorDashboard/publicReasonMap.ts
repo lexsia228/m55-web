@@ -7,6 +7,13 @@ const PUBLIC_REASON_LABELS: Readonly<Record<string, string>> = {
   AUTO_HOLD: '確認中',
   RELEASE: '保留解除',
   REQUEST_CORRECTION: '修正依頼',
+  REFUND_SUCCEEDED: '返金による調整',
+  AUTO_CANCEL_OBJECTIVE: '購入取消による調整',
+  DISPUTE_HOLD_STARTED: '異議申立て確認中',
+  DISPUTE_HOLD_RELEASED: '異議申立て確認終了',
+  DISPUTE_WON: '異議申立て成立',
+  DISPUTE_LOST: '異議申立て不成立による調整',
+  CHARGEBACK: 'チャージバックによる調整',
 };
 
 export const PUBLIC_REASON_FALLBACK = '運営確認中';

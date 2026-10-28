@@ -33,6 +33,10 @@
 
 .actions {
   margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .exportRow {
@@ -70,6 +74,33 @@
 .button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.buttonSecondary {
+  border: 1px solid #3d3d3d;
+  background: #fff;
+  color: #3d3d3d;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.feedback {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #2f5a2f;
+}
+
+.metricNote {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #666;
 }
 
 .metrics {
