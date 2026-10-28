@@ -5,8 +5,8 @@
   "command": "playwright test e2e/premium-experience-evidence.spec.ts --reporter=json",
   "cleanServerCommand": "M55_E2E_CLEAN_CAPTURE=1 node scripts/run-m55-e2e-clean-dev.mjs -p 3000",
   "exitCode": 0,
-  "startedAt": "2026-10-23T10:30:45.963Z",
-  "endedAt": "2026-10-23T10:32:14.547Z",
+  "startedAt": "2026-10-17T09:55:52.093Z",
+  "endedAt": "2026-10-17T09:58:25.047Z",
   "stats": {
     "expected": 19,
     "unexpected": 0,
@@ -21,7 +21,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 21524,
+      "durationMs": 18576,
       "viewport": "390"
     },
     {
@@ -30,7 +30,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 7949,
+      "durationMs": 10265,
       "viewport": "768"
     },
     {
@@ -39,7 +39,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5915,
+      "durationMs": 8678,
       "viewport": "1280"
     },
     {
@@ -48,7 +48,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2316,
+      "durationMs": 6349,
       "viewport": "390"
     },
     {
@@ -57,7 +57,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1247,
+      "durationMs": 1301,
       "viewport": "768"
     },
     {
@@ -66,7 +66,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1175,
+      "durationMs": 1463,
       "viewport": "1280"
     },
     {
@@ -75,7 +75,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5760,
+      "durationMs": 12669,
       "viewport": "390"
     },
     {
@@ -84,7 +84,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 3725,
+      "durationMs": 15518,
       "viewport": "768"
     },
     {
@@ -93,7 +93,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 4480,
+      "durationMs": 8891,
       "viewport": "1280"
     },
     {
@@ -102,7 +102,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1497,
+      "durationMs": 3448,
       "viewport": "390"
     },
     {
@@ -111,7 +111,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1802,
+      "durationMs": 5328,
       "viewport": "768"
     },
     {
@@ -120,7 +120,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2322,
+      "durationMs": 6408,
       "viewport": "1280"
     },
     {
@@ -129,7 +129,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1748,
+      "durationMs": 2977,
       "viewport": "390"
     },
     {
@@ -138,7 +138,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1624,
+      "durationMs": 3654,
       "viewport": "768"
     },
     {
@@ -147,7 +147,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1767,
+      "durationMs": 10846,
       "viewport": "1280"
     },
     {
@@ -156,7 +156,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2437,
+      "durationMs": 2769,
       "viewport": "390"
     },
     {
@@ -165,7 +165,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2344,
+      "durationMs": 3102,
       "viewport": "768"
     },
     {
@@ -174,7 +174,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2571,
+      "durationMs": 3871,
       "viewport": "1280"
     },
     {
@@ -183,7 +183,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 11375,
+      "durationMs": 15456,
       "viewport": "1280"
     }
   ],
@@ -591,7 +591,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-390.png",
-      "byteLength": 1401322,
+      "byteLength": 1401821,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f74a3c3f180b1e59987c"
     },
     {
@@ -619,7 +619,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-768.png",
-      "byteLength": 1784137,
+      "byteLength": 1783445,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-551bbcfd3f56fc0d5489"
     },
     {
@@ -647,7 +647,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-1280.png",
-      "byteLength": 1924897,
+      "byteLength": 1924836,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-66588cdef7a8b28eaba1"
     },
     {
@@ -843,7 +843,7 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "39182c0c60930fd80c42b3dc0727a2aceaf20c314fc8108afd39e1066d6291e6",
       "fileName": "pdf/additional-reading-result.pdf",
-      "byteLength": 3194940,
+      "byteLength": 3193288,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     }
   ]
