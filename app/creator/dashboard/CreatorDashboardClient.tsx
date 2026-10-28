@@ -57,6 +57,11 @@ type ComplianceCaseRow = {
 
 type ReferralLoadStatus = 'issued' | 'not_issued' | 'fetch_failed' | 'legacy_rotation';
 
+type ComplianceLoadStatus = 'loading' | 'loaded' | 'failed';
+
+const COMPLIANCE_LOAD_ERROR_MESSAGE =
+  'コンプライアンス記録を読み込めませんでした。記録がないとは限りません。';
+
 const ROTATE_CONFIRM_MESSAGE =
   'リンクを再発行すると、現在の紹介URLは直ちに使えなくなります。よろしいですか？';
 
@@ -151,6 +156,8 @@ export function CreatorDashboardClient() {
   const [referral, setReferral] = useState<ReferralPayload | null>(null);
   const [referralLoadStatus, setReferralLoadStatus] = useState<ReferralLoadStatus>('not_issued');
   const [complianceCases, setComplianceCases] = useState<ComplianceCaseRow[]>([]);
+  const [complianceLoadStatus, setComplianceLoadStatus] = useState<ComplianceLoadStatus>('loading');
+  const [complianceLoadError, setComplianceLoadError] = useState('');
   const [commissionNextCursor, setCommissionNextCursor] = useState<string | null>(null);
   const [complianceNextCursor, setComplianceNextCursor] = useState<string | null>(null);
   const [commissionMoreError, setCommissionMoreError] = useState('');
@@ -200,6 +207,45 @@ export function CreatorDashboardClient() {
     }
   }, [applyReferralPayload]);
 
+  const loadComplianceCasesIndependent = useCallback(async (range: { fromMs: number; toMs: number }) => {
+    setComplianceLoadStatus('loading');
+    setComplianceLoadError('');
+    try {
+      const complianceQuery = new URLSearchParams({
+        fromMs: String(range.fromMs),
+        toMs: String(range.toMs),
+      });
+      const complianceRes = await fetch(`/api/creator/compliance/cases?${complianceQuery}`, {
+        cache: 'no-store',
+      });
+      if (!complianceRes.ok) {
+        setComplianceLoadStatus('failed');
+        setComplianceLoadError(COMPLIANCE_LOAD_ERROR_MESSAGE);
+        return;
+      }
+      let complianceJson: {
+        cases: ComplianceCaseRow[];
+        nextCursor?: string | null;
+      };
+      try {
+        complianceJson = (await complianceRes.json()) as {
+          cases: ComplianceCaseRow[];
+          nextCursor?: string | null;
+        };
+      } catch {
+        setComplianceLoadStatus('failed');
+        setComplianceLoadError(COMPLIANCE_LOAD_ERROR_MESSAGE);
+        return;
+      }
+      setComplianceCases(complianceJson.cases ?? []);
+      setComplianceNextCursor(complianceJson.nextCursor ?? null);
+      setComplianceLoadStatus('loaded');
+    } catch {
+      setComplianceLoadStatus('failed');
+      setComplianceLoadError(COMPLIANCE_LOAD_ERROR_MESSAGE);
+    }
+  }, []);
+
   const load = useCallback(async () => {
     setLoadError('');
     setCommissionMoreError('');
@@ -212,27 +258,9 @@ export function CreatorDashboardClient() {
     setExportFrom(toUtcZInput(dashJson.range.fromMs));
     setExportTo(toUtcZInput(dashJson.range.toMs));
 
-    const complianceQuery = new URLSearchParams({
-      fromMs: String(dashJson.range.fromMs),
-      toMs: String(dashJson.range.toMs),
-    });
-    const complianceRes = await fetch(`/api/creator/compliance/cases?${complianceQuery}`, {
-      cache: 'no-store',
-    });
-    if (complianceRes.ok) {
-      const complianceJson = (await complianceRes.json()) as {
-        cases: ComplianceCaseRow[];
-        nextCursor?: string | null;
-      };
-      setComplianceCases(complianceJson.cases ?? []);
-      setComplianceNextCursor(complianceJson.nextCursor ?? null);
-    } else {
-      setComplianceCases([]);
-      setComplianceNextCursor(null);
-    }
-
+    await loadComplianceCasesIndependent(dashJson.range);
     await loadReferralCurrentIndependent();
-  }, [loadReferralCurrentIndependent]);
+  }, [loadComplianceCasesIndependent, loadReferralCurrentIndependent]);
 
   async function loadMoreCommissionActivity() {
     if (!dashboard || !commissionNextCursor || loadingCommissionMore) return;
@@ -595,7 +623,24 @@ export function CreatorDashboardClient() {
 
       <section className={styles.panel}>
         <h2 className={styles.sectionTitle}>コンプライアンス記録</h2>
-        {complianceCases.length === 0 ? (
+        {complianceLoadStatus === 'loading' ? (
+          <p className={styles.meta} role="status">コンプライアンス記録を読み込み中…</p>
+        ) : complianceLoadStatus === 'failed' ? (
+          <>
+            <p role="alert" className={styles.error}>
+              {complianceLoadError || COMPLIANCE_LOAD_ERROR_MESSAGE}
+            </p>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.button}
+                onClick={() => loadComplianceCasesIndependent(dashboard.range)}
+              >
+                コンプライアンス記録を再読み込み
+              </button>
+            </div>
+          </>
+        ) : complianceCases.length === 0 ? (
           <p className={styles.meta} role="status">この期間の記録は0件です。</p>
         ) : (
           <ul className={styles.activityList}>

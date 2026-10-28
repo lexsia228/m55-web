@@ -99,6 +99,31 @@ describe('creator dashboard surface contracts', () => {
     );
   });
 
+  it('distinguishes compliance fetch failure from empty history (ID-07)', () => {
+    const clientSrc = readFileSync(
+      join(root, 'app/creator/dashboard/CreatorDashboardClient.tsx'),
+      'utf8',
+    );
+    assert.match(clientSrc, /loadComplianceCasesIndependent/);
+    assert.match(clientSrc, /complianceLoadStatus/);
+    assert.match(clientSrc, /COMPLIANCE_LOAD_ERROR_MESSAGE/);
+    assert.match(clientSrc, /if \(!complianceRes\.ok\)/);
+    assert.match(clientSrc, /setComplianceLoadStatus\('loaded'\)/);
+    assert.match(clientSrc, /setComplianceLoadStatus\('failed'\)/);
+    assert.match(clientSrc, /complianceLoadStatus === 'loading'/);
+    assert.match(clientSrc, /complianceLoadStatus === 'failed'/);
+    assert.match(clientSrc, /complianceLoadStatus === 'failed'/);
+    assert.match(
+      clientSrc,
+      /complianceLoadStatus === 'failed'[\s\S]*complianceCases\.length === 0[\s\S]*この期間の記録は0件です/,
+    );
+    assert.match(clientSrc, /コンプライアンス記録を再読み込み/);
+    assert.doesNotMatch(
+      clientSrc,
+      /if \(complianceRes\.ok\)[\s\S]*else \{[\s\S]*setComplianceCases\(\[\]\)/,
+    );
+  });
+
   it('exports reconciliation CSV with Japanese column headers', () => {
     const exportRoute = readFileSync(
       join(root, 'app/api/creator/dashboard/export/route.ts'),
