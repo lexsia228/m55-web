@@ -29,6 +29,10 @@ import {
   type StripeConnectAdapter,
 } from './stripeConnectAdapter';
 import { parseClientIdempotencyKey, type R8PublicReadinessSnapshotV1, type R8TaxProfileInputV1 } from './contract';
+import {
+  isTaxProfileEligibleForProviderPayoutReadinessV1,
+  isTaxProfileRecordWellFormedV1,
+} from './providerPayoutReadinessPredicate';
 
 export type ProviderStatusBundleV1 = {
   readiness: R8PublicReadinessSnapshotV1;
@@ -90,6 +94,7 @@ export async function buildProviderStatusBundleV1(options?: {
 
   const adapter = options?.adapter ?? resolveStripeConnectAdapter();
   const taxProfile = await loadTaxProfileV1(ctx.creatorEconomicIdentityId);
+  const taxProfileReady = isTaxProfileRecordWellFormedV1(taxProfile);
   let providerRow = await loadProviderAccountByEconomicIdentityV1(ctx.creatorEconomicIdentityId);
 
   const sessionId = options?.returnSessionId?.trim() || null;
@@ -137,7 +142,7 @@ export async function buildProviderStatusBundleV1(options?: {
     profileStatus: ctx.profileStatus,
     r7ReferralIssueEligible: ctx.r7ReferralIssueEligible,
     complianceBlocksReferral: complianceHold,
-    taxProfileReady: taxProfile != null,
+    taxProfileReady,
     taxProfile,
     linkState: providerRow?.linkState ?? 'NOT_STARTED',
     providerSnapshot: providerRow?.lastProviderSnapshot ?? null,
@@ -198,9 +203,11 @@ export async function startCreatorProviderOnboardingV1(body: {
 
   const taxProfile = await loadTaxProfileV1(ctx.creatorEconomicIdentityId);
   if (!taxProfile) return { ok: false, error: 'TAX_PROFILE_REQUIRED' };
-
   if (taxProfile.payeeType === 'CORPORATION') {
     return { ok: false, error: 'CORPORATION_STRIPE_NOT_SUPPORTED_V1' };
+  }
+  if (!isTaxProfileEligibleForProviderPayoutReadinessV1(taxProfile)) {
+    return { ok: false, error: 'TAX_PROFILE_INVALID' };
   }
 
   if (ctx.profileStatus === 'ACTIVE') {

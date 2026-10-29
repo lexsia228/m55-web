@@ -27,8 +27,8 @@ export type R8TaxProfileRecordV1 = R8TaxProfileInputV1 & {
   taxResidency: R8TaxResidencyV1;
   withholdingClassification: R8WithholdingClassificationV1;
   taxProfileEffectiveAt: string;
-  v1JapanResidentAttested: true;
-  v1Age18PlusAttested: true;
+  v1JapanResidentAttested: boolean;
+  v1Age18PlusAttested: boolean;
 };
 
 export const R8_A_STRIPE_LINK_STATES = [
@@ -96,9 +96,11 @@ export type R8PublicReadinessSnapshotV1 = {
 };
 
 export const R8_A_COMPATIBILITY_NOTE_JA =
-  '紹介URLの発行は現行のR7ルール（有効プロフィール＋コンプライアンス）に従います。' +
-  'Operating Model §8 の REFERRAL_URL_ACTIVE は Stripe 受取準備完了後の段階です。' +
-  'R8-A では出金・精算は未実装のため、コミッションの受取は開始されません。';
+  '本番データベースの R7 紹介URL発行 RPC は、引き続き有効プロフィール＋コンプライアンスのみで判定されます（本番未変更）。' +
+  'このブランチのアプリ層では、紹介操作を Operating Model §8（税務＋Stripe 受取準備）まで満たす Creator に限定しています。' +
+  'DB 側の同等ゲートは docs/planning の協調 SQL 提案のみで、未適用です。デプロイ前に本番で新規発行できると表示されません。' +
+  'R8-A では出金・精算は未実装のため、コミッションの受取は開始されません。' +
+  '表示のプロバイダ受取準備は最後に同期したスナップショットに基づき、リアルタイム送金可否の検証（R8-C）は未完了です。';
 
 export function normalizeInvoiceRegistrationNumber(value: string | null | undefined): string | null {
   if (value == null) return null;

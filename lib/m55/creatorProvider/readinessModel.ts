@@ -74,6 +74,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     snapshot: input.providerSnapshot,
     taxProfile: input.taxProfile,
   });
+  // R8-C gap: providerGreen reflects last synced snapshot only — not webhook freshness or live payout proof.
   if (providerGreen) {
     operatingModelSteps.push('PROVIDER_PAYOUT_READINESS_GREEN');
     if (input.profileStatus === 'APPROVED_PENDING_ACTIVATION') {

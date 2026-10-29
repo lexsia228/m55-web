@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { createOnboardingClientIdempotencyKeyV1 } from '@/lib/m55/creatorProvider/onboardingClientIdempotency';
 import styles from '../creator.module.css';
 
 type ReadinessBundle = {
@@ -64,11 +65,6 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
     load(Boolean(providerReturnSessionId)).catch(() => setError('受取準備の状況を取得できませんでした。'));
   }, [showPanel, load, providerReturnSessionId]);
 
-  const idempotencyKey = useMemo(
-    () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `local-${Date.now()}`),
-    [],
-  );
-
   async function saveTaxProfile() {
     setBusy(true);
     setError('');
@@ -94,16 +90,25 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
   async function startOnboarding(resume: boolean) {
     setBusy(true);
     setError('');
+    const clientKey = createOnboardingClientIdempotencyKeyV1();
     try {
-      const response = await fetch('/api/creator/provider/onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: resume ? 'RESUME' : 'START',
-          idempotencyKey,
-        }),
-      });
-      if (!response.ok) throw new Error('Stripe 受取設定を開始できませんでした。');
+      let response: Response | null = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          response = await fetch('/api/creator/provider/onboarding', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: resume ? 'RESUME' : 'START',
+              idempotencyKey: clientKey,
+            }),
+          });
+          break;
+        } catch {
+          if (attempt === 1) throw new Error('Stripe 受取設定を開始できませんでした。');
+        }
+      }
+      if (!response || !response.ok) throw new Error('Stripe 受取設定を開始できませんでした。');
       const data = (await response.json()) as { onboardingUrl: string };
       window.location.assign(data.onboardingUrl);
     } catch (cause) {

@@ -49,15 +49,19 @@ export function isProviderSnapshotFieldsGreenV1(snapshot: R8ProviderAccountSnaps
   );
 }
 
-export function isTaxProfileEligibleForProviderPayoutReadinessV1(
-  taxProfile: R8TaxProfileRecordV1 | null,
-): boolean {
+export function isTaxProfileRecordWellFormedV1(taxProfile: R8TaxProfileRecordV1 | null): boolean {
   if (!taxProfile) return false;
   if (taxProfile.schemaVersion !== R8_A_TAX_PROFILE_SCHEMA_VERSION) return false;
   if (taxProfile.taxResidency !== 'JAPAN_RESIDENT') return false;
   if (taxProfile.v1JapanResidentAttested !== true || taxProfile.v1Age18PlusAttested !== true) return false;
   if (!R8_A_WITHHOLDING_CLASSIFICATIONS.includes(taxProfile.withholdingClassification)) return false;
-  if (validateTaxProfileInputV1(taxProfile).ok !== true) return false;
+  return validateTaxProfileInputV1(taxProfile).ok === true;
+}
+
+export function isTaxProfileEligibleForProviderPayoutReadinessV1(
+  taxProfile: R8TaxProfileRecordV1 | null,
+): boolean {
+  if (!taxProfile || !isTaxProfileRecordWellFormedV1(taxProfile)) return false;
   if (taxProfile.payeeType === 'CORPORATION') return false;
   return true;
 }

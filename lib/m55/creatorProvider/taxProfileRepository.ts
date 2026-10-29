@@ -7,33 +7,9 @@ import {
   normalizeInvoiceRegistrationNumber,
   validateTaxProfileInputV1,
 } from './contract';
+import { parseTaxProfileRowV1, type TaxProfileRowV1 } from './taxProfileRowMapping';
 
-type TaxRow = {
-  creator_economic_identity_id: string;
-  schema_version: string;
-  tax_residency: string;
-  payee_type: string;
-  invoice_registration_status: string;
-  invoice_registration_number: string | null;
-  withholding_classification: string;
-  tax_profile_effective_at: string;
-  v1_japan_resident_attested: boolean;
-  v1_age_18_plus_attested: boolean;
-};
-
-function rowToRecord(row: TaxRow): R8TaxProfileRecordV1 {
-  return {
-    schemaVersion: R8_A_TAX_PROFILE_SCHEMA_VERSION,
-    taxResidency: 'JAPAN_RESIDENT',
-    payeeType: row.payee_type as R8TaxProfileRecordV1['payeeType'],
-    invoiceRegistrationStatus: row.invoice_registration_status as R8TaxProfileRecordV1['invoiceRegistrationStatus'],
-    invoiceRegistrationNumberIfAny: row.invoice_registration_number,
-    withholdingClassification: 'ORDINARY_JP_AFFILIATE_V1_ZERO',
-    taxProfileEffectiveAt: row.tax_profile_effective_at,
-    v1JapanResidentAttested: true,
-    v1Age18PlusAttested: true,
-  };
-}
+export { parseTaxProfileRowV1 } from './taxProfileRowMapping';
 
 export async function loadTaxProfileV1(
   creatorEconomicIdentityId: string,
@@ -48,7 +24,7 @@ export async function loadTaxProfileV1(
     .maybeSingle();
   if (error) throw new Error('TAX_PROFILE_UNAVAILABLE');
   if (!data) return null;
-  return rowToRecord(data as TaxRow);
+  return parseTaxProfileRowV1(data as TaxProfileRowV1);
 }
 
 async function loadV1EligibilityAttestations(creatorEconomicIdentityId: string): Promise<{
@@ -114,5 +90,7 @@ export async function upsertTaxProfileV1(
     )
     .single();
   if (error || !data) throw new Error('TAX_PROFILE_UNAVAILABLE');
-  return rowToRecord(data as TaxRow);
+  const parsed = parseTaxProfileRowV1(data as TaxProfileRowV1);
+  if (!parsed) throw new Error('TAX_PROFILE_UNAVAILABLE');
+  return parsed;
 }
