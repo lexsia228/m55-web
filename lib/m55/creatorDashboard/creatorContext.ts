@@ -1,6 +1,7 @@
 import 'server-only';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../supabaseAdmin';
+import { isOperatingModelReferralGateMetV1 } from '../creatorProvider/referralOperatingModelGate';
 
 export type CreatorProfileStatus =
   | 'APPROVED_PENDING_ACTIVATION'
@@ -87,10 +88,14 @@ export async function resolveCreatorContextFromSession(): Promise<ResolvedCreato
   const dashboardHistoryReadable = HISTORY_READABLE.has(profileStatus);
   let referralIssuePermitted = false;
   try {
-    referralIssuePermitted = await isCreatorReferralCapabilityPermittedV1(
+    const r7Eligible = await isCreatorReferralCapabilityPermittedV1(
       data.economic_identity_id as string,
       profileStatus,
     );
+    const operatingModelGateMet = r7Eligible
+      ? await isOperatingModelReferralGateMetV1(data.economic_identity_id as string)
+      : false;
+    referralIssuePermitted = r7Eligible && operatingModelGateMet;
   } catch {
     return { ok: false, error: 'PORTAL_UNAVAILABLE' };
   }

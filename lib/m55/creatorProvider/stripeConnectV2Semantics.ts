@@ -1,5 +1,5 @@
 import type Stripe from 'stripe';
-import type { R8ProviderAccountSnapshotV1 } from './contract';
+import type { R8PayeeTypeV1, R8ProviderAccountSnapshotV1 } from './contract';
 
 /**
  * Pinned Stripe Connect Accounts v2 semantics for M55 Creator recipients (JP affiliate payouts plane).
@@ -32,7 +32,8 @@ export function classifyStripeConnectRuntime(env: NodeJS.ProcessEnv = process.en
     env.M55_STRIPE_CONNECT_SECRET_KEY?.trim() ||
     env.STRIPE_SECRET_KEY?.trim() ||
     '';
-  const fakeAdapterForced = env.M55_STRIPE_CONNECT_ADAPTER === 'FAKE';
+  const fakeAdapterForced =
+    env.M55_STRIPE_CONNECT_ADAPTER === 'FAKE' && env.M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER === 'true';
   const testModeExplicitlyEnabled = env.M55_STRIPE_CONNECT_TESTMODE_ENABLED === 'true';
   if (!raw) {
     return {
@@ -69,7 +70,11 @@ export function classifyStripeConnectRuntime(env: NodeJS.ProcessEnv = process.en
 export function buildJpRecipientAccountCreateParamsV1(input: {
   economicIdentityId: string;
   contactEmail: string;
+  payeeType: R8PayeeTypeV1;
 }): Stripe.V2.Core.AccountCreateParams {
+  if (input.payeeType === 'CORPORATION') {
+    throw new Error('CORPORATION_STRIPE_NOT_SUPPORTED_V1');
+  }
   return {
     contact_email: input.contactEmail,
     display_name: `M55 Creator ${input.economicIdentityId.slice(0, 8)}`,
@@ -134,22 +139,57 @@ function mapCapabilityStatus(
   return 'unknown';
 }
 
+function failClosedProviderSnapshotV1(): R8ProviderAccountSnapshotV1 {
+  return {
+    detailsSubmitted: false,
+    chargesEnabled: false,
+    payoutsEnabled: false,
+    transfersCapability: 'unknown',
+    requirementsCurrentlyDueCount: 1,
+  };
+}
+
 export function mapV2CoreAccountToProviderSnapshotV1(
   account: Stripe.V2.Core.Account,
 ): R8ProviderAccountSnapshotV1 {
-  const stripeBalance = account.configuration?.recipient?.capabilities?.stripe_balance;
+  if (account.livemode !== false) {
+    return failClosedProviderSnapshotV1();
+  }
+
+  const recipient = account.configuration?.recipient;
+  if (!recipient?.applied) {
+    return failClosedProviderSnapshotV1();
+  }
+
+  const stripeBalance = recipient.capabilities?.stripe_balance;
   const transfersStatus = stripeBalance?.stripe_transfers?.status;
   const payoutsStatus = stripeBalance?.payouts?.status;
-  const entries = account.requirements?.entries ?? [];
-  const minDeadlineStatus = account.requirements?.summary?.minimum_deadline?.status;
-  const requirementsCurrentlyDueCount =
-    minDeadlineStatus === 'currently_due' || minDeadlineStatus === 'past_due'
-      ? Math.max(entries.length, 1)
-      : entries.filter((entry) => entry.minimum_deadline?.status === 'currently_due').length;
+  if (!transfersStatus || !payoutsStatus) {
+    return failClosedProviderSnapshotV1();
+  }
 
-  const detailsSubmitted =
-    entries.length === 0 ||
-    (minDeadlineStatus !== 'currently_due' && minDeadlineStatus !== 'past_due');
+  const entries = account.requirements?.entries;
+  const minDeadlineStatus = account.requirements?.summary?.minimum_deadline?.status;
+
+  let requirementsCurrentlyDueCount = 0;
+  let detailsSubmitted = false;
+
+  if (minDeadlineStatus === 'currently_due' || minDeadlineStatus === 'past_due') {
+    requirementsCurrentlyDueCount = Math.max(Array.isArray(entries) ? entries.length : 0, 1);
+    detailsSubmitted = false;
+  } else if (minDeadlineStatus === 'eventually_due') {
+    requirementsCurrentlyDueCount = 0;
+    detailsSubmitted = transfersStatus === 'active' && payoutsStatus === 'active';
+  } else if (Array.isArray(entries)) {
+    requirementsCurrentlyDueCount = entries.filter(
+      (entry) =>
+        entry.minimum_deadline?.status === 'currently_due' ||
+        entry.minimum_deadline?.status === 'past_due',
+    ).length;
+    detailsSubmitted = requirementsCurrentlyDueCount === 0 && entries.length > 0;
+  } else {
+    return failClosedProviderSnapshotV1();
+  }
 
   return {
     detailsSubmitted,

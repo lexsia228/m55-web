@@ -12,6 +12,7 @@ export type StripeConnectAdapter = {
     economicIdentityId: string;
     idempotencyKey: string;
     contactEmail: string;
+    payeeType: 'INDIVIDUAL' | 'CORPORATION';
   }): Promise<{ accountId: string }>;
   createAccountOnboardingLink(input: {
     accountId: string;

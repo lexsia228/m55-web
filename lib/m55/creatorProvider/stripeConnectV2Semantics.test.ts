@@ -42,6 +42,7 @@ describe('mapV2CoreAccountToProviderSnapshotV1', () => {
       id: 'acct_test',
       object: 'v2.core.account',
       applied_configurations: ['recipient'],
+      livemode: false,
       configuration: {
         recipient: {
           applied: true,
@@ -53,9 +54,11 @@ describe('mapV2CoreAccountToProviderSnapshotV1', () => {
           },
         },
       },
-      requirements: { entries: [], summary: { minimum_deadline: { status: 'eventually_due' } } },
+      requirements: {
+        entries: [{ minimum_deadline: { status: 'eventually_due' } } as any],
+        summary: { minimum_deadline: { status: 'eventually_due' } },
+      },
       created: '2026-01-01T00:00:00.000Z',
-      livemode: false,
     } as any);
     assert.equal(snapshot.transfersCapability, 'active');
     assert.equal(snapshot.payoutsEnabled, true);
@@ -67,6 +70,7 @@ describe('mapV2CoreAccountToProviderSnapshotV1', () => {
       id: 'acct_test',
       object: 'v2.core.account',
       applied_configurations: ['recipient'],
+      livemode: false,
       configuration: {
         recipient: {
           applied: true,
@@ -79,13 +83,13 @@ describe('mapV2CoreAccountToProviderSnapshotV1', () => {
         },
       },
       requirements: {
-        entries: [{ description: 'need info' } as any],
+        entries: [{ minimum_deadline: { status: 'currently_due' } } as any],
         summary: { minimum_deadline: { status: 'currently_due' } },
       },
       created: '2026-01-01T00:00:00.000Z',
-      livemode: false,
     } as any);
     assert.equal(snapshot.payoutsEnabled, false);
+    assert.equal(snapshot.detailsSubmitted, false);
     assert.ok(snapshot.requirementsCurrentlyDueCount >= 1);
   });
 });

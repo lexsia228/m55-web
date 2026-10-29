@@ -8,6 +8,9 @@ const ENV_KEYS = [
   'M55_STRIPE_CONNECT_SECRET_KEY',
   'M55_STRIPE_CONNECT_TESTMODE_ENABLED',
   'M55_STRIPE_CONNECT_ADAPTER',
+  'M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER',
+  'VERCEL_ENV',
+  'NODE_ENV',
 ] as const;
 
 function snapshotEnv(): Record<(typeof ENV_KEYS)[number], string | undefined> {
@@ -20,6 +23,7 @@ describe('resolveStripeConnectAdapter — operational modes', () => {
   const before = snapshotEnv();
   afterEach(() => {
     for (const key of ENV_KEYS) {
+      if (key === 'NODE_ENV') continue;
       if (before[key] === undefined) delete process.env[key];
       else process.env[key] = before[key];
     }
@@ -32,6 +36,7 @@ describe('resolveStripeConnectAdapter — operational modes', () => {
 
   it('uses FAKE only when explicitly forced for unit tests', () => {
     process.env.M55_STRIPE_CONNECT_ADAPTER = 'FAKE';
+    process.env.M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER = 'true';
     assert.equal(resolveStripeConnectAdapter().mode, 'FAKE');
     assert.equal(createFakeStripeConnectAdapter().mode, 'FAKE');
   });

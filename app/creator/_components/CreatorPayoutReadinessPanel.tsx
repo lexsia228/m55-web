@@ -36,7 +36,11 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
   const [invoiceStatus, setInvoiceStatus] = useState<'NOT_REGISTERED' | 'REGISTERED' | 'NOT_APPLICABLE'>('NOT_REGISTERED');
   const [invoiceNumber, setInvoiceNumber] = useState('');
 
-  const showPanel = profileStatus === 'ACTIVE' || profileStatus === 'SUSPENDED' || profileStatus === 'REVOKED';
+  const showPanel =
+    profileStatus === 'APPROVED_PENDING_ACTIVATION' ||
+    profileStatus === 'ACTIVE' ||
+    profileStatus === 'SUSPENDED' ||
+    profileStatus === 'REVOKED';
 
   const load = useCallback(async (refreshProvider: boolean) => {
     const params = new URLSearchParams();
@@ -113,7 +117,8 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
   if (error) return <p role="alert" className={styles.error}>{error}</p>;
   if (!bundle) return <p role="status" className={styles.loading}>受取準備を読み込み中…</p>;
 
-  const editable = profileStatus === 'ACTIVE';
+  const editable =
+    profileStatus === 'ACTIVE' || profileStatus === 'APPROVED_PENDING_ACTIVATION';
   const { readiness } = bundle;
 
   return (
@@ -128,7 +133,7 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
           <li key={line}>{line}</li>
         ))}
       </ul>
-      {editable && !readiness.taxProfileReady && (
+      {(editable && (!readiness.taxProfileReady || bundle.taxProfile)) && (
         <div className={styles.card}>
           <p className={styles.cardTitle}>税務プロフィール</p>
           <label className={styles.statusMeta}>
@@ -154,7 +159,7 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
           )}
           <div className={styles.cardActions}>
             <button type="button" className={styles.buttonPrimary} disabled={busy} onClick={saveTaxProfile}>
-              税務プロフィールを保存
+              {readiness.taxProfileReady ? '税務プロフィールを更新' : '税務プロフィールを保存'}
             </button>
           </div>
         </div>

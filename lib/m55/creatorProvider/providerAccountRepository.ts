@@ -1,6 +1,10 @@
 import 'server-only';
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 import {
+  resolveStripeAccountBindingV1,
+  stableProviderCreateIdempotencyKeyV1,
+} from './providerAccountBindingLogic';
+import {
   type R8ProviderAccountSnapshotV1,
   type R8StripeLinkStateV1,
   isProviderPayoutReadinessGreenV1,
@@ -80,29 +84,86 @@ export async function appendProviderOnboardingEventV1(input: {
   }
 }
 
+export async function ensureProviderAccountCreationRowV1(
+  creatorEconomicIdentityId: string,
+): Promise<ProviderAccountRowV1> {
+  const db = getSupabaseAdmin() as any;
+  const createIdempotencyKey = stableProviderCreateIdempotencyKeyV1(creatorEconomicIdentityId);
+  const existing = await loadProviderAccountByEconomicIdentityV1(creatorEconomicIdentityId);
+  if (existing) return existing;
+
+  const now = new Date().toISOString();
+  const { data, error } = await db
+    .from('m55_r8_stripe_connected_accounts_v1')
+    .insert({
+      creator_economic_identity_id: creatorEconomicIdentityId,
+      stripe_account_id: null,
+      link_state: 'NOT_STARTED',
+      create_idempotency_key: createIdempotencyKey,
+      updated_at: now,
+    })
+    .select(SELECT_FIELDS)
+    .single();
+
+  if (error) {
+    const raced = await loadProviderAccountByEconomicIdentityV1(creatorEconomicIdentityId);
+    if (raced) return raced;
+    throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
+  }
+  if (!data) throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
+  return mapRow(data as DbRow);
+}
+
+export async function bindStripeAccountIdV1(input: {
+  creatorEconomicIdentityId: string;
+  stripeAccountId: string;
+}): Promise<ProviderAccountRowV1> {
+  const row = await loadProviderAccountByEconomicIdentityV1(input.creatorEconomicIdentityId);
+  if (!row) throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
+
+  const decision = resolveStripeAccountBindingV1({
+    existingStripeAccountId: row.stripeAccountId,
+    incomingStripeAccountId: input.stripeAccountId,
+  });
+  if (!decision.ok) throw new Error(decision.error);
+  if (decision.action === 'noop') return row;
+
+  const db = getSupabaseAdmin() as any;
+  const now = new Date().toISOString();
+  const { data, error } = await db
+    .from('m55_r8_stripe_connected_accounts_v1')
+    .update({
+      stripe_account_id: input.stripeAccountId,
+      link_state: 'ACCOUNT_STUB',
+      updated_at: now,
+    })
+    .eq('creator_economic_identity_id', input.creatorEconomicIdentityId)
+    .is('stripe_account_id', null)
+    .select(SELECT_FIELDS)
+    .single();
+
+  if (error || !data) {
+    const current = await loadProviderAccountByEconomicIdentityV1(input.creatorEconomicIdentityId);
+    if (current?.stripeAccountId === input.stripeAccountId) return current;
+    if (current?.stripeAccountId && current.stripeAccountId !== input.stripeAccountId) {
+      throw new Error('PROVIDER_ACCOUNT_BINDING_CONFLICT');
+    }
+    throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
+  }
+  return mapRow(data as DbRow);
+}
+
+/** @deprecated use ensureProviderAccountCreationRowV1 + bindStripeAccountIdV1 */
 export async function upsertProviderAccountStubV1(input: {
   creatorEconomicIdentityId: string;
   createIdempotencyKey: string;
   stripeAccountId: string;
 }): Promise<ProviderAccountRowV1> {
-  const db = getSupabaseAdmin() as any;
-  const now = new Date().toISOString();
-  const { data, error } = await db
-    .from('m55_r8_stripe_connected_accounts_v1')
-    .upsert(
-      {
-        creator_economic_identity_id: input.creatorEconomicIdentityId,
-        stripe_account_id: input.stripeAccountId,
-        link_state: 'ACCOUNT_STUB',
-        create_idempotency_key: input.createIdempotencyKey,
-        updated_at: now,
-      },
-      { onConflict: 'creator_economic_identity_id' },
-    )
-    .select(SELECT_FIELDS)
-    .single();
-  if (error || !data) throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
-  return mapRow(data as DbRow);
+  await ensureProviderAccountCreationRowV1(input.creatorEconomicIdentityId);
+  return bindStripeAccountIdV1({
+    creatorEconomicIdentityId: input.creatorEconomicIdentityId,
+    stripeAccountId: input.stripeAccountId,
+  });
 }
 
 export async function recordOnboardingLinkIssuedV1(input: {
@@ -138,10 +199,14 @@ export async function syncProviderSnapshotV1(input: {
       : 'ONBOARDING_LINK_ISSUED';
 
   const db = getSupabaseAdmin() as any;
+  const current = await loadProviderAccountByEconomicIdentityV1(input.creatorEconomicIdentityId);
+  if (current?.stripeAccountId && current.stripeAccountId !== input.stripeAccountId) {
+    throw new Error('PROVIDER_ACCOUNT_BINDING_CONFLICT');
+  }
+
   const { data, error } = await db
     .from('m55_r8_stripe_connected_accounts_v1')
     .update({
-      stripe_account_id: input.stripeAccountId,
       link_state: linkState,
       last_provider_snapshot: redacted,
       last_synced_at: now,
@@ -149,6 +214,7 @@ export async function syncProviderSnapshotV1(input: {
       updated_at: now,
     })
     .eq('creator_economic_identity_id', input.creatorEconomicIdentityId)
+    .eq('stripe_account_id', input.stripeAccountId)
     .select(SELECT_FIELDS)
     .single();
   if (error || !data) throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
@@ -188,7 +254,7 @@ export async function createOnboardingSessionV1(input: {
   return { sessionId: data.id as string, reused: false };
 }
 
-export async function completeOnboardingSessionIfOwnedV1(input: {
+export async function verifyOnboardingSessionOwnedAndPendingV1(input: {
   creatorEconomicIdentityId: string;
   sessionId: string;
 }): Promise<boolean> {
@@ -208,9 +274,28 @@ export async function completeOnboardingSessionIfOwnedV1(input: {
       .eq('id', input.sessionId);
     return false;
   }
+  return true;
+}
+
+export async function markOnboardingSessionCompletedV1(input: {
+  creatorEconomicIdentityId: string;
+  sessionId: string;
+}): Promise<void> {
+  const db = getSupabaseAdmin() as any;
   await db
     .from('m55_r8_provider_onboarding_sessions_v1')
     .update({ status: 'COMPLETED', completed_at: new Date().toISOString() })
-    .eq('id', input.sessionId);
+    .eq('id', input.sessionId)
+    .eq('creator_economic_identity_id', input.creatorEconomicIdentityId)
+    .eq('status', 'PENDING');
+}
+
+export async function completeOnboardingSessionIfOwnedV1(input: {
+  creatorEconomicIdentityId: string;
+  sessionId: string;
+}): Promise<boolean> {
+  const ok = await verifyOnboardingSessionOwnedAndPendingV1(input);
+  if (!ok) return false;
+  await markOnboardingSessionCompletedV1(input);
   return true;
 }

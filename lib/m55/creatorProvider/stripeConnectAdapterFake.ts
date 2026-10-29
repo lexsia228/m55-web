@@ -15,7 +15,10 @@ export function resetFakeStripeConnectAdapterForTests(): void {
 export function createFakeStripeConnectAdapter(): StripeConnectAdapter {
   return {
     mode: 'FAKE',
-    async createConnectedAccountStub({ economicIdentityId, idempotencyKey }) {
+    async createConnectedAccountStub({ economicIdentityId, idempotencyKey, contactEmail, payeeType }) {
+      if (payeeType === 'CORPORATION') {
+        throw new Error('CORPORATION_STRIPE_NOT_SUPPORTED_V1');
+      }
       const accountId = fakeAccountIdForEconomicIdentity(economicIdentityId, idempotencyKey);
       if (!fakeAccounts.has(accountId)) {
         fakeAccounts.set(accountId, {

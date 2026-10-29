@@ -7,6 +7,7 @@ import {
   type R8StripeLinkStateV1,
   isProviderPayoutReadinessGreenV1,
 } from './contract';
+import { isR8AProviderPlaneEditableV1 } from './providerEligibility';
 
 export type ReadinessInputsV1 = {
   profileStatus: CreatorProfileStatus;
@@ -17,6 +18,10 @@ export type ReadinessInputsV1 = {
   providerSnapshot: R8ProviderAccountSnapshotV1 | null;
   v1JapanBlocked: boolean;
 };
+
+function canProgressOnboardingStepsV1(profileStatus: CreatorProfileStatus): boolean {
+  return isR8AProviderPlaneEditableV1(profileStatus);
+}
 
 export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8PublicReadinessSnapshotV1 {
   const blockReasons: R8ReadinessBlockReasonV1[] = [];
@@ -31,14 +36,14 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
   } else if (input.profileStatus === 'REVOKED') {
     blockReasons.push('PROFILE_REVOKED');
     nextActions.push('プロフィールが停止されています。サポートへお問い合わせください。');
-  } else if (input.profileStatus !== 'ACTIVE') {
-    blockReasons.push('PROFILE_NOT_ACTIVE');
-    nextActions.push('Creatorプロフィールが有効化されると、受取準備の設定を進められます。');
+  } else if (input.profileStatus === 'APPROVED_PENDING_ACTIVATION') {
+    blockReasons.push('PROFILE_PENDING_FINAL_APPROVAL');
+    nextActions.push('最終有効化（運営承認）前です。受取準備の入力は進められますが、紹介URLの新規発行や出金は開始されません。');
   }
 
   if (input.complianceBlocksReferral) {
     blockReasons.push('COMPLIANCE_HOLD');
-    nextActions.push('コンプライアンス確認が完了するまで、受取準備を進められません。');
+    nextActions.push('コンプライアンス確認が完了するまで、一部の操作が制限されます。');
   }
 
   if (input.v1JapanBlocked) {
@@ -48,14 +53,14 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
 
   if (input.taxProfileReady) {
     operatingModelSteps.push('TAX_PROFILE_READY');
-  } else if (input.profileStatus === 'ACTIVE') {
+  } else if (canProgressOnboardingStepsV1(input.profileStatus)) {
     blockReasons.push('TAX_PROFILE_MISSING');
     nextActions.push('税務プロフィール（適格請求書登録状況など）を入力してください。');
   }
 
   if (input.linkState !== 'NOT_STARTED') {
     operatingModelSteps.push('STRIPE_HOSTED_ONBOARDING');
-  } else if (input.profileStatus === 'ACTIVE' && input.taxProfileReady && !input.v1JapanBlocked) {
+  } else if (canProgressOnboardingStepsV1(input.profileStatus) && input.taxProfileReady && !input.v1JapanBlocked) {
     blockReasons.push('PROVIDER_NOT_LINKED');
     nextActions.push('Stripe の受取口座登録（ホスト型）を開始してください。');
   }
@@ -63,6 +68,12 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
   const providerGreen = isProviderPayoutReadinessGreenV1(input.linkState, input.providerSnapshot);
   if (providerGreen) {
     operatingModelSteps.push('PROVIDER_PAYOUT_READINESS_GREEN');
+    if (input.profileStatus === 'APPROVED_PENDING_ACTIVATION') {
+      blockReasons.push('AWAITING_HUMAN_FINAL_APPROVAL');
+      nextActions.push(
+        'Stripe 受取準備はプロバイダ側で完了しました。最終承認・本人確認（運営）後に Creator プロフィールが有効化されます。',
+      );
+    }
   } else if (input.linkState === 'ERROR') {
     blockReasons.push('PROVIDER_ERROR');
     nextActions.push('決済プロバイダ側の設定で問題が発生しました。時間をおいて再試行するか、サポートへご連絡ください。');
@@ -83,7 +94,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     operatingModelSteps.push('FINAL_CREATOR_ACTIVE');
   }
 
-  if (providerGreen) {
+  if (providerGreen && input.profileStatus === 'ACTIVE') {
     operatingModelSteps.push('REFERRAL_URL_ACTIVE_OPERATING_MODEL');
   }
   if (input.referralIssuePermittedDeployedR7) {
@@ -104,7 +115,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     payoutSettlementAvailable: false,
     productionCashActivation: false,
     referralIssuePermittedDeployedR7: input.referralIssuePermittedDeployedR7,
-    operatingModelReferralGateMet: providerGreen,
+    operatingModelReferralGateMet: providerGreen && input.profileStatus === 'ACTIVE',
     compatibilityNote: R8_A_COMPATIBILITY_NOTE_JA,
     providerSnapshot: input.providerSnapshot,
     nextActions: [...new Set(nextActions)],

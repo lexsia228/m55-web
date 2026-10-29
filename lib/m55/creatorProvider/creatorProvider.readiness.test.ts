@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { buildPublicReadinessSnapshotV1 } from './readinessModel.ts';
 
 describe('R8-A readiness — §8 vs deployed R7', () => {
-  it('allows deployed R7 referral while Operating Model gate is open', () => {
+  it('does not treat deployed R7 referral as §8 revenue-ready before ACTIVE', () => {
     const snapshot = buildPublicReadinessSnapshotV1({
       profileStatus: 'ACTIVE',
       referralIssuePermittedDeployedR7: true,
@@ -17,19 +17,25 @@ describe('R8-A readiness — §8 vs deployed R7', () => {
     assert.equal(snapshot.operatingModelReferralGateMet, false);
     assert.ok(snapshot.operatingModelSteps.includes('REFERRAL_URL_ACTIVE_DEPLOYED_R7'));
     assert.ok(!snapshot.operatingModelSteps.includes('REFERRAL_URL_ACTIVE_OPERATING_MODEL'));
-    assert.ok(snapshot.blockReasons.includes('PAYOUT_SETTLEMENT_NOT_IMPLEMENTED'));
   });
 
-  it('blocks onboarding actions messaging for suspended profiles', () => {
+  it('surfaces awaiting Human final approval after provider green while pending activation', () => {
     const snapshot = buildPublicReadinessSnapshotV1({
-      profileStatus: 'SUSPENDED',
+      profileStatus: 'APPROVED_PENDING_ACTIVATION',
       referralIssuePermittedDeployedR7: false,
       complianceBlocksReferral: false,
       taxProfileReady: true,
-      linkState: 'NOT_STARTED',
-      providerSnapshot: null,
+      linkState: 'PAYOUTS_CAPABILITY_ACTIVE',
+      providerSnapshot: {
+        detailsSubmitted: true,
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        transfersCapability: 'active',
+        requirementsCurrentlyDueCount: 0,
+      },
       v1JapanBlocked: false,
     });
-    assert.ok(snapshot.blockReasons.includes('PROFILE_SUSPENDED'));
+    assert.ok(snapshot.blockReasons.includes('AWAITING_HUMAN_FINAL_APPROVAL'));
+    assert.equal(snapshot.providerPayoutReadinessGreen, true);
   });
 });

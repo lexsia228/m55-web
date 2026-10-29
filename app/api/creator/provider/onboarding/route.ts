@@ -5,6 +5,15 @@ import { startCreatorProviderOnboardingV1 } from '../../../../../lib/m55/creator
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+function parseOnboardingPostBody(json: unknown): { action: 'START' | 'RESUME'; idempotencyKey: string } | null {
+  if (json == null || typeof json !== 'object') return null;
+  const body = json as Record<string, unknown>;
+  const action = body.action === 'RESUME' ? 'RESUME' : body.action === 'START' ? 'START' : null;
+  const idempotencyKey = typeof body.idempotencyKey === 'string' ? body.idempotencyKey : null;
+  if (!action || !idempotencyKey) return null;
+  return { action, idempotencyKey };
+}
+
 export async function POST(request: Request) {
   let json: unknown;
   try {
@@ -12,14 +21,12 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: 'INVALID_INPUT' }, { status: 400, headers: PRIVATE_RESPONSE_HEADERS });
   }
-  const body = json as Record<string, unknown>;
-  const action = body.action === 'RESUME' ? 'RESUME' : body.action === 'START' ? 'START' : null;
-  const idempotencyKey = typeof body.idempotencyKey === 'string' ? body.idempotencyKey : null;
-  if (!action || !idempotencyKey) {
+  const parsed = parseOnboardingPostBody(json);
+  if (!parsed) {
     return NextResponse.json({ error: 'INVALID_INPUT' }, { status: 400, headers: PRIVATE_RESPONSE_HEADERS });
   }
 
-  const result = await startCreatorProviderOnboardingV1({ action, idempotencyKey });
+  const result = await startCreatorProviderOnboardingV1(parsed);
   if (!result.ok) {
     const status =
       result.error === 'UNAUTHORIZED'
@@ -29,7 +36,9 @@ export async function POST(request: Request) {
             result.error === 'COMPLIANCE_HOLD' ||
             result.error === 'TAX_PROFILE_REQUIRED' ||
             result.error === 'PROVIDER_ADAPTER_DISABLED' ||
-            result.error === 'CREATOR_CONTACT_EMAIL_REQUIRED'
+            result.error === 'CREATOR_CONTACT_EMAIL_REQUIRED' ||
+            result.error === 'CORPORATION_STRIPE_NOT_SUPPORTED_V1' ||
+            result.error === 'PROVIDER_ACCOUNT_BINDING_CONFLICT'
           ? 403
           : result.error === 'INVALID_INPUT' || result.error === 'ORIGIN_MISCONFIGURED'
             ? 400

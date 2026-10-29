@@ -18,11 +18,13 @@ describe('R8-A Stripe connect adapter — fake test double', () => {
       economicIdentityId: '11111111-1111-4111-8111-111111111111',
       idempotencyKey: 'create:test',
       contactEmail: 'creator@example.com',
+      payeeType: 'INDIVIDUAL',
     });
     const second = await adapter.createConnectedAccountStub({
       economicIdentityId: '11111111-1111-4111-8111-111111111111',
       idempotencyKey: 'create:test',
       contactEmail: 'creator@example.com',
+      payeeType: 'INDIVIDUAL',
     });
     assert.equal(first.accountId, second.accountId);
     assert.match(first.accountId, /^acct_fake_r8a_/);
@@ -40,6 +42,7 @@ describe('R8-A Stripe connect adapter — fake test double', () => {
       economicIdentityId: '22222222-2222-4222-8222-222222222222',
       idempotencyKey: 'k1',
       contactEmail: 'creator@example.com',
+      payeeType: 'INDIVIDUAL',
     });
     fakeStripeCompleteOnboardingForTests(accountId);
     const snap = await adapter.retrieveAccountSnapshot(accountId);
@@ -76,7 +79,8 @@ describe('R8-A API routes — fail-closed markers', () => {
 
   it('onboarding service rejects client-trusted return without owned session poll', () => {
     const src = readFileSync(join(process.cwd(), 'lib/m55/creatorProvider/onboardingService.ts'), 'utf8');
-    assert.match(src, /completeOnboardingSessionIfOwnedV1/);
+    assert.match(src, /verifyOnboardingSessionOwnedAndPendingV1/);
+    assert.match(src, /markOnboardingSessionCompletedV1/);
     assert.match(src, /retrieveAccountSnapshot/);
   });
 });

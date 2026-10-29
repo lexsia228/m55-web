@@ -9,13 +9,17 @@ import { buildPublicReadinessSnapshotV1 } from './readinessModel';
 import { loadTaxProfileV1, upsertTaxProfileV1 } from './taxProfileRepository';
 import {
   appendProviderOnboardingEventV1,
-  completeOnboardingSessionIfOwnedV1,
+  bindStripeAccountIdV1,
   createOnboardingSessionV1,
+  ensureProviderAccountCreationRowV1,
   loadProviderAccountByEconomicIdentityV1,
+  markOnboardingSessionCompletedV1,
   recordOnboardingLinkIssuedV1,
   syncProviderSnapshotV1,
-  upsertProviderAccountStubV1,
+  verifyOnboardingSessionOwnedAndPendingV1,
 } from './providerAccountRepository';
+import { isR8AProviderPlaneEditableV1 } from './providerEligibility';
+import { stableProviderCreateIdempotencyKeyV1 } from './providerAccountBindingLogic';
 import {
   assertSafeRedirectUrl,
   buildCreatorPortalProviderRefreshUrl,
@@ -50,6 +54,12 @@ function mapProviderAdapterError(cause: unknown): string {
   }
   if (message === 'CREATOR_CONTACT_EMAIL_REQUIRED') {
     return 'CREATOR_CONTACT_EMAIL_REQUIRED';
+  }
+  if (message === 'CORPORATION_STRIPE_NOT_SUPPORTED_V1') {
+    return 'CORPORATION_STRIPE_NOT_SUPPORTED_V1';
+  }
+  if (message === 'PROVIDER_ACCOUNT_BINDING_CONFLICT') {
+    return 'PROVIDER_ACCOUNT_BINDING_CONFLICT';
   }
   return 'PROVIDER_ONBOARDING_UNAVAILABLE';
 }
@@ -88,13 +98,15 @@ export async function buildProviderStatusBundleV1(options?: {
     (sessionId != null && sessionId.length > 0);
 
   if (shouldPollProvider && providerRow?.stripeAccountId) {
-    const ownedSessionOk =
-      !sessionId ||
-      (await completeOnboardingSessionIfOwnedV1({
-        creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
-        sessionId,
-      }));
-    if (ownedSessionOk || options?.refreshProvider) {
+    const sessionPending =
+      sessionId != null && sessionId.length > 0
+        ? await verifyOnboardingSessionOwnedAndPendingV1({
+            creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
+            sessionId,
+          })
+        : false;
+    const mayPollProvider = options?.refreshProvider === true || sessionPending;
+    if (mayPollProvider) {
       try {
         const snapshot = await adapter.retrieveAccountSnapshot(providerRow.stripeAccountId);
         providerRow = await syncProviderSnapshotV1({
@@ -108,8 +120,14 @@ export async function buildProviderStatusBundleV1(options?: {
           idempotencyKey: `sync:${providerRow.lastSyncedAt ?? Date.now()}:${providerRow.stripeAccountId}`,
           payloadRedacted: { linkState: providerRow.linkState },
         });
+        if (sessionPending && sessionId) {
+          await markOnboardingSessionCompletedV1({
+            creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
+            sessionId,
+          });
+        }
       } catch {
-        // Fail-closed: do not trust client return without successful provider poll.
+        // Fail-closed: redirect alone does not complete onboarding.
       }
     }
   }
@@ -146,7 +164,7 @@ export async function saveCreatorTaxProfileForSessionV1(
   if (!ctx.ok) {
     return { ok: false, error: ctx.error === 'PORTAL_UNAVAILABLE' ? 'TAX_PROFILE_UNAVAILABLE' : ctx.error };
   }
-  if (ctx.profileStatus !== 'ACTIVE') {
+  if (!isR8AProviderPlaneEditableV1(ctx.profileStatus)) {
     return { ok: false, error: 'FORBIDDEN' };
   }
   try {
@@ -171,7 +189,7 @@ export async function startCreatorProviderOnboardingV1(body: {
 > {
   const ctx = await resolveCreatorContextFromSession();
   if (!ctx.ok) return { ok: false, error: ctx.error };
-  if (ctx.profileStatus !== 'ACTIVE') return { ok: false, error: 'FORBIDDEN' };
+  if (!isR8AProviderPlaneEditableV1(ctx.profileStatus)) return { ok: false, error: 'FORBIDDEN' };
 
   const clientKey = parseClientIdempotencyKey(body.idempotencyKey);
   if (!clientKey) return { ok: false, error: 'INVALID_INPUT' };
@@ -179,17 +197,23 @@ export async function startCreatorProviderOnboardingV1(body: {
   const taxProfile = await loadTaxProfileV1(ctx.creatorEconomicIdentityId);
   if (!taxProfile) return { ok: false, error: 'TAX_PROFILE_REQUIRED' };
 
-  const complianceHold = await complianceBlocksReferral(ctx);
-  if (complianceHold) return { ok: false, error: 'COMPLIANCE_HOLD' };
+  if (taxProfile.payeeType === 'CORPORATION') {
+    return { ok: false, error: 'CORPORATION_STRIPE_NOT_SUPPORTED_V1' };
+  }
+
+  if (ctx.profileStatus === 'ACTIVE') {
+    const complianceHold = await complianceBlocksReferral(ctx);
+    if (complianceHold) return { ok: false, error: 'COMPLIANCE_HOLD' };
+  }
 
   const adapter = body.adapter ?? resolveStripeConnectAdapter();
   const origin = resolveCreatorProviderPublicOrigin();
   const refreshUrl = assertSafeRedirectUrl(buildCreatorPortalProviderRefreshUrl(), origin);
   if (!refreshUrl) return { ok: false, error: 'ORIGIN_MISCONFIGURED' };
 
-  const createKey = `create:${ctx.creatorEconomicIdentityId}:${clientKey}`;
-  let providerRow = await loadProviderAccountByEconomicIdentityV1(ctx.creatorEconomicIdentityId);
-  if (!providerRow?.stripeAccountId) {
+  const createKey = stableProviderCreateIdempotencyKeyV1(ctx.creatorEconomicIdentityId);
+  let providerRow = await ensureProviderAccountCreationRowV1(ctx.creatorEconomicIdentityId);
+  if (!providerRow.stripeAccountId) {
     const contactEmail = await resolveCreatorContactEmail(ctx.clerkUserId);
     if (!contactEmail) {
       return { ok: false, error: 'CREATOR_CONTACT_EMAIL_REQUIRED' };
@@ -199,10 +223,10 @@ export async function startCreatorProviderOnboardingV1(body: {
         economicIdentityId: ctx.creatorEconomicIdentityId,
         idempotencyKey: createKey,
         contactEmail,
+        payeeType: taxProfile.payeeType,
       });
-      providerRow = await upsertProviderAccountStubV1({
+      providerRow = await bindStripeAccountIdV1({
         creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
-        createIdempotencyKey: createKey,
         stripeAccountId: stub.accountId,
       });
       await appendProviderOnboardingEventV1({

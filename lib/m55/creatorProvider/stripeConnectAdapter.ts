@@ -5,8 +5,8 @@ import {
   buildRecipientOnboardingLinkParamsV1,
   mapV2CoreAccountToProviderSnapshotV1,
 } from './stripeConnectV2Semantics';
+import { isM55ProductionRuntime } from './runtimeEnvironment';
 import { createFakeStripeConnectAdapter } from './stripeConnectAdapterFake';
-import type { StripeConnectAdapter } from './stripeConnectAdapterTypes';
 
 export type { StripeConnectAdapter, StripeConnectAdapterMode } from './stripeConnectAdapterTypes';
 export {
@@ -14,6 +14,8 @@ export {
   fakeStripeCompleteOnboardingForTests,
   createFakeStripeConnectAdapter,
 } from './stripeConnectAdapterFake';
+import type { StripeConnectAdapter } from './stripeConnectAdapterTypes';
+
 export { classifyStripeConnectRuntime, M55_STRIPE_CONNECT_V2_DOC_REFERENCES } from './stripeConnectV2Semantics';
 
 let _connectStripe: Stripe | null = null;
@@ -61,11 +63,11 @@ function createDisabledStripeConnectAdapter(reason: StripeConnectAdapter['mode']
 export function createTestSandboxStripeConnectAdapter(stripe: Stripe): StripeConnectAdapter {
   return {
     mode: 'TEST_SANDBOX',
-    async createConnectedAccountStub({ economicIdentityId, idempotencyKey, contactEmail }) {
-      const params = buildJpRecipientAccountCreateParamsV1({ economicIdentityId, contactEmail });
+    async createConnectedAccountStub({ economicIdentityId, idempotencyKey, contactEmail, payeeType }) {
+      const params = buildJpRecipientAccountCreateParamsV1({ economicIdentityId, contactEmail, payeeType });
       const account = await stripe.v2.core.accounts.create(params, { idempotencyKey });
       if (!account.id) throw new Error('STRIPE_ACCOUNT_CREATE_INCOMPLETE');
-      if (account.livemode === true) {
+      if (account.livemode !== false) {
         throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
       }
       return { accountId: account.id };
@@ -83,7 +85,7 @@ export function createTestSandboxStripeConnectAdapter(stripe: Stripe): StripeCon
       const account = await stripe.v2.core.accounts.retrieve(accountId, {
         include: ['configuration.recipient', 'requirements'],
       });
-      if (account.livemode === true) {
+      if (account.livemode !== false) {
         throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
       }
       return mapV2CoreAccountToProviderSnapshotV1(account);
@@ -96,6 +98,14 @@ export function createTestSandboxStripeConnectAdapter(stripe: Stripe): StripeCon
  * FAKE is only for unit tests via M55_STRIPE_CONNECT_ADAPTER=FAKE or injected adapter option.
  */
 export function resolveStripeConnectAdapter(options?: { stripe?: Stripe }): StripeConnectAdapter {
+  if (isM55ProductionRuntime()) {
+    const classification = classifyStripeConnectRuntime();
+    if (classification.secretKeyMode === 'live') {
+      return createDisabledStripeConnectAdapter('LIVE_BLOCKED');
+    }
+    return createDisabledStripeConnectAdapter('DISABLED');
+  }
+
   const classification = classifyStripeConnectRuntime();
   if (classification.fakeAdapterForced) {
     return createFakeStripeConnectAdapter();
