@@ -1,0 +1,78 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, it } from 'node:test';
+import {
+  assertSafeRedirectUrl,
+  createFakeStripeConnectAdapter,
+  createLiveStripeConnectAdapterBlocked,
+  fakeStripeCompleteOnboardingForTests,
+  resetFakeStripeConnectAdapterForTests,
+} from './stripeConnectAdapter.ts';
+
+describe('R8-A Stripe connect adapter — fake only', () => {
+  it('creates deterministic fake account ids', async () => {
+    resetFakeStripeConnectAdapterForTests();
+    const adapter = createFakeStripeConnectAdapter();
+    assert.equal(adapter.mode, 'FAKE');
+    const first = await adapter.createConnectedAccountStub({
+      economicIdentityId: '11111111-1111-4111-8111-111111111111',
+      idempotencyKey: 'create:test',
+    });
+    const second = await adapter.createConnectedAccountStub({
+      economicIdentityId: '11111111-1111-4111-8111-111111111111',
+      idempotencyKey: 'create:test',
+    });
+    assert.equal(first.accountId, second.accountId);
+    assert.match(first.accountId, /^acct_fake_r8a_/);
+  });
+
+  it('never enables live adapter in R8-A', async () => {
+    const live = createLiveStripeConnectAdapterBlocked();
+    await assert.rejects(() => live.createConnectedAccountStub({ economicIdentityId: 'x', idempotencyKey: 'y' }), /LIVE_STRIPE_CONNECT_BLOCKED/);
+  });
+
+  it('rejects open redirect URLs', () => {
+    assert.equal(assertSafeRedirectUrl('https://evil.example/creator/portal', 'https://m-55.jp'), null);
+    assert.ok(assertSafeRedirectUrl('https://m-55.jp/creator/portal', 'https://m-55.jp'));
+  });
+
+  it('redacts snapshot progression in fake mode', async () => {
+    resetFakeStripeConnectAdapterForTests();
+    const adapter = createFakeStripeConnectAdapter();
+    const { accountId } = await adapter.createConnectedAccountStub({
+      economicIdentityId: '22222222-2222-4222-8222-222222222222',
+      idempotencyKey: 'k1',
+    });
+    fakeStripeCompleteOnboardingForTests(accountId);
+    const snap = await adapter.retrieveAccountSnapshot(accountId);
+    assert.equal(snap.payoutsEnabled, true);
+    assert.equal(snap.transfersCapability, 'active');
+  });
+});
+
+describe('R8-A migration static safety', () => {
+  it('grants tables to service_role only', () => {
+    const sql = readFileSync(
+      join(process.cwd(), 'supabase/migrations/20261029000000_m55_r8_a_creator_provider_onboarding_v1.sql'),
+      'utf8',
+    );
+    assert.match(sql, /revoke all on public\.m55_r8_creator_tax_profiles_v1 from public, anon, authenticated/);
+    assert.match(sql, /grant all on public\.m55_r8_creator_tax_profiles_v1 to service_role/);
+    assert.doesNotMatch(sql, /my_number|bank_account/i);
+  });
+});
+
+describe('R8-A API routes — fail-closed markers', () => {
+  it('provider status route uses server bundle not client trust', () => {
+    const src = readFileSync(join(process.cwd(), 'app/api/creator/provider/status/route.ts'), 'utf8');
+    assert.match(src, /buildProviderStatusBundleV1/);
+    assert.doesNotMatch(src, /searchParams\.get\('success'\)/);
+  });
+
+  it('onboarding route requires idempotency key', () => {
+    const src = readFileSync(join(process.cwd(), 'app/api/creator/provider/onboarding/route.ts'), 'utf8');
+    assert.match(src, /idempotencyKey/);
+    assert.match(src, /startCreatorProviderOnboardingV1/);
+  });
+});
