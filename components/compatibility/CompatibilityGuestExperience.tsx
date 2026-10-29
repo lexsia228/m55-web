@@ -836,7 +836,7 @@ export default function CompatibilityGuestExperience({
               ))}
             </div>
 
-            <h4 className={styles.sixTitle} id="compatibility-six-chapters">読み返せる場面</h4>
+            <h4 className={styles.sixTitle} id="compatibility-six-chapters">レポートを使う場面</h4>
             <div className={styles.useCases}>
               {(premiumBridge?.useCases ?? ['会話の前に読む', 'あとで振り返る']).map((label) => (
                 <span key={label}>{label}</span>

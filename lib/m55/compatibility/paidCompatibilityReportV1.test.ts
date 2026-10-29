@@ -118,7 +118,7 @@ describe('paid compatibility report determinism and privacy', () => {
 });
 
 describe('paid compatibility report order safety', () => {
-  it('preserves relationship semantics and swaps A/B perspectives', () => {
+  it('keeps buyer in personAPerspective and partner in personBPerspective across role order', () => {
     const forward = build({ personAUsesFirstPerspective: true });
     const reverse = build({ personAUsesFirstPerspective: false });
     assert.equal(forward.relationshipSummary, reverse.relationshipSummary);
@@ -127,11 +127,43 @@ describe('paid compatibility report order safety', () => {
     assert.equal(forward.recurringLoop, reverse.recurringLoop);
     assert.deepEqual(forward.highlightedChapterKeys, reverse.highlightedChapterKeys);
     for (let index = 0; index < 6; index += 1) {
-      const a = forward.chapters[index]!;
-      const b = reverse.chapters[index]!;
-      assert.equal(a.personAPerspective, swapVisibleRoles(b.personBPerspective));
-      assert.equal(a.personBPerspective, swapVisibleRoles(b.personAPerspective));
-      assert.deepEqual(a.relationshipLoop, b.relationshipLoop.map(swapVisibleRoles));
+      for (const snapshot of [forward, reverse]) {
+        const chapter = snapshot.chapters[index]!;
+        assert.match(chapter.personAPerspective, /あなた/);
+        assert.notEqual(chapter.personAPerspective, chapter.personBPerspective);
+      }
+    }
+  });
+
+  it('maps semantic first and second slots to buyer column for R2 and both perspective orders', () => {
+    const buyerFirstMotion = /次の連絡のタイミングを先に決めようとすることがあります/;
+    const buyerSecondMotion = /返す前に、言葉を整える時間を取りたいことがあります/;
+    for (const personAUsesFirstPerspective of [true, false]) {
+      const snapshot = build({
+        relationStatusId: 'R2',
+        personAUsesFirstPerspective,
+      });
+      const chapter = snapshot.chapters.find((item) => item.key === 'ch_you_pace');
+      assert.ok(chapter);
+      if (personAUsesFirstPerspective) {
+        assert.match(chapter!.personAPerspective, buyerFirstMotion);
+        assert.doesNotMatch(chapter!.personAPerspective, buyerSecondMotion);
+      } else {
+        assert.match(chapter!.personAPerspective, buyerSecondMotion);
+        assert.doesNotMatch(chapter!.personAPerspective, buyerFirstMotion);
+      }
+    }
+  });
+
+  it('keeps buyer-led relationship loop across R1-R6 and both perspective orders', () => {
+    const statuses = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'] as const;
+    for (const relationStatusId of statuses) {
+      for (const personAUsesFirstPerspective of [true, false]) {
+        const snapshot = build({ relationStatusId, personAUsesFirstPerspective });
+        const chapter = snapshot.chapters.find((item) => item.key === 'ch_you_pace');
+        assert.match(chapter!.relationshipLoop.join(''), /あなたから見ると/, relationStatusId);
+        assert.match(chapter!.personAPerspective, /あなた/, relationStatusId);
+      }
     }
   });
 
@@ -139,7 +171,7 @@ describe('paid compatibility report order safety', () => {
     const forward = build({ personAUsesFirstPerspective: true });
     const reverse = build({ personAUsesFirstPerspective: false });
     assert.equal(forward.chapters[0]?.phraseSpeaker, 'personA');
-    assert.equal(forward.chapters[1]?.phraseSpeaker, 'personB');
+    assert.equal(forward.chapters[1]?.phraseSpeaker, 'personA');
     assert.equal(forward.chapters[0]?.usablePhrase, reverse.chapters[0]?.usablePhrase);
     assert.equal(forward.chapters[1]?.usablePhrase, reverse.chapters[1]?.usablePhrase);
     assert.notEqual(forward.chapters[0]?.usablePhrase, forward.chapters[1]?.usablePhrase);
@@ -226,16 +258,65 @@ describe('paid compatibility reader, bridge, analytics, and preview boundary', (
     assert.doesNotMatch(css, /overflow-x:\s*(auto|scroll)/);
   });
 
+  it('labels paid phrase blocks by phraseSpeaker and perspectives by display identity', () => {
+    const reader = read('components/compatibility/PaidCompatibilityReportReader.tsx');
+    const display = read('lib/m55/compatibility/paidCompatibilityReportDisplayV1.ts');
+    assert.match(reader, /function phraseSpeakerBlockLabel/);
+    assert.match(reader, /phraseSpeakerBlockLabel\(/);
+    assert.match(reader, /paidCompatibilityPhraseBlockLabelForChapter/);
+    assert.match(display, /自分の中で整理する言葉/);
+    assert.match(display, /相手側の言い方の例/);
+    assert.match(display, /相手とのやり取りに使う表現例/);
+    assert.match(reader, /phraseSpeakerBlockLabel\(leadChapter, inferredRelationStatus\)/);
+    assert.match(reader, /phraseSpeakerBlockLabel\(chapter, inferredRelationStatus\)/);
+    assert.match(reader, /displaySnapshot\.chapters\.map\(\(chapter\) => \{/);
+    assert.match(reader, /perspectiveBlockLabel\('self', displayIdentity\)/);
+    assert.match(reader, /perspectiveBlockLabel\('partner', displayIdentity\)/);
+    assert.doesNotMatch(reader, /そのまま使える一言/);
+    assert.doesNotMatch(reader, /Aから見えること|Bから見えること/);
+
+    const forward = build(BASE_INPUT);
+    const reverse = build({ ...BASE_INPUT, personAUsesFirstPerspective: false });
+    assert.equal(forward.chapters[0]?.phraseSpeaker, 'personA');
+    assert.equal(forward.chapters[1]?.phraseSpeaker, 'personA');
+    assert.equal(forward.chapters[2]?.phraseSpeaker, 'either');
+    assert.equal(reverse.chapters[0]?.phraseSpeaker, 'personA');
+    assert.equal(reverse.chapters[1]?.phraseSpeaker, 'personA');
+    assert.equal(reverse.chapters[2]?.phraseSpeaker, 'either');
+    assert.notEqual(
+      forward.chapters[0]?.usablePhrase,
+      forward.chapters[1]?.usablePhrase,
+    );
+  });
+
+  it('anchors chapter navigation below the public shell header and meters experiments on viewport reach', () => {
+    const reader = read('components/compatibility/PaidCompatibilityReportReader.tsx');
+    const css = read('components/compatibility/PaidCompatibilityReportReader.module.css');
+    const saved = read('components/my/CompatibilitySavedReportsSection.tsx');
+    const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
+    assert.match(css, /scroll-margin-top: calc\(env\(safe-area-inset-top, 0px\) \+ 64px \+ 12px\)/);
+    assert.match(reader, /function scrollChapterIntoView/);
+    assert.match(reader, /PaidReportExperimentSection/);
+    assert.match(reader, /IntersectionObserver/);
+    assert.equal(
+      (reader.match(/M55_FUNNEL_EVENTS\.compatibilityExperimentView/g) ?? []).length,
+      1,
+    );
+    assert.doesNotMatch(saved, /compatibilityOwnedReportOpen/);
+    assert.match(guest, /レポートを使う場面/);
+    assert.doesNotMatch(guest, /読み返せる場面/);
+  });
+
   it('updates the free bridge only with implemented deliverables', () => {
     const bridge = read('components/compatibility/CompatibilityGuestExperience.tsx');
     for (const copy of [
-      '二人それぞれの動き',
+      '二人それぞれの視点',
       'すれ違いが始まる場面',
-      '場面から戻る手順',
-      'そのまま使える一言',
-      '今週一度だけ試すこと',
+      'stagePremiumBridgeCopy',
+      'そのまま使える',
+      '小さな実験',
       'あとで振り返る一問',
-      '読み返せる場面',
+      'レポートを使う場面',
     ]) {
       assert.ok(bridge.includes(copy), `bridge must offer ${copy}`);
     }

@@ -30,6 +30,7 @@ export default function CompatibilityPaidShareBlock({
       aria-labelledby="pair-paid-share-title"
       data-testid="m55-pair-paid-share"
       data-m55-share-subsystem="pair"
+      data-m55-share-host="compatibility-paid-report"
     >
       <h2 id="pair-paid-share-title" className={styles.headline}>
         共有できる範囲
