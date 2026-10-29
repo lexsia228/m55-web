@@ -27,7 +27,9 @@ export async function POST(request: Request) {
         : result.error === 'FORBIDDEN' ||
             result.error === 'CREATOR_PROFILE_REQUIRED' ||
             result.error === 'COMPLIANCE_HOLD' ||
-            result.error === 'TAX_PROFILE_REQUIRED'
+            result.error === 'TAX_PROFILE_REQUIRED' ||
+            result.error === 'PROVIDER_ADAPTER_DISABLED' ||
+            result.error === 'CREATOR_CONTACT_EMAIL_REQUIRED'
           ? 403
           : result.error === 'INVALID_INPUT' || result.error === 'ORIGIN_MISCONFIGURED'
             ? 400

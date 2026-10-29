@@ -1,4 +1,5 @@
 import 'server-only';
+import { clerkClient } from '@clerk/nextjs/server';
 import {
   isCreatorReferralCapabilityPermittedV1,
   resolveCreatorContextFromSession,
@@ -31,6 +32,27 @@ export type ProviderStatusBundleV1 = {
   onboardingUrl: string | null;
   adapterMode: StripeConnectAdapter['mode'];
 };
+
+async function resolveCreatorContactEmail(clerkUserId: string): Promise<string | null> {
+  try {
+    const user = await (await clerkClient()).users.getUser(clerkUserId);
+    const primary = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId);
+    return primary?.emailAddress ?? user.emailAddresses[0]?.emailAddress ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function mapProviderAdapterError(cause: unknown): string {
+  const message = cause instanceof Error ? cause.message : '';
+  if (message === 'PROVIDER_ADAPTER_DISABLED' || message === 'LIVE_STRIPE_CONNECT_BLOCKED_R8_A') {
+    return 'PROVIDER_ADAPTER_DISABLED';
+  }
+  if (message === 'CREATOR_CONTACT_EMAIL_REQUIRED') {
+    return 'CREATOR_CONTACT_EMAIL_REQUIRED';
+  }
+  return 'PROVIDER_ONBOARDING_UNAVAILABLE';
+}
 
 async function complianceBlocksReferral(ctx: Extract<ResolvedCreatorContext, { ok: true }>): Promise<boolean> {
   if (ctx.profileStatus !== 'ACTIVE') return false;
@@ -168,10 +190,15 @@ export async function startCreatorProviderOnboardingV1(body: {
   const createKey = `create:${ctx.creatorEconomicIdentityId}:${clientKey}`;
   let providerRow = await loadProviderAccountByEconomicIdentityV1(ctx.creatorEconomicIdentityId);
   if (!providerRow?.stripeAccountId) {
+    const contactEmail = await resolveCreatorContactEmail(ctx.clerkUserId);
+    if (!contactEmail) {
+      return { ok: false, error: 'CREATOR_CONTACT_EMAIL_REQUIRED' };
+    }
     try {
       const stub = await adapter.createConnectedAccountStub({
         economicIdentityId: ctx.creatorEconomicIdentityId,
         idempotencyKey: createKey,
+        contactEmail,
       });
       providerRow = await upsertProviderAccountStubV1({
         creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
@@ -184,8 +211,8 @@ export async function startCreatorProviderOnboardingV1(body: {
         idempotencyKey: createKey,
         payloadRedacted: { accountIdSuffix: stub.accountId.slice(-6) },
       });
-    } catch {
-      return { ok: false, error: 'PROVIDER_ONBOARDING_UNAVAILABLE' };
+    } catch (cause) {
+      return { ok: false, error: mapProviderAdapterError(cause) };
     }
   }
 
@@ -217,7 +244,7 @@ export async function startCreatorProviderOnboardingV1(body: {
       payloadRedacted: { sessionId },
     });
     return { ok: true, onboardingUrl: link.url, sessionId, reused };
-  } catch {
-    return { ok: false, error: 'PROVIDER_ONBOARDING_UNAVAILABLE' };
+  } catch (cause) {
+    return { ok: false, error: mapProviderAdapterError(cause) };
   }
 }

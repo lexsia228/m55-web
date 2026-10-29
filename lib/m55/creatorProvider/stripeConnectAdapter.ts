@@ -1,105 +1,120 @@
-import type { R8ProviderAccountSnapshotV1 } from './contract';
+import Stripe from 'stripe';
+import {
+  classifyStripeConnectRuntime,
+  buildJpRecipientAccountCreateParamsV1,
+  buildRecipientOnboardingLinkParamsV1,
+  mapV2CoreAccountToProviderSnapshotV1,
+} from './stripeConnectV2Semantics';
+import { createFakeStripeConnectAdapter } from './stripeConnectAdapterFake';
+import type { StripeConnectAdapter } from './stripeConnectAdapterTypes';
 
-export type StripeConnectAdapterMode = 'FAKE' | 'LIVE_BLOCKED';
+export type { StripeConnectAdapter, StripeConnectAdapterMode } from './stripeConnectAdapterTypes';
+export {
+  resetFakeStripeConnectAdapterForTests,
+  fakeStripeCompleteOnboardingForTests,
+  createFakeStripeConnectAdapter,
+} from './stripeConnectAdapterFake';
+export { classifyStripeConnectRuntime, M55_STRIPE_CONNECT_V2_DOC_REFERENCES } from './stripeConnectV2Semantics';
 
-export type StripeConnectAdapter = {
-  mode: StripeConnectAdapterMode;
-  createConnectedAccountStub(input: {
-    economicIdentityId: string;
-    idempotencyKey: string;
-  }): Promise<{ accountId: string }>;
-  createAccountOnboardingLink(input: {
-    accountId: string;
-    refreshUrl: string;
-    returnUrl: string;
-  }): Promise<{ url: string; expiresAtMs: number }>;
-  retrieveAccountSnapshot(accountId: string): Promise<R8ProviderAccountSnapshotV1>;
-};
+let _connectStripe: Stripe | null = null;
 
-const fakeAccounts = new Map<string, R8ProviderAccountSnapshotV1>();
-
-function fakeAccountIdForEconomicIdentity(economicIdentityId: string, idempotencyKey: string): string {
-  const digest = Buffer.from(`${economicIdentityId}:${idempotencyKey}`).toString('hex').slice(0, 24);
-  return `acct_fake_r8a_${digest}`;
+function resolveConnectSecretKey(): string | null {
+  const classification = classifyStripeConnectRuntime();
+  if (!classification.secretKeyPresent) return null;
+  const raw =
+    process.env.M55_STRIPE_CONNECT_SECRET_KEY?.trim() ||
+    process.env.STRIPE_SECRET_KEY?.trim() ||
+    '';
+  return raw || null;
 }
 
-export function resetFakeStripeConnectAdapterForTests(): void {
-  fakeAccounts.clear();
+export function getStripeConnectClient(): Stripe {
+  const secret = resolveConnectSecretKey();
+  if (!secret) throw new Error('ENV_MISSING:STRIPE_CONNECT_SECRET_KEY');
+  if (!_connectStripe) {
+    _connectStripe = new Stripe(secret);
+  }
+  return _connectStripe;
 }
 
-export function createFakeStripeConnectAdapter(): StripeConnectAdapter {
+function createDisabledStripeConnectAdapter(reason: StripeConnectAdapter['mode']): StripeConnectAdapter {
   return {
-    mode: 'FAKE',
-    async createConnectedAccountStub({ economicIdentityId, idempotencyKey }) {
-      const accountId = fakeAccountIdForEconomicIdentity(economicIdentityId, idempotencyKey);
-      if (!fakeAccounts.has(accountId)) {
-        fakeAccounts.set(accountId, {
-          detailsSubmitted: false,
-          chargesEnabled: false,
-          payoutsEnabled: false,
-          transfersCapability: 'inactive',
-          requirementsCurrentlyDueCount: 1,
-        });
-      }
-      return { accountId };
+    mode: reason,
+    async createConnectedAccountStub() {
+      throw new Error(
+        reason === 'LIVE_BLOCKED' ? 'LIVE_STRIPE_CONNECT_BLOCKED_R8_A' : 'PROVIDER_ADAPTER_DISABLED',
+      );
     },
-    async createAccountOnboardingLink({ accountId }) {
-      if (!fakeAccounts.has(accountId)) {
-        throw new Error('FAKE_ACCOUNT_NOT_FOUND');
+    async createAccountOnboardingLink() {
+      throw new Error(
+        reason === 'LIVE_BLOCKED' ? 'LIVE_STRIPE_CONNECT_BLOCKED_R8_A' : 'PROVIDER_ADAPTER_DISABLED',
+      );
+    },
+    async retrieveAccountSnapshot() {
+      throw new Error(
+        reason === 'LIVE_BLOCKED' ? 'LIVE_STRIPE_CONNECT_BLOCKED_R8_A' : 'PROVIDER_ADAPTER_DISABLED',
+      );
+    },
+  };
+}
+
+export function createTestSandboxStripeConnectAdapter(stripe: Stripe): StripeConnectAdapter {
+  return {
+    mode: 'TEST_SANDBOX',
+    async createConnectedAccountStub({ economicIdentityId, idempotencyKey, contactEmail }) {
+      const params = buildJpRecipientAccountCreateParamsV1({ economicIdentityId, contactEmail });
+      const account = await stripe.v2.core.accounts.create(params, { idempotencyKey });
+      if (!account.id) throw new Error('STRIPE_ACCOUNT_CREATE_INCOMPLETE');
+      if (account.livemode === true) {
+        throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
       }
+      return { accountId: account.id };
+    },
+    async createAccountOnboardingLink({ accountId, refreshUrl, returnUrl }) {
+      const params = buildRecipientOnboardingLinkParamsV1({ accountId, refreshUrl, returnUrl });
+      const link = await stripe.v2.core.accountLinks.create(params);
+      if (!link.url) throw new Error('STRIPE_ACCOUNT_LINK_INCOMPLETE');
       return {
-        url: `https://connect.stripe.com/setup/s/fake/${accountId}`,
-        expiresAtMs: Date.now() + 30 * 60 * 1000,
+        url: link.url,
+        expiresAtMs: link.expires_at ? Date.parse(link.expires_at) : Date.now() + 30 * 60 * 1000,
       };
     },
     async retrieveAccountSnapshot(accountId) {
-      const snapshot = fakeAccounts.get(accountId);
-      if (!snapshot) {
-        throw new Error('FAKE_ACCOUNT_NOT_FOUND');
+      const account = await stripe.v2.core.accounts.retrieve(accountId, {
+        include: ['configuration.recipient', 'requirements'],
+      });
+      if (account.livemode === true) {
+        throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
       }
-      return { ...snapshot };
+      return mapV2CoreAccountToProviderSnapshotV1(account);
     },
   };
-}
-
-/** Test helper — simulates successful hosted onboarding without live Stripe. */
-export function fakeStripeCompleteOnboardingForTests(accountId: string): void {
-  fakeAccounts.set(accountId, {
-    detailsSubmitted: true,
-    chargesEnabled: true,
-    payoutsEnabled: true,
-    transfersCapability: 'active',
-    requirementsCurrentlyDueCount: 0,
-  });
 }
 
 /**
- * Live adapter is intentionally blocked for R8-A local work.
- * Accounts v2 Connect mapping must follow current Stripe docs:
- * https://docs.stripe.com/connect/accounts-v2
- * https://docs.stripe.com/connect/accounts-v2/connected-account-configuration
- * Authorized sandbox proof only — never default-on in this gate.
+ * Operational default is fail-closed DISABLED until explicit test-mode enablement + sk_test_* key.
+ * FAKE is only for unit tests via M55_STRIPE_CONNECT_ADAPTER=FAKE or injected adapter option.
  */
-export function createLiveStripeConnectAdapterBlocked(): StripeConnectAdapter {
-  return {
-    mode: 'LIVE_BLOCKED',
-    async createConnectedAccountStub() {
-      throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
-    },
-    async createAccountOnboardingLink() {
-      throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
-    },
-    async retrieveAccountSnapshot() {
-      throw new Error('LIVE_STRIPE_CONNECT_BLOCKED_R8_A');
-    },
-  };
-}
-
-export function resolveStripeConnectAdapter(): StripeConnectAdapter {
-  if (process.env.M55_STRIPE_CONNECT_LIVE_ACCOUNT_CREATION === 'true') {
-    return createLiveStripeConnectAdapterBlocked();
+export function resolveStripeConnectAdapter(options?: { stripe?: Stripe }): StripeConnectAdapter {
+  const classification = classifyStripeConnectRuntime();
+  if (classification.fakeAdapterForced) {
+    return createFakeStripeConnectAdapter();
   }
-  return createFakeStripeConnectAdapter();
+  if (classification.secretKeyMode === 'live') {
+    return createDisabledStripeConnectAdapter('LIVE_BLOCKED');
+  }
+  if (classification.secretKeyMode === 'invalid') {
+    return createDisabledStripeConnectAdapter('DISABLED');
+  }
+  if (classification.secretKeyMode === 'test' && classification.testModeExplicitlyEnabled) {
+    try {
+      const stripe = options?.stripe ?? getStripeConnectClient();
+      return createTestSandboxStripeConnectAdapter(stripe);
+    } catch {
+      return createDisabledStripeConnectAdapter('DISABLED');
+    }
+  }
+  return createDisabledStripeConnectAdapter('DISABLED');
 }
 
 export function assertSafeRedirectUrl(candidate: string, allowedOrigin: string): string | null {

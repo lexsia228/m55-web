@@ -12,6 +12,8 @@ type ReadinessBundle = {
     providerPayoutReadinessGreen: boolean;
     payoutSettlementAvailable: false;
     compatibilityNote: string;
+    referralIssuePermittedDeployedR7: boolean;
+    operatingModelReferralGateMet: boolean;
   };
   taxProfile: null | {
     payeeType: string;
@@ -159,15 +161,28 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
       )}
       {editable && readiness.taxProfileReady && !readiness.providerPayoutReadinessGreen && (
         <div className={styles.cardActions}>
-          <button type="button" className={styles.buttonPrimary} disabled={busy} onClick={() => startOnboarding(false)}>
-            Stripe 受取設定を開始
-          </button>
-          {readiness.providerLinkState !== 'NOT_STARTED' && (
-            <button type="button" className={styles.secondaryCta} disabled={busy} onClick={() => startOnboarding(true)}>
-              設定を再開
-            </button>
+          {bundle.adapterMode === 'DISABLED' || bundle.adapterMode === 'LIVE_BLOCKED' ? (
+            <p className={styles.nextAction}>
+              Stripe テストモード連携は、運営側の設定（テスト用シークレットキーと明示的な有効化）が整うまで開始できません。
+            </p>
+          ) : (
+            <>
+              <button type="button" className={styles.buttonPrimary} disabled={busy} onClick={() => startOnboarding(false)}>
+                Stripe 受取設定を開始
+              </button>
+              {readiness.providerLinkState !== 'NOT_STARTED' && (
+                <button type="button" className={styles.secondaryCta} disabled={busy} onClick={() => startOnboarding(true)}>
+                  設定を再開
+                </button>
+              )}
+            </>
           )}
         </div>
+      )}
+      {readiness.referralIssuePermittedDeployedR7 && !readiness.operatingModelReferralGateMet && (
+        <p className={styles.statusMeta}>
+          紹介URLは現行ルールで利用できる場合がありますが、Operating Model §8 上の「受取準備完了」前の段階です。出金・精算は開始されません。
+        </p>
       )}
       <p className={styles.statusMeta}>
         プロバイダ状態：{readiness.providerLinkState}（ローカル：{bundle.adapterMode}）

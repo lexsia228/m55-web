@@ -5,12 +5,11 @@ import { describe, it } from 'node:test';
 import {
   assertSafeRedirectUrl,
   createFakeStripeConnectAdapter,
-  createLiveStripeConnectAdapterBlocked,
   fakeStripeCompleteOnboardingForTests,
   resetFakeStripeConnectAdapterForTests,
 } from './stripeConnectAdapter.ts';
 
-describe('R8-A Stripe connect adapter — fake only', () => {
+describe('R8-A Stripe connect adapter — fake test double', () => {
   it('creates deterministic fake account ids', async () => {
     resetFakeStripeConnectAdapterForTests();
     const adapter = createFakeStripeConnectAdapter();
@@ -18,18 +17,15 @@ describe('R8-A Stripe connect adapter — fake only', () => {
     const first = await adapter.createConnectedAccountStub({
       economicIdentityId: '11111111-1111-4111-8111-111111111111',
       idempotencyKey: 'create:test',
+      contactEmail: 'creator@example.com',
     });
     const second = await adapter.createConnectedAccountStub({
       economicIdentityId: '11111111-1111-4111-8111-111111111111',
       idempotencyKey: 'create:test',
+      contactEmail: 'creator@example.com',
     });
     assert.equal(first.accountId, second.accountId);
     assert.match(first.accountId, /^acct_fake_r8a_/);
-  });
-
-  it('never enables live adapter in R8-A', async () => {
-    const live = createLiveStripeConnectAdapterBlocked();
-    await assert.rejects(() => live.createConnectedAccountStub({ economicIdentityId: 'x', idempotencyKey: 'y' }), /LIVE_STRIPE_CONNECT_BLOCKED/);
   });
 
   it('rejects open redirect URLs', () => {
@@ -37,17 +33,18 @@ describe('R8-A Stripe connect adapter — fake only', () => {
     assert.ok(assertSafeRedirectUrl('https://m-55.jp/creator/portal', 'https://m-55.jp'));
   });
 
-  it('redacts snapshot progression in fake mode', async () => {
+  it('never marks fake onboarding as production/live', async () => {
     resetFakeStripeConnectAdapterForTests();
     const adapter = createFakeStripeConnectAdapter();
     const { accountId } = await adapter.createConnectedAccountStub({
       economicIdentityId: '22222222-2222-4222-8222-222222222222',
       idempotencyKey: 'k1',
+      contactEmail: 'creator@example.com',
     });
     fakeStripeCompleteOnboardingForTests(accountId);
     const snap = await adapter.retrieveAccountSnapshot(accountId);
     assert.equal(snap.payoutsEnabled, true);
-    assert.equal(snap.transfersCapability, 'active');
+    assert.match(accountId, /^acct_fake_/);
   });
 });
 
@@ -74,5 +71,21 @@ describe('R8-A API routes — fail-closed markers', () => {
     const src = readFileSync(join(process.cwd(), 'app/api/creator/provider/onboarding/route.ts'), 'utf8');
     assert.match(src, /idempotencyKey/);
     assert.match(src, /startCreatorProviderOnboardingV1/);
+    assert.match(src, /PROVIDER_ADAPTER_DISABLED/);
+  });
+
+  it('onboarding service rejects client-trusted return without owned session poll', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/creatorProvider/onboardingService.ts'), 'utf8');
+    assert.match(src, /completeOnboardingSessionIfOwnedV1/);
+    assert.match(src, /retrieveAccountSnapshot/);
+  });
+});
+
+describe('R8-A adapter resolution — not silently FAKE in production code path', () => {
+  it('resolveStripeConnectAdapter defaults DISABLED in stripeConnectAdapter.ts', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/creatorProvider/stripeConnectAdapter.ts'), 'utf8');
+    assert.match(src, /createDisabledStripeConnectAdapter\('DISABLED'\)/);
+    assert.match(src, /createTestSandboxStripeConnectAdapter/);
+    assert.match(src, /v2\.core\.accounts\.create/);
   });
 });
