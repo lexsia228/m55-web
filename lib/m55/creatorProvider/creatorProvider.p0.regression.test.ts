@@ -11,11 +11,13 @@ describe('P0-1 §8 pre-activation onboarding path', () => {
   it('allows tax/onboarding messaging for APPROVED_PENDING_ACTIVATION', () => {
     const snapshot = buildPublicReadinessSnapshotV1({
       profileStatus: 'APPROVED_PENDING_ACTIVATION',
-      referralIssuePermittedDeployedR7: false,
+      r7ReferralIssueEligible: false,
       complianceBlocksReferral: false,
       taxProfileReady: false,
+      taxProfile: null,
       linkState: 'NOT_STARTED',
       providerSnapshot: null,
+      stripeAccountId: null,
       v1JapanBlocked: false,
     });
     assert.ok(snapshot.blockReasons.includes('PROFILE_PENDING_FINAL_APPROVAL'));

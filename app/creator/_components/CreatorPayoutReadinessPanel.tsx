@@ -12,7 +12,7 @@ type ReadinessBundle = {
     providerPayoutReadinessGreen: boolean;
     payoutSettlementAvailable: false;
     compatibilityNote: string;
-    referralIssuePermittedDeployedR7: boolean;
+    r7ReferralIssueEligible: boolean;
     operatingModelReferralGateMet: boolean;
   };
   taxProfile: null | {
@@ -184,9 +184,9 @@ export function CreatorPayoutReadinessPanel({ profileStatus, providerReturnSessi
           )}
         </div>
       )}
-      {readiness.referralIssuePermittedDeployedR7 && !readiness.operatingModelReferralGateMet && (
+      {readiness.r7ReferralIssueEligible && !readiness.operatingModelReferralGateMet && (
         <p className={styles.statusMeta}>
-          紹介URLは現行ルールで利用できる場合がありますが、Operating Model §8 上の「受取準備完了」前の段階です。出金・精算は開始されません。
+          R7 時点の条件（有効プロフィール＋コンプライアンス）のみ満たしている場合があります。現行ポリシーでは Operating Model §8 の受取準備完了まで紹介URLの新規発行は行いません。出金・精算も開始されません。
         </p>
       )}
       <p className={styles.statusMeta}>

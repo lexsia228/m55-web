@@ -87,7 +87,8 @@ export type R8PublicReadinessSnapshotV1 = {
   providerPayoutReadinessGreen: boolean;
   payoutSettlementAvailable: false;
   productionCashActivation: false;
-  referralIssuePermittedDeployedR7: boolean;
+  /** R7-deployed rules only (ACTIVE profile + compliance). Not effective referral permission. */
+  r7ReferralIssueEligible: boolean;
   operatingModelReferralGateMet: boolean;
   compatibilityNote: string;
   providerSnapshot: R8ProviderAccountSnapshotV1 | null;
@@ -120,19 +121,6 @@ export function validateTaxProfileInputV1(input: R8TaxProfileInputV1): { ok: tru
     return { ok: false, error: 'TAX_PROFILE_INVALID' };
   }
   return { ok: true };
-}
-
-export function isProviderPayoutReadinessGreenV1(
-  _linkState: R8StripeLinkStateV1,
-  snapshot: R8ProviderAccountSnapshotV1 | null,
-): boolean {
-  if (!snapshot) return false;
-  return (
-    snapshot.detailsSubmitted &&
-    snapshot.payoutsEnabled &&
-    snapshot.transfersCapability === 'active' &&
-    snapshot.requirementsCurrentlyDueCount === 0
-  );
 }
 
 export function redactProviderSnapshotForStorage(

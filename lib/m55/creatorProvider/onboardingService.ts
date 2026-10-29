@@ -135,11 +135,13 @@ export async function buildProviderStatusBundleV1(options?: {
   const complianceHold = await complianceBlocksReferral(ctx);
   const readiness = buildPublicReadinessSnapshotV1({
     profileStatus: ctx.profileStatus,
-    referralIssuePermittedDeployedR7: ctx.referralIssuePermitted,
+    r7ReferralIssueEligible: ctx.r7ReferralIssueEligible,
     complianceBlocksReferral: complianceHold,
     taxProfileReady: taxProfile != null,
+    taxProfile,
     linkState: providerRow?.linkState ?? 'NOT_STARTED',
     providerSnapshot: providerRow?.lastProviderSnapshot ?? null,
+    stripeAccountId: providerRow?.stripeAccountId ?? null,
     v1JapanBlocked: false,
   });
 

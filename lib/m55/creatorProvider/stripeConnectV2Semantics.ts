@@ -178,6 +178,16 @@ export function mapV2CoreAccountToProviderSnapshotV1(
     requirementsCurrentlyDueCount = Math.max(Array.isArray(entries) ? entries.length : 0, 1);
     detailsSubmitted = false;
   } else if (minDeadlineStatus === 'eventually_due') {
+    const entryDueCount = Array.isArray(entries)
+      ? entries.filter(
+          (entry) =>
+            entry.minimum_deadline?.status === 'currently_due' ||
+            entry.minimum_deadline?.status === 'past_due',
+        ).length
+      : 0;
+    if (entryDueCount > 0) {
+      return failClosedProviderSnapshotV1();
+    }
     requirementsCurrentlyDueCount = 0;
     detailsSubmitted = transfersStatus === 'active' && payoutsStatus === 'active';
   } else if (Array.isArray(entries)) {

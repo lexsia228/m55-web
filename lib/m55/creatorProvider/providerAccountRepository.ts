@@ -7,9 +7,10 @@ import {
 import {
   type R8ProviderAccountSnapshotV1,
   type R8StripeLinkStateV1,
-  isProviderPayoutReadinessGreenV1,
   redactProviderSnapshotForStorage,
 } from './contract';
+import { decideOnboardingSessionCreateV1 } from './providerOnboardingSessionLogic';
+import { deriveProviderLinkStateFromSnapshotSyncV1 } from './providerPayoutReadinessPredicate';
 
 export type ProviderAccountRowV1 = {
   id: string;
@@ -191,12 +192,7 @@ export async function syncProviderSnapshotV1(input: {
 }): Promise<ProviderAccountRowV1> {
   const redacted = redactProviderSnapshotForStorage(input.snapshot);
   const now = new Date().toISOString();
-  const green = isProviderPayoutReadinessGreenV1('ONBOARDING_LINK_ISSUED', redacted);
-  const linkState: R8StripeLinkStateV1 = green
-    ? 'PAYOUTS_CAPABILITY_ACTIVE'
-    : redacted.detailsSubmitted
-      ? 'PROVIDER_DETAILS_SUBMITTED'
-      : 'ONBOARDING_LINK_ISSUED';
+  const linkState = deriveProviderLinkStateFromSnapshotSyncV1(redacted);
 
   const db = getSupabaseAdmin() as any;
   const current = await loadProviderAccountByEconomicIdentityV1(input.creatorEconomicIdentityId);
@@ -234,8 +230,24 @@ export async function createOnboardingSessionV1(input: {
     .eq('creator_economic_identity_id', input.creatorEconomicIdentityId)
     .eq('client_idempotency_key', input.clientIdempotencyKey)
     .maybeSingle();
-  if (existing.data?.id && existing.data.status === 'PENDING') {
-    return { sessionId: existing.data.id as string, reused: true };
+
+  const decision = decideOnboardingSessionCreateV1({
+    existingStatus: (existing.data?.status as 'PENDING' | 'COMPLETED' | 'EXPIRED' | undefined) ?? null,
+  });
+
+  if (decision.action === 'reuse') {
+    if (new Date(existing.data!.expires_at as string).getTime() < Date.now()) {
+      await db
+        .from('m55_r8_provider_onboarding_sessions_v1')
+        .update({ status: 'EXPIRED' })
+        .eq('id', existing.data!.id);
+      throw new Error('ONBOARDING_SESSION_IDEMPOTENCY_EXHAUSTED');
+    }
+    return { sessionId: existing.data!.id as string, reused: true };
+  }
+
+  if (decision.action === 'reject') {
+    throw new Error('ONBOARDING_SESSION_IDEMPOTENCY_EXHAUSTED');
   }
 
   const expiresAt = new Date(Date.now() + (input.ttlMs ?? 60 * 60 * 1000)).toISOString();

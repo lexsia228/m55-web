@@ -5,17 +5,20 @@ import {
   type R8ProviderAccountSnapshotV1,
   type R8ReadinessBlockReasonV1,
   type R8StripeLinkStateV1,
-  isProviderPayoutReadinessGreenV1,
+  type R8TaxProfileRecordV1,
 } from './contract';
+import { evaluateCreatorProviderPayoutReadinessV1 } from './providerPayoutReadinessPredicate';
 import { isR8AProviderPlaneEditableV1 } from './providerEligibility';
 
 export type ReadinessInputsV1 = {
   profileStatus: CreatorProfileStatus;
-  referralIssuePermittedDeployedR7: boolean;
+  r7ReferralIssueEligible: boolean;
   complianceBlocksReferral: boolean;
   taxProfileReady: boolean;
+  taxProfile: R8TaxProfileRecordV1 | null;
   linkState: R8StripeLinkStateV1;
   providerSnapshot: R8ProviderAccountSnapshotV1 | null;
+  stripeAccountId: string | null;
   v1JapanBlocked: boolean;
 };
 
@@ -65,7 +68,12 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     nextActions.push('Stripe の受取口座登録（ホスト型）を開始してください。');
   }
 
-  const providerGreen = isProviderPayoutReadinessGreenV1(input.linkState, input.providerSnapshot);
+  const providerGreen = evaluateCreatorProviderPayoutReadinessV1({
+    stripeAccountId: input.stripeAccountId,
+    linkState: input.linkState,
+    snapshot: input.providerSnapshot,
+    taxProfile: input.taxProfile,
+  });
   if (providerGreen) {
     operatingModelSteps.push('PROVIDER_PAYOUT_READINESS_GREEN');
     if (input.profileStatus === 'APPROVED_PENDING_ACTIVATION') {
@@ -74,6 +82,9 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
         'Stripe 受取準備はプロバイダ側で完了しました。最終承認・本人確認（運営）後に Creator プロフィールが有効化されます。',
       );
     }
+  } else if (input.linkState === 'BLOCKED') {
+    blockReasons.push('PROVIDER_ERROR');
+    nextActions.push('決済プロバイダ側の受取準備がブロックされています。サポートへお問い合わせください。');
   } else if (input.linkState === 'ERROR') {
     blockReasons.push('PROVIDER_ERROR');
     nextActions.push('決済プロバイダ側の設定で問題が発生しました。時間をおいて再試行するか、サポートへご連絡ください。');
@@ -97,7 +108,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
   if (providerGreen && input.profileStatus === 'ACTIVE') {
     operatingModelSteps.push('REFERRAL_URL_ACTIVE_OPERATING_MODEL');
   }
-  if (input.referralIssuePermittedDeployedR7) {
+  if (input.r7ReferralIssueEligible) {
     operatingModelSteps.push('REFERRAL_URL_ACTIVE_DEPLOYED_R7');
   }
 
@@ -114,7 +125,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     providerPayoutReadinessGreen: providerGreen,
     payoutSettlementAvailable: false,
     productionCashActivation: false,
-    referralIssuePermittedDeployedR7: input.referralIssuePermittedDeployedR7,
+    r7ReferralIssueEligible: input.r7ReferralIssueEligible,
     operatingModelReferralGateMet: providerGreen && input.profileStatus === 'ACTIVE',
     compatibilityNote: R8_A_COMPATIBILITY_NOTE_JA,
     providerSnapshot: input.providerSnapshot,

@@ -92,4 +92,35 @@ describe('mapV2CoreAccountToProviderSnapshotV1', () => {
     assert.equal(snapshot.detailsSubmitted, false);
     assert.ok(snapshot.requirementsCurrentlyDueCount >= 1);
   });
+
+  it('fails closed when summary is eventually_due but entries include currently_due', () => {
+    const snapshot = mapV2CoreAccountToProviderSnapshotV1({
+      id: 'acct_test',
+      object: 'v2.core.account',
+      applied_configurations: ['recipient'],
+      livemode: false,
+      configuration: {
+        recipient: {
+          applied: true,
+          capabilities: {
+            stripe_balance: {
+              stripe_transfers: { status: 'active', status_details: [] },
+              payouts: { status: 'active', status_details: [] },
+            },
+          },
+        },
+      },
+      requirements: {
+        entries: [
+          { minimum_deadline: { status: 'currently_due' } } as any,
+          { minimum_deadline: { status: 'eventually_due' } } as any,
+        ],
+        summary: { minimum_deadline: { status: 'eventually_due' } },
+      },
+      created: '2026-01-01T00:00:00.000Z',
+    } as any);
+    assert.equal(snapshot.detailsSubmitted, false);
+    assert.equal(snapshot.payoutsEnabled, false);
+    assert.ok(snapshot.requirementsCurrentlyDueCount >= 1);
+  });
 });
