@@ -50,6 +50,48 @@
   color: rgba(45, 40, 70, 0.82);
 }
 
+/* PAIR paid report reader: dark host, light share card — stop inheriting reader --ink on card copy. */
+.chooser[data-m55-share-host='compatibility-paid-report'] > .chooserLead {
+  color: rgba(228, 222, 242, 0.9);
+}
+
+.chooser[data-m55-share-host='compatibility-paid-report'] > .headline,
+.chooser[data-m55-share-host='compatibility-paid-report'] .manual > .headline {
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.chooser[data-m55-share-host='compatibility-paid-report'] .manual .relationBody,
+.chooser[data-m55-share-host='compatibility-paid-report'] .manual .slotBody {
+  color: #2c2638;
+}
+
+.chooser[data-m55-share-host='compatibility-paid-report'] .manual .relationReturn .relationLabel {
+  color: rgba(228, 222, 242, 0.78);
+}
+
+.chooser[data-m55-share-host='compatibility-paid-report'] .manual .relationReturn .relationBody {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.chooser[data-m55-share-host='compatibility-paid-report'] .preview > .secondary {
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(228, 222, 242, 0.42);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chooser[data-m55-share-host='compatibility-paid-report'] .preview .primary:disabled,
+.chooser[data-m55-share-host='compatibility-paid-report'] .preview .secondary:disabled {
+  opacity: 0.62;
+  color: rgba(228, 222, 242, 0.78);
+  border-color: rgba(185, 165, 238, 0.32);
+  cursor: not-allowed;
+}
+
+.card[data-share-card='true']:not([data-card-variant='hidden_spec']):not([data-card-variant='premium_takeaway'])
+  > .headline {
+  color: #2c2638;
+}
+
 .optionGrid {
   display: grid;
   gap: 0.75rem;

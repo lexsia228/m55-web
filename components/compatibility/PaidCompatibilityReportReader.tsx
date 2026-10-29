@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import type {
   PaidCompatibilityChapter,
   PaidCompatibilityReportSnapshot,
@@ -13,7 +14,35 @@ import {
 import PairResultSignature from './PairResultSignature';
 import CompatibilityPaidShareBlock from '../narrative/CompatibilityPaidShareBlock';
 import styles from './PaidCompatibilityReportReader.module.css';
-import { legacyPairDisplayIdentity } from '../../lib/m55/compatibility/pairDisplayIdentity';
+import {
+  legacyPairDisplayIdentity,
+  type PairDisplayIdentityV1,
+} from '../../lib/m55/compatibility/pairDisplayIdentity';
+import {
+  inferRelationStatusFromSnapshot,
+  LEGACY_FIELD_RECOVERY_GUIDANCE_LEAD,
+  LEGACY_FIELD_RECOVERY_GUIDANCE_TAIL,
+  LEGACY_FIELD_RECOVERY_SUPPORT_HREF,
+  paidCompatibilityPhraseBlockLabelForChapter,
+  paidCompatibilityReportDisplayLimits,
+  preparePaidCompatibilityReportForDisplay,
+} from '../../lib/m55/compatibility/paidCompatibilityReportDisplayV1';
+
+function phraseSpeakerBlockLabel(
+  chapter: PaidCompatibilityChapter,
+  relationStatusId: ReturnType<typeof inferRelationStatusFromSnapshot>,
+): string {
+  return paidCompatibilityPhraseBlockLabelForChapter(chapter, relationStatusId);
+}
+
+function perspectiveBlockLabel(
+  side: 'self' | 'partner',
+  displayIdentity: PairDisplayIdentityV1,
+): string {
+  return side === 'self'
+    ? `${displayIdentity.selfLabel}から見えること`
+    : `${displayIdentity.partnerLabel}から見えること`;
+}
 
 type CopyState = {
   chapterKey: string;
@@ -22,6 +51,62 @@ type CopyState = {
 
 function chapterAnchor(chapter: PaidCompatibilityChapter): string {
   return `paid-compatibility-chapter-${chapter.number}`;
+}
+
+function scrollChapterIntoView(chapter: PaidCompatibilityChapter) {
+  const target = document.getElementById(chapterAnchor(chapter));
+  if (!target) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({
+    behavior: reduceMotion ? 'auto' : 'smooth',
+    block: 'start',
+  });
+}
+
+function PaidReportExperimentSection({
+  chapter,
+  analyticsEnabled,
+}: {
+  chapter: PaidCompatibilityChapter;
+  analyticsEnabled: boolean;
+}) {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!analyticsEnabled) return;
+    const node = sectionRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting || entry.intersectionRatio <= 0) continue;
+          trackFunnelImpressionOnce(
+            M55_FUNNEL_EVENTS.compatibilityExperimentView,
+            'compatibility_paid_report',
+            `compatibility-experiment-${chapter.key}`,
+          );
+          observer.disconnect();
+          return;
+        }
+      },
+      { threshold: [0.2] },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [analyticsEnabled, chapter.key]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`${styles.experimentBlock} ${styles.roleAction}`}
+      data-testid="paid-report-experiment"
+      data-visual-role="action"
+    >
+      <p className={styles.blockLabel}>今週、一度だけ試すこと</p>
+      <p>{chapter.smallExperiment}</p>
+    </section>
+  );
 }
 
 export default function PaidCompatibilityReportReader({
@@ -35,10 +120,13 @@ export default function PaidCompatibilityReportReader({
 }) {
   const [openChapterKeys, setOpenChapterKeys] = useState<readonly string[]>([]);
   const [copyState, setCopyState] = useState<CopyState>(null);
-  const leadChapter = snapshot.chapters.find(
-    (chapter) => chapter.key === snapshot.highlightedChapterKeys[0],
+  const displaySnapshot = preparePaidCompatibilityReportForDisplay(snapshot);
+  const displayLimits = paidCompatibilityReportDisplayLimits(snapshot);
+  const inferredRelationStatus = inferRelationStatusFromSnapshot(snapshot);
+  const leadChapter = displaySnapshot.chapters.find(
+    (chapter) => chapter.key === displaySnapshot.highlightedChapterKeys[0],
   );
-  const displayIdentity = snapshot.displayIdentity ?? legacyPairDisplayIdentity();
+  const displayIdentity = displaySnapshot.displayIdentity ?? legacyPairDisplayIdentity();
 
   useEffect(() => {
     if (!analyticsEnabled) return;
@@ -66,18 +154,10 @@ export default function PaidCompatibilityReportReader({
         M55_FUNNEL_EVENTS.compatibilityPaidChapterOpen,
         'compatibility_paid_report',
       );
-      trackFunnelImpressionOnce(
-        M55_FUNNEL_EVENTS.compatibilityExperimentView,
-        'compatibility_paid_report',
-        `compatibility-experiment-${chapter.key}`,
-      );
     }
     window.requestAnimationFrame(() => {
-      document.getElementById(chapterAnchor(chapter))?.scrollIntoView({
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          ? 'auto'
-          : 'smooth',
-        block: 'start',
+      window.requestAnimationFrame(() => {
+        scrollChapterIntoView(chapter);
       });
     });
   }
@@ -136,7 +216,7 @@ export default function PaidCompatibilityReportReader({
         ) : (
           <p className={styles.ownedChip}>読み返せる二人の相性レポート</p>
         )}
-        <h1 id="paid-report-title">{snapshot.reportTitle}</h1>
+        <h1 id="paid-report-title">{displaySnapshot.reportTitle}</h1>
         <p className={styles.pairIdentity}>
           {displayIdentity.selfLabel} × {displayIdentity.partnerLabel}
           <span>{displayIdentity.relationLabel}</span>
@@ -144,13 +224,30 @@ export default function PaidCompatibilityReportReader({
         <p className={styles.subtitle}>6つの場面から、関係の扱い方を読みます</p>
         <PairResultSignature
           tone="night"
-          overlap={snapshot.sharedFoundation}
-          difference={snapshot.differentFoundation}
+          overlap={displaySnapshot.sharedFoundation}
+          difference={displaySnapshot.differentFoundation}
         />
         <p className={styles.readingGuide}>
-          {snapshot.currentContext?.readingGuide
+          {displaySnapshot.currentContext?.readingGuide
             ?? '最初から通して読む必要はありません。今気になる場面の章から開いてください。'}
         </p>
+        {displayLimits.uncorrectableLegacyPerspective ? (
+          <p className={styles.readingGuide} role="note">
+            {LEGACY_FIELD_RECOVERY_GUIDANCE_LEAD}
+            <Link className={styles.quietLink} href={LEGACY_FIELD_RECOVERY_SUPPORT_HREF}>
+              サポート
+            </Link>
+            {LEGACY_FIELD_RECOVERY_GUIDANCE_TAIL}
+          </p>
+        ) : displayLimits.legacyFieldFallbackApplied ? (
+          <p className={styles.readingGuide} role="note">
+            {LEGACY_FIELD_RECOVERY_GUIDANCE_LEAD}
+            <Link className={styles.quietLink} href={LEGACY_FIELD_RECOVERY_SUPPORT_HREF}>
+              サポート
+            </Link>
+            {LEGACY_FIELD_RECOVERY_GUIDANCE_TAIL}
+          </p>
+        ) : null}
         <div className={styles.readingMoments} aria-label="レポートを使う場面">
           <span>会話の前に読む</span>
           <span>気になる章から読む</span>
@@ -163,16 +260,16 @@ export default function PaidCompatibilityReportReader({
         <p className={styles.eyebrow}>はじめに</p>
         <h2 id="relationship-overview-title">二人の関係の全体像</h2>
         <div className={styles.roleThesis} data-visual-role="thesis">
-          <p className={styles.summary}>{snapshot.relationshipSummary}</p>
+          <p className={styles.summary}>{displaySnapshot.relationshipSummary}</p>
         </div>
         <div className={styles.foundationGrid} data-visual-role="recognition">
           <div>
             <h3>重なりやすい土台</h3>
-            <p>{snapshot.sharedFoundation}</p>
+            <p>{displaySnapshot.sharedFoundation}</p>
           </div>
           <div>
             <h3>違いが出やすい土台</h3>
-            <p>{snapshot.differentFoundation}</p>
+            <p>{displaySnapshot.differentFoundation}</p>
           </div>
         </div>
         {leadChapter ? (
@@ -193,11 +290,11 @@ export default function PaidCompatibilityReportReader({
 
         <div className={`${styles.recurringLoop} ${styles.rolePrimaryRecognition}`} data-visual-role="primaryRecognition">
           <h3>
-            {snapshot.currentContext
+            {displaySnapshot.currentContext
               ? '今の回答から見える、続きやすい連鎖'
               : '二人の間で続きやすい連鎖'}
           </h3>
-          <p>{snapshot.recurringLoop}</p>
+          <p>{displaySnapshot.recurringLoop}</p>
         </div>
 
         {leadChapter ? (
@@ -207,12 +304,14 @@ export default function PaidCompatibilityReportReader({
               <p>{leadChapter.resetSteps[0]}</p>
             </div>
             <div>
-              <p className={styles.blockLabel}>最初に使える一言</p>
+              <p className={styles.blockLabel}>
+                {phraseSpeakerBlockLabel(leadChapter, inferredRelationStatus)}
+              </p>
               <blockquote>{leadChapter.usablePhrase}</blockquote>
             </div>
           </div>
         ) : null}
-        {snapshot.currentContext ? (
+        {displaySnapshot.currentContext ? (
           <div className={styles.contextProof}>
             <div>
               <h3>生年月日から見える土台</h3>
@@ -220,20 +319,20 @@ export default function PaidCompatibilityReportReader({
             </div>
             <div>
               <h3>今の回答から重なったこと</h3>
-              <p>{snapshot.currentContext.currentExpression}</p>
+              <p>{displaySnapshot.currentContext.currentExpression}</p>
             </div>
           </div>
         ) : null}
         <div className={styles.highlighted}>
           <h3>
-            {snapshot.currentContext
-              ? `「${snapshot.currentContext.focusLabel}」から最初に読む2章`
+            {displaySnapshot.currentContext
+              ? `「${displaySnapshot.currentContext.focusLabel}」から最初に読む2章`
               : '今の二人と直接つながる2章'}
           </h3>
           <div>
-            {snapshot.highlightedChapterKeys.map((key) => {
-              const chapter = snapshot.chapters.find((candidate) => candidate.key === key);
-              const preview = snapshot.currentContext?.chapterPreview.find(
+            {displaySnapshot.highlightedChapterKeys.map((key) => {
+              const chapter = displaySnapshot.chapters.find((candidate) => candidate.key === key);
+              const preview = displaySnapshot.currentContext?.chapterPreview.find(
                 (candidate) => candidate.chapterKey === key,
               );
               if (!chapter) return null;
@@ -260,7 +359,7 @@ export default function PaidCompatibilityReportReader({
           <h2>気になる場面から開く</h2>
         </div>
         <ol>
-          {snapshot.chapters.map((chapter) => (
+          {displaySnapshot.chapters.map((chapter) => (
             <li key={chapter.key}>
               <button type="button" onClick={() => openChapter(chapter)}>
                 <span className={styles.chapterNumber}>
@@ -277,7 +376,7 @@ export default function PaidCompatibilityReportReader({
       </nav>
 
       <div className={styles.chapterStack}>
-        {snapshot.chapters.map((chapter) => {
+        {displaySnapshot.chapters.map((chapter) => {
           const isOpen = openChapterKeys.includes(chapter.key);
           const feedback = copyState?.chapterKey === chapter.key ? copyState.status : null;
           return (
@@ -308,11 +407,15 @@ export default function PaidCompatibilityReportReader({
 
                   <div className={styles.perspectiveGrid} data-testid="paid-report-perspectives" data-visual-role="recognition">
                     <section data-pair-side="you" aria-label="あなた側">
-                      <p className={styles.blockLabel}>Aから見えること</p>
+                      <p className={styles.blockLabel}>
+                        {perspectiveBlockLabel('self', displayIdentity)}
+                      </p>
                       <p>{chapter.personAPerspective}</p>
                     </section>
                     <section data-pair-side="partner" aria-label="相手側">
-                      <p className={styles.blockLabel}>Bから見えること</p>
+                      <p className={styles.blockLabel}>
+                        {perspectiveBlockLabel('partner', displayIdentity)}
+                      </p>
                       <p>{chapter.personBPerspective}</p>
                     </section>
                   </div>
@@ -340,7 +443,9 @@ export default function PaidCompatibilityReportReader({
                   </section>
 
                   <section className={`${styles.phraseBlock} ${styles.roleAction}`} data-testid="paid-report-phrase" data-visual-role="action">
-                    <p className={styles.blockLabel}>そのまま使える一言</p>
+                    <p className={styles.blockLabel}>
+                      {phraseSpeakerBlockLabel(chapter, inferredRelationStatus)}
+                    </p>
                     <blockquote>{chapter.usablePhrase}</blockquote>
                     <button type="button" onClick={() => copyPhrase(chapter)}>
                       一言をコピー
@@ -354,10 +459,10 @@ export default function PaidCompatibilityReportReader({
                     </p>
                   </section>
 
-                  <section className={`${styles.experimentBlock} ${styles.roleAction}`} data-testid="paid-report-experiment" data-visual-role="action">
-                    <p className={styles.blockLabel}>今週、一度だけ試すこと</p>
-                    <p>{chapter.smallExperiment}</p>
-                  </section>
+                  <PaidReportExperimentSection
+                    chapter={chapter}
+                    analyticsEnabled={analyticsEnabled}
+                  />
 
                   <section className={`${styles.reflectionBlock} ${styles.roleTakeaway}`} data-visual-role="takeaway">
                     <p className={styles.blockLabel}>あとで振り返る一問</p>
@@ -376,9 +481,9 @@ export default function PaidCompatibilityReportReader({
 
       <footer className={styles.safetyNote}>
         <h2>このレポートについて</h2>
-        <p>{snapshot.safetyNote}</p>
+        <p>{displaySnapshot.safetyNote}</p>
       </footer>
-      <CompatibilityPaidShareBlock snapshot={snapshot} />
+      <CompatibilityPaidShareBlock snapshot={displaySnapshot} />
     </article>
   );
 }
