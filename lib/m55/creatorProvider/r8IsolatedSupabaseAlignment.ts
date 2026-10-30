@@ -7,13 +7,17 @@ export type PostgresSupabaseConnectionKindV1 =
   | 'loopback'
   | 'blocked';
 
+export type SupabaseServiceRoleKeyFormatV1 = 'supabase_jwt' | 'sb_secret';
+
 export type IsolatedSupabaseAlignmentResultV1 =
   | {
       ok: true;
       supabaseProjectRefSuffix: string;
       postgresConnectionKind: PostgresSupabaseConnectionKindV1;
       humanProjectRefConfirmed: true;
-      serviceRoleJwtRefMatched: true;
+      serviceRoleKeyFormat: SupabaseServiceRoleKeyFormatV1;
+      /** True only when legacy JWT ref claim matches Human/app ref; sb_secret keys use live REST probe instead. */
+      serviceRoleJwtRefMatched: boolean;
     }
   | { ok: false; reason: IsolatedSupabaseAlignmentFailureV1 };
 
@@ -22,6 +26,7 @@ export type IsolatedSupabaseAlignmentFailureV1 =
   | 'SUPABASE_APP_URL_MISSING'
   | 'ISOLATED_DATABASE_URL_MISSING'
   | 'SUPABASE_SERVICE_ROLE_MISSING'
+  | 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED'
   | 'SUPABASE_PROJECT_REF_UNRESOLVED'
   | 'HUMAN_PROJECT_REF_MISSING'
   | 'HUMAN_PROJECT_REF_MISMATCH'
@@ -31,7 +36,11 @@ export type IsolatedSupabaseAlignmentFailureV1 =
   | 'ISOLATED_DATABASE_HOST_BLOCKED'
   | 'ISOLATED_DATABASE_URL_UNPARSEABLE'
   | 'SERVICE_ROLE_PROBE_FAILED'
-  | 'SERVICE_ROLE_PROBE_HTTP';
+  | 'SERVICE_ROLE_PROBE_HTTP'
+  | 'POSTGRES_PROBE_FAILED'
+  | 'POSTGRES_IDENTITY_NOT_VERIFIED';
+
+const R8_ISOLATED_PROVIDER_TABLE = 'm55_r8_stripe_connected_accounts_v1';
 
 const PRODUCTION_HOST_DENY = ['m55-soul', 'm55-web', 'vercel.app'] as const;
 
@@ -45,7 +54,16 @@ export function extractSupabaseProjectRefFromHttpUrlV1(raw: string): string | nu
   }
 }
 
+export function classifySupabaseServiceRoleKeyFormatV1(raw: string): SupabaseServiceRoleKeyFormatV1 | null {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('sb_secret_')) return 'sb_secret';
+  const parts = trimmed.split('.');
+  if (parts.length >= 3 && parts.every((p) => p.length > 0)) return 'supabase_jwt';
+  return null;
+}
+
 export function extractSupabaseProjectRefFromServiceRoleJwtV1(rawJwt: string): string | null {
+  if (classifySupabaseServiceRoleKeyFormatV1(rawJwt) !== 'supabase_jwt') return null;
   const parts = rawJwt.trim().split('.');
   if (parts.length < 2) return null;
   try {
@@ -120,10 +138,17 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
     return { ok: false, reason: 'HUMAN_PROJECT_REF_MISMATCH' };
   }
 
-  const jwtRef = extractSupabaseProjectRefFromServiceRoleJwtV1(serviceRole);
-  if (!jwtRef) return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
-  if (jwtRef !== appRef) {
-    return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
+  const keyFormat = classifySupabaseServiceRoleKeyFormatV1(serviceRole);
+  if (!keyFormat) return { ok: false, reason: 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED' };
+
+  let serviceRoleJwtRefMatched = false;
+  if (keyFormat === 'supabase_jwt') {
+    const jwtRef = extractSupabaseProjectRefFromServiceRoleJwtV1(serviceRole);
+    if (!jwtRef) return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
+    if (jwtRef !== appRef) {
+      return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
+    }
+    serviceRoleJwtRefMatched = true;
   }
 
   const lowerDb = isolatedDb.toLowerCase();
@@ -151,9 +176,19 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
     supabaseProjectRefSuffix: appRef.slice(-6),
     postgresConnectionKind: parsedPg.connectionKind,
     humanProjectRefConfirmed: true,
-    serviceRoleJwtRefMatched: true,
+    serviceRoleKeyFormat: keyFormat,
+    serviceRoleJwtRefMatched,
   };
 }
+
+export type IsolatedSupabaseLiveProbeDepsV1 = {
+  fetchImpl?: typeof fetch;
+  postgresQueryImpl?: (input: {
+    connectionUrl: string;
+    sql: string;
+    values?: unknown[];
+  }) => Promise<{ rows: Record<string, unknown>[] }>;
+};
 
 export async function probeSupabaseServiceRoleReadOnlyV1(input: {
   supabaseHttpUrl: string;
@@ -171,11 +206,11 @@ export async function probeSupabaseServiceRoleReadOnlyV1(input: {
       },
       signal: AbortSignal.timeout(8_000),
     });
-    if (res.status === 401 || res.status === 403) {
-      return { ok: false, reason: 'SERVICE_ROLE_PROBE_FAILED' };
-    }
-    if (res.status >= 500) {
-      return { ok: false, reason: 'SERVICE_ROLE_PROBE_HTTP' };
+    if (res.status < 200 || res.status >= 300) {
+      return {
+        ok: false,
+        reason: res.status >= 500 ? 'SERVICE_ROLE_PROBE_HTTP' : 'SERVICE_ROLE_PROBE_FAILED',
+      };
     }
     return { ok: true };
   } catch {
@@ -183,21 +218,87 @@ export async function probeSupabaseServiceRoleReadOnlyV1(input: {
   }
 }
 
+async function defaultPostgresQueryImpl(input: {
+  connectionUrl: string;
+  sql: string;
+  values?: unknown[];
+}): Promise<{ rows: Record<string, unknown>[] }> {
+  const pg = await import('pg');
+  const client = new pg.default.Client({
+    connectionString: input.connectionUrl,
+    connectionTimeoutMillis: 8_000,
+    query_timeout: 8_000,
+    statement_timeout: 8_000,
+  });
+  await client.connect();
+  try {
+    const result = await client.query(input.sql, input.values);
+    return { rows: result.rows as Record<string, unknown>[] };
+  } finally {
+    await client.end();
+  }
+}
+
+export async function probeIsolatedPostgresReadOnlyV1(input: {
+  connectionUrl: string;
+  connectionKind: PostgresSupabaseConnectionKindV1;
+  postgresQueryImpl?: IsolatedSupabaseLiveProbeDepsV1['postgresQueryImpl'];
+}): Promise<{ ok: true } | { ok: false; reason: 'POSTGRES_PROBE_FAILED' | 'POSTGRES_IDENTITY_NOT_VERIFIED' }> {
+  const queryImpl = input.postgresQueryImpl ?? defaultPostgresQueryImpl;
+  try {
+    if (input.connectionKind === 'loopback') {
+      const ping = await queryImpl({
+        connectionUrl: input.connectionUrl,
+        sql: 'SELECT 1 AS ok',
+      });
+      if (ping.rows[0]?.ok !== 1) {
+        return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
+      }
+      return { ok: true };
+    }
+
+    const identity = await queryImpl({
+      connectionUrl: input.connectionUrl,
+      sql: `SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = $1
+      ) AS present`,
+      values: [R8_ISOLATED_PROVIDER_TABLE],
+    });
+    if (identity.rows[0]?.present !== true) {
+      return { ok: false, reason: 'POSTGRES_IDENTITY_NOT_VERIFIED' };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
+  }
+}
+
 export async function evaluateIsolatedSupabaseAlignmentLiveV1(
   env: NodeJS.ProcessEnv = process.env,
-  fetchImpl?: typeof fetch,
+  deps: IsolatedSupabaseLiveProbeDepsV1 = {},
 ): Promise<IsolatedSupabaseAlignmentResultV1> {
   const structural = evaluateIsolatedSupabaseAlignmentStructuralV1(env);
   if (!structural.ok) return structural;
 
-  const probe = await probeSupabaseServiceRoleReadOnlyV1({
+  const restProbe = await probeSupabaseServiceRoleReadOnlyV1({
     supabaseHttpUrl: env.NEXT_PUBLIC_SUPABASE_URL!.trim(),
     serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY!.trim(),
-    fetchImpl,
+    fetchImpl: deps.fetchImpl,
   });
-  if (!probe.ok) {
-    return { ok: false, reason: probe.reason };
+  if (!restProbe.ok) {
+    return { ok: false, reason: restProbe.reason };
   }
+
+  const pgProbe = await probeIsolatedPostgresReadOnlyV1({
+    connectionUrl: env.M55_R8_ISOLATED_DATABASE_URL!.trim(),
+    connectionKind: structural.postgresConnectionKind,
+    postgresQueryImpl: deps.postgresQueryImpl,
+  });
+  if (!pgProbe.ok) {
+    return { ok: false, reason: pgProbe.reason };
+  }
+
   return structural;
 }
 
@@ -240,6 +341,10 @@ function checklistForFailure(reason: IsolatedSupabaseAlignmentFailureV1): string
       return ['Set M55_R8_ISOLATED_DATABASE_URL (direct db.*.supabase.co or pooler with postgres.<ref> user)'];
     case 'SUPABASE_SERVICE_ROLE_MISSING':
       return ['Set SUPABASE_SERVICE_ROLE_KEY for the isolated Supabase project'];
+    case 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED':
+      return [
+        'SUPABASE_SERVICE_ROLE_KEY must be a legacy Supabase JWT (eyJ…) or new sb_secret_* service role key',
+      ];
     case 'SUPABASE_PROJECT_REF_UNRESOLVED':
       return ['NEXT_PUBLIC_SUPABASE_URL must be a *.supabase.co project URL'];
     case 'HUMAN_PROJECT_REF_MISSING':
@@ -265,6 +370,12 @@ function checklistForFailure(reason: IsolatedSupabaseAlignmentFailureV1): string
       return ['Service role READ probe failed (401/403 or network) — key does not reach isolated project'];
     case 'SERVICE_ROLE_PROBE_HTTP':
       return ['Service role READ probe returned server error — retry or verify isolated project health'];
+    case 'POSTGRES_PROBE_FAILED':
+      return ['Postgres READ-ONLY probe failed — verify M55_R8_ISOLATED_DATABASE_URL credentials and network'];
+    case 'POSTGRES_IDENTITY_NOT_VERIFIED':
+      return [
+        `Postgres READ probe did not find public.${R8_ISOLATED_PROVIDER_TABLE} — apply R8 provider migration on the Human-confirmed isolated project`,
+      ];
     default:
       return ['Isolated Supabase alignment failed'];
   }

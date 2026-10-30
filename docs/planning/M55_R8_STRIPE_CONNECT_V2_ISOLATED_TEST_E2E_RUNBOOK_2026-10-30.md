@@ -24,13 +24,13 @@ npx tsx scripts/m55-r8-verify-isolated-supabase-alignment.mjs
 
 Expect JSON: `{ ok: true, alignment: "LIVE_READ_PROBE", supabaseProjectRefSuffix: "…6chars", postgresConnectionKind: "supabase_direct"|"supabase_pooler_session"|"loopback" }`.
 
-Structural-only env checks are **not** E2E GREEN. The verify script performs a read-only REST probe with the service role key (no secret output).
+Structural-only env checks are **not** E2E GREEN. The verify script performs a read-only REST probe plus a Postgres READ probe (R8 provider table on Supabase hosts; `SELECT 1` on loopback). No secret output.
 
 For local Docker Postgres used only for settlement integration tests, set **`M55_R8_ISOLATED_SUPABASE_PROJECT_REF`** to the same ref as `NEXT_PUBLIC_SUPABASE_URL` when using loopback.
 
 ## Preconditions (Human-owned)
 
-1. `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — isolated Supabase project only.
+1. `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — isolated Supabase project only (legacy JWT `eyJ…` or new `sb_secret_*`; JWT `ref` claim checked only for legacy keys).
 2. `M55_R8_ISOLATED_DATABASE_URL` — direct (`db.<ref>.supabase.co`) or Shared Pooler (`*.pooler.supabase.com`, user `postgres.<ref>`, port 5432 session / 6543 transaction) for **same** project, or loopback + `M55_R8_ISOLATED_SUPABASE_PROJECT_REF`.
 3. R8 provider migration applied on that project (`20261029000000_m55_r8_a_creator_provider_onboarding_v1.sql`).
 4. `sk_test_*`, `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`, `M55_PUBLIC_ORIGIN` (port-exact).

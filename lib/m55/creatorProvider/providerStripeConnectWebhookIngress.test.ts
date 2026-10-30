@@ -57,17 +57,28 @@ describe('R8 isolated Stripe Connect webhook ingress', () => {
       id: 'evt_v2_req',
       type: 'v2.core.account[requirements].updated',
       livemode: false,
-      data: {
-        object: {
-          related_object: { id: 'acct_0000000012345678', type: 'v2.core.account' },
-        },
-      },
+      related_object: { id: 'acct_0000000012345678', type: 'v2.core.account' },
+      data: { object: {} },
     } as any);
     assert.equal(v2Parsed.ok, true);
     if (!v2Parsed.ok) return;
     assert.equal(v2Parsed.apiGeneration, 'v2_core');
     assert.equal(v2Parsed.thinEvent, true);
     assert.equal(v2Parsed.accountIdSuffix, '12345678');
+    assert.equal(v2Parsed.stripeEventId, 'evt_v2_req');
+
+    const nestedOnly = parseVerifiedStripeConnectWebhookEventV1({
+      id: 'evt_v2_nested_only',
+      type: 'v2.core.account.updated',
+      livemode: false,
+      data: {
+        object: {
+          related_object: { id: 'acct_nestedonly123456', type: 'v2.core.account' },
+        },
+      },
+    } as any);
+    assert.equal(nestedOnly.ok, false);
+    if (!nestedOnly.ok) assert.equal(nestedOnly.reason, 'ACCOUNT_UNRESOLVED');
   });
 
   it('does not return HTTP 200 when persistence did not succeed', () => {

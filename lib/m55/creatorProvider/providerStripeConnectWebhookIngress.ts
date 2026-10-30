@@ -75,6 +75,9 @@ export function classifyConnectWebhookEventTypeV1(eventType: string): StripeConn
 export function parseVerifiedStripeConnectWebhookEventV1(
   event: Stripe.Event,
 ): VerifiedConnectWebhookParseResultV1 {
+  if (typeof event.id !== 'string' || !event.id.startsWith('evt_')) {
+    return { ok: false, reason: 'MALFORMED_PAYLOAD' };
+  }
   if (event.livemode === true) {
     return { ok: false, reason: 'MALFORMED_PAYLOAD' };
   }
@@ -113,19 +116,22 @@ function extractConnectAccountIdFromStripeEventV1(
   event: Stripe.Event,
   generation: StripeConnectWebhookApiGenerationV1,
 ): string | null {
+  if (generation === 'v2_core') {
+    const thinRoot = event as Stripe.Event & {
+      related_object?: { id?: unknown; type?: unknown };
+    };
+    const related = thinRoot.related_object;
+    if (typeof related?.id !== 'string' || !related.id.startsWith('acct_')) {
+      return null;
+    }
+    if (typeof related.type === 'string' && !related.type.includes('account')) {
+      return null;
+    }
+    return related.id;
+  }
+
   const obj = event.data?.object as Record<string, unknown> | undefined;
   if (!obj) return null;
-
-  if (generation === 'v2_core') {
-    const related = obj.related_object as { id?: string; type?: string } | undefined;
-    if (typeof related?.id === 'string' && related.id.startsWith('acct_')) {
-      return related.id;
-    }
-    if (typeof obj.id === 'string' && obj.id.startsWith('acct_')) {
-      return obj.id;
-    }
-    return null;
-  }
 
   if (typeof obj.id === 'string' && obj.id.startsWith('acct_')) return obj.id;
   if (typeof obj.account === 'string' && obj.account.startsWith('acct_')) return obj.account;

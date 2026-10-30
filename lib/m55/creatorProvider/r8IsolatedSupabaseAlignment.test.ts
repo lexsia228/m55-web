@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   evaluateIsolatedSupabaseAlignmentStructuralV1,
+  evaluateIsolatedSupabaseAlignmentLiveV1,
   extractSupabaseProjectRefFromHttpUrlV1,
   extractSupabaseProjectRefFromServiceRoleJwtV1,
+  classifySupabaseServiceRoleKeyFormatV1,
   parsePostgresSupabaseConnectionV1,
   probeSupabaseServiceRoleReadOnlyV1,
 } from './r8IsolatedSupabaseAlignment.ts';
@@ -47,6 +49,29 @@ describe('R8 isolated Supabase alignment', () => {
       M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
     });
     assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.serviceRoleKeyFormat, 'supabase_jwt');
+      assert.equal(result.serviceRoleJwtRefMatched, true);
+    }
+  });
+
+  it('accepts sb_secret service role keys without JWT ref parsing at structural stage', () => {
+    const ref = 'aaaaaaaaaaaaaaaa';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_example_redacted',
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.serviceRoleKeyFormat, 'sb_secret');
+      assert.equal(result.serviceRoleJwtRefMatched, false);
+    }
+    assert.equal(classifySupabaseServiceRoleKeyFormatV1('sb_secret_x'), 'sb_secret');
+    assert.equal(extractSupabaseProjectRefFromServiceRoleJwtV1('sb_secret_x'), null);
   });
 
   it('fails closed when service role JWT ref mismatches app URL', () => {
@@ -76,14 +101,40 @@ describe('R8 isolated Supabase alignment', () => {
     if (!result.ok) assert.equal(result.reason, 'ISOLATED_DATABASE_PROJECT_MISMATCH');
   });
 
-  it('probe rejects 401 without logging secrets', async () => {
-    const probe = await probeSupabaseServiceRoleReadOnlyV1({
+  it('probe rejects 401 and 404 without logging secrets', async () => {
+    const probe401 = await probeSupabaseServiceRoleReadOnlyV1({
       supabaseHttpUrl: 'https://abcdefghijklmnopqrst.supabase.co',
       serviceRoleKey: fakeServiceRoleJwt('abcdefghijklmnopqrst'),
       fetchImpl: async () => new Response('', { status: 401 }),
     });
-    assert.equal(probe.ok, false);
-    if (!probe.ok) assert.equal(probe.reason, 'SERVICE_ROLE_PROBE_FAILED');
+    assert.equal(probe401.ok, false);
+    if (!probe401.ok) assert.equal(probe401.reason, 'SERVICE_ROLE_PROBE_FAILED');
+
+    const probe404 = await probeSupabaseServiceRoleReadOnlyV1({
+      supabaseHttpUrl: 'https://abcdefghijklmnopqrst.supabase.co',
+      serviceRoleKey: fakeServiceRoleJwt('abcdefghijklmnopqrst'),
+      fetchImpl: async () => new Response('', { status: 404 }),
+    });
+    assert.equal(probe404.ok, false);
+    if (!probe404.ok) assert.equal(probe404.reason, 'SERVICE_ROLE_PROBE_FAILED');
+  });
+
+  it('live alignment requires REST and Postgres READ probes (sb_secret path)', async () => {
+    const ref = 'cccccccccccccccc';
+    const env = {
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_probe_only',
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    };
+    const live = await evaluateIsolatedSupabaseAlignmentLiveV1(env, {
+      fetchImpl: async () => new Response('', { status: 200 }),
+      postgresQueryImpl: async () => ({ rows: [{ present: true }] }),
+    });
+    assert.equal(live.ok, true);
+    if (live.ok) assert.equal(live.serviceRoleKeyFormat, 'sb_secret');
   });
 
   it('blocks production runtime', () => {

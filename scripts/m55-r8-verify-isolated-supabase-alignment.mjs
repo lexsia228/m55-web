@@ -26,6 +26,7 @@ console.log(
     supabaseProjectRefSuffix: result.supabaseProjectRefSuffix,
     postgresConnectionKind: result.postgresConnectionKind,
     humanProjectRefConfirmed: result.humanProjectRefConfirmed,
+    serviceRoleKeyFormat: result.serviceRoleKeyFormat,
     serviceRoleJwtRefMatched: result.serviceRoleJwtRefMatched,
   }),
 );
