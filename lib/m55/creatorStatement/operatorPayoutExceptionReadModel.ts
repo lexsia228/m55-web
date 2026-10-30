@@ -1,6 +1,5 @@
 import { evaluateProviderDisbursementGateV1 } from '../creatorProvider/providerFreshness';
 import { R8_C_BANK_CALENDAR_BLOCKER } from '../creatorSettlement/japaneseBankBusinessDayCalendar';
-import { inMemoryDurableSettlementRepository } from '../creatorSettlement/r8SettlementDurableRepository';
 
 export type OperatorPayoutExceptionRowV1 = {
   creatorEconomicIdentityIdSuffix: string;
@@ -23,6 +22,7 @@ export function listOperatorPayoutExceptionsV1(input: {
     providerDowngradeActive: boolean;
     snapshotPresent: boolean;
   }>;
+  includeGlobalBankCalendarHold?: boolean;
 }): OperatorPayoutExceptionRowV1[] {
   const out: OperatorPayoutExceptionRowV1[] = [];
   for (const row of input.rows) {
@@ -64,7 +64,7 @@ export function listOperatorPayoutExceptionsV1(input: {
     }
   }
 
-  if (inMemoryDurableSettlementRepository.listBundlesForCreator('').length >= 0) {
+  if (input.includeGlobalBankCalendarHold !== false) {
     out.push({
       creatorEconomicIdentityIdSuffix: 'GLOBAL',
       exceptionKind: 'BANK_CALENDAR_UNKNOWN',

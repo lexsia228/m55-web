@@ -1,6 +1,5 @@
-import { inMemoryDurableSettlementRepository } from '../creatorSettlement/r8SettlementDurableRepository';
 import { R8_C_BANK_CALENDAR_BLOCKER } from '../creatorSettlement/japaneseBankBusinessDayCalendar';
-import type { R8BPayoutInstructionV1 } from '../creatorSettlement/r8SettlementContract';
+import type { R8CLockedSettlementBundleV1 } from '../creatorSettlement/r8SettlementExecutionContract';
 
 export type CreatorStatementPayoutPhaseV1 =
   | 'NOT_LOCKED'
@@ -30,28 +29,23 @@ export type CreatorStatementBundleV1 = {
 };
 
 export function buildCreatorStatementBundleV1(input: {
-  creatorEconomicIdentityId: string;
   commissionLifecycleCounts: Record<string, number>;
+  lockedBundles: ReadonlyArray<R8CLockedSettlementBundleV1>;
   payoutDueDateReliable: boolean;
 }): CreatorStatementBundleV1 {
-  const bundles = inMemoryDurableSettlementRepository.listBundlesForCreator(
-    input.creatorEconomicIdentityId,
-  );
-
-  const lockedInstructions = bundles.map((bundle) => {
-    const instruction: R8BPayoutInstructionV1 = bundle.instruction;
-    return {
-      instructionIdSuffix: instruction.instructionId.slice(-8),
-      settlementPayableJpy: instruction.settlementPayableJpy,
-      payoutProcessingFeeJpy: instruction.payoutProcessingFeeJpy,
-      netPayoutJpy: instruction.netPayoutJpy,
-      payoutDueAtUtc: input.payoutDueDateReliable ? instruction.payoutDueAtUtc.toISOString() : null,
-      payoutDueDateReliable: input.payoutDueDateReliable,
-      payoutDueHoldReason: input.payoutDueDateReliable ? null : R8_C_BANK_CALENDAR_BLOCKER,
-      phase: 'INSTRUCTION_LOCKED' as const,
-      fundsTransferred: false as const,
-    };
-  });
+  const lockedInstructions = input.lockedBundles.map((bundle) => ({
+    instructionIdSuffix: bundle.instruction.instructionId.slice(-8),
+    settlementPayableJpy: bundle.instruction.settlementPayableJpy,
+    payoutProcessingFeeJpy: bundle.instruction.payoutProcessingFeeJpy,
+    netPayoutJpy: bundle.instruction.netPayoutJpy,
+    payoutDueAtUtc: input.payoutDueDateReliable
+      ? bundle.instruction.payoutDueAtUtc.toISOString()
+      : null,
+    payoutDueDateReliable: input.payoutDueDateReliable,
+    payoutDueHoldReason: input.payoutDueDateReliable ? null : R8_C_BANK_CALENDAR_BLOCKER,
+    phase: 'INSTRUCTION_LOCKED' as const,
+    fundsTransferred: false as const,
+  }));
 
   return {
     schemaVersion: '2026-10-30-v1',

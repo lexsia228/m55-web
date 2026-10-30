@@ -32,10 +32,11 @@ export type LockPayoutBatchInputV1 = {
   commissionLines: ReadonlyArray<R8BCommissionLedgerLineV1>;
   asOfUtc: Date;
   withholdingJpy: number;
-  platformCashAvailableJpy: number;
   applicableLegalDueAtUtc: Date | null;
   calendar: JapaneseBankHolidayCalendarV1;
   idempotencyKey: string;
+  /** @deprecated R8-B legacy test helper only — runtime uses DB coverage snapshots. */
+  legacyTestCoverageProofJpy: number;
 };
 
 export type LockPayoutBatchResultV1 =
@@ -117,7 +118,7 @@ export function lockPayoutBatchV1(input: LockPayoutBatchInputV1): LockPayoutBatc
     withholdingJpy: input.withholdingJpy,
   });
   if (net == null) return { ok: false, reason: 'NEGATIVE_NET_PAYOUT' };
-  if (input.platformCashAvailableJpy < net) {
+  if (input.legacyTestCoverageProofJpy < net) {
     return { ok: false, reason: 'INSUFFICIENT_CASH_COVERAGE' };
   }
 

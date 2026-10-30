@@ -50,7 +50,6 @@ export type R8CDurableLockInputV1 = {
   commissionLines: ReadonlyArray<R8BCommissionLedgerLineV1>;
   asOfUtc: Date;
   withholdingJpy: number;
-  platformCashAvailableJpy: number;
   applicableLegalDueAtUtc: Date | null;
   calendar: import('./r8SettlementCalculation').JapaneseBankHolidayCalendarV1;
   batchIdempotencyKey: string;
@@ -69,5 +68,6 @@ export type R8CDurableLockResultV1 =
         | 'PAYOUT_DUE_UNRESOLVED'
         | 'INSUFFICIENT_CASH_COVERAGE'
         | 'NEGATIVE_NET_PAYOUT'
-        | 'TRANSFER_EXECUTION_DISABLED';
+        | 'TRANSFER_EXECUTION_DISABLED'
+        | 'SETTLEMENT_STORAGE_UNAVAILABLE';
     };

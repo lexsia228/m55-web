@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { resolveCreatorContextFromSession } from '../../../../lib/m55/creatorDashboard/creatorContext';
-import { loadDashboardSummaryV1 } from '../../../../lib/m55/creatorDashboard/dashboardReadModel';
 import { parseBoundedEpochRangeV1 } from '../../../../lib/m55/creatorDashboard/reconciliationExport';
 import { PRIVATE_RESPONSE_HEADERS } from '../../../../lib/m55/creatorDistribution/security';
-import { buildCreatorStatementBundleV1 } from '../../../../lib/m55/creatorStatement/creatorStatementReadModel';
+import { loadCreatorStatementBundleForSessionV1 } from '../../../../lib/m55/creatorStatement/creatorStatementService';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -34,15 +33,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const summary = await loadDashboardSummaryV1({
+    const statement = await loadCreatorStatementBundleForSessionV1({
       creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
       fromMs: parsed.fromMs,
       toMs: parsed.toMs,
-    });
-    const statement = buildCreatorStatementBundleV1({
-      creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
-      commissionLifecycleCounts: summary.currentEntitlementsByLifecycle,
-      payoutDueDateReliable: false,
     });
     return NextResponse.json({ profileStatus: ctx.profileStatus, statement }, { headers: PRIVATE_RESPONSE_HEADERS });
   } catch {

@@ -29,7 +29,7 @@ describe('R8-B payout batch lock (local, no Stripe transfer)', () => {
       cutoffInstantUtc: cutoff,
       asOfUtc: new Date('2026-03-05T00:00:00.000Z'),
       withholdingJpy: 0,
-      platformCashAvailableJpy: 50_000,
+      legacyTestCoverageProofJpy: 50_000,
       applicableLegalDueAtUtc: null,
       calendar: businessDayCalendar,
       idempotencyKey,
@@ -59,7 +59,7 @@ describe('R8-B payout batch lock (local, no Stripe transfer)', () => {
     const underFunded = lockPayoutBatchV1({
       ...baseInput,
       idempotencyKey: `${idempotencyKey}:other`,
-      platformCashAvailableJpy: 100,
+      legacyTestCoverageProofJpy: 100,
     });
     assert.equal(underFunded.ok, false);
     if (!underFunded.ok) assert.equal(underFunded.reason, 'INSUFFICIENT_CASH_COVERAGE');
