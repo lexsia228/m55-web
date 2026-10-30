@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { isM55ProductionRuntime } from './runtimeEnvironment';
 
 export type PostgresSupabaseConnectionKindV1 =
@@ -41,6 +43,16 @@ export type IsolatedSupabaseAlignmentFailureV1 =
   | 'POSTGRES_IDENTITY_NOT_VERIFIED';
 
 const R8_ISOLATED_PROVIDER_TABLE = 'm55_r8_stripe_connected_accounts_v1';
+
+/** Default gitignored file for Human-managed isolated Supabase credentials (see runbook). */
+export const M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1 = '.env.m55-r8-isolated.local';
+
+export const M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1 = [
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'M55_R8_ISOLATED_DATABASE_URL',
+  'M55_R8_ISOLATED_SUPABASE_PROJECT_REF',
+] as const;
 
 const PRODUCTION_HOST_DENY = ['m55-soul', 'm55-web', 'vercel.app'] as const;
 
@@ -190,6 +202,20 @@ export type IsolatedSupabaseLiveProbeDepsV1 = {
   }) => Promise<{ rows: Record<string, unknown>[] }>;
 };
 
+/** Supabase REST auth: sb_secret_* uses apikey only; legacy JWT uses apikey + Bearer. */
+export function buildSupabaseServiceRoleRestProbeHeadersV1(
+  serviceRoleKey: string,
+): Record<string, string> {
+  const format = classifySupabaseServiceRoleKeyFormatV1(serviceRoleKey);
+  if (format === 'sb_secret') {
+    return { apikey: serviceRoleKey };
+  }
+  return {
+    apikey: serviceRoleKey,
+    Authorization: `Bearer ${serviceRoleKey}`,
+  };
+}
+
 export async function probeSupabaseServiceRoleReadOnlyV1(input: {
   supabaseHttpUrl: string;
   serviceRoleKey: string;
@@ -200,10 +226,7 @@ export async function probeSupabaseServiceRoleReadOnlyV1(input: {
   try {
     const res = await fetchImpl(`${base}/rest/v1/`, {
       method: 'GET',
-      headers: {
-        apikey: input.serviceRoleKey,
-        Authorization: `Bearer ${input.serviceRoleKey}`,
-      },
+      headers: buildSupabaseServiceRoleRestProbeHeadersV1(input.serviceRoleKey),
       signal: AbortSignal.timeout(8_000),
     });
     if (res.status < 200 || res.status >= 300) {
@@ -300,6 +323,71 @@ export async function evaluateIsolatedSupabaseAlignmentLiveV1(
   }
 
   return structural;
+}
+
+export function parseEnvFileLinesV1(raw: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const line of raw.split('\n')) {
+    const t = line.trim();
+    if (!t || t.startsWith('#')) continue;
+    const eq = t.indexOf('=');
+    if (eq === -1) continue;
+    const k = t.slice(0, eq).trim();
+    let v = t.slice(eq + 1).trim();
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+      v = v.slice(1, -1);
+    }
+    out[k] = v;
+  }
+  return out;
+}
+
+/**
+ * Loads Human-managed isolated Supabase credentials from a dedicated env file only.
+ * Does not read Production/Preview `.env.local` or shell-inherited Supabase vars.
+ */
+export function loadM55R8IsolatedAlignmentEnvV1(
+  cwd: string = process.cwd(),
+  osEnv: NodeJS.ProcessEnv = process.env,
+): { ok: true; env: NodeJS.ProcessEnv; envFile: string } | { ok: false; checklist: string[] } {
+  const rel = osEnv.M55_R8_ISOLATED_ENV_FILE?.trim() || M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1;
+  const abs = join(cwd, rel);
+  if (!existsSync(abs)) {
+    return {
+      ok: false,
+      checklist: [
+        `Create ${rel} with isolated Supabase credentials (gitignored via .env.*.local)`,
+        'Optional: set M55_R8_ISOLATED_ENV_FILE to a custom path — do not reuse Production .env.local for this probe',
+      ],
+    };
+  }
+
+  let raw: string;
+  try {
+    raw = readFileSync(abs, 'utf8');
+  } catch {
+    return { ok: false, checklist: [`Cannot read isolated env file: ${rel}`] };
+  }
+
+  const parsed = parseEnvFileLinesV1(raw);
+  const checklist: string[] = [];
+  const env: NodeJS.ProcessEnv = {
+    NODE_ENV: 'development',
+    VERCEL_ENV: 'development',
+  };
+
+  for (const key of M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1) {
+    const v = parsed[key]?.trim();
+    if (!v) checklist.push(`Set ${key} in ${rel}`);
+    else env[key] = v;
+  }
+
+  if (parsed.NODE_ENV?.trim() === 'production' || parsed.VERCEL_ENV?.trim() === 'production') {
+    checklist.push(`${rel} must not declare production runtime`);
+  }
+
+  if (checklist.length > 0) return { ok: false, checklist };
+  return { ok: true, env, envFile: rel };
 }
 
 /** Structural checks only — not sufficient alone for isolated E2E GREEN. */

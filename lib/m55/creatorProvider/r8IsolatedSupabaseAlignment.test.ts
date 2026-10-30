@@ -6,9 +6,14 @@ import {
   extractSupabaseProjectRefFromHttpUrlV1,
   extractSupabaseProjectRefFromServiceRoleJwtV1,
   classifySupabaseServiceRoleKeyFormatV1,
+  buildSupabaseServiceRoleRestProbeHeadersV1,
+  loadM55R8IsolatedAlignmentEnvV1,
   parsePostgresSupabaseConnectionV1,
   probeSupabaseServiceRoleReadOnlyV1,
 } from './r8IsolatedSupabaseAlignment.ts';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 function fakeServiceRoleJwt(projectRef: string): string {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
@@ -117,6 +122,51 @@ describe('R8 isolated Supabase alignment', () => {
     });
     assert.equal(probe404.ok, false);
     if (!probe404.ok) assert.equal(probe404.reason, 'SERVICE_ROLE_PROBE_FAILED');
+  });
+
+  it('REST probe headers: sb_secret uses apikey only; JWT adds Bearer', async () => {
+    const secretHeaders = buildSupabaseServiceRoleRestProbeHeadersV1('sb_secret_example');
+    assert.equal(secretHeaders.apikey, 'sb_secret_example');
+    assert.equal(secretHeaders.Authorization, undefined);
+
+    const jwtHeaders = buildSupabaseServiceRoleRestProbeHeadersV1(fakeServiceRoleJwt('aaaaaaaaaaaaaaaa'));
+    assert.ok(jwtHeaders.Authorization?.startsWith('Bearer '));
+
+    let seen: Record<string, string> = {};
+    await probeSupabaseServiceRoleReadOnlyV1({
+      supabaseHttpUrl: 'https://aaaaaaaaaaaaaaaa.supabase.co',
+      serviceRoleKey: 'sb_secret_no_bearer',
+      fetchImpl: async (_url, init) => {
+        seen = (init?.headers ?? {}) as Record<string, string>;
+        return new Response('', { status: 200 });
+      },
+    });
+    assert.equal(seen.Authorization, undefined);
+    assert.equal(seen.apikey, 'sb_secret_no_bearer');
+  });
+
+  it('isolated alignment env loader reads dedicated file only', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'm55-r8-env-'));
+    const ref = 'dddddddddddddddd';
+    const envBody = [
+      `NEXT_PUBLIC_SUPABASE_URL=https://${ref}.supabase.co`,
+      'SUPABASE_SERVICE_ROLE_KEY=sb_secret_from_file',
+      `M55_R8_ISOLATED_DATABASE_URL=postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      `M55_R8_ISOLATED_SUPABASE_PROJECT_REF=${ref}`,
+    ].join('\n');
+    writeFileSync(join(dir, '.env.m55-r8-isolated.local'), envBody, 'utf8');
+
+    const loaded = loadM55R8IsolatedAlignmentEnvV1(dir, {});
+    assert.equal(loaded.ok, true);
+    if (!loaded.ok) return;
+    assert.equal(loaded.env.NEXT_PUBLIC_SUPABASE_URL, `https://${ref}.supabase.co`);
+    assert.equal(loaded.env.SUPABASE_SERVICE_ROLE_KEY, 'sb_secret_from_file');
+    assert.equal(loaded.envFile, '.env.m55-r8-isolated.local');
+
+    const missing = loadM55R8IsolatedAlignmentEnvV1(dir, {
+      M55_R8_ISOLATED_ENV_FILE: '.env.missing-isolated.local',
+    });
+    assert.equal(missing.ok, false);
   });
 
   it('live alignment requires REST and Postgres READ probes (sb_secret path)', async () => {

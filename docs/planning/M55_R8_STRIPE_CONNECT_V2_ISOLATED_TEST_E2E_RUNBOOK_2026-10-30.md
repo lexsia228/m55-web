@@ -16,13 +16,19 @@ Do **not** use the smoke account for Creator return/session proof. Do **not** cr
 The app writes via **`getSupabaseAdmin()`** → `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`.  
 Preflight **`M55_R8_ISOLATED_DATABASE_URL`** must describe the **same Supabase project** (or loopback + declared project ref).
 
-Verify alignment (no secrets in output):
+Verify alignment (no secrets in output). The script reads **only** `.env.m55-r8-isolated.local` (or `M55_R8_ISOLATED_ENV_FILE`) — not `.env.local` / Production / Preview shell vars:
+
+1. Create **`.env.m55-r8-isolated.local`** at repo root (gitignored) with:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` (legacy JWT or `sb_secret_*`)
+   - `M55_R8_ISOLATED_DATABASE_URL`
+   - `M55_R8_ISOLATED_SUPABASE_PROJECT_REF` (Dashboard-confirmed project ref)
 
 ```bash
 npx tsx scripts/m55-r8-verify-isolated-supabase-alignment.mjs
 ```
 
-Expect JSON: `{ ok: true, alignment: "LIVE_READ_PROBE", supabaseProjectRefSuffix: "…6chars", postgresConnectionKind: "supabase_direct"|"supabase_pooler_session"|"loopback" }`.
+Stderr prints `M55_R8_ISOLATED_ENV: .env.m55-r8-isolated.local` on start. Expect stdout JSON: `{ ok: true, alignment: "LIVE_READ_PROBE", envFile: "…", supabaseProjectRefSuffix: "…6chars", … }`.
 
 Structural-only env checks are **not** E2E GREEN. The verify script performs a read-only REST probe plus a Postgres READ probe (R8 provider table on Supabase hosts; `SELECT 1` on loopback). No secret output.
 
@@ -30,7 +36,7 @@ For local Docker Postgres used only for settlement integration tests, set **`M55
 
 ## Preconditions (Human-owned)
 
-1. `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — isolated Supabase project only (legacy JWT `eyJ…` or new `sb_secret_*`; JWT `ref` claim checked only for legacy keys).
+1. Put isolated Supabase vars in **`.env.m55-r8-isolated.local`** (see alignment section) — do not point the verify script at Production `.env.local`.
 2. `M55_R8_ISOLATED_DATABASE_URL` — direct (`db.<ref>.supabase.co`) or Shared Pooler (`*.pooler.supabase.com`, user `postgres.<ref>`, port 5432 session / 6543 transaction) for **same** project, or loopback + `M55_R8_ISOLATED_SUPABASE_PROJECT_REF`.
 3. R8 provider migration applied on that project (`20261029000000_m55_r8_a_creator_provider_onboarding_v1.sql`).
 4. `sk_test_*`, `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`, `M55_PUBLIC_ORIGIN` (port-exact).
