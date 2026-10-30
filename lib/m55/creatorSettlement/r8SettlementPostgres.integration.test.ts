@@ -382,6 +382,33 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
       });
       assert.equal(lockHold.ok, false);
       assert.equal(lockHold.reason, 'NO_ELIGIBLE_COMMISSIONS');
+
+      const creatorPending = randomUUID();
+      const profilePending = randomUUID();
+      const originPending = randomUUID();
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
+        originPending,
+        creatorPending,
+        profilePending,
+        25_000,
+        payableAt,
+      ]);
+      const pendingFunding = await seedFundingSource(admin, {
+        scopeRef: 'acct_pending_balance',
+        segment: 'PENDING',
+      });
+      const pendingCoverage = await seedCoverage(admin, pendingFunding, 500_000);
+      await seedBankDayForStandardDue(admin, cutoff);
+      const lockPending = await lockBatch(admin, {
+        creatorId: creatorPending,
+        cutoff,
+        batchKey: `batch:pending:${creatorPending.slice(0, 8)}`,
+        feeKey: `fee:pending:${creatorPending.slice(0, 8)}`,
+        coverageId: pendingCoverage,
+        asOf: new Date().toISOString(),
+      });
+      assert.equal(lockPending.ok, false);
+      assert.equal(lockPending.reason, 'INSUFFICIENT_CASH_COVERAGE');
     } finally {
       await admin.end();
     }

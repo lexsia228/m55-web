@@ -468,6 +468,7 @@ declare
   v_source_label text;
   v_funding_source_id uuid;
   v_economic_canon_key text;
+  v_balance_segment text;
   v_evidence_digest text;
   v_fs_proof_kind text;
   v_existing_legal_due timestamptz;
@@ -563,7 +564,8 @@ begin
     c.funding_source_id,
     fs.verified_evidence_digest,
     fs.proof_kind,
-    fs.economic_canon_key
+    fs.economic_canon_key,
+    fs.balance_segment
   into
     v_available,
     v_ratio,
@@ -573,7 +575,8 @@ begin
     v_funding_source_id,
     v_evidence_digest,
     v_fs_proof_kind,
-    v_economic_canon_key
+    v_economic_canon_key,
+    v_balance_segment
   from public.m55_r8_platform_liquidity_coverage_v1 as c
   join public.m55_r8_platform_liquidity_funding_sources_v1 as fs
     on fs.funding_source_id = c.funding_source_id
@@ -587,6 +590,10 @@ begin
   end if;
 
   if v_fs_proof_kind is distinct from v_proof_kind then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  if v_balance_segment is distinct from 'AVAILABLE' then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
   end if;
 

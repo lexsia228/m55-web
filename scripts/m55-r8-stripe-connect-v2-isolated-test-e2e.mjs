@@ -3,7 +3,6 @@
  * Stripe Connect Accounts v2 **API smoke** (test mode only). Not onboarding/webhook E2E GREEN.
  */
 import { classifyStripeConnectRuntime } from '../lib/m55/creatorProvider/stripeConnectV2Semantics.ts';
-import { resolveStripeConnectAdapter } from '../lib/m55/creatorProvider/stripeConnectAdapter.ts';
 import { randomUUID } from 'node:crypto';
 
 function humanChecklist(missing) {
@@ -20,6 +19,8 @@ if (classification.secretKeyMode === 'live') missing.push('Live keys are blocked
 if (classification.fakeAdapterForced) missing.push('Unset M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER for sandbox E2E');
 
 if (missing.length > 0) humanChecklist(missing);
+
+const { resolveStripeConnectAdapter } = await import('../lib/m55/creatorProvider/stripeConnectAdapter.ts');
 
 const adapter = resolveStripeConnectAdapter();
 if (adapter.mode !== 'TEST_SANDBOX') {

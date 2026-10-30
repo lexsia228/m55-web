@@ -157,7 +157,7 @@ export async function loadPlatformCashCoverageProofFromDbV1(
     const { data, error } = await (db as any)
       .from('m55_r8_platform_liquidity_coverage_v1')
       .select(
-        'coverage_snapshot_id,available_jpy,coverage_ratio_bps,observed_at,proof_kind,source_label,funding_source_id,m55_r8_platform_liquidity_funding_sources_v1!inner(verified_evidence_digest,proof_kind,economic_canon_key)',
+        'coverage_snapshot_id,available_jpy,coverage_ratio_bps,observed_at,proof_kind,source_label,funding_source_id,m55_r8_platform_liquidity_funding_sources_v1!inner(verified_evidence_digest,proof_kind,economic_canon_key,balance_segment)',
       )
       .order('observed_at', { ascending: false })
       .limit(1)
@@ -173,6 +173,9 @@ export async function loadPlatformCashCoverageProofFromDbV1(
     const economicCanonKey = String(fundingProof.economic_canon_key ?? '').trim();
     if (!economicCanonKey.startsWith('STRIPE:') && !economicCanonKey.startsWith('BANK:')) {
       return { ok: false, reason: 'COVERAGE_UNVERIFIED' };
+    }
+    if (String(fundingProof.balance_segment ?? '') !== 'AVAILABLE') {
+      return { ok: false, reason: 'COVERAGE_INSUFFICIENT' };
     }
     const proofKind = String(data.proof_kind ?? '');
     if (!VERIFIED_PROOF_KINDS.has(proofKind) || proofKind !== fundingProof.proof_kind) {
