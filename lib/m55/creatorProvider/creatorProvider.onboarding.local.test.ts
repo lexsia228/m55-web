@@ -99,7 +99,7 @@ describe('R8-A API routes — fail-closed markers', () => {
     const src = readFileSync(join(process.cwd(), 'app/api/stripe/connect/webhook/route.ts'), 'utf8');
     assert.match(src, /canAcceptIsolatedConnectWebhookRequestV1/);
     assert.match(src, /verifyStripeConnectWebhookSignatureV1/);
-    assert.match(src, /snapshotSyncApplied: false/);
+    assert.match(src, /mapConnectWebhookPersistResultToHttpV1/);
   });
 });
 

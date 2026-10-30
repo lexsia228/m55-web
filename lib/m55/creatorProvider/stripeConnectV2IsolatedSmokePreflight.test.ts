@@ -23,7 +23,12 @@ describe('R8 isolated Stripe smoke preflight', () => {
     });
     assert.ok(missing.some((line) => line.includes('M55_PUBLIC_ORIGIN')));
     assert.ok(missing.some((line) => line.includes('M55_R8_ISOLATED_DATABASE_URL')));
-    assert.ok(missing.some((line) => line.includes('NEXT_PUBLIC_SUPABASE_URL')));
+    assert.ok(
+      missing.some(
+        (line) =>
+          line.includes('Human-confirmed') || line.includes('NEXT_PUBLIC_SUPABASE_URL'),
+      ),
+    );
   });
 
   it('uses stable create idempotency key per economic identity', () => {

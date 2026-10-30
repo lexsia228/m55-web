@@ -1,26 +1,31 @@
 #!/usr/bin/env node
 import {
-  evaluateIsolatedSupabaseAlignmentV1,
+  alignmentFailureChecklistV1,
+  evaluateIsolatedSupabaseAlignmentLiveV1,
   listIsolatedSupabaseAlignmentChecklistV1,
 } from '../lib/m55/creatorProvider/r8IsolatedSupabaseAlignment.ts';
 
-const checklist = listIsolatedSupabaseAlignmentChecklistV1();
-if (checklist.length > 0) {
+const structural = listIsolatedSupabaseAlignmentChecklistV1();
+if (structural.length > 0) {
   console.error('M55_R8_ISOLATED_SUPABASE_ALIGNMENT_FAILED');
-  for (const line of checklist) console.error(`- ${line}`);
+  for (const line of structural) console.error(`- ${line}`);
   process.exit(2);
 }
 
-const result = evaluateIsolatedSupabaseAlignmentV1();
+const result = await evaluateIsolatedSupabaseAlignmentLiveV1();
 if (!result.ok) {
   console.error('M55_R8_ISOLATED_SUPABASE_ALIGNMENT_FAILED');
+  for (const line of alignmentFailureChecklistV1(result.reason)) console.error(`- ${line}`);
   process.exit(2);
 }
 
 console.log(
   JSON.stringify({
     ok: true,
+    alignment: 'LIVE_READ_PROBE',
     supabaseProjectRefSuffix: result.supabaseProjectRefSuffix,
-    postgresHostKind: result.postgresHostKind,
+    postgresConnectionKind: result.postgresConnectionKind,
+    humanProjectRefConfirmed: result.humanProjectRefConfirmed,
+    serviceRoleJwtRefMatched: result.serviceRoleJwtRefMatched,
   }),
 );

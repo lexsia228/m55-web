@@ -13,8 +13,16 @@ import {
   getProviderEventStoreSingletonV1,
 } from './providerWebhookEventContract';
 
+import type { StripeConnectWebhookApiGenerationV1 } from './providerStripeConnectWebhookIngress';
 export type PersistConnectWebhookResultV1 =
-  | { ok: true; duplicate: boolean; accountIdSuffix: string; eventType: string }
+  | {
+      ok: true;
+      duplicate: boolean;
+      accountIdSuffix: string;
+      eventType: string;
+      apiGeneration: StripeConnectWebhookApiGenerationV1;
+      thinEvent: boolean;
+    }
   | { ok: false; reason: 'ACCOUNT_UNBOUND' | 'DB_UNAVAILABLE' | 'MALFORMED' };
 
 export async function persistIsolatedStripeConnectWebhookEventV1(
@@ -35,6 +43,8 @@ export async function persistIsolatedStripeConnectWebhookEventV1(
         stripeEventId: parsed.stripeEventId,
         eventType: parsed.eventType,
         accountIdSuffix: parsed.accountIdSuffix,
+        apiGeneration: parsed.apiGeneration,
+        thinEvent: parsed.thinEvent,
       },
     });
     duplicate = outcome === 'duplicate';
@@ -55,6 +65,8 @@ export async function persistIsolatedStripeConnectWebhookEventV1(
     duplicate: duplicate || mem.duplicate,
     accountIdSuffix: parsed.accountIdSuffix,
     eventType: parsed.eventType,
+    apiGeneration: parsed.apiGeneration,
+    thinEvent: parsed.thinEvent,
   };
 }
 
