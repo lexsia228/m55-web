@@ -2,6 +2,7 @@ import 'server-only';
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 import type { R8BCommissionLedgerLineV1 } from './r8SettlementContract';
 import { SettlementAllocationReadError } from './settlementReadErrors';
+import { resolveFirstCommissionPayableRecordedAtUtcV1 } from './r6CommissionPayableAnchor';
 
 type LedgerRow = {
   commission_event_id: string;
@@ -66,6 +67,13 @@ export async function loadUnsettledPayableCommissionLinesFromR6V1(
   }
 
   const latestByOrigin = new Map<string, LedgerRow>();
+  const eventContext = events.map((row) => ({
+    commissionEventId: row.commission_event_id,
+    originCommissionEventId: row.origin_commission_event_id,
+    eventFamily: row.event_family,
+    lifecycleStateAfterEvent: row.lifecycle_state_after_event,
+    recordedAtUtc: new Date(row.recorded_at),
+  }));
   for (const row of events) {
     if (row.event_family === 'COMMISSION_ACCRUED') {
       latestByOrigin.set(row.commission_event_id, row);
@@ -84,10 +92,12 @@ export async function loadUnsettledPayableCommissionLinesFromR6V1(
     if (latest.lifecycle_state_after_event !== 'COMMISSION_PAYABLE') continue;
     const entitlement = Number(latest.entitlement_after_event_jpy);
     if (!Number.isInteger(entitlement) || entitlement <= 0) continue;
+    const firstPayable = resolveFirstCommissionPayableRecordedAtUtcV1(eventContext, originId);
+    if (!firstPayable) continue;
     out.push({
       commissionEventId: originId,
       commissionState: 'COMMISSION_PAYABLE',
-      payableAtUtc: new Date(latest.recorded_at),
+      payableAtUtc: firstPayable,
       grossCommissionJpy: entitlement,
       settledPayoutInstructionId: null,
     });

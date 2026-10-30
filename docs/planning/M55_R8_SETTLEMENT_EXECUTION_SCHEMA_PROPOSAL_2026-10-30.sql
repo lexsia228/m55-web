@@ -10,6 +10,7 @@ create table if not exists public.m55_r8_payout_batches_v1 (
   idempotency_key text not null,
   locked_at timestamptz not null,
   instruction_id uuid not null,
+  applicable_legal_due_at timestamptz null,
   constraint m55_r8_payout_batches_v1_idempotency_key_unique unique (idempotency_key)
 );
 
@@ -86,9 +87,22 @@ grant all on public.m55_r8_payout_attempts_v1 to service_role;
 grant all on public.m55_r8_provider_settlement_events_v1 to service_role;
 
 -- Platform liquidity coverage is the only authority for 100% cash coverage (not caller-supplied integers).
+-- Funding-source identity is proven by verified_evidence_digest on m55_r8_platform_liquidity_funding_sources_v1 (not source_label).
+
+create table if not exists public.m55_r8_platform_liquidity_funding_sources_v1 (
+  funding_source_id uuid primary key,
+  proof_kind text not null check (proof_kind in ('BANK_BALANCE_SNAPSHOT', 'STRIPE_BALANCE_SNAPSHOT')),
+  verified_evidence_digest text not null check (verified_evidence_digest ~ '^[0-9a-f]{64}$'),
+  stripe_platform_scope_ref text null check (
+    stripe_platform_scope_ref is null
+    or char_length(stripe_platform_scope_ref) between 8 and 64
+  ),
+  created_at timestamptz not null default now()
+);
 
 create table if not exists public.m55_r8_platform_liquidity_coverage_v1 (
   coverage_snapshot_id uuid primary key,
+  funding_source_id uuid not null references public.m55_r8_platform_liquidity_funding_sources_v1 (funding_source_id),
   observed_at timestamptz not null,
   available_jpy bigint not null check (available_jpy >= 0),
   coverage_ratio_bps integer not null check (coverage_ratio_bps >= 10000 and coverage_ratio_bps <= 20000),
@@ -103,6 +117,13 @@ alter table public.m55_r8_payout_fee_charges_v1 enable row level security;
 alter table public.m55_r8_payout_attempts_v1 enable row level security;
 alter table public.m55_r8_provider_settlement_events_v1 enable row level security;
 alter table public.m55_r8_platform_liquidity_coverage_v1 enable row level security;
+
+revoke all on public.m55_r8_platform_liquidity_funding_sources_v1 from public, anon, authenticated;
+grant select, insert on public.m55_r8_platform_liquidity_funding_sources_v1 to service_role;
+alter table public.m55_r8_platform_liquidity_funding_sources_v1 enable row level security;
+create policy m55_r8_platform_liquidity_funding_sources_v1_service_role_only
+  on public.m55_r8_platform_liquidity_funding_sources_v1
+  for all to service_role using (true) with check (true);
 
 revoke all on public.m55_r8_platform_liquidity_coverage_v1 from public, anon, authenticated;
 grant select, insert on public.m55_r8_platform_liquidity_coverage_v1 to service_role;
@@ -408,6 +429,10 @@ declare
   v_observed timestamptz;
   v_proof_kind text;
   v_source_label text;
+  v_funding_source_id uuid;
+  v_evidence_digest text;
+  v_fs_proof_kind text;
+  v_existing_legal_due timestamptz;
   v_reserved bigint;
   v_effective bigint;
   v_settlement_payable bigint := 0;
@@ -429,7 +454,8 @@ declare
 begin
   if to_regclass('public.m55_r8_payout_batches_v1') is null
      or to_regclass('public.m55_r6_commission_ledger_events') is null
-     or to_regclass('public.m55_r8_platform_liquidity_reservations_v1') is null then
+     or to_regclass('public.m55_r8_platform_liquidity_reservations_v1') is null
+     or to_regclass('public.m55_r8_platform_liquidity_funding_sources_v1') is null then
     return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
   end if;
 
@@ -440,6 +466,10 @@ begin
 
   if p_withholding_jpy is null or p_withholding_jpy < 0 or p_withholding_jpy > 1000000000 then
     return jsonb_build_object('ok', false, 'reason', 'NEGATIVE_NET_PAYOUT');
+  end if;
+
+  if p_cutoff_at > p_as_of or p_as_of > (clock_timestamp() + interval '1 minute') then
+    return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
   end if;
 
   perform pg_advisory_xact_lock(hashtext('m55_r8_batch:' || p_batch_idempotency_key));
@@ -454,8 +484,9 @@ begin
     select
       b.creator_economic_identity_id,
       b.cutoff_at,
-      f.idempotency_key
-    into v_existing_creator, v_existing_cutoff, v_existing_fee_key
+      f.idempotency_key,
+      b.applicable_legal_due_at
+    into v_existing_creator, v_existing_cutoff, v_existing_fee_key, v_existing_legal_due
     from public.m55_r8_payout_batches_v1 as b
     join public.m55_r8_payout_instructions_v1 as i on i.instruction_id = b.instruction_id
     join public.m55_r8_payout_fee_charges_v1 as f on f.instruction_id = b.instruction_id
@@ -463,7 +494,8 @@ begin
 
     if v_existing_creator is distinct from p_creator_economic_identity_id
        or v_existing_cutoff is distinct from p_cutoff_at
-       or v_existing_fee_key is distinct from p_fee_idempotency_key then
+       or v_existing_fee_key is distinct from p_fee_idempotency_key
+       or v_existing_legal_due is distinct from p_applicable_legal_due_at then
       return jsonb_build_object('ok', false, 'reason', 'DUPLICATE_IDEMPOTENCY_CONFLICT');
     end if;
 
@@ -484,12 +516,44 @@ begin
     end if;
   end if;
 
-  perform pg_advisory_xact_lock(hashtext('m55_r8_liquidity:' || p_coverage_snapshot_id::text));
+  select
+    c.available_jpy,
+    c.coverage_ratio_bps,
+    c.observed_at,
+    c.proof_kind,
+    c.source_label,
+    c.funding_source_id,
+    fs.verified_evidence_digest,
+    fs.proof_kind
+  into
+    v_available,
+    v_ratio,
+    v_observed,
+    v_proof_kind,
+    v_source_label,
+    v_funding_source_id,
+    v_evidence_digest,
+    v_fs_proof_kind
+  from public.m55_r8_platform_liquidity_coverage_v1 as c
+  join public.m55_r8_platform_liquidity_funding_sources_v1 as fs
+    on fs.funding_source_id = c.funding_source_id
+  where c.coverage_snapshot_id = p_coverage_snapshot_id;
+
+  if v_funding_source_id is null or v_evidence_digest is null or v_fs_proof_kind is null then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  if v_fs_proof_kind is distinct from v_proof_kind then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtext('m55_r8_funding:' || v_funding_source_id::text));
 
   select c.available_jpy, c.coverage_ratio_bps, c.observed_at, c.proof_kind, c.source_label
   into v_available, v_ratio, v_observed, v_proof_kind, v_source_label
   from public.m55_r8_platform_liquidity_coverage_v1 as c
   where c.coverage_snapshot_id = p_coverage_snapshot_id
+    and c.funding_source_id = v_funding_source_id
   for update;
 
   if v_available is null or v_ratio is null or v_ratio < 10000 then
@@ -513,8 +577,10 @@ begin
   select coalesce(sum(r.reserved_net_jpy), 0)
   into v_reserved
   from public.m55_r8_platform_liquidity_reservations_v1 as r
+  join public.m55_r8_platform_liquidity_coverage_v1 as c
+    on c.coverage_snapshot_id = r.coverage_snapshot_id
   where r.released_at is null
-    and r.coverage_snapshot_id = p_coverage_snapshot_id;
+    and c.funding_source_id = v_funding_source_id;
 
   if v_reserved > v_available then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
@@ -548,13 +614,26 @@ begin
     from public.m55_r6_commission_ledger_events as e
     where e.creator_economic_identity_id = p_creator_economic_identity_id
   ),
+  first_payable as (
+    select
+      case
+        when e.event_family = 'COMMISSION_ACCRUED' then e.commission_event_id
+        else e.origin_commission_event_id
+      end as origin_key,
+      min(e.recorded_at) as first_payable_at
+    from public.m55_r6_commission_ledger_events as e
+    where e.creator_economic_identity_id = p_creator_economic_identity_id
+      and e.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
+    group by 1
+  ),
   latest as (
     select distinct on (o.origin_key)
       o.origin_key as commission_event_id,
-      o.recorded_at as payable_at,
+      fp.first_payable_at as payable_at,
       o.lifecycle_state_after_event,
       o.entitlement_after_event_jpy as gross_jpy
     from ordered as o
+    join first_payable as fp on fp.origin_key = o.origin_key
     where o.origin_key is not null
     order by o.origin_key, o.ledger_event_seq desc
   )
@@ -677,8 +756,10 @@ begin
   select coalesce(sum(r.reserved_net_jpy), 0)
   into v_reserved
   from public.m55_r8_platform_liquidity_reservations_v1 as r
+  join public.m55_r8_platform_liquidity_coverage_v1 as c
+    on c.coverage_snapshot_id = r.coverage_snapshot_id
   where r.released_at is null
-    and r.coverage_snapshot_id = p_coverage_snapshot_id;
+    and c.funding_source_id = v_funding_source_id;
 
   if v_reserved > v_available then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
@@ -704,14 +785,16 @@ begin
       cutoff_at,
       idempotency_key,
       locked_at,
-      instruction_id
+      instruction_id,
+      applicable_legal_due_at
     ) values (
       v_batch_id,
       p_creator_economic_identity_id,
       p_cutoff_at,
       p_batch_idempotency_key,
       p_as_of,
-      v_instruction_id
+      v_instruction_id,
+      p_applicable_legal_due_at
     );
 
     insert into public.m55_r8_payout_instructions_v1 (

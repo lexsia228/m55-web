@@ -9,6 +9,7 @@ const { Client } = pg;
 
 const DATABASE_URL = process.env.M55_R8_INTEGRATION_DATABASE_URL ?? '';
 const VERIFIED_SOURCE = 'verified-stripe-balance-v1';
+const VERIFIED_EVIDENCE_DIGEST = '0123456789abcdef'.repeat(4);
 
 async function applySql(client: pg.Client, relativePath: string): Promise<void> {
   const sql = readFileSync(join(process.cwd(), relativePath), 'utf8');
@@ -21,17 +22,35 @@ async function bootstrapSchema(client: pg.Client): Promise<void> {
     `create role anon nologin; create role authenticated nologin; create role service_role nologin superuser;`,
   );
   await applySql(client, 'docs/planning/M55_R8_SETTLEMENT_EXECUTION_SCHEMA_PROPOSAL_2026-10-30.sql');
-  await applySql(client, 'docs/planning/M55_R8_SETTLEMENT_DB_INTEGRATION_FIXTURE.sql');
+  await applySql(client, 'docs/planning/M55_R8_SETTLEMENT_DB_INTEGRATION_R6_SCHEMA_MIRROR.sql');
   await applySql(client, 'docs/planning/M55_R8_SETTLEMENT_DB_INTEGRATION_R6_CHAIN_FIXTURE.sql');
 }
 
-async function seedCoverage(client: pg.Client, availableJpy: number): Promise<string> {
+async function seedFundingSource(
+  client: pg.Client,
+  digest: string = VERIFIED_EVIDENCE_DIGEST,
+): Promise<string> {
+  const fundingSourceId = randomUUID();
+  await client.query(
+    `insert into public.m55_r8_platform_liquidity_funding_sources_v1 (
+      funding_source_id, proof_kind, verified_evidence_digest, stripe_platform_scope_ref
+    ) values ($1, 'STRIPE_BALANCE_SNAPSHOT', $2, 'acct_test_scope')`,
+    [fundingSourceId, digest],
+  );
+  return fundingSourceId;
+}
+
+async function seedCoverage(
+  client: pg.Client,
+  fundingSourceId: string,
+  availableJpy: number,
+): Promise<string> {
   const coverageId = randomUUID();
   await client.query(
     `insert into public.m55_r8_platform_liquidity_coverage_v1 (
-      coverage_snapshot_id, observed_at, available_jpy, coverage_ratio_bps, source_label, proof_kind
-    ) values ($1, now(), $2, 10000, $3, 'STRIPE_BALANCE_SNAPSHOT')`,
-    [coverageId, availableJpy, VERIFIED_SOURCE],
+      coverage_snapshot_id, funding_source_id, observed_at, available_jpy, coverage_ratio_bps, source_label, proof_kind
+    ) values ($1, $2, now(), $3, 10000, $4, 'STRIPE_BALANCE_SNAPSHOT')`,
+    [coverageId, fundingSourceId, availableJpy, VERIFIED_SOURCE],
   );
   return coverageId;
 }
@@ -67,12 +86,14 @@ async function lockBatch(
   return rows[0].result as Record<string, unknown>;
 }
 
-async function sumActiveReservations(client: pg.Client, coverageId: string): Promise<number> {
+async function sumActiveReservationsForFundingSource(client: pg.Client, fundingSourceId: string): Promise<number> {
   const { rows } = await client.query(
-    `select coalesce(sum(reserved_net_jpy),0)::bigint as total
-     from public.m55_r8_platform_liquidity_reservations_v1
-     where released_at is null and coverage_snapshot_id = $1`,
-    [coverageId],
+    `select coalesce(sum(r.reserved_net_jpy),0)::bigint as total
+     from public.m55_r8_platform_liquidity_reservations_v1 as r
+     join public.m55_r8_platform_liquidity_coverage_v1 as c
+       on c.coverage_snapshot_id = r.coverage_snapshot_id
+     where r.released_at is null and c.funding_source_id = $1`,
+    [fundingSourceId],
   );
   return Number(rows[0].total);
 }
@@ -88,23 +109,28 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
       const creatorB = randomUUID();
       const originA = randomUUID();
       const originB = randomUUID();
-      const cutoff = new Date(Date.now() + 86_400_000).toISOString();
-      const payableAt = new Date(Date.now() - 2 * 86_400_000).toISOString();
+      const profileA = randomUUID();
+      const profileB = randomUUID();
+      const cutoff = new Date(Date.now() - 86_400_000).toISOString();
+      const payableAt = new Date(Date.now() - 3 * 86_400_000).toISOString();
 
-      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4::timestamptz)`, [
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
         originA,
         creatorA,
+        profileA,
         25_000,
         payableAt,
       ]);
-      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4::timestamptz)`, [
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
         originB,
         creatorB,
+        profileB,
         25_000,
         payableAt,
       ]);
 
-      const coverageId = await seedCoverage(admin, 30_000);
+      const fundingSourceId = await seedFundingSource(admin);
+      const coverageId = await seedCoverage(admin, fundingSourceId, 30_000);
       await seedBankDayForStandardDue(admin, cutoff);
       const asOf = new Date().toISOString();
 
@@ -145,7 +171,7 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
         assert.ok(holds.length >= 1);
         assert.ok(holds.some((r) => r.reason === 'INSUFFICIENT_CASH_COVERAGE'));
 
-        const reservedTotal = await sumActiveReservations(admin, coverageId);
+        const reservedTotal = await sumActiveReservationsForFundingSource(admin, fundingSourceId);
         assert.ok(reservedTotal <= 30_000);
 
         const aSucceeded = first.ok === true;
@@ -204,20 +230,25 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
 
       const originAdjusted = randomUUID();
       const creatorC = randomUUID();
+      const profileC = randomUUID();
       const adjustedPayableAt = new Date(Date.now() - 5 * 86_400_000).toISOString();
-      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4::timestamptz)`, [
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
         originAdjusted,
         creatorC,
+        profileC,
         30_000,
         adjustedPayableAt,
       ]);
-      await admin.query(`select public.m55_r8_test_seed_r6_adjusted_payable_v1($1,$2,20000,$3::timestamptz)`, [
+      await admin.query(`select public.m55_r8_test_seed_r6_adjusted_payable_v1($1,$2,$3,$4,$5::timestamptz)`, [
         originAdjusted,
         creatorC,
+        profileC,
+        20_000,
         new Date(Date.now() - 86_400_000).toISOString(),
       ]);
 
-      const coverageC = await seedCoverage(admin, 500_000);
+      const fundingSourceC = await seedFundingSource(admin);
+      const coverageC = await seedCoverage(admin, fundingSourceC, 500_000);
       await seedBankDayForStandardDue(admin, cutoff);
       const lockAdjusted = await lockBatch(admin, {
         creatorId: creatorC,
@@ -233,11 +264,12 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
       assert.equal(instruction.settlementPayableJpy, 20_000);
 
       await admin.query('begin');
+      const rollbackFunding = await seedFundingSource(admin, 'ff'.repeat(32));
       await admin.query(
         `insert into public.m55_r8_platform_liquidity_coverage_v1 (
-          coverage_snapshot_id, observed_at, available_jpy, coverage_ratio_bps, source_label, proof_kind
-        ) values ($1, now(), 500000, 10000, 'rollback-fixture-verified', 'STRIPE_BALANCE_SNAPSHOT')`,
-        [randomUUID()],
+          coverage_snapshot_id, funding_source_id, observed_at, available_jpy, coverage_ratio_bps, source_label, proof_kind
+        ) values ($1, $2, now(), 500000, 10000, 'rollback-fixture-verified', 'STRIPE_BALANCE_SNAPSHOT')`,
+        [randomUUID(), rollbackFunding],
       );
       await admin.query('rollback');
       const { rows: covCount } = await admin.query(
@@ -257,6 +289,28 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
       ]);
       assert.equal(Number(ymd.rows[0].m), 2);
       assert.equal(Number(ymd.rows[0].d), 15);
+
+      const creatorD = randomUUID();
+      const profileD = randomUUID();
+      const originD = randomUUID();
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
+        originD,
+        creatorD,
+        profileD,
+        25_000,
+        payableAt,
+      ]);
+      const altSnapshotId = await seedCoverage(admin, fundingSourceId, 30_000);
+      const crossSnapshot = await lockBatch(admin, {
+        creatorId: creatorD,
+        cutoff,
+        batchKey: `batch-alt:${creatorD.slice(0, 8)}`,
+        feeKey: `fee:batch-alt:${creatorD.slice(0, 8)}`,
+        coverageId: altSnapshotId,
+        asOf: new Date().toISOString(),
+      });
+      assert.equal(crossSnapshot.ok, false);
+      assert.equal(crossSnapshot.reason, 'INSUFFICIENT_CASH_COVERAGE');
     } finally {
       await admin.end();
     }
