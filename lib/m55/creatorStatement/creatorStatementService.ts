@@ -1,6 +1,7 @@
 import 'server-only';
 import { loadDashboardSummaryV1 } from '../creatorDashboard/dashboardReadModel';
 import { listSettlementBundlesForCreatorRuntimeV1 } from '../creatorSettlement/r8SettlementDurableRepository';
+import { SettlementPersistedReadError } from '../creatorSettlement/settlementReadErrors';
 import { buildCreatorStatementBundleV1 } from './creatorStatementReadModel';
 
 export async function loadCreatorStatementBundleForSessionV1(input: {
@@ -13,10 +14,15 @@ export async function loadCreatorStatementBundleForSessionV1(input: {
     fromMs: input.fromMs,
     toMs: input.toMs,
   });
-  const lockedBundles = await listSettlementBundlesForCreatorRuntimeV1(input.creatorEconomicIdentityId);
+  let lockedBundles;
+  try {
+    lockedBundles = await listSettlementBundlesForCreatorRuntimeV1(input.creatorEconomicIdentityId);
+  } catch (e) {
+    if (e instanceof SettlementPersistedReadError) throw e;
+    throw new SettlementPersistedReadError();
+  }
   return buildCreatorStatementBundleV1({
     commissionLifecycleCounts: summary.currentEntitlementsByLifecycle,
     lockedBundles,
-    payoutDueDateReliable: false,
   });
 }

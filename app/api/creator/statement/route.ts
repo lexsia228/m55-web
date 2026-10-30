@@ -3,6 +3,7 @@ import { resolveCreatorContextFromSession } from '../../../../lib/m55/creatorDas
 import { parseBoundedEpochRangeV1 } from '../../../../lib/m55/creatorDashboard/reconciliationExport';
 import { PRIVATE_RESPONSE_HEADERS } from '../../../../lib/m55/creatorDistribution/security';
 import { loadCreatorStatementBundleForSessionV1 } from '../../../../lib/m55/creatorStatement/creatorStatementService';
+import { SettlementPersistedReadError } from '../../../../lib/m55/creatorSettlement/settlementReadErrors';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -39,7 +40,10 @@ export async function GET(request: Request) {
       toMs: parsed.toMs,
     });
     return NextResponse.json({ profileStatus: ctx.profileStatus, statement }, { headers: PRIVATE_RESPONSE_HEADERS });
-  } catch {
+  } catch (error) {
+    if (error instanceof SettlementPersistedReadError) {
+      return NextResponse.json({ error: error.code }, { status: 503, headers: PRIVATE_RESPONSE_HEADERS });
+    }
     return NextResponse.json({ error: 'STATEMENT_UNAVAILABLE' }, { status: 503, headers: PRIVATE_RESPONSE_HEADERS });
   }
 }

@@ -9,7 +9,8 @@ export type OperatorPayoutExceptionRowV1 = {
     | 'PAYOUT_FAILED'
     | 'PAYOUT_RETURNED'
     | 'LEGAL_DEADLINE_HOLD'
-    | 'BANK_CALENDAR_UNKNOWN';
+    | 'BANK_CALENDAR_UNKNOWN'
+    | 'SETTLEMENT_READ_UNAVAILABLE';
   escalationRequired: boolean;
   auditReasonRequired: true;
   redactedSummaryJa: string;

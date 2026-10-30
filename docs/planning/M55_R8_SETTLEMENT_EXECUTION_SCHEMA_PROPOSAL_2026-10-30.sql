@@ -26,6 +26,7 @@ create table if not exists public.m55_r8_payout_instructions_v1 (
   net_payout_jpy bigint not null check (net_payout_jpy >= 0),
   parent_instruction_id uuid null references public.m55_r8_payout_instructions_v1 (instruction_id),
   locked_at timestamptz not null,
+  payout_due_reliable boolean not null default false,
   constraint m55_r8_payout_instructions_v1_net_nonnegative check (
     net_payout_jpy = settlement_payable_jpy - payout_processing_fee_jpy - withholding_jpy
   )
@@ -91,7 +92,8 @@ create table if not exists public.m55_r8_platform_liquidity_coverage_v1 (
   observed_at timestamptz not null,
   available_jpy bigint not null check (available_jpy >= 0),
   coverage_ratio_bps integer not null check (coverage_ratio_bps >= 10000 and coverage_ratio_bps <= 20000),
-  source_label text not null check (char_length(source_label) between 1 and 64)
+  source_label text not null check (char_length(source_label) between 1 and 64),
+  proof_kind text not null check (proof_kind in ('BANK_BALANCE_SNAPSHOT', 'STRIPE_BALANCE_SNAPSHOT'))
 );
 
 alter table public.m55_r8_payout_batches_v1 enable row level security;
@@ -114,7 +116,269 @@ create policy m55_r8_payout_instructions_v1_service_role_only on public.m55_r8_p
 create policy m55_r8_payout_batch_lines_v1_service_role_only on public.m55_r8_payout_batch_lines_v1
   for all to service_role using (true) with check (true);
 
+create policy m55_r8_payout_fee_charges_v1_service_role_only on public.m55_r8_payout_fee_charges_v1
+  for all to service_role using (true) with check (true);
+
+create policy m55_r8_payout_attempts_v1_service_role_only on public.m55_r8_payout_attempts_v1
+  for all to service_role using (true) with check (true);
+
+create policy m55_r8_provider_settlement_events_v1_service_role_only on public.m55_r8_provider_settlement_events_v1
+  for all to service_role using (true) with check (true);
+
+create policy m55_r8_platform_liquidity_coverage_v1_service_role_only on public.m55_r8_platform_liquidity_coverage_v1
+  for all to service_role using (true) with check (true);
+
 -- Lock RPC (service_role only): derives eligible lines from R6 ledger, validates coverage snapshot, writes batch atomically.
+
+-- Fragment: appended into M55_R8_SETTLEMENT_EXECUTION_SCHEMA_PROPOSAL_2026-10-30.sql (canonical proposal).
+
+create table if not exists public.m55_r8_platform_liquidity_reservations_v1 (
+  reservation_id uuid primary key,
+  batch_id uuid not null references public.m55_r8_payout_batches_v1 (batch_id),
+  coverage_snapshot_id uuid not null references public.m55_r8_platform_liquidity_coverage_v1 (coverage_snapshot_id),
+  reserved_net_jpy bigint not null check (reserved_net_jpy > 0),
+  created_at timestamptz not null,
+  released_at timestamptz null,
+  constraint m55_r8_platform_liquidity_reservations_v1_batch_unique unique (batch_id)
+);
+
+create table if not exists public.m55_r8_japanese_bank_calendar_days_v1 (
+  jst_year integer not null,
+  jst_month integer not null check (jst_month between 1 and 12),
+  jst_day integer not null check (jst_day between 1 and 31),
+  classification text not null check (classification in ('BUSINESS', 'NON_BUSINESS')),
+  primary key (jst_year, jst_month, jst_day)
+);
+
+alter table public.m55_r8_platform_liquidity_coverage_v1
+  add column if not exists proof_kind text;
+
+update public.m55_r8_platform_liquidity_coverage_v1
+set proof_kind = 'STRIPE_BALANCE_SNAPSHOT'
+where proof_kind is null;
+
+alter table public.m55_r8_platform_liquidity_coverage_v1
+  alter column proof_kind set not null;
+
+alter table public.m55_r8_platform_liquidity_coverage_v1
+  drop constraint if exists m55_r8_platform_liquidity_coverage_v1_proof_kind_chk;
+
+alter table public.m55_r8_platform_liquidity_coverage_v1
+  add constraint m55_r8_platform_liquidity_coverage_v1_proof_kind_chk check (
+    proof_kind in ('BANK_BALANCE_SNAPSHOT', 'STRIPE_BALANCE_SNAPSHOT')
+  );
+
+revoke all on public.m55_r8_platform_liquidity_reservations_v1 from public, anon, authenticated;
+revoke all on public.m55_r8_japanese_bank_calendar_days_v1 from public, anon, authenticated;
+grant select, insert, update on public.m55_r8_platform_liquidity_reservations_v1 to service_role;
+grant select on public.m55_r8_japanese_bank_calendar_days_v1 to service_role;
+
+alter table public.m55_r8_platform_liquidity_reservations_v1 enable row level security;
+alter table public.m55_r8_japanese_bank_calendar_days_v1 enable row level security;
+
+create policy m55_r8_platform_liquidity_reservations_v1_service_role_only
+  on public.m55_r8_platform_liquidity_reservations_v1
+  for all to service_role using (true) with check (true);
+
+create policy m55_r8_japanese_bank_calendar_days_v1_service_role_only
+  on public.m55_r8_japanese_bank_calendar_days_v1
+  for all to service_role using (true) with check (true);
+
+create or replace function public.m55_r8_compute_standard_payout_fee_jpy_v1(p_settlement_payable bigint)
+returns bigint
+language plpgsql
+immutable
+set search_path = ''
+as $fn$
+declare
+  v_excess bigint;
+  v_increment_tens bigint;
+begin
+  if p_settlement_payable is null or p_settlement_payable < 0 or p_settlement_payable > 1000000000 then
+    return null;
+  end if;
+  v_excess := greatest(p_settlement_payable - 20000, 0);
+  v_increment_tens := ((v_excess * 55 + 99999) / 100000);
+  return 770 + 10 * v_increment_tens;
+end;
+$fn$;
+
+create or replace function public.m55_r8_compute_tail_payout_fee_jpy_v1(p_settlement_payable bigint)
+returns bigint
+language plpgsql
+immutable
+set search_path = ''
+as $fn$
+declare
+  v_standard bigint;
+  v_cap bigint;
+begin
+  v_standard := public.m55_r8_compute_standard_payout_fee_jpy_v1(p_settlement_payable);
+  if v_standard is null then
+    return null;
+  end if;
+  v_cap := p_settlement_payable / 4;
+  return least(v_standard, v_cap);
+end;
+$fn$;
+
+create or replace function public.m55_r8_jst_ymd_v1(p_ts timestamptz, out y int, out m int, out d int)
+language sql
+immutable
+set search_path = ''
+as $fn$
+  select
+    extract(year from (p_ts at time zone 'Asia/Tokyo'))::int,
+    extract(month from (p_ts at time zone 'Asia/Tokyo'))::int,
+    extract(day from (p_ts at time zone 'Asia/Tokyo'))::int;
+$fn$;
+
+create or replace function public.m55_r8_classify_jst_bank_day_v1(p_ts timestamptz)
+returns text
+language plpgsql
+stable
+set search_path = ''
+as $fn$
+declare
+  v_y int;
+  v_m int;
+  v_d int;
+  v_class text;
+begin
+  select y, m, d into v_y, v_m, v_d from public.m55_r8_jst_ymd_v1(p_ts);
+  select c.classification
+  into v_class
+  from public.m55_r8_japanese_bank_calendar_days_v1 as c
+  where c.jst_year = v_y and c.jst_month = v_m and c.jst_day = v_d;
+  if v_class is null then
+    return 'UNKNOWN';
+  end if;
+  return v_class;
+end;
+$fn$;
+
+create or replace function public.m55_r8_adjust_next_japanese_bank_business_day_v1(p_scheduled timestamptz)
+returns timestamptz
+language plpgsql
+stable
+set search_path = ''
+as $fn$
+declare
+  v_cursor timestamptz := p_scheduled;
+  v_i int;
+  v_class text;
+begin
+  for v_i in 0..369 loop
+    v_class := public.m55_r8_classify_jst_bank_day_v1(v_cursor);
+    if v_class = 'UNKNOWN' then
+      return null;
+    end if;
+    if v_class = 'BUSINESS' then
+      return v_cursor;
+    end if;
+    v_cursor := v_cursor + interval '1 day';
+  end loop;
+  return null;
+end;
+$fn$;
+
+create or replace function public.m55_r8_standard_payout_due_utc_v1(p_cutoff timestamptz)
+returns timestamptz
+language plpgsql
+immutable
+set search_path = ''
+as $fn$
+declare
+  v_jst timestamptz;
+  v_y int;
+  v_m int;
+begin
+  v_jst := p_cutoff at time zone 'Asia/Tokyo';
+  v_y := extract(year from v_jst)::int;
+  v_m := extract(month from v_jst)::int + 1;
+  if v_m > 12 then
+    v_m := 1;
+    v_y := v_y + 1;
+  end if;
+  return make_timestamptz(v_y, v_m, 15, 0, 0, 0, 'Asia/Tokyo');
+end;
+$fn$;
+
+create or replace function public.m55_r8_build_lock_result_json_v1(p_batch_id uuid)
+returns jsonb
+language plpgsql
+stable
+set search_path = ''
+as $fn$
+declare
+  v_batch public.m55_r8_payout_batches_v1%rowtype;
+  v_inst public.m55_r8_payout_instructions_v1%rowtype;
+  v_fee public.m55_r8_payout_fee_charges_v1%rowtype;
+  v_lines jsonb;
+begin
+  select * into v_batch from public.m55_r8_payout_batches_v1 b where b.batch_id = p_batch_id;
+  if not found then
+    return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
+  end if;
+  select * into v_inst from public.m55_r8_payout_instructions_v1 i where i.instruction_id = v_batch.instruction_id;
+  select * into v_fee from public.m55_r8_payout_fee_charges_v1 f where f.instruction_id = v_batch.instruction_id;
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'commissionEventId', l.commission_event_id,
+        'instructionId', l.instruction_id,
+        'allocatedGrossCommissionJpy', l.allocated_gross_commission_jpy
+      )
+      order by l.commission_event_id
+    ),
+    '[]'::jsonb
+  )
+  into v_lines
+  from public.m55_r8_payout_batch_lines_v1 l
+  where l.instruction_id = v_batch.instruction_id;
+
+  return jsonb_build_object(
+    'ok', true,
+    'created', false,
+    'bundle', jsonb_build_object(
+      'batch', jsonb_build_object(
+        'batchId', v_batch.batch_id,
+        'creatorEconomicIdentityId', v_batch.creator_economic_identity_id,
+        'cutoffInstantUtc', to_jsonb(v_batch.cutoff_at),
+        'idempotencyKey', v_batch.idempotency_key,
+        'lockedAtUtc', to_jsonb(v_batch.locked_at),
+        'instructionId', v_batch.instruction_id
+      ),
+      'instruction', jsonb_build_object(
+        'instructionId', v_inst.instruction_id,
+        'creatorEconomicIdentityId', v_inst.creator_economic_identity_id,
+        'batchId', v_inst.batch_id,
+        'idempotencyKey', v_batch.idempotency_key,
+        'mode', v_inst.mode,
+        'cutoffInstantUtc', to_jsonb(v_batch.cutoff_at),
+        'payoutDueAtUtc', to_jsonb(v_inst.payout_due_at),
+        'settlementPayableJpy', v_inst.settlement_payable_jpy,
+        'payoutProcessingFeeJpy', v_inst.payout_processing_fee_jpy,
+        'payoutFeePolicyVersion', v_inst.payout_fee_policy_version,
+        'withholdingJpy', v_inst.withholding_jpy,
+        'netPayoutJpy', v_inst.net_payout_jpy,
+        'lockedAtUtc', to_jsonb(v_inst.locked_at),
+        'parentInstructionId', v_inst.parent_instruction_id,
+        'payoutDueReliable', v_inst.payout_due_reliable
+      ),
+      'feeCharge', jsonb_build_object(
+        'feeChargeId', v_fee.fee_charge_id,
+        'instructionId', v_fee.instruction_id,
+        'feeJpy', v_fee.fee_jpy,
+        'feePolicyVersion', v_fee.fee_policy_version,
+        'idempotencyKey', v_fee.idempotency_key
+      ),
+      'batchLines', v_lines
+    )
+  );
+end;
+$fn$;
+
 create or replace function public.m55_r8_lock_payout_batch_v1(
   p_creator_economic_identity_id uuid,
   p_cutoff_at timestamptz,
@@ -130,24 +394,352 @@ security definer
 set search_path = ''
 as $fn$
 declare
+  v_existing_batch_id uuid;
+  v_fee_instruction_id uuid;
+  v_fee_batch_id uuid;
   v_available bigint;
   v_ratio int;
+  v_observed timestamptz;
+  v_proof_kind text;
+  v_reserved bigint;
+  v_effective bigint;
+  v_settlement_payable bigint := 0;
+  v_oldest timestamptz;
+  v_mode text;
+  v_fee bigint;
+  v_net bigint;
+  v_due timestamptz;
+  v_due_reliable boolean := false;
+  v_batch_id uuid;
+  v_instruction_id uuid;
+  v_fee_charge_id uuid;
+  v_tail_due timestamptz;
+  v_tail_forced boolean := false;
+  v_candidate timestamptz;
+  v_result jsonb;
+  v_line record;
+  v_payable_already_allocated boolean := false;
 begin
-  if to_regclass('public.m55_r8_payout_batches_v1') is null then
+  if to_regclass('public.m55_r8_payout_batches_v1') is null
+     or to_regclass('public.m55_r6_commission_ledger_events') is null then
     return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
   end if;
 
-  select c.available_jpy, c.coverage_ratio_bps
-  into v_available, v_ratio
+  if p_batch_idempotency_key is null or char_length(p_batch_idempotency_key) < 8
+     or p_fee_idempotency_key is null or char_length(p_fee_idempotency_key) < 8 then
+    return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
+  end if;
+
+  if p_withholding_jpy is null or p_withholding_jpy < 0 or p_withholding_jpy > 1000000000 then
+    return jsonb_build_object('ok', false, 'reason', 'NEGATIVE_NET_PAYOUT');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtext('m55_r8_batch:' || p_batch_idempotency_key));
+
+  select b.batch_id
+  into v_existing_batch_id
+  from public.m55_r8_payout_batches_v1 as b
+  where b.idempotency_key = p_batch_idempotency_key
+  for update;
+
+  if v_existing_batch_id is not null then
+    return public.m55_r8_build_lock_result_json_v1(v_existing_batch_id);
+  end if;
+
+  select f.instruction_id
+  into v_fee_instruction_id
+  from public.m55_r8_payout_fee_charges_v1 as f
+  where f.idempotency_key = p_fee_idempotency_key;
+
+  if v_fee_instruction_id is not null then
+    select i.batch_id into v_fee_batch_id
+    from public.m55_r8_payout_instructions_v1 as i
+    where i.instruction_id = v_fee_instruction_id;
+    if v_fee_batch_id is not null then
+      return jsonb_build_object('ok', false, 'reason', 'DUPLICATE_IDEMPOTENCY_CONFLICT');
+    end if;
+  end if;
+
+  select c.available_jpy, c.coverage_ratio_bps, c.observed_at, c.proof_kind
+  into v_available, v_ratio, v_observed, v_proof_kind
   from public.m55_r8_platform_liquidity_coverage_v1 as c
   where c.coverage_snapshot_id = p_coverage_snapshot_id;
 
-  if v_available is null or v_ratio < 10000 then
+  if v_available is null or v_ratio is null or v_ratio < 10000 then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
   end if;
 
-  -- Full allocation + instruction insert implemented when Human GO applies this proposal.
-  return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
+  if v_proof_kind is null or v_proof_kind not in ('BANK_BALANCE_SNAPSHOT', 'STRIPE_BALANCE_SNAPSHOT') then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  if v_observed is null or v_observed < (p_as_of - interval '24 hours') then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  select coalesce(sum(r.reserved_net_jpy), 0)
+  into v_reserved
+  from public.m55_r8_platform_liquidity_reservations_v1 as r
+  where r.released_at is null;
+
+  v_effective := v_available - v_reserved;
+  if v_effective < 0 then
+    v_effective := 0;
+  end if;
+
+  create temporary table tmp_r8_eligible (
+    commission_event_id uuid primary key,
+    payable_at timestamptz not null,
+    gross_jpy bigint not null
+  ) on commit drop;
+
+  insert into tmp_r8_eligible (commission_event_id, payable_at, gross_jpy)
+  with ordered as (
+    select
+      e.commission_event_id,
+      e.origin_commission_event_id,
+      e.event_family,
+      e.lifecycle_state_after_event,
+      e.entitlement_after_event_jpy,
+      e.recorded_at,
+      e.ledger_event_seq,
+      case
+        when e.event_family = 'COMMISSION_ACCRUED' then e.commission_event_id
+        else e.origin_commission_event_id
+      end as origin_key
+    from public.m55_r6_commission_ledger_events as e
+    where e.creator_economic_identity_id = p_creator_economic_identity_id
+  ),
+  latest as (
+    select distinct on (o.origin_key)
+      o.origin_key as commission_event_id,
+      o.recorded_at as payable_at,
+      o.lifecycle_state_after_event,
+      o.entitlement_after_event_jpy as gross_jpy
+    from ordered as o
+    where o.origin_key is not null
+    order by o.origin_key, o.ledger_event_seq desc
+  )
+  select l.commission_event_id, l.payable_at, l.gross_jpy
+  from latest as l
+  where l.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
+    and l.gross_jpy > 0
+    and l.gross_jpy <= 1000000000
+    and l.payable_at <= p_cutoff_at
+    and not exists (
+      select 1
+      from public.m55_r8_payout_batch_lines_v1 as bl
+      where bl.commission_event_id = l.commission_event_id
+    );
+
+  select coalesce(sum(t.gross_jpy), 0), min(t.payable_at)
+  into v_settlement_payable, v_oldest
+  from tmp_r8_eligible as t;
+
+  if v_settlement_payable is null or v_settlement_payable <= 0 then
+    select exists (
+      with ordered as (
+        select
+          e.commission_event_id,
+          e.origin_commission_event_id,
+          e.event_family,
+          e.lifecycle_state_after_event,
+          e.recorded_at,
+          e.ledger_event_seq,
+          case
+            when e.event_family = 'COMMISSION_ACCRUED' then e.commission_event_id
+            else e.origin_commission_event_id
+          end as origin_key
+        from public.m55_r6_commission_ledger_events as e
+        where e.creator_economic_identity_id = p_creator_economic_identity_id
+      ),
+      latest as (
+        select distinct on (o.origin_key)
+          o.origin_key as commission_event_id,
+          o.recorded_at as payable_at,
+          o.lifecycle_state_after_event
+        from ordered as o
+        where o.origin_key is not null
+        order by o.origin_key, o.ledger_event_seq desc
+      )
+      select 1
+      from latest as l
+      where l.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
+        and l.payable_at <= p_cutoff_at
+        and exists (
+          select 1
+          from public.m55_r8_payout_batch_lines_v1 as bl
+          where bl.commission_event_id = l.commission_event_id
+        )
+    )
+    into v_payable_already_allocated;
+
+    if v_payable_already_allocated then
+      return jsonb_build_object('ok', false, 'reason', 'COMMISSION_ALREADY_ALLOCATED');
+    end if;
+    return jsonb_build_object('ok', false, 'reason', 'NO_ELIGIBLE_COMMISSIONS');
+  end if;
+
+  if v_oldest is not null then
+    v_tail_due := v_oldest + make_interval(days => 180);
+    v_tail_forced := p_as_of >= v_tail_due;
+  end if;
+
+  if p_applicable_legal_due_at is not null and p_as_of >= p_applicable_legal_due_at then
+    v_mode := 'LEGAL_DEADLINE';
+  elsif v_settlement_payable >= 20000 then
+    v_mode := 'STANDARD_THRESHOLD';
+  elsif v_tail_forced then
+    v_mode := 'TAIL_FORCED';
+  else
+    return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_MODE_UNRESOLVED');
+  end if;
+
+  v_candidate := null;
+  if v_mode = 'STANDARD_THRESHOLD' then
+    v_candidate := public.m55_r8_standard_payout_due_utc_v1(p_cutoff_at);
+  elsif v_mode in ('TAIL_FORCED', 'LEGAL_DEADLINE') then
+    if v_oldest is null then
+      return jsonb_build_object('ok', false, 'reason', 'PAYOUT_DUE_UNRESOLVED');
+    end if;
+    v_candidate := v_oldest + make_interval(days => 180);
+  end if;
+
+  if p_applicable_legal_due_at is not null then
+    if v_candidate is null or p_applicable_legal_due_at < v_candidate then
+      v_candidate := p_applicable_legal_due_at;
+    end if;
+  end if;
+
+  if v_candidate is null then
+    return jsonb_build_object('ok', false, 'reason', 'PAYOUT_DUE_UNRESOLVED');
+  end if;
+
+  v_due := public.m55_r8_adjust_next_japanese_bank_business_day_v1(v_candidate);
+  if v_due is null then
+    return jsonb_build_object('ok', false, 'reason', 'PAYOUT_DUE_UNRESOLVED');
+  end if;
+  v_due_reliable := true;
+
+  if v_mode in ('TAIL_FORCED', 'LEGAL_DEADLINE') then
+    v_fee := public.m55_r8_compute_tail_payout_fee_jpy_v1(v_settlement_payable);
+  else
+    v_fee := public.m55_r8_compute_standard_payout_fee_jpy_v1(v_settlement_payable);
+  end if;
+
+  if v_fee is null then
+    return jsonb_build_object('ok', false, 'reason', 'NEGATIVE_NET_PAYOUT');
+  end if;
+
+  v_net := v_settlement_payable - v_fee - p_withholding_jpy;
+  if v_net < 0 then
+    return jsonb_build_object('ok', false, 'reason', 'NEGATIVE_NET_PAYOUT');
+  end if;
+
+  if v_effective < v_net then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  v_batch_id := gen_random_uuid();
+  v_instruction_id := gen_random_uuid();
+  v_fee_charge_id := gen_random_uuid();
+
+  begin
+    insert into public.m55_r8_payout_batches_v1 (
+      batch_id,
+      creator_economic_identity_id,
+      cutoff_at,
+      idempotency_key,
+      locked_at,
+      instruction_id
+    ) values (
+      v_batch_id,
+      p_creator_economic_identity_id,
+      p_cutoff_at,
+      p_batch_idempotency_key,
+      p_as_of,
+      v_instruction_id
+    );
+
+    insert into public.m55_r8_payout_instructions_v1 (
+      instruction_id,
+      batch_id,
+      creator_economic_identity_id,
+      mode,
+      payout_due_at,
+      settlement_payable_jpy,
+      payout_processing_fee_jpy,
+      payout_fee_policy_version,
+      withholding_jpy,
+      net_payout_jpy,
+      parent_instruction_id,
+      locked_at,
+      payout_due_reliable
+    ) values (
+      v_instruction_id,
+      v_batch_id,
+      p_creator_economic_identity_id,
+      v_mode,
+      v_due,
+      v_settlement_payable,
+      v_fee,
+      'r8_b_payout_fee_v1',
+      p_withholding_jpy,
+      v_net,
+      null,
+      p_as_of,
+      v_due_reliable
+    );
+
+    insert into public.m55_r8_payout_fee_charges_v1 (
+      fee_charge_id,
+      instruction_id,
+      fee_jpy,
+      fee_policy_version,
+      idempotency_key
+    ) values (
+      v_fee_charge_id,
+      v_instruction_id,
+      v_fee,
+      'r8_b_payout_fee_v1',
+      p_fee_idempotency_key
+    );
+
+    for v_line in select * from tmp_r8_eligible loop
+      insert into public.m55_r8_payout_batch_lines_v1 (
+        commission_event_id,
+        instruction_id,
+        allocated_gross_commission_jpy
+      ) values (
+        v_line.commission_event_id,
+        v_instruction_id,
+        v_line.gross_jpy
+      );
+    end loop;
+
+    insert into public.m55_r8_platform_liquidity_reservations_v1 (
+      reservation_id,
+      batch_id,
+      coverage_snapshot_id,
+      reserved_net_jpy,
+      created_at,
+      released_at
+    ) values (
+      gen_random_uuid(),
+      v_batch_id,
+      p_coverage_snapshot_id,
+      v_net,
+      p_as_of,
+      null
+    );
+  exception
+    when unique_violation then
+      return jsonb_build_object('ok', false, 'reason', 'COMMISSION_ALREADY_ALLOCATED');
+  end;
+
+  v_result := public.m55_r8_build_lock_result_json_v1(v_batch_id);
+  v_result := jsonb_set(v_result, '{created}', 'true'::jsonb, true);
+  return v_result;
 end;
 $fn$;
 

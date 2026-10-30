@@ -24,8 +24,11 @@ import type {
 } from './r8SettlementExecutionContract';
 
 export type R8CPlatformCashCoverageProofV1 =
-  | { ok: true; availableJpy: number; proofSnapshotId: string }
-  | { ok: false; reason: 'COVERAGE_PROOF_MISSING' | 'COVERAGE_INSUFFICIENT' };
+  | { ok: true; availableJpy: number; effectiveAvailableJpy: number; proofSnapshotId: string }
+  | {
+      ok: false;
+      reason: 'COVERAGE_PROOF_MISSING' | 'COVERAGE_INSUFFICIENT' | 'COVERAGE_STALE' | 'COVERAGE_UNVERIFIED';
+    };
 
 export type R8CDurableLockCoreInputV1 = Omit<R8CDurableLockInputV1, 'commissionLines'> & {
   commissionLines: ReadonlyArray<R8BCommissionLedgerLineV1>;
@@ -75,7 +78,9 @@ export function lockSettlementBatchCoreV1(input: R8CDurableLockCoreInputV1): R8C
     withholdingJpy: input.withholdingJpy,
   });
   if (net == null) return { ok: false, reason: 'NEGATIVE_NET_PAYOUT' };
-  if (input.coverage.availableJpy < net) {
+  const spendable =
+    input.coverage.effectiveAvailableJpy ?? input.coverage.availableJpy;
+  if (spendable < net) {
     return { ok: false, reason: 'INSUFFICIENT_CASH_COVERAGE' };
   }
 

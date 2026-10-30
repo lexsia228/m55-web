@@ -51,21 +51,39 @@ export async function loadOperatorPayoutExceptionsV1(): Promise<OperatorPayoutEx
   });
 
   try {
-    const { data: failedAttempts } = await db
+    const { data: failedAttempts, error: attemptErr } = await db
       .from('m55_r8_payout_attempts_v1')
       .select('instruction_id,status')
       .in('status', ['FAILED', 'RETURNED']);
-    for (const attempt of failedAttempts ?? []) {
-      exceptions.push({
-        creatorEconomicIdentityIdSuffix: String(attempt.instruction_id).slice(-8),
-        exceptionKind: attempt.status === 'RETURNED' ? 'PAYOUT_RETURNED' : 'PAYOUT_FAILED',
-        escalationRequired: true,
-        auditReasonRequired: true,
-        redactedSummaryJa: '精算指示の送金試行が失敗または返金されました。人手確認が必要です。',
-      });
+    if (attemptErr) {
+      if (!/does not exist/i.test(attemptErr.message ?? '') && attemptErr.code !== '42P01') {
+        exceptions.push({
+          creatorEconomicIdentityIdSuffix: 'GLOBAL',
+          exceptionKind: 'SETTLEMENT_READ_UNAVAILABLE',
+          escalationRequired: true,
+          auditReasonRequired: true,
+          redactedSummaryJa: '精算永続化データの読み取りに失敗しました。DB障害の可能性があります。',
+        });
+      }
+    } else {
+      for (const attempt of failedAttempts ?? []) {
+        exceptions.push({
+          creatorEconomicIdentityIdSuffix: String(attempt.instruction_id).slice(-8),
+          exceptionKind: attempt.status === 'RETURNED' ? 'PAYOUT_RETURNED' : 'PAYOUT_FAILED',
+          escalationRequired: true,
+          auditReasonRequired: true,
+          redactedSummaryJa: '精算指示の送金試行が失敗または返金されました。人手確認が必要です。',
+        });
+      }
     }
   } catch {
-    // attempts table not applied
+    exceptions.push({
+      creatorEconomicIdentityIdSuffix: 'GLOBAL',
+      exceptionKind: 'SETTLEMENT_READ_UNAVAILABLE',
+      escalationRequired: true,
+      auditReasonRequired: true,
+      redactedSummaryJa: '精算永続化データの読み取りに失敗しました。DB障害の可能性があります。',
+    });
   }
 
   if (!exceptions.some((row) => row.exceptionKind === 'BANK_CALENDAR_UNKNOWN')) {

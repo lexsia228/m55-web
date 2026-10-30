@@ -42,6 +42,8 @@ export type R8CLockedSettlementBundleV1 = {
   instruction: R8BPayoutInstructionV1;
   feeCharge: R8CPayoutFeeChargeV1;
   batchLines: R8CSettlementBatchLineV1[];
+  payoutDueReliable?: boolean;
+  attempts?: ReadonlyArray<R8CPayoutAttemptV1>;
 };
 
 export type R8CDurableLockInputV1 = {

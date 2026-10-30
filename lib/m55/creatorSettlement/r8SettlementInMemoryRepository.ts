@@ -82,5 +82,10 @@ export function inMemorySettlementRepositoryForTests(): DurableSettlementReposit
 }
 
 export function testCoverageProofV1(availableJpy: number): R8CPlatformCashCoverageProofV1 {
-  return { ok: true, availableJpy, proofSnapshotId: 'TEST_FIXTURE_COVERAGE' };
+  return {
+    ok: true,
+    availableJpy,
+    effectiveAvailableJpy: availableJpy,
+    proofSnapshotId: 'TEST_FIXTURE_COVERAGE',
+  };
 }
