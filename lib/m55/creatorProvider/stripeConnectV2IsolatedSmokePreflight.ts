@@ -1,3 +1,7 @@
+import {
+  evaluateIsolatedSupabaseAlignmentV1,
+  listIsolatedSupabaseAlignmentChecklistV1,
+} from './r8IsolatedSupabaseAlignment';
 import { classifyStripeConnectRuntime } from './stripeConnectV2Semantics';
 
 /** Fixed smoke economic identity — override only via env for multi-machine isolation. */
@@ -50,5 +54,6 @@ export function listIsolatedStripeConnectPreflightMissingV1(
   if (!resolveIsolatedDatabaseUrlV1(env)) {
     missing.push('Set M55_R8_ISOLATED_DATABASE_URL (non-Production Postgres) before hosted onboarding');
   }
+  missing.push(...listIsolatedSupabaseAlignmentChecklistV1(env));
   return missing;
 }

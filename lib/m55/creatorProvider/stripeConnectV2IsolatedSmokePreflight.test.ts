@@ -16,13 +16,14 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 describe('R8 isolated Stripe smoke preflight', () => {
-  it('requires origin and isolated DB before Stripe calls', () => {
+  it('requires origin, isolated DB, and Supabase alignment before Stripe calls', () => {
     const missing = listIsolatedStripeConnectPreflightMissingV1({
       STRIPE_SECRET_KEY: 'sk_test_placeholder',
       M55_STRIPE_CONNECT_TESTMODE_ENABLED: 'true',
     });
     assert.ok(missing.some((line) => line.includes('M55_PUBLIC_ORIGIN')));
     assert.ok(missing.some((line) => line.includes('M55_R8_ISOLATED_DATABASE_URL')));
+    assert.ok(missing.some((line) => line.includes('NEXT_PUBLIC_SUPABASE_URL')));
   });
 
   it('uses stable create idempotency key per economic identity', () => {

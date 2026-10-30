@@ -94,6 +94,13 @@ describe('R8-A API routes — fail-closed markers', () => {
     assert.match(src, /markOnboardingSessionCompletedV1/);
     assert.match(src, /retrieveAccountSnapshot/);
   });
+
+  it('connect webhook route is isolated-gated and signature verified', () => {
+    const src = readFileSync(join(process.cwd(), 'app/api/stripe/connect/webhook/route.ts'), 'utf8');
+    assert.match(src, /canAcceptIsolatedConnectWebhookRequestV1/);
+    assert.match(src, /verifyStripeConnectWebhookSignatureV1/);
+    assert.match(src, /snapshotSyncApplied: false/);
+  });
 });
 
 describe('R8-A adapter resolution — not silently FAKE in production code path', () => {

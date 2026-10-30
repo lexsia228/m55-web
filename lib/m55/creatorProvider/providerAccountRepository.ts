@@ -67,12 +67,26 @@ export async function loadProviderAccountByEconomicIdentityV1(
   return mapRow(data as DbRow);
 }
 
+export async function loadCreatorEconomicIdentityByStripeAccountIdV1(
+  stripeAccountId: string,
+): Promise<string | null> {
+  const db = getSupabaseAdmin() as any;
+  const { data, error } = await db
+    .from('m55_r8_stripe_connected_accounts_v1')
+    .select('creator_economic_identity_id')
+    .eq('stripe_account_id', stripeAccountId)
+    .maybeSingle();
+  if (error) throw new Error('PROVIDER_ACCOUNT_UNAVAILABLE');
+  if (!data?.creator_economic_identity_id) return null;
+  return data.creator_economic_identity_id as string;
+}
+
 export async function appendProviderOnboardingEventV1(input: {
   creatorEconomicIdentityId: string;
   eventType: string;
   idempotencyKey: string;
   payloadRedacted?: Record<string, unknown>;
-}): Promise<void> {
+}): Promise<'inserted' | 'duplicate'> {
   const db = getSupabaseAdmin() as any;
   const { error } = await db.from('m55_r8_provider_onboarding_events_v1').insert({
     creator_economic_identity_id: input.creatorEconomicIdentityId,
@@ -80,9 +94,11 @@ export async function appendProviderOnboardingEventV1(input: {
     idempotency_key: input.idempotencyKey,
     payload_redacted: input.payloadRedacted ?? {},
   });
-  if (error && !String(error.message ?? '').includes('duplicate')) {
-    throw new Error('PROVIDER_EVENT_APPEND_FAILED');
-  }
+  if (!error) return 'inserted';
+  const code = String((error as { code?: string }).code ?? '');
+  const message = String(error.message ?? '');
+  if (code === '23505' || message.includes('duplicate')) return 'duplicate';
+  throw new Error('PROVIDER_EVENT_APPEND_FAILED');
 }
 
 export async function ensureProviderAccountCreationRowV1(

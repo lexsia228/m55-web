@@ -2,72 +2,81 @@
 
 **Scope:** local / isolated verification only. No Production or Preview mutation. No live keys. No secret values in logs, chat, git, or review patches.
 
-## Classification (do not over-claim)
+## Two lanes (do not mix)
 
-| Step | What smoke + open scripts prove | Not proven |
-|------|----------------------------------|------------|
-| API smoke | Test-mode gates, **one reused** Connect test account (stable idempotency), onboarding link issuance, account retrieve | Hosted onboarding **completion**, **owned-session** return, DB sync, webhooks |
+| Lane | Purpose | Stripe Connect account owner |
+|------|---------|------------------------------|
+| **API smoke** | `m55-r8-stripe-connect-v2-isolated-test-e2e.mjs` — reachability + link issuance | Fixed smoke economic identity in `.m55_r8_stripe_connect_isolated/state.json` |
+| **Creator formal E2E** | Signed-in Creator → `POST /api/creator/provider/onboarding` | Creator’s `economic_identity_id` row in `m55_r8_stripe_connected_accounts_v1` (reused; stable create idempotency) |
 
-Success JSON classification: **`STRIPE_CONNECT_V2_API_SMOKE`** only.
+Do **not** use the smoke account for Creator return/session proof. Do **not** create extra Connect accounts on retries.
 
-## Preconditions (Human-owned — all required before Stripe HTTP)
+## DB / app connection alignment (required before Stripe HTTP or webhooks)
 
-1. `sk_test_*` in `STRIPE_SECRET_KEY` or `M55_STRIPE_CONNECT_SECRET_KEY` (Human sets locally only).
-2. `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`
-3. `M55_PUBLIC_ORIGIN=http://localhost:3000` (or your **isolated** dev origin — must match redirect validation exactly, including port).
-4. `M55_R8_ISOLATED_DATABASE_URL=postgresql://…` (**non-Production** Postgres with R8 provider schema applied).
-5. **Not** `M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER=true`
+The app writes via **`getSupabaseAdmin()`** → `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`.  
+Preflight **`M55_R8_ISOLATED_DATABASE_URL`** must describe the **same Supabase project** (or loopback + declared project ref).
 
-Optional:
-
-- `M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_ECONOMIC_IDENTITY_ID` — override default smoke economic identity UUID.
-- `M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET=true` — **once**, if persisted account is invalid and must be replaced.
-
-Persisted state (gitignored): `.m55_r8_stripe_connect_isolated/state.json`  
-Onboarding URL (gitignored, mode 0600): `.m55_r8_stripe_connect_isolated/onboarding.url` — **never** paste into chat.
-
-## API smoke (single account reuse)
+Verify alignment (no secrets in output):
 
 ```bash
+npx tsx scripts/m55-r8-verify-isolated-supabase-alignment.mjs
+```
+
+Expect JSON: `{ ok: true, supabaseProjectRefSuffix: "…6chars", postgresHostKind: "supabase_direct"|"loopback" }`.
+
+For local Docker Postgres used only for settlement integration tests, set **`M55_R8_ISOLATED_SUPABASE_PROJECT_REF`** to the same ref as `NEXT_PUBLIC_SUPABASE_URL` when using loopback.
+
+## Preconditions (Human-owned)
+
+1. `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — isolated Supabase project only.
+2. `M55_R8_ISOLATED_DATABASE_URL` — direct Postgres URL for **same** project (`db.<ref>.supabase.co`) or loopback + `M55_R8_ISOLATED_SUPABASE_PROJECT_REF`.
+3. R8 provider migration applied on that project (`20261029000000_m55_r8_a_creator_provider_onboarding_v1.sql`).
+4. `sk_test_*`, `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`, `M55_PUBLIC_ORIGIN` (port-exact).
+5. **Not** `M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER=true`.
+
+Optional smoke: `M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET=true` (once).
+
+## API smoke
+
+```bash
+npx tsx scripts/m55-r8-verify-isolated-supabase-alignment.mjs
 npx tsx scripts/m55-r8-stripe-connect-v2-isolated-test-e2e.mjs
-```
-
-Keyless preflight (exit `2`, no Stripe HTTP):
-
-```bash
-env -u STRIPE_SECRET_KEY -u M55_STRIPE_CONNECT_SECRET_KEY -u M55_STRIPE_CONNECT_TESTMODE_ENABLED \
-  -u M55_PUBLIC_ORIGIN -u M55_R8_ISOLATED_DATABASE_URL -u M55_R8_INTEGRATION_DATABASE_URL \
-  npx tsx scripts/m55-r8-stripe-connect-v2-isolated-test-e2e.mjs
-```
-
-Open onboarding URL locally **without printing it**:
-
-```bash
 npx tsx scripts/m55-r8-open-isolated-stripe-onboarding-url.mjs
 ```
 
-Re-runs reuse the same Connect account from `state.json` (no new account unless reset flag).
+Classification: **`STRIPE_CONNECT_V2_API_SMOKE`** only.
 
-## Browser return (owned session — not smoke fake session)
+## Creator formal E2E (owned session)
 
-Smoke script uses a **session-less** Stripe return URL for link creation only. **Completion** must use existing app paths:
+1. Ensure ACTIVE Creator + tax profile for your Clerk test user (`docs/planning/M55_R8_ISOLATED_CREATOR_E2E_SEED.sql` if none).
+2. Sign in on `M55_PUBLIC_ORIGIN` → `/creator/portal`.
+3. `POST /api/creator/provider/onboarding` with `{ "action":"START"|"RESUME", "idempotencyKey":"…" }`.
+4. Open returned `onboardingUrl` in browser (not logged by scripts).
+5. Return to `/creator/portal?provider=return&session=<sessionId from API>`.
+6. Refresh provider status → DB snapshot sync via existing `buildProviderStatusBundleV1`.
 
-1. Start isolated app on `M55_PUBLIC_ORIGIN` with Clerk test user signed in.
-2. Complete tax profile if required (`/creator/portal`).
-3. `POST /api/creator/provider/onboarding` with `{ action, idempotencyKey }` → response includes `sessionId` + `onboardingUrl` (Human browser only).
-4. Finish Stripe hosted onboarding; land on `/creator/portal?provider=return&session=<sessionId>`.
-5. `GET /api/creator/provider/status?refreshProvider=1` (or portal load) → `verifyOnboardingSessionOwnedAndPendingV1` + `syncProviderSnapshotV1`.
+## Isolated Connect webhook (not Production ingress)
 
-Do **not** treat `session=e2e-smoke` or API-smoke return URLs as completion proof.
+Production **`R8_C_PROVIDER_WEBHOOK_INGRESS_MODE`** remains in-memory **`DISABLED`**.  
+Isolated HTTP ingress: **`POST /api/stripe/connect/webhook`** when:
 
-## E2E GREEN gates (all required — still not claimed by smoke)
+- `M55_R8_ISOLATED_STRIPE_CONNECT_WEBHOOK_ENABLED=true`
+- alignment script passes
+- `M55_R8_STRIPE_CONNECT_WEBHOOK_SECRET` (Stripe test `whsec_…`)
 
-1. Hosted onboarding completed in browser.  
-2. Return with **DB-issued** `session` query param.  
-3. Isolated DB rows updated (provider account + snapshot).  
-4. Receive-capability sync matches Stripe snapshot.  
-5. Test webhook ingested idempotently.
+Stripe CLI example (Human local):
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/connect/webhook
+```
+
+**Implemented:** signature verification, allowed Connect event types, DB append to `m55_r8_provider_onboarding_events_v1`, idempotency by `stripe_evt:<event id>`.  
+**Not yet applied from webhooks:** automatic payout-capability snapshot sync (`snapshotSyncApplied: false` until v2 event shape is evidenced in isolation).
+
+## E2E GREEN (all required — not claimed by smoke alone)
+
+Hosted onboarding + owned return + DB provider rows + receive sync + signed webhook receipt.
 
 ## Forbidden
 
-- `sk_live_*`, Production/Preview DB mutation, Production Connect, real payouts, `PRODUCTION_CASH_ACTIVATION=true`
+- `sk_live_*`, Production/Preview DB, Production Connect, real payouts, `PRODUCTION_CASH_ACTIVATION=true`
