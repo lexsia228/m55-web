@@ -25,6 +25,8 @@ describe('R8-A readiness — §8 vs deployed R7', () => {
       linkState: 'NOT_STARTED',
       providerSnapshot: null,
       stripeAccountId: null,
+      providerLastSyncedAt: null,
+      providerDowngradeActive: false,
       v1JapanBlocked: false,
     });
     assert.equal(snapshot.r7ReferralIssueEligible, true);
@@ -49,6 +51,8 @@ describe('R8-A readiness — §8 vs deployed R7', () => {
         transfersCapability: 'active',
         requirementsCurrentlyDueCount: 0,
       },
+      providerLastSyncedAt: new Date().toISOString(),
+      providerDowngradeActive: false,
       v1JapanBlocked: false,
     });
     assert.ok(snapshot.blockReasons.includes('AWAITING_HUMAN_FINAL_APPROVAL'));
@@ -71,6 +75,8 @@ describe('R8-A readiness — §8 vs deployed R7', () => {
         transfersCapability: 'active',
         requirementsCurrentlyDueCount: 0,
       },
+      providerLastSyncedAt: new Date().toISOString(),
+      providerDowngradeActive: false,
       v1JapanBlocked: false,
     });
     assert.equal(snapshot.providerPayoutReadinessGreen, false);

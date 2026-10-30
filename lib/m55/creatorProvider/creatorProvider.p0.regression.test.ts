@@ -18,6 +18,8 @@ describe('P0-1 §8 pre-activation onboarding path', () => {
       linkState: 'NOT_STARTED',
       providerSnapshot: null,
       stripeAccountId: null,
+      providerLastSyncedAt: null,
+      providerDowngradeActive: false,
       v1JapanBlocked: false,
     });
     assert.ok(snapshot.blockReasons.includes('PROFILE_PENDING_FINAL_APPROVAL'));

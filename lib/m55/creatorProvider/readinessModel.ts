@@ -8,6 +8,7 @@ import {
   type R8TaxProfileRecordV1,
 } from './contract';
 import { evaluateCreatorProviderPayoutReadinessV1 } from './providerPayoutReadinessPredicate';
+import { evaluateProviderSnapshotFreshnessV1 } from './providerFreshness';
 import { isR8AProviderPlaneEditableV1 } from './providerEligibility';
 
 export type ReadinessInputsV1 = {
@@ -19,6 +20,8 @@ export type ReadinessInputsV1 = {
   linkState: R8StripeLinkStateV1;
   providerSnapshot: R8ProviderAccountSnapshotV1 | null;
   stripeAccountId: string | null;
+  providerLastSyncedAt: string | null;
+  providerDowngradeActive: boolean;
   v1JapanBlocked: boolean;
 };
 
@@ -68,13 +71,22 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     nextActions.push('Stripe の受取口座登録（ホスト型）を開始してください。');
   }
 
-  const providerGreen = evaluateCreatorProviderPayoutReadinessV1({
+  const snapshotFreshness = evaluateProviderSnapshotFreshnessV1({
+    lastSyncedAt: input.providerLastSyncedAt,
+    asOfUtc: new Date(),
+    snapshot: input.providerSnapshot,
+  });
+
+  let providerGreen = evaluateCreatorProviderPayoutReadinessV1({
     stripeAccountId: input.stripeAccountId,
     linkState: input.linkState,
     snapshot: input.providerSnapshot,
     taxProfile: input.taxProfile,
   });
   // R8-C gap: providerGreen reflects last synced snapshot only — not webhook freshness or live payout proof.
+  if (snapshotFreshness !== 'FRESH' || input.providerDowngradeActive) {
+    providerGreen = false;
+  }
   if (providerGreen) {
     operatingModelSteps.push('PROVIDER_PAYOUT_READINESS_GREEN');
     if (input.profileStatus === 'APPROVED_PENDING_ACTIVATION') {
@@ -90,7 +102,12 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     blockReasons.push('PROVIDER_ERROR');
     nextActions.push('決済プロバイダ側の設定で問題が発生しました。時間をおいて再試行するか、サポートへご連絡ください。');
   } else if (input.linkState !== 'NOT_STARTED' && input.providerSnapshot) {
-    if (!input.providerSnapshot.detailsSubmitted) {
+    if (input.providerDowngradeActive || snapshotFreshness === 'STALE' || snapshotFreshness === 'MISSING') {
+      blockReasons.push('PROVIDER_PAYOUTS_NOT_READY');
+      nextActions.push(
+        '決済プロバイダの受取状態を再確認してください。表示は最後の同期時点であり、リアルタイムの送金可否は保証されません。',
+      );
+    } else if (!input.providerSnapshot.detailsSubmitted) {
       blockReasons.push('PROVIDER_KYC_INCOMPLETE');
       nextActions.push('Stripe の本人確認・口座情報の入力を完了してください。');
     } else if (!input.providerSnapshot.payoutsEnabled || input.providerSnapshot.transfersCapability !== 'active') {

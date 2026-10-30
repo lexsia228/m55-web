@@ -1,20 +1,19 @@
 import 'server-only';
-import { getSupabaseAdmin } from '../../supabaseAdmin';
-import { evaluateCreatorProviderPayoutReadinessV1 } from './providerPayoutReadinessPredicate';
-import type { R8ProviderAccountSnapshotV1, R8TaxProfileRecordV1 } from './contract';
+import {
+  getProviderEventStoreSingletonV1,
+  isProviderDowngradeActiveV1,
+} from './providerWebhookEventContract';
+import { evaluateProviderDisbursementGateV1 } from './providerFreshness';
 import { loadTaxProfileV1 } from './taxProfileRepository';
+import { getSupabaseAdmin } from '../../supabaseAdmin';
 
-/**
- * Operating Model §8 referral gate (server-side). Uses the same predicate as UI readiness.
- * Identity dedup remains a separate Human gate — not auto-satisfied here.
- */
 export async function isOperatingModelReferralGateMetV1(
   creatorEconomicIdentityId: string,
 ): Promise<boolean> {
   const db = getSupabaseAdmin() as any;
   const { data, error } = await db
     .from('m55_r8_stripe_connected_accounts_v1')
-    .select('stripe_account_id,link_state,last_provider_snapshot')
+    .select('stripe_account_id,link_state,last_provider_snapshot,last_synced_at')
     .eq('creator_economic_identity_id', creatorEconomicIdentityId)
     .maybeSingle();
 
@@ -22,18 +21,25 @@ export async function isOperatingModelReferralGateMetV1(
     return false;
   }
 
-  let taxProfile: R8TaxProfileRecordV1 | null = null;
+  let taxProfile = null;
   try {
     taxProfile = await loadTaxProfileV1(creatorEconomicIdentityId);
   } catch {
     return false;
   }
 
-  const snapshot = data.last_provider_snapshot as R8ProviderAccountSnapshotV1 | null;
-  return evaluateCreatorProviderPayoutReadinessV1({
+  const gate = evaluateProviderDisbursementGateV1({
     stripeAccountId: (data.stripe_account_id as string | null) ?? null,
     linkState: data.link_state,
-    snapshot,
+    snapshot: data.last_provider_snapshot,
     taxProfile,
+    lastSyncedAt: (data.last_synced_at as string | null) ?? null,
+    asOfUtc: new Date(),
+    providerDowngradeActive: isProviderDowngradeActiveV1(
+      getProviderEventStoreSingletonV1(),
+      creatorEconomicIdentityId,
+    ),
   });
+
+  return gate.referralTransferReadinessPermitted;
 }

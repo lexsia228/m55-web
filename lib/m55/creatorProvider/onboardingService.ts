@@ -8,6 +8,10 @@ import {
 import { buildPublicReadinessSnapshotV1 } from './readinessModel';
 import { loadTaxProfileV1, upsertTaxProfileV1 } from './taxProfileRepository';
 import {
+  getProviderEventStoreSingletonV1,
+  isProviderDowngradeActiveV1,
+} from './providerWebhookEventContract';
+import {
   appendProviderOnboardingEventV1,
   bindStripeAccountIdV1,
   createOnboardingSessionV1,
@@ -138,6 +142,10 @@ export async function buildProviderStatusBundleV1(options?: {
   }
 
   const complianceHold = await complianceBlocksReferral(ctx);
+  const providerDowngradeActive = isProviderDowngradeActiveV1(
+    getProviderEventStoreSingletonV1(),
+    ctx.creatorEconomicIdentityId,
+  );
   const readiness = buildPublicReadinessSnapshotV1({
     profileStatus: ctx.profileStatus,
     r7ReferralIssueEligible: ctx.r7ReferralIssueEligible,
@@ -147,6 +155,8 @@ export async function buildProviderStatusBundleV1(options?: {
     linkState: providerRow?.linkState ?? 'NOT_STARTED',
     providerSnapshot: providerRow?.lastProviderSnapshot ?? null,
     stripeAccountId: providerRow?.stripeAccountId ?? null,
+    providerLastSyncedAt: providerRow?.lastSyncedAt ?? null,
+    providerDowngradeActive,
     v1JapanBlocked: false,
   });
 
