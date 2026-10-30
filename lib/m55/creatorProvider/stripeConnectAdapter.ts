@@ -131,9 +131,15 @@ export function assertSafeRedirectUrl(candidate: string, allowedOrigin: string):
   try {
     const url = new URL(candidate);
     const allowed = new URL(allowedOrigin);
-    if (url.origin !== allowed.origin) return null;
-    if (url.protocol !== 'https:' && url.hostname !== 'localhost') return null;
-    if (url.username || url.password || url.port) return null;
+    if (url.username || url.password) return null;
+    if (url.protocol !== allowed.protocol) return null;
+    if (url.hostname !== allowed.hostname) return null;
+    const urlPort = url.port || (url.protocol === 'https:' ? '443' : '80');
+    const allowedPort = allowed.port || (allowed.protocol === 'https:' ? '443' : '80');
+    if (urlPort !== allowedPort) return null;
+    if (url.protocol !== 'https:' && url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+      return null;
+    }
     if (!url.pathname.startsWith('/creator/')) return null;
     return url.toString();
   } catch {
@@ -154,6 +160,14 @@ export function buildCreatorPortalProviderReturnUrl(sessionId: string): string {
   const url = new URL('/creator/portal', origin);
   url.searchParams.set('provider', 'return');
   url.searchParams.set('session', sessionId);
+  return url.toString();
+}
+
+/** Stripe link return target only — no DB session; completion requires startCreatorProviderOnboardingV1 session. */
+export function buildCreatorPortalProviderReturnUrlWithoutSessionV1(): string {
+  const origin = resolveCreatorProviderPublicOrigin();
+  const url = new URL('/creator/portal', origin);
+  url.searchParams.set('provider', 'return');
   return url.toString();
 }
 

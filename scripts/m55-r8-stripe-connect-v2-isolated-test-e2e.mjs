@@ -1,9 +1,20 @@
 #!/usr/bin/env node
 /**
  * Stripe Connect Accounts v2 **API smoke** (test mode only). Not onboarding/webhook E2E GREEN.
+ * Reuses one isolated test account; onboarding URL written to gitignored local file only.
  */
-import { classifyStripeConnectRuntime } from '../lib/m55/creatorProvider/stripeConnectV2Semantics.ts';
-import { randomUUID } from 'node:crypto';
+import {
+  listIsolatedStripeConnectPreflightMissingV1,
+  resolveIsolatedAppOriginV1,
+  resolveIsolatedSmokeEconomicIdentityIdV1,
+  stableIsolatedSmokeCreateIdempotencyKeyV1,
+} from '../lib/m55/creatorProvider/stripeConnectV2IsolatedSmokePreflight.ts';
+import {
+  loadIsolatedSmokeStateV1,
+  saveIsolatedSmokeStateV1,
+  writeIsolatedSmokeOnboardingUrlForHumanV1,
+  isolatedSmokeOnboardingUrlPathV1,
+} from '../lib/m55/creatorProvider/stripeConnectV2IsolatedSmokeState.ts';
 
 function humanChecklist(missing) {
   console.error('M55_R8_STRIPE_CONNECT_E2E_INCOMPLETE');
@@ -11,16 +22,18 @@ function humanChecklist(missing) {
   process.exit(2);
 }
 
-const classification = classifyStripeConnectRuntime();
-const missing = [];
-if (!classification.secretKeyPresent) missing.push('Set sk_test_* via M55_STRIPE_CONNECT_SECRET_KEY or STRIPE_SECRET_KEY');
-if (!classification.testModeExplicitlyEnabled) missing.push('Set M55_STRIPE_CONNECT_TESTMODE_ENABLED=true');
-if (classification.secretKeyMode === 'live') missing.push('Live keys are blocked for R8 isolated E2E');
-if (classification.fakeAdapterForced) missing.push('Unset M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER for sandbox E2E');
-
+const missing = listIsolatedStripeConnectPreflightMissingV1();
 if (missing.length > 0) humanChecklist(missing);
 
-const { resolveStripeConnectAdapter } = await import('../lib/m55/creatorProvider/stripeConnectAdapter.ts');
+const origin = resolveIsolatedAppOriginV1();
+if (!origin) humanChecklist(['Set M55_PUBLIC_ORIGIN to the isolated app origin (e.g. http://localhost:3000)']);
+
+const {
+  assertSafeRedirectUrl,
+  buildCreatorPortalProviderRefreshUrl,
+  buildCreatorPortalProviderReturnUrlWithoutSessionV1,
+  resolveStripeConnectAdapter,
+} = await import('../lib/m55/creatorProvider/stripeConnectAdapter.ts');
 
 const adapter = resolveStripeConnectAdapter();
 if (adapter.mode !== 'TEST_SANDBOX') {
@@ -28,18 +41,48 @@ if (adapter.mode !== 'TEST_SANDBOX') {
   process.exit(2);
 }
 
-const economicIdentityId = randomUUID();
-const idempotencyKey = `m55-r8-e2e:${economicIdentityId.slice(0, 8)}`;
+const economicIdentityId = resolveIsolatedSmokeEconomicIdentityIdV1();
+const createIdempotencyKey = stableIsolatedSmokeCreateIdempotencyKeyV1(economicIdentityId);
+let persisted = loadIsolatedSmokeStateV1();
+let accountId = persisted?.stripeAccountId ?? null;
+let accountReused = Boolean(accountId);
 
-const { accountId } = await adapter.createConnectedAccountStub({
-  economicIdentityId,
-  idempotencyKey,
-  contactEmail: 'creator-e2e@test.m55.local',
-  payeeType: 'INDIVIDUAL',
-});
+if (accountId) {
+  try {
+    await adapter.retrieveAccountSnapshot(accountId);
+  } catch {
+    if (process.env.M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET !== 'true') {
+      humanChecklist([
+        'Persisted smoke account is not retrievable; fix Stripe test key/account or set M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET=true once to replace',
+      ]);
+    }
+    accountId = null;
+    accountReused = false;
+  }
+}
 
-const refreshUrl = `${process.env.M55_PUBLIC_ORIGIN ?? 'http://localhost:3000'}/creator/portal`;
-const returnUrl = `${refreshUrl}?provider=return&session=e2e-smoke`;
+if (!accountId) {
+  const stub = await adapter.createConnectedAccountStub({
+    economicIdentityId,
+    idempotencyKey: createIdempotencyKey,
+    contactEmail: 'creator-isolated-smoke@test.m55.local',
+    payeeType: 'INDIVIDUAL',
+  });
+  accountId = stub.accountId;
+  accountReused = false;
+  saveIsolatedSmokeStateV1({
+    economicIdentityId,
+    stripeAccountId: accountId,
+    createIdempotencyKey,
+    updatedAtUtc: new Date().toISOString(),
+  });
+}
+
+const refreshUrl = assertSafeRedirectUrl(buildCreatorPortalProviderRefreshUrl(), origin);
+const returnUrl = assertSafeRedirectUrl(buildCreatorPortalProviderReturnUrlWithoutSessionV1(), origin);
+if (!refreshUrl || !returnUrl) {
+  humanChecklist(['M55_PUBLIC_ORIGIN must allow /creator/portal redirect URLs (check port and protocol)']);
+}
 
 const link = await adapter.createAccountOnboardingLink({
   accountId,
@@ -47,6 +90,7 @@ const link = await adapter.createAccountOnboardingLink({
   returnUrl,
 });
 
+const onboardingUrlPath = writeIsolatedSmokeOnboardingUrlForHumanV1(link.url);
 const snapshot = await adapter.retrieveAccountSnapshot(accountId);
 
 console.log(
@@ -55,12 +99,16 @@ console.log(
     classification: 'STRIPE_CONNECT_V2_API_SMOKE',
     adapterMode: adapter.mode,
     accountIdSuffix: accountId.slice(-8),
-    onboardingUrlPresent: Boolean(link.url),
+    accountReused,
+    onboardingUrlWrittenToRelativePath: '.m55_r8_stripe_connect_isolated/onboarding.url',
+    openLocallyCommand: 'npx tsx scripts/m55-r8-open-isolated-stripe-onboarding-url.mjs',
     snapshotPresent: Boolean(snapshot),
     requirementsCurrentlyDueCount: snapshot.requirementsCurrentlyDueCount,
+    browserReturnPath:
+      'Sign in to isolated app → POST /api/creator/provider/onboarding with owned session → complete hosted onboarding → return with DB session id',
     notProven: [
       'hosted_onboarding_completion',
-      'return_url_handling',
+      'return_url_handling_with_owned_session',
       'receive_state_sync',
       'webhook_ingestion',
     ],

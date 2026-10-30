@@ -1,54 +1,73 @@
 # M55 R8 — Stripe Connect Accounts v2 isolated verification runbook
 
-**Scope:** local / isolated verification only. No Production or Preview mutation. No live keys. No secret values in logs.
+**Scope:** local / isolated verification only. No Production or Preview mutation. No live keys. No secret values in logs, chat, git, or review patches.
 
 ## Classification (do not over-claim)
 
-| Step | What `m55-r8-stripe-connect-v2-isolated-test-e2e.mjs` proves | Not proven by this script |
-|------|----------------------------------------------------------------|---------------------------|
-| API smoke | Test-mode runtime classification, sandbox adapter, connected account create, onboarding **link URL** creation, account **retrieve** snapshot | Hosted onboarding **completion**, browser **return** handling, payout/receive **state sync**, **webhook** ingestion |
+| Step | What smoke + open scripts prove | Not proven |
+|------|----------------------------------|------------|
+| API smoke | Test-mode gates, **one reused** Connect test account (stable idempotency), onboarding link issuance, account retrieve | Hosted onboarding **completion**, **owned-session** return, DB sync, webhooks |
 
-Treat script success as **`STRIPE_CONNECT_V2_API_SMOKE`** only — not Revenue Ready, not provider GREEN, not onboarding E2E GREEN.
+Success JSON classification: **`STRIPE_CONNECT_V2_API_SMOKE`** only.
 
-## Preconditions (Human-owned)
+## Preconditions (Human-owned — all required before Stripe HTTP)
 
-1. Stripe **test** secret key (`sk_test_…`) in env — length only in CI logs.
+1. `sk_test_*` in `STRIPE_SECRET_KEY` or `M55_STRIPE_CONNECT_SECRET_KEY` (Human sets locally only).
 2. `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`
-3. Optional override: `M55_STRIPE_CONNECT_SECRET_KEY` (otherwise `STRIPE_SECRET_KEY`)
-4. Public origin for return URLs: `M55_PUBLIC_ORIGIN` or `NEXT_PUBLIC_SITE_URL` (https or localhost)
-5. **Not** `M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER=true` for sandbox smoke (real test API path)
+3. `M55_PUBLIC_ORIGIN=http://localhost:3000` (or your **isolated** dev origin — must match redirect validation exactly, including port).
+4. `M55_R8_ISOLATED_DATABASE_URL=postgresql://…` (**non-Production** Postgres with R8 provider schema applied).
+5. **Not** `M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER=true`
 
-## API smoke command
+Optional:
 
-TypeScript imports require the repo dev runner (plain `node` without `tsx` will not resolve `.ts` imports):
+- `M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_ECONOMIC_IDENTITY_ID` — override default smoke economic identity UUID.
+- `M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET=true` — **once**, if persisted account is invalid and must be replaced.
+
+Persisted state (gitignored): `.m55_r8_stripe_connect_isolated/state.json`  
+Onboarding URL (gitignored, mode 0600): `.m55_r8_stripe_connect_isolated/onboarding.url` — **never** paste into chat.
+
+## API smoke (single account reuse)
 
 ```bash
 npx tsx scripts/m55-r8-stripe-connect-v2-isolated-test-e2e.mjs
 ```
 
-Keyless preflight (expect exit code `2`, no Stripe HTTP):
+Keyless preflight (exit `2`, no Stripe HTTP):
 
 ```bash
 env -u STRIPE_SECRET_KEY -u M55_STRIPE_CONNECT_SECRET_KEY -u M55_STRIPE_CONNECT_TESTMODE_ENABLED \
+  -u M55_PUBLIC_ORIGIN -u M55_R8_ISOLATED_DATABASE_URL -u M55_R8_INTEGRATION_DATABASE_URL \
   npx tsx scripts/m55-r8-stripe-connect-v2-isolated-test-e2e.mjs
 ```
 
-When env is complete, output JSON includes `classification: STRIPE_CONNECT_V2_API_SMOKE`.
+Open onboarding URL locally **without printing it**:
 
-## Follow-on (separate Human / isolated DB gates — not E2E GREEN until all pass)
+```bash
+npx tsx scripts/m55-r8-open-isolated-stripe-onboarding-url.mjs
+```
 
-1. **Hosted onboarding:** open onboarding URL from smoke JSON once; complete Stripe test onboarding UI.
-2. **Return URL:** confirm app handles `…/creator/portal?provider=return&session=…` on `M55_PUBLIC_ORIGIN` (local dev server or tunnel).
-3. **Isolated DB:** apply R8 provider/settlement SQL to a **non-Production** Postgres only; store account + snapshot rows via existing provider onboarding service paths.
-4. **Receive-state sync:** run provider refresh/sync after onboarding; verify payout-capability fields in DB match snapshot (no Production Cash).
-5. **Webhook:** forward Stripe test webhooks to local/isolated endpoint (Stripe CLI or tunnel); verify normalized event persistence + idempotency via existing `providerWebhookEventContract` tests against isolated DB.
+Re-runs reuse the same Connect account from `state.json` (no new account unless reset flag).
 
-Do **not** claim **`STRIPE_CONNECT_V2_E2E_GREEN`** until steps 1–5 are evidenced. API smoke alone remains **`STRIPE_CONNECT_V2_API_SMOKE`**.
+## Browser return (owned session — not smoke fake session)
 
-## When env is incomplete
+Smoke script uses a **session-less** Stripe return URL for link creation only. **Completion** must use existing app paths:
 
-Script exits `2` and prints **Human action checklist** (missing vars only — never key material). No fake adapter success.
+1. Start isolated app on `M55_PUBLIC_ORIGIN` with Clerk test user signed in.
+2. Complete tax profile if required (`/creator/portal`).
+3. `POST /api/creator/provider/onboarding` with `{ action, idempotencyKey }` → response includes `sessionId` + `onboardingUrl` (Human browser only).
+4. Finish Stripe hosted onboarding; land on `/creator/portal?provider=return&session=<sessionId>`.
+5. `GET /api/creator/provider/status?refreshProvider=1` (or portal load) → `verifyOnboardingSessionOwnedAndPendingV1` + `syncProviderSnapshotV1`.
+
+Do **not** treat `session=e2e-smoke` or API-smoke return URLs as completion proof.
+
+## E2E GREEN gates (all required — still not claimed by smoke)
+
+1. Hosted onboarding completed in browser.  
+2. Return with **DB-issued** `session` query param.  
+3. Isolated DB rows updated (provider account + snapshot).  
+4. Receive-capability sync matches Stripe snapshot.  
+5. Test webhook ingested idempotently.
 
 ## Forbidden
 
-- `sk_live_*`, Production Connect accounts, real payouts, `PRODUCTION_CASH_ACTIVATION=true`
+- `sk_live_*`, Production/Preview DB mutation, Production Connect, real payouts, `PRODUCTION_CASH_ACTIVATION=true`

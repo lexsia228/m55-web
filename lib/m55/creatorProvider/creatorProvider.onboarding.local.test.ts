@@ -33,6 +33,17 @@ describe('R8-A Stripe connect adapter — fake test double', () => {
   it('rejects open redirect URLs', () => {
     assert.equal(assertSafeRedirectUrl('https://evil.example/creator/portal', 'https://m-55.jp'), null);
     assert.ok(assertSafeRedirectUrl('https://m-55.jp/creator/portal', 'https://m-55.jp'));
+    assert.ok(
+      assertSafeRedirectUrl('http://localhost:3000/creator/portal', 'http://localhost:3000'),
+    );
+    assert.equal(
+      assertSafeRedirectUrl('http://localhost:4000/creator/portal', 'http://localhost:3000'),
+      null,
+    );
+    assert.equal(
+      assertSafeRedirectUrl('http://evil.localhost:3000/creator/portal', 'http://localhost:3000'),
+      null,
+    );
   });
 
   it('never marks fake onboarding as production/live', async () => {
