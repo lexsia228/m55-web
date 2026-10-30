@@ -170,5 +170,56 @@ begin
 end;
 $fn$;
 
+create or replace function public.m55_r8_test_seed_r6_hold_after_date_v1(
+  p_origin_commission_event_id uuid,
+  p_creator_economic_identity_id uuid,
+  p_creator_profile_id uuid,
+  p_hold_recorded_at timestamptz
+) returns void
+language plpgsql
+set search_path = ''
+as $fn$
+declare
+  v_pi text;
+  v_money uuid;
+  v_evidence uuid;
+  v_attempt uuid;
+  v_entitlement bigint;
+begin
+  select e.payment_intent_id, e.purchase_money_evidence_id, e.canonical_payment_evidence_id, e.purchase_attempt_id,
+         e.entitlement_after_event_jpy
+  into v_pi, v_money, v_evidence, v_attempt, v_entitlement
+  from public.m55_r6_commission_ledger_events as e
+  where e.origin_commission_event_id = p_origin_commission_event_id
+  order by e.ledger_event_seq desc
+  limit 1;
+
+  insert into public.m55_r6_commission_ledger_events (
+    commission_event_id, origin_commission_event_id, event_family, canonical_event_state,
+    lifecycle_state_after_event, provider, payment_intent_id, purchase_money_evidence_id,
+    canonical_payment_evidence_id, purchase_attempt_id, creator_economic_identity_id, creator_profile_id,
+    runtime_product_id, policy_product_id, conversion_kind, attribution_policy_version, creator_terms_version,
+    eligible_product_policy_version, financial_policy_version, calculation_version, rate_schedule_version,
+    canonical_payment_succeeded_at_ms, creator_first_final_approved_at_ms, commission_rate_basis_points,
+    gross_customer_paid_jpy, discount_amount_jpy, discount_state, authoritative_tax_amount_present,
+    authoritative_purchase_tax_amount_jpy, tax_rate_bps, commission_base_tax_exclusion_jpy,
+    immediately_ineligible_amount_jpy, commissionable_revenue_jpy, commission_delta_jpy,
+    entitlement_after_event_jpy, release_at_ms, reason_code, recorded_at
+  ) values (
+    gen_random_uuid(), p_origin_commission_event_id, 'COMMISSION_HELD', 'COMMISSION_HOLD',
+    'COMMISSION_HOLD', 'STRIPE', v_pi, v_money, v_evidence, v_attempt,
+    p_creator_economic_identity_id, p_creator_profile_id,
+    'M55_PREMIUM_REPORT_LIGHT', 'M55_PREMIUM_REPORT_LIGHT', 'FIRST_ELIGIBLE_PAID',
+    'r6_attribution_policy_v1', 'r6_creator_terms_v1', 'r6_affiliate_eligible_products_v1',
+    'r6_financial_policy_v1', 'r6_commission_calculation_v1', 'r6_standard_rate_schedule_v1',
+    1_700_000_000_000, 1_700_000_000_000, 2000,
+    50_000, 0, 'NONE', false, null, 1000, 45_455,
+    0, 45_455, 0, v_entitlement, (extract(epoch from p_hold_recorded_at) * 1000)::bigint,
+    'INTEGRATION_HOLD', p_hold_recorded_at
+  );
+end;
+$fn$;
+
 grant execute on function public.m55_r8_test_seed_r6_payable_chain_v1(uuid, uuid, uuid, bigint, timestamptz) to service_role;
 grant execute on function public.m55_r8_test_seed_r6_adjusted_payable_v1(uuid, uuid, uuid, bigint, timestamptz) to service_role;
+grant execute on function public.m55_r8_test_seed_r6_hold_after_date_v1(uuid, uuid, uuid, timestamptz) to service_role;

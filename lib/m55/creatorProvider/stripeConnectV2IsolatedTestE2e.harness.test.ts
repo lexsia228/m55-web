@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { classifyStripeConnectRuntime } from './stripeConnectV2Semantics.ts';
 
-describe('R8 Stripe Connect v2 isolated E2E harness', () => {
-  it('documents fail-closed checklist when sandbox env is incomplete', () => {
+describe('R8 Stripe Connect v2 API smoke harness', () => {
+  it('documents fail-closed checklist when sandbox env is incomplete (not E2E GREEN)', () => {
     const c = classifyStripeConnectRuntime({
       ...process.env,
       M55_STRIPE_CONNECT_TESTMODE_ENABLED: undefined,

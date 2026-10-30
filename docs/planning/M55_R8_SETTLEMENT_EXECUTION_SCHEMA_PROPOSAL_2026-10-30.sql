@@ -87,18 +87,55 @@ grant all on public.m55_r8_payout_attempts_v1 to service_role;
 grant all on public.m55_r8_provider_settlement_events_v1 to service_role;
 
 -- Platform liquidity coverage is the only authority for 100% cash coverage (not caller-supplied integers).
--- Funding-source identity is proven by verified_evidence_digest on m55_r8_platform_liquidity_funding_sources_v1 (not source_label).
+-- Economic identity (reservation serialization) is economic_canon_key — not funding_source_id, source_label, or digest alone.
+-- verified_evidence_digest proves snapshot authenticity; it is not the economic same-funds key.
+
+create or replace function public.m55_r8_compute_funding_economic_canon_key_v1(
+  p_proof_kind text,
+  p_liquidity_scope_ref text,
+  p_balance_currency_code text,
+  p_balance_segment text
+) returns text
+language sql
+immutable
+set search_path = ''
+as $$
+  select case
+    when p_proof_kind = 'STRIPE_BALANCE_SNAPSHOT'
+      and p_liquidity_scope_ref is not null
+      and p_balance_currency_code ~ '^[A-Z]{3}$'
+      and p_balance_segment in ('AVAILABLE', 'PENDING') then
+      'STRIPE:' || btrim(p_liquidity_scope_ref) || ':' || p_balance_currency_code || ':' || p_balance_segment
+    when p_proof_kind = 'BANK_BALANCE_SNAPSHOT'
+      and p_liquidity_scope_ref is not null
+      and p_balance_currency_code ~ '^[A-Z]{3}$'
+      and p_balance_segment in ('AVAILABLE', 'PENDING') then
+      'BANK:' || btrim(p_liquidity_scope_ref) || ':' || p_balance_currency_code || ':' || p_balance_segment
+    else null
+  end;
+$$;
 
 create table if not exists public.m55_r8_platform_liquidity_funding_sources_v1 (
   funding_source_id uuid primary key,
   proof_kind text not null check (proof_kind in ('BANK_BALANCE_SNAPSHOT', 'STRIPE_BALANCE_SNAPSHOT')),
   verified_evidence_digest text not null check (verified_evidence_digest ~ '^[0-9a-f]{64}$'),
-  stripe_platform_scope_ref text null check (
-    stripe_platform_scope_ref is null
-    or char_length(stripe_platform_scope_ref) between 8 and 64
-  ),
-  created_at timestamptz not null default now()
+  stripe_platform_scope_ref text not null check (char_length(stripe_platform_scope_ref) between 8 and 64),
+  balance_currency_code char(3) not null default 'JPY' check (balance_currency_code ~ '^[A-Z]{3}$'),
+  balance_segment text not null default 'AVAILABLE' check (balance_segment in ('AVAILABLE', 'PENDING')),
+  economic_canon_key text not null check (char_length(economic_canon_key) between 16 and 128),
+  created_at timestamptz not null default now(),
+  check (
+    economic_canon_key = public.m55_r8_compute_funding_economic_canon_key_v1(
+      proof_kind,
+      stripe_platform_scope_ref,
+      balance_currency_code,
+      balance_segment
+    )
+  )
 );
+
+create index if not exists m55_r8_platform_liquidity_funding_sources_v1_economic_canon_key_idx
+  on public.m55_r8_platform_liquidity_funding_sources_v1 (economic_canon_key);
 
 create table if not exists public.m55_r8_platform_liquidity_coverage_v1 (
   coverage_snapshot_id uuid primary key,
@@ -430,6 +467,7 @@ declare
   v_proof_kind text;
   v_source_label text;
   v_funding_source_id uuid;
+  v_economic_canon_key text;
   v_evidence_digest text;
   v_fs_proof_kind text;
   v_existing_legal_due timestamptz;
@@ -524,7 +562,8 @@ begin
     c.source_label,
     c.funding_source_id,
     fs.verified_evidence_digest,
-    fs.proof_kind
+    fs.proof_kind,
+    fs.economic_canon_key
   into
     v_available,
     v_ratio,
@@ -533,13 +572,17 @@ begin
     v_source_label,
     v_funding_source_id,
     v_evidence_digest,
-    v_fs_proof_kind
+    v_fs_proof_kind,
+    v_economic_canon_key
   from public.m55_r8_platform_liquidity_coverage_v1 as c
   join public.m55_r8_platform_liquidity_funding_sources_v1 as fs
     on fs.funding_source_id = c.funding_source_id
   where c.coverage_snapshot_id = p_coverage_snapshot_id;
 
-  if v_funding_source_id is null or v_evidence_digest is null or v_fs_proof_kind is null then
+  if v_funding_source_id is null
+     or v_evidence_digest is null
+     or v_fs_proof_kind is null
+     or v_economic_canon_key is null then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
   end if;
 
@@ -547,7 +590,7 @@ begin
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
   end if;
 
-  perform pg_advisory_xact_lock(hashtext('m55_r8_funding:' || v_funding_source_id::text));
+  perform pg_advisory_xact_lock(hashtext('m55_r8_economic:' || v_economic_canon_key));
 
   select c.available_jpy, c.coverage_ratio_bps, c.observed_at, c.proof_kind, c.source_label
   into v_available, v_ratio, v_observed, v_proof_kind, v_source_label
@@ -579,8 +622,10 @@ begin
   from public.m55_r8_platform_liquidity_reservations_v1 as r
   join public.m55_r8_platform_liquidity_coverage_v1 as c
     on c.coverage_snapshot_id = r.coverage_snapshot_id
+  join public.m55_r8_platform_liquidity_funding_sources_v1 as fs
+    on fs.funding_source_id = c.funding_source_id
   where r.released_at is null
-    and c.funding_source_id = v_funding_source_id;
+    and fs.economic_canon_key = v_economic_canon_key;
 
   if v_reserved > v_available then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
@@ -597,6 +642,7 @@ begin
     gross_jpy bigint not null
   ) on commit drop;
 
+  -- Cutoff eligibility: PAYABLE as-of p_cutoff_at. Lock amount: latest PAYABLE entitlement as-of p_as_of (post-cutoff adjustments apply).
   insert into tmp_r8_eligible (commission_event_id, payable_at, gross_jpy)
   with ordered as (
     select
@@ -626,27 +672,38 @@ begin
       and e.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
     group by 1
   ),
-  latest as (
+  state_at_cutoff as (
+    select distinct on (o.origin_key)
+      o.origin_key,
+      o.lifecycle_state_after_event
+    from ordered as o
+    where o.origin_key is not null
+      and o.recorded_at <= p_cutoff_at
+    order by o.origin_key, o.ledger_event_seq desc
+  ),
+  state_at_lock as (
     select distinct on (o.origin_key)
       o.origin_key as commission_event_id,
-      fp.first_payable_at as payable_at,
       o.lifecycle_state_after_event,
       o.entitlement_after_event_jpy as gross_jpy
     from ordered as o
-    join first_payable as fp on fp.origin_key = o.origin_key
     where o.origin_key is not null
+      and o.recorded_at <= p_as_of
     order by o.origin_key, o.ledger_event_seq desc
   )
-  select l.commission_event_id, l.payable_at, l.gross_jpy
-  from latest as l
-  where l.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
-    and l.gross_jpy > 0
-    and l.gross_jpy <= 1000000000
-    and l.payable_at <= p_cutoff_at
+  select sal.commission_event_id, fp.first_payable_at as payable_at, sal.gross_jpy
+  from state_at_cutoff as sac
+  join state_at_lock as sal on sal.commission_event_id = sac.origin_key
+  join first_payable as fp on fp.origin_key = sac.origin_key
+  where sac.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
+    and sal.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
+    and sal.gross_jpy > 0
+    and sal.gross_jpy <= 1000000000
+    and fp.first_payable_at <= p_cutoff_at
     and not exists (
       select 1
       from public.m55_r8_payout_batch_lines_v1 as bl
-      where bl.commission_event_id = l.commission_event_id
+      where bl.commission_event_id = sal.commission_event_id
     );
 
   select coalesce(sum(t.gross_jpy), 0), min(t.payable_at)
@@ -670,23 +727,22 @@ begin
         from public.m55_r6_commission_ledger_events as e
         where e.creator_economic_identity_id = p_creator_economic_identity_id
       ),
-      latest as (
+      state_at_cutoff as (
         select distinct on (o.origin_key)
-          o.origin_key as commission_event_id,
-          o.recorded_at as payable_at,
+          o.origin_key,
           o.lifecycle_state_after_event
         from ordered as o
         where o.origin_key is not null
+          and o.recorded_at <= p_cutoff_at
         order by o.origin_key, o.ledger_event_seq desc
       )
       select 1
-      from latest as l
-      where l.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
-        and l.payable_at <= p_cutoff_at
+      from state_at_cutoff as sac
+      where sac.lifecycle_state_after_event = 'COMMISSION_PAYABLE'
         and exists (
           select 1
           from public.m55_r8_payout_batch_lines_v1 as bl
-          where bl.commission_event_id = l.commission_event_id
+          where bl.commission_event_id = sac.origin_key
         )
     )
     into v_payable_already_allocated;
@@ -758,8 +814,10 @@ begin
   from public.m55_r8_platform_liquidity_reservations_v1 as r
   join public.m55_r8_platform_liquidity_coverage_v1 as c
     on c.coverage_snapshot_id = r.coverage_snapshot_id
+  join public.m55_r8_platform_liquidity_funding_sources_v1 as fs
+    on fs.funding_source_id = c.funding_source_id
   where r.released_at is null
-    and c.funding_source_id = v_funding_source_id;
+    and fs.economic_canon_key = v_economic_canon_key;
 
   if v_reserved > v_available then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');

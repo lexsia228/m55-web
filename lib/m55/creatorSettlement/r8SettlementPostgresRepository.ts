@@ -102,9 +102,9 @@ function mapRpcLockResult(data: unknown): R8CDurableLockResultV1 {
   };
 }
 
-async function sumActiveLiquidityReservationsForFundingSourceJpy(
+async function sumActiveLiquidityReservationsForEconomicCanonJpy(
   db: ReturnType<typeof getSupabaseAdmin>,
-  fundingSourceId: string,
+  economicCanonKey: string,
 ): Promise<number> {
   const { error } = await (db as any)
     .from('m55_r8_platform_liquidity_reservations_v1')
@@ -114,10 +114,20 @@ async function sumActiveLiquidityReservationsForFundingSourceJpy(
     throw new SettlementPersistedReadError();
   }
 
+  const { data: sources, error: srcErr } = await (db as any)
+    .from('m55_r8_platform_liquidity_funding_sources_v1')
+    .select('funding_source_id')
+    .eq('economic_canon_key', economicCanonKey);
+  if (srcErr) {
+    throw new SettlementPersistedReadError();
+  }
+  const fundingSourceIds = (sources ?? []).map((row: { funding_source_id: string }) => row.funding_source_id);
+  if (fundingSourceIds.length === 0) return 0;
+
   const { data: snapshots, error: snapErr } = await (db as any)
     .from('m55_r8_platform_liquidity_coverage_v1')
     .select('coverage_snapshot_id')
-    .eq('funding_source_id', fundingSourceId);
+    .in('funding_source_id', fundingSourceIds);
   if (snapErr) {
     throw new SettlementPersistedReadError();
   }
@@ -147,7 +157,7 @@ export async function loadPlatformCashCoverageProofFromDbV1(
     const { data, error } = await (db as any)
       .from('m55_r8_platform_liquidity_coverage_v1')
       .select(
-        'coverage_snapshot_id,available_jpy,coverage_ratio_bps,observed_at,proof_kind,source_label,funding_source_id,m55_r8_platform_liquidity_funding_sources_v1!inner(verified_evidence_digest,proof_kind)',
+        'coverage_snapshot_id,available_jpy,coverage_ratio_bps,observed_at,proof_kind,source_label,funding_source_id,m55_r8_platform_liquidity_funding_sources_v1!inner(verified_evidence_digest,proof_kind,economic_canon_key)',
       )
       .order('observed_at', { ascending: false })
       .limit(1)
@@ -158,6 +168,10 @@ export async function loadPlatformCashCoverageProofFromDbV1(
       | { verified_evidence_digest: string; proof_kind: string }[];
     const fundingProof = Array.isArray(fundingRow) ? fundingRow[0] : fundingRow;
     if (!fundingProof?.verified_evidence_digest || !/^[0-9a-f]{64}$/.test(fundingProof.verified_evidence_digest)) {
+      return { ok: false, reason: 'COVERAGE_UNVERIFIED' };
+    }
+    const economicCanonKey = String(fundingProof.economic_canon_key ?? '').trim();
+    if (!economicCanonKey.startsWith('STRIPE:') && !economicCanonKey.startsWith('BANK:')) {
       return { ok: false, reason: 'COVERAGE_UNVERIFIED' };
     }
     const proofKind = String(data.proof_kind ?? '');
@@ -182,10 +196,7 @@ export async function loadPlatformCashCoverageProofFromDbV1(
     if (available <= 0) {
       return { ok: false, reason: 'COVERAGE_INSUFFICIENT' };
     }
-    const reserved = await sumActiveLiquidityReservationsForFundingSourceJpy(
-      db,
-      data.funding_source_id as string,
-    );
+    const reserved = await sumActiveLiquidityReservationsForEconomicCanonJpy(db, economicCanonKey);
     if (reserved > available) {
       return { ok: false, reason: 'COVERAGE_INSUFFICIENT' };
     }

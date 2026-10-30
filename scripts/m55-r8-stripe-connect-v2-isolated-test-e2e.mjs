@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Isolated Stripe Connect Accounts v2 smoke (test mode only).
- * Never prints secret key material.
+ * Stripe Connect Accounts v2 **API smoke** (test mode only). Not onboarding/webhook E2E GREEN.
  */
 import { classifyStripeConnectRuntime } from '../lib/m55/creatorProvider/stripeConnectV2Semantics.ts';
 import { resolveStripeConnectAdapter } from '../lib/m55/creatorProvider/stripeConnectAdapter.ts';
@@ -52,10 +51,17 @@ const snapshot = await adapter.retrieveAccountSnapshot(accountId);
 console.log(
   JSON.stringify({
     ok: true,
+    classification: 'STRIPE_CONNECT_V2_API_SMOKE',
     adapterMode: adapter.mode,
     accountIdSuffix: accountId.slice(-8),
     onboardingUrlPresent: Boolean(link.url),
     snapshotPresent: Boolean(snapshot),
     requirementsCurrentlyDueCount: snapshot.requirementsCurrentlyDueCount,
+    notProven: [
+      'hosted_onboarding_completion',
+      'return_url_handling',
+      'receive_state_sync',
+      'webhook_ingestion',
+    ],
   }),
 );

@@ -11,6 +11,9 @@ const DATABASE_URL = process.env.M55_R8_INTEGRATION_DATABASE_URL ?? '';
 const VERIFIED_SOURCE = 'verified-stripe-balance-v1';
 const VERIFIED_EVIDENCE_DIGEST = '0123456789abcdef'.repeat(4);
 
+const SHARED_STRIPE_SCOPE = 'acct_shared_liquidity_v1';
+const SHARED_ECONOMIC_CANON = `STRIPE:${SHARED_STRIPE_SCOPE}:JPY:AVAILABLE`;
+
 async function applySql(client: pg.Client, relativePath: string): Promise<void> {
   const sql = readFileSync(join(process.cwd(), relativePath), 'utf8');
   await client.query(sql);
@@ -28,14 +31,19 @@ async function bootstrapSchema(client: pg.Client): Promise<void> {
 
 async function seedFundingSource(
   client: pg.Client,
-  digest: string = VERIFIED_EVIDENCE_DIGEST,
+  opts?: { digest?: string; scopeRef?: string; segment?: 'AVAILABLE' | 'PENDING' },
 ): Promise<string> {
+  const scopeRef = opts?.scopeRef ?? 'acct_test_platform';
+  const segment = opts?.segment ?? 'AVAILABLE';
+  const digest = opts?.digest ?? VERIFIED_EVIDENCE_DIGEST;
+  const economicCanonKey = `STRIPE:${scopeRef}:JPY:${segment}`;
   const fundingSourceId = randomUUID();
   await client.query(
     `insert into public.m55_r8_platform_liquidity_funding_sources_v1 (
-      funding_source_id, proof_kind, verified_evidence_digest, stripe_platform_scope_ref
-    ) values ($1, 'STRIPE_BALANCE_SNAPSHOT', $2, 'acct_test_scope')`,
-    [fundingSourceId, digest],
+      funding_source_id, proof_kind, verified_evidence_digest, stripe_platform_scope_ref,
+      balance_currency_code, balance_segment, economic_canon_key
+    ) values ($1, 'STRIPE_BALANCE_SNAPSHOT', $2, $3, 'JPY', $4, $5)`,
+    [fundingSourceId, digest, scopeRef, segment, economicCanonKey],
   );
   return fundingSourceId;
 }
@@ -86,14 +94,16 @@ async function lockBatch(
   return rows[0].result as Record<string, unknown>;
 }
 
-async function sumActiveReservationsForFundingSource(client: pg.Client, fundingSourceId: string): Promise<number> {
+async function sumActiveReservationsForEconomicCanon(client: pg.Client, economicCanonKey: string): Promise<number> {
   const { rows } = await client.query(
     `select coalesce(sum(r.reserved_net_jpy),0)::bigint as total
      from public.m55_r8_platform_liquidity_reservations_v1 as r
      join public.m55_r8_platform_liquidity_coverage_v1 as c
        on c.coverage_snapshot_id = r.coverage_snapshot_id
-     where r.released_at is null and c.funding_source_id = $1`,
-    [fundingSourceId],
+     join public.m55_r8_platform_liquidity_funding_sources_v1 as fs
+       on fs.funding_source_id = c.funding_source_id
+     where r.released_at is null and fs.economic_canon_key = $1`,
+    [economicCanonKey],
   );
   return Number(rows[0].total);
 }
@@ -129,7 +139,7 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
         payableAt,
       ]);
 
-      const fundingSourceId = await seedFundingSource(admin);
+      const fundingSourceId = await seedFundingSource(admin, { scopeRef: SHARED_STRIPE_SCOPE });
       const coverageId = await seedCoverage(admin, fundingSourceId, 30_000);
       await seedBankDayForStandardDue(admin, cutoff);
       const asOf = new Date().toISOString();
@@ -171,7 +181,7 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
         assert.ok(holds.length >= 1);
         assert.ok(holds.some((r) => r.reason === 'INSUFFICIENT_CASH_COVERAGE'));
 
-        const reservedTotal = await sumActiveReservationsForFundingSource(admin, fundingSourceId);
+        const reservedTotal = await sumActiveReservationsForEconomicCanon(admin, SHARED_ECONOMIC_CANON);
         assert.ok(reservedTotal <= 30_000);
 
         const aSucceeded = first.ok === true;
@@ -264,7 +274,10 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
       assert.equal(instruction.settlementPayableJpy, 20_000);
 
       await admin.query('begin');
-      const rollbackFunding = await seedFundingSource(admin, 'ff'.repeat(32));
+      const rollbackFunding = await seedFundingSource(admin, {
+        scopeRef: 'acct_rollback_fixture',
+        digest: 'ff'.repeat(32),
+      });
       await admin.query(
         `insert into public.m55_r8_platform_liquidity_coverage_v1 (
           coverage_snapshot_id, funding_source_id, observed_at, available_jpy, coverage_ratio_bps, source_label, proof_kind
@@ -300,7 +313,11 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
         25_000,
         payableAt,
       ]);
-      const altSnapshotId = await seedCoverage(admin, fundingSourceId, 30_000);
+      const duplicateCanonFundingId = await seedFundingSource(admin, {
+        scopeRef: SHARED_STRIPE_SCOPE,
+        digest: 'ab'.repeat(32),
+      });
+      const altSnapshotId = await seedCoverage(admin, duplicateCanonFundingId, 30_000);
       const crossSnapshot = await lockBatch(admin, {
         creatorId: creatorD,
         cutoff,
@@ -311,6 +328,60 @@ describe('R8 settlement postgres integration', { skip: !DATABASE_URL }, () => {
       });
       assert.equal(crossSnapshot.ok, false);
       assert.equal(crossSnapshot.reason, 'INSUFFICIENT_CASH_COVERAGE');
+
+      const creatorPostCutoff = randomUUID();
+      const profilePostCutoff = randomUUID();
+      const originPostCutoff = randomUUID();
+      const afterCutoffPayable = new Date(Date.now() - 12 * 3_600_000).toISOString();
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
+        originPostCutoff,
+        creatorPostCutoff,
+        profilePostCutoff,
+        25_000,
+        afterCutoffPayable,
+      ]);
+      const postCutoffFunding = await seedFundingSource(admin, { scopeRef: 'acct_post_cutoff_only' });
+      const postCutoffCoverage = await seedCoverage(admin, postCutoffFunding, 500_000);
+      await seedBankDayForStandardDue(admin, cutoff);
+      const lockPostCutoffOnly = await lockBatch(admin, {
+        creatorId: creatorPostCutoff,
+        cutoff,
+        batchKey: `batch:post-cutoff:${creatorPostCutoff.slice(0, 8)}`,
+        feeKey: `fee:post-cutoff:${creatorPostCutoff.slice(0, 8)}`,
+        coverageId: postCutoffCoverage,
+        asOf: new Date().toISOString(),
+      });
+      assert.equal(lockPostCutoffOnly.ok, false);
+      assert.equal(lockPostCutoffOnly.reason, 'NO_ELIGIBLE_COMMISSIONS');
+
+      const creatorHold = randomUUID();
+      const profileHold = randomUUID();
+      const originHold = randomUUID();
+      await admin.query(`select public.m55_r8_test_seed_r6_payable_chain_v1($1,$2,$3,$4,$5::timestamptz)`, [
+        originHold,
+        creatorHold,
+        profileHold,
+        25_000,
+        payableAt,
+      ]);
+      await admin.query(`select public.m55_r8_test_seed_r6_hold_after_date_v1($1,$2,$3,$4::timestamptz)`, [
+        originHold,
+        creatorHold,
+        profileHold,
+        new Date(Date.now() - 12 * 3_600_000).toISOString(),
+      ]);
+      const holdFunding = await seedFundingSource(admin, { scopeRef: 'acct_hold_after_cutoff' });
+      const holdCoverage = await seedCoverage(admin, holdFunding, 500_000);
+      const lockHold = await lockBatch(admin, {
+        creatorId: creatorHold,
+        cutoff,
+        batchKey: `batch:hold:${creatorHold.slice(0, 8)}`,
+        feeKey: `fee:hold:${creatorHold.slice(0, 8)}`,
+        coverageId: holdCoverage,
+        asOf: new Date().toISOString(),
+      });
+      assert.equal(lockHold.ok, false);
+      assert.equal(lockHold.reason, 'NO_ELIGIBLE_COMMISSIONS');
     } finally {
       await admin.end();
     }
