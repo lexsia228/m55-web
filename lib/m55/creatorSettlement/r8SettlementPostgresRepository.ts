@@ -102,14 +102,23 @@ function mapRpcLockResult(data: unknown): R8CDurableLockResultV1 {
   };
 }
 
-async function sumActiveLiquidityReservationsJpy(db: ReturnType<typeof getSupabaseAdmin>): Promise<number> {
-  const { data, error } = await (db as any)
+async function sumActiveLiquidityReservationsJpy(
+  db: ReturnType<typeof getSupabaseAdmin>,
+  coverageSnapshotId: string,
+): Promise<number> {
+  const { error } = await (db as any)
     .from('m55_r8_platform_liquidity_reservations_v1')
-    .select('reserved_net_jpy,released_at');
+    .select('reserved_net_jpy')
+    .limit(1);
   if (error) {
-    if (/does not exist/i.test(error.message ?? '') || error.code === '42P01') {
-      return 0;
-    }
+    throw new SettlementPersistedReadError();
+  }
+
+  const { data, error: pageErr } = await (db as any)
+    .from('m55_r8_platform_liquidity_reservations_v1')
+    .select('reserved_net_jpy,released_at,coverage_snapshot_id')
+    .eq('coverage_snapshot_id', coverageSnapshotId);
+  if (pageErr) {
     throw new SettlementPersistedReadError();
   }
   let total = 0;
@@ -139,7 +148,11 @@ export async function loadPlatformCashCoverageProofFromDbV1(
     const sourceLabel = String(data.source_label ?? '').trim();
     if (!sourceLabel) return { ok: false, reason: 'COVERAGE_UNVERIFIED' };
     const observedAt = parseIsoDate(data.observed_at);
-    if (!observedAt || asOfUtc.getTime() - observedAt.getTime() > COVERAGE_MAX_AGE_MS) {
+    if (!observedAt) return { ok: false, reason: 'COVERAGE_PROOF_MISSING' };
+    if (observedAt.getTime() > asOfUtc.getTime()) {
+      return { ok: false, reason: 'COVERAGE_STALE' };
+    }
+    if (asOfUtc.getTime() - observedAt.getTime() > COVERAGE_MAX_AGE_MS) {
       return { ok: false, reason: 'COVERAGE_STALE' };
     }
     const available = Number(data.available_jpy);
@@ -147,7 +160,13 @@ export async function loadPlatformCashCoverageProofFromDbV1(
     if (!Number.isInteger(available) || ratio < 10_000) {
       return { ok: false, reason: 'COVERAGE_INSUFFICIENT' };
     }
-    const reserved = await sumActiveLiquidityReservationsJpy(db);
+    if (available <= 0) {
+      return { ok: false, reason: 'COVERAGE_INSUFFICIENT' };
+    }
+    const reserved = await sumActiveLiquidityReservationsJpy(db, data.coverage_snapshot_id as string);
+    if (reserved > available) {
+      return { ok: false, reason: 'COVERAGE_INSUFFICIENT' };
+    }
     const effectiveAvailableJpy = Math.max(available - reserved, 0);
     return {
       ok: true,
@@ -282,7 +301,9 @@ export async function listPersistedSettlementBundlesForCreatorV1(
     for (const inst of data ?? []) {
       const batch = batches.get(inst.instruction_id as string);
       const fee = fees.get(inst.instruction_id as string);
-      if (!batch || !fee) continue;
+      if (!batch || !fee) {
+        throw new SettlementPersistedReadError('SETTLEMENT_BUNDLE_INCOMPLETE');
+      }
       const mapped = mapBundleRow({
         ...inst,
         batch_id: batch.batch_id,

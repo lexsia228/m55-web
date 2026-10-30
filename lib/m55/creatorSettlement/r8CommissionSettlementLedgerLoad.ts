@@ -15,19 +15,10 @@ type LedgerRow = {
 
 const LEDGER_PAGE_SIZE = 1000;
 
-function isMissingRelationError(error: { code?: string; message?: string } | null): boolean {
-  if (!error) return false;
-  if (error.code === '42P01') return true;
-  return /does not exist/i.test(error.message ?? '');
-}
-
 async function loadAllocatedCommissionEventIdsFailClosedV1(db: ReturnType<typeof getSupabaseAdmin>): Promise<Set<string>> {
   const allocated = new Set<string>();
   const { error } = await (db as any).from('m55_r8_payout_batch_lines_v1').select('commission_event_id').limit(1);
   if (error) {
-    if (isMissingRelationError(error)) {
-      return allocated;
-    }
     throw new SettlementAllocationReadError();
   }
 

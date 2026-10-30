@@ -284,24 +284,27 @@ $fn$;
 
 create or replace function public.m55_r8_standard_payout_due_utc_v1(p_cutoff timestamptz)
 returns timestamptz
-language plpgsql
+language sql
 immutable
 set search_path = ''
 as $fn$
-declare
-  v_jst timestamptz;
-  v_y int;
-  v_m int;
-begin
-  v_jst := p_cutoff at time zone 'Asia/Tokyo';
-  v_y := extract(year from v_jst)::int;
-  v_m := extract(month from v_jst)::int + 1;
-  if v_m > 12 then
-    v_m := 1;
-    v_y := v_y + 1;
-  end if;
-  return make_timestamptz(v_y, v_m, 15, 0, 0, 0, 'Asia/Tokyo');
-end;
+  with jst as (
+    select (p_cutoff at time zone 'Asia/Tokyo') as local_ts
+  ),
+  parts as (
+    select
+      extract(year from local_ts)::int as y,
+      extract(month from local_ts)::int as m
+    from jst
+  ),
+  next_month as (
+    select
+      case when m = 12 then y + 1 else y end as y,
+      case when m = 12 then 1 else m + 1 end as m
+    from parts
+  )
+  select make_timestamptz(y, m, 15, 0, 0, 0, 'Asia/Tokyo')
+  from next_month;
 $fn$;
 
 create or replace function public.m55_r8_build_lock_result_json_v1(p_batch_id uuid)
@@ -395,12 +398,16 @@ set search_path = ''
 as $fn$
 declare
   v_existing_batch_id uuid;
+  v_existing_creator uuid;
+  v_existing_cutoff timestamptz;
+  v_existing_fee_key text;
   v_fee_instruction_id uuid;
   v_fee_batch_id uuid;
   v_available bigint;
   v_ratio int;
   v_observed timestamptz;
   v_proof_kind text;
+  v_source_label text;
   v_reserved bigint;
   v_effective bigint;
   v_settlement_payable bigint := 0;
@@ -421,7 +428,8 @@ declare
   v_payable_already_allocated boolean := false;
 begin
   if to_regclass('public.m55_r8_payout_batches_v1') is null
-     or to_regclass('public.m55_r6_commission_ledger_events') is null then
+     or to_regclass('public.m55_r6_commission_ledger_events') is null
+     or to_regclass('public.m55_r8_platform_liquidity_reservations_v1') is null then
     return jsonb_build_object('ok', false, 'reason', 'SETTLEMENT_STORAGE_UNAVAILABLE');
   end if;
 
@@ -443,6 +451,22 @@ begin
   for update;
 
   if v_existing_batch_id is not null then
+    select
+      b.creator_economic_identity_id,
+      b.cutoff_at,
+      f.idempotency_key
+    into v_existing_creator, v_existing_cutoff, v_existing_fee_key
+    from public.m55_r8_payout_batches_v1 as b
+    join public.m55_r8_payout_instructions_v1 as i on i.instruction_id = b.instruction_id
+    join public.m55_r8_payout_fee_charges_v1 as f on f.instruction_id = b.instruction_id
+    where b.batch_id = v_existing_batch_id;
+
+    if v_existing_creator is distinct from p_creator_economic_identity_id
+       or v_existing_cutoff is distinct from p_cutoff_at
+       or v_existing_fee_key is distinct from p_fee_idempotency_key then
+      return jsonb_build_object('ok', false, 'reason', 'DUPLICATE_IDEMPOTENCY_CONFLICT');
+    end if;
+
     return public.m55_r8_build_lock_result_json_v1(v_existing_batch_id);
   end if;
 
@@ -460,10 +484,13 @@ begin
     end if;
   end if;
 
-  select c.available_jpy, c.coverage_ratio_bps, c.observed_at, c.proof_kind
-  into v_available, v_ratio, v_observed, v_proof_kind
+  perform pg_advisory_xact_lock(hashtext('m55_r8_liquidity:' || p_coverage_snapshot_id::text));
+
+  select c.available_jpy, c.coverage_ratio_bps, c.observed_at, c.proof_kind, c.source_label
+  into v_available, v_ratio, v_observed, v_proof_kind, v_source_label
   from public.m55_r8_platform_liquidity_coverage_v1 as c
-  where c.coverage_snapshot_id = p_coverage_snapshot_id;
+  where c.coverage_snapshot_id = p_coverage_snapshot_id
+  for update;
 
   if v_available is null or v_ratio is null or v_ratio < 10000 then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
@@ -473,14 +500,25 @@ begin
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
   end if;
 
-  if v_observed is null or v_observed < (p_as_of - interval '24 hours') then
+  if v_source_label is null or char_length(btrim(v_source_label)) < 8 then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  if v_observed is null
+     or v_observed > p_as_of
+     or v_observed < (p_as_of - interval '24 hours') then
     return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
   end if;
 
   select coalesce(sum(r.reserved_net_jpy), 0)
   into v_reserved
   from public.m55_r8_platform_liquidity_reservations_v1 as r
-  where r.released_at is null;
+  where r.released_at is null
+    and r.coverage_snapshot_id = p_coverage_snapshot_id;
+
+  if v_reserved > v_available then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
 
   v_effective := v_available - v_reserved;
   if v_effective < 0 then
@@ -634,6 +672,21 @@ begin
   v_net := v_settlement_payable - v_fee - p_withholding_jpy;
   if v_net < 0 then
     return jsonb_build_object('ok', false, 'reason', 'NEGATIVE_NET_PAYOUT');
+  end if;
+
+  select coalesce(sum(r.reserved_net_jpy), 0)
+  into v_reserved
+  from public.m55_r8_platform_liquidity_reservations_v1 as r
+  where r.released_at is null
+    and r.coverage_snapshot_id = p_coverage_snapshot_id;
+
+  if v_reserved > v_available then
+    return jsonb_build_object('ok', false, 'reason', 'INSUFFICIENT_CASH_COVERAGE');
+  end if;
+
+  v_effective := v_available - v_reserved;
+  if v_effective < 0 then
+    v_effective := 0;
   end if;
 
   if v_effective < v_net then

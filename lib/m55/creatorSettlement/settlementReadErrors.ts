@@ -1,9 +1,10 @@
 export class SettlementPersistedReadError extends Error {
-  readonly code = 'SETTLEMENT_READ_UNAVAILABLE' as const;
+  readonly code: 'SETTLEMENT_READ_UNAVAILABLE' | 'SETTLEMENT_BUNDLE_INCOMPLETE';
 
-  constructor(message = 'SETTLEMENT_READ_UNAVAILABLE') {
-    super(message);
+  constructor(code: 'SETTLEMENT_READ_UNAVAILABLE' | 'SETTLEMENT_BUNDLE_INCOMPLETE' = 'SETTLEMENT_READ_UNAVAILABLE') {
+    super(code);
     this.name = 'SettlementPersistedReadError';
+    this.code = code;
   }
 }
 
