@@ -76,7 +76,7 @@ Zero-omission traceability matrix and canonical development order: `docs/ssot/M5
 
 ## A-00. Rev4 operating-model reconciliation (Human-frozen 2026-09-13)
 
-This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. R5 `ATTRIBUTION_AND_COMPLIANCE` is **CLOSED GREEN**. R6 `COMMISSION_LEDGER` is **CLOSED GREEN**. Canonical current product stage is R7 `CREATOR_DASHBOARD` — **SELECTED / NOT YET IMPLEMENTED**. Executable CURRENT/NEXT is `CREATOR_DASHBOARD`. R8 `PAYOUT_AND_SETTLEMENT` is **NOT_IMPLEMENTED**. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
+This parent SSOT remains the Creator Revenue program/roadmap contract. Frozen operating-model values below are owned by `docs/ssot/M55_CREATOR_AFFILIATE_OPERATING_MODEL_SSOT.md`. R1 Four Surface Creator Readiness remains **CLOSED GREEN**. R2 is **CLOSED GREEN** — Human final R2 acceptance 2026-09-13. R3 is **CLOSED GREEN** — PR #204 merged, Human Preview visual GREEN, and Production READY at `e8d9773cd7a04830f4cdb1208fbe2aa811027114`. R4 `M55-CREATOR-DISTRIBUTION-FOUNDATION` is **CLOSED GREEN** — PR #210 **MERGED** at `a23ce3188cf874521d6cfc750072cd95d34e60d0`, feature head `5b3d3689232f64af2c1136979872bfc7b9fbe7df`, Human visual **GREEN**, Production **READY** at exact merge SHA, Creator production routes **3/3 HTTP 200**. R5 `ATTRIBUTION_AND_COMPLIANCE` is **CLOSED GREEN**. R6 `COMMISSION_LEDGER` is **CLOSED GREEN**. R7 `CREATOR_DASHBOARD` is **CLOSED GREEN** on Production — main merge `20744bfca0ec6d00f211910680285ade6fc22106` (`feat/m55-r7-creator-dashboard-v1`). Executable CURRENT/NEXT is R8 `PAYOUT_AND_SETTLEMENT` (**SELECTED** — not Production-complete). R8 source exists locally on `feat/m55-r8-a-provider-onboarding-v1` (**LOCAL IMPLEMENTED** on isolated feature branch only); formal isolated E2E GREEN, PR/CI merge, Production settlement, and provider runtime activation remain **NOT** done. Creator cash remains **NOT IMPLEMENTED**. `PRODUCTION_CASH_ACTIVATION = FALSE`. Provider executable status remains `UNSELECTED`; provider runtime is not activated. Stripe Connect remains target architecture only.
 
 Executable provider status remains `stripePayoutProviderStatus = UNSELECTED` in `docs/ssot/M55_EXECUTION_STATE.json` until the separate provider/runtime activation gate updates executable state. This does not reopen or weaken the frozen target architecture `STRIPE_CONNECT = REQUIRED`.
 
@@ -215,7 +215,8 @@ This section is normative for implementation reuse.
 - A new chat, missing conversational memory, reassurance request, or stale subordinate comment is **NOT** an invalidator.
 - Reopening requires an actual changed dependency, discovered production defect, changed policy/contract, or explicit Human authorization.
 - **CLOSED_GREEN** does **NOT** mean Creator payout/cash is active.
-- R7 **SELECTED** does **NOT** mean completed.
+- R7 is **CLOSED GREEN** on Production; do not reimplement R7 dashboard/referral read models.
+- R8 **SELECTED** does **NOT** mean Production payout/settlement is complete; `payoutSettlementStatus = NOT_IMPLEMENTED` remains authoritative for executable Production settlement.
 
 ### R4 — `M55-CREATOR-DISTRIBUTION-FOUNDATION`
 
@@ -364,7 +365,7 @@ This section is the durable implementation-plan authority for R7 `CREATOR_DASHBO
 **Plan status:** `FROZEN_GREEN`  
 **Independent audit:** `R7_IMPLEMENTATION_PLAN_CODEX_GREEN_READY_FOR_HUMAN_FREEZE` · P0 = 0 · P1 = 0  
 **Human decisions required:** `NONE`  
-**Runtime status:** R7 remains **SELECTED / NOT YET IMPLEMENTED**. This freeze does **not** claim source, migration, env, Preview, Production, payout, or cash activation.
+**Runtime status:** R7 is **CLOSED GREEN** on Production. R8 remains **SELECTED** with **LOCAL IMPLEMENTED** source only on the isolated feature branch; this freeze does **not** claim Production settlement, provider activation, payout/cash, or formal isolated E2E GREEN.
 
 ### Human-frozen R7 v1 decisions
 
@@ -529,7 +530,7 @@ All dashboard/history reads use bounded time ranges and keyset cursors. No mater
 - Do **not** replay complete R4/R5/R6 suites absent a real invalidator.
 - This plan freeze is not implementation GO.
 - Local source implementation, migration apply, env mutation, commit/push, PR/merge, Preview, Production, provider, and cash operations remain distinct authorization gates where applicable.
-- Executable CURRENT/NEXT remains owned solely by `docs/ssot/M55_EXECUTION_STATE.json` and remains `CREATOR_DASHBOARD`.
+- Executable CURRENT/NEXT is owned solely by `docs/ssot/M55_EXECUTION_STATE.json`. Any wording that executable CURRENT/NEXT `remains CREATOR_DASHBOARD` reflects the **2026-10-08 plan-freeze historical snapshot only**; it is not the live CURRENT/NEXT after R7 Production CLOSED GREEN and the R8 `PAYOUT_AND_SETTLEMENT` control-plane advance (see execution state).
 
 ---
 
@@ -1251,8 +1252,8 @@ A referred customer may later become an approved promoter, which can create anot
 | R4 | `M55-CREATOR-DISTRIBUTION-FOUNDATION` | **CLOSED GREEN** — PR #210 **MERGED** · see R4 closure checkpoint below |
 | R5 | `ATTRIBUTION_AND_COMPLIANCE` | **CLOSED GREEN** |
 | R6 | `COMMISSION_LEDGER` | **CLOSED GREEN** |
-| R7 | `CREATOR_DASHBOARD` | **SELECTED** — **NOT YET IMPLEMENTED** |
-| R8 | `PAYOUT_AND_SETTLEMENT` | future · **NOT_IMPLEMENTED** |
+| R7 | `CREATOR_DASHBOARD` | **CLOSED GREEN** — Production @ `20744bfc…` |
+| R8 | `PAYOUT_AND_SETTLEMENT` | **SELECTED** — **LOCAL IMPLEMENTED** on feature branch only; **NOT** Production/provider/cash complete |
 | — | `M55-CODEX-CREATOR-INFRA-AUDIT` | future |
 | — | `M55_CREATOR_REVENUE_READY` | future — **precedes** invite-only beta (Human decision 2026-09-16) |
 | — | `INVITE_ONLY_CREATOR_BETA` | future — **after** revenue readiness |
@@ -1530,11 +1531,11 @@ The evidence file is authoritative for exact SQL, exact bounded observations, pr
 
 | Capability | Status |
 |---|---|
-| Creator referral | **NOT_IMPLEMENTED** |
+| Creator referral (R7 product surface; R5 tracking substrate reused) | **CLOSED GREEN** — Production R7 dashboard/link UX; not a claim that R5 backend was absent |
 | Attribution | **CLOSED GREEN** |
 | Commission ledger | **CLOSED GREEN** |
-| Creator dashboard | **SELECTED** — **NOT_IMPLEMENTED** |
-| Payout/settlement | **NOT_IMPLEMENTED** |
+| Creator dashboard | **CLOSED GREEN** — Production R7 merge |
+| Payout/settlement | **SELECTED** — LOCAL IMPLEMENTED on feature branch; formal isolated E2E / Production settlement / Revenue Ready **NOT** complete |
 | Stripe payout provider runtime | **NOT_IMPLEMENTED** · `PRODUCTION_CASH_ACTIVATION = FALSE` |
 
 ---
