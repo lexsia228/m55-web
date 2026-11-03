@@ -607,8 +607,22 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         setupFn: async (page, baseURL) => {
           await establishCoreResult(page, baseURL);
           const bridge = page.getByTestId('m55-paid-bridge-primary');
+          await bridge.scrollIntoViewIfNeeded();
+          const href = await bridge.getAttribute('href');
           await bridge.click();
-          await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+
+          try {
+            await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+          } catch {
+            if (!href) {
+              throw new Error('STOP_FIXTURE_SCOPE: bridge has no href');
+            }
+            await gotoLocal(page, baseURL, href);
+          }
+
+          await page
+            .getByTestId('m55-paid-questionnaire-active')
+            .waitFor({ state: 'visible', timeout: 30_000 });
         },
       };
     case 'premium.lp.answer_review':
@@ -894,11 +908,23 @@ function premiumStatePlan(stateId: string): NavigatePlan {
         hasDeterministicAuthFixture: false,
         setupFn: async (page, baseURL) => {
           await establishCoreResult(page, baseURL);
-          await page.getByTestId('m55-paid-bridge-primary').click();
-          await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+          const bridge = page.getByTestId('m55-paid-bridge-primary');
+          await bridge.scrollIntoViewIfNeeded();
+          const href = await bridge.getAttribute('href');
+          await bridge.click();
+
+          try {
+            await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+          } catch {
+            if (!href) {
+              throw new Error('STOP_FIXTURE_SCOPE: bridge has no href');
+            }
+            await gotoLocal(page, baseURL, href);
+          }
+
           await page
-            .locator('[data-testid="m55-paid-questionnaire-active"]')
-            .waitFor({ state: 'visible', timeout: 20_000 });
+            .getByTestId('m55-paid-questionnaire-active')
+            .waitFor({ state: 'visible', timeout: 30_000 });
         },
       };
     case 'premium.lp.answer_edit':

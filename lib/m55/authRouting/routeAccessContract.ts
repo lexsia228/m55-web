@@ -27,10 +27,10 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   '/my',
   '/how-m55-works',
   '/ten-views',
-  '/self-understanding',
   '/creator',
   '/creator/apply',
   '/creator/portal',
+  '/m55/r',
   '/synastry',
   '/synastry/purchase/confirm',
   '/dev/synastry-paid-report-preview',
@@ -60,6 +60,7 @@ const PUBLIC_PREFIX_ROOTS = [
   '/legal',
   '/sign-in',
   '/sign-up',
+  '/self-understanding',
 ] as const;
 
 export const PROTECTED_PAGE_PATHS = [
@@ -79,6 +80,7 @@ export const PROTECTED_PAGE_PATHS = [
   '/dev/dtr-processing-preview',
   '/dev/premium-share-preview',
   '/internal/creator-review',
+  '/creator/dashboard',
   '/m55/attribution/creator-touch/continue',
 ] as const;
 
@@ -96,6 +98,12 @@ export const PROTECTED_API_PATHS = [
   '/api/creator/portal',
   '/api/creator/compliance/content',
   '/api/creator/compliance/appeal',
+  '/api/creator/compliance/cases',
+  '/api/creator/referrals/current',
+  '/api/creator/referrals/issue',
+  '/api/creator/referrals/rotate',
+  '/api/creator/dashboard',
+  '/api/creator/dashboard/export',
   '/api/internal/creator-review',
   '/api/internal/creator-compliance',
   '/api/m55/attribution/creator-touch/continue',

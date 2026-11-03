@@ -26,6 +26,7 @@ const SITEMAP_EXPECTED = [
   '/legal/refund',
   '/legal/terms',
   '/self-understanding',
+  '/self-understanding/people-fatigue',
 ] as const;
 
 describe('G4 organic discovery — redirects', () => {
@@ -117,6 +118,7 @@ describe('G4 organic discovery — metadata identities and canonicals', () => {
       ['app/how-m55-works/page.tsx', '/how-m55-works'],
       ['app/ten-views/page.tsx', '/ten-views'],
       ['app/self-understanding/page.tsx', '/self-understanding'],
+      ['app/self-understanding/people-fatigue/page.tsx', '/self-understanding/people-fatigue'],
       ['app/synastry/page.tsx', '/synastry'],
       ['app/support/page.tsx', '/support'],
     ];
@@ -143,6 +145,7 @@ describe('G4 organic discovery — share images', () => {
     ['app/how-m55-works/page.tsx', '/how-m55-works'],
     ['app/ten-views/page.tsx', '/ten-views'],
     ['app/self-understanding/page.tsx', '/self-understanding'],
+    ['app/self-understanding/people-fatigue/page.tsx', '/self-understanding/people-fatigue'],
     ['app/synastry/page.tsx', '/synastry'],
   ];
 
@@ -247,5 +250,46 @@ describe('G4 organic discovery — hard non-changes', () => {
     assert.match(sections, /<h1 id="m55-method-canonical-title"/);
     assert.equal((sections.match(/<h1\b/g) ?? []).length, 1);
     assert.doesNotMatch(sections, /<h2 id="m55-method-canonical-title"/);
+  });
+});
+
+describe('G4 organic discovery — people-fatigue search intent', () => {
+  const parent = 'app/self-understanding/page.tsx';
+  const child = 'app/self-understanding/people-fatigue/page.tsx';
+  const parentChildHref = '/self-understanding/people-fatigue';
+  const parentChildAnchor = '人といると疲れるときの整理方法';
+  const childParentAnchor = '自己理解の整理方法を読む';
+  const childCoreAnchor = '無料で自分の傾向を見る';
+
+  it('parent hub links once to people-fatigue with editorial anchor', () => {
+    const page = read(parent);
+    assert.equal((page.match(new RegExp(`href="${parentChildHref}"`, 'g')) ?? []).length, 1);
+    assert.equal((page.match(new RegExp(parentChildAnchor, 'g')) ?? []).length, 1);
+  });
+
+  it('people-fatigue links once to self-understanding hub', () => {
+    const page = read(child);
+    assert.equal((page.match(/href="\/self-understanding"/g) ?? []).length, 1);
+    assert.equal((page.match(new RegExp(childParentAnchor, 'g')) ?? []).length, 1);
+  });
+
+  it('people-fatigue links once to free core entry', () => {
+    const page = read(child);
+    assert.equal((page.match(/href="\/core"/g) ?? []).length, 1);
+    assert.equal((page.match(new RegExp(childCoreAnchor, 'g')) ?? []).length, 1);
+  });
+
+  it('people-fatigue has explicit canonical metadata', () => {
+    const page = read(child);
+    assert.match(page, /canonical:\s*['"]\/self-understanding\/people-fatigue['"]/);
+  });
+
+  it('sitemap remains the exact curated discovery set including people-fatigue', () => {
+    const sitemap = read('app/sitemap.ts');
+    const block = sitemap.match(/PUBLIC_DISCOVERY_PATHS\s*=\s*\[([\s\S]*?)\]\s*as const/)?.[1];
+    assert.ok(block);
+    const paths = [...block.matchAll(/["'](\/[^"']+)["']/g)].map((m) => m[1]);
+    assert.deepEqual(paths, [...SITEMAP_EXPECTED]);
+    assert.equal(paths.length, 13);
   });
 });

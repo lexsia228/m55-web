@@ -104,6 +104,7 @@ const PUBLIC_PAGE_SAMPLES = [
   '/how-m55-works',
   '/ten-views',
   '/self-understanding',
+  '/self-understanding/people-fatigue',
   '/creator',
   '/creator/apply',
   '/creator/portal',
@@ -126,7 +127,43 @@ const PUBLIC_PAGE_SAMPLES = [
   '/dev/synastry-guest-result-preview',
   '/dev/my-owned-preview',
   '/dev/pair-share-preview',
+  '/m55/r',
 ] as const;
+
+const R7_APPLICATION_ROUTE_TEMPLATES = [
+  '/creator/dashboard',
+  '/m55/r',
+  '/api/creator/compliance/cases',
+  '/api/creator/dashboard',
+  '/api/creator/dashboard/export',
+  '/api/creator/referrals/current',
+  '/api/creator/referrals/issue',
+  '/api/creator/referrals/rotate',
+] as const;
+
+const R7_PROTECTED_CREATOR_API_SAMPLES = [
+  '/api/creator/dashboard',
+  '/api/creator/dashboard/export',
+  '/api/creator/referrals/current',
+  '/api/creator/referrals/issue',
+  '/api/creator/referrals/rotate',
+  '/api/creator/compliance/cases',
+] as const;
+
+function assertMiddlewareAllowsOnlyReferralEntryNextResponse(src: string): void {
+  const nextResponseCalls = src.match(/NextResponse\.next\(\)/g) ?? [];
+  assert.equal(
+    nextResponseCalls.length,
+    1,
+    'middleware must contain exactly one NextResponse.next() for public /m55/r headers',
+  );
+  assert.match(
+    src,
+    /case 'continue':[\s\S]*normalizePathname\(pathname\) === '\/m55\/r'[\s\S]*NextResponse\.next\(\)/,
+  );
+  assert.match(src, /Referrer-Policy', 'no-referrer'/);
+  assert.match(src, /Cache-Control', 'private, no-store, max-age=0'/);
+}
 
 const PUBLIC_API_SAMPLES = [
   '/api/stripe/webhook',
@@ -156,23 +193,28 @@ describe('routeAccessContract — exhaustive inventory', () => {
     assert.doesNotThrow(() => assertApplicationRouteInventoryClassified(ROOT));
   });
 
-  it('discovers the current application route count', () => {
+  it('discovers the current application route count (R7 + main SEO + Pair consult)', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 86);
+    assert.equal(templates.length, 95);
+    for (const template of R7_APPLICATION_ROUTE_TEMPLATES) {
+      assert.equal(templates.includes(template), true, `missing R7 template ${template}`);
+    }
+    assert.equal(templates.includes('/api/compatibility/reports/[reportId]/consult'), true);
+    assert.equal(templates.includes('/api/compatibility/reports/[reportId]/consult/send'), true);
   });
 });
 
 describe('routeAccessContract — protected regression', () => {
-  it('keeps all 17 protected pages protected', () => {
-    assert.equal(PROTECTED_PAGE_PATHS.length, 17);
+  it('keeps all 18 protected pages protected', () => {
+    assert.equal(PROTECTED_PAGE_PATHS.length, 18);
     for (const path of PROTECTED_PAGE_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
     }
   });
 
-  it('keeps all 16 protected static Route Handlers protected', () => {
-    assert.equal(PROTECTED_API_PATHS.length, 16);
+  it('keeps all 22 protected static Route Handlers protected', () => {
+    assert.equal(PROTECTED_API_PATHS.length, 22);
     for (const path of PROTECTED_API_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
@@ -211,10 +253,32 @@ describe('routeAccessContract — dynamic boundaries', () => {
     assert.equal(classifyRouteAccess('/api/reply/session/abc/more'), 'unknown');
   });
 
+  it('protects Pair compatibility consult routes with one report segment only', () => {
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/abc/consult'), 'protected');
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/abc/consult/send'), 'protected');
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/abc/consult/extra'), 'unknown');
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/consult'), 'unknown');
+  });
+
   it('classifies attribution touch ingest routes', () => {
     assert.equal(classifyRouteAccess('/api/m55/attribution/creator-touch'), 'public');
     assert.equal(classifyRouteAccess('/api/m55/attribution/creator-touch/continue'), 'protected');
     assert.equal(classifyRouteAccess('/m55/attribution/creator-touch/continue'), 'protected');
+  });
+
+  it('classifies R7 creator dashboard and referral entry routes', () => {
+    assert.equal(classifyRouteAccess('/m55/r'), 'public');
+    assert.equal(matchesPublicRoutePath('/m55/r'), true);
+    assert.equal(matchesProtectedRoutePath('/m55/r'), false);
+
+    assert.equal(classifyRouteAccess('/creator/dashboard'), 'protected');
+    assert.equal(matchesProtectedRoutePath('/creator/dashboard'), true);
+
+    for (const path of R7_PROTECTED_CREATOR_API_SAMPLES) {
+      assert.equal(classifyRouteAccess(path), 'protected', path);
+      assert.equal(matchesProtectedRoutePath(path), true, path);
+      assert.equal(matchesPublicRoutePath(path), false, path);
+    }
   });
 
   it('publishes only the one-segment Creator invite document and API families', () => {
@@ -439,6 +503,18 @@ describe('routeAccessContract — unknown documents and APIs', () => {
     assert.equal(outcome.action, 'unknown_document_rewrite');
   });
 
+  it('does not rewrite nested self-understanding public pages matched by middleware', () => {
+    const outcome = resolveAuthRoutingOutcome({
+      pathname: '/self-understanding/people-fatigue',
+      isPublicRoute: true,
+      nonProdReplyBypass: false,
+      cleanCaptureBypass: false,
+    });
+    assert.notEqual(outcome.action, 'unknown_document_rewrite');
+    assert.equal(outcome.action, 'continue');
+    assert.equal(outcome.accessClass, 'public');
+  });
+
   it('returns plain unknown API 404 without HTML or redirect', async () => {
     const outcome = resolveAuthRoutingOutcome({
       pathname: '/api/does-not-exist',
@@ -511,7 +587,8 @@ describe('routeAccessContract — middleware boundary', () => {
     assert.match(src, /resolveAuthRoutingOutcome/);
     assert.match(src, /createPlainUnknownApi404Response/);
     assert.match(src, /createUnknownDocumentRecoveryRewrite/);
-    assert.doesNotMatch(src, /NextResponse\.next\(\)/);
+    assert.match(src, /auth\.protect\(\)/);
+    assertMiddlewareAllowsOnlyReferralEntryNextResponse(src);
     for (const route of [
       "'/creator'", "'/creator/apply'", "'/creator/portal'",
       "'/creator/invite/:token'", "'/api/creator/invite/:token'",

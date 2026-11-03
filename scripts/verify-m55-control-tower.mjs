@@ -59,6 +59,7 @@ const REQUIRED_CREATOR_CAPABILITY_ASSERTIONS = [
 const HISTORICAL_CREATOR_CAPABILITY_DEFAULTS = {
   attributionStatus: 'NOT_IMPLEMENTED',
   commissionLedgerStatus: 'NOT_IMPLEMENTED',
+  creatorReferralStatus: 'NOT_IMPLEMENTED',
   creatorDashboardStatus: 'NOT_IMPLEMENTED',
   payoutSettlementStatus: 'NOT_IMPLEMENTED',
   stripePayoutProviderStatus: 'UNSELECTED',
@@ -76,6 +77,15 @@ const CREATOR_DASHBOARD_SELECTED_CAPABILITY_ASSERTIONS = [
   ['attributionStatus', 'CLOSED_GREEN'],
   ['commissionLedgerStatus', 'CLOSED_GREEN'],
   ['creatorDashboardStatus', 'SELECTED'],
+  ['payoutSettlementStatus', 'NOT_IMPLEMENTED'],
+  ['stripePayoutProviderStatus', 'UNSELECTED'],
+];
+
+const PAYOUT_AND_SETTLEMENT_SELECTED_CAPABILITY_ASSERTIONS = [
+  ['attributionStatus', 'CLOSED_GREEN'],
+  ['commissionLedgerStatus', 'CLOSED_GREEN'],
+  ['creatorDashboardStatus', 'CLOSED_GREEN'],
+  ['creatorReferralStatus', 'CLOSED_GREEN'],
   ['payoutSettlementStatus', 'NOT_IMPLEMENTED'],
   ['stripePayoutProviderStatus', 'UNSELECTED'],
 ];
@@ -706,6 +716,7 @@ function runSemanticSelfTests() {
           implementationBoundary: 'COMMISSION_LEDGER',
           attributionStatus: 'CLOSED_GREEN',
           commissionLedgerStatus: 'SELECTED',
+          creatorReferralStatus: 'NOT_IMPLEMENTED',
           creatorDashboardStatus: 'NOT_IMPLEMENTED',
           payoutSettlementStatus: 'NOT_IMPLEMENTED',
           stripePayoutProviderStatus: 'UNSELECTED',
@@ -821,6 +832,7 @@ function runSemanticSelfTests() {
           implementationBoundary: 'COMMISSION_LEDGER',
           attributionStatus: 'CLOSED_GREEN',
           commissionLedgerStatus: 'SELECTED',
+          creatorReferralStatus: 'NOT_IMPLEMENTED',
           creatorDashboardStatus: 'NOT_IMPLEMENTED',
           payoutSettlementStatus: 'NOT_IMPLEMENTED',
           stripePayoutProviderStatus: 'UNSELECTED',
@@ -1126,6 +1138,77 @@ function runSemanticSelfTests() {
         },
         'implementationBoundary must be CREATOR_DASHBOARD',
       );
+
+      const payoutSettlementBase = {
+        ...liveWithoutParent,
+        productWorkAfterControlTower: 'PAYOUT_AND_SETTLEMENT',
+        executionParentGate: 'PAYOUT_AND_SETTLEMENT',
+        currentExecutionGate: 'PAYOUT_AND_SETTLEMENT',
+        nextSingleAction: 'PAYOUT_AND_SETTLEMENT',
+        completedSubGates: [
+          ...(liveWithoutParent.completedSubGates ?? []),
+          ...(liveWithoutParent.completedSubGates?.includes('CREATOR_DASHBOARD')
+            ? []
+            : ['CREATOR_DASHBOARD']),
+        ],
+        creatorRevenueRoadmapAuthority: {
+          ...liveWithoutParent.creatorRevenueRoadmapAuthority,
+          currentStage: 'PAYOUT_AND_SETTLEMENT',
+          implementationBoundary: 'PAYOUT_AND_SETTLEMENT',
+          attributionStatus: 'CLOSED_GREEN',
+          commissionLedgerStatus: 'CLOSED_GREEN',
+          creatorDashboardStatus: 'CLOSED_GREEN',
+          creatorReferralStatus: 'CLOSED_GREEN',
+          payoutSettlementStatus: 'NOT_IMPLEMENTED',
+          stripePayoutProviderStatus: 'UNSELECTED',
+        },
+      };
+
+      expectCreatorPolicyPass('creator R8 payout/settlement selected live shape', payoutSettlementBase);
+
+      expectCreatorPolicyFail(
+        'R8 selected rejects payoutSettlementStatus CLOSED_GREEN',
+        {
+          ...payoutSettlementBase,
+          creatorRevenueRoadmapAuthority: {
+            ...payoutSettlementBase.creatorRevenueRoadmapAuthority,
+            payoutSettlementStatus: 'CLOSED_GREEN',
+          },
+        },
+        'payoutSettlementStatus must be NOT_IMPLEMENTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R8 selected rejects provider SELECTED',
+        {
+          ...payoutSettlementBase,
+          creatorRevenueRoadmapAuthority: {
+            ...payoutSettlementBase.creatorRevenueRoadmapAuthority,
+            stripePayoutProviderStatus: 'SELECTED',
+          },
+        },
+        'stripePayoutProviderStatus must be UNSELECTED',
+      );
+
+      expectCreatorPolicyFail(
+        'R8 selected rejects missing CREATOR_DASHBOARD in completedSubGates',
+        {
+          ...payoutSettlementBase,
+          completedSubGates: (payoutSettlementBase.completedSubGates ?? []).filter(
+            (gate) => gate !== 'CREATOR_DASHBOARD',
+          ),
+        },
+        'CREATOR_DASHBOARD must be in completedSubGates',
+      );
+
+      expectCreatorPolicyFail(
+        'R8 selected rejects PAYOUT_AND_SETTLEMENT already completed',
+        {
+          ...payoutSettlementBase,
+          completedSubGates: [...(payoutSettlementBase.completedSubGates ?? []), 'PAYOUT_AND_SETTLEMENT'],
+        },
+        'PAYOUT_AND_SETTLEMENT must not be in completedSubGates while settlement is SELECTED',
+      );
     }
   }
 }
@@ -1222,6 +1305,8 @@ function collectCreatorRevenueExecutionStateErrors(state) {
     normalizeGateToken(currentStage) === 'COMMISSION_LEDGER';
   const isCreatorDashboardSelectedMemory =
     normalizeGateToken(currentStage) === 'CREATOR_DASHBOARD';
+  const isPayoutSettlementSelectedMemory =
+    normalizeGateToken(currentStage) === 'PAYOUT_AND_SETTLEMENT';
   if (isCommissionLedgerSelectedMemory) {
     if (normalizeGateToken(authority.implementationBoundary) !== 'COMMISSION_LEDGER') {
       errors.push('creatorRevenueRoadmapAuthority.implementationBoundary must be COMMISSION_LEDGER');
@@ -1275,6 +1360,39 @@ function collectCreatorRevenueExecutionStateErrors(state) {
     }
     if (state.completedSubGates?.includes('CREATOR_DASHBOARD')) {
       errors.push('CREATOR_DASHBOARD must not be in completedSubGates while dashboard is SELECTED');
+    }
+    const cashActivation = authority.stripeArchitecture?.PRODUCTION_CASH_ACTIVATION;
+    if (cashActivation !== false) {
+      errors.push(
+        'creatorRevenueRoadmapAuthority.stripeArchitecture.PRODUCTION_CASH_ACTIVATION must be false',
+      );
+    }
+    if (authority.stages?.includes('SELECTED')) {
+      errors.push('SELECTED must not appear in creatorRevenueRoadmapAuthority.stages');
+    }
+  } else if (isPayoutSettlementSelectedMemory) {
+    if (normalizeGateToken(authority.implementationBoundary) !== 'PAYOUT_AND_SETTLEMENT') {
+      errors.push('creatorRevenueRoadmapAuthority.implementationBoundary must be PAYOUT_AND_SETTLEMENT');
+    }
+    for (const [field, expected] of PAYOUT_AND_SETTLEMENT_SELECTED_CAPABILITY_ASSERTIONS) {
+      if (authority[field] !== expected) {
+        errors.push(`creatorRevenueRoadmapAuthority.${field} must be ${expected}`);
+      }
+    }
+    if (authority.fourSurfaceCreatorReadiness !== 'CLOSED_GREEN') {
+      errors.push('creatorRevenueRoadmapAuthority.fourSurfaceCreatorReadiness must be CLOSED_GREEN');
+    }
+    if (!state.completedSubGates?.includes('ATTRIBUTION_AND_COMPLIANCE')) {
+      errors.push('ATTRIBUTION_AND_COMPLIANCE must be in completedSubGates');
+    }
+    if (!state.completedSubGates?.includes('COMMISSION_LEDGER')) {
+      errors.push('COMMISSION_LEDGER must be in completedSubGates');
+    }
+    if (!state.completedSubGates?.includes('CREATOR_DASHBOARD')) {
+      errors.push('CREATOR_DASHBOARD must be in completedSubGates');
+    }
+    if (state.completedSubGates?.includes('PAYOUT_AND_SETTLEMENT')) {
+      errors.push('PAYOUT_AND_SETTLEMENT must not be in completedSubGates while settlement is SELECTED');
     }
     const cashActivation = authority.stripeArchitecture?.PRODUCTION_CASH_ACTIVATION;
     if (cashActivation !== false) {

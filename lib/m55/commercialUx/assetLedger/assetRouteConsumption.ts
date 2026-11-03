@@ -6,6 +6,7 @@ export const M55_ASSET_ROUTE_CONSUMPTION: Readonly<Record<string, readonly strin
   'public.home': ['terminology.core', 'fence.free', 'fence.premium', 'trait.identity', 'plan.comparison_surface'],
   'public.root_redirect': ['terminology.core'],
   'public.how_m55_works': ['terminology.core', 'fence.free'],
+  'public.self_understanding': ['terminology.core', 'fence.free'],
   'public.ten_views': ['trait.identity', 'terminology.ten_qualities'],
   'public.pricing': ['plan.comparison_surface', 'product_truth.pricing', 'fence.premium'],
   'public.support': ['product_truth.pricing', 'safety.non_diagnostic'],
