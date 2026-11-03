@@ -5084,9 +5084,31 @@
 
 @media (max-width: 639px) {
   /*
-   * ???Emax-width:50% ?????E?????E?????E????????E????????E   * ??E?E 16em?E??16???????????E??????? width:auto ???E?E?????E   */
+   * Narrow phones: stack type art above copy so hero text keeps full width (320/390).
+   * Desktop (640+) keeps side-by-side poster layout unchanged.
+   */
+  .heroPoster {
+    min-height: 0;
+  }
+
+  .heroPosterTypeImg {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: clamp(132px, 36vw, 188px);
+    object-fit: cover;
+    object-position: center 42%;
+  }
+
+  .heroPosterOverlay {
+    min-height: 0;
+    padding-top: 12px;
+  }
+
   .heroPosterMain {
-    max-width: calc(50% - 0.75rem);
+    max-width: 100%;
+    width: 100%;
   }
 
   .heroTypeCard {
@@ -5098,12 +5120,7 @@
   }
 
   .heroTypeCardEssence {
-    max-width: 16em;
-  }
-
-  .heroPosterTypeImg {
-    max-width: 50%;
-    height: 100%;
+    max-width: none;
   }
 
   .heroMetaStrip {

@@ -172,11 +172,11 @@ describe('current-context questionnaire contract', () => {
     assert.match(component, /questionIndex === 0 \? styles\.questionPurpose : styles\.questionPurposeCompact/);
     assert.match(component, /同じ生年月日でも、今の距離や会話によって内容が変わります。/);
     assert.doesNotMatch(component, /質問 \{questionIndex \+ 1\}\/6/);
-    assert.match(component, /二人それぞれの動き/);
+    assert.match(component, /二人それぞれの視点/);
     assert.match(component, /すれ違いが始まる場面/);
-    assert.match(component, /場面から戻る手順/);
-    assert.match(component, /そのまま使える一言/);
-    assert.match(component, /今週一度だけ試すこと/);
+    assert.match(component, /stagePremiumBridgeCopy/);
+    assert.match(component, /そのまま使える/);
+    assert.match(component, /小さな実験/);
     assert.match(component, /id="compatibility-mapped-chapters"/);
     // The bridge must not end on an anchor back to content the reader passed.
     assert.doesNotMatch(component, /href="#compatibility-mapped-chapters"/);
@@ -289,7 +289,7 @@ describe('same-pair current-context variance', () => {
 });
 
 describe('current-context order safety and compatibility', () => {
-  it('preserves context semantics and swaps A/B perspectives', () => {
+  it('preserves context semantics while mapping semantic slots to buyer and partner columns', () => {
     const forward = build(CONTEXT_B);
     const reverse = buildPaidCompatibilityReportV1({
       ...BASE_INPUT,
@@ -301,9 +301,13 @@ describe('current-context order safety and compatibility', () => {
     for (let index = 0; index < 6; index += 1) {
       const a = forward.chapters[index]!;
       const b = reverse.chapters[index]!;
-      assert.equal(a.personAPerspective, swapVisibleRoles(b.personBPerspective));
-      assert.equal(a.personBPerspective, swapVisibleRoles(b.personAPerspective));
-      assert.deepEqual(a.relationshipLoop, b.relationshipLoop.map(swapVisibleRoles));
+      assert.match(a.personAPerspective, /あなた/);
+      assert.match(b.personAPerspective, /あなた/);
+      assert.notEqual(a.personAPerspective, b.personAPerspective);
+      assert.equal(a.phraseSpeaker, b.phraseSpeaker);
+      assert.match(a.relationshipLoop.join(''), /あなたから見ると/);
+      assert.match(b.relationshipLoop.join(''), /あなたから見ると/);
+      assert.notEqual(a.relationshipLoop.join(''), b.relationshipLoop.join(''));
     }
   });
 
@@ -313,7 +317,8 @@ describe('current-context order safety and compatibility', () => {
     assert.deepEqual(legacy.highlightedChapterKeys, ['ch_pair_gap', 'ch_topic_deep']);
     assert.equal(legacy.chapters.length, 6);
     const reader = read('components/compatibility/PaidCompatibilityReportReader.tsx');
-    assert.match(reader, /snapshot\.currentContext\?/);
+    assert.match(reader, /displaySnapshot\.currentContext\?/);
+    assert.match(reader, /displaySnapshot\.chapters\.map/);
   });
 
   it('covers same DOB, swapped, leap-day, and representative pair boundaries', () => {

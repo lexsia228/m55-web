@@ -27,11 +27,49 @@ import {
   type CompatibilityCurrentContextAnswersV2,
 } from './currentContextContract.v2';
 import { resolvePairCanonicalProfileV2, type PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
-import { formatPaidChapterDepthNarrative, paidChapterDepthFor } from './paidCompatibilityChapterDepthV1';
+import { formatPaidChapterDepthNarrative, paidChapterDepthFor, type PaidChapterDepthNarrativeAdjustments } from './paidCompatibilityChapterDepthV1';
 import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
+import type { PaidCompatibilityGenerationContractV1 } from './paidCompatibilityReportDisplayV1';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
   'paid_compatibility_report_v1' as const;
+
+/** Buyer is always form person A; R1 uses buyer-baseline semantics (no role flip). */
+function buyerUsesFirstSemanticSlot(
+  relationStatusId: RelationStatusId,
+  personAUsesFirstPerspective: boolean,
+): boolean {
+  if (relationStatusId === 'R1') {
+    return true;
+  }
+  return personAUsesFirstPerspective;
+}
+
+export function paidCompatibilityBuyerUsesFirstSemanticSlot(
+  relationStatusId: RelationStatusId,
+  personAUsesFirstPerspective: boolean,
+): boolean {
+  return buyerUsesFirstSemanticSlot(relationStatusId, personAUsesFirstPerspective);
+}
+
+function semanticSlotForProductSide(
+  side: 'self' | 'partner',
+  personAUsesFirstPerspective: boolean,
+  relationStatusId: RelationStatusId,
+): 'first' | 'second' {
+  const buyerFirst = buyerUsesFirstSemanticSlot(
+    relationStatusId,
+    personAUsesFirstPerspective,
+  );
+  if (side === 'self') {
+    return buyerFirst ? 'first' : 'second';
+  }
+  return buyerFirst ? 'second' : 'first';
+}
+
+function productSideLabel(side: 'self' | 'partner'): 'あなた' | '相手' {
+  return side === 'self' ? 'あなた' : '相手';
+}
 
 export type PaidCompatibilityReportInput = {
   pairAxisId: PairAxisId;
@@ -72,6 +110,7 @@ export type PaidCompatibilityReportSnapshot = {
   readonly highlightedChapterKeys: readonly ChapterId[];
   readonly currentContext?: CompatibilityCurrentContextDisplay;
   readonly displayIdentity?: PairDisplayIdentityV1;
+  readonly generationContract?: PaidCompatibilityGenerationContractV1;
   readonly chapters: readonly PaidCompatibilityChapter[];
   readonly safetyNote: string;
 };
@@ -123,6 +162,20 @@ function temperatureContextFor(
 
 function actionMotionPhrase(action: string): string {
   return action.replace(/。$/u, '');
+}
+
+/** Strip redundant actor prefix before embedding action in 「{label}には、…パターン」 lines. */
+function visibleActionPatternForActor(
+  actorLabel: 'あなた' | '相手',
+  action: string,
+): string {
+  let motion = actionMotionPhrase(action);
+  if (actorLabel === '相手') {
+    motion = motion.replace(/^相手の/u, '').replace(/^相手/u, '');
+  } else {
+    motion = motion.replace(/^あなたの/u, '').replace(/^あなた/u, '');
+  }
+  return motion;
 }
 
 const R1_PARTNER_UNCERTAINTY: readonly string[] = [
@@ -584,60 +637,67 @@ function naturalPaidReception(label: string, raw: string): string {
   return formatPaidReceptionSentence(label, `${reception}と感じやすいことがあります`);
 }
 
-function chapterBehaviorPerspective(
-  chapterKey: ChapterId,
+function chapterBehaviorPerspectiveUnique(
+  side: 'self' | 'partner',
   chapterIndex: number,
-  role: 'A' | 'B',
   focus: ChapterFocus,
-  roles: ReturnType<typeof semanticRoles>,
   relationStatusId: RelationStatusId,
-  viewerIsPersonA: boolean,
+  personAUsesFirstPerspective: boolean,
 ): string {
-  const label = actorLabel(role, viewerIsPersonA);
-  const depth = paidChapterDepthFor(chapterKey, relationStatusId);
-  const context = depth.trigger.replace(/。$/u, '');
-  const isFirstSemanticRole = role === roles.first.role;
-  const action = isFirstSemanticRole ? focus.firstAction : focus.secondAction;
-  const readAs = isFirstSemanticRole ? focus.firstReception : focus.secondReception;
+  const label = productSideLabel(side);
+  const slot = semanticSlotForProductSide(
+    side,
+    personAUsesFirstPerspective,
+    relationStatusId,
+  );
+  const action = slot === 'first' ? focus.firstAction : focus.secondAction;
+  const readAs = slot === 'first' ? focus.firstReception : focus.secondReception;
   const variant = chapterIndex % 3;
   const perception = paidReceptionSentence(label, readAs);
   const motion = paidActionSentence(label, action);
   if (variant === 0) {
-    return `${context}。${perception}${motion}`;
+    return `${perception}${motion}`;
   }
   if (variant === 1) {
-    return `${context}では、${motion}${perception}`;
+    return `${motion}${perception}`;
   }
-  return `${context}。${perception} 同時に、${motion}`;
+  return `${perception} 同時に、${motion}`;
 }
 
-function perspectiveText(
-  chapterKey: ChapterId,
+function perspectiveTextForProductSide(
+  side: 'self' | 'partner',
   chapterIndex: number,
-  role: 'A' | 'B',
   focus: ChapterFocus,
   roles: ReturnType<typeof semanticRoles>,
   relationStatusId: RelationStatusId,
-  viewerIsPersonA: boolean,
+  personAUsesFirstPerspective: boolean,
 ): string {
-  if (relationStatusId === 'R1' && role === 'B') {
-    return R1_PARTNER_UNCERTAINTY[chapterIndex]!;
+  if (side === 'partner') {
+    if (relationStatusId === 'R1') {
+      return R1_PARTNER_UNCERTAINTY[chapterIndex]!;
+    }
+    if (relationStatusId === 'R4') {
+      return R4_PARTNER_UNCERTAINTY[chapterIndex]!;
+    }
+    if (relationStatusId === 'R5') {
+      return R5_PARTNER_UNCERTAINTY[chapterIndex]!;
+    }
   }
-  if (relationStatusId === 'R4' && role === 'B') {
-    return R4_PARTNER_UNCERTAINTY[chapterIndex]!;
-  }
-  if (relationStatusId === 'R5' && role === 'B') {
-    return R5_PARTNER_UNCERTAINTY[chapterIndex]!;
-  }
-  return chapterBehaviorPerspective(
-    chapterKey,
+  return chapterBehaviorPerspectiveUnique(
+    side,
     chapterIndex,
-    role,
     focus,
-    roles,
     relationStatusId,
-    viewerIsPersonA,
+    personAUsesFirstPerspective,
   );
+}
+
+export function paidCompatibilitySharedPerspectiveContext(
+  chapterKey: ChapterId,
+  relationStatusId: RelationStatusId,
+): string {
+  const depth = paidChapterDepthFor(chapterKey, relationStatusId);
+  return `${depth.trigger.replace(/。$/u, '')}。`;
 }
 
 const R1_SHARED_PHRASES: Readonly<Record<PairAxisId, readonly [string, string, string, string, string, string]>> = {
@@ -721,11 +781,9 @@ function chapterPhrase(
     const phraseIndex = CHAPTER_IDS.indexOf(key);
     return {
       speaker:
-        key === 'ch_you_pace'
+        key === 'ch_you_pace' || key === 'ch_other_pace'
           ? 'personA'
-          : key === 'ch_other_pace'
-            ? 'personB'
-            : 'either',
+          : 'either',
       text: phrases[axis][phraseIndex]!,
     };
   }
@@ -746,6 +804,28 @@ function chapterPhrase(
     speaker: 'either',
     text: SHARED_PHRASES[axis][sharedIndex]!,
   };
+}
+
+const R1_PHRASE_CATALOG: ReadonlySet<string> = new Set(
+  (Object.values(R1_SHARED_PHRASES) as readonly (readonly string[])[]).flat(),
+);
+
+export type PaidCompatibilityPhrasePurpose = 'introspective' | 'dialogue';
+
+/** R1 catalog phrases are self-introspection; R2+ shared either phrases are dialogue prompts. */
+export function paidCompatibilityPhrasePurpose(
+  relationStatusId: RelationStatusId,
+  _chapterKey: ChapterId,
+  phraseText: string,
+): PaidCompatibilityPhrasePurpose {
+  if (relationStatusId === 'R1' || R1_PHRASE_CATALOG.has(phraseText)) {
+    return 'introspective';
+  }
+  return 'dialogue';
+}
+
+export function paidCompatibilityNaturalActionJa(action: string): string {
+  return NATURAL_PAID_ACTION_JA[action] ?? action;
 }
 
 /**
@@ -790,40 +870,125 @@ function chapterTitleForReport(
   return paidCompatibilityChapterTitle(key, topicId);
 }
 
+function paidChapterDepthNarrativeAdjustments(
+  key: ChapterId,
+  focus: ChapterFocus,
+  relationStatusId: RelationStatusId,
+  personAUsesFirstPerspective: boolean,
+): PaidChapterDepthNarrativeAdjustments | undefined {
+  if (buyerUsesFirstSemanticSlot(relationStatusId, personAUsesFirstPerspective)) {
+    return undefined;
+  }
+  const buyerMotion = paidActionSentence('あなた', focus.secondAction).replace(/。$/u, '');
+  const partnerFrame = paidReceptionSentence('相手', focus.firstReception)
+    .replace(/^相手は、/u, '')
+    .replace(/。$/u, '');
+  const shared: PaidChapterDepthNarrativeAdjustments = {
+    chapterQuestion: `あなたが${actionMotionPhrase(focus.secondAction)}とき、相手はどう受け取る？`,
+    misread: `ここで起きやすい誤読は、${buyerMotion}。相手からは、${partnerFrame}。`,
+  };
+  if (key === 'ch_you_pace') {
+    return {
+      ...shared,
+      failureCondition:
+        '返事の間だけで関心の有無を決めてしまうと、意味づけが早くなりやすい。',
+    };
+  }
+  if (key === 'ch_other_pace') {
+    return {
+      ...shared,
+      handlingGuidance: '結論を急がず、整える時間が必要な旨を一行で伝える。',
+      successSignal: '相手が催促せず、短い合図だけ返せた余白が残る。',
+    };
+  }
+  if (key === 'ch_topic_deep') {
+    return {
+      ...shared,
+      failureCondition:
+        '反応を控える意図だけで、話題そのものを避けたと決めてしまうと、読み取りが一方向に寄りやすい。',
+    };
+  }
+  return shared;
+}
+
 export function sceneInteractionIdFor(key: ChapterId): string {
   return `paid-compatibility:${PAID_COMPATIBILITY_REPORT_VERSION}:${key}:scene`;
 }
 
+function appearanceWhenPartnerReactionHidden(
+  focus: ChapterFocus,
+  partnerLabel: 'あなた' | '相手',
+  relationStatusId: RelationStatusId,
+  buyerUsesFirstSlot: boolean,
+): string {
+  const fragment =
+    relationStatusId === 'R1'
+      ? focus.secondReception
+      : buyerUsesFirstSlot
+        ? focus.secondReception
+        : focus.firstReception;
+  const trimmed = fragment.replace(/。+$/u, '');
+  const tail =
+    trimmed.endsWith('見えやすい') || trimmed.endsWith('見える')
+      ? `${trimmed}ことがあります`
+      : `${trimmed}ように見えやすいことがあります`;
+  return `${partnerLabel}の反応がまだ見えにくい場合、${tail}`;
+}
+
+function partnerLoopVisibilityLine(
+  chapterKey: ChapterId,
+  partnerLabel: 'あなた' | '相手',
+  partnerAction: string,
+  buyerAction: string,
+): string {
+  if (chapterKey === 'ch_pair_gap') {
+    return `${partnerLabel}から見ると、${actionMotionPhrase(buyerAction)}動きが見えることがあります`;
+  }
+  return `${partnerLabel}は、${visibleActionPatternForActor(partnerLabel, partnerAction)}ことがあります`;
+}
+
 function buildRelationshipLoop(
+  chapterKey: ChapterId,
   focus: ChapterFocus,
   roles: ReturnType<typeof semanticRoles>,
   continuation: string,
   relationStatusId: RelationStatusId,
-  viewerIsPersonA: boolean,
+  personAUsesFirstPerspective: boolean,
   contextTail?: string,
 ): readonly string[] {
-  if (focus.relationshipLoop) {
-    const lines = [...focus.relationshipLoop];
-    if (contextTail) {
-      lines.push(`今は、${contextTail.replace(/。$/u, '')}`);
-    }
-    return Object.freeze(lines);
-  }
-  const firstLabel = actorLabel(roles.first.role, viewerIsPersonA);
-  const secondLabel = actorLabel(roles.second.role, viewerIsPersonA);
+  const buyerLabel = productSideLabel('self');
+  const partnerLabel = productSideLabel('partner');
+  const buyerUsesFirstSlot = buyerUsesFirstSemanticSlot(
+    relationStatusId,
+    personAUsesFirstPerspective,
+  );
+  const buyerAction = buyerUsesFirstSlot ? focus.firstAction : focus.secondAction;
+  const buyerReception = buyerUsesFirstSlot ? focus.firstReception : focus.secondReception;
+  const partnerAction = buyerUsesFirstSlot ? focus.secondAction : focus.firstAction;
   const partnerLine =
     relationStatusId === 'R4'
-      ? `${secondLabel}については、いまの間合いの見え方だけでは内側の動きまでは確かめにくい状態です`
+      ? `${partnerLabel}については、いまの間合いの見え方だけでは内側の動きまでは確かめにくい状態です`
       : relationStatusId === 'R5'
-        ? `${secondLabel}が再接近を望んでいるとは限らず、こちらからは間合いの見え方だけを手がかりに読みやすいことがあります`
+        ? `${partnerLabel}が再接近を望んでいるとは限らず、こちらからは間合いの見え方だけを手がかりに読みやすいことがあります`
         : relationStatusId === 'R1'
-          ? `${secondLabel}については、まだ反応材料が少ないため、意味を決めにくい状態です`
-          : `${secondLabel}には、${focus.secondAction}パターンに見えることがあります`;
+          ? `${partnerLabel}については、まだ反応材料が少ないため、意味を決めにくい状態です`
+          : partnerLoopVisibilityLine(
+              chapterKey,
+              partnerLabel,
+              partnerAction,
+              buyerAction,
+            );
+  const partnerReactionLine = appearanceWhenPartnerReactionHidden(
+    focus,
+    partnerLabel,
+    relationStatusId,
+    buyerUsesFirstSlot,
+  );
   const lines = [
-    `${firstLabel}から見ると、${actionMotionPhrase(focus.firstAction)}動きが見えやすいことがあります`,
-    `${secondLabel}の反応がまだ見えにくい場合、${focus.secondReception}`,
+    `${buyerLabel}から見ると、${actionMotionPhrase(buyerAction)}動きが見えやすいことがあります`,
+    partnerReactionLine,
     partnerLine,
-    `${firstLabel}から見ると、${focus.firstReception}`,
+    paidReceptionSentence(buyerLabel, buyerReception),
     `二人の間では、${continuation.endsWith('見えやすい') ? continuation : `${continuation}傾向が見えやすい`}ことがあります`,
   ];
   if (contextTail) {
@@ -1282,25 +1447,27 @@ function buildChapter(
       ? `${focus.scene}。ここでは、気になる点の入口から見ます`
       : `${focus.scene}。ここでは「${topicLabel}」に場面を絞ります`
     : focus.scene;
+  const sharedPerspectiveContext = paidCompatibilitySharedPerspectiveContext(
+    key,
+    input.relationStatusId,
+  );
+  const personA = perspectiveTextForProductSide(
+    'self',
+    index,
+    focus,
+    roles,
+    input.relationStatusId,
+    input.personAUsesFirstPerspective,
+  );
+  const personB = perspectiveTextForProductSide(
+    'partner',
+    index,
+    focus,
+    roles,
+    input.relationStatusId,
+    input.personAUsesFirstPerspective,
+  );
   const chapterDepth = paidChapterDepthFor(key, input.relationStatusId);
-  const personA = perspectiveText(
-    key,
-    index,
-    'A',
-    focus,
-    roles,
-    input.relationStatusId,
-    input.personAUsesFirstPerspective,
-  );
-  const personB = perspectiveText(
-    key,
-    index,
-    'B',
-    focus,
-    roles,
-    input.relationStatusId,
-    input.personAUsesFirstPerspective,
-  );
   const smallExperiment = [
     `今週、${focus.scene}で、${focus.experimentAction}。`,
     chapterDepth.experimentClosing,
@@ -1310,6 +1477,7 @@ function buildChapter(
     : phrase.text;
 
   const relationshipLoop = buildRelationshipLoop(
+    key,
     focus,
     roles,
     focus.continuation,
@@ -1321,15 +1489,28 @@ function buildChapter(
     key,
     relationshipLoop,
     input.relationStatusId,
+    focus.scene.replace(/。+$/u, '').split('。')[0],
+    paidChapterDepthNarrativeAdjustments(
+      key,
+      focus,
+      input.relationStatusId,
+      input.personAUsesFirstPerspective,
+    ),
   );
 
   return Object.freeze({
     key,
     number: index + 1,
     title: chapterTitleForReport(key, input.paidTopicId, input.relationStatusId),
-    scene: contextVariation?.sceneSuffix
-      ? `${topicScene}。${contextVariation.sceneSuffix}`
-      : topicScene,
+    scene: (() => {
+      const baseScene = contextVariation?.sceneSuffix
+        ? `${topicScene}。${contextVariation.sceneSuffix}`
+        : topicScene;
+      const sceneBase = baseScene.replace(/。+$/u, '');
+      return sceneBase.includes(sharedPerspectiveContext.replace(/。$/u, ''))
+        ? baseScene
+        : `${sceneBase}。${sharedPerspectiveContext}`;
+    })(),
     personAPerspective: personA,
     personBPerspective: personB,
     relationshipLoop: enrichedLoop,
@@ -1389,6 +1570,11 @@ export function buildPaidCompatibilityReportV1(
     highlightedChapterKeys,
     ...(currentContext ? { currentContext } : {}),
     ...(input.displayIdentity ? { displayIdentity: input.displayIdentity } : {}),
+    generationContract: Object.freeze({
+      version: 'paid_compatibility_generation_contract_v1',
+      personAUsesFirstPerspective: input.personAUsesFirstPerspective,
+      perspectiveLayout: 'product_ab_v1',
+    }),
     chapters: Object.freeze(chapters),
     safetyNote:
       'このレポートは、関係や相手の気持ち、これからの結果を決めるものではありません。対話を続けるかどうかも、それぞれが選べます。恐怖や暴力、強制がある場合は、このレポートより安全の確保を優先してください。',

@@ -127,18 +127,17 @@ describe('pair free commercial authority — no pre-result theme selector', () =
 
   it('keeps Paid bridge toolkit promises separate from Free Home copy', () => {
     const component = read(GUEST);
-    assert.match(component, /今週一度だけ試すこと/);
-    assert.match(component, /そのまま使える一言/);
-    assert.match(component, /場面から戻る手順/);
+    assert.match(component, /小さな実験/);
+    assert.match(component, /そのまま使える/);
+    assert.match(component, /stagePremiumBridgeCopy/);
     assert.match(component, /この二人の続きとして読めること/);
   });
 
   it('sanitizes restored guest session answers before public rebuild', () => {
     const component = read(GUEST);
-    assert.match(component, /parseSanitizedGuestJourneyV3/);
     assert.match(component, /sanitizeGuestSessionAnswers/);
     assert.match(component, /prepareGuestSubmitAnswers/);
-    assert.match(component, /setAnswers\(completeAnswers\)/);
+    assert.match(component, /readCompatibilityGuestJourneyV3FromSession/);
   });
 
   it('maps public paid bridge chapters from axis/topic authority not legacy focus', () => {
@@ -241,10 +240,10 @@ describe('paid bridge sells real report value, not chapter count', () => {
   it('lists benefits the paid report actually contains', () => {
     const component = read(GUEST);
     for (const benefit of [
-      '二人それぞれの動き',
+      '二人それぞれの視点',
       'すれ違いが始まる場面',
-      'そのまま使える一言',
-      '今週一度だけ試すこと',
+      'そのまま使える',
+      'stagePremiumBridgeCopy',
     ]) {
       assert.ok(component.includes(benefit), `bridge must offer ${benefit}`);
     }
@@ -286,10 +285,10 @@ describe('paid report opening delivers the first thirty seconds', () => {
     const component = read(READER);
     assert.match(component, /data-testid="paid-report-opening-moves"/);
     assert.match(component, /data-testid="paid-report-opening-handling"/);
-    assert.match(component, /Aに出やすい動き/);
-    assert.match(component, /Bに出やすい動き/);
+    assert.match(component, /に出やすい動き/);
     assert.match(component, /この連鎖の入口/);
-    assert.match(component, /最初に使える一言/);
+    assert.match(component, /phraseSpeakerBlockLabel\(leadChapter, inferredRelationStatus\)/);
+    assert.match(component, /perspectiveBlockLabel\('self', displayIdentity\)/);
     const openingAt = component.indexOf('paid-report-opening-moves');
     const stackAt = component.indexOf('styles.chapterStack');
     assert.ok(openingAt < stackAt, 'opening must precede the chapter stack');

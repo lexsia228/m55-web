@@ -155,13 +155,15 @@ const CHAPTER_NARRATIVE: Readonly<Record<ChapterId, DepthFormatter>> = {
   ],
   ch_other_pace: (depth, loop) => [
     `${depth.trigger}に入ると、${depth.chapterQuestion}`,
-    ...(loop.length > 1 ? [loop[1]!] : loop[0] ? [loop[0]] : []),
+    loop[0] ?? '',
+    loop[1] ?? '',
     depth.misread,
     `${depth.failureCondition}${depth.handlingGuidance}${depth.successSignal}`,
   ],
   ch_pair_gap: (depth, loop) => [
     `${depth.trigger}では、${depth.chapterQuestion}`,
-    loop[2] ?? loop[0] ?? '',
+    loop[0] ?? '',
+    loop[2] ?? loop[1] ?? '',
     depth.misread,
     `${depth.failureCondition}${depth.handlingGuidance}${depth.successSignal}`,
   ],
@@ -173,7 +175,8 @@ const CHAPTER_NARRATIVE: Readonly<Record<ChapterId, DepthFormatter>> = {
   ],
   ch_today_clue: (depth, loop) => [
     `${depth.trigger}、${depth.chapterQuestion}`,
-    loop[loop.length - 1] ?? loop[0] ?? '',
+    loop[0] ?? '',
+    loop[loop.length - 1] ?? '',
     depth.misread,
     `${depth.failureCondition}${depth.handlingGuidance}${depth.successSignal}`,
   ],
@@ -192,14 +195,38 @@ export function paidChapterDepthFor(
   return depthFor(key, relationStatusId);
 }
 
+export type PaidChapterDepthNarrativeAdjustments = {
+  readonly chapterQuestion?: string;
+  readonly misread?: string;
+  readonly failureCondition?: string;
+  readonly handlingGuidance?: string;
+  readonly successSignal?: string;
+};
+
 export function formatPaidChapterDepthNarrative(
   key: ChapterId,
   relationshipLoop: readonly string[],
   relationStatusId?: RelationStatusId,
+  triggerOverride?: string,
+  narrativeAdjustments?: PaidChapterDepthNarrativeAdjustments,
 ): readonly string[] {
   const depth = depthFor(key, relationStatusId);
+  const trigger = triggerOverride?.replace(/。+$/u, '').trim() || depth.trigger;
+  const depthForScene = {
+    ...depth,
+    trigger,
+    chapterQuestion: narrativeAdjustments?.chapterQuestion ?? depth.chapterQuestion,
+    misread: narrativeAdjustments?.misread ?? depth.misread,
+    failureCondition:
+      narrativeAdjustments?.failureCondition ?? depth.failureCondition,
+    handlingGuidance:
+      narrativeAdjustments?.handlingGuidance ?? depth.handlingGuidance,
+    successSignal: narrativeAdjustments?.successSignal ?? depth.successSignal,
+  };
   const formatter = CHAPTER_NARRATIVE[key];
   return Object.freeze(
-    formatter(depth, relationshipLoop).map((line) => line.trim()).filter((line) => line.length >= 8),
+    formatter(depthForScene, relationshipLoop)
+      .map((line) => line.trim())
+      .filter((line) => line.length >= 8),
   );
 }

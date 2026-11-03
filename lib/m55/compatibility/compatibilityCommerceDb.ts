@@ -24,6 +24,7 @@ import {
   parsePairDisplayIdentity,
   type PairDisplayIdentityV1,
 } from './pairDisplayIdentity';
+import { parsePaidCompatibilityGenerationContract } from './paidCompatibilityReportDisplayV1';
 
 type DbClient = ReturnType<typeof getSupabaseAdmin>;
 
@@ -92,6 +93,7 @@ const PAID_SNAPSHOT_TOP_LEVEL_KEYS = [
   'highlightedChapterKeys',
   'currentContext',
   'displayIdentity',
+  'generationContract',
   'chapters',
   'safetyNote',
 ] as const;
@@ -185,10 +187,12 @@ export function isPaidCompatibilityReportSnapshot(
   const snapshot = value as Record<string, unknown>;
   const optionalCurrentContext = snapshot.currentContext === undefined;
   const optionalDisplayIdentity = snapshot.displayIdentity === undefined;
+  const optionalGenerationContract = snapshot.generationContract === undefined;
   const expectedKeys = PAID_SNAPSHOT_TOP_LEVEL_KEYS.filter(
     (key) =>
       !(optionalCurrentContext && key === 'currentContext') &&
-      !(optionalDisplayIdentity && key === 'displayIdentity'),
+      !(optionalDisplayIdentity && key === 'displayIdentity') &&
+      !(optionalGenerationContract && key === 'generationContract'),
   );
   if (
     !hasExactKeys(snapshot, expectedKeys)
@@ -210,7 +214,9 @@ export function isPaidCompatibilityReportSnapshot(
     (typedSnapshot.currentContext !== undefined &&
       !isDisplaySafeCurrentContext(typedSnapshot.currentContext)) ||
     (typedSnapshot.displayIdentity !== undefined &&
-      !parsePairDisplayIdentity(typedSnapshot.displayIdentity))
+      !parsePairDisplayIdentity(typedSnapshot.displayIdentity)) ||
+    (typedSnapshot.generationContract !== undefined &&
+      parsePaidCompatibilityGenerationContract(typedSnapshot.generationContract) === null)
   ) {
     return false;
   }

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   M55_FUNNEL_EVENTS,
-  trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './CompatibilitySavedReportsSection.module.css';
@@ -86,14 +85,6 @@ export function CompatibilitySavedReportsSection({
               <Link
                 className={styles.primary}
                 href={`/synastry/report/${report.id}`}
-                onClick={() => {
-                  if (!preview) {
-                    trackFunnelAction(
-                      M55_FUNNEL_EVENTS.compatibilityOwnedReportOpen,
-                      'compatibility_saved_report',
-                    );
-                  }
-                }}
               >
                 レポートを開く
               </Link>
