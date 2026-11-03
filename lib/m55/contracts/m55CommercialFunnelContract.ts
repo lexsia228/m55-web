@@ -253,7 +253,7 @@ export const M55_COMMERCIAL_PRODUCTS = {
     currency: 'JPY',
     priceJpy: 1480,
     reportChapters: 6,
-    additionalThemes: 0,
+    additionalThemes: 1,
     benefits: [
       'なぜその流れになりやすいか',
       '二人の違い',
@@ -261,6 +261,7 @@ export const M55_COMMERCIAL_PRODUCTS = {
       'すれ違いが続く順番',
       '違いをどう扱えるか',
       '次に試せること',
+      '追加読み解き1件（レポートごと）',
     ],
     freeVsPaidBoundary:
       'repo authority: lib/m55/compatibility/compatibilityCommerceAuthority.ts。Sandbox 存在のみでは LIVE 扱いしない。',

@@ -9,6 +9,7 @@ import {
   COMPATIBILITY_REPORT_PRICE_YEN,
   COMPATIBILITY_REPORT_PUBLIC_NAME,
   COMPATIBILITY_REPORT_QUANTITY,
+  COMPATIBILITY_CHECKOUT_PAYMENT_DESCRIPTION_JA,
   getCompatibilityStripePriceId,
   isCompatibilityCommerceEnabled,
 } from '../../../../lib/m55/compatibility/compatibilityCommerceAuthority';
@@ -406,7 +407,7 @@ export async function POST(req: NextRequest) {
     cancel_url: `${checkoutOriginFrozen}/synastry/purchase/confirm?checkout=cancelled`,
     locale: 'ja' as const,
     payment_intent_data: {
-      description: COMPATIBILITY_REPORT_PUBLIC_NAME,
+      description: COMPATIBILITY_CHECKOUT_PAYMENT_DESCRIPTION_JA,
     },
     phone_number_collection: { enabled: false },
     ...(customerEmail ? { customer_email: customerEmail } : {}),

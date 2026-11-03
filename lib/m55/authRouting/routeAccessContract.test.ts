@@ -158,7 +158,7 @@ describe('routeAccessContract — exhaustive inventory', () => {
 
   it('discovers the current application route count', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 84);
+    assert.equal(templates.length, 86);
   });
 });
 
