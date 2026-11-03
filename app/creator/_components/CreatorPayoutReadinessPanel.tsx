@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createOnboardingClientIdempotencyKeyV1 } from '@/lib/m55/creatorProvider/onboardingClientIdempotency';
+import { createOnboardingClientIdempotencyKeyV1 } from '../../../lib/m55/creatorProvider/onboardingClientIdempotency';
 import styles from '../creator.module.css';
 
 type ReadinessBundle = {

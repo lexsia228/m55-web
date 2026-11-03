@@ -1,4 +1,5 @@
 import 'server-only';
+import type Stripe from 'stripe';
 import {
   loadCreatorEconomicIdentityByStripeAccountIdV1,
   appendProviderOnboardingEventV1,
@@ -71,7 +72,7 @@ export async function persistIsolatedStripeConnectWebhookEventV1(
 }
 
 export async function handleVerifiedStripeConnectWebhookEventV1(
-  event: import('stripe').Event,
+  event: Stripe.Event,
 ): Promise<PersistConnectWebhookResultV1> {
   const parsed = parseVerifiedStripeConnectWebhookEventV1(event);
   if (!parsed.ok) {

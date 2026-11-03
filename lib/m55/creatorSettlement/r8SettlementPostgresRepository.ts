@@ -1,7 +1,7 @@
 import 'server-only';
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 import type { R8CPlatformCashCoverageProofV1 } from './r8SettlementLockLogic';
-import type { R8CLockedSettlementBundleV1, R8CDurableLockResultV1 } from './r8SettlementExecutionContract';
+import type { R8CLockedSettlementBundleV1, R8CDurableLockResultV1, R8CPayoutAttemptV1 } from './r8SettlementExecutionContract';
 import type { R8BPayoutInstructionV1, R8BPayoutBatchV1 } from './r8SettlementContract';
 import type { DurableSettlementRepositoryV1 } from './r8SettlementInMemoryRepository';
 import type { R8CDurableLockInputV1 } from './r8SettlementExecutionContract';
@@ -10,6 +10,13 @@ import { R8_B_PAYOUT_FEE_POLICY_VERSION } from './r8SettlementContract';
 
 const COVERAGE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const VERIFIED_PROOF_KINDS = new Set(['BANK_BALANCE_SNAPSHOT', 'STRIPE_BALANCE_SNAPSHOT']);
+
+type R8FundingSourceJoinRowV1 = {
+  verified_evidence_digest: string;
+  proof_kind: string;
+  economic_canon_key: string;
+  balance_segment: string;
+};
 
 function parseIsoDate(value: unknown): Date | null {
   if (typeof value !== 'string') return null;
@@ -164,8 +171,8 @@ export async function loadPlatformCashCoverageProofFromDbV1(
       .maybeSingle();
     if (error || !data) return { ok: false, reason: 'COVERAGE_PROOF_MISSING' };
     const fundingRow = data.m55_r8_platform_liquidity_funding_sources_v1 as
-      | { verified_evidence_digest: string; proof_kind: string }
-      | { verified_evidence_digest: string; proof_kind: string }[];
+      | R8FundingSourceJoinRowV1
+      | R8FundingSourceJoinRowV1[];
     const fundingProof = Array.isArray(fundingRow) ? fundingRow[0] : fundingRow;
     if (!fundingProof?.verified_evidence_digest || !/^[0-9a-f]{64}$/.test(fundingProof.verified_evidence_digest)) {
       return { ok: false, reason: 'COVERAGE_UNVERIFIED' };
@@ -313,7 +320,7 @@ export async function listPersistedSettlementBundlesForCreatorV1(
       linesByInstruction.set(iid, bucket);
     }
 
-    const attemptsByInstruction = new Map<string, NonNullable<R8CLockedSettlementBundleV1['attempts']>>();
+    const attemptsByInstruction = new Map<string, R8CPayoutAttemptV1[]>();
     const { data: attemptRows, error: attemptErr } = await db
       .from('m55_r8_payout_attempts_v1')
       .select('attempt_id,instruction_id,attempt_number,status,idempotency_key,parent_attempt_id')
@@ -326,7 +333,7 @@ export async function listPersistedSettlementBundlesForCreatorV1(
         attemptId: attempt.attempt_id as string,
         instructionId: iid,
         attemptNumber: Number(attempt.attempt_number),
-        status: attempt.status as NonNullable<R8CLockedSettlementBundleV1['attempts']>[number]['status'],
+        status: attempt.status as R8CPayoutAttemptV1['status'],
         idempotencyKey: attempt.idempotency_key as string,
         parentAttemptId: (attempt.parent_attempt_id as string | null) ?? null,
       });

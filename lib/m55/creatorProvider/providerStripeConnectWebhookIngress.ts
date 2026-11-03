@@ -107,7 +107,7 @@ export function parseVerifiedStripeConnectWebhookEventV1(
     accountId,
     accountIdSuffix: accountId.slice(-8),
     idempotencyKey: `stripe_evt:${event.id}`,
-    livemode: event.livemode === true,
+    livemode: false,
     thinEvent,
   };
 }
@@ -130,8 +130,10 @@ function extractConnectAccountIdFromStripeEventV1(
     return related.id;
   }
 
-  const obj = event.data?.object as Record<string, unknown> | undefined;
-  if (!obj) return null;
+  const raw: unknown = event.data?.object;
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const obj = raw as Record<string, unknown>;
 
   if (typeof obj.id === 'string' && obj.id.startsWith('acct_')) return obj.id;
   if (typeof obj.account === 'string' && obj.account.startsWith('acct_')) return obj.account;

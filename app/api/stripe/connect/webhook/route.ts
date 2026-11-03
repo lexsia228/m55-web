@@ -3,8 +3,8 @@ import {
   canAcceptIsolatedConnectWebhookRequestV1,
   mapConnectWebhookPersistResultToHttpV1,
   verifyStripeConnectWebhookSignatureV1,
-} from '../../../../lib/m55/creatorProvider/providerStripeConnectWebhookIngress';
-import { handleVerifiedStripeConnectWebhookEventV1 } from '../../../../lib/m55/creatorProvider/providerStripeConnectWebhookService';
+} from '../../../../../lib/m55/creatorProvider/providerStripeConnectWebhookIngress';
+import { handleVerifiedStripeConnectWebhookEventV1 } from '../../../../../lib/m55/creatorProvider/providerStripeConnectWebhookService';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
