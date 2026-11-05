@@ -425,9 +425,6 @@ export function loadM55R8IsolatedAlignmentEnvV1(
   const checklist: string[] = [];
   const env = {} as NodeJS.ProcessEnv;
 
-  if (parsed.NODE_ENV?.trim()) env.NODE_ENV = parsed.NODE_ENV.trim();
-  if (parsed.VERCEL_ENV?.trim()) env.VERCEL_ENV = parsed.VERCEL_ENV.trim();
-
   for (const key of M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1) {
     const v = parsed[key]?.trim();
     if (!v) checklist.push(`Set ${key} in ${rel}`);
