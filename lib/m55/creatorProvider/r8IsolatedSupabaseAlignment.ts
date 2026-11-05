@@ -423,7 +423,7 @@ export function loadM55R8IsolatedAlignmentEnvV1(
 
   const parsed = parseEnvFileLinesV1(raw);
   const checklist: string[] = [];
-  const env: NodeJS.ProcessEnv = {};
+  const env = {} as NodeJS.ProcessEnv;
 
   if (parsed.NODE_ENV?.trim()) env.NODE_ENV = parsed.NODE_ENV.trim();
   if (parsed.VERCEL_ENV?.trim()) env.VERCEL_ENV = parsed.VERCEL_ENV.trim();
