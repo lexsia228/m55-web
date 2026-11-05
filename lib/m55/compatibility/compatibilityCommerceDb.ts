@@ -24,6 +24,7 @@ import {
   parsePairDisplayIdentity,
   type PairDisplayIdentityV1,
 } from './pairDisplayIdentity';
+import { isStrictUuidV4 } from './pairOwnedStateIdentity';
 
 type DbClient = ReturnType<typeof getSupabaseAdmin>;
 
@@ -38,11 +39,18 @@ export type CompatibilityPurchaseContextRow = {
   stripePaymentIntentId: string | null;
 };
 
+export type CompatibilityPurchaseContextResumeRow = CompatibilityPurchaseContextRow & {
+  pairIdentityId: string;
+  paidContextId: string;
+};
+
 export type CompatibilityOwnedReportSummary = {
   id: string;
   createdAt: string;
   chapterCount: 6;
   displayIdentity: PairDisplayIdentityV1;
+  pairIdentityId: string | null;
+  paidContextId: string | null;
 };
 
 export type CompatibilityOwnedReport = CompatibilityOwnedReportSummary & {
@@ -263,18 +271,215 @@ export function isPaidCompatibilityReportSnapshot(
   );
 }
 
+export const COMPATIBILITY_STRIPE_CHECKOUT_IDEMPOTENCY_PREFIX = 'm55_compat_cs_v1_';
+
+export function compatibilityStripeCheckoutIdempotencyKey(contextId: string): string {
+  return `${COMPATIBILITY_STRIPE_CHECKOUT_IDEMPOTENCY_PREFIX}${contextId}`;
+}
+
+export type ReserveCompatibilityCheckoutResult =
+  | { kind: 'reserved'; contextId: string }
+  | { kind: 'already_owned'; reportId: string }
+  | { kind: 'checkout_in_progress'; contextId: string }
+  | { kind: 'checkout_unknown'; contextId: string }
+  | { kind: 'unavailable' };
+
+export async function reserveCompatibilityCheckoutContext(
+  params: {
+    contextId: string;
+    ownerUserId: string;
+    pairIdentityId: string;
+    paidContextId: string;
+    snapshot: PaidCompatibilityReportSnapshot;
+    checkoutOriginFrozen: string;
+  },
+  db: DbClient = getSupabaseAdmin(),
+): Promise<ReserveCompatibilityCheckoutResult> {
+  if (
+    !isOpaqueCompatibilityId(params.contextId) ||
+    !params.ownerUserId.trim() ||
+    !isPaidCompatibilityReportSnapshot(params.snapshot) ||
+    !isStrictUuidV4(params.pairIdentityId) ||
+    !isStrictUuidV4(params.paidContextId) ||
+    !params.checkoutOriginFrozen.trim()
+  ) {
+    return { kind: 'unavailable' };
+  }
+  const { data, error } = await (db as any).rpc('m55_reserve_compatibility_checkout_v1', {
+    p_context_id: params.contextId,
+    p_owner_user_id: params.ownerUserId,
+    p_pair_identity_id: params.pairIdentityId,
+    p_paid_context_id: params.paidContextId,
+    p_pending_snapshot: params.snapshot,
+    p_checkout_origin_frozen: params.checkoutOriginFrozen,
+  });
+  if (error || !data || typeof data !== 'object') {
+    return { kind: 'unavailable' };
+  }
+  const row = data as Record<string, unknown>;
+  if (row.ok !== true) {
+    return { kind: 'unavailable' };
+  }
+  const state = row.state;
+  if (state === 'already_owned' && isOpaqueCompatibilityId(row.report_id)) {
+    return { kind: 'already_owned', reportId: String(row.report_id) };
+  }
+  if (!isOpaqueCompatibilityId(row.context_id)) {
+    return { kind: 'unavailable' };
+  }
+  const contextId = String(row.context_id);
+  if (state === 'checkout_in_progress') {
+    return { kind: 'checkout_in_progress', contextId };
+  }
+  if (state === 'checkout_unknown') {
+    return { kind: 'checkout_unknown', contextId };
+  }
+  if (state === 'reserved') {
+    return { kind: 'reserved', contextId };
+  }
+  return { kind: 'unavailable' };
+}
+
+export async function acquireCompatibilityCheckoutCreateSlot(
+  params: {
+    contextId: string;
+    ownerUserId: string;
+    leaseToken: string;
+  },
+  db: DbClient = getSupabaseAdmin(),
+): Promise<boolean> {
+  if (
+    !isOpaqueCompatibilityId(params.contextId) ||
+    !params.ownerUserId.trim() ||
+    !isStrictUuidV4(params.leaseToken)
+  ) {
+    return false;
+  }
+  const { data, error } = await (db as any).rpc('m55_acquire_compatibility_checkout_create_slot_v1', {
+    p_context_id: params.contextId,
+    p_owner_user_id: params.ownerUserId,
+    p_lease_token: params.leaseToken,
+  });
+  return !error && Boolean((data as { ok?: unknown } | null)?.ok);
+}
+
+export async function casAttachCompatibilityCheckoutSession(
+  params: {
+    contextId: string;
+    ownerUserId: string;
+    checkoutSessionId: string;
+    expiresAt: string | null;
+    leaseToken: string;
+  },
+  db: DbClient = getSupabaseAdmin(),
+): Promise<boolean> {
+  if (
+    !isOpaqueCompatibilityId(params.contextId) ||
+    !params.ownerUserId.trim() ||
+    !params.checkoutSessionId.trim() ||
+    !isStrictUuidV4(params.leaseToken)
+  ) {
+    return false;
+  }
+  const { data, error } = await (db as any).rpc('m55_cas_attach_compatibility_checkout_session_v1', {
+    p_context_id: params.contextId,
+    p_owner_user_id: params.ownerUserId,
+    p_checkout_session_id: params.checkoutSessionId,
+    p_session_expires_at: params.expiresAt,
+    p_lease_token: params.leaseToken,
+  });
+  return !error && Boolean((data as { ok?: unknown } | null)?.ok);
+}
+
+export async function releaseExpiredCompatibilityCheckoutContext(
+  params: {
+    contextId: string;
+    ownerUserId: string;
+    checkoutSessionId: string;
+  },
+  db: DbClient = getSupabaseAdmin(),
+): Promise<boolean> {
+  if (
+    !isOpaqueCompatibilityId(params.contextId) ||
+    !params.ownerUserId.trim() ||
+    !params.checkoutSessionId.trim()
+  ) {
+    return false;
+  }
+  const { data, error } = await (db as any).rpc(
+    'm55_cas_release_compatibility_checkout_expired_v1',
+    {
+      p_context_id: params.contextId,
+      p_owner_user_id: params.ownerUserId,
+      p_checkout_session_id: params.checkoutSessionId,
+      p_stripe_session_status: 'expired',
+      p_stripe_payment_status: 'unpaid',
+    },
+  );
+  return !error && Boolean((data as { ok?: unknown } | null)?.ok);
+}
+
+export async function getCompatibilityPurchaseContextForCheckoutResume(
+  contextId: string,
+  db: DbClient = getSupabaseAdmin(),
+): Promise<CompatibilityPurchaseContextResumeRow | null> {
+  if (!isOpaqueCompatibilityId(contextId)) return null;
+  const { data, error } = await (db as any)
+    .from('compatibility_purchase_contexts')
+    .select(
+      'id, owner_user_id, product_key, snapshot_version, pending_snapshot, status, stripe_checkout_session_id, stripe_payment_intent_id, pair_identity_id, paid_context_id',
+    )
+    .eq('id', contextId)
+    .maybeSingle();
+  if (error || !data) return null;
+  const row = data as Record<string, unknown>;
+  if (
+    row.product_key !== COMPATIBILITY_REPORT_FULL_PRODUCT_KEY ||
+    row.snapshot_version !== PAID_COMPATIBILITY_REPORT_VERSION ||
+    row.status !== 'pending' ||
+    !isNonEmptyString(row.owner_user_id) ||
+    !isPaidCompatibilityReportSnapshot(row.pending_snapshot) ||
+    !isStrictUuidV4(row.pair_identity_id) ||
+    !isStrictUuidV4(row.paid_context_id)
+  ) {
+    return null;
+  }
+  return {
+    id: String(row.id),
+    ownerUserId: row.owner_user_id,
+    productKey: COMPATIBILITY_REPORT_FULL_PRODUCT_KEY,
+    snapshotVersion: PAID_COMPATIBILITY_REPORT_VERSION,
+    pendingSnapshot: row.pending_snapshot,
+    status: row.status,
+    stripeCheckoutSessionId:
+      typeof row.stripe_checkout_session_id === 'string'
+        ? row.stripe_checkout_session_id
+        : null,
+    stripePaymentIntentId:
+      typeof row.stripe_payment_intent_id === 'string'
+        ? row.stripe_payment_intent_id
+        : null,
+    pairIdentityId: String(row.pair_identity_id),
+    paidContextId: String(row.paid_context_id),
+  };
+}
+
 export async function createCompatibilityPurchaseContext(
   params: {
     id: string;
     ownerUserId: string;
     snapshot: PaidCompatibilityReportSnapshot;
+    pairIdentityId: string;
+    paidContextId: string;
   },
   db: DbClient = getSupabaseAdmin(),
 ): Promise<boolean> {
   if (
     !isOpaqueCompatibilityId(params.id) ||
     !params.ownerUserId.trim() ||
-    !isPaidCompatibilityReportSnapshot(params.snapshot)
+    !isPaidCompatibilityReportSnapshot(params.snapshot) ||
+    !isStrictUuidV4(params.pairIdentityId) ||
+    !isStrictUuidV4(params.paidContextId)
   ) {
     return false;
   }
@@ -285,8 +490,50 @@ export async function createCompatibilityPurchaseContext(
     snapshot_version: PAID_COMPATIBILITY_REPORT_VERSION,
     pending_snapshot: params.snapshot,
     status: 'pending',
+    pair_identity_id: params.pairIdentityId,
+    paid_context_id: params.paidContextId,
   });
   return !error;
+}
+
+export async function findOwnedCompatibilityReportIdByIdentity(
+  params: {
+    ownerUserId: string;
+    pairIdentityId: string;
+    paidContextId: string;
+  },
+  db: DbClient = getSupabaseAdmin(),
+): Promise<
+  | { kind: 'owned'; reportId: string }
+  | { kind: 'not_owned' }
+  | { kind: 'unavailable' }
+  | { kind: 'ambiguous' }
+> {
+  if (
+    !params.ownerUserId.trim() ||
+    !isStrictUuidV4(params.pairIdentityId) ||
+    !isStrictUuidV4(params.paidContextId)
+  ) {
+    return { kind: 'unavailable' };
+  }
+
+  const { data, error } = await (db as any)
+    .from('compatibility_owned_report_identity_links')
+    .select('report_id, owner_user_id')
+    .eq('owner_user_id', params.ownerUserId)
+    .eq('pair_identity_id', params.pairIdentityId)
+    .eq('paid_context_id', params.paidContextId);
+
+  if (error || !Array.isArray(data)) {
+    return { kind: 'unavailable' };
+  }
+
+  const reportIds = data.flatMap((row: { report_id?: unknown }) =>
+    isOpaqueCompatibilityId(row.report_id) ? [row.report_id] : [],
+  );
+  if (reportIds.length > 1) return { kind: 'ambiguous' };
+  if (reportIds.length === 1) return { kind: 'owned', reportId: reportIds[0] };
+  return { kind: 'not_owned' };
 }
 
 export async function attachCompatibilityCheckoutSession(
@@ -380,7 +627,9 @@ export async function listOwnedCompatibilityReports(
 }> {
   const { data, error } = await (db as any)
     .from('compatibility_owned_reports')
-    .select('id, created_at, snapshot')
+    .select(
+      'id, created_at, snapshot, compatibility_owned_report_identity_links(pair_identity_id, paid_context_id)',
+    )
     .eq('owner_user_id', ownerUserId)
     .eq('product_key', COMPATIBILITY_REPORT_FULL_PRODUCT_KEY)
     .order('created_at', { ascending: false });
@@ -389,18 +638,39 @@ export async function listOwnedCompatibilityReports(
   }
   return {
     available: true,
-    reports: data.flatMap((row) =>
-      isOpaqueCompatibilityId(row.id) && isNonEmptyString(row.created_at)
-        ? [{
-            id: row.id,
-            createdAt: row.created_at,
-            chapterCount: 6 as const,
-            displayIdentity: isPaidCompatibilityReportSnapshot(row.snapshot)
-              ? row.snapshot.displayIdentity ?? legacyPairDisplayIdentity()
-              : legacyPairDisplayIdentity(),
-          }]
-        : [],
-    ),
+    reports: data.flatMap((row) => {
+      if (!isOpaqueCompatibilityId(row.id) || !isNonEmptyString(row.created_at)) {
+        return [];
+      }
+      const linkRaw = row.compatibility_owned_report_identity_links;
+      const link = Array.isArray(linkRaw) ? linkRaw[0] : linkRaw;
+      let pairIdentityId: string | null = null;
+      let paidContextId: string | null = null;
+      if (link && typeof link === 'object') {
+        const pairField = (link as { pair_identity_id?: unknown }).pair_identity_id;
+        const paidField = (link as { paid_context_id?: unknown }).paid_context_id;
+        if (pairField === null && paidField === null) {
+          pairIdentityId = null;
+          paidContextId = null;
+        } else if (isStrictUuidV4(pairField) && isStrictUuidV4(paidField)) {
+          pairIdentityId = pairField;
+          paidContextId = paidField;
+        } else if (pairField !== undefined || paidField !== undefined) {
+          pairIdentityId = null;
+          paidContextId = null;
+        }
+      }
+      return [{
+        id: row.id,
+        createdAt: row.created_at,
+        chapterCount: 6 as const,
+        displayIdentity: isPaidCompatibilityReportSnapshot(row.snapshot)
+          ? row.snapshot.displayIdentity ?? legacyPairDisplayIdentity()
+          : legacyPairDisplayIdentity(),
+        pairIdentityId,
+        paidContextId,
+      }];
+    }),
   };
 }
 
@@ -431,6 +701,8 @@ export async function getOwnedCompatibilityReport(
     createdAt: data.created_at,
     chapterCount: 6,
     displayIdentity: data.snapshot.displayIdentity ?? legacyPairDisplayIdentity(),
+    pairIdentityId: null,
+    paidContextId: null,
     snapshot: data.snapshot,
   };
 }

@@ -193,12 +193,14 @@ describe('routeAccessContract — exhaustive inventory', () => {
     assert.doesNotThrow(() => assertApplicationRouteInventoryClassified(ROOT));
   });
 
-  it('discovers the current application route count (R7: 84 + 8 templates + main SEO)', () => {
+  it('discovers the current application route count (R7 + main SEO + Pair consult)', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 93);
+    assert.equal(templates.length, 95);
     for (const template of R7_APPLICATION_ROUTE_TEMPLATES) {
       assert.equal(templates.includes(template), true, `missing R7 template ${template}`);
     }
+    assert.equal(templates.includes('/api/compatibility/reports/[reportId]/consult'), true);
+    assert.equal(templates.includes('/api/compatibility/reports/[reportId]/consult/send'), true);
   });
 });
 
@@ -249,6 +251,13 @@ describe('routeAccessContract — dynamic boundaries', () => {
     assert.equal(classifyRouteAccess('/api/reply/session/abc'), 'protected');
     assert.equal(classifyRouteAccess('/api/reply/session'), 'unknown');
     assert.equal(classifyRouteAccess('/api/reply/session/abc/more'), 'unknown');
+  });
+
+  it('protects Pair compatibility consult routes with one report segment only', () => {
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/abc/consult'), 'protected');
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/abc/consult/send'), 'protected');
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/abc/consult/extra'), 'unknown');
+    assert.equal(classifyRouteAccess('/api/compatibility/reports/consult'), 'unknown');
   });
 
   it('classifies attribution touch ingest routes', () => {

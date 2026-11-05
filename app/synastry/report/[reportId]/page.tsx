@@ -20,7 +20,11 @@ export default async function OwnedCompatibilityReportPage({
 
   return (
     <PublicShell>
-      <PaidCompatibilityReportReader snapshot={report.snapshot} owned />
+      <PaidCompatibilityReportReader
+        snapshot={report.snapshot}
+        owned
+        ownedReportId={report.id}
+      />
     </PublicShell>
   );
 }

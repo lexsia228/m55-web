@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/nextjs';
 import { FormEvent, useEffect, useMemo, useState, useTransition } from 'react';
 import { buildGuestCompatibilityResult } from '../../app/synastry/actions';
 import {
-  clearLastCompletedPairJourney,
+  clearPairContinuityForUser,
   persistCompletedPairJourney,
   purgeUnownedPairGuestSession,
   readCompatibilityGuestJourneyV3FromSession,
@@ -321,13 +321,11 @@ export default function CompatibilityGuestExperience({
   }
 
   function startDifferentPartner() {
+    clearPairContinuityForUser(userId, sessionStorage);
     try {
       clearGuestSessionStorage(sessionStorage);
     } catch {
       /* Clear visible state even when tab storage is unavailable. */
-    }
-    if (userId) {
-      clearLastCompletedPairJourney(userId);
     }
     const ownBirth = profileBirthDate ?? input.personA;
     setInput({ personA: ownBirth, personB: '' });
@@ -347,13 +345,11 @@ export default function CompatibilityGuestExperience({
   }
 
   function resetJourney() {
+    clearPairContinuityForUser(userId, sessionStorage);
     try {
       clearGuestSessionStorage(sessionStorage);
     } catch {
       /* Reset still clears visible state when tab storage is unavailable. */
-    }
-    if (userId) {
-      clearLastCompletedPairJourney(userId);
     }
     const ownBirth = profileBirthDate ?? '';
     setInput(ownBirth ? { personA: ownBirth, personB: '' } : EMPTY_INPUT);
