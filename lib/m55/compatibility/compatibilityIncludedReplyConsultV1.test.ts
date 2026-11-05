@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { register } from 'node:module';
 import { describe, it } from 'node:test';
 import { Client } from 'pg';
 import {
@@ -30,8 +31,16 @@ import {
 } from './compatibilityConsultPrompt';
 import { compatibilityConsultRequestFingerprint } from './compatibilityConsultDb';
 import { CONSULT_QUESTION_CATALOG_V1 } from '../consult/consultQuestionCatalog.v1';
+import { validateConsultSendRequest } from '../consult/consultSendRequest.zod';
 import type { PaidCompatibilityReportSnapshot } from './buildPaidCompatibilityReportV1';
 import type { ChapterId } from './pairReadingTypes';
+
+// CSS modules cannot load under node:test; class names resolve to their own keys.
+register(
+  `data:text/javascript,${encodeURIComponent(
+    "export async function load(url, context, next) { if (url.endsWith('.css')) { return { format: 'module', shortCircuit: true, source: 'export default new Proxy({}, { get: (_, key) => (typeof key === \"string\" ? key : undefined) });' }; } return next(url, context); }",
+  )}`,
+);
 
 const ROOT = process.cwd();
 
@@ -853,6 +862,384 @@ describe('Pair included reply consult v1', () => {
     assert.match(COMPATIBILITY_CONSULT_GROUNDING_JA, /未来/);
     assert.match(COMPATIBILITY_CONSULT_GROUNDING_JA, /断定しない/);
     assert.match(COMPATIBILITY_CONSULT_GROUNDING_JA, /返信した/);
+  });
+
+  it('purchase confirmation lists six chapters plus one included additional reading', () => {
+    const purchase = read('components/compatibility/CompatibilityPurchaseExperience.tsx');
+    assert.match(purchase, /6章.*追加読み解き1件/);
+    assert.match(purchase, /¥1,480（税込）/);
+    assert.match(purchase, /マイページから保存・読み返し/);
+  });
+
+  it('owned report page wires included reply consult with report id (#251 boundary)', () => {
+    const page = read('app/synastry/report/[reportId]/page.tsx');
+    const reader = read('components/compatibility/PaidCompatibilityReportReader.tsx');
+    const consult = read('components/compatibility/CompatibilityIncludedReplyConsult.tsx');
+    assert.match(page, /ownedReportId=\{report\.id\}/);
+    assert.match(reader, /CompatibilityIncludedReplyConsult/);
+    assert.match(reader, /ownedReportId/);
+    assert.doesNotMatch(consult, /reply_ticket_wallets/);
+    assert.doesNotMatch(consult, /\/api\/room\/core/);
+  });
+});
+
+const UI_REPORT_ID = 'cr_ui_owned_report_0001';
+const IN_PROGRESS_API_ERROR = 'Send already in progress. Reload and try again.';
+
+type FakeFetchCall = { url: string; init?: RequestInit };
+type FakeFetchStep = (call: FakeFetchCall) => Response | Promise<Response>;
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+function networkFailure(): never {
+  throw new TypeError('fetch failed');
+}
+
+function scriptedFetch(steps: FakeFetchStep[]) {
+  const calls: FakeFetchCall[] = [];
+  const queue = [...steps];
+  const fetchImpl = async (url: string, init?: RequestInit): Promise<Response> => {
+    const call = { url, init };
+    calls.push(call);
+    const step = queue.shift();
+    if (!step) throw new Error(`unexpected fetch #${calls.length}: ${url}`);
+    return step(call);
+  };
+  return { calls, fetchImpl, remaining: () => queue.length };
+}
+
+function writableRoom() {
+  return {
+    reportId: UI_REPORT_ID,
+    creditsRemaining: 1,
+    creditsTotal: 1,
+    state: 'writable',
+    messages: [],
+  };
+}
+
+function usedRoom(assistantContent = 'SAVED_READING_BODY') {
+  return {
+    reportId: UI_REPORT_ID,
+    creditsRemaining: 0,
+    creditsTotal: 1,
+    state: 'read_only',
+    messages: [
+      { id: 'm_user', role: 'user', content: '関係の整理', createdAt: '2026-11-05T00:00:00Z' },
+      { id: 'm_asst', role: 'assistant', content: assistantContent, createdAt: '2026-11-05T00:00:01Z' },
+    ],
+  };
+}
+
+function postCalls(calls: FakeFetchCall[]): FakeFetchCall[] {
+  return calls.filter((call) => call.init?.method === 'POST');
+}
+
+function idempotencyKeyOf(call: FakeFetchCall): string {
+  return new Headers(call.init?.headers).get('X-Idempotency-Key') ?? '';
+}
+
+function keySource(prefix = 'ui-key') {
+  let count = 0;
+  return {
+    next: () => {
+      count += 1;
+      return `${prefix}-${String(count).padStart(4, '0')}`;
+    },
+    count: () => count,
+  };
+}
+
+async function loadConsultUi() {
+  return import('../../../components/compatibility/CompatibilityIncludedReplyConsult');
+}
+
+describe('Pair included reply consult UI send session (P1-1 / P1-2)', () => {
+  it('question send body matches the API contract without optional_context', async () => {
+    const ui = await loadConsultUi();
+    const keys = keySource();
+    const fake = scriptedFetch([
+      () => jsonResponse(200, { ok: true, mode: 'commit', assistantContent: 'SAVED_READING_BODY' }),
+      () => jsonResponse(200, usedRoom()),
+    ]);
+    const session = ui.createIncludedReplySendSession({
+      reportId: UI_REPORT_ID,
+      fetchImpl: fake.fetchImpl,
+      createIdempotencyKey: keys.next,
+    });
+
+    const result = await session.send({ replyThemeId: 'relation', replyQuestionId: 'relation.words' });
+    assert.equal(result.kind, 'committed');
+
+    const [post] = postCalls(fake.calls);
+    assert.ok(post);
+    assert.equal(post.url, `/api/compatibility/reports/${UI_REPORT_ID}/consult/send`);
+    const body = JSON.parse(String(post.init?.body)) as Record<string, unknown>;
+    assert.deepEqual(body, { reply_theme_id: 'relation', reply_question_id: 'relation.words' });
+    assert.equal('optional_context' in body, false);
+    const validation = validateConsultSendRequest(body);
+    assert.equal(validation.ok, true);
+    const key = idempotencyKeyOf(post);
+    assert.ok(key.length >= 8 && key.length <= 128);
+    assert.equal(fake.calls[1]?.url, `/api/compatibility/reports/${UI_REPORT_ID}/consult`);
+
+    const source = read('components/compatibility/CompatibilityIncludedReplyConsult.tsx');
+    assert.doesNotMatch(source, /optional_context|<textarea|テーマだけでも/);
+  });
+
+  it('keeps two Pair themes and eight questions, each accepted by the send validator', async () => {
+    const ui = await loadConsultUi();
+    assert.deepEqual(Object.keys(ui.INCLUDED_REPLY_QUESTION_OPTIONS), ['relation', 'report']);
+    const ids = Object.values(ui.INCLUDED_REPLY_QUESTION_OPTIONS).flatMap((entries) =>
+      entries.map((entry) => entry.reply_question_id),
+    );
+    assert.equal(ui.INCLUDED_REPLY_QUESTION_OPTIONS.relation.length, 4);
+    assert.equal(ui.INCLUDED_REPLY_QUESTION_OPTIONS.report.length, 4);
+    assert.deepEqual([...ids].sort(), [...COMPATIBILITY_CONSULT_PAIR_QUESTION_IDS].sort());
+    for (const [themeId, entries] of Object.entries(ui.INCLUDED_REPLY_QUESTION_OPTIONS)) {
+      for (const entry of entries) {
+        const body = ui.buildIncludedReplySendBody({
+          replyThemeId: themeId as 'relation' | 'report',
+          replyQuestionId: entry.reply_question_id,
+        });
+        assert.equal(validateConsultSendRequest(body).ok, true, entry.reply_question_id);
+      }
+    }
+    assert.equal(
+      ui.isIncludedReplySelection({ replyThemeId: 'relation', replyQuestionId: 'report.next_step' }),
+      false,
+    );
+  });
+
+  it('network failure keeps the same key for the same intent and locks other intents', async () => {
+    const ui = await loadConsultUi();
+    const keys = keySource();
+    const fake = scriptedFetch([
+      () => networkFailure(),
+      () => jsonResponse(200, writableRoom()),
+      () => networkFailure(),
+      () => jsonResponse(200, writableRoom()),
+    ]);
+    const session = ui.createIncludedReplySendSession({
+      reportId: UI_REPORT_ID,
+      fetchImpl: fake.fetchImpl,
+      createIdempotencyKey: keys.next,
+    });
+    const selection = { replyThemeId: 'report', replyQuestionId: 'report.next_step' } as const;
+
+    const first = await session.send(selection);
+    assert.equal(first.kind, 'unresolved');
+    assert.ok(first.kind === 'unresolved' && first.room?.creditsRemaining === 1);
+    const pendingKey = session.pendingIntent?.idempotencyKey;
+    assert.ok(pendingKey);
+
+    const locked = await session.send({ replyThemeId: 'relation', replyQuestionId: 'relation.distance' });
+    assert.deepEqual(locked, { kind: 'ignored', reason: 'intent_locked' });
+
+    const second = await session.send(selection);
+    assert.equal(second.kind, 'unresolved');
+    const posts = postCalls(fake.calls);
+    assert.equal(posts.length, 2);
+    assert.equal(idempotencyKeyOf(posts[0]!), pendingKey);
+    assert.equal(idempotencyKeyOf(posts[1]!), pendingKey);
+    assert.equal(keys.count(), 1);
+    assert.equal(fake.remaining(), 0);
+  });
+
+  it('after a lost response, GET shows the saved reading and settles the used state', async () => {
+    const ui = await loadConsultUi();
+    const keys = keySource();
+    const fake = scriptedFetch([
+      () => networkFailure(),
+      () => jsonResponse(200, usedRoom('RECOVERED_READING')),
+    ]);
+    const session = ui.createIncludedReplySendSession({
+      reportId: UI_REPORT_ID,
+      fetchImpl: fake.fetchImpl,
+      createIdempotencyKey: keys.next,
+    });
+
+    const result = await session.send({ replyThemeId: 'relation', replyQuestionId: 'relation.timing' });
+    assert.equal(result.kind, 'committed');
+    assert.ok(result.kind === 'committed');
+    assert.equal(result.room.creditsRemaining, 0);
+    assert.equal(ui.isIncludedReplyRoomUsed(result.room), true);
+    assert.ok(result.room.messages.some((m) => m.role === 'assistant' && m.content === 'RECOVERED_READING'));
+    assert.equal(session.pendingIntent, null);
+  });
+
+  it('409 in progress is not success; the key is kept and a same-key resend replays', async () => {
+    const ui = await loadConsultUi();
+    const keys = keySource();
+    const fake = scriptedFetch([
+      () => jsonResponse(409, { error: IN_PROGRESS_API_ERROR }),
+      () => jsonResponse(200, writableRoom()),
+      () =>
+        jsonResponse(200, {
+          ok: true,
+          mode: 'replay',
+          consumptionApplied: false,
+          assistantContent: 'SAVED_READING_BODY',
+        }),
+      () => jsonResponse(200, usedRoom()),
+    ]);
+    const session = ui.createIncludedReplySendSession({
+      reportId: UI_REPORT_ID,
+      fetchImpl: fake.fetchImpl,
+      createIdempotencyKey: keys.next,
+    });
+    const selection = { replyThemeId: 'relation', replyQuestionId: 'relation.recovery' } as const;
+
+    const first = await session.send(selection);
+    assert.equal(first.kind, 'unresolved');
+    assert.ok(first.kind === 'unresolved');
+    assert.match(first.message, /処理しています/);
+    assert.equal(first.room?.creditsRemaining, 1);
+    const pendingKey = session.pendingIntent?.idempotencyKey;
+    assert.ok(pendingKey);
+
+    const second = await session.send(selection);
+    assert.equal(second.kind, 'committed');
+    const posts = postCalls(fake.calls);
+    assert.equal(idempotencyKeyOf(posts[1]!), pendingKey);
+    assert.equal(keys.count(), 1);
+    assert.equal(session.pendingIntent, null);
+  });
+
+  it('fails closed on missing body, GET failure and inconsistent state', async () => {
+    const ui = await loadConsultUi();
+    const parse = ui.parseIncludedReplyRoom;
+    assert.equal(parse({ ...usedRoom(), messages: usedRoom().messages.slice(0, 1) }, UI_REPORT_ID), null);
+    assert.equal(parse(usedRoom('   '), UI_REPORT_ID), null);
+    assert.equal(parse({ ...writableRoom(), creditsRemaining: 2 }, UI_REPORT_ID), null);
+    assert.equal(parse({ ...writableRoom(), state: 'unknown' }, UI_REPORT_ID), null);
+    assert.equal(parse({ ...writableRoom(), messages: usedRoom().messages }, UI_REPORT_ID), null);
+    assert.equal(parse(writableRoom(), 'cr_other_report_0001'), null);
+    assert.ok(parse(writableRoom(), UI_REPORT_ID));
+    assert.ok(parse(usedRoom(), UI_REPORT_ID));
+
+    const cases: Array<{ label: string; get: FakeFetchStep }> = [
+      {
+        label: 'used without assistant body',
+        get: () => jsonResponse(200, { ...usedRoom(), messages: usedRoom().messages.slice(0, 1) }),
+      },
+      { label: 'GET 503', get: () => jsonResponse(503, { error: 'unavailable' }) },
+      { label: 'GET network failure', get: () => networkFailure() },
+      { label: 'POST 200 but room still writable', get: () => jsonResponse(200, writableRoom()) },
+    ];
+    for (const testCase of cases) {
+      const keys = keySource();
+      const fake = scriptedFetch([
+        () => jsonResponse(200, { ok: true, mode: 'commit', assistantContent: 'BODY' }),
+        testCase.get,
+      ]);
+      const session = ui.createIncludedReplySendSession({
+        reportId: UI_REPORT_ID,
+        fetchImpl: fake.fetchImpl,
+        createIdempotencyKey: keys.next,
+      });
+      const result = await session.send({ replyThemeId: 'report', replyQuestionId: 'report.how_to_use' });
+      assert.equal(result.kind, 'unresolved', testCase.label);
+      assert.ok(session.pendingIntent, `${testCase.label}: key must be kept`);
+      if (testCase.label !== 'POST 200 but room still writable') {
+        assert.ok(result.kind === 'unresolved' && result.room === null, `${testCase.label}: no fabricated room`);
+      }
+    }
+  });
+
+  it('a definitive 4xx rejection releases the intent so a new question gets a new key', async () => {
+    const ui = await loadConsultUi();
+    const keys = keySource();
+    const fake = scriptedFetch([
+      () => jsonResponse(422, { error: 'blocked', safeMessage: 'この内容は扱えません。' }),
+      () => jsonResponse(200, writableRoom()),
+      () => jsonResponse(200, { ok: true, mode: 'commit', assistantContent: 'BODY' }),
+      () => jsonResponse(200, usedRoom()),
+    ]);
+    const session = ui.createIncludedReplySendSession({
+      reportId: UI_REPORT_ID,
+      fetchImpl: fake.fetchImpl,
+      createIdempotencyKey: keys.next,
+    });
+
+    const first = await session.send({ replyThemeId: 'relation', replyQuestionId: 'relation.words' });
+    assert.equal(first.kind, 'rejected');
+    assert.ok(first.kind === 'rejected');
+    assert.equal(first.message, 'この内容は扱えません。');
+    assert.equal(first.room?.creditsRemaining, 1);
+    assert.equal(session.pendingIntent, null);
+
+    const second = await session.send({ replyThemeId: 'report', replyQuestionId: 'report.chapter_pick' });
+    assert.equal(second.kind, 'committed');
+    const posts = postCalls(fake.calls);
+    assert.notEqual(idempotencyKeyOf(posts[0]!), idempotencyKeyOf(posts[1]!));
+    assert.equal(keys.count(), 2);
+  });
+
+  it('a second send while one is in flight is ignored and never posts', async () => {
+    const ui = await loadConsultUi();
+    const keys = keySource();
+    let releasePost: (response: Response) => void = () => {};
+    const fake = scriptedFetch([
+      () => new Promise<Response>((resolve) => {
+        releasePost = resolve;
+      }),
+      () => jsonResponse(200, usedRoom()),
+    ]);
+    const session = ui.createIncludedReplySendSession({
+      reportId: UI_REPORT_ID,
+      fetchImpl: fake.fetchImpl,
+      createIdempotencyKey: keys.next,
+    });
+    const selection = { replyThemeId: 'relation', replyQuestionId: 'relation.distance' } as const;
+
+    const firstPromise = session.send(selection);
+    assert.equal(session.inFlight, true);
+    const duplicate = await session.send(selection);
+    assert.deepEqual(duplicate, { kind: 'ignored', reason: 'in_flight' });
+    releasePost(jsonResponse(200, { ok: true, mode: 'commit', assistantContent: 'BODY' }));
+    const first = await firstPromise;
+    assert.equal(first.kind, 'committed');
+    assert.equal(postCalls(fake.calls).length, 1);
+    assert.equal(keys.count(), 1);
+    assert.equal(session.inFlight, false);
+  });
+
+  it('Reader mounts the included reading only for an owned report with a report id', async () => {
+    const [reactModule, { renderToStaticMarkup }, readerModule] = await Promise.all([
+      import('react'),
+      import('react-dom/server'),
+      import('../../../components/compatibility/PaidCompatibilityReportReader'),
+    ]);
+    const { createElement } = reactModule;
+    // tsx compiles tsconfig `jsx: preserve` components with the classic runtime.
+    (globalThis as { React?: unknown }).React = reactModule;
+    const Reader = readerModule.default;
+    const snapshot = buildPaidCompatibilityReportV1({
+      pairAxisId: 'A2',
+      paidTopicId: 'T2',
+      relationStatusId: 'R1',
+      temperatureId: 'E2',
+      personAUsesFirstPerspective: true,
+    });
+    const render = (props: { owned?: boolean; ownedReportId?: string }) =>
+      renderToStaticMarkup(createElement(Reader, { snapshot, analyticsEnabled: false, ...props }));
+
+    const preview = render({ owned: false, ownedReportId: UI_REPORT_ID });
+    const ownedWithoutId = render({ owned: true });
+    const owned = render({ owned: true, ownedReportId: UI_REPORT_ID });
+
+    assert.doesNotMatch(preview, /pair-included-reply/);
+    assert.doesNotMatch(ownedWithoutId, /pair-included-reply/);
+    assert.match(owned, /data-testid="pair-included-reply-loading"/);
+    for (const chapter of snapshot.chapters) {
+      assert.ok(owned.includes(chapter.title), `owned render keeps chapter ${chapter.key}`);
+    }
   });
 });
 

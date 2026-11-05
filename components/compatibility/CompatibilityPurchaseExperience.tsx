@@ -69,12 +69,15 @@ function ProductDetails() {
     <>
       <dl className={styles.details}>
         <div><dt>商品</dt><dd>二人の相性レポート</dd></div>
-        <div><dt>内容</dt><dd>6章レポート1件</dd></div>
+        <div>
+          <dt>内容</dt>
+          <dd>二人の相性レポート（6章）・追加読み解き1件</dd>
+        </div>
         <div><dt>価格</dt><dd className={styles.price}>¥1,480（税込）</dd></div>
-        <div><dt>支払</dt><dd>一回払い</dd></div>
+        <div><dt>支払</dt><dd>買い切り（一回払い）</dd></div>
         <div><dt>自動更新</dt><dd>なし</dd></div>
         <div><dt>提供時期</dt><dd>支払い確認後にマイページへ表示</dd></div>
-        <div><dt>閲覧</dt><dd>購入したアカウントのマイページ</dd></div>
+        <div><dt>閲覧</dt><dd>購入したアカウントのマイページから保存・読み返し</dd></div>
         <div><dt>変更・取消</dt><dd>決済前は内容を見直せます</dd></div>
       </dl>
       <p className={styles.note}>
