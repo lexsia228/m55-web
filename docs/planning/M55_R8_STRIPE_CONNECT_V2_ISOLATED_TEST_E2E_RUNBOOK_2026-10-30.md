@@ -14,15 +14,17 @@ Do **not** use the smoke account for Creator return/session proof. Do **not** cr
 ## DB / app connection alignment (required before Stripe HTTP or webhooks)
 
 The app writes via **`getSupabaseAdmin()`** → `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`.  
-Preflight **`M55_R8_ISOLATED_DATABASE_URL`** must describe the **same Supabase project** (or loopback + declared project ref).
+Preflight **`M55_R8_ISOLATED_DATABASE_URL`** must describe the **same Supabase project instance** as the app URL (hosted direct/pooler, or **local full stack** API + Postgres pair).
 
-Verify alignment (no secrets in output). The script reads **only** `.env.m55-r8-isolated.local` (or `M55_R8_ISOLATED_ENV_FILE`) — not `.env.local` / Production / Preview shell vars:
+Verify alignment (no secrets in output). Scripts read **only** `.env.m55-r8-isolated.local` (or `M55_R8_ISOLATED_ENV_FILE`) — not `.env.local` / Production / Preview shell vars for Supabase alignment keys:
 
 1. Create **`.env.m55-r8-isolated.local`** at repo root (gitignored) with:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY` (legacy JWT or `sb_secret_*`)
-   - `M55_R8_ISOLATED_DATABASE_URL`
-   - `M55_R8_ISOLATED_SUPABASE_PROJECT_REF` (Dashboard-confirmed project ref)
+   - `NEXT_PUBLIC_SUPABASE_URL` — hosted `https://<ref>.supabase.co` **or** local API `http://127.0.0.1:54321` (`supabase start`)
+   - `SUPABASE_SERVICE_ROLE_KEY` (legacy JWT with matching `ref` claim, or `sb_secret_*`)
+   - `M55_R8_ISOLATED_DATABASE_URL` — hosted direct/pooler **or** local Postgres `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+   - `M55_R8_ISOLATED_SUPABASE_PROJECT_REF` — Dashboard ref (hosted) or `supabase status` project ref (local stack; must match service-role JWT `ref` when using JWT keys)
+
+Optional in the **same file** for API smoke (never commit): `M55_STRIPE_CONNECT_SECRET_KEY` or `STRIPE_SECRET_KEY`, `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`, `M55_PUBLIC_ORIGIN`.
 
 ```bash
 npx tsx scripts/m55-r8-verify-isolated-supabase-alignment.mjs
@@ -30,16 +32,18 @@ npx tsx scripts/m55-r8-verify-isolated-supabase-alignment.mjs
 
 Stderr prints `M55_R8_ISOLATED_ENV: .env.m55-r8-isolated.local` on start. Expect stdout JSON: `{ ok: true, alignment: "LIVE_READ_PROBE", envFile: "…", supabaseProjectRefSuffix: "…6chars", … }`.
 
-Structural-only env checks are **not** E2E GREEN. The verify script performs a read-only REST probe plus a Postgres READ probe (R8 provider table on Supabase hosts; `SELECT 1` on loopback). No secret output.
+Structural-only env checks are **not** E2E GREEN. The verify script performs a read-only REST probe plus a Postgres READ probe for `public.m55_r8_stripe_connected_accounts_v1` on **all** aligned targets (hosted, local stack, and generic loopback tunnels). No secret output.
 
-For local Docker Postgres used only for settlement integration tests, set **`M55_R8_ISOLATED_SUPABASE_PROJECT_REF`** to the same ref as `NEXT_PUBLIC_SUPABASE_URL` when using loopback.
+**Local Supabase full stack:** API must be `http://127.0.0.1:54321` and Postgres must use port **54322** on loopback. Human project ref must match the local project (and JWT `ref` when applicable). Plain loopback Postgres without the local stack port pair does **not** satisfy local full stack alignment.
+
+Settlement-only disposable Docker Postgres (`M55_R8_INTEGRATION_*`) is a **separate lane** — do not point `M55_R8_ISOLATED_DATABASE_URL` at integration disposable DBs.
 
 ## Preconditions (Human-owned)
 
 1. Put isolated Supabase vars in **`.env.m55-r8-isolated.local`** (see alignment section) — do not point the verify script at Production `.env.local`.
-2. `M55_R8_ISOLATED_DATABASE_URL` — direct (`db.<ref>.supabase.co`) or Shared Pooler (`*.pooler.supabase.com`, user `postgres.<ref>`, port 5432 session / 6543 transaction) for **same** project, or loopback + `M55_R8_ISOLATED_SUPABASE_PROJECT_REF`.
+2. `M55_R8_ISOLATED_DATABASE_URL` — direct (`db.<ref>.supabase.co`) or Shared Pooler (`*.pooler.supabase.com`, user `postgres.<ref>`, port 5432 session / 6543 transaction) for **same** hosted project, **or** local stack Postgres on **54322** with API on **54321**.
 3. R8 provider migration applied on that project (`20261029000000_m55_r8_a_creator_provider_onboarding_v1.sql`).
-4. `sk_test_*`, `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`, `M55_PUBLIC_ORIGIN` (port-exact).
+4. For API smoke, put Stripe test vars in **`.env.m55-r8-isolated.local`** (or shell after alignment file load) — `sk_test_*`, `M55_STRIPE_CONNECT_TESTMODE_ENABLED=true`, `M55_PUBLIC_ORIGIN` (port-exact).
 5. **Not** `M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER=true`.
 
 Optional smoke: `M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET=true` (once).

@@ -10,6 +10,12 @@ import {
   stableIsolatedSmokeCreateIdempotencyKeyV1,
 } from '../lib/m55/creatorProvider/stripeConnectV2IsolatedSmokePreflight.ts';
 import {
+  applyIsolatedStripeSmokeEnvToProcessV1,
+  listIsolatedStripeSmokeCredentialsFileMissingV1,
+  listIsolatedStripeSmokeShellBlockedChecklistV1,
+  loadM55R8IsolatedAlignmentEnvV1,
+} from '../lib/m55/creatorProvider/r8IsolatedSupabaseAlignment.ts';
+import {
   loadIsolatedSmokeStateV1,
   saveIsolatedSmokeStateV1,
   writeIsolatedSmokeOnboardingUrlForHumanV1,
@@ -22,10 +28,34 @@ function humanChecklist(missing) {
   process.exit(2);
 }
 
-const missing = listIsolatedStripeConnectPreflightMissingV1();
+function humanIsolatedEnvChecklist(lines) {
+  console.error('M55_R8_ISOLATED_SUPABASE_ALIGNMENT_FAILED');
+  for (const line of lines) console.error(`- ${line}`);
+  process.exit(2);
+}
+
+const shellBlocked = listIsolatedStripeSmokeShellBlockedChecklistV1(process.env);
+if (shellBlocked.length > 0) humanIsolatedEnvChecklist(shellBlocked);
+
+const loaded = loadM55R8IsolatedAlignmentEnvV1();
+if (!loaded.ok) humanIsolatedEnvChecklist(loaded.checklist);
+
+console.error(`M55_R8_ISOLATED_ENV: ${loaded.envFile}`);
+
+const stripeFileMissing = listIsolatedStripeSmokeCredentialsFileMissingV1(
+  loaded.parsed,
+  loaded.envFile,
+);
+if (stripeFileMissing.length > 0) humanChecklist(stripeFileMissing);
+
+const isolatedOnly = { ...loaded.env };
+
+const missing = listIsolatedStripeConnectPreflightMissingV1(isolatedOnly);
 if (missing.length > 0) humanChecklist(missing);
 
-const origin = resolveIsolatedAppOriginV1();
+applyIsolatedStripeSmokeEnvToProcessV1(isolatedOnly);
+
+const origin = resolveIsolatedAppOriginV1(isolatedOnly);
 if (!origin) humanChecklist(['Set M55_PUBLIC_ORIGIN to the isolated app origin (e.g. http://localhost:3000)']);
 
 const {

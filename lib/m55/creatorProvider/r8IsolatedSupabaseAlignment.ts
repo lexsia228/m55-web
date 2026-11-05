@@ -1,13 +1,20 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { isM55ProductionRuntime } from './runtimeEnvironment';
 
 export type PostgresSupabaseConnectionKindV1 =
   | 'supabase_direct'
   | 'supabase_pooler_session'
   | 'supabase_pooler_transaction'
+  | 'supabase_local_stack'
   | 'loopback'
   | 'blocked';
+
+export type SupabaseAppHttpKindV1 = 'hosted' | 'local_stack' | 'unsupported';
+
+/** Default ports for `supabase start` local full stack (API / Postgres). */
+export const M55_R8_LOCAL_SUPABASE_API_PORT_V1 = 54321;
+export const M55_R8_LOCAL_SUPABASE_DB_PORT_V1 = 54322;
 
 export type SupabaseServiceRoleKeyFormatV1 = 'supabase_jwt' | 'sb_secret';
 
@@ -54,16 +61,53 @@ export const M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1 = [
   'M55_R8_ISOLATED_SUPABASE_PROJECT_REF',
 ] as const;
 
+/** Optional keys loaded from the same isolated env file for Stripe smoke scripts (never logged). */
+export const M55_R8_ISOLATED_ENV_OPTIONAL_PASSTHROUGH_KEYS_V1 = [
+  'M55_STRIPE_CONNECT_SECRET_KEY',
+  'STRIPE_SECRET_KEY',
+  'M55_STRIPE_CONNECT_TESTMODE_ENABLED',
+  'M55_PUBLIC_ORIGIN',
+  'NEXT_PUBLIC_SITE_URL',
+  'M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER',
+  'M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_ECONOMIC_IDENTITY_ID',
+  'M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET',
+] as const;
+
 const PRODUCTION_HOST_DENY = ['m55-soul', 'm55-web', 'vercel.app'] as const;
 
-export function extractSupabaseProjectRefFromHttpUrlV1(raw: string): string | null {
+function resolveHttpPortV1(url: URL): number {
+  if (url.port) return Number(url.port);
+  return url.protocol === 'https:' ? 443 : 80;
+}
+
+function isLoopbackHostV1(host: string): boolean {
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
+export function parseSupabaseAppHttpUrlV1(raw: string): {
+  kind: SupabaseAppHttpKindV1;
+  projectRef: string | null;
+  localApiPort: number | null;
+} {
   try {
-    const host = new URL(raw.trim()).hostname.toLowerCase();
-    const match = host.match(/^([a-z0-9]{8,32})\.supabase\.co$/);
-    return match?.[1] ?? null;
+    const url = new URL(raw.trim());
+    const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+    const hostedMatch = host.match(/^([a-z0-9]{8,32})\.supabase\.co$/);
+    if (hostedMatch?.[1]) {
+      return { kind: 'hosted', projectRef: hostedMatch[1], localApiPort: null };
+    }
+    if (isLoopbackHostV1(host) && resolveHttpPortV1(url) === M55_R8_LOCAL_SUPABASE_API_PORT_V1) {
+      return { kind: 'local_stack', projectRef: null, localApiPort: M55_R8_LOCAL_SUPABASE_API_PORT_V1 };
+    }
+    return { kind: 'unsupported', projectRef: null, localApiPort: null };
   } catch {
-    return null;
+    return { kind: 'unsupported', projectRef: null, localApiPort: null };
   }
+}
+
+export function extractSupabaseProjectRefFromHttpUrlV1(raw: string): string | null {
+  const parsed = parseSupabaseAppHttpUrlV1(raw);
+  return parsed.kind === 'hosted' ? parsed.projectRef : null;
 }
 
 export function classifySupabaseServiceRoleKeyFormatV1(raw: string): SupabaseServiceRoleKeyFormatV1 | null {
@@ -98,7 +142,11 @@ export function parsePostgresSupabaseConnectionV1(raw: string): ParsedPostgresSu
     const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
     const port = url.port || '5432';
 
-    if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+    if (isLoopbackHostV1(host)) {
+      const portNum = Number(port);
+      if (portNum === M55_R8_LOCAL_SUPABASE_DB_PORT_V1) {
+        return { projectRef: null, connectionKind: 'supabase_local_stack' };
+      }
       return { projectRef: null, connectionKind: 'loopback' };
     }
 
@@ -143,11 +191,22 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
   if (!serviceRole) return { ok: false, reason: 'SUPABASE_SERVICE_ROLE_MISSING' };
   if (!humanRef) return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
 
-  const appRef = extractSupabaseProjectRefFromHttpUrlV1(appUrl);
-  if (!appRef) return { ok: false, reason: 'SUPABASE_PROJECT_REF_UNRESOLVED' };
+  const appParsed = parseSupabaseAppHttpUrlV1(appUrl);
+  if (appParsed.kind === 'unsupported') {
+    return { ok: false, reason: 'SUPABASE_PROJECT_REF_UNRESOLVED' };
+  }
 
-  if (humanRef !== appRef) {
-    return { ok: false, reason: 'HUMAN_PROJECT_REF_MISMATCH' };
+  let canonicalRef: string;
+  if (appParsed.kind === 'hosted') {
+    canonicalRef = appParsed.projectRef!;
+    if (humanRef !== canonicalRef) {
+      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISMATCH' };
+    }
+  } else {
+    if (!/^[a-z0-9]{8,32}$/.test(humanRef)) {
+      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
+    }
+    canonicalRef = humanRef;
   }
 
   const keyFormat = classifySupabaseServiceRoleKeyFormatV1(serviceRole);
@@ -157,7 +216,7 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
   if (keyFormat === 'supabase_jwt') {
     const jwtRef = extractSupabaseProjectRefFromServiceRoleJwtV1(serviceRole);
     if (!jwtRef) return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
-    if (jwtRef !== appRef) {
+    if (jwtRef !== canonicalRef) {
       return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
     }
     serviceRoleJwtRefMatched = true;
@@ -173,19 +232,23 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
     return { ok: false, reason: 'ISOLATED_DATABASE_HOST_BLOCKED' };
   }
 
-  if (parsedPg.connectionKind === 'loopback') {
-    if (humanRef !== appRef) {
+  if (appParsed.kind === 'local_stack') {
+    if (parsedPg.connectionKind !== 'supabase_local_stack') {
       return { ok: false, reason: 'ISOLATED_DATABASE_PROJECT_MISMATCH' };
     }
-  } else {
-    if (!parsedPg.projectRef || parsedPg.projectRef !== appRef) {
+  } else if (parsedPg.connectionKind === 'supabase_local_stack') {
+    return { ok: false, reason: 'ISOLATED_DATABASE_PROJECT_MISMATCH' };
+  } else if (parsedPg.connectionKind === 'loopback') {
+    if (humanRef !== canonicalRef) {
       return { ok: false, reason: 'ISOLATED_DATABASE_PROJECT_MISMATCH' };
     }
+  } else if (!parsedPg.projectRef || parsedPg.projectRef !== canonicalRef) {
+    return { ok: false, reason: 'ISOLATED_DATABASE_PROJECT_MISMATCH' };
   }
 
   return {
     ok: true,
-    supabaseProjectRefSuffix: appRef.slice(-6),
+    supabaseProjectRefSuffix: canonicalRef.slice(-6),
     postgresConnectionKind: parsedPg.connectionKind,
     humanProjectRefConfirmed: true,
     serviceRoleKeyFormat: keyFormat,
@@ -269,17 +332,6 @@ export async function probeIsolatedPostgresReadOnlyV1(input: {
 }): Promise<{ ok: true } | { ok: false; reason: 'POSTGRES_PROBE_FAILED' | 'POSTGRES_IDENTITY_NOT_VERIFIED' }> {
   const queryImpl = input.postgresQueryImpl ?? defaultPostgresQueryImpl;
   try {
-    if (input.connectionKind === 'loopback') {
-      const ping = await queryImpl({
-        connectionUrl: input.connectionUrl,
-        sql: 'SELECT 1 AS ok',
-      });
-      if (ping.rows[0]?.ok !== 1) {
-        return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
-      }
-      return { ok: true };
-    }
-
     const identity = await queryImpl({
       connectionUrl: input.connectionUrl,
       sql: `SELECT EXISTS (
@@ -349,9 +401,9 @@ export function parseEnvFileLinesV1(raw: string): Record<string, string> {
 export function loadM55R8IsolatedAlignmentEnvV1(
   cwd: string = process.cwd(),
   osEnv: NodeJS.ProcessEnv = process.env,
-): { ok: true; env: NodeJS.ProcessEnv; envFile: string } | { ok: false; checklist: string[] } {
+): { ok: true; env: NodeJS.ProcessEnv; envFile: string; parsed: Record<string, string> } | { ok: false; checklist: string[] } {
   const rel = osEnv.M55_R8_ISOLATED_ENV_FILE?.trim() || M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1;
-  const abs = join(cwd, rel);
+  const abs = isAbsolute(rel) ? rel : join(cwd, rel);
   if (!existsSync(abs)) {
     return {
       ok: false,
@@ -371,10 +423,10 @@ export function loadM55R8IsolatedAlignmentEnvV1(
 
   const parsed = parseEnvFileLinesV1(raw);
   const checklist: string[] = [];
-  const env: NodeJS.ProcessEnv = {
-    NODE_ENV: 'development',
-    VERCEL_ENV: 'development',
-  };
+  const env: NodeJS.ProcessEnv = {};
+
+  if (parsed.NODE_ENV?.trim()) env.NODE_ENV = parsed.NODE_ENV.trim();
+  if (parsed.VERCEL_ENV?.trim()) env.VERCEL_ENV = parsed.VERCEL_ENV.trim();
 
   for (const key of M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1) {
     const v = parsed[key]?.trim();
@@ -386,8 +438,69 @@ export function loadM55R8IsolatedAlignmentEnvV1(
     checklist.push(`${rel} must not declare production runtime`);
   }
 
+  for (const key of M55_R8_ISOLATED_ENV_OPTIONAL_PASSTHROUGH_KEYS_V1) {
+    const v = parsed[key]?.trim();
+    if (v) env[key] = v;
+  }
+
   if (checklist.length > 0) return { ok: false, checklist };
-  return { ok: true, env, envFile: rel };
+  return { ok: true, env, envFile: rel, parsed };
+}
+
+/** Fail-closed on shell Production **before** isolated env file is applied to `process.env`. */
+export function listIsolatedStripeSmokeShellBlockedChecklistV1(
+  osEnv: NodeJS.ProcessEnv = process.env,
+): string[] {
+  if (!isM55ProductionRuntime(osEnv)) return [];
+  return ['Isolated Stripe smoke is blocked on Production runtime (shell env before isolated file load)'];
+}
+
+/** Stripe smoke credentials must be declared in the isolated file — no shell fallback. */
+export function listIsolatedStripeSmokeCredentialsFileMissingV1(
+  parsed: Record<string, string>,
+  envFile: string,
+): string[] {
+  const missing: string[] = [];
+  const secret =
+    parsed.M55_STRIPE_CONNECT_SECRET_KEY?.trim() || parsed.STRIPE_SECRET_KEY?.trim() || '';
+  if (!secret) {
+    missing.push(
+      `Set M55_STRIPE_CONNECT_SECRET_KEY or STRIPE_SECRET_KEY in ${envFile} (shell fallback prohibited)`,
+    );
+  }
+  if (parsed.M55_STRIPE_CONNECT_TESTMODE_ENABLED?.trim() !== 'true') {
+    missing.push(
+      `Set M55_STRIPE_CONNECT_TESTMODE_ENABLED=true in ${envFile} (shell fallback prohibited)`,
+    );
+  }
+  if (!parsed.M55_PUBLIC_ORIGIN?.trim() && !parsed.NEXT_PUBLIC_SITE_URL?.trim()) {
+    missing.push(`Set M55_PUBLIC_ORIGIN in ${envFile} (shell fallback prohibited)`);
+  }
+  return missing;
+}
+
+const M55_R8_ISOLATED_SMOKE_PROCESS_ENV_KEYS_V1 = [
+  ...M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1,
+  ...M55_R8_ISOLATED_ENV_OPTIONAL_PASSTHROUGH_KEYS_V1,
+] as const;
+
+/** Apply isolated-file vars to `process.env`, clearing shell fallbacks for the same keys. */
+export function applyIsolatedStripeSmokeEnvToProcessV1(isolatedOnly: NodeJS.ProcessEnv): void {
+  for (const key of M55_R8_ISOLATED_SMOKE_PROCESS_ENV_KEYS_V1) {
+    const v = isolatedOnly[key];
+    if (typeof v === 'string' && v.length > 0) process.env[key] = v;
+    else delete process.env[key];
+  }
+  if (isolatedOnly.NODE_ENV) process.env.NODE_ENV = isolatedOnly.NODE_ENV;
+  if (isolatedOnly.VERCEL_ENV) process.env.VERCEL_ENV = isolatedOnly.VERCEL_ENV;
+}
+
+/** Merge isolated env file vars over shell for Stripe smoke / alignment scripts. */
+export function mergeM55R8IsolatedEnvOverProcessV1(
+  loadedEnv: NodeJS.ProcessEnv,
+  osEnv: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  return { ...osEnv, ...loadedEnv };
 }
 
 /** Structural checks only — not sufficient alone for isolated E2E GREEN. */
@@ -434,7 +547,9 @@ function checklistForFailure(reason: IsolatedSupabaseAlignmentFailureV1): string
         'SUPABASE_SERVICE_ROLE_KEY must be a legacy Supabase JWT (eyJ…) or new sb_secret_* service role key',
       ];
     case 'SUPABASE_PROJECT_REF_UNRESOLVED':
-      return ['NEXT_PUBLIC_SUPABASE_URL must be a *.supabase.co project URL'];
+      return [
+        'NEXT_PUBLIC_SUPABASE_URL must be a hosted *.supabase.co project URL or local Supabase API (http://127.0.0.1:54321)',
+      ];
     case 'HUMAN_PROJECT_REF_MISSING':
       return [
         'Set M55_R8_ISOLATED_SUPABASE_PROJECT_REF to the Human-confirmed non-Production Supabase project ref',
@@ -448,10 +563,13 @@ function checklistForFailure(reason: IsolatedSupabaseAlignmentFailureV1): string
     case 'ISOLATED_DATABASE_PROJECT_MISMATCH':
       return [
         'M55_R8_ISOLATED_DATABASE_URL project must match app URL (direct host or pooler postgres.<ref> username)',
-        'Loopback Postgres requires the same Human project ref as NEXT_PUBLIC_SUPABASE_URL',
+        'Local Supabase full stack requires API on port 54321 and Postgres on 127.0.0.1:54322 with matching Human project ref',
+        'Generic loopback Postgres requires the same Human project ref as the hosted Supabase app URL',
       ];
     case 'ISOLATED_DATABASE_HOST_BLOCKED':
-      return ['Isolated database URL must be loopback or Supabase direct/pooler — not Production/Preview hosts'];
+      return [
+        'Isolated database URL must be Supabase direct/pooler, local stack Postgres (127.0.0.1:54322), or declared loopback tunnel — not Production/Preview hosts',
+      ];
     case 'ISOLATED_DATABASE_URL_UNPARSEABLE':
       return ['M55_R8_ISOLATED_DATABASE_URL is not a valid URL'];
     case 'SERVICE_ROLE_PROBE_FAILED':

@@ -8,8 +8,12 @@ import {
   classifySupabaseServiceRoleKeyFormatV1,
   buildSupabaseServiceRoleRestProbeHeadersV1,
   loadM55R8IsolatedAlignmentEnvV1,
+  listIsolatedStripeSmokeCredentialsFileMissingV1,
+  listIsolatedStripeSmokeShellBlockedChecklistV1,
   parsePostgresSupabaseConnectionV1,
+  parseSupabaseAppHttpUrlV1,
   probeSupabaseServiceRoleReadOnlyV1,
+  probeIsolatedPostgresReadOnlyV1,
 } from './r8IsolatedSupabaseAlignment.ts';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -198,5 +202,110 @@ describe('R8 isolated Supabase alignment', () => {
     });
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.reason, 'PRODUCTION_RUNTIME_BLOCKED');
+  });
+
+  it('accepts local Supabase full stack when API :54321, Postgres :54322, and Human ref match JWT', () => {
+    const ref = 'localstackproject1';
+    const localApi = parseSupabaseAppHttpUrlV1('http://127.0.0.1:54321');
+    assert.equal(localApi.kind, 'local_stack');
+    const localPg = parsePostgresSupabaseConnectionV1(
+      'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+    );
+    assert.equal(localPg.connectionKind, 'supabase_local_stack');
+
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwt(ref),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.postgresConnectionKind, 'supabase_local_stack');
+      assert.equal(result.supabaseProjectRefSuffix, ref.slice(-6));
+    }
+  });
+
+  it('fails closed when local API is declared but Postgres is not local stack port', () => {
+    const ref = 'localstackproject1';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwt(ref),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:5432/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'ISOLATED_DATABASE_PROJECT_MISMATCH');
+  });
+
+  it('Postgres READ probe requires R8 provider table on local stack (not SELECT 1 only)', async () => {
+    const probe = await probeIsolatedPostgresReadOnlyV1({
+      connectionUrl: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      connectionKind: 'supabase_local_stack',
+      postgresQueryImpl: async () => ({ rows: [{ present: false }] }),
+    });
+    assert.equal(probe.ok, false);
+    if (!probe.ok) assert.equal(probe.reason, 'POSTGRES_IDENTITY_NOT_VERIFIED');
+  });
+
+  it('isolated env loader passes optional Stripe smoke keys from the same file', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'm55-r8-env-smoke-'));
+    const ref = 'eeeeeeeeeeeeeeee';
+    const envBody = [
+      `NEXT_PUBLIC_SUPABASE_URL=https://${ref}.supabase.co`,
+      'SUPABASE_SERVICE_ROLE_KEY=sb_secret_from_file',
+      `M55_R8_ISOLATED_DATABASE_URL=postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      `M55_R8_ISOLATED_SUPABASE_PROJECT_REF=${ref}`,
+      'M55_STRIPE_CONNECT_TESTMODE_ENABLED=true',
+      'M55_PUBLIC_ORIGIN=http://localhost:3000',
+    ].join('\n');
+    writeFileSync(join(dir, '.env.m55-r8-isolated.local'), envBody, 'utf8');
+
+    const loaded = loadM55R8IsolatedAlignmentEnvV1(dir, {});
+    assert.equal(loaded.ok, true);
+    if (!loaded.ok) return;
+    assert.equal(loaded.env.M55_STRIPE_CONNECT_TESTMODE_ENABLED, 'true');
+    assert.equal(loaded.env.M55_PUBLIC_ORIGIN, 'http://localhost:3000');
+  });
+
+  it('isolated env loader does not force development runtime when file omits NODE_ENV', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'm55-r8-env-node-'));
+    const ref = 'ffffffffffffffff';
+    writeFileSync(
+      join(dir, '.env.m55-r8-isolated.local'),
+      [
+        `NEXT_PUBLIC_SUPABASE_URL=https://${ref}.supabase.co`,
+        'SUPABASE_SERVICE_ROLE_KEY=sb_secret_from_file',
+        `M55_R8_ISOLATED_DATABASE_URL=postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+        `M55_R8_ISOLATED_SUPABASE_PROJECT_REF=${ref}`,
+      ].join('\n'),
+      'utf8',
+    );
+    const loaded = loadM55R8IsolatedAlignmentEnvV1(dir, {});
+    assert.equal(loaded.ok, true);
+    if (!loaded.ok) return;
+    assert.equal(loaded.env.NODE_ENV, undefined);
+    assert.equal(loaded.env.VERCEL_ENV, undefined);
+  });
+
+  it('stripe smoke shell gate blocks Production before isolated file load', () => {
+    const blocked = listIsolatedStripeSmokeShellBlockedChecklistV1({
+      NODE_ENV: 'production',
+      VERCEL_ENV: 'production',
+    });
+    assert.ok(blocked.length > 0);
+    assert.match(blocked.join(' '), /Production runtime/);
+  });
+
+  it('stripe smoke requires credentials in isolated file (no shell fallback)', () => {
+    const missing = listIsolatedStripeSmokeCredentialsFileMissingV1(
+      {},
+      '.env.m55-r8-isolated.local',
+    );
+    assert.ok(missing.some((line) => line.includes('shell fallback prohibited')));
   });
 });
