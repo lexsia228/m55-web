@@ -8,6 +8,7 @@ import {
   classifySupabaseServiceRoleKeyFormatV1,
   buildSupabaseServiceRoleRestProbeHeadersV1,
   loadM55R8IsolatedAlignmentEnvV1,
+  applyIsolatedStripeSmokeEnvToProcessV1,
   listIsolatedStripeSmokeCredentialsFileMissingV1,
   listIsolatedStripeSmokeShellBlockedChecklistV1,
   parsePostgresSupabaseConnectionV1,
@@ -307,5 +308,26 @@ describe('R8 isolated Supabase alignment', () => {
       '.env.m55-r8-isolated.local',
     );
     assert.ok(missing.some((line) => line.includes('shell fallback prohibited')));
+  });
+
+  it('applyIsolatedStripeSmokeEnvToProcessV1 does not assign NODE_ENV or VERCEL_ENV', () => {
+    const priorNode = process.env.NODE_ENV;
+    const priorVercel = process.env.VERCEL_ENV;
+    try {
+      process.env.NODE_ENV = 'production';
+      process.env.VERCEL_ENV = 'production';
+      applyIsolatedStripeSmokeEnvToProcessV1({
+        NODE_ENV: 'development',
+        VERCEL_ENV: 'development',
+        M55_PUBLIC_ORIGIN: 'http://localhost:3000',
+      });
+      assert.equal(process.env.NODE_ENV, 'production');
+      assert.equal(process.env.VERCEL_ENV, 'production');
+    } finally {
+      if (priorNode !== undefined) process.env.NODE_ENV = priorNode;
+      else delete process.env.NODE_ENV;
+      if (priorVercel !== undefined) process.env.VERCEL_ENV = priorVercel;
+      else delete process.env.VERCEL_ENV;
+    }
   });
 });

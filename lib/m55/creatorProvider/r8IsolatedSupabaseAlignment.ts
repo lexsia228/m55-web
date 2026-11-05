@@ -491,8 +491,6 @@ export function applyIsolatedStripeSmokeEnvToProcessV1(isolatedOnly: NodeJS.Proc
     if (typeof v === 'string' && v.length > 0) process.env[key] = v;
     else delete process.env[key];
   }
-  if (isolatedOnly.NODE_ENV) process.env.NODE_ENV = isolatedOnly.NODE_ENV;
-  if (isolatedOnly.VERCEL_ENV) process.env.VERCEL_ENV = isolatedOnly.VERCEL_ENV;
 }
 
 /** Merge isolated env file vars over shell for Stripe smoke / alignment scripts. */
