@@ -139,6 +139,9 @@ const R7_APPLICATION_ROUTE_TEMPLATES = [
   '/api/creator/referrals/current',
   '/api/creator/referrals/issue',
   '/api/creator/referrals/rotate',
+  '/api/creator/provider/status',
+  '/api/creator/provider/tax-profile',
+  '/api/creator/provider/onboarding',
 ] as const;
 
 const R7_PROTECTED_CREATOR_API_SAMPLES = [
@@ -148,6 +151,9 @@ const R7_PROTECTED_CREATOR_API_SAMPLES = [
   '/api/creator/referrals/issue',
   '/api/creator/referrals/rotate',
   '/api/creator/compliance/cases',
+  '/api/creator/provider/status',
+  '/api/creator/provider/tax-profile',
+  '/api/creator/provider/onboarding',
 ] as const;
 
 function assertMiddlewareAllowsOnlyReferralEntryNextResponse(src: string): void {
@@ -193,9 +199,9 @@ describe('routeAccessContract — exhaustive inventory', () => {
     assert.doesNotThrow(() => assertApplicationRouteInventoryClassified(ROOT));
   });
 
-  it('discovers the current application route count (R7: 84 + 8 templates + main SEO)', () => {
+  it('discovers the current application route count (R7 + R8-A provider APIs)', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 93);
+    assert.equal(templates.length, 96);
     for (const template of R7_APPLICATION_ROUTE_TEMPLATES) {
       assert.equal(templates.includes(template), true, `missing R7 template ${template}`);
     }
@@ -211,8 +217,8 @@ describe('routeAccessContract — protected regression', () => {
     }
   });
 
-  it('keeps all 22 protected static Route Handlers protected', () => {
-    assert.equal(PROTECTED_API_PATHS.length, 22);
+  it('keeps all 25 protected static Route Handlers protected', () => {
+    assert.equal(PROTECTED_API_PATHS.length, 25);
     for (const path of PROTECTED_API_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
