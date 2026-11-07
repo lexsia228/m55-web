@@ -23,10 +23,19 @@ export type IsolatedSupabaseAlignmentResultV1 =
       ok: true;
       supabaseProjectRefSuffix: string;
       postgresConnectionKind: PostgresSupabaseConnectionKindV1;
-      humanProjectRefConfirmed: true;
+      /**
+       * False only for local_stack JWT keys with no `ref` claim — REST/Postgres probes verify
+       * connectivity and schema only; JWT does not prove Human project ref identity.
+       */
+      humanProjectRefConfirmed: boolean;
       serviceRoleKeyFormat: SupabaseServiceRoleKeyFormatV1;
       /** True only when legacy JWT ref claim matches Human/app ref; sb_secret keys use live REST probe instead. */
       serviceRoleJwtRefMatched: boolean;
+      /**
+       * True only for local_stack JWT service-role keys with no `ref` claim.
+       * Structural acceptance only — live REST probe must confirm key↔API binding.
+       */
+      localStackServiceRoleJwtRefAbsent?: boolean;
     }
   | { ok: false; reason: IsolatedSupabaseAlignmentFailureV1 };
 
@@ -39,6 +48,7 @@ export type IsolatedSupabaseAlignmentFailureV1 =
   | 'SUPABASE_PROJECT_REF_UNRESOLVED'
   | 'HUMAN_PROJECT_REF_MISSING'
   | 'HUMAN_PROJECT_REF_MISMATCH'
+  | 'HUMAN_PROJECT_REF_NOT_JWT_VERIFIED'
   | 'SERVICE_ROLE_JWT_REF_UNRESOLVED'
   | 'SERVICE_ROLE_JWT_REF_MISMATCH'
   | 'ISOLATED_DATABASE_PROJECT_MISMATCH'
@@ -118,17 +128,34 @@ export function classifySupabaseServiceRoleKeyFormatV1(raw: string): SupabaseSer
   return null;
 }
 
-export function extractSupabaseProjectRefFromServiceRoleJwtV1(rawJwt: string): string | null {
+export type ParsedSupabaseServiceRoleJwtV1 = {
+  payloadOk: boolean;
+  /** Ref claim only when payload `ref` is a string matching `/^[a-z0-9]{8,32}$/` verbatim (no trim/casefold). */
+  ref: string | null;
+  /** True only when the JWT payload omits a `ref` property entirely (not empty/invalid values). */
+  refClaimAbsent: boolean;
+  role: string | null;
+};
+
+export function parseSupabaseServiceRoleJwtV1(rawJwt: string): ParsedSupabaseServiceRoleJwtV1 | null {
   if (classifySupabaseServiceRoleKeyFormatV1(rawJwt) !== 'supabase_jwt') return null;
   const parts = rawJwt.trim().split('.');
   if (parts.length < 2) return null;
   try {
     const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf8');
-    const payload = JSON.parse(payloadJson) as { ref?: unknown };
-    return typeof payload.ref === 'string' && /^[a-z0-9]{8,32}$/.test(payload.ref) ? payload.ref : null;
+    const payload = JSON.parse(payloadJson) as { ref?: unknown; role?: unknown };
+    const refClaimAbsent = !('ref' in payload);
+    const ref =
+      typeof payload.ref === 'string' && /^[a-z0-9]{8,32}$/.test(payload.ref) ? payload.ref : null;
+    const role = typeof payload.role === 'string' ? payload.role : null;
+    return { payloadOk: true, ref, refClaimAbsent, role };
   } catch {
-    return null;
+    return { payloadOk: false, ref: null, refClaimAbsent: false, role: null };
   }
+}
+
+export function extractSupabaseProjectRefFromServiceRoleJwtV1(rawJwt: string): string | null {
+  return parseSupabaseServiceRoleJwtV1(rawJwt)?.ref ?? null;
 }
 
 export type ParsedPostgresSupabaseConnectionV1 = {
@@ -213,13 +240,29 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
   if (!keyFormat) return { ok: false, reason: 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED' };
 
   let serviceRoleJwtRefMatched = false;
+  let localStackServiceRoleJwtRefAbsent = false;
   if (keyFormat === 'supabase_jwt') {
-    const jwtRef = extractSupabaseProjectRefFromServiceRoleJwtV1(serviceRole);
-    if (!jwtRef) return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
-    if (jwtRef !== canonicalRef) {
-      return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
+    const jwtParsed = parseSupabaseServiceRoleJwtV1(serviceRole);
+    if (!jwtParsed?.payloadOk) {
+      return { ok: false, reason: 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED' };
     }
-    serviceRoleJwtRefMatched = true;
+
+    if (jwtParsed.ref) {
+      if (jwtParsed.ref !== canonicalRef) {
+        return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
+      }
+      serviceRoleJwtRefMatched = true;
+    } else if (
+      appParsed.kind === 'local_stack' &&
+      jwtParsed.refClaimAbsent &&
+      jwtParsed.role === 'service_role'
+    ) {
+      localStackServiceRoleJwtRefAbsent = true;
+    } else if (appParsed.kind === 'hosted') {
+      return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
+    } else {
+      return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
+    }
   }
 
   const lowerDb = isolatedDb.toLowerCase();
@@ -246,13 +289,16 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
     return { ok: false, reason: 'ISOLATED_DATABASE_PROJECT_MISMATCH' };
   }
 
+  const humanProjectRefConfirmed = !localStackServiceRoleJwtRefAbsent;
+
   return {
     ok: true,
     supabaseProjectRefSuffix: canonicalRef.slice(-6),
     postgresConnectionKind: parsedPg.connectionKind,
-    humanProjectRefConfirmed: true,
+    humanProjectRefConfirmed,
     serviceRoleKeyFormat: keyFormat,
     serviceRoleJwtRefMatched,
+    ...(localStackServiceRoleJwtRefAbsent ? { localStackServiceRoleJwtRefAbsent: true } : {}),
   };
 }
 
@@ -372,6 +418,10 @@ export async function evaluateIsolatedSupabaseAlignmentLiveV1(
   });
   if (!pgProbe.ok) {
     return { ok: false, reason: pgProbe.reason };
+  }
+
+  if (structural.humanProjectRefConfirmed === false) {
+    return { ok: false, reason: 'HUMAN_PROJECT_REF_NOT_JWT_VERIFIED' };
   }
 
   return structural;
@@ -551,8 +601,16 @@ function checklistForFailure(reason: IsolatedSupabaseAlignmentFailureV1): string
       ];
     case 'HUMAN_PROJECT_REF_MISMATCH':
       return ['M55_R8_ISOLATED_SUPABASE_PROJECT_REF must exactly match NEXT_PUBLIC_SUPABASE_URL project ref'];
+    case 'HUMAN_PROJECT_REF_NOT_JWT_VERIFIED':
+      return [
+        'Local JWT has no verifiable ref claim — Human project ref cannot be cryptographically confirmed from the key',
+        'REST and Postgres probes passed — connectivity and target table OK; full identity alignment requires JWT ref or sb_secret workflow',
+      ];
     case 'SERVICE_ROLE_JWT_REF_UNRESOLVED':
-      return ['SUPABASE_SERVICE_ROLE_KEY must be a Supabase JWT with ref claim matching the isolated project'];
+      return [
+        'Hosted isolated projects require a Supabase JWT with a valid ref claim matching the Human project ref',
+        'Local full stack may omit ref only with service_role JWT plus live REST probe against http://127.0.0.1:54321',
+      ];
     case 'SERVICE_ROLE_JWT_REF_MISMATCH':
       return ['SUPABASE_SERVICE_ROLE_KEY ref claim must match NEXT_PUBLIC_SUPABASE_URL and Human project ref'];
     case 'ISOLATED_DATABASE_PROJECT_MISMATCH':

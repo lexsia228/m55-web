@@ -39,5 +39,6 @@ console.log(
     humanProjectRefConfirmed: result.humanProjectRefConfirmed,
     serviceRoleKeyFormat: result.serviceRoleKeyFormat,
     serviceRoleJwtRefMatched: result.serviceRoleJwtRefMatched,
+    localStackServiceRoleJwtRefAbsent: result.localStackServiceRoleJwtRefAbsent === true,
   }),
 );

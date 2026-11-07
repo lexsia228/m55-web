@@ -13,6 +13,7 @@ import {
   listIsolatedStripeSmokeShellBlockedChecklistV1,
   parsePostgresSupabaseConnectionV1,
   parseSupabaseAppHttpUrlV1,
+  parseSupabaseServiceRoleJwtV1,
   probeSupabaseServiceRoleReadOnlyV1,
   probeIsolatedPostgresReadOnlyV1,
 } from './r8IsolatedSupabaseAlignment.ts';
@@ -25,6 +26,18 @@ function fakeServiceRoleJwt(projectRef: string): string {
   const payload = Buffer.from(JSON.stringify({ ref: projectRef, role: 'service_role' })).toString(
     'base64url',
   );
+  return `${header}.${payload}.testsignature`;
+}
+
+function fakeServiceRoleJwtWithoutRef(role = 'service_role'): string {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ role })).toString('base64url');
+  return `${header}.${payload}.testsignature`;
+}
+
+function fakeServiceRoleJwtWithRawRef(ref: unknown, role = 'service_role'): string {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ ref, role })).toString('base64url');
   return `${header}.${payload}.testsignature`;
 }
 
@@ -62,6 +75,7 @@ describe('R8 isolated Supabase alignment', () => {
     if (result.ok) {
       assert.equal(result.serviceRoleKeyFormat, 'supabase_jwt');
       assert.equal(result.serviceRoleJwtRefMatched, true);
+      assert.equal(result.humanProjectRefConfirmed, true);
     }
   });
 
@@ -79,6 +93,7 @@ describe('R8 isolated Supabase alignment', () => {
     if (result.ok) {
       assert.equal(result.serviceRoleKeyFormat, 'sb_secret');
       assert.equal(result.serviceRoleJwtRefMatched, false);
+      assert.equal(result.humanProjectRefConfirmed, true);
     }
     assert.equal(classifySupabaseServiceRoleKeyFormatV1('sb_secret_x'), 'sb_secret');
     assert.equal(extractSupabaseProjectRefFromServiceRoleJwtV1('sb_secret_x'), null);
@@ -189,7 +204,10 @@ describe('R8 isolated Supabase alignment', () => {
       postgresQueryImpl: async () => ({ rows: [{ present: true }] }),
     });
     assert.equal(live.ok, true);
-    if (live.ok) assert.equal(live.serviceRoleKeyFormat, 'sb_secret');
+    if (live.ok) {
+      assert.equal(live.serviceRoleKeyFormat, 'sb_secret');
+      assert.equal(live.humanProjectRefConfirmed, true);
+    }
   });
 
   it('blocks production runtime', () => {
@@ -226,7 +244,161 @@ describe('R8 isolated Supabase alignment', () => {
     if (result.ok) {
       assert.equal(result.postgresConnectionKind, 'supabase_local_stack');
       assert.equal(result.supabaseProjectRefSuffix, ref.slice(-6));
+      assert.equal(result.serviceRoleJwtRefMatched, true);
+      assert.equal(result.localStackServiceRoleJwtRefAbsent, undefined);
+      assert.equal(result.humanProjectRefConfirmed, true);
     }
+  });
+
+  it('accepts local_stack service_role JWT without ref claim (structural only; live REST required)', () => {
+    const ref = 'localstackproject1';
+    const jwt = fakeServiceRoleJwtWithoutRef('service_role');
+    const parsed = parseSupabaseServiceRoleJwtV1(jwt);
+    assert.equal(parsed?.refClaimAbsent, true);
+    assert.equal(parsed?.role, 'service_role');
+
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: jwt,
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.serviceRoleJwtRefMatched, false);
+      assert.equal(result.localStackServiceRoleJwtRefAbsent, true);
+      assert.equal(result.humanProjectRefConfirmed, false);
+    }
+  });
+
+  it('rejects hosted JWT ref with uppercase letters (no casefold)', () => {
+    const ref = 'aaaaaaaaaaaaaaaa';
+    const upper = ref.toUpperCase();
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithRawRef(upper),
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'SERVICE_ROLE_JWT_REF_UNRESOLVED');
+  });
+
+  it('rejects hosted JWT ref with surrounding whitespace (no trim)', () => {
+    const ref = 'aaaaaaaaaaaaaaaa';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithRawRef(`  ${ref}  `),
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'SERVICE_ROLE_JWT_REF_UNRESOLVED');
+  });
+
+  it('treats empty JWT ref claim as invalid, not absent', () => {
+    const parsed = parseSupabaseServiceRoleJwtV1(fakeServiceRoleJwtWithRawRef(''));
+    assert.equal(parsed?.refClaimAbsent, false);
+    assert.equal(parsed?.ref, null);
+
+    const ref = 'localstackproject1';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithRawRef(''),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'SERVICE_ROLE_JWT_REF_UNRESOLVED');
+  });
+
+  it('fails closed when hosted JWT omits ref claim', () => {
+    const ref = 'aaaaaaaaaaaaaaaa';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithoutRef('service_role'),
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'SERVICE_ROLE_JWT_REF_UNRESOLVED');
+  });
+
+  it('fails closed when local_stack JWT without ref is not service_role', () => {
+    const ref = 'localstackproject1';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithoutRef('anon'),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'SERVICE_ROLE_JWT_REF_UNRESOLVED');
+  });
+
+  it('rejects malformed service_role JWT at structural stage', () => {
+    const ref = 'localstackproject1';
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: 'eyJ.not-json.test',
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED');
+  });
+
+  it('live alignment fails closed when local JWT has no ref — probes prove connectivity only', async () => {
+    const ref = 'localstackproject1';
+    const env = {
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithoutRef('service_role'),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    };
+    const live = await evaluateIsolatedSupabaseAlignmentLiveV1(env, {
+      fetchImpl: async (url) => {
+        assert.equal(String(url), 'http://127.0.0.1:54321/rest/v1/');
+        return new Response('', { status: 200 });
+      },
+      postgresQueryImpl: async () => ({ rows: [{ present: true }] }),
+    });
+    assert.equal(live.ok, false);
+    if (!live.ok) assert.equal(live.reason, 'HUMAN_PROJECT_REF_NOT_JWT_VERIFIED');
+  });
+
+  it('live REST failure fails ref-absent local_stack even when structural passes', async () => {
+    const ref = 'localstackproject1';
+    const env = {
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithoutRef('service_role'),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    };
+    const live = await evaluateIsolatedSupabaseAlignmentLiveV1(env, {
+      fetchImpl: async () => new Response('', { status: 401 }),
+      postgresQueryImpl: async () => ({ rows: [{ present: true }] }),
+    });
+    assert.equal(live.ok, false);
+    if (!live.ok) assert.equal(live.reason, 'SERVICE_ROLE_PROBE_FAILED');
   });
 
   it('fails closed when local API is declared but Postgres is not local stack port', () => {
