@@ -15,6 +15,48 @@ export type SupabaseAppHttpKindV1 = 'hosted' | 'local_stack' | 'unsupported';
 /** Default ports for `supabase start` local full stack (API / Postgres). */
 export const M55_R8_LOCAL_SUPABASE_API_PORT_V1 = 54321;
 export const M55_R8_LOCAL_SUPABASE_DB_PORT_V1 = 54322;
+export const M55_R8_LOCAL_SUPABASE_KONG_CONTAINER_PORT_V1 = 8000;
+export const M55_R8_LOCAL_SUPABASE_DB_CONTAINER_PORT_V1 = 5432;
+export const M55_R8_LOCAL_STACK_DOCKER_LOOPBACK_HOST_V1 = '127.0.0.1';
+
+/**
+ * GoTrue admin list users — requires validated service_role on Supabase local stack (READ-ONLY GET).
+ * Anonymous or non–service-role keys must not receive 2xx.
+ */
+export const M55_R8_LOCAL_STACK_AUTH_ADMIN_USERS_PROBE_PATH_V1 =
+  '/auth/v1/admin/users?per_page=1';
+
+/** Sentinel non–service-role key for distinguishing admin authorization from generic API success. */
+export const M55_R8_LOCAL_STACK_NON_SERVICE_ROLE_PROBE_KEY_V1 =
+  'm55-r8-local-stack-probe-non-service-role-v1';
+
+export type LocalStackDockerPortProtocolV1 = 'tcp' | 'udp';
+
+export type LocalStackDockerHostPortBindingV1 = {
+  hostIp: string;
+  hostPort: number;
+  containerPort: number;
+  protocol: LocalStackDockerPortProtocolV1;
+};
+
+export type LocalStackDockerNetworkAttachmentV1 = {
+  networkName: string;
+  networkId: string;
+};
+
+export type LocalStackDockerContainerBindingV1 = {
+  name: string;
+  stateRunning: boolean;
+  hostPorts: LocalStackDockerHostPortBindingV1[];
+  networks: LocalStackDockerNetworkAttachmentV1[];
+};
+
+export type LocalStackDockerBindingEvidenceV1 = {
+  stackProjectId: string;
+  kong: LocalStackDockerContainerBindingV1;
+  db: LocalStackDockerContainerBindingV1;
+  auth: LocalStackDockerContainerBindingV1;
+};
 
 export type SupabaseServiceRoleKeyFormatV1 = 'supabase_jwt' | 'sb_secret';
 
@@ -59,7 +101,76 @@ export type IsolatedSupabaseAlignmentFailureV1 =
   | 'POSTGRES_PROBE_FAILED'
   | 'POSTGRES_IDENTITY_NOT_VERIFIED';
 
+/** Supabase CLI `config.toml` project_id / Docker name suffix (underscores allowed; not a JWT ref). */
+export const M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1 =
+  'M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID';
+
+/** Human-declared Docker network name for the isolated Supabase stack (bootstrap non-secret). */
+export const M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1 =
+  'M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK';
+
+export const M55_R8_LOCAL_STACK_PROJECT_ID_PATTERN_V1 = /^[a-z0-9][a-z0-9_]{7,63}$/;
+
+export const M55_R8_LOCAL_STACK_DOCKER_NETWORK_NAME_PATTERN_V1 = /^[a-z0-9][a-z0-9_]{7,63}$/;
+
+export type IsolatedSupabaseLocalStackVerificationFailureV1 =
+  | IsolatedSupabaseAlignmentFailureV1
+  | 'LOCAL_STACK_VERIFICATION_NOT_APPLICABLE'
+  | 'LOCAL_STACK_STACK_PROJECT_ID_MISSING'
+  | 'LOCAL_STACK_STACK_PROJECT_ID_INVALID'
+  | 'LOCAL_STACK_STACK_DOCKER_NETWORK_MISSING'
+  | 'LOCAL_STACK_STACK_DOCKER_NETWORK_INVALID'
+  | 'LOCAL_STACK_TOPOLOGY_UNVERIFIED'
+  | 'LOCAL_STACK_BINDING_MISMATCH'
+  | 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED'
+  | 'REST_PROBE_FAILED'
+  | 'POSTGRES_PROBE_FAILED';
+
+export type LocalStackVerificationCheckV1 = {
+  apiReachable: boolean;
+  postgresReachable: boolean;
+  serviceRoleAuthorized: boolean;
+  stackTopologyVerified: boolean;
+};
+
+export type IsolatedSupabaseLocalStackVerificationResultV1 =
+  | {
+      ok: true;
+      verificationKind: 'LOCAL_STACK_READ_PROBE';
+      projectRefIdentity: 'VERIFIED' | 'UNVERIFIED';
+      humanProjectRefConfirmed: boolean;
+      stackProjectId: string;
+      checks: LocalStackVerificationCheckV1;
+      supabaseProjectRefSuffix: string;
+      postgresConnectionKind: PostgresSupabaseConnectionKindV1;
+      serviceRoleKeyFormat: SupabaseServiceRoleKeyFormatV1;
+      serviceRoleJwtRefMatched: boolean;
+      localStackServiceRoleJwtRefAbsent?: boolean;
+    }
+  | { ok: false; reason: IsolatedSupabaseLocalStackVerificationFailureV1 };
+
 const R8_ISOLATED_PROVIDER_TABLE = 'm55_r8_stripe_connected_accounts_v1';
+
+/** Minimum Supabase local CLI container roles that must share one stack project_id suffix. */
+const M55_R8_LOCAL_STACK_TOPOLOGY_REQUIRED_ROLES_V1 = ['db', 'kong', 'auth'] as const;
+
+/** Longer role prefixes first so e.g. `pg_meta` wins over `meta`. */
+const M55_R8_LOCAL_STACK_CONTAINER_ROLE_PREFIXES_V1 = [
+  'edge_runtime',
+  'pg_meta',
+  'analytics',
+  'realtime',
+  'imgproxy',
+  'pooler',
+  'vector',
+  'studio',
+  'storage',
+  'kong',
+  'auth',
+  'rest',
+  'meta',
+  'db',
+] as const;
 
 /** Default gitignored file for Human-managed isolated Supabase credentials (see runbook). */
 export const M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1 = '.env.m55-r8-isolated.local';
@@ -81,6 +192,8 @@ export const M55_R8_ISOLATED_ENV_OPTIONAL_PASSTHROUGH_KEYS_V1 = [
   'M55_ALLOW_FAKE_STRIPE_CONNECT_ADAPTER',
   'M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_ECONOMIC_IDENTITY_ID',
   'M55_R8_STRIPE_CONNECT_ISOLATED_SMOKE_RESET',
+  M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1,
+  M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1,
 ] as const;
 
 const PRODUCTION_HOST_DENY = ['m55-soul', 'm55-web', 'vercel.app'] as const;
@@ -311,6 +424,16 @@ export type IsolatedSupabaseLiveProbeDepsV1 = {
   }) => Promise<{ rows: Record<string, unknown>[] }>;
 };
 
+export type IsolatedSupabaseLocalStackVerificationDepsV1 = IsolatedSupabaseLiveProbeDepsV1 & {
+  /**
+   * Docker inspect–derived binding for kong/db/auth (host ports, running state, shared network).
+   * Required for local stack verification — container-name lists alone are insufficient.
+   */
+  inspectLocalStackDockerBindingImpl?: (
+    stackProjectId: string,
+  ) => Promise<LocalStackDockerBindingEvidenceV1 | null>;
+};
+
 /** Supabase REST auth: sb_secret_* uses apikey only; legacy JWT uses apikey + Bearer. */
 export function buildSupabaseServiceRoleRestProbeHeadersV1(
   serviceRoleKey: string,
@@ -425,6 +548,467 @@ export async function evaluateIsolatedSupabaseAlignmentLiveV1(
   }
 
   return structural;
+}
+
+export function parseLocalStackContainerStackProjectIdV1(
+  containerName: string,
+): { role: string; stackProjectId: string } | null {
+  if (!containerName.startsWith('supabase_')) return null;
+  const body = containerName.slice('supabase_'.length);
+  for (const role of M55_R8_LOCAL_STACK_CONTAINER_ROLE_PREFIXES_V1) {
+    const prefix = `${role}_`;
+    if (!body.startsWith(prefix)) continue;
+    const stackProjectId = body.slice(prefix.length);
+    if (!M55_R8_LOCAL_STACK_PROJECT_ID_PATTERN_V1.test(stackProjectId)) return null;
+    return { role, stackProjectId };
+  }
+  return null;
+}
+
+/** Docker container names must include required roles for exactly one declared stack project_id. */
+export function probeLocalSupabaseStackTopologyV1(input: {
+  stackProjectId: string;
+  containerNames: string[];
+}): { ok: true } | { ok: false; reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' | 'LOCAL_STACK_BINDING_MISMATCH' } {
+  const declared = input.stackProjectId.trim();
+  if (!M55_R8_LOCAL_STACK_PROJECT_ID_PATTERN_V1.test(declared)) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+  const suffix = `_${declared}`;
+  const stackContainers = input.containerNames.filter(
+    (n) => n.startsWith('supabase_') && n.endsWith(suffix),
+  );
+  if (stackContainers.length === 0) {
+    return { ok: false, reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' };
+  }
+  const roles = new Set<string>();
+  for (const name of stackContainers) {
+    const parsed = parseLocalStackContainerStackProjectIdV1(name);
+    if (!parsed || parsed.stackProjectId !== declared) {
+      return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+    }
+    roles.add(parsed.role);
+  }
+  for (const required of M55_R8_LOCAL_STACK_TOPOLOGY_REQUIRED_ROLES_V1) {
+    if (!roles.has(required)) {
+      return { ok: false, reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' };
+    }
+  }
+  return { ok: true };
+}
+
+export function expectedLocalStackSupabaseContainerNameV1(
+  role: 'db' | 'kong' | 'auth',
+  stackProjectId: string,
+): string {
+  return `supabase_${role}_${stackProjectId}`;
+}
+
+function isForbiddenDockerPublishHostIpV1(hostIp: string): boolean {
+  const ip = hostIp.trim();
+  return (
+    ip === '' ||
+    ip === '0.0.0.0' ||
+    ip === '::' ||
+    ip === '[::]' ||
+    ip !== M55_R8_LOCAL_STACK_DOCKER_LOOPBACK_HOST_V1
+  );
+}
+
+function validateExclusiveLoopbackTcpServiceBindingV1(
+  hostPorts: LocalStackDockerHostPortBindingV1[],
+  expectedHostPort: number,
+  expectedContainerPort: number,
+): boolean {
+  const tcpBindings = hostPorts.filter((p) => p.protocol === 'tcp');
+  const exactLoopback = tcpBindings.filter(
+    (p) =>
+      p.hostIp === M55_R8_LOCAL_STACK_DOCKER_LOOPBACK_HOST_V1 &&
+      p.hostPort === expectedHostPort &&
+      p.containerPort === expectedContainerPort,
+  );
+  if (exactLoopback.length !== 1) return false;
+
+  for (const binding of tcpBindings) {
+    const touchesService =
+      binding.hostPort === expectedHostPort || binding.containerPort === expectedContainerPort;
+    if (!touchesService) continue;
+    if (
+      binding.hostIp !== M55_R8_LOCAL_STACK_DOCKER_LOOPBACK_HOST_V1 ||
+      binding.hostPort !== expectedHostPort ||
+      binding.containerPort !== expectedContainerPort
+    ) {
+      return false;
+    }
+  }
+
+  for (const binding of hostPorts) {
+    if (binding.protocol !== 'tcp') {
+      const touchesService =
+        binding.hostPort === expectedHostPort || binding.containerPort === expectedContainerPort;
+      if (touchesService) return false;
+    }
+  }
+
+  return true;
+}
+
+export function probeLocalStackDockerNetworkIdentityV1(input: {
+  expectedNetworkName: string;
+  kong: LocalStackDockerContainerBindingV1;
+  db: LocalStackDockerContainerBindingV1;
+  auth: LocalStackDockerContainerBindingV1;
+}): { ok: true; networkId: string } | { ok: false; reason: 'LOCAL_STACK_BINDING_MISMATCH' } {
+  const expectedName = input.expectedNetworkName.trim();
+  const resolve = (container: LocalStackDockerContainerBindingV1): string | null => {
+    if (container.networks.length !== 1) return null;
+    const attachment = container.networks[0]!;
+    if (attachment.networkName !== expectedName) return null;
+    const id = attachment.networkId.trim();
+    if (!id) return null;
+    return id;
+  };
+
+  const kongId = resolve(input.kong);
+  const dbId = resolve(input.db);
+  const authId = resolve(input.auth);
+  if (!kongId || !dbId || !authId) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+  if (kongId !== dbId || dbId !== authId) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+  return { ok: true, networkId: kongId };
+}
+
+export function probeLocalStackDockerHostBindingV1(input: {
+  stackProjectId: string;
+  expectedDockerNetworkName: string;
+  evidence: LocalStackDockerBindingEvidenceV1;
+}): { ok: true } | { ok: false; reason: 'LOCAL_STACK_BINDING_MISMATCH' | 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' } {
+  const declared = input.stackProjectId.trim();
+  const { kong, db, auth } = input.evidence;
+  if (input.evidence.stackProjectId !== declared) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+  if (
+    kong.name !== expectedLocalStackSupabaseContainerNameV1('kong', declared) ||
+    db.name !== expectedLocalStackSupabaseContainerNameV1('db', declared) ||
+    auth.name !== expectedLocalStackSupabaseContainerNameV1('auth', declared)
+  ) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+  if (!kong.stateRunning || !db.stateRunning || !auth.stateRunning) {
+    return { ok: false, reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' };
+  }
+
+  if (
+    !validateExclusiveLoopbackTcpServiceBindingV1(
+      kong.hostPorts,
+      M55_R8_LOCAL_SUPABASE_API_PORT_V1,
+      M55_R8_LOCAL_SUPABASE_KONG_CONTAINER_PORT_V1,
+    )
+  ) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+  if (
+    !validateExclusiveLoopbackTcpServiceBindingV1(
+      db.hostPorts,
+      M55_R8_LOCAL_SUPABASE_DB_PORT_V1,
+      M55_R8_LOCAL_SUPABASE_DB_CONTAINER_PORT_V1,
+    )
+  ) {
+    return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+  }
+
+  for (const binding of [...kong.hostPorts, ...db.hostPorts]) {
+    if (isForbiddenDockerPublishHostIpV1(binding.hostIp)) {
+      return { ok: false, reason: 'LOCAL_STACK_BINDING_MISMATCH' };
+    }
+  }
+
+  const networkIdentity = probeLocalStackDockerNetworkIdentityV1({
+    expectedNetworkName: input.expectedDockerNetworkName,
+    kong,
+    db,
+    auth,
+  });
+  if (!networkIdentity.ok) {
+    return { ok: false, reason: networkIdentity.reason };
+  }
+
+  return { ok: true };
+}
+
+function buildLocalStackAdminUsersProbeUrlV1(supabaseHttpUrl: string): string {
+  return `${supabaseHttpUrl.replace(/\/$/, '')}${M55_R8_LOCAL_STACK_AUTH_ADMIN_USERS_PROBE_PATH_V1}`;
+}
+
+const M55_R8_LOCAL_STACK_API_UNAUTH_ALLOWED_STATUSES_V1 = new Set([401, 403]);
+
+/** Auth admin route must reject unauthenticated callers with 401/403 only — not 5xx/2xx/redirect. */
+export async function probeLocalStackApiReachabilityV1(input: {
+  supabaseHttpUrl: string;
+  fetchImpl?: typeof fetch;
+}): Promise<{ ok: true } | { ok: false; reason: 'REST_PROBE_FAILED' }> {
+  const fetchImpl = input.fetchImpl ?? fetch;
+  const url = buildLocalStackAdminUsersProbeUrlV1(input.supabaseHttpUrl);
+  try {
+    const res = await fetchImpl(url, {
+      method: 'GET',
+      redirect: 'manual',
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (M55_R8_LOCAL_STACK_API_UNAUTH_ALLOWED_STATUSES_V1.has(res.status)) {
+      return { ok: true };
+    }
+    return { ok: false, reason: 'REST_PROBE_FAILED' };
+  } catch {
+    return { ok: false, reason: 'REST_PROBE_FAILED' };
+  }
+}
+
+/**
+ * Service-role authorization via GoTrue admin users (server-validated role; not `/rest/v1/` root).
+ * Unauthenticated must be 401/403; authenticated must be exactly 200. No response body inspection.
+ */
+export async function probeLocalStackServiceRoleAuthorizationV1(input: {
+  supabaseHttpUrl: string;
+  serviceRoleKey: string;
+  fetchImpl?: typeof fetch;
+}): Promise<{ ok: true } | { ok: false; reason: 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED' }> {
+  const fetchImpl = input.fetchImpl ?? fetch;
+  const url = buildLocalStackAdminUsersProbeUrlV1(input.supabaseHttpUrl);
+  try {
+    const unauthenticated = await fetchImpl(url, {
+      method: 'GET',
+      redirect: 'manual',
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!M55_R8_LOCAL_STACK_API_UNAUTH_ALLOWED_STATUSES_V1.has(unauthenticated.status)) {
+      return { ok: false, reason: 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED' };
+    }
+    const nonServiceRole = await fetchImpl(url, {
+      method: 'GET',
+      headers: { apikey: M55_R8_LOCAL_STACK_NON_SERVICE_ROLE_PROBE_KEY_V1 },
+      redirect: 'manual',
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!M55_R8_LOCAL_STACK_API_UNAUTH_ALLOWED_STATUSES_V1.has(nonServiceRole.status)) {
+      return { ok: false, reason: 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED' };
+    }
+    const authenticated = await fetchImpl(url, {
+      method: 'GET',
+      headers: buildSupabaseServiceRoleRestProbeHeadersV1(input.serviceRoleKey),
+      redirect: 'manual',
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (authenticated.status !== 200) {
+      return { ok: false, reason: 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED' };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED' };
+  }
+}
+
+export async function probeLocalStackPostgresReachabilityV1(input: {
+  connectionUrl: string;
+  postgresQueryImpl?: IsolatedSupabaseLiveProbeDepsV1['postgresQueryImpl'];
+}): Promise<{ ok: true } | { ok: false; reason: 'POSTGRES_PROBE_FAILED' }> {
+  const queryImpl = input.postgresQueryImpl ?? defaultPostgresQueryImpl;
+  try {
+    const result = await queryImpl({
+      connectionUrl: input.connectionUrl,
+      sql: 'SELECT 1 AS local_stack_reachability',
+      values: [],
+    });
+    if (result.rows.length !== 1) {
+      return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
+    }
+    const value = result.rows[0]?.local_stack_reachability;
+    if (value !== 1 && value !== '1') {
+      return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
+  }
+}
+
+/**
+ * Local stack connectivity / topology verification only — does not upgrade PROJECT REF IDENTITY.
+ * Requires Human-declared stack project_id plus live probes (opt-in via verify CLI flag).
+ */
+export async function evaluateIsolatedSupabaseLocalStackVerificationLiveV1(
+  env: NodeJS.ProcessEnv = process.env,
+  deps: IsolatedSupabaseLocalStackVerificationDepsV1 = {},
+): Promise<IsolatedSupabaseLocalStackVerificationResultV1> {
+  const structural = evaluateIsolatedSupabaseAlignmentStructuralV1(env);
+  if (!structural.ok) {
+    return { ok: false, reason: structural.reason };
+  }
+
+  const appUrl = env.NEXT_PUBLIC_SUPABASE_URL!.trim();
+  if (parseSupabaseAppHttpUrlV1(appUrl).kind !== 'local_stack') {
+    return { ok: false, reason: 'LOCAL_STACK_VERIFICATION_NOT_APPLICABLE' };
+  }
+
+  const stackProjectId = env[M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1]?.trim() ?? '';
+  if (!stackProjectId) {
+    return { ok: false, reason: 'LOCAL_STACK_STACK_PROJECT_ID_MISSING' };
+  }
+  if (!M55_R8_LOCAL_STACK_PROJECT_ID_PATTERN_V1.test(stackProjectId)) {
+    return { ok: false, reason: 'LOCAL_STACK_STACK_PROJECT_ID_INVALID' };
+  }
+
+  const expectedDockerNetwork =
+    env[M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1]?.trim() ?? '';
+  if (!expectedDockerNetwork) {
+    return { ok: false, reason: 'LOCAL_STACK_STACK_DOCKER_NETWORK_MISSING' };
+  }
+  if (!M55_R8_LOCAL_STACK_DOCKER_NETWORK_NAME_PATTERN_V1.test(expectedDockerNetwork)) {
+    return { ok: false, reason: 'LOCAL_STACK_STACK_DOCKER_NETWORK_INVALID' };
+  }
+
+  const inspectBinding = deps.inspectLocalStackDockerBindingImpl;
+  if (!inspectBinding) {
+    return { ok: false, reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' };
+  }
+
+  let dockerEvidence: LocalStackDockerBindingEvidenceV1 | null;
+  try {
+    dockerEvidence = await inspectBinding(stackProjectId);
+  } catch {
+    return { ok: false, reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' };
+  }
+  if (!dockerEvidence) {
+    return { ok: false, reason: 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' };
+  }
+
+  const dockerBinding = probeLocalStackDockerHostBindingV1({
+    stackProjectId,
+    expectedDockerNetworkName: expectedDockerNetwork,
+    evidence: dockerEvidence,
+  });
+  if (!dockerBinding.ok) {
+    return { ok: false, reason: dockerBinding.reason };
+  }
+
+  const containerNames = [dockerEvidence.db.name, dockerEvidence.kong.name, dockerEvidence.auth.name];
+  const topology = probeLocalSupabaseStackTopologyV1({ stackProjectId, containerNames });
+  if (!topology.ok) {
+    return { ok: false, reason: topology.reason };
+  }
+
+  const apiReach = await probeLocalStackApiReachabilityV1({
+    supabaseHttpUrl: appUrl,
+    fetchImpl: deps.fetchImpl,
+  });
+  if (!apiReach.ok) {
+    return { ok: false, reason: apiReach.reason };
+  }
+
+  const serviceRoleAuth = await probeLocalStackServiceRoleAuthorizationV1({
+    supabaseHttpUrl: appUrl,
+    serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY!.trim(),
+    fetchImpl: deps.fetchImpl,
+  });
+  if (!serviceRoleAuth.ok) {
+    return { ok: false, reason: serviceRoleAuth.reason };
+  }
+
+  const pgReach = await probeLocalStackPostgresReachabilityV1({
+    connectionUrl: env.M55_R8_ISOLATED_DATABASE_URL!.trim(),
+    postgresQueryImpl: deps.postgresQueryImpl,
+  });
+  if (!pgReach.ok) {
+    return { ok: false, reason: pgReach.reason };
+  }
+
+  const checks: LocalStackVerificationCheckV1 = {
+    apiReachable: true,
+    postgresReachable: true,
+    serviceRoleAuthorized: true,
+    stackTopologyVerified: true,
+  };
+
+  const projectRefIdentity: 'VERIFIED' | 'UNVERIFIED' = structural.humanProjectRefConfirmed
+    ? 'VERIFIED'
+    : 'UNVERIFIED';
+
+  return {
+    ok: true,
+    verificationKind: 'LOCAL_STACK_READ_PROBE',
+    projectRefIdentity,
+    humanProjectRefConfirmed: structural.humanProjectRefConfirmed,
+    stackProjectId,
+    checks,
+    supabaseProjectRefSuffix: structural.supabaseProjectRefSuffix,
+    postgresConnectionKind: structural.postgresConnectionKind,
+    serviceRoleKeyFormat: structural.serviceRoleKeyFormat,
+    serviceRoleJwtRefMatched: structural.serviceRoleJwtRefMatched,
+    ...(structural.localStackServiceRoleJwtRefAbsent
+      ? { localStackServiceRoleJwtRefAbsent: true }
+      : {}),
+  };
+}
+
+export function localStackVerificationFailureChecklistV1(
+  reason: IsolatedSupabaseLocalStackVerificationFailureV1,
+): string[] {
+  if (
+    reason !== 'LOCAL_STACK_VERIFICATION_NOT_APPLICABLE' &&
+    reason !== 'LOCAL_STACK_STACK_PROJECT_ID_MISSING' &&
+    reason !== 'LOCAL_STACK_STACK_PROJECT_ID_INVALID' &&
+    reason !== 'LOCAL_STACK_STACK_DOCKER_NETWORK_MISSING' &&
+    reason !== 'LOCAL_STACK_STACK_DOCKER_NETWORK_INVALID' &&
+    reason !== 'LOCAL_STACK_TOPOLOGY_UNVERIFIED' &&
+    reason !== 'LOCAL_STACK_BINDING_MISMATCH' &&
+    reason !== 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED' &&
+    reason !== 'REST_PROBE_FAILED' &&
+    reason !== 'POSTGRES_PROBE_FAILED'
+  ) {
+    return alignmentFailureChecklistV1(reason);
+  }
+  switch (reason) {
+    case 'LOCAL_STACK_VERIFICATION_NOT_APPLICABLE':
+      return ['Local stack verification requires NEXT_PUBLIC_SUPABASE_URL on http://127.0.0.1:54321'];
+    case 'LOCAL_STACK_STACK_PROJECT_ID_MISSING':
+      return [
+        `Set ${M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1} to the Supabase CLI config project_id for the isolated stack`,
+      ];
+    case 'LOCAL_STACK_STACK_PROJECT_ID_INVALID':
+      return [
+        `${M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1} must match the Supabase local stack project_id (lowercase alphanumeric and underscores)`,
+      ];
+    case 'LOCAL_STACK_STACK_DOCKER_NETWORK_MISSING':
+      return [
+        `Set ${M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1} to the Human-declared isolated Supabase Docker network name`,
+      ];
+    case 'LOCAL_STACK_STACK_DOCKER_NETWORK_INVALID':
+      return [
+        `${M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1} must be a lowercase Docker network name (alphanumeric and underscores)`,
+      ];
+    case 'LOCAL_STACK_TOPOLOGY_UNVERIFIED':
+      return [
+        'Docker inspect could not verify running db/kong/auth containers, host port bindings, and shared network for the isolated stack',
+      ];
+    case 'LOCAL_STACK_BINDING_MISMATCH':
+      return [
+        'Docker must bind Kong TCP 127.0.0.1:54321→8000 and Postgres TCP 127.0.0.1:54322→5432 exclusively, with db/kong/auth on the declared isolated Docker network name and matching NetworkID',
+      ];
+    case 'LOCAL_STACK_SERVICE_ROLE_UNAUTHORIZED':
+      return [
+        'Service role key must authorize GoTrue admin users READ probe (401/403 unauthenticated, exactly 200 with service role) — not generic REST success',
+      ];
+    case 'REST_PROBE_FAILED':
+      return ['Local API reachability requires unauthenticated GoTrue admin probe to return 401 or 403 only'];
+    case 'POSTGRES_PROBE_FAILED':
+      return ['Postgres reachability requires exactly one row with local_stack_reachability=1'];
+    default:
+      return ['Local stack verification failed'];
+  }
 }
 
 export function parseEnvFileLinesV1(raw: string): Record<string, string> {
