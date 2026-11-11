@@ -5,6 +5,7 @@ import {
   CONSULT_ADVISORY_LOCK_SQL,
   CONSULT_CATALOG_SQL,
   PAIR_CONSULT_EXACT_VERSION,
+  PAIR_CONSULT_LIVE_EXECUTION_READY,
   PAIR_CONSULT_WORKTREE,
   consultConfirmationPhrase,
   evaluateConsultTransportBinding,
@@ -429,7 +430,7 @@ describe('Pair consult exact-version executor PATCH-2', () => {
     const body = JSON.parse(planned.stdout) as { mode: string; live: boolean; liveExecutionReady: boolean; gitBlobSha1: string };
     assert.equal(body.mode, 'PLAN_ONLY');
     assert.equal(body.live, false);
-    assert.equal(body.liveExecutionReady, false);
+    assert.equal(body.liveExecutionReady, PAIR_CONSULT_LIVE_EXECUTION_READY);
     assert.equal(body.gitBlobSha1, PAIR_CONSULT_EXACT_VERSION.gitBlobSha1);
     assert.equal(planned.stdout.includes(PASSWORD), false);
     const live = spawnSync('npx', ['tsx', 'scripts/m55/runPreviewPairConsultExactVersionExecution.ts', '--live'], {
@@ -647,7 +648,7 @@ describe('Pair consult exact-version executor PATCH-2', () => {
     assert.equal(afterCredentials.credentialReads, 1);
     assert.equal(JSON.stringify(afterCredentials.result).includes(PASSWORD), false);
     const previous = process.env.PAIR_CONSULT_LIVE_EXECUTION_READY;
-    process.env.PAIR_CONSULT_LIVE_EXECUTION_READY = 'true';
+    delete process.env.PAIR_CONSULT_LIVE_EXECUTION_READY;
     try {
       const gated = await executePairConsultHumanOperatedPreview({
         repoRoot: ROOT,
@@ -685,6 +686,8 @@ describe('Pair consult exact-version executor PATCH-2', () => {
       assert.equal(liveClosed.reason, expectedGate);
       assert.equal(liveClosed.liveExecutionReady, false);
       assert.equal(consultLiveMutationPermitted(), false);
+      process.env.PAIR_CONSULT_LIVE_EXECUTION_READY = 'true';
+      assert.equal(consultLiveMutationPermitted(), PAIR_CONSULT_LIVE_EXECUTION_READY === true);
     } finally {
       if (previous === undefined) delete process.env.PAIR_CONSULT_LIVE_EXECUTION_READY;
       else process.env.PAIR_CONSULT_LIVE_EXECUTION_READY = previous;
