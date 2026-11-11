@@ -59,7 +59,7 @@ export const PAIR_CONSULT_EXACT_VERSION = {
   branch: 'feat/m55-pair-p5-owned-state-identity-v1',
 } as const;
 
-export const PAIR_CONSULT_LIVE_EXECUTION_READY = true as const;
+export const PAIR_CONSULT_LIVE_EXECUTION_READY = false as const;
 
 const P5_ATTESTATION_SCHEMA = 'M55_PAIR_P5_HUMAN_PREVIEW_UI_ATTESTATION_v1';
 const BACKFILL_NAME = 'm55_backfill_compatibility_included_reply_threads_v1';
