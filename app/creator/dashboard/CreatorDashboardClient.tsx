@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { CreatorStatementPanel } from '../_components/CreatorStatementPanel';
 import styles from './dashboard.module.css';
 
 type Metric = { kind: 'COUNT'; value: number } | { kind: 'UNAVAILABLE'; explanation: string };
@@ -620,6 +621,8 @@ export function CreatorDashboardClient() {
         ) : null}
         <p className={styles.note}>release 時刻は審査・解放の目安であり、支払日ではありません。</p>
       </section>
+
+      <CreatorStatementPanel />
 
       <section className={styles.panel}>
         <h2 className={styles.sectionTitle}>コンプライアンス記録</h2>

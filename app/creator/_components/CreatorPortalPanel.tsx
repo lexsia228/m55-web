@@ -1,8 +1,10 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { ApplicationStatus, ProfileStatus } from '../../../lib/m55/creatorDistribution/contract';
+import { CreatorPayoutReadinessPanel } from './CreatorPayoutReadinessPanel';
 import styles from '../creator.module.css';
 
 const UNKNOWN_PUBLIC_STATUS_LABEL = '状態を確認中';
@@ -54,8 +56,7 @@ function mediaVerificationNextAction(verification: PrimaryMediaVerification) {
   if (verification === 'FAILED') {
     return (
       <p className={styles.nextAction}>
-        運営確認を完了できていません。
-        <Link href="/support" className={styles.tertiaryLink}>サポート</Link>へお問い合わせください。
+        確認が完了しませんでした。<Link href="/support" className={styles.tertiaryLink}>サポート</Link>へお問い合わせください。
       </p>
     );
   }
@@ -63,6 +64,10 @@ function mediaVerificationNextAction(verification: PrimaryMediaVerification) {
 }
 
 export function CreatorPortalPanel() {
+  const searchParams = useSearchParams();
+  const providerReturnSessionId =
+    searchParams.get('provider') === 'return' ? searchParams.get('session') : null;
+
   const [portal, setPortal] = useState<Portal | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -151,6 +156,12 @@ export function CreatorPortalPanel() {
             </p>
           )}
         </div>
+      )}
+      {profile && (
+        <CreatorPayoutReadinessPanel
+          profileStatus={profile.status}
+          providerReturnSessionId={providerReturnSessionId}
+        />
       )}
       {profile &&
         (profile.status === 'ACTIVE' ||

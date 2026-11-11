@@ -1,6 +1,7 @@
 import 'server-only';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../supabaseAdmin';
+import { isOperatingModelReferralGateMetV1 } from '../creatorProvider/referralOperatingModelGate';
 
 export type CreatorProfileStatus =
   | 'APPROVED_PENDING_ACTIVATION'
@@ -22,6 +23,7 @@ export type ResolvedCreatorContext =
       creatorEconomicIdentityId: string;
       profileStatus: CreatorProfileStatus;
       referralIssuePermitted: boolean;
+      r7ReferralIssueEligible: boolean;
       dashboardHistoryReadable: boolean;
     };
 
@@ -85,12 +87,17 @@ export async function resolveCreatorContextFromSession(): Promise<ResolvedCreato
 
   const profileStatus = data.status as CreatorProfileStatus;
   const dashboardHistoryReadable = HISTORY_READABLE.has(profileStatus);
+  let r7ReferralIssueEligible = false;
   let referralIssuePermitted = false;
   try {
-    referralIssuePermitted = await isCreatorReferralCapabilityPermittedV1(
+    r7ReferralIssueEligible = await isCreatorReferralCapabilityPermittedV1(
       data.economic_identity_id as string,
       profileStatus,
     );
+    const operatingModelGateMet = r7ReferralIssueEligible
+      ? await isOperatingModelReferralGateMetV1(data.economic_identity_id as string)
+      : false;
+    referralIssuePermitted = r7ReferralIssueEligible && operatingModelGateMet;
   } catch {
     return { ok: false, error: 'PORTAL_UNAVAILABLE' };
   }
@@ -102,6 +109,7 @@ export async function resolveCreatorContextFromSession(): Promise<ResolvedCreato
     creatorEconomicIdentityId: data.economic_identity_id as string,
     profileStatus,
     referralIssuePermitted,
+    r7ReferralIssueEligible,
     dashboardHistoryReadable,
   };
 }
