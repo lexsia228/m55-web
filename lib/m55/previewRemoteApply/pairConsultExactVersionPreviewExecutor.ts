@@ -37,8 +37,10 @@ import {
 import {
   EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE,
   assertNoAmbientPgOrTlsFallback,
+  createExecutionPgTransport,
   resolveExecutionPgTransportEvidenceProfile,
   type ExecutionPgClient,
+  type ExecutionPgClientConfig,
   type ExecutionPgTransportFactoryDeps,
 } from './remoteExecutionPgTransport.ts';
 import { TIMEOUT_POLICY } from './timeoutPolicy.ts';
@@ -55,7 +57,6 @@ export const PAIR_CONSULT_EXACT_VERSION = {
   projectRef: APPROVED_PREVIEW_PROJECT_REF,
   projectName: 'm55-soul-preview',
   branch: 'feat/m55-pair-p5-owned-state-identity-v1',
-  head: '45063eb7ff876009a37a51913b053757411e49d9',
 } as const;
 
 export const PAIR_CONSULT_LIVE_EXECUTION_READY = false as const;
@@ -365,8 +366,8 @@ export function evaluateConsultTransportBinding(config: ConsultTransportConfig):
   if (config.claimedBranch !== PAIR_CONSULT_EXACT_VERSION.branch) {
     return { ok: false, reason: 'BRANCH_MISMATCH' };
   }
-  if (config.claimedHead !== PAIR_CONSULT_EXACT_VERSION.head) {
-    return { ok: false, reason: 'HEAD_MISMATCH' };
+  if (!/^[0-9a-f]{40}$/.test(config.claimedHead)) {
+    return { ok: false, reason: 'HEAD_UNBOUND' };
   }
   if (config.claimedWorktree !== PAIR_CONSULT_WORKTREE) {
     return { ok: false, reason: 'WORKTREE_MISMATCH' };
@@ -1019,10 +1020,15 @@ function resultBase(partial: {
   };
 }
 
-function evidence(transportBound: boolean, postConnectSeen: boolean, catalogSql: 'POSTGRES_CATALOG' | 'NONE' = 'NONE'): PairConsultExactVersionResult['evidence'] {
+function evidence(
+  transportBound: boolean,
+  postConnectSeen: boolean,
+  catalogSql: 'POSTGRES_CATALOG' | 'NONE' = 'NONE',
+  observedHead: string | null = null,
+): PairConsultExactVersionResult['evidence'] {
   return {
     intendedBranch: PAIR_CONSULT_EXACT_VERSION.branch,
-    intendedHead: PAIR_CONSULT_EXACT_VERSION.head,
+    intendedHead: observedHead,
     transportBound,
     postConnectSeen,
     postConnectDistinguishesPreview: false,
@@ -1030,7 +1036,7 @@ function evidence(transportBound: boolean, postConnectSeen: boolean, catalogSql:
   };
 }
 
-function stopBeforeBegin(sequence: string[], reason: string): PairConsultExactVersionResult {
+function stopBeforeBegin(sequence: string[], reason: string, observedHead: string | null = null): PairConsultExactVersionResult {
   return resultBase({
     disposition: 'PRE_BEGIN_STOP',
     reason,
@@ -1039,7 +1045,7 @@ function stopBeforeBegin(sequence: string[], reason: string): PairConsultExactVe
     querySequence: sequence,
     localContractPass: false,
     commitResponseClass: null,
-    evidence: evidence(true, true),
+    evidence: evidence(true, true, 'NONE', observedHead),
   });
 }
 
@@ -1050,6 +1056,7 @@ function holdAfterAck(
   historyInsert: PairConsultHistoryInsertProof,
   disposition: 'LOCAL_SIMULATION_CATALOG_HOLD' | 'COMMITTED_BUT_VERIFICATION_HOLD' = 'LOCAL_SIMULATION_CATALOG_HOLD',
   truth?: ConsultExecutionTruth,
+  observedHead: string | null = null,
 ): PairConsultExactVersionResult {
   return resultBase({
     disposition,
@@ -1060,7 +1067,7 @@ function holdAfterAck(
     localContractPass: false,
     commitResponseClass,
     historyInsert,
-    evidence: evidence(true, true, 'POSTGRES_CATALOG'),
+    evidence: evidence(true, true, 'POSTGRES_CATALOG', observedHead),
     truth,
   });
 }
@@ -1099,7 +1106,7 @@ export async function simulatePairConsultExactVersion(input: {
     tlsCaPem: scenario.tlsCaPem ?? '',
     claimedProjectRef: scenario.claimedProjectRef ?? APPROVED_PREVIEW_PROJECT_REF,
     claimedBranch: scenario.claimedBranch ?? PAIR_CONSULT_EXACT_VERSION.branch,
-    claimedHead: scenario.claimedHead ?? PAIR_CONSULT_EXACT_VERSION.head,
+    claimedHead: scenario.claimedHead ?? 'a'.repeat(40),
     claimedWorktree: scenario.claimedWorktree ?? PAIR_CONSULT_WORKTREE,
   };
   const binding = evaluateConsultTransportBinding(transport);
@@ -1447,7 +1454,8 @@ export function consultControllingTerminalAvailable(): boolean {
 }
 
 export function consultLiveMutationPermitted(): boolean {
-  return PAIR_CONSULT_LIVE_EXECUTION_READY;
+  return PAIR_CONSULT_LIVE_EXECUTION_READY
+    && process.env.PAIR_CONSULT_LIVE_EXECUTION_READY === 'true';
 }
 
 export function interpretConsultTransportProfile(profile: string, claimedLabel?: string): ConsultTransportEvidenceKind {
@@ -1636,6 +1644,104 @@ function localFakeSimOptions(
   };
 }
 
+function buildConsultExecutionClientConfig(secrets: ParsedConnectionSecrets): ExecutionPgClientConfig | null {
+  const bound = credentialMatchesPreview(secrets);
+  if (!bound.ok) return null;
+  return {
+    host: secrets.host,
+    port: secrets.port,
+    database: secrets.database,
+    user: secrets.user,
+    password: secrets.password,
+    sslmode: 'require',
+    tlsCaPem: secrets.tlsCaPem,
+    tlsTrustProfile: TLS_TRUST_PROFILE,
+    tlsServerName: SESSION_POOLER_TLS_SERVER_NAME,
+    connectionTimeoutMillis: TIMEOUT_POLICY.values.connectMs,
+  };
+}
+
+type ConsultHumanPreparedExecution = {
+  readonly authority: Extract<ConsultOperationalObservation, { readonly ok: true }>;
+  readonly statements: readonly string[];
+  readonly secrets: ParsedConnectionSecrets;
+  readonly cleanup: () => void;
+};
+
+function makeSingleUseCredentialCleanup(cleanup: () => void): () => void {
+  let disposed = false;
+  return () => {
+    if (disposed) return;
+    disposed = true;
+    cleanup();
+  };
+}
+
+async function prepareConsultHumanOperatedExecution(
+  input: ConsultHumanOperatedInput,
+):
+  Promise<
+    | { readonly ok: false; readonly result: PairConsultExactVersionResult }
+    | { readonly ok: true; readonly prepared: ConsultHumanPreparedExecution }
+  > {
+  const observe = input.observe ?? (() => observeConsultOperationalIdentity(input.repoRoot));
+  const first = acceptOperationalIdentity(observe());
+  if (!first.ok) return { ok: false, result: blocked(first.reason) };
+  const phrase = consultConfirmationPhrase(first.value.head);
+  const prompt = renderConsultConfirmationPrompt(first.value.head);
+  (input.writePrompt ?? ((text: string) => process.stderr.write(`${text}\n`)))(prompt);
+  if (!input.readConfirmation) return { ok: false, result: blocked('CONFIRMATION_READER_MISSING') };
+  const typed = (await input.readConfirmation()).trim();
+  if (typed !== phrase) return { ok: false, result: blocked('CONFIRMATION_MISMATCH') };
+  const afterConfirmation = identityDrift(first.value, observe());
+  if (afterConfirmation) return { ok: false, result: blocked(afterConfirmation) };
+  let disposeCredentialHandle: () => void = () => undefined;
+  let password = '';
+  const failAfterCredentialAcquire = (reason: string): { ok: false; result: PairConsultExactVersionResult } => {
+    const failure = publicFailure(reason, password);
+    disposeCredentialHandle();
+    password = '';
+    return { ok: false, result: failure };
+  };
+  try {
+    assertNoAmbientPgOrTlsFallback();
+  } catch {
+    return { ok: false, result: blocked('AMBIENT_CREDENTIAL_FORBIDDEN') };
+  }
+  try {
+    const acquired = await acquireSecureStdinConnectionConfig({
+      readBytes: input.readCredentialBytes,
+    });
+    if (!acquired.ok) return { ok: false, result: blocked('CREDENTIAL_REJECTED') };
+    disposeCredentialHandle = makeSingleUseCredentialCleanup(acquired.cleanup);
+    const secrets = acquired.releaseConnectionSecrets();
+    password = secrets.password;
+    const bound = credentialMatchesPreview(secrets);
+    if (!bound.ok) return failAfterCredentialAcquire(bound.reason);
+    const afterCredentials = identityDrift(first.value, observe());
+    if (afterCredentials) return failAfterCredentialAcquire(afterCredentials);
+    const sqlBytes = loadFrozenConsultMigrationBytes(input.repoRoot);
+    const identity = evaluatePairConsultExactVersionIdentity({
+      projectRef: PAIR_CONSULT_EXACT_VERSION.projectRef,
+      sqlBytes,
+      localOnlyVersions: input.localOnlyVersions ?? [PAIR_CONSULT_EXACT_VERSION.version],
+    });
+    if (!identity.ok) return failAfterCredentialAcquire(identity.reason);
+    return {
+      ok: true,
+      prepared: {
+        authority: first.value,
+        statements: identity.statements,
+        secrets,
+        cleanup: disposeCredentialHandle,
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'HOLD_UNEXPECTED_INTERNAL';
+    return failAfterCredentialAcquire(message);
+  }
+}
+
 function credentialMatchesPreview(secrets: ParsedConnectionSecrets):
   | { readonly ok: true }
   | { readonly ok: false; readonly reason: string } {
@@ -1696,9 +1802,51 @@ export async function executePairConsultHumanOperatedPreview(
   if (input.yes === true || input.force === true || input.authorized === true || input.presentedAuthorization != null) {
     return blocked('FORGED_AUTHORIZATION');
   }
-  if (!consultControllingTerminalAvailable()) return blocked('NONINTERACTIVE');
-  if (!consultLiveMutationPermitted()) return blocked('LIVE_EXECUTION_DENIED');
-  return blocked('LIVE_EXECUTION_DENIED');
+  if (!consultControllingTerminalAvailable()) {
+    return blocked('NONINTERACTIVE');
+  }
+  if (!consultLiveMutationPermitted()) {
+    return blocked('LIVE_EXECUTION_DENIED');
+  }
+  if (callerSuppliedPgTransport(input)) {
+    return blocked('LIVE_CALLER_TRANSPORT_FORBIDDEN');
+  }
+  const prepared = await prepareConsultHumanOperatedExecution(input);
+  if (!prepared.ok) return prepared.result;
+  let password = prepared.prepared.secrets.password;
+  try {
+    const binding: ConsultTransportConfig = {
+      host: prepared.prepared.secrets.host,
+      port: prepared.prepared.secrets.port,
+      database: prepared.prepared.secrets.database,
+      user: prepared.prepared.secrets.user,
+      sslmode: prepared.prepared.secrets.sslmode,
+      tlsTrustProfile: TLS_TRUST_PROFILE,
+      tlsServerName: SESSION_POOLER_TLS_SERVER_NAME,
+      tlsCaPem: prepared.prepared.secrets.tlsCaPem,
+      claimedProjectRef: PAIR_CONSULT_EXACT_VERSION.projectRef,
+      claimedBranch: prepared.prepared.authority.branch,
+      claimedHead: prepared.prepared.authority.head,
+      claimedWorktree: prepared.prepared.authority.worktree,
+    };
+    const transportBinding = evaluateConsultTransportBinding(binding);
+    if (!transportBinding.ok) {
+      return publicFailure(transportBinding.reason, password);
+    }
+    return await runConsultOrchestration({
+      mode: 'live',
+      scenario: {},
+      secrets: prepared.prepared.secrets,
+      statements: prepared.prepared.statements,
+      observedHead: prepared.prepared.authority.head,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'HOLD_UNEXPECTED_INTERNAL';
+    return publicFailure(message, password);
+  } finally {
+    prepared.prepared.cleanup();
+    password = '';
+  }
 }
 
 export async function executePairConsultLocalFakeTransport(
@@ -1715,67 +1863,52 @@ export async function executePairConsultLocalFakeTransport(
   if ((input.isControllingTerminal ?? consultControllingTerminalAvailable)() !== true) {
     return blocked('NONINTERACTIVE');
   }
-  const observe = input.observe ?? (() => observeConsultOperationalIdentity(input.repoRoot));
-  const first = acceptOperationalIdentity(observe());
-  if (!first.ok) return blocked(first.reason);
-  const phrase = consultConfirmationPhrase(first.value.head);
-  const prompt = renderConsultConfirmationPrompt(first.value.head);
-  (input.writePrompt ?? ((text: string) => process.stderr.write(`${text}\n`)))(prompt);
-  if (!input.readConfirmation) return blocked('CONFIRMATION_READER_MISSING');
-  const typed = (await input.readConfirmation()).trim();
-  if (typed !== phrase) return blocked('CONFIRMATION_MISMATCH');
-  const afterConfirmation = identityDrift(first.value, observe());
-  if (afterConfirmation) return blocked(afterConfirmation);
-  let cleanup = (): void => undefined;
-  let password = '';
+  const prepared = await prepareConsultHumanOperatedExecution(input);
+  if (!prepared.ok) return prepared.result;
+  let password = prepared.prepared.secrets.password;
   try {
-    assertNoAmbientPgOrTlsFallback();
-  } catch {
-    return blocked('AMBIENT_CREDENTIAL_FORBIDDEN');
-  }
-  try {
-    const acquired = await acquireSecureStdinConnectionConfig({
-      readBytes: input.readCredentialBytes,
-    });
-    if (!acquired.ok) return blocked('CREDENTIAL_REJECTED');
-    cleanup = acquired.cleanup;
-    const secrets = acquired.releaseConnectionSecrets();
-    password = secrets.password;
-    const bound = credentialMatchesPreview(secrets);
-    if (!bound.ok) return publicFailure(bound.reason, password);
-    const afterCredentials = identityDrift(first.value, observe());
-    if (afterCredentials) return publicFailure(afterCredentials, password);
-    const sqlBytes = loadFrozenConsultMigrationBytes(input.repoRoot);
-    const identity = evaluatePairConsultExactVersionIdentity({
-      projectRef: PAIR_CONSULT_EXACT_VERSION.projectRef,
-      sqlBytes,
-      localOnlyVersions: input.localOnlyVersions ?? [PAIR_CONSULT_EXACT_VERSION.version],
-    });
-    if (!identity.ok) return publicFailure(identity.reason, password);
-    return await runConsultHumanTransport({
+    return await runConsultOrchestration({
+      mode: 'fake',
       scenario: scenario.scenario,
-      secrets,
-      statements: identity.statements,
+      secrets: prepared.prepared.secrets,
+      statements: prepared.prepared.statements,
+      observedHead: prepared.prepared.authority.head,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'HOLD_UNEXPECTED_INTERNAL';
     return publicFailure(message, password);
   } finally {
-    cleanup();
+    prepared.prepared.cleanup();
     password = '';
   }
 }
 
-async function runConsultHumanTransport(input: {
+async function runConsultOrchestration(input: {
+  readonly mode: 'fake' | 'live';
   readonly scenario: ConsultLocalFakeScenario;
   readonly secrets: ParsedConnectionSecrets;
   readonly statements: readonly string[];
+  readonly observedHead: string;
 }): Promise<PairConsultExactVersionResult> {
-  const transportEvidence = 'TEST_INJECTED' as const;
-  void input.secrets;
+  const transportEvidence: ConsultTransportEvidenceKind = input.mode === 'fake'
+    ? 'TEST_INJECTED'
+    : 'PG_REAL_SESSION_POOLER_TLS_PINNED_V1';
+  const evidenceHead = input.observedHead;
   const sequence: string[] = [];
-  const mutation = new ConsultSimulationClient(localFakeSimOptions(input.scenario, input.statements, 'mutation'));
-  localFakeTraceClients = [mutation];
+  let mutation: ExecutionPgClient;
+  let fakeMutation: ConsultSimulationClient | undefined;
+  if (input.mode === 'fake') {
+    fakeMutation = new ConsultSimulationClient(localFakeSimOptions(input.scenario, input.statements, 'mutation'));
+    mutation = fakeMutation;
+    localFakeTraceClients = [fakeMutation];
+  } else {
+    const mutationConfig = buildConsultExecutionClientConfig(input.secrets);
+    if (!mutationConfig) {
+      return publicFailure('CREDENTIAL_TARGET_MISMATCH', input.secrets.password);
+    }
+    localFakeTraceClients = [];
+    mutation = createExecutionPgTransport().createClient(mutationConfig);
+  }
   try {
     await mutation.connect();
     sequence.push('CONNECT');
@@ -1789,7 +1922,7 @@ async function runConsultHumanTransport(input: {
       querySequence: sequence,
       localContractPass: false,
       commitResponseClass: null,
-      evidence: evidence(true, false),
+      evidence: evidence(true, false, 'NONE', evidenceHead),
     });
   }
   const guard = await mutation.query(POST_CONNECT_GUARD_SQL);
@@ -1797,51 +1930,51 @@ async function runConsultHumanTransport(input: {
   const guardRow = guard.rows[0];
   if (guard.rowCount !== 1 || guardRow?.current_database_name !== EXPECTED_DATABASE_NAME || guardRow?.current_user_name !== EXPECTED_CURRENT_USER) {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, 'POST_CONNECT_GUARD_MISMATCH');
+    return stopBeforeBegin(sequence, 'POST_CONNECT_GUARD_MISMATCH', evidenceHead);
   }
   const columns = await mutation.query(CONSULT_HISTORY_COLUMNS_SQL);
   sequence.push('HISTORY_SCHEMA');
   const columnShape = evaluateConsultHistoryShape(columns.rows);
   if (!columnShape.ok) {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, columnShape.reason);
+    return stopBeforeBegin(sequence, columnShape.reason, evidenceHead);
   }
   const privilege = await mutation.query(CONSULT_HISTORY_PRIVILEGE_SQL);
   sequence.push('HISTORY_PRIVILEGE');
   if (privilege.rows[0]?.can_select !== true || privilege.rows[0]?.can_insert !== true) {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, 'HISTORY_PRIVILEGE_MISMATCH');
+    return stopBeforeBegin(sequence, 'HISTORY_PRIVILEGE_MISMATCH', evidenceHead);
   }
   const existing = await mutation.query(CONSULT_VERSION_COUNT_SQL, [PAIR_CONSULT_EXACT_VERSION.version]);
   sequence.push('VERSION_ABSENT_CHECK');
   if (String(existing.rows[0]?.count ?? '') !== '0') {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, 'VERSION_ALREADY_PRESENT');
+    return stopBeforeBegin(sequence, 'VERSION_ALREADY_PRESENT', evidenceHead);
   }
   const baselineResult = await mutation.query(CONSULT_HISTORY_ROWS_SQL);
   sequence.push('BASELINE_HISTORY');
   const baseline = parseHistory(baselineResult.rows);
   if (baseline === null) {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, 'HISTORY_ROW_MALFORMED');
+    return stopBeforeBegin(sequence, 'HISTORY_ROW_MALFORMED', evidenceHead);
   }
   const baselineShape = evaluateConsultBaselineHistory(baseline);
   if (!baselineShape.ok) {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, baselineShape.reason);
+    return stopBeforeBegin(sequence, baselineShape.reason, evidenceHead);
   }
   const preexisting = await mutation.query(CONSULT_PREEXISTING_RELATIONS_SQL, [TABLE_NAMES]);
   sequence.push('PREEXISTING_RELATIONS');
   if (preexisting.rows.length !== 0) {
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, 'OBJECTS_ALREADY_PRESENT');
+    return stopBeforeBegin(sequence, 'OBJECTS_ALREADY_PRESENT', evidenceHead);
   }
   try {
     await mutation.begin();
   } catch {
     sequence.push('BEGIN_FAILED');
     await mutation.close().catch(() => undefined);
-    return stopBeforeBegin(sequence, 'BEGIN_FAILED');
+    return stopBeforeBegin(sequence, 'BEGIN_FAILED', evidenceHead);
   }
   sequence.push('BEGIN');
   try {
@@ -1883,7 +2016,7 @@ async function runConsultHumanTransport(input: {
       querySequence: sequence,
       localContractPass: false,
       commitResponseClass: null,
-      evidence: evidence(true, true),
+      evidence: evidence(true, true, 'NONE', evidenceHead),
     });
   }
   const historyInsert: PairConsultHistoryInsertProof = {
@@ -1919,16 +2052,35 @@ async function runConsultHumanTransport(input: {
       localContractPass: false,
       commitResponseClass,
       historyInsert,
-      evidence: evidence(true, true),
+      evidence: evidence(true, true, 'NONE', evidenceHead),
     });
   }
-  const post = new ConsultSimulationClient(localFakeSimOptions(input.scenario, input.statements, 'postcommit'));
-  localFakeTraceClients = [mutation, post];
   const truthFor = (matched: boolean): ConsultExecutionTruth => projectConsultExecutionTruth({
     transportEvidence,
     commitResponseClass,
     catalogContractMatched: matched,
   });
+  let post: ExecutionPgClient;
+  if (input.mode === 'fake') {
+    const fakePost = new ConsultSimulationClient(localFakeSimOptions(input.scenario, input.statements, 'postcommit'));
+    post = fakePost;
+    localFakeTraceClients = fakeMutation ? [fakeMutation, fakePost] : [fakePost];
+  } else {
+    const postConfig = buildConsultExecutionClientConfig(input.secrets);
+    if (!postConfig) {
+      return holdAfterAck(
+        sequence,
+        'CREDENTIAL_TARGET_MISMATCH',
+        commitResponseClass,
+        historyInsert,
+        'COMMITTED_BUT_VERIFICATION_HOLD',
+        truthFor(false),
+        evidenceHead,
+      );
+    }
+    localFakeTraceClients = [];
+    post = createExecutionPgTransport().createClient(postConfig);
+  }
   let catalogOk = false;
   let catalogReason = 'CATALOG_CONTRACT_MISMATCH';
   try {
@@ -2011,22 +2163,28 @@ async function runConsultHumanTransport(input: {
       return holdAfterAck(sequence, catalogReason, commitResponseClass, historyInsert, 'COMMITTED_BUT_VERIFICATION_HOLD', truthFor(false));
     }
     const truth = truthFor(true);
-    return resultBase({
-      disposition: truth.realDisposition ?? 'LOCAL_TRANSPORT_CONTRACT_PASS',
-      reason: truth.transactionCommitted ? 'COMMIT_ACKNOWLEDGED' : 'LOCAL_TRANSPORT_ONLY',
+    const disposition = input.mode === 'fake'
+      ? 'LOCAL_TRANSPORT_CONTRACT_PASS'
+      : (truth.realDisposition ?? 'COMMITTED_BUT_VERIFICATION_HOLD');
+    const reason = input.mode === 'fake'
+      ? (truth.transactionCommitted ? 'COMMIT_ACKNOWLEDGED' : 'LOCAL_TRANSPORT_ONLY')
+      : (truth.catalogRuntimeVerified ? 'COMMIT_ACKNOWLEDGED' : catalogReason);
+  return resultBase({
+      disposition,
+      reason,
       commitAttempts: 1,
       selectedVersion: PAIR_CONSULT_EXACT_VERSION.version,
       querySequence: sequence,
-      localContractPass: true,
+      localContractPass: input.mode === 'fake' ? true : truth.catalogRuntimeVerified,
       catalogContractMatched: true,
       commitResponseClass,
       historyInsert,
-      evidence: evidence(true, true, 'POSTGRES_CATALOG'),
+      evidence: evidence(true, true, 'POSTGRES_CATALOG', evidenceHead),
       truth,
     });
   } catch {
     sequence.push('POST_COMMIT_BOUNDARY');
     await post.close().catch(() => undefined);
-    return holdAfterAck(sequence, 'POST_COMMIT_EXCEPTION', commitResponseClass, historyInsert, 'COMMITTED_BUT_VERIFICATION_HOLD', truthFor(false));
+    return holdAfterAck(sequence, 'POST_COMMIT_EXCEPTION', commitResponseClass, historyInsert, 'COMMITTED_BUT_VERIFICATION_HOLD', truthFor(false), evidenceHead);
   }
 }

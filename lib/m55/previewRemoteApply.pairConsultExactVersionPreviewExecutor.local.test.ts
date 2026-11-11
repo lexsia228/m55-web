@@ -141,7 +141,7 @@ describe('Pair consult exact-version executor PATCH-2', () => {
     const sql = bytes();
     const cases = [
       { claimedBranch: 'feat/m55-paid-lp-canonical-wave1', tlsCaPem: PINNED_CA, reason: 'BRANCH_MISMATCH' },
-      { claimedHead: '0000000000000000000000000000000000000000', tlsCaPem: PINNED_CA, reason: 'HEAD_MISMATCH' },
+      { claimedHead: 'not-a-valid-head', tlsCaPem: PINNED_CA, reason: 'HEAD_UNBOUND' },
       { claimedWorktree: '/tmp/other-worktree', tlsCaPem: PINNED_CA, reason: 'WORKTREE_MISMATCH' },
       { connectionUser: 'postgres', tlsCaPem: PINNED_CA, reason: 'CONNECTION_USER_NOT_PROJECT_BOUND' },
       { host: 'db.hsdxixvoijuujhpyxgdo.supabase.co', tlsCaPem: PINNED_CA, reason: 'POOLER_HOST_MISMATCH' },
@@ -159,6 +159,9 @@ describe('Pair consult exact-version executor PATCH-2', () => {
       assert.equal(result.evidence.transportBound, false);
     }
     const boundUser = expectedConnectionUserForProjectRef(APPROVED_PREVIEW_PROJECT_REF);
+    const observedHead = observeConsultGitIdentity(ROOT);
+    assert.equal(observedHead.ok, true);
+    if (!observedHead.ok) return;
     assert.equal(
       evaluateConsultTransportBinding({
         host: SESSION_POOLER_HOST,
@@ -171,7 +174,7 @@ describe('Pair consult exact-version executor PATCH-2', () => {
         tlsCaPem: PINNED_CA,
         claimedProjectRef: APPROVED_PREVIEW_PROJECT_REF,
         claimedBranch: PAIR_CONSULT_EXACT_VERSION.branch,
-        claimedHead: PAIR_CONSULT_EXACT_VERSION.head,
+        claimedHead: observedHead.head,
         claimedWorktree: PAIR_CONSULT_WORKTREE,
       }).ok,
       true,
@@ -530,6 +533,8 @@ describe('Pair consult exact-version executor PATCH-2', () => {
     });
     assert.equal(wrongHost.result.reason, 'POOLER_HOST_MISMATCH');
     assert.equal(wrongHost.clients.length, 0);
+    assert.equal(wrongHost.credentialReads, 1);
+    assert.equal(JSON.stringify(wrongHost.result).includes(PASSWORD), false);
     const wrongUser = await runOperated({ credential: { user: 'postgres' } });
     assert.equal(wrongUser.result.reason, 'CONNECTION_USER_NOT_PROJECT_BOUND');
     assert.equal(wrongUser.clients.length, 0);

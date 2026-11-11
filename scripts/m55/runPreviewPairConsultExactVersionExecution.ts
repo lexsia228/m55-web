@@ -12,6 +12,7 @@ import {
   executePairConsultHumanOperatedPreview,
   loadFrozenConsultMigrationBytes,
   observeConsultGitIdentity,
+  readConsultConfirmationFromControllingTerminal,
   simulatePairConsultExactVersion,
 } from '../../lib/m55/previewRemoteApply/pairConsultExactVersionPreviewExecutor.ts';
 
@@ -29,31 +30,25 @@ if (liveRequested) {
     repoRoot,
     yes: false,
     force: false,
+    readConfirmation: readConsultConfirmationFromControllingTerminal,
   });
-  if (result.transactionCommitted) {
+  if (result.disposition === 'AUTHORIZATION_BLOCKED') {
+    process.stderr.write(`AUTHORIZATION_BLOCKED ${result.reason}\n`);
+    process.exit(2);
+  }
+  if (result.transactionCommitted && result.catalogRuntimeVerified) {
     process.stdout.write(`${JSON.stringify({
       mode: 'REAL_PREVIEW_EXECUTION',
       disposition: result.disposition,
       transactionCommitted: true,
       runtimeApplied: true,
-      catalogRuntimeVerified: result.catalogRuntimeVerified,
+      catalogRuntimeVerified: true,
       liveExecutionReady: result.liveExecutionReady,
     })}\n`);
-    process.exit(result.catalogRuntimeVerified ? 0 : 2);
+    process.exit(0);
   }
-  if (result.disposition !== 'LOCAL_TRANSPORT_CONTRACT_PASS') {
-    process.stderr.write(`AUTHORIZATION_BLOCKED ${result.reason}\n`);
-    process.exit(2);
-  }
-  process.stdout.write(`${JSON.stringify({
-    mode: 'HUMAN_OPERATED_LOCAL_TRANSPORT',
-    runtimeApplied: result.runtimeApplied,
-    transactionCommitted: result.transactionCommitted,
-    catalogGreen: result.catalogGreen,
-    catalogRuntimeVerified: result.catalogRuntimeVerified,
-    liveExecutionReady: result.liveExecutionReady,
-  })}\n`);
-  process.exit(0);
+  process.stderr.write(`HOLD_${result.disposition} ${result.reason}\n`);
+  process.exit(2);
 }
 
 const git = observeConsultGitIdentity(repoRoot);
