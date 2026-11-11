@@ -26,6 +26,7 @@ import {
   parseLocalStackContainerStackProjectIdV1,
   M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1,
   M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1,
+  M55_R8_LOCAL_STACK_SUPABASE_PROJECT_REF_SUFFIX_UNVERIFIED_V1,
   M55_R8_LOCAL_STACK_AUTH_ADMIN_USERS_PROBE_PATH_V1,
   M55_R8_LOCAL_STACK_NON_SERVICE_ROLE_PROBE_KEY_V1,
   type LocalStackDockerBindingEvidenceV1,
@@ -262,6 +263,47 @@ describe('R8 isolated Supabase alignment', () => {
       assert.equal(result.localStackServiceRoleJwtRefAbsent, undefined);
       assert.equal(result.humanProjectRefConfirmed, true);
     }
+  });
+
+  it('local stack structural allows missing Human project ref only with explicit local-stack opt-in', () => {
+    const jwt = fakeServiceRoleJwtWithoutRef('service_role');
+    const base = {
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: jwt,
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+    };
+    const denied = evaluateIsolatedSupabaseAlignmentStructuralV1(base);
+    assert.equal(denied.ok, false);
+    if (!denied.ok) assert.equal(denied.reason, 'HUMAN_PROJECT_REF_MISSING');
+
+    const allowed = evaluateIsolatedSupabaseAlignmentStructuralV1(base, {
+      allowLocalStackUnconfirmedProjectRefV1: true,
+    });
+    assert.equal(allowed.ok, true);
+    if (allowed.ok) {
+      assert.equal(allowed.supabaseProjectRefSuffix, M55_R8_LOCAL_STACK_SUPABASE_PROJECT_REF_SUFFIX_UNVERIFIED_V1);
+      assert.equal(allowed.humanProjectRefConfirmed, false);
+      assert.equal(allowed.localStackServiceRoleJwtRefAbsent, true);
+    }
+  });
+
+  it('local stack structural still requires Human ref when JWT carries ref', () => {
+    const ref = 'localstackproject1';
+    const jwt = fakeServiceRoleJwt(ref);
+    const result = evaluateIsolatedSupabaseAlignmentStructuralV1(
+      {
+        VERCEL_ENV: 'development',
+        NODE_ENV: 'development',
+        NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+        SUPABASE_SERVICE_ROLE_KEY: jwt,
+        M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      },
+      { allowLocalStackUnconfirmedProjectRefV1: true },
+    );
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'HUMAN_PROJECT_REF_MISSING');
   });
 
   it('accepts local_stack service_role JWT without ref claim (structural only; live REST required)', () => {
@@ -506,7 +548,7 @@ describe('R8 isolated Supabase alignment', () => {
     NEXT_PUBLIC_SUPABASE_URL: string;
     SUPABASE_SERVICE_ROLE_KEY: string;
     M55_R8_ISOLATED_DATABASE_URL: string;
-    M55_R8_ISOLATED_SUPABASE_PROJECT_REF: string;
+    M55_R8_ISOLATED_SUPABASE_PROJECT_REF?: string;
     [M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1]: string;
     [M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1]: string;
   };
@@ -521,22 +563,61 @@ describe('R8 isolated Supabase alignment', () => {
 
   function buildLocalStackVerificationFixtureV1(
     stackProjectId = LOCAL_STACK_ID,
+    humanProjectRef?: string,
   ): LocalStackVerificationEnvFixtureV1 {
-    return {
+    const fixture: LocalStackVerificationEnvFixtureV1 = {
       VERCEL_ENV: 'development',
       NODE_ENV: 'development',
       NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
       SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithoutRef('service_role'),
       M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
-      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: 'localstackproject1',
       [M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1]: stackProjectId,
       [M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1]: LOCAL_STACK_DOCKER_NETWORK,
     };
+    if (humanProjectRef) fixture.M55_R8_ISOLATED_SUPABASE_PROJECT_REF = humanProjectRef;
+    return fixture;
+  }
+
+  function localStackVerificationEnvWithHumanRef(
+    humanProjectRef = 'localstackproject1',
+    stackProjectId = LOCAL_STACK_ID,
+  ): NodeJS.ProcessEnv {
+    return asAlignmentProcessEnvV1(
+      buildLocalStackVerificationFixtureV1(stackProjectId, humanProjectRef),
+    );
   }
 
   function localStackVerificationEnv(stackProjectId = LOCAL_STACK_ID): NodeJS.ProcessEnv {
     return asAlignmentProcessEnvV1(buildLocalStackVerificationFixtureV1(stackProjectId));
   }
+
+  it('isolated env loader omits PROJECT_REF only when projectRefOptionalV1 is set', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'm55-r8-env-noref-'));
+    const ref = 'aaaaaaaaaaaaaaaa';
+    const lines = [
+      'NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321',
+      'SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.test',
+      'M55_R8_ISOLATED_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      `${M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1}=${LOCAL_STACK_ID}`,
+      `${M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1}=${LOCAL_STACK_DOCKER_NETWORK}`,
+    ];
+    writeFileSync(join(dir, '.env.m55-r8-isolated.local'), lines.join('\n'), 'utf8');
+    const required = loadM55R8IsolatedAlignmentEnvV1(dir, {});
+    assert.equal(required.ok, false);
+    const optional = loadM55R8IsolatedAlignmentEnvV1(dir, {}, { projectRefOptionalV1: true });
+    assert.equal(optional.ok, true);
+    if (!optional.ok) return;
+    assert.equal(optional.env.M55_R8_ISOLATED_SUPABASE_PROJECT_REF, undefined);
+
+    writeFileSync(
+      join(dir, '.env.m55-r8-isolated.local'),
+      [...lines, `M55_R8_ISOLATED_SUPABASE_PROJECT_REF=${ref}`].join('\n'),
+      'utf8',
+    );
+    const withRef = loadM55R8IsolatedAlignmentEnvV1(dir, {}, { projectRefOptionalV1: true });
+    assert.equal(withRef.ok, true);
+    if (withRef.ok) assert.equal(withRef.env.M55_R8_ISOLATED_SUPABASE_PROJECT_REF, ref);
+  });
 
   function localStackVerificationEnvOmitKeyV1(
     key: LocalStackVerificationEnvKeyV1,
@@ -721,6 +802,7 @@ describe('R8 isolated Supabase alignment', () => {
     assert.equal(result.projectRefIdentity, 'UNVERIFIED');
     assert.equal(result.humanProjectRefConfirmed, false);
     assert.equal(result.localStackServiceRoleJwtRefAbsent, true);
+    assert.equal(result.supabaseProjectRefSuffix, M55_R8_LOCAL_STACK_SUPABASE_PROJECT_REF_SUFFIX_UNVERIFIED_V1);
     assert.equal(result.checks.stackTopologyVerified, true);
     assert.equal(result.checks.serviceRoleAuthorized, true);
   });
@@ -993,7 +1075,7 @@ describe('R8 isolated Supabase alignment', () => {
   });
 
   it('identity LIVE probe still fails closed for ref-absent local JWT after REST and Postgres success', async () => {
-    const live = await evaluateIsolatedSupabaseAlignmentLiveV1(localStackVerificationEnv(), {
+    const live = await evaluateIsolatedSupabaseAlignmentLiveV1(localStackVerificationEnvWithHumanRef(), {
       fetchImpl: authAwareFetch(401, 200),
       postgresQueryImpl: async () => ({ rows: [{ present: true }] }),
     });

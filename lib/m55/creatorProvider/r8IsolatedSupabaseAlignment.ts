@@ -113,6 +113,20 @@ export const M55_R8_LOCAL_STACK_PROJECT_ID_PATTERN_V1 = /^[a-z0-9][a-z0-9_]{7,63
 
 export const M55_R8_LOCAL_STACK_DOCKER_NETWORK_NAME_PATTERN_V1 = /^[a-z0-9][a-z0-9_]{7,63}$/;
 
+/**
+ * Placeholder suffix only — not a Supabase project ref.
+ * Used when isolated local stack READ-ONLY verification proceeds without Human or JWT project identity.
+ */
+export const M55_R8_LOCAL_STACK_SUPABASE_PROJECT_REF_SUFFIX_UNVERIFIED_V1 = 'unvrfd';
+
+export type IsolatedSupabaseAlignmentStructuralOptionsV1 = {
+  /**
+   * Local stack connectivity verification only (`--local-stack-verification`).
+   * Allows omitting `M55_R8_ISOLATED_SUPABASE_PROJECT_REF` when the service-role JWT has no `ref` claim.
+   */
+  allowLocalStackUnconfirmedProjectRefV1?: boolean;
+};
+
 export type IsolatedSupabaseLocalStackVerificationFailureV1 =
   | IsolatedSupabaseAlignmentFailureV1
   | 'LOCAL_STACK_VERIFICATION_NOT_APPLICABLE'
@@ -316,6 +330,7 @@ export function extractSupabaseProjectRefFromPostgresUrlV1(raw: string): string 
 
 export function evaluateIsolatedSupabaseAlignmentStructuralV1(
   env: NodeJS.ProcessEnv = process.env,
+  options?: IsolatedSupabaseAlignmentStructuralOptionsV1,
 ): IsolatedSupabaseAlignmentResultV1 {
   if (isM55ProductionRuntime(env)) {
     return { ok: false, reason: 'PRODUCTION_RUNTIME_BLOCKED' };
@@ -324,29 +339,17 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
   const appUrl = env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? '';
   const isolatedDb = env.M55_R8_ISOLATED_DATABASE_URL?.trim() ?? '';
   const serviceRole = env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? '';
-  const humanRef = env.M55_R8_ISOLATED_SUPABASE_PROJECT_REF?.trim().toLowerCase() ?? '';
+  const humanRefRaw = env.M55_R8_ISOLATED_SUPABASE_PROJECT_REF?.trim() ?? '';
+  const humanRef = humanRefRaw.toLowerCase();
+  const allowLocalStackUnconfirmedProjectRef = options?.allowLocalStackUnconfirmedProjectRefV1 === true;
 
   if (!appUrl) return { ok: false, reason: 'SUPABASE_APP_URL_MISSING' };
   if (!isolatedDb) return { ok: false, reason: 'ISOLATED_DATABASE_URL_MISSING' };
   if (!serviceRole) return { ok: false, reason: 'SUPABASE_SERVICE_ROLE_MISSING' };
-  if (!humanRef) return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
 
   const appParsed = parseSupabaseAppHttpUrlV1(appUrl);
   if (appParsed.kind === 'unsupported') {
     return { ok: false, reason: 'SUPABASE_PROJECT_REF_UNRESOLVED' };
-  }
-
-  let canonicalRef: string;
-  if (appParsed.kind === 'hosted') {
-    canonicalRef = appParsed.projectRef!;
-    if (humanRef !== canonicalRef) {
-      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISMATCH' };
-    }
-  } else {
-    if (!/^[a-z0-9]{8,32}$/.test(humanRef)) {
-      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
-    }
-    canonicalRef = humanRef;
   }
 
   const keyFormat = classifySupabaseServiceRoleKeyFormatV1(serviceRole);
@@ -354,16 +357,14 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
 
   let serviceRoleJwtRefMatched = false;
   let localStackServiceRoleJwtRefAbsent = false;
+  let jwtRef: string | null = null;
   if (keyFormat === 'supabase_jwt') {
     const jwtParsed = parseSupabaseServiceRoleJwtV1(serviceRole);
     if (!jwtParsed?.payloadOk) {
       return { ok: false, reason: 'SUPABASE_SERVICE_ROLE_KEY_UNRECOGNIZED' };
     }
-
+    jwtRef = jwtParsed.ref;
     if (jwtParsed.ref) {
-      if (jwtParsed.ref !== canonicalRef) {
-        return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
-      }
       serviceRoleJwtRefMatched = true;
     } else if (
       appParsed.kind === 'local_stack' &&
@@ -375,6 +376,48 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
       return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
     } else {
       return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_UNRESOLVED' };
+    }
+  }
+
+  const localStackUnconfirmedIdentity =
+    appParsed.kind === 'local_stack' &&
+    allowLocalStackUnconfirmedProjectRef &&
+    localStackServiceRoleJwtRefAbsent &&
+    !humanRef;
+
+  if (!humanRef) {
+    if (localStackUnconfirmedIdentity) {
+      // JWT ref absent + no Human ref — connectivity path only (not a hosted project identity).
+    } else {
+      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
+    }
+  }
+
+  let canonicalRef: string;
+  let projectRefSuffix: string;
+  if (localStackUnconfirmedIdentity) {
+    canonicalRef = '';
+    projectRefSuffix = M55_R8_LOCAL_STACK_SUPABASE_PROJECT_REF_SUFFIX_UNVERIFIED_V1;
+  } else if (appParsed.kind === 'hosted') {
+    canonicalRef = appParsed.projectRef!;
+    projectRefSuffix = canonicalRef.slice(-6);
+    if (humanRef !== canonicalRef) {
+      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISMATCH' };
+    }
+  } else {
+    if (!/^[a-z0-9]{8,32}$/.test(humanRef)) {
+      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
+    }
+    canonicalRef = humanRef;
+    projectRefSuffix = canonicalRef.slice(-6);
+  }
+
+  if (keyFormat === 'supabase_jwt' && jwtRef) {
+    if (!canonicalRef) {
+      return { ok: false, reason: 'HUMAN_PROJECT_REF_MISSING' };
+    }
+    if (jwtRef !== canonicalRef) {
+      return { ok: false, reason: 'SERVICE_ROLE_JWT_REF_MISMATCH' };
     }
   }
 
@@ -406,7 +449,7 @@ export function evaluateIsolatedSupabaseAlignmentStructuralV1(
 
   return {
     ok: true,
-    supabaseProjectRefSuffix: canonicalRef.slice(-6),
+    supabaseProjectRefSuffix: projectRefSuffix,
     postgresConnectionKind: parsedPg.connectionKind,
     humanProjectRefConfirmed,
     serviceRoleKeyFormat: keyFormat,
@@ -844,7 +887,9 @@ export async function evaluateIsolatedSupabaseLocalStackVerificationLiveV1(
   env: NodeJS.ProcessEnv = process.env,
   deps: IsolatedSupabaseLocalStackVerificationDepsV1 = {},
 ): Promise<IsolatedSupabaseLocalStackVerificationResultV1> {
-  const structural = evaluateIsolatedSupabaseAlignmentStructuralV1(env);
+  const structural = evaluateIsolatedSupabaseAlignmentStructuralV1(env, {
+    allowLocalStackUnconfirmedProjectRefV1: true,
+  });
   if (!structural.ok) {
     return { ok: false, reason: structural.reason };
   }
@@ -1032,9 +1077,15 @@ export function parseEnvFileLinesV1(raw: string): Record<string, string> {
  * Loads Human-managed isolated Supabase credentials from a dedicated env file only.
  * Does not read Production/Preview `.env.local` or shell-inherited Supabase vars.
  */
+export type LoadM55R8IsolatedAlignmentEnvOptionsV1 = {
+  /** When true, `M55_R8_ISOLATED_SUPABASE_PROJECT_REF` may be omitted from the isolated env file. */
+  projectRefOptionalV1?: boolean;
+};
+
 export function loadM55R8IsolatedAlignmentEnvV1(
   cwd: string = process.cwd(),
   osEnv: NodeJS.ProcessEnv = process.env,
+  options?: LoadM55R8IsolatedAlignmentEnvOptionsV1,
 ): { ok: true; env: NodeJS.ProcessEnv; envFile: string; parsed: Record<string, string> } | { ok: false; checklist: string[] } {
   const rel = osEnv.M55_R8_ISOLATED_ENV_FILE?.trim() || M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1;
   const abs = isAbsolute(rel) ? rel : join(cwd, rel);
@@ -1061,6 +1112,13 @@ export function loadM55R8IsolatedAlignmentEnvV1(
 
   for (const key of M55_R8_ISOLATED_ALIGNMENT_ENV_KEYS_V1) {
     const v = parsed[key]?.trim();
+    if (
+      !v &&
+      key === 'M55_R8_ISOLATED_SUPABASE_PROJECT_REF' &&
+      options?.projectRefOptionalV1
+    ) {
+      continue;
+    }
     if (!v) checklist.push(`Set ${key} in ${rel}`);
     else env[key] = v;
   }
@@ -1141,8 +1199,9 @@ export function evaluateIsolatedSupabaseAlignmentV1(
 
 export function listIsolatedSupabaseAlignmentChecklistV1(
   env: NodeJS.ProcessEnv = process.env,
+  options?: IsolatedSupabaseAlignmentStructuralOptionsV1,
 ): string[] {
-  const result = evaluateIsolatedSupabaseAlignmentStructuralV1(env);
+  const result = evaluateIsolatedSupabaseAlignmentStructuralV1(env, options);
   if (result.ok) return [];
   return checklistForFailure(result.reason);
 }
@@ -1182,6 +1241,7 @@ function checklistForFailure(reason: IsolatedSupabaseAlignmentFailureV1): string
     case 'HUMAN_PROJECT_REF_MISSING':
       return [
         'Set M55_R8_ISOLATED_SUPABASE_PROJECT_REF to the Human-confirmed non-Production Supabase project ref',
+        'Local stack READ-ONLY verification with JWT ref absent may omit this key only via --local-stack-verification',
       ];
     case 'HUMAN_PROJECT_REF_MISMATCH':
       return ['M55_R8_ISOLATED_SUPABASE_PROJECT_REF must exactly match NEXT_PUBLIC_SUPABASE_URL project ref'];

@@ -84,7 +84,9 @@ async function inspectLocalStackDockerBindingV1(stackProjectId) {
   }
 }
 
-const loaded = loadM55R8IsolatedAlignmentEnvV1();
+const loaded = loadM55R8IsolatedAlignmentEnvV1(process.cwd(), process.env, {
+  projectRefOptionalV1: localStackVerification,
+});
 if (!loaded.ok) {
   console.error('M55_R8_ISOLATED_SUPABASE_ALIGNMENT_FAILED');
   for (const line of loaded.checklist) console.error(`- ${line}`);
@@ -93,7 +95,9 @@ if (!loaded.ok) {
 
 console.error(`M55_R8_ISOLATED_ENV: ${loaded.envFile}`);
 
-const structural = listIsolatedSupabaseAlignmentChecklistV1(loaded.env);
+const structural = listIsolatedSupabaseAlignmentChecklistV1(loaded.env, {
+  allowLocalStackUnconfirmedProjectRefV1: localStackVerification,
+});
 if (structural.length > 0) {
   console.error('M55_R8_ISOLATED_SUPABASE_ALIGNMENT_FAILED');
   for (const line of structural) console.error(`- ${line}`);
