@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { buildCanonicalCompatibilityPurchaseSnapshot } from './buildCanonicalCompatibilityPurchaseSnapshot';
-import { sceneInteractionIdFor } from './buildPaidCompatibilityReportV1';
+import { paidCompatibilityChapterTitle, sceneInteractionIdFor } from './buildPaidCompatibilityReportV1';
 import { CHAPTER_IDS } from './pairReadingCatalog.v1';
 import { questionsForRelationStage } from './currentContextContract.v2';
 import type { CompatibilityCurrentContextAnswersV2 } from './currentContextContract.v2';
@@ -15,6 +15,8 @@ const GUEST = { personA: '1990-01-01', personB: '1992-02-02' };
 const REPORT_ID = 'a1111111-1111-4111-8111-111111111111';
 const OWNER_USER_ID = 'user_legacy_owned_report';
 const OTHER_USER_ID = 'user_other_account';
+const LEGACY_CH_ABOUT_TITLE = 'この読み解きについて';
+const CH_ABOUT_INDEX = CHAPTER_IDS.length - 1;
 
 type SnapshotChapterJson = Record<string, unknown>;
 type SnapshotJson = Record<string, unknown> & { chapters: SnapshotChapterJson[] };
@@ -53,6 +55,12 @@ function legacySnapshotMissingAllSceneIds(): SnapshotJson {
   for (const chapter of legacy.chapters) {
     delete chapter.sceneInteractionId;
   }
+  return legacy;
+}
+
+function legacySnapshotMeasuredPreviewForm(): SnapshotJson {
+  const legacy = legacySnapshotMissingAllSceneIds();
+  legacy.chapters[CH_ABOUT_INDEX]!.title = LEGACY_CH_ABOUT_TITLE;
   return legacy;
 }
 
@@ -159,6 +167,40 @@ describe('compatibilityLegacyPaidReportReadV1', () => {
     const missingBody = legacySnapshotMissingAllSceneIds();
     missingBody.chapters[1]!.scene = '';
     assert.equal(resolvePaidCompatibilityReportSnapshotForRead(missingBody), null);
+  });
+
+  it('resolves measured Preview legacy form with old ch_about title while preserving display title', () => {
+    const legacy = legacySnapshotMeasuredPreviewForm();
+    assert.equal(isPaidCompatibilityReportSnapshot(legacy), false);
+
+    const resolved = resolvePaidCompatibilityReportSnapshotForRead(legacy);
+    assert.ok(resolved);
+    for (let index = 0; index < CHAPTER_IDS.length; index += 1) {
+      const key = CHAPTER_IDS[index];
+      assert.equal(resolved!.chapters[index]!.sceneInteractionId, sceneInteractionIdFor(key));
+    }
+    assert.equal(resolved!.chapters[CH_ABOUT_INDEX]!.title, LEGACY_CH_ABOUT_TITLE);
+    assert.notEqual(
+      resolved!.chapters[CH_ABOUT_INDEX]!.title,
+      paidCompatibilityChapterTitle('ch_about'),
+    );
+    // Prove validator acceptability requires canonical title on a separate validation-only copy.
+    const validationProbe = JSON.parse(JSON.stringify(resolved)) as SnapshotJson;
+    validationProbe.chapters[CH_ABOUT_INDEX]!.title = paidCompatibilityChapterTitle('ch_about');
+    assert.equal(isPaidCompatibilityReportSnapshot(validationProbe), true);
+    assert.equal(isPaidCompatibilityReportSnapshot(resolved), false);
+  });
+
+  it('rejects legacy ch_about title without all sceneInteractionId properties absent', () => {
+    const legacy = snapshotJsonFromCanonical();
+    legacy.chapters[CH_ABOUT_INDEX]!.title = LEGACY_CH_ABOUT_TITLE;
+    assert.equal(resolvePaidCompatibilityReportSnapshotForRead(legacy), null);
+  });
+
+  it('rejects unknown ch_about titles even when all sceneInteractionId properties are absent', () => {
+    const legacy = legacySnapshotMissingAllSceneIds();
+    legacy.chapters[CH_ABOUT_INDEX]!.title = '不明な第6章タイトル';
+    assert.equal(resolvePaidCompatibilityReportSnapshotForRead(legacy), null);
   });
 
   it('loads owned legacy reports for the matching owner only', async () => {

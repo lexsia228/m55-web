@@ -136,6 +136,10 @@ const CURRENT_CONTEXT_DISPLAY_KEYS = [
 
 const CHAPTER_PREVIEW_KEYS = ['chapterKey', 'reason', 'concreteValue'] as const;
 
+/** Preview-era owned report ch_about title before paid catalog canonical rename. */
+const LEGACY_OWNED_REPORT_CH_ABOUT_TITLE = 'この読み解きについて' as const;
+const CH_ABOUT_CHAPTER_INDEX = CHAPTER_IDS.length - 1;
+
 function hasExactKeys(
   value: Record<string, unknown>,
   allowed: readonly string[],
@@ -323,7 +327,27 @@ export function resolvePaidCompatibilityReportSnapshotForRead(
     (chapter as { sceneInteractionId: string }).sceneInteractionId = sceneInteractionIdFor(key);
   }
 
-  return isPaidCompatibilityReportSnapshot(repaired) ? repaired : null;
+  if (isPaidCompatibilityReportSnapshot(repaired)) {
+    return repaired;
+  }
+
+  const aboutChapter = (repaired as PaidCompatibilityReportSnapshot).chapters[CH_ABOUT_CHAPTER_INDEX];
+  if (
+    aboutChapter.key !== 'ch_about' ||
+    aboutChapter.title !== LEGACY_OWNED_REPORT_CH_ABOUT_TITLE
+  ) {
+    return null;
+  }
+
+  const validationCopy = structuredClone(repaired) as PaidCompatibilityReportSnapshot;
+  const validationAbout = validationCopy.chapters[CH_ABOUT_CHAPTER_INDEX];
+  (validationAbout as { title: string }).title = paidCompatibilityChapterTitle('ch_about');
+
+  if (!isPaidCompatibilityReportSnapshot(validationCopy)) {
+    return null;
+  }
+
+  return repaired;
 }
 
 export const COMPATIBILITY_STRIPE_CHECKOUT_IDEMPOTENCY_PREFIX = 'm55_compat_cs_v1_';
