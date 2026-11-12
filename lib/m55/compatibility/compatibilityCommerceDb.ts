@@ -3,6 +3,7 @@ import {
   PAID_COMPATIBILITY_REPORT_VERSION,
   PAID_COMPATIBILITY_R1_TOPIC_DEEP_TITLES,
   paidCompatibilityChapterTitle,
+  sceneInteractionIdFor,
   type PaidCompatibilityReportSnapshot,
 } from './buildPaidCompatibilityReportV1';
 import {
@@ -269,6 +270,60 @@ export function isPaidCompatibilityReportSnapshot(
     !RAW_RELATION_STATUS_IDS.some((statusId) => serialized.includes(`"${statusId}"`)) &&
     !RAW_CURRENT_CONTEXT_ANSWER_IDS.some((answerId) => serialized.includes(answerId))
   );
+}
+
+function chapterSceneInteractionIdPropertyAbsent(chapter: Record<string, unknown>): boolean {
+  return !Object.prototype.hasOwnProperty.call(chapter, 'sceneInteractionId');
+}
+
+/**
+ * Read path only: repair Preview-era owned snapshots where all six chapters lack
+ * the sceneInteractionId property. Does not mutate DB rows and does not relax write-time validation.
+ */
+export function resolvePaidCompatibilityReportSnapshotForRead(
+  value: unknown,
+): PaidCompatibilityReportSnapshot | null {
+  if (isPaidCompatibilityReportSnapshot(value)) {
+    return value;
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+
+  const snapshot = value as Record<string, unknown>;
+  const chapters = snapshot.chapters;
+  if (!Array.isArray(chapters) || chapters.length !== CHAPTER_IDS.length) {
+    return null;
+  }
+
+  let absentChapterCount = 0;
+  for (let index = 0; index < CHAPTER_IDS.length; index += 1) {
+    const chapter = chapters[index];
+    if (!chapter || typeof chapter !== 'object' || Array.isArray(chapter)) {
+      return null;
+    }
+    const record = chapter as Record<string, unknown>;
+    if (chapterSceneInteractionIdPropertyAbsent(record)) {
+      absentChapterCount += 1;
+    } else {
+      return null;
+    }
+  }
+  if (absentChapterCount !== CHAPTER_IDS.length) {
+    return null;
+  }
+
+  const repaired = structuredClone(value) as PaidCompatibilityReportSnapshot;
+  for (let index = 0; index < CHAPTER_IDS.length; index += 1) {
+    const key = CHAPTER_IDS[index];
+    const chapter = repaired.chapters[index];
+    if (chapter.key !== key) {
+      return null;
+    }
+    (chapter as { sceneInteractionId: string }).sceneInteractionId = sceneInteractionIdFor(key);
+  }
+
+  return isPaidCompatibilityReportSnapshot(repaired) ? repaired : null;
 }
 
 export const COMPATIBILITY_STRIPE_CHECKOUT_IDEMPOTENCY_PREFIX = 'm55_compat_cs_v1_';
@@ -687,22 +742,20 @@ export async function getOwnedCompatibilityReport(
     .eq('owner_user_id', ownerUserId)
     .eq('product_key', COMPATIBILITY_REPORT_FULL_PRODUCT_KEY)
     .maybeSingle();
-  if (
-    error ||
-    !data ||
-    !isOpaqueCompatibilityId(data.id) ||
-    !isNonEmptyString(data.created_at) ||
-    !isPaidCompatibilityReportSnapshot(data.snapshot)
-  ) {
+  if (error || !data || !isOpaqueCompatibilityId(data.id) || !isNonEmptyString(data.created_at)) {
+    return null;
+  }
+  const snapshot = resolvePaidCompatibilityReportSnapshotForRead(data.snapshot);
+  if (!snapshot) {
     return null;
   }
   return {
     id: data.id,
     createdAt: data.created_at,
     chapterCount: 6,
-    displayIdentity: data.snapshot.displayIdentity ?? legacyPairDisplayIdentity(),
+    displayIdentity: snapshot.displayIdentity ?? legacyPairDisplayIdentity(),
     pairIdentityId: null,
     paidContextId: null,
-    snapshot: data.snapshot,
+    snapshot,
   };
 }
