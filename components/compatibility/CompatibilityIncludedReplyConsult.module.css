@@ -138,3 +138,40 @@
   opacity: 0.75;
   margin: 0;
 }
+
+.wizardHint {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+  opacity: 0.88;
+}
+
+.selectionMemory {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--line, rgba(185, 165, 238, 0.22)) 65%, transparent);
+  background: color-mix(in srgb, var(--ink, rgba(255, 255, 255, 0.91)) 5%, transparent);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.selectionMemoryEyebrow {
+  font-size: 0.75rem;
+  opacity: 0.72;
+}
+
+.selectionMemoryValue {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.assistantReply {
+  display: grid;
+  gap: 1rem;
+}
+
+.replySection {
+  display: grid;
+  gap: 0.35rem;
+}

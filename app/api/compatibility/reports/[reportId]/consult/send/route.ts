@@ -378,6 +378,8 @@ export async function POST(req: NextRequest, ctx: RouteParams) {
           reason: finalized.completeness.reason,
           length: aiContent.length,
           blockCount: countConsultReplyBlocks(aiContent),
+          retryAttempted: finalized.retryAttempted,
+          repairSucceeded: finalized.repairSucceeded,
         }),
       );
       return NextResponse.json(

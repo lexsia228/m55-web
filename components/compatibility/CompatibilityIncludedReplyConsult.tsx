@@ -7,7 +7,10 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { COMPATIBILITY_CONSULT_REPLY_THEME_IDS } from '../../lib/m55/compatibility/compatibilityConsultPrompt';
+import {
+  COMPATIBILITY_CONSULT_PAIR_QUESTION_IDS,
+  COMPATIBILITY_CONSULT_REPLY_THEME_IDS,
+} from '../../lib/m55/compatibility/compatibilityConsultPrompt';
 import {
   getQuestionsForTheme,
   type ConsultQuestionCatalogEntry,
@@ -16,6 +19,13 @@ import {
   mapConsultRoomLoadErrorToUserMessage,
   mapConsultRoomSendErrorToUserMessage,
 } from '../../lib/m55/consult/consultRoomUserFacingErrors';
+import {
+  mapConsultReplyBodyForDisplay,
+  normalizeConsultReplyParagraphs,
+} from '../../lib/m55/consult/consultReplyDisplaySections';
+import { normalizeConsultReplyDisplayText, normalizeConsultReplyTodayStepDisplayText } from '../../lib/m55/consult/normalizeConsultReplyDisplayText';
+import { wizardQuestionLabelJa } from '../../lib/m55/consult/consultReplyWizardDisplay.v1';
+import consultStyles from '../dtr/ConsultRoom.module.css';
 import styles from './CompatibilityIncludedReplyConsult.module.css';
 
 type CompatibilityConsultReplyThemeId = (typeof COMPATIBILITY_CONSULT_REPLY_THEME_IDS)[number];
@@ -56,10 +66,129 @@ export type IncludedReplySessionResult =
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
-const THEME_LABELS: Record<CompatibilityConsultReplyThemeId, string> = {
-  relation: '関係の整理',
-  report: 'レポートの読み方',
+/** Pair wizard cards — UI only; theme/question IDs and catalog unchanged. */
+const PAIR_WIZARD_THEME_CARDS: Record<
+  CompatibilityConsultReplyThemeId,
+  { label: string; description: string }
+> = {
+  relation: {
+    label: '二人の距離や会話が気になる',
+    description: '近づき方・言葉・タイミング・戻り方を、6章レポートから読む',
+  },
+  report: {
+    label: '二人の相性レポートを読み返したい',
+    description: '読み返す順番や章の選び方を、購入済みレポートから整理する',
+  },
 };
+
+type PairConsultQuestionId = (typeof COMPATIBILITY_CONSULT_PAIR_QUESTION_IDS)[number];
+
+const PAIR_WIZARD_FOCUS_CARD_DESCRIPTION: Record<PairConsultQuestionId, string> = {
+  'relation.distance': '2人の距離に出やすいズレと、お相手側の反応とペースの章から、距離の取り方を読み返す',
+  'relation.words': 'あなた側の反応とペースと、2人の距離のズレの章から、言葉の選び方を整理する',
+  'relation.timing':
+    'あなた側の反応とペースと、今日見る一つの手がかりの章から、伝えるタイミングの目印を置く',
+  'relation.recovery': '今日見る一つの手がかりと、2人の距離に出やすいズレの章から、やりとり後の戻り方を見る',
+  'report.how_to_use': '6章全体の読み返し順を、レポートの構成に沿って整理する',
+  'report.chapter_pick': 'いま開きやすい章を、二人のレポートから1つ選ぶ',
+  'report.review_timing': '読み返すタイミングの目印を、レポートの場面から置く',
+  'report.next_step': '読んだあとの次の一手を、レポート抜粋から1つだけ置く',
+};
+
+const PAIR_WIZARD_COPY = {
+  step1Title: '二人の関係について整理したいテーマを選ぶ',
+  step1Hint: '購入済みの6章レポートを根拠に、今の関係について1テーマだけ読み解きます。',
+  step2Title: '具体的に読み解きたい焦点を選ぶ',
+  step2Hint: '焦点は後から戻って選び直せます。最終確認のあとに作成が始まります。',
+  step3Title: '選択内容と使用枠を確認する',
+  step3Lead: 'この内容で追加読み解きを1件作成します。作成が完了するまでページを閉じないでください。',
+  confirmThemeLabel: '選んだテーマ',
+  confirmFocusLabel: '読み解きたい焦点',
+  creditThisUse: '今回の使用',
+  creditAfterSuccess: '成功後の残り',
+  backToFocus: '焦点を選び直す',
+  backToTheme: 'テーマを選び直す',
+} as const;
+
+const WIZARD_STEPS = [
+  { n: 1 as const, shortLabel: 'テーマ' },
+  { n: 2 as const, shortLabel: '焦点' },
+  { n: 3 as const, shortLabel: '確認' },
+] as const;
+
+function PairConsultWizardProgress({ activeStep }: { activeStep: 1 | 2 | 3 }) {
+  return (
+    <ol className={consultStyles.wizardProgress} aria-label="追加読み解きの進行">
+      {WIZARD_STEPS.map((step) => {
+        const done = step.n < activeStep;
+        const active = step.n === activeStep;
+        const pending = step.n > activeStep;
+        return (
+          <li key={step.n} className={consultStyles.wizardProgressItem}>
+            <div
+              className={[
+                consultStyles.wizardStep,
+                done ? consultStyles.wizardStepDone : '',
+                active ? consultStyles.wizardStepActive : '',
+                pending ? consultStyles.wizardStepPending : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              aria-current={active ? 'step' : undefined}
+            >
+              {done ? (
+                <>
+                  <span className={consultStyles.wizardStepCheck} aria-hidden>
+                    ✓
+                  </span>
+                  <span className={consultStyles.wizardStepLabel}>{step.shortLabel}</span>
+                </>
+              ) : (
+                <>
+                  <span className={consultStyles.wizardStepNum}>Step {step.n} / 3</span>
+                  <span className={consultStyles.wizardStepLabel}>{step.shortLabel}</span>
+                </>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function PairIncludedReplyAssistantBody({ content }: { content: string }) {
+  const displayContent = normalizeConsultReplyDisplayText(content);
+  const paragraphs = normalizeConsultReplyParagraphs(displayContent);
+  const bodies = mapConsultReplyBodyForDisplay(paragraphs);
+  const sections = [
+    { label: '今の場面', body: bodies.scene },
+    { label: '二人のレポートから見ると', body: bodies.report },
+    { label: '少し違う見方', body: bodies.alt },
+    { label: '整理の補助', body: bodies.aux },
+  ].filter((section) => section.body.trim());
+  const todayRaw = bodies.today.trim();
+  const todayStep = todayRaw
+    ? normalizeConsultReplyTodayStepDisplayText(todayRaw) || todayRaw
+    : null;
+
+  return (
+    <article className={styles.assistantReply} data-testid="pair-included-reply-assistant-body">
+      {sections.map((section) => (
+        <div key={section.label} className={styles.replySection}>
+          <h3 className={consultStyles.replySectionTitle}>{section.label}</h3>
+          <p className={consultStyles.replySectionBody}>{section.body}</p>
+        </div>
+      ))}
+      {todayStep ? (
+        <div className={styles.replySection}>
+          <h3 className={consultStyles.replySectionTitle}>今日の一手</h3>
+          <p className={consultStyles.replySectionBody}>{todayStep}</p>
+        </div>
+      ) : null}
+    </article>
+  );
+}
 
 export const INCLUDED_REPLY_QUESTION_OPTIONS: Readonly<
   Record<CompatibilityConsultReplyThemeId, readonly ConsultQuestionCatalogEntry[]>
@@ -285,6 +414,7 @@ export default function CompatibilityIncludedReplyConsult({ reportId }: Props) {
   const [sending, setSending] = useState(false);
   const [themeId, setThemeId] = useState<CompatibilityConsultReplyThemeId | null>(null);
   const [questionId, setQuestionId] = useState<string | null>(null);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
   const [pendingIntent, setPendingIntent] = useState<IncludedReplySendIntent | null>(null);
 
   const session = useMemo(
@@ -296,6 +426,12 @@ export default function CompatibilityIncludedReplyConsult({ reportId }: Props) {
       }),
     [reportId],
   );
+
+  useEffect(() => {
+    if (pendingIntent) {
+      setWizardStep(3);
+    }
+  }, [pendingIntent]);
 
   useEffect(() => {
     let active = true;
@@ -319,6 +455,15 @@ export default function CompatibilityIncludedReplyConsult({ reportId }: Props) {
   const activeThemeId = pendingIntent?.replyThemeId ?? themeId;
   const activeQuestionId = pendingIntent?.replyQuestionId ?? questionId;
   const questions = activeThemeId ? INCLUDED_REPLY_QUESTION_OPTIONS[activeThemeId] : [];
+  const selectedThemeLabel = activeThemeId
+    ? PAIR_WIZARD_THEME_CARDS[activeThemeId].label
+    : null;
+  const selectedQuestionEntry = activeQuestionId
+    ? questions.find((entry) => entry.reply_question_id === activeQuestionId)
+    : null;
+  const selectedQuestionLabel = selectedQuestionEntry
+    ? wizardQuestionLabelJa(selectedQuestionEntry.reply_question_id, selectedQuestionEntry.labelJa)
+    : null;
 
   async function handleSend() {
     if (session.inFlight || !activeThemeId || !activeQuestionId) return;
@@ -335,6 +480,7 @@ export default function CompatibilityIncludedReplyConsult({ reportId }: Props) {
       if (result.kind === 'committed') {
         setThemeId(null);
         setQuestionId(null);
+        setWizardStep(1);
         return;
       }
       setSendError(result.message);
@@ -382,73 +528,239 @@ export default function CompatibilityIncludedReplyConsult({ reportId }: Props) {
 
       {room.messages.length > 0 ? (
         <div className={styles.messages} data-testid="pair-included-reply-history">
-          {room.messages.map((message) => (
-            <div
-              key={message.id}
-              className={
-                message.role === 'user' ? styles.messageUser : styles.messageAssistant
-              }
-            >
-              {message.content}
-            </div>
-          ))}
+          {room.messages.map((message) =>
+            message.role === 'user' ? (
+              <div key={message.id} className={styles.messageUser}>
+                {message.content}
+              </div>
+            ) : (
+              <div key={message.id} className={styles.messageAssistant}>
+                <PairIncludedReplyAssistantBody content={message.content} />
+              </div>
+            ),
+          )}
         </div>
       ) : null}
 
       {canCompose ? (
-        <div className={styles.compose} data-testid="pair-included-reply-compose">
-          <p className={styles.label}>テーマ</p>
-          <div className={styles.themeGrid} role="group" aria-label="テーマ">
-            {COMPATIBILITY_CONSULT_REPLY_THEME_IDS.map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={styles.themeButton}
-                aria-pressed={activeThemeId === id}
-                disabled={selectionLocked}
-                onClick={() => {
-                  setThemeId(id);
-                  setQuestionId(null);
-                }}
-              >
-                {THEME_LABELS[id]}
-              </button>
-            ))}
-          </div>
+        <div
+          className={`${styles.compose} ${consultStyles.replyWizard}`}
+          data-testid="pair-included-reply-compose"
+        >
+          <PairConsultWizardProgress activeStep={wizardStep} />
 
-          {activeThemeId && questions.length > 0 ? (
-            <>
-              <p className={styles.label}>焦点</p>
-              <div className={styles.themeGrid} role="group" aria-label="焦点">
-                {questions.map((entry) => (
-                  <button
-                    key={entry.reply_question_id}
-                    type="button"
-                    className={styles.questionButton}
-                    aria-pressed={activeQuestionId === entry.reply_question_id}
-                    disabled={selectionLocked}
-                    onClick={() => setQuestionId(entry.reply_question_id)}
-                  >
-                    {entry.labelJa}
-                  </button>
-                ))}
-              </div>
-            </>
+          {pendingIntent && sendError ? (
+            <p className={styles.error} role="alert" data-testid="pair-included-reply-send-error">
+              {sendError}
+            </p>
           ) : null}
 
-          <button
-            type="button"
-            className={styles.submit}
-            disabled={!activeQuestionId || sending}
-            onClick={() => void handleSend()}
-          >
-            {sending
-              ? '作成中…'
-              : pendingIntent
-                ? '同じ内容でもう一度送る'
-                : '追加読み解きを作成する'}
-          </button>
-          {sendError ? <p className={styles.error}>{sendError}</p> : null}
+          {wizardStep === 1 ? (
+            <section
+              className={`${consultStyles.wizardStepPanel} ${consultStyles.wizardStepPanelActive}`}
+              data-testid="pair-included-reply-wizard-step-1"
+              aria-labelledby="pair-included-reply-step-1"
+            >
+              <h3 id="pair-included-reply-step-1" className={consultStyles.composeStepTitle}>
+                {PAIR_WIZARD_COPY.step1Title}
+              </h3>
+              <p className={styles.wizardHint}>{PAIR_WIZARD_COPY.step1Hint}</p>
+              <div
+                className={consultStyles.choiceGrid}
+                role="group"
+                aria-label="追加読み解きのテーマを選ぶ"
+              >
+                {COMPATIBILITY_CONSULT_REPLY_THEME_IDS.map((id) => {
+                  const card = PAIR_WIZARD_THEME_CARDS[id];
+                  const selected = themeId === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={[
+                        consultStyles.choiceCard,
+                        selected ? consultStyles.choiceCardSelected : '',
+                        id === 'report' ? consultStyles.choiceCardMeta : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      disabled={selectionLocked}
+                      aria-pressed={selected}
+                      onClick={() => {
+                        setThemeId(id);
+                        setQuestionId(null);
+                      }}
+                    >
+                      <span className={consultStyles.choiceCardBody}>
+                        <span className={`${consultStyles.choiceCardTitle} ${consultStyles.wizTypoCardTitle}`}>
+                          {card.label}
+                        </span>
+                        <span
+                          className={`${consultStyles.choiceCardDescription} ${consultStyles.wizTypoCardCaption}`}
+                        >
+                          {card.description}
+                        </span>
+                      </span>
+                      {selected ? (
+                        <span className={consultStyles.choiceCardCheck} aria-hidden>
+                          ✓
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className={consultStyles.wizardActions}>
+                <button
+                  type="button"
+                  className={`${consultStyles.submitBtn} ${consultStyles.submitBtnPrimary}`}
+                  disabled={!themeId || selectionLocked}
+                  onClick={() => setWizardStep(2)}
+                >
+                  次へ
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          {wizardStep === 2 && themeId ? (
+            <section
+              className={`${consultStyles.wizardStepPanel} ${consultStyles.wizardStepPanelActive}`}
+              data-testid="pair-included-reply-wizard-step-2"
+              aria-labelledby="pair-included-reply-step-2"
+            >
+              <h3 id="pair-included-reply-step-2" className={consultStyles.composeStepTitle}>
+                {PAIR_WIZARD_COPY.step2Title}
+              </h3>
+              <p className={styles.wizardHint}>{PAIR_WIZARD_COPY.step2Hint}</p>
+              {selectedThemeLabel ? (
+                <p className={styles.selectionMemory}>
+                  <span className={styles.selectionMemoryEyebrow}>選んだテーマ</span>
+                  <span className={styles.selectionMemoryValue}>{selectedThemeLabel}</span>
+                </p>
+              ) : null}
+              <div
+                className={consultStyles.choiceGrid}
+                role="group"
+                aria-label="読み解きたい焦点を選ぶ"
+              >
+                {questions.map((entry) => {
+                  const selected = questionId === entry.reply_question_id;
+                  const label = wizardQuestionLabelJa(entry.reply_question_id, entry.labelJa);
+                  const focusId = entry.reply_question_id as PairConsultQuestionId;
+                  const description = PAIR_WIZARD_FOCUS_CARD_DESCRIPTION[focusId];
+                  return (
+                    <button
+                      key={entry.reply_question_id}
+                      type="button"
+                      className={[
+                        consultStyles.choiceCard,
+                        selected ? consultStyles.choiceCardSelected : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      disabled={selectionLocked}
+                      aria-pressed={selected}
+                      onClick={() => setQuestionId(entry.reply_question_id)}
+                    >
+                      <span className={consultStyles.choiceCardBody}>
+                        <span className={`${consultStyles.choiceCardTitle} ${consultStyles.wizTypoCardTitle}`}>
+                          {label}
+                        </span>
+                        <span
+                          className={`${consultStyles.choiceCardDescription} ${consultStyles.wizTypoCardCaption}`}
+                        >
+                          {description}
+                        </span>
+                      </span>
+                      {selected ? (
+                        <span className={consultStyles.choiceCardCheck} aria-hidden>
+                          ✓
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className={consultStyles.wizardActions}>
+                <button
+                  type="button"
+                  className={consultStyles.wizardSecondaryButton}
+                  disabled={selectionLocked}
+                  onClick={() => setWizardStep(1)}
+                >
+                  {PAIR_WIZARD_COPY.backToTheme}
+                </button>
+                <button
+                  type="button"
+                  className={`${consultStyles.submitBtn} ${consultStyles.submitBtnPrimary}`}
+                  disabled={!questionId || selectionLocked}
+                  onClick={() => setWizardStep(3)}
+                >
+                  内容を確認する
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          {wizardStep === 3 && themeId && questionId ? (
+            <section
+              className={`${consultStyles.wizardStepPanel} ${consultStyles.wizardStepPanelActive}`}
+              data-testid="pair-included-reply-wizard-confirm"
+              aria-labelledby="pair-included-reply-step-3"
+            >
+              <h3 id="pair-included-reply-step-3" className={consultStyles.composeStepTitle}>
+                {PAIR_WIZARD_COPY.step3Title}
+              </h3>
+              <p className={styles.wizardHint}>{PAIR_WIZARD_COPY.step3Lead}</p>
+              <div className={consultStyles.confirmPanel}>
+                <div className={consultStyles.confirmRow}>
+                  <span className={consultStyles.confirmLabel}>{PAIR_WIZARD_COPY.confirmThemeLabel}</span>
+                  <span className={consultStyles.confirmValue}>{selectedThemeLabel}</span>
+                </div>
+                <div className={consultStyles.confirmRow}>
+                  <span className={consultStyles.confirmLabel}>{PAIR_WIZARD_COPY.confirmFocusLabel}</span>
+                  <span className={consultStyles.confirmValue}>{selectedQuestionLabel}</span>
+                </div>
+                <div className={consultStyles.confirmRow}>
+                  <span className={consultStyles.confirmLabel}>{PAIR_WIZARD_COPY.creditThisUse}</span>
+                  <span className={consultStyles.confirmValue}>1件（このレポートに付いている追加読み解き）</span>
+                </div>
+                <div className={consultStyles.confirmRow}>
+                  <span className={consultStyles.confirmLabel}>{PAIR_WIZARD_COPY.creditAfterSuccess}</span>
+                  <span className={consultStyles.confirmValue}>0 / {room.creditsTotal} 件</span>
+                </div>
+              </div>
+              <div className={consultStyles.wizardActions}>
+                <button
+                  type="button"
+                  className={consultStyles.wizardSecondaryButton}
+                  disabled={sending || pendingIntent !== null}
+                  onClick={() => setWizardStep(2)}
+                >
+                  {PAIR_WIZARD_COPY.backToFocus}
+                </button>
+                <button
+                  type="button"
+                  className={`${consultStyles.submitBtn} ${consultStyles.submitBtnPrimary}`}
+                  data-testid="pair-included-reply-wizard-submit"
+                  disabled={sending || !activeQuestionId}
+                  onClick={() => void handleSend()}
+                >
+                  {sending
+                    ? '作成中…'
+                    : pendingIntent
+                      ? '同じ内容でもう一度送る'
+                      : 'この内容で追加読み解きを作成する'}
+                </button>
+              </div>
+              {sendError && !pendingIntent ? (
+                <p className={styles.error} role="alert">
+                  {sendError}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
         </div>
       ) : (
         <p className={styles.hint} data-testid="pair-included-reply-readonly">

@@ -20,6 +20,18 @@ export function isCompatibilityConsultReplyThemeId(
   return (COMPATIBILITY_CONSULT_REPLY_THEME_IDS as readonly string[]).includes(value);
 }
 
+const COMPATIBILITY_CONSULT_OUTPUT_STRUCTURE_JA = `
+【Pair・出力構成（6章レポート根拠・5段落）】
+- 空行区切りの5段落のみ。見出し・番号・箇条書き記号は付けない。
+- 1段落目: 選んだ焦点を、レポートの scene 語と結びつけて「今の場面」を言葉にする。
+- 2段落目: 主章・補助章の視点A/B・ループ語を使い「二人の相性レポートから見ると」深める（資質名の羅列だけにしない）。
+- 3段落目: 少しほどいた別の見方（相手の本音・未来は断定しない）。
+- 4段落目: 読み手が整理できる補助段落（省略しない）。
+- 5段落目: 必ず「今日やることは1つだけです。」で始め、本人だけが試せる一手を1つ。
+- 各段落はレポートの具体的語を必ず含め、抽象語だけで埋めない。段落内改行は禁止。
+- 全体は${CONSULT_REPLY_GENERATION.minimumAcceptableJa}日本語文字以上を必達とし、4段落以下・極端に短い返答は保存されない。
+`.trim();
+
 export const COMPATIBILITY_CONSULT_GROUNDING_JA = `
 【二人の相性レポート — 追加読み解きの根拠】
 - 根拠は購入済みの6章レポートと、購入時に本人が答えた表示用コンテキストのみ。
@@ -129,6 +141,8 @@ export function buildCompatibilityConsultSystemPrompt(
 ${reportContext}
 ${anchorsBlock}
 ${COMPATIBILITY_CONSULT_GROUNDING_JA}
+
+${COMPATIBILITY_CONSULT_OUTPUT_STRUCTURE_JA}
 
 ${CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA}
 

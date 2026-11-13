@@ -864,6 +864,84 @@ describe('Pair included reply consult v1', () => {
     assert.match(COMPATIBILITY_CONSULT_GROUNDING_JA, /返信した/);
   });
 
+  it('pair consult prompt requires five-paragraph minimum depth for six-chapter grounding', () => {
+    const snapshot = buildSixChapterSnapshot('R3');
+    const ctx = buildCompatibilityConsultReportContext(snapshot);
+    const entry = CONSULT_QUESTION_CATALOG_V1.find((e) => e.reply_question_id === 'relation.distance');
+    assert.ok(entry);
+    const prompt = buildCompatibilityConsultPromptForCatalogEntry(
+      ctx,
+      `【テーマ】${entry!.themeLabelJa}\n【質問】${entry!.labelJa}`,
+      entry!,
+    );
+    assert.match(prompt, /Pair・出力構成（6章レポート根拠・5段落）/);
+    assert.match(prompt, /1000日本語文字以上/);
+    assert.match(prompt, /今日やることは1つだけです/);
+    assert.match(prompt, /二人の相性レポートから見ると/);
+  });
+
+  it('included reply consult uses a three-step wizard and posts only from confirm', () => {
+    const ui = read('components/compatibility/CompatibilityIncludedReplyConsult.tsx');
+    assert.match(ui, /pair-included-reply-wizard-step-1/);
+    assert.match(ui, /pair-included-reply-wizard-confirm/);
+    assert.match(ui, /pair-included-reply-wizard-submit/);
+    assert.match(ui, /pair-included-reply-assistant-body/);
+    assert.match(ui, /mapConsultReplyBodyForDisplay/);
+    assert.doesNotMatch(ui, /THEME_LABELS/);
+  });
+
+  it('pair wizard choice cards reuse ConsultRoom choiceCardBody without Self catalog copy', () => {
+    const ui = read('components/compatibility/CompatibilityIncludedReplyConsult.tsx');
+    const choiceCardSection = ui.slice(
+      ui.indexOf('pair-included-reply-wizard-step-1'),
+      ui.indexOf('pair-included-reply-wizard-confirm'),
+    );
+    assert.match(choiceCardSection, /choiceCardBody/);
+    assert.match(choiceCardSection, /wizTypoCardTitle/);
+    assert.match(choiceCardSection, /wizTypoCardCaption/);
+    assert.match(choiceCardSection, /aria-pressed=\{selected\}/);
+    assert.doesNotMatch(choiceCardSection, /role="listitem"/);
+    assert.doesNotMatch(ui, /WIZARD_ENTRY_CARD_DISPLAY/);
+    assert.doesNotMatch(choiceCardSection, /promptFocusAnchor/);
+    assert.doesNotMatch(ui, /仕事が詰まっている/);
+    assert.doesNotMatch(ui, /人との距離で疲れる/);
+    assert.doesNotMatch(ui, /プレミアムレポートを使いこなしたい/);
+    assert.doesNotMatch(ui, /無理が出る前に区切りを置きたい/);
+    assert.match(ui, /PAIR_WIZARD_THEME_CARDS/);
+    assert.match(ui, /PAIR_WIZARD_FOCUS_CARD_DESCRIPTION/);
+    for (const questionId of COMPATIBILITY_CONSULT_PAIR_QUESTION_IDS) {
+      assert.match(ui, new RegExp(`'${questionId.replace('.', '\\.')}'`));
+    }
+    assert.match(ui, /data-testid="pair-included-reply-wizard-submit"/);
+    assert.doesNotMatch(
+      ui.slice(0, ui.indexOf('data-testid="pair-included-reply-wizard-submit"')),
+      /consult\/send/,
+    );
+  });
+
+  it('pair wizard choice grids use group semantics and lock confirm back when intent is pending', () => {
+    const ui = read('components/compatibility/CompatibilityIncludedReplyConsult.tsx');
+    assert.doesNotMatch(ui, /choiceGrid[^>]*role="list"/);
+    assert.match(ui, /role="group"/);
+    assert.match(ui, /aria-label="追加読み解きのテーマを選ぶ"/);
+    assert.match(ui, /aria-label="読み解きたい焦点を選ぶ"/);
+    const confirmSection = ui.slice(ui.indexOf('pair-included-reply-wizard-confirm'));
+    assert.match(confirmSection, /disabled=\{sending \|\| pendingIntent !== null\}/);
+    assert.match(ui, /'relation\.timing':[\s\S]*あなた側の反応とペース/);
+    assert.match(ui, /'relation\.timing':[\s\S]*今日見る一つの手がかり/);
+    assert.match(ui, /'relation\.recovery':[\s\S]*今日見る一つの手がかり/);
+    assert.match(ui, /'relation\.recovery':[\s\S]*2人の距離に出やすいズレ/);
+    assert.doesNotMatch(ui, /タイミングの章/);
+    assert.doesNotMatch(ui, /戻し方と今日の手がかりの章/);
+  });
+
+  it('send route logs repair diagnostics on completeness failure without secrets', () => {
+    const send = read('app/api/compatibility/reports/[reportId]/consult/send/route.ts');
+    assert.match(send, /retryAttempted: finalized.retryAttempted/);
+    assert.match(send, /repairSucceeded: finalized.repairSucceeded/);
+    assert.match(send, /below_minimum_length|completeness failed/);
+  });
+
   it('purchase confirmation lists six chapters plus one included additional reading', () => {
     const purchase = read('components/compatibility/CompatibilityPurchaseExperience.tsx');
     assert.match(purchase, /6章.*追加読み解き1件/);
