@@ -25,6 +25,19 @@ import {
 } from './pairReadingGuestContract';
 import type { RelationStatusId } from './pairReadingTypes';
 import type { PairDisplayIdentityV1 } from './pairDisplayIdentity';
+import {
+  PAIR_OWNED_STATE_SESSION_COMPANION_KEY,
+  parsePairOwnedStateIdentityV1,
+  resolveNextPairOwnedStateIdentity,
+  type PairOwnedStateIdentityV1,
+} from './pairOwnedStateIdentity';
+
+export type PairGuestPersistedV2 = {
+  version: 'pair_guest_persisted_v2';
+  ownerUserId: string;
+  journey: CompatibilityGuestJourneyV3;
+  ownedStateIdentity: PairOwnedStateIdentityV1;
+};
 
 const COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1 =
   'm55_compatibility_guest_journey_v3_provenance_v1';
@@ -152,31 +165,188 @@ export function purgeUnownedPairGuestSession(
     if (storage) {
       clearGuestSessionStorage(storage);
       storage.removeItem(COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1);
+      storage.removeItem(PAIR_OWNED_STATE_SESSION_COMPANION_KEY);
     }
   } catch {
     /* Fail closed at resolution boundaries even when tab storage is unavailable. */
   }
 }
 
+function readSessionOwnedStateIdentity(
+  storage: Pick<Storage, 'getItem'> | null | undefined,
+): PairOwnedStateIdentityV1 | null {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(PAIR_OWNED_STATE_SESSION_COMPANION_KEY);
+    if (!raw) return null;
+    return parsePairOwnedStateIdentityV1(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionOwnedStateIdentity(
+  storage: Pick<Storage, 'setItem' | 'removeItem'> | null | undefined,
+  identity: PairOwnedStateIdentityV1 | null,
+): void {
+  if (!storage) return;
+  try {
+    if (!identity) {
+      storage.removeItem(PAIR_OWNED_STATE_SESSION_COMPANION_KEY);
+      return;
+    }
+    storage.setItem(PAIR_OWNED_STATE_SESSION_COMPANION_KEY, JSON.stringify(identity));
+  } catch {
+    /* no-op */
+  }
+}
+
+function purchaseJourneyBindingKey(journey: CompatibilityPurchaseJourney): string {
+  return JSON.stringify({
+    personA: journey.input.personA,
+    personB: journey.input.personB,
+    relationStatusId: journey.relationStatusId,
+    currentContext: journey.currentContext,
+    partnerLabel: journey.displayIdentity?.partnerLabel ?? '',
+  });
+}
+
+export type PairCheckoutTabBinding = {
+  identity: PairOwnedStateIdentityV1;
+  journeyKey: string;
+};
+
+export function readPairGuestPersistedCheckoutBinding(
+  clerkUserId: string,
+): PairCheckoutTabBinding | null {
+  if (!isClient() || !clerkUserId) return null;
+  try {
+    const raw = localStorage.getItem(storageKeyForUser(clerkUserId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PairGuestPersistedV2>;
+    if (parsed.version !== 'pair_guest_persisted_v2' || parsed.ownerUserId !== clerkUserId) {
+      return null;
+    }
+    const identity = parsePairOwnedStateIdentityV1(parsed.ownedStateIdentity);
+    if (!identity || !parsed.journey || parsed.journey.version !== 'journey_v3') {
+      return null;
+    }
+    const journey = parseSanitizedGuestJourneyV3(JSON.stringify(parsed.journey));
+    if (!journey) return null;
+    return {
+      identity,
+      journeyKey: purchaseJourneyBindingKey(guestJourneyV3ToPurchaseJourney(journey)),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function readSessionGuestCheckoutBinding(
+  storage: Pick<Storage, 'getItem' | 'removeItem'> | null | undefined,
+): PairCheckoutTabBinding | null {
+  const journeyV3 = readCompatibilityGuestJourneyV3FromSession(storage);
+  const identity = readSessionOwnedStateIdentity(storage);
+  if (!journeyV3 || !identity) return null;
+  return {
+    identity,
+    journeyKey: purchaseJourneyBindingKey(guestJourneyV3ToPurchaseJourney(journeyV3)),
+  };
+}
+
+export function captureCheckoutTabIdentity(
+  args: {
+    clerkUserId: string | null;
+    sessionStorageRef: Pick<Storage, 'getItem' | 'removeItem'> | null | undefined;
+    tabJourney: CompatibilityPurchaseJourney;
+  },
+): PairOwnedStateIdentityV1 | null {
+  const tabKey = purchaseJourneyBindingKey(args.tabJourney);
+  const bundled = args.clerkUserId
+    ? readPairGuestPersistedCheckoutBinding(args.clerkUserId)
+    : readSessionGuestCheckoutBinding(args.sessionStorageRef);
+  if (!bundled || bundled.journeyKey !== tabKey) return null;
+  return bundled.identity;
+}
+
+export function verifyCheckoutTabBindingStillCoherent(
+  args: {
+    clerkUserId: string | null;
+    sessionStorageRef: Pick<Storage, 'getItem' | 'removeItem'> | null | undefined;
+    tabJourney: CompatibilityPurchaseJourney;
+    tabIdentity: PairOwnedStateIdentityV1;
+  },
+): boolean {
+  const tabKey = purchaseJourneyBindingKey(args.tabJourney);
+  const bundled = args.clerkUserId
+    ? readPairGuestPersistedCheckoutBinding(args.clerkUserId)
+    : readSessionGuestCheckoutBinding(args.sessionStorageRef);
+  if (!bundled || bundled.journeyKey !== tabKey) return false;
+  return (
+    bundled.identity.pairIdentityId === args.tabIdentity.pairIdentityId &&
+    bundled.identity.paidContextId === args.tabIdentity.paidContextId
+  );
+}
+
+export function readPairOwnedStateIdentityForUser(
+  clerkUserId: string | null | undefined,
+): PairOwnedStateIdentityV1 | null {
+  if (!isClient() || !clerkUserId) return null;
+  try {
+    const raw = localStorage.getItem(storageKeyForUser(clerkUserId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PairGuestPersistedV2> | Partial<PairGuestPersistedV1>;
+    if (parsed.version === 'pair_guest_persisted_v2') {
+      const v2 = parsed as Partial<PairGuestPersistedV2>;
+      if (v2.ownerUserId !== clerkUserId) return null;
+      return parsePairOwnedStateIdentityV1(v2.ownedStateIdentity);
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function readPairOwnedStateIdentityForSession(
+  storage: Pick<Storage, 'getItem'> | null | undefined,
+): PairOwnedStateIdentityV1 | null {
+  return readSessionOwnedStateIdentity(storage);
+}
+
 /** Authenticated completions are user-owned only; sessionStorage remains guest-only. */
 export function persistCompletedPairJourney(
-  storage: Pick<Storage, 'removeItem' | 'setItem'> | null | undefined,
+  storage: Pick<Storage, 'getItem' | 'removeItem' | 'setItem'> | null | undefined,
   clerkUserId: string | null | undefined,
   journey: CompatibilityGuestJourneyV3,
+  options?: { explicitContinuityReset?: boolean },
 ): void {
   if (clerkUserId) {
     purgeUnownedPairGuestSession(storage);
-    writeLastCompletedPairJourney(clerkUserId, journey);
+    const previousJourney = readLastCompletedPairJourney(clerkUserId);
+    const previousIdentity = readPairOwnedStateIdentityForUser(clerkUserId);
+    writeLastCompletedPairJourney(clerkUserId, journey, previousIdentity, {
+      previousJourney,
+      explicitContinuityReset: options?.explicitContinuityReset,
+    });
     return;
   }
 
   try {
+    const sessionJourney = readCompatibilityGuestJourneyV3FromSession(storage);
+    const previousIdentity = readSessionOwnedStateIdentity(storage);
+    const nextIdentity = resolveNextPairOwnedStateIdentity({
+      previousIdentity,
+      previousJourney: sessionJourney,
+      nextJourney: journey,
+      explicitContinuityReset: options?.explicitContinuityReset,
+    });
     storage?.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, JSON.stringify(journey));
     storage?.setItem(
       COMPATIBILITY_GUEST_SESSION_PROVENANCE_KEY_V1,
       COMPATIBILITY_GUEST_SESSION_PROVENANCE_VALUE_V1,
     );
     storage?.removeItem(COMPATIBILITY_GUEST_SESSION_KEY);
+    if (nextIdentity) writeSessionOwnedStateIdentity(storage, nextIdentity);
   } catch {
     purgeUnownedPairGuestSession(storage);
   }
@@ -186,9 +356,12 @@ export function persistCompletedPairJourney(
 export function claimPreAuthSessionJourneyForUser(
   clerkUserId: string,
   preAuthJourney: CompatibilityGuestJourneyV3,
-  storage: Pick<Storage, 'removeItem'> | null | undefined,
+  storage: Pick<Storage, 'getItem' | 'removeItem' | 'setItem'> | null | undefined,
 ): Extract<CompatibilityPurchaseHandoffResolution, { kind: 'persisted' }> {
-  writeLastCompletedPairJourney(clerkUserId, preAuthJourney);
+  const sessionIdentity = readSessionOwnedStateIdentity(storage);
+  writeLastCompletedPairJourney(clerkUserId, preAuthJourney, sessionIdentity, {
+    preserveTrustedIdentity: true,
+  });
   purgeUnownedPairGuestSession(storage);
   return {
     kind: 'persisted',
@@ -283,11 +456,18 @@ export function readLastCompletedPairJourney(
   try {
     const raw = localStorage.getItem(storageKeyForUser(clerkUserId));
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<PairGuestPersistedV1>;
-    if (parsed.version !== 'pair_guest_persisted_v1') return null;
-    if (parsed.ownerUserId !== clerkUserId) return null;
-    if (!parsed.journey || parsed.journey.version !== 'journey_v3') return null;
-    return parseSanitizedGuestJourneyV3(JSON.stringify(parsed.journey));
+    const parsed = JSON.parse(raw) as Partial<PairGuestPersistedV2> | Partial<PairGuestPersistedV1>;
+    if (
+      parsed.version !== 'pair_guest_persisted_v1' &&
+      parsed.version !== 'pair_guest_persisted_v2'
+    ) {
+      return null;
+    }
+    const ownerUserId = parsed.ownerUserId;
+    const journeyPayload = parsed.journey;
+    if (ownerUserId !== clerkUserId) return null;
+    if (!journeyPayload || journeyPayload.version !== 'journey_v3') return null;
+    return parseSanitizedGuestJourneyV3(JSON.stringify(journeyPayload));
   } catch {
     return null;
   }
@@ -296,13 +476,40 @@ export function readLastCompletedPairJourney(
 export function writeLastCompletedPairJourney(
   clerkUserId: string,
   journey: CompatibilityGuestJourneyV3,
+  trustedIdentity: PairOwnedStateIdentityV1 | null = null,
+  options?: {
+    previousJourney?: CompatibilityGuestJourneyV3 | null;
+    explicitContinuityReset?: boolean;
+    preserveTrustedIdentity?: boolean;
+  },
 ): void {
   if (!isClient() || !clerkUserId) return;
-  const payload: PairGuestPersistedV1 = {
-    version: 'pair_guest_persisted_v1',
-    ownerUserId: clerkUserId,
-    journey,
-  };
+
+  let ownedStateIdentity: PairOwnedStateIdentityV1 | null = null;
+  if (options?.preserveTrustedIdentity && trustedIdentity) {
+    ownedStateIdentity = parsePairOwnedStateIdentityV1(trustedIdentity);
+  } else {
+    ownedStateIdentity = resolveNextPairOwnedStateIdentity({
+      previousIdentity: trustedIdentity,
+      previousJourney: options?.previousJourney ?? null,
+      nextJourney: journey,
+      explicitContinuityReset: options?.explicitContinuityReset,
+    });
+  }
+
+  const payload: PairGuestPersistedV2 | PairGuestPersistedV1 = ownedStateIdentity
+    ? {
+        version: 'pair_guest_persisted_v2',
+        ownerUserId: clerkUserId,
+        journey,
+        ownedStateIdentity,
+      }
+    : {
+        version: 'pair_guest_persisted_v1',
+        ownerUserId: clerkUserId,
+        journey,
+      };
+
   try {
     localStorage.setItem(storageKeyForUser(clerkUserId), JSON.stringify(payload));
   } catch {
@@ -317,4 +524,12 @@ export function clearLastCompletedPairJourney(clerkUserId: string | null | undef
   } catch {
     /* no-op */
   }
+}
+
+export function clearPairContinuityForUser(
+  clerkUserId: string | null | undefined,
+  sessionStorageRef: Pick<Storage, 'removeItem'> | null | undefined,
+): void {
+  clearLastCompletedPairJourney(clerkUserId);
+  purgeUnownedPairGuestSession(sessionStorageRef);
 }
