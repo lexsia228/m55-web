@@ -44,15 +44,15 @@ Scope: **Pair Free → Pair Premium → post-purchase owned-state → one includ
 - observation date: 2026-11-09 JST. New chat MUST freshly query GitHub/PR/CI/Preview; never treat these historical snapshots as dynamic authority.
 - on repo-document commit/push success: the *current* feature HEAD is the pushed doc commit obtained from GitHub, not the older SHA above. Reconstruct it; do not fill this document with a self-referential commit hash.
 
-## 4. CURRENT local work / one clean cut-over checkpoint
+## 4. HISTORICAL cut-over checkpoint (2026-11-09 — not the current instruction)
 
-The **current** bounded gate for this handoff is: `PR251-PAIR-FEATURE-PUSH-PLUS-DURABLE-HANDOFF`.
+The bounded gate below was current on 2026-11-09 only: `PR251-PAIR-FEATURE-PUSH-PLUS-DURABLE-HANDOFF`. Do not execute it as the present NEXT. The 2026-11-15 checkpoint in section 7 replaces the dynamic state.
 
 Success requires: (a) the reviewed `801d9f…` source commit is ancestor of PR #251's new remote head; (b) exactly one Pair-only handoff documentation commit containing this document is on that branch; (c) local feature and remote feature HEAD match; (d) PR #251 remains OPEN/DRAFT; (e) GitHub CI and Vercel Preview at that exact SHA are observed once and classified **SUCCESS/FAILED/PENDING/NOT_OBSERVED** without inventing a GREEN; (f) actual changed paths and unrelated local state are preserved. No main merge, DB apply or Production mutation.
 
 At that checkpoint this chat can close, and a **NEW ChatGPT conversation** can continue Pair with `CONTINUATION_HANDOFF` reconstructed from this Git file plus fresh GitHub evidence. If CI/Preview remain pending, transfer them as pending rather than polling indefinitely. A pending check is not SUCCESS.
 
-## 5. Pair-only critical path after cut-over (one lane at a time)
+## 5. HISTORICAL critical path (2026-11-09 — not the current instruction)
 
 1. **PR #251 remote/CI/Preview**: observe exact new remote head, required checks and Preview deployment binding. Fix only a new material failure, if any. Do not replay historical suites.
 2. **Consult Preview DB, separately authorized**: fresh Preview `m55-preview / m55-soul-preview` project identity `sbogwyzldjxxouhqtpnq`; read-only migration/history/object preflight for **only new version `20261030180000`**; if Human separately approves mutation, safely enable the currently blocked live executor via another bounded source/authorization gate, apply exact version once with definitive ACK, independently POST verify. Never apply P5-1/2/3 again; never treat source or runner simulation as actual DB migration proof.
@@ -62,7 +62,31 @@ At that checkpoint this chat can close, and a **NEW ChatGPT conversation** can c
 
 Pair is **not yet declared PUBLIC_RELEASE_READY or REVENUE_READY** for the new combined revision. Older Production payment proof must not be confused with this new Consult release.
 
-## 6. STOP / strict exclusions
+## 7. Checkpoint 2026-11-15 (current Pair dynamic state)
+
+This section replaces section 4 and section 5 as the current instruction. Older NEXT items in those sections are history.
+
+Observed and not to be replayed:
+
+- Preview Consult migration `20261030180000` is applied on Preview. NO REPLAY.
+- Owned-report 404 and chapter 6 title read are fixed.
+- Included-reply three-step UI has Human visual confirmation.
+- Included-reply generation, save, and one-credit consumption are GREEN at `f083c85e`.
+- Japanese quality sanitizer is STATIC / COMMIT / PUSH GREEN at `e78198e8`. New LLM answers after that commit are not quality-verified.
+- Production read-only evidence: the five P5 migrations are unrecorded; the new five tables are absent; five purchase-context CHECKs are validated; the live fulfill body matches `20260713000000`.
+- Live fulfill signature, owner, SECURITY DEFINER, search_path, and EXECUTE grants were confirmed. `(id, owner_user_id)` unique is not yet on Production.
+
+Account deletion: after Consult is applied, `compatibility_consult_send_commits.thread_id` stays ON DELETE RESTRICT in `20261030180000` until the follow-up CASCADE migration runs, so account delete could fail once a send commit exists. **Production today:** Consult migrations and consult tables are not applied (see read-only evidence above), so this failure mode is **not live on Production yet**—do not treat Consult deletion blockage as already occurring there. LOCAL forward-only migration `20261115175500_m55_pair_consult_send_commit_owner_delete_cascade_v1.sql` changes only that FK to ON DELETE CASCADE (canonical `301` match: `thread_id` → `id`, validated, NO ACTION update, simple match, non-deferrable). It does not alter `m55_compatibility_account_delete_v1`. Git presence on the feature branch does not imply Preview or Production DB apply.
+
+LOCAL disposable validation (2026-11-15 final delta v2, accepted migration SHA `dba5b960…`, exit 0): source assertion PASS; Docker `postgres:16-alpine` on `127.0.0.1` — FK post-apply `confdeltype=c`, `confupdtype=a`; delete across none/pending/succeeded/failed send commits; direct message-id count 0; orphan send-commit join 0; other owner retained; post-delete reserve with the same owner/report/thread/idempotency key does not recreate commits or thread. **Not performed:** concurrent in-flight transaction tests (reserve/commit racing account deletion); keep as a pre-Production apply check distinct from orphan/replay coverage. `npm run verify:product-authority` steady-state PASS. NO REPLAY of this suite on the accepted candidate unless an invalidator changes file identity.
+
+Production apply remains HOLD (not REMOTE / PREVIEW / PRODUCTION GREEN). Candidate order after separate Human GO is **five migrations total** (four existing Pair consult-chain versions plus this one new fix): `20261009000000` → `20261010000000` → `20261013110000` → `20261030180000` → `20261115175500`; exclude `20261008200000` (Preview ledger only). After `20261030180000` and **before** `20261115175500`, `thread_id` remains ON DELETE RESTRICT on Production until the CASCADE migration completes. Reuse `docs/planning/m55_production_deployment_migration_human_runbook.md` M0–M16 and `scripts/production/m55_production_deployment_migration_authority.ts` (LOCAL authority only): preflight → Human-bound `approved_required_apply_versions` → one version per txn (migration bytes + `supabase_migrations.schema_migrations` insert) → per-version STOP / read-only postcheck → integrated `scripts/sql/production/m55_production_migration_postcheck.sql`. Approved mechanisms: `SECURE_STDIN_CONNECTION_CONFIG_v1` or `TEMP_PGPASSFILE_0600_v1` on `m55-soul-core`. **UNKNOWN:** live Production `required_apply_versions` pin for this exact five-migration set; runtime executor wiring for Production (Preview executor in `lib/m55/previewRemoteApply/*` is Preview-only); whether authority registry already admits `20261115175500`; exact commit SHA / migration registry hash at apply time. **Unsafe:** `supabase db push` wholesale; ambiguous COMMIT ACK retry; batch multi-version without separate authority.
+
+PR #255 overlap, owned by the other worktree: `CompatibilityGuestExperience.tsx`, `PaidCompatibilityReportReader.tsx`, `compatibilityCommerceDb.ts`. #251 does not wait on #255. Do not edit that worktree here.
+
+This revision is not Production-ready and not Revenue Ready. Global Execution Gate stays `PAYOUT_AND_SETTLEMENT`. No unapproved mutation.
+
+## 8. STOP / strict exclusions
 
 - Never infer Preview applied from Git/CI/Preview Ready. Production exact source/DB/provider status requires fresh evidence of that environment.
 - Never leak secrets or personal/birthdate/report content to AI, Git, logs, screenshots, handoff.

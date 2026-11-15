@@ -276,6 +276,27 @@ describe('Pair included reply consult v1', () => {
     assert.match(fn, /RESERVATION_REQUIRED/);
   });
 
+  it('account deletion cascade migration changes only the send-commit thread FK', () => {
+    const original = read('supabase/migrations/20261030180000_m55_pair_included_reply_consult_v1.sql');
+    const fix = read(
+      'supabase/migrations/20261115175500_m55_pair_consult_send_commit_owner_delete_cascade_v1.sql',
+    );
+    const deletion = read('supabase/migrations/20260713000000_compatibility_purchase_delivery_v1.sql');
+    assert.match(original, /REFERENCES public\.compatibility_consult_threads \(id\) ON DELETE RESTRICT/);
+    assert.match(fix, /ON DELETE CASCADE/);
+    assert.match(fix, /lock_timeout = '5s'/);
+    assert.match(fix, /PRECONDITION_FK_IDENTITY/);
+    assert.match(fix, /confupdtype = 'a'/);
+    assert.match(fix, /confmatchtype = 's'/);
+    assert.match(fix, /confkey = ARRAY/);
+    assert.doesNotMatch(fix, /CREATE OR REPLACE FUNCTION public\.m55_compatibility_account_delete_v1/);
+    assert.doesNotMatch(fix, /DROP FUNCTION public\.m55_compatibility_account_delete_v1/);
+    assert.doesNotMatch(fix, /UPDATE public\.compatibility_consult_send_commits/);
+    assert.doesNotMatch(fix, /INSERT INTO public\.compatibility_consult_send_commits/);
+    assert.match(deletion, /CREATE OR REPLACE FUNCTION public\.m55_compatibility_account_delete_v1/);
+    assert.match(deletion, /DELETE FROM public\.compatibility_purchase_contexts/);
+  });
+
   it('consult tables use ENABLE and FORCE row level security', () => {
     const sql = read('supabase/migrations/20261030180000_m55_pair_included_reply_consult_v1.sql');
     assert.match(sql, /compatibility_consult_threads FORCE ROW LEVEL SECURITY/);
@@ -1545,6 +1566,269 @@ describe('Pair consult disposable PostgreSQL delta (reserve/commit/replay)', () 
         assert.equal(commitPayload.error_code, 'ATTEMPT_TOKEN_MISMATCH');
         await client.end();
       } finally {
+        spawnSync('docker', ['rm', '-f', containerId]);
+      }
+    },
+  );
+});
+
+describe('Pair account deletion send-commit cascade (local disposable PostgreSQL)', () => {
+  it(
+    'existing account delete removes one owner across send statuses and keeps the other owner',
+    { skip: !dockerAvailable(), timeout: 600_000 },
+    async () => {
+      const containerName = `m55-pair-del-${createHash('sha256').update(String(Date.now())).digest('hex').slice(0, 10)}`;
+      const run = spawnSync(
+        'docker',
+        [
+          'run',
+          '-e',
+          'POSTGRES_PASSWORD=m55local',
+          '-p',
+          '127.0.0.1:0:5432',
+          '-d',
+          '--name',
+          containerName,
+          'postgres:16-alpine',
+        ],
+        { encoding: 'utf8' },
+      );
+      assert.equal(run.status, 0, run.stderr || run.stdout);
+      const containerId = run.stdout.trim();
+      const clientRef: { current: Client | null } = { current: null };
+      try {
+        for (let i = 0; i < 60; i += 1) {
+          if (spawnSync('docker', ['exec', containerId, 'pg_isready', '-U', 'postgres']).status === 0) {
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 500));
+        }
+        const portLine = spawnSync('docker', ['port', containerId, '5432/tcp'], {
+          encoding: 'utf8',
+        }).stdout
+          .trim()
+          .split('\n')[0];
+        const hostPort = Number.parseInt(portLine.split(':').pop() ?? '', 10);
+        assert.equal(portLine.startsWith('127.0.0.1:'), true);
+        const client = new Client({
+          host: '127.0.0.1',
+          port: hostPort,
+          user: 'postgres',
+          password: 'm55local',
+          database: 'postgres',
+        });
+        clientRef.current = client;
+        await client.connect();
+        const identity = await client.query(
+          `SELECT current_database() AS db, inet_server_addr()::text AS addr`,
+        );
+        assert.equal(identity.rows[0]?.db, 'postgres');
+        assert.notEqual(identity.rows[0]?.addr, null);
+        await client.query(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;`);
+        const delivery = read('supabase/migrations/20260713000000_compatibility_purchase_delivery_v1.sql');
+        const deliveryCut = delivery.indexOf(
+          'ALTER FUNCTION public.m55_account_deletion_process_v1',
+        );
+        assert.ok(deliveryCut > 0);
+        await client.query(delivery.slice(0, deliveryCut));
+        await client.query(
+          read('supabase/migrations/20261009000000_m55_pair_owned_state_identity_v1.sql'),
+        );
+        await client.query(consultMigrationSqlWithoutFulfill());
+        await client.query(
+          read(
+            'supabase/migrations/20261115175500_m55_pair_consult_send_commit_owner_delete_cascade_v1.sql',
+          ),
+        );
+
+        const fk = await client.query(
+          `SELECT convalidated, confdeltype, confupdtype, confmatchtype, condeferrable, condeferred
+           FROM pg_constraint
+           WHERE conname = 'compatibility_consult_send_commits_thread_id_fkey'`,
+        );
+        assert.equal(fk.rows[0]?.convalidated, true);
+        assert.equal(fk.rows[0]?.confdeltype, 'c');
+        assert.equal(fk.rows[0]?.confupdtype, 'a');
+        assert.equal(fk.rows[0]?.confmatchtype, 's');
+        assert.equal(fk.rows[0]?.condeferrable, false);
+        assert.equal(fk.rows[0]?.condeferred, false);
+        const unique = await client.query(
+          `SELECT 1
+           FROM pg_constraint
+           WHERE conname = 'compatibility_consult_send_commits_idempotency_uidx'`,
+        );
+        assert.equal(unique.rowCount, 1);
+
+        type SeedFixture = {
+          reportId: string;
+          threadId: string;
+          idempotencyKey: string;
+          userMessageId: string | null;
+          assistantMessageId: string | null;
+        };
+
+        async function seed(
+          owner: string,
+          status: 'none' | 'pending' | 'succeeded' | 'failed',
+        ): Promise<SeedFixture | null> {
+          const context = await client.query(
+            `INSERT INTO compatibility_purchase_contexts (
+               owner_user_id, product_key, snapshot_version, pending_snapshot, status, fulfilled_at
+             ) VALUES ($1, 'compatibility_report_full_v1', 'paid_compatibility_report_v1', '{}'::jsonb, 'fulfilled', now())
+             RETURNING id`,
+            [owner],
+          );
+          const contextId = context.rows[0]?.id as string;
+          const report = await client.query(
+            `INSERT INTO compatibility_owned_reports (
+               owner_user_id, purchase_context_id, product_key, snapshot_version, snapshot
+             ) VALUES ($1, $2, 'compatibility_report_full_v1', 'paid_compatibility_report_v1', '{}'::jsonb)
+             RETURNING id`,
+            [owner, contextId],
+          );
+          const reportId = report.rows[0]?.id as string;
+          const ensured = await client.query(
+            `SELECT public.m55_ensure_compatibility_included_reply_thread_v1($1::uuid, $2::text) AS payload`,
+            [reportId, owner],
+          );
+          assert.equal((ensured.rows[0]?.payload as { ok?: boolean }).ok, true);
+          const thread = await client.query(
+            `SELECT id FROM compatibility_consult_threads WHERE owner_user_id = $1 AND owned_report_id = $2`,
+            [owner, reportId],
+          );
+          const threadId = thread.rows[0]?.id as string;
+          const idempotencyKey = `key-${status}-12345678`;
+          if (status === 'none') {
+            return { reportId, threadId, idempotencyKey, userMessageId: null, assistantMessageId: null };
+          }
+          let userMessageId: string | null = null;
+          let assistantMessageId: string | null = null;
+          if (status === 'succeeded') {
+            const userMessage = await client.query(
+              `INSERT INTO compatibility_consult_messages (thread_id, role, content)
+               VALUES ($1, 'user', 'owner question') RETURNING id`,
+              [threadId],
+            );
+            const assistantMessage = await client.query(
+              `INSERT INTO compatibility_consult_messages (thread_id, role, content)
+               VALUES ($1, 'assistant', 'owner answer') RETURNING id`,
+              [threadId],
+            );
+            userMessageId = userMessage.rows[0]?.id as string;
+            assistantMessageId = assistantMessage.rows[0]?.id as string;
+          }
+          await client.query(
+            `INSERT INTO compatibility_consult_send_commits (
+               user_id, owned_report_id, idempotency_key, payload_fingerprint, thread_id, status,
+               user_message_id, assistant_message_id
+             ) VALUES ($1, $2, $3, 'fingerprint', $4, $5, $6, $7)`,
+            [owner, reportId, idempotencyKey, threadId, status, userMessageId, assistantMessageId],
+          );
+          return { reportId, threadId, idempotencyKey, userMessageId, assistantMessageId };
+        }
+
+        await seed('owner_none', 'none');
+        const pendingFixture = await seed('owner_pending', 'pending');
+        const succeededFixture = await seed('owner_succeeded', 'succeeded');
+        await seed('owner_failed', 'failed');
+        await seed('owner_other', 'pending');
+        assert.ok(pendingFixture);
+        assert.ok(succeededFixture);
+        assert.ok(succeededFixture.userMessageId);
+        assert.ok(succeededFixture.assistantMessageId);
+
+        const deleteFn = await client.query(
+          `SELECT pg_get_functiondef('public.m55_compatibility_account_delete_v1(text)'::regprocedure) AS def`,
+        );
+        const def = String(deleteFn.rows[0]?.def);
+        assert.match(def, /DELETE FROM public.compatibility_purchase_contexts/);
+        assert.doesNotMatch(def, /compatibility_consult_send_commits/);
+
+        for (const owner of ['owner_none', 'owner_pending', 'owner_succeeded', 'owner_failed']) {
+          const deleted = await client.query(
+            `SELECT public.m55_compatibility_account_delete_v1($1) AS payload`,
+            [owner],
+          );
+          assert.equal((deleted.rows[0]?.payload as { ok?: boolean }).ok, true, owner);
+          const left = await client.query(
+            `SELECT
+               (SELECT count(*) FROM compatibility_purchase_contexts WHERE owner_user_id = $1) AS contexts,
+               (SELECT count(*) FROM compatibility_owned_reports WHERE owner_user_id = $1) AS reports,
+               (SELECT count(*) FROM compatibility_consult_threads WHERE owner_user_id = $1) AS threads,
+               (SELECT count(*) FROM compatibility_consult_messages m
+                  JOIN compatibility_consult_threads t ON t.id = m.thread_id
+                  WHERE t.owner_user_id = $1) AS messages,
+               (SELECT count(*) FROM compatibility_consult_send_commits WHERE user_id = $1) AS commits`,
+            [owner],
+          );
+          assert.deepEqual(left.rows[0], {
+            contexts: '0',
+            reports: '0',
+            threads: '0',
+            messages: '0',
+            commits: '0',
+          });
+        }
+
+        const deletedMessages = await client.query(
+          `SELECT count(*)::int AS n
+           FROM compatibility_consult_messages
+           WHERE id = ANY($1::uuid[])`,
+          [[succeededFixture.userMessageId, succeededFixture.assistantMessageId]],
+        );
+        assert.equal(deletedMessages.rows[0]?.n, 0);
+
+        const orphanCommits = await client.query(
+          `SELECT count(*)::int AS n
+           FROM compatibility_consult_send_commits sc
+           LEFT JOIN compatibility_consult_threads t ON t.id = sc.thread_id
+           WHERE t.id IS NULL`,
+        );
+        assert.equal(orphanCommits.rows[0]?.n, 0);
+
+        const other = await client.query(
+          `SELECT
+             (SELECT count(*) FROM compatibility_purchase_contexts WHERE owner_user_id = 'owner_other') AS contexts,
+             (SELECT count(*) FROM compatibility_owned_reports WHERE owner_user_id = 'owner_other') AS reports,
+             (SELECT credits_remaining FROM compatibility_consult_threads WHERE owner_user_id = 'owner_other') AS credits,
+             (SELECT status FROM compatibility_consult_send_commits WHERE user_id = 'owner_other') AS status`,
+        );
+        assert.equal(other.rows[0]?.contexts, '1');
+        assert.equal(other.rows[0]?.reports, '1');
+        assert.equal(other.rows[0]?.credits, 1);
+        assert.equal(other.rows[0]?.status, 'pending');
+
+        const replay = await client.query(
+          `SELECT public.m55_compatibility_consult_send_reserve_v1(
+             'owner_pending',
+             $1::uuid,
+             $2::uuid,
+             $3,
+             'owner question'
+           ) AS payload`,
+          [pendingFixture.reportId, pendingFixture.threadId, pendingFixture.idempotencyKey],
+        );
+        assert.equal((replay.rows[0]?.payload as { ok?: boolean }).ok, false);
+        const afterReplay = await client.query(
+          `SELECT count(*)::int AS commits
+           FROM compatibility_consult_send_commits
+           WHERE user_id = 'owner_pending'
+             AND owned_report_id = $1::uuid
+             AND idempotency_key = $2`,
+          [pendingFixture.reportId, pendingFixture.idempotencyKey],
+        );
+        assert.equal(afterReplay.rows[0]?.commits, 0);
+        const threadAfterReplay = await client.query(
+          `SELECT count(*)::int AS n FROM compatibility_consult_threads WHERE id = $1::uuid`,
+          [pendingFixture.threadId],
+        );
+        assert.equal(threadAfterReplay.rows[0]?.n, 0);
+        await client.end();
+        clientRef.current = null;
+      } finally {
+        if (clientRef.current) {
+          await clientRef.current.end().catch(() => undefined);
+        }
         spawnSync('docker', ['rm', '-f', containerId]);
       }
     },
