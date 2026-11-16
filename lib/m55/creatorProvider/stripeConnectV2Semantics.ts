@@ -196,7 +196,15 @@ export function mapV2CoreAccountToProviderSnapshotV1(
         entry.minimum_deadline?.status === 'currently_due' ||
         entry.minimum_deadline?.status === 'past_due',
     ).length;
-    detailsSubmitted = requirementsCurrentlyDueCount === 0 && entries.length > 0;
+    if (entries.length === 0) {
+      if (minDeadlineStatus == null) {
+        detailsSubmitted = transfersStatus === 'active' && payoutsStatus === 'active';
+      } else {
+        return failClosedProviderSnapshotV1();
+      }
+    } else {
+      detailsSubmitted = requirementsCurrentlyDueCount === 0;
+    }
   } else {
     return failClosedProviderSnapshotV1();
   }
