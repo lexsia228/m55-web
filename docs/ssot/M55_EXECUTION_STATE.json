@@ -1153,7 +1153,27 @@
     "productionSettlementActivated": false,
     "providerRuntimeActivated": false,
     "stripePayoutProviderStatusExecutable": "UNSELECTED",
-    "observedAt": "2026-10-31T08:57:00Z"
+    "observedAt": "2026-10-31T08:57:00Z",
+    "localProviderCheckpoint20261115": {
+      "isolatedProviderSnapshotSyncGreen": true,
+      "isolatedOnlyNotProductionProviderRuntime": true,
+      "evidenceArtifact": "m55_r8_successful_authenticated_provider_sync_2026-11-15.json",
+      "evidenceArtifactSha256": "e8dbf87a14bffecbfaa7de865708f70259485bdef264c7d690cb4781f8416a2a",
+      "mapperPatchSha256": "80293372f8daad35b0d1529871be648ff7cb9b55fe0778cfe87c371aa336971f",
+      "webhookRoutePatchSha256": "632e9388b5e4ef58520e0cd35324dde5feb10416a2a8b65197691fc1d579956a",
+      "httpAuthenticatedSyncAttemptsTotal": 3,
+      "httpAuthenticatedSyncOutcomes": ["404_DEV_BROWSER_MISSING", "403_CREATOR_PROFILE_REQUIRED", "200_SUCCESS"],
+      "httpGoConsumedThroughSuccess": true,
+      "furtherRefreshProhibitedWithoutNewGo": true,
+      "providerSnapshotSyncedEventDelta": 1,
+      "linkStateAfterSync": "PAYOUTS_CAPABILITY_ACTIVE",
+      "providerSnapshotLastSyncedAt": "2026-11-15T12:58:46.14Z",
+      "httpAttempts1And2ProviderDbMutation": false,
+      "httpAttempt3ProviderDbPersistenceGreen": true,
+      "stripeTestWebhookDirectDeliveryProven": false,
+      "stripeProductionLiveWebhookDeliveryProven": false,
+      "observedAt": "2026-11-15T12:58:46.14Z"
+    }
   },
   "creatorRevenueR7ToR8ControlPlaneTransition": {
     "status": "HUMAN_APPROVED",
