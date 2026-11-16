@@ -141,13 +141,25 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
       const clipsX = style.overflowX === 'hidden' || style.overflowX === 'clip';
       if (clipsY || clipsX) {
         const box = parent.getBoundingClientRect();
-        const cutBottom =
-          clipsY && visibleBottom > box.bottom + 1.5 && visibleTop < box.bottom - 1.5;
-        const cutTop = clipsY && visibleTop < box.top - 1.5 && visibleBottom > box.top + 1.5;
-        const cutRight =
-          clipsX && visibleRight > box.right + 1.5 && visibleLeft < box.right - 1.5;
-        const cutLeft = clipsX && visibleLeft < box.left - 1.5 && visibleRight > box.left + 1.5;
-        if (cutBottom || cutTop || cutRight || cutLeft) {
+        const tol = 1.5;
+        const cutBottom = clipsY && visibleBottom > box.bottom + tol && visibleTop < box.bottom - tol;
+        const cutTop = clipsY && visibleTop < box.top - tol && visibleBottom > box.top + tol;
+        const cutRight = clipsX && visibleRight > box.right + tol && visibleLeft < box.right - tol;
+        const cutLeft = clipsX && visibleLeft < box.left - tol && visibleRight > box.left + tol;
+        const fullBelow = clipsY && visibleTop >= box.bottom - tol;
+        const fullAbove = clipsY && visibleBottom <= box.top + tol;
+        const fullRight = clipsX && visibleLeft >= box.right - tol;
+        const fullLeft = clipsX && visibleRight <= box.left + tol;
+        if (
+          cutBottom ||
+          cutTop ||
+          cutRight ||
+          cutLeft ||
+          fullBelow ||
+          fullAbove ||
+          fullRight ||
+          fullLeft
+        ) {
           return {
             selector: describeSelector(parent),
             rect: toRect(box),
