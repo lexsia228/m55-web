@@ -48,21 +48,15 @@ export async function isCreatorReferralCapabilityPermittedV1(
   }
 
   const db = getSupabaseAdmin() as any;
-  const { data, error } = await db
-    .from('m55_r5_compliance_cases')
-    .select('case_id')
-    .eq('creator_economic_identity_id', creatorEconomicIdentityId)
-    .in('status', ['OPEN', 'HOLD'])
-    .or(
-      'decision.is.null,decision.eq.KEEP_HOLD,decision.eq.REQUEST_CORRECTION,decision.eq.PAUSE_CREATOR,decision.eq.TERMINATE_PARTNERSHIP',
-    )
-    .limit(1);
+  const { data, error } = await db.rpc('m55_r5_creator_referral_clearance_v1', {
+    p_creator_economic_identity_id: creatorEconomicIdentityId,
+  });
 
   if (error) {
     throw new Error('PORTAL_UNAVAILABLE');
   }
 
-  return (data ?? []).length === 0;
+  return data === true;
 }
 
 export async function resolveCreatorContextFromSession(): Promise<ResolvedCreatorContext> {

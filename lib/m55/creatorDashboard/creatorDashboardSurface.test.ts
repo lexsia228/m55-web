@@ -49,11 +49,10 @@ describe('creator dashboard surface contracts', () => {
     assert.match(issueRoute, /resolveCreatorReferralShareOriginV1/);
   });
 
-  it('uses existence semantics for referral capability compliance gate', () => {
+  it('routes referral capability compliance gate through R5 clearance RPC', () => {
     const ctxSrc = readFileSync(join(root, 'lib/m55/creatorDashboard/creatorContext.ts'), 'utf8');
-    assert.match(ctxSrc, /\.limit\(1\)/);
-    assert.doesNotMatch(ctxSrc, /\.limit\(50\)/);
-    assert.match(ctxSrc, /decision\.is\.null/);
+    assert.match(ctxSrc, /m55_r5_creator_referral_clearance_v1/);
+    assert.doesNotMatch(ctxSrc, /\.from\('m55_r5_compliance_cases'\)/);
   });
 
   it('paginates commission activity and compliance history with cursor propagation', () => {
