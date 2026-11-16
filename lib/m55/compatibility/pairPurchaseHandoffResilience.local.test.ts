@@ -12,8 +12,12 @@ import {
   readCompatibilityGuestJourneyV3FromSession,
   readCompatibilityPurchaseJourneyFromSession,
   readLastCompletedPairJourney,
+  readPairOwnedStateIdentityForSession,
+  readPairOwnedStateIdentityForUser,
+  readSessionGuestCheckoutBinding,
   resolveSignedInPurchaseHandoff,
   resolveSignedOutPurchaseHandoff,
+  verifyCheckoutTabBindingStillCoherent,
   writeLastCompletedPairJourney,
 } from './pairGuestClientStore';
 import type { CompatibilityGuestJourneyV3 } from './pairReadingGuestContract';
@@ -247,7 +251,7 @@ describe('pair purchase auth-boundary ownership', () => {
     });
 
     assert.ok(captured);
-    assert.equal(storage.length, 2);
+    assert.equal(storage.length, 3);
     assert.deepEqual(captured, journey);
     assert.equal(resolution.kind, 'session');
   });
@@ -257,7 +261,7 @@ describe('pair purchase auth-boundary ownership', () => {
       const guestJourney = completeJourney('1988-04-04', '1990-08-08');
       const session = createMemoryStorage();
       persistCompletedPairJourney(session, null, guestJourney);
-      assert.equal(session.length, 2);
+      assert.equal(session.length, 3);
       const captured = capturePreAuthSessionJourneyCandidate(
         null,
         readCompatibilityGuestJourneyV3FromSession(session),
@@ -435,6 +439,104 @@ describe('pair purchase auth-boundary ownership', () => {
       assert.equal(userBResolution.kind, 'persisted');
       assert.deepEqual(userBResolution.journey.input, journeyB.input);
       assert.notDeepEqual(userBResolution.journey.input, journeyA.input);
+    });
+  });
+
+  it('09 guest-to-login claim preserves exact owned-state identity ids', () => {
+    withLocalStorage(() => {
+      const session = createMemoryStorage();
+      const journey = completeJourney();
+      persistCompletedPairJourney(session, null, journey);
+      const sessionIdentity = readPairOwnedStateIdentityForSession(session);
+      assert.ok(sessionIdentity);
+      claimPreAuthSessionJourneyForUser(USER_A, journey, session);
+      assert.deepEqual(readPairOwnedStateIdentityForUser(USER_A), sessionIdentity);
+      assert.equal(readPairOwnedStateIdentityForSession(session), null);
+    });
+  });
+
+  it('12 checkout reservation patch keeps fail-closed client recovery states', () => {
+    const purchase = read('components/compatibility/CompatibilityPurchaseExperience.tsx');
+    const checkout = read('app/api/compatibility/checkout/route.ts');
+    assert.match(purchase, /checkout_unknown/);
+    assert.match(purchase, /verifyCheckoutTabBindingStillCoherent/);
+    assert.match(purchase, /checkoutTabIdentityRef/);
+    assert.match(purchase, /マイページで状況を確認/);
+    assert.match(checkout, /checkoutOriginFrozen/);
+    assert.match(checkout, /customer_email: customerEmail/);
+  });
+
+  it('14 session checkout binding requires removeItem-capable storage and fails closed on null', () => {
+    assert.equal(readSessionGuestCheckoutBinding(null), null);
+    withLocalStorage(() => {
+      const storage = createMemoryStorage();
+      assert.equal(readSessionGuestCheckoutBinding(storage), null);
+      let removeCalls = 0;
+      const purgeCapable: Storage = {
+        ...storage,
+        removeItem(key: string) {
+          removeCalls += 1;
+          storage.removeItem(key);
+        },
+      };
+      storage.setItem(COMPATIBILITY_GUEST_SESSION_KEY_V3, '{"version":"journey_v3"}');
+      storage.setItem('m55_compatibility_guest_journey_v3_provenance_v1', 'wrong');
+      assert.equal(readSessionGuestCheckoutBinding(purgeCapable), null);
+      assert.ok(removeCalls > 0);
+    });
+  });
+
+  it('13 tab-local checkout binding rejects storage drift before POST', () => {
+    withLocalStorage(() => {
+      const journeyA = completeJourney();
+      const journeyB = completeJourney('1982-02-28', '1993-03-03');
+      writeLastCompletedPairJourney(USER_A, journeyA);
+      const tabIdentity = readPairOwnedStateIdentityForUser(USER_A);
+      assert.ok(tabIdentity);
+      const tabJourney = guestJourneyV3ToPurchaseJourney(journeyA);
+      assert.ok(
+        verifyCheckoutTabBindingStillCoherent({
+          clerkUserId: USER_A,
+          sessionStorageRef: null,
+          tabJourney,
+          tabIdentity,
+        }),
+      );
+      writeLastCompletedPairJourney(USER_A, journeyB);
+      assert.ok(!verifyCheckoutTabBindingStillCoherent({
+        clerkUserId: USER_A,
+        sessionStorageRef: null,
+        tabJourney,
+        tabIdentity,
+      }));
+    });
+  });
+
+  it('11 purchase owned-state lookup invalidates stale reports responses on transition', () => {
+    const component = read('components/compatibility/CompatibilityPurchaseExperience.tsx');
+    const ownedLookupEffect = component.slice(
+      component.indexOf('ownedLookupRequestIdRef.current += 1'),
+      component.indexOf('[previewAuthState, isLoaded, user?.id, handoff, journey]'),
+    );
+    assert.match(ownedLookupEffect, /ownedLookupRequestIdRef\.current \+= 1/);
+    assert.match(ownedLookupEffect, /const requestId = ownedLookupRequestIdRef\.current/);
+    assert.match(ownedLookupEffect, /ownedLookupRequestIdRef\.current !== requestId/);
+    assert.match(ownedLookupEffect, /return \(\) => \{[\s\S]*ownedLookupRequestIdRef\.current \+= 1/);
+    assert.match(ownedLookupEffect, /setOwnedState\('pending'\)/);
+    assert.match(ownedLookupEffect, /setOwnedState\(\{ kind: 'unknown' \}\)/);
+  });
+
+  it('10 User B cannot inherit User A owned-state identity', () => {
+    withLocalStorage(() => {
+      const session = createMemoryStorage();
+      const journeyA = completeJourney('1980-01-01', '1985-05-05');
+      persistCompletedPairJourney(session, USER_A, journeyA);
+      const identityA = readPairOwnedStateIdentityForUser(USER_A);
+      assert.ok(identityA);
+      persistCompletedPairJourney(session, USER_B, journeyA);
+      const identityB = readPairOwnedStateIdentityForUser(USER_B);
+      assert.ok(identityB);
+      assert.notEqual(identityB.pairIdentityId, identityA.pairIdentityId);
     });
   });
 

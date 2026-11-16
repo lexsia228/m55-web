@@ -50,8 +50,11 @@ test('checkout is single-flight and bounded; labels do not enter analytics or sh
   const purchase = read('components/compatibility/CompatibilityPurchaseExperience.tsx');
   const reader = read('components/compatibility/PaidCompatibilityReportReader.tsx');
   const share = read('components/narrative/CompatibilityPaidShareBlock.tsx');
-  assert.match(purchase, /if \(!journey \|\| !commerceEnabled \|\| loading\) return/);
-  assert.match(purchase, /fetchJsonWithTimeout<\{ url\?: unknown \}>\('\/api\/compatibility\/checkout'/);
+  assert.match(purchase, /if \(!journey \|\| !commerceEnabled \|\| loading \|\| checkoutInFlightRef\.current\) return/);
+  assert.match(purchase, /fetchJsonWithTimeout<unknown>\([\s\S]*'\/api\/compatibility\/checkout'/);
+  assert.match(purchase, /parseCompatibilityCheckoutResponse/);
+  assert.match(purchase, /checkout_unknown/);
+  assert.match(purchase, /購入済みレポートを開く/);
   assert.doesNotMatch(reader, /trackFunnel(?:Action|ImpressionOnce)\([^)]*partnerLabel/s);
   assert.match(reader, /<CompatibilityPaidShareBlock snapshot=\{snapshot\} \/>/);
   assert.doesNotMatch(share, /displayIdentity|partnerLabel/);

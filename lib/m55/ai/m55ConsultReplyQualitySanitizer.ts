@@ -249,18 +249,7 @@ const REGEX_RULES: RegexRule[] = [
   {
     category: 'outcome_guarantee',
     pattern: /([^。\n]{1,40})につながります/g,
-    replace: (lead) => `${lead.trimEnd()}を見えやすくする材料になります`,
-  },
-  {
-    category: 'outcome_guarantee',
-    pattern: /([^。\n]{1,40})できるでしょう/g,
-    replace: (lead) => {
-      const trimmed = lead.trimEnd();
-      if (trimmed.endsWith('ことが')) {
-        return `${trimmed}選び直しやすくなります`;
-      }
-      return `${trimmed}選び直しやすくなります`;
-    },
+    replace: (lead) => `${lead.trimEnd()}につながることがあります`,
   },
 ];
 
@@ -425,25 +414,19 @@ const LIVING_LANGUAGE_OUTPUT_REWRITES_SORTED = [...LIVING_LANGUAGE_OUTPUT_REWRIT
   (a, b) => b.from.length - a.from.length,
 );
 
+/**
+ * Repeat caps only where the replacement is a same-strength paraphrase of the whole phrase.
+ * 「かもしれません」「可能性があります」「ことが多いです」 are not capped here:
+ * CONSULT_REPLY_QUALITY_VOICE_JA asks generation to use them sparingly, but splicing
+ * 「出やすいです」 onto the preceding verb changes possibility into tendency and breaks grammar.
+ * When a safe same-strength rewrite cannot be fixed from the ending alone, the clause is kept.
+ */
 const PHRASE_OCCURRENCE_LIMITS: {
   phrase: string;
   maxKeep: number;
   replacement: string;
   category: M55ConsultReplyQualityCategory;
 }[] = [
-  { phrase: 'かもしれません', maxKeep: 1, replacement: '出やすいです', category: 'generic_advice' },
-  {
-    phrase: '可能性があります',
-    maxKeep: 1,
-    replacement: '見えやすいです',
-    category: 'generic_advice',
-  },
-  {
-    phrase: 'ことが多いです',
-    maxKeep: 2,
-    replacement: '出やすいです',
-    category: 'generic_advice',
-  },
   {
     phrase: '最初の手がかりになります',
     maxKeep: 1,
@@ -598,6 +581,10 @@ export function repairConsultReplyGrammarArtifacts(text: string): string {
       '確認してみると、今の進め方を整えやすくなります',
     ],
     ['作るして', '作って'],
+    ['になる出やすいです', 'になることがあります'],
+    ['せる出やすいです', 'せることがあります'],
+    ['できる出やすいです', 'できることがあります'],
+    ['なる出やすいです', 'なることがあります'],
   ];
   for (const [from, to] of replacements) {
     if (!out.includes(from)) continue;

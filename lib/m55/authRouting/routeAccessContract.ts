@@ -119,6 +119,8 @@ const PROTECTED_DYNAMIC_PATTERNS: readonly RegExp[] = [
   /^\/synastry\/report\/[^/]+$/,
   /^\/api\/reply\/session\/[^/]+$/,
   /^\/api\/internal\/creator-review\/[^/]+$/,
+  /^\/api\/compatibility\/reports\/[^/]+\/consult$/,
+  /^\/api\/compatibility\/reports\/[^/]+\/consult\/send$/,
 ];
 
 /** Public dynamic routes with exactly one opaque segment. */

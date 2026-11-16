@@ -17,7 +17,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     const r = applyM55ConsultReplyQualityPasses(
       '言葉を選び直すことは、落ち着きにつながります。'
     );
-    assert.ok(r.text.includes('見えやすくする材料になります'));
+    assert.ok(r.text.includes('につながることがあります'));
     assert.ok(r.categoriesTriggered.includes('outcome_guarantee'));
   });
 
@@ -88,12 +88,13 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     assert.ok(r.categoriesTriggered.includes('generic_advice'));
   });
 
-  it('collapses repeated かもしれません phrasing', () => {
-    const r = applyM55ConsultReplyQualityPasses(
-      '整理できるかもしれません。見直せるかもしれません。戻せるかもしれません。'
-    );
-    const count = (r.text.match(/かもしれません/g) ?? []).length;
-    assert.ok(count <= 1);
+  it('keeps repeated かもしれません instead of inventing a tendency', () => {
+    const input =
+      '整理できるかもしれません。見直せるかもしれません。戻せるかもしれません。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
+    assert.equal(r.text.includes('せやすいです'), false);
+    assert.equal(r.text.includes('出やすいです'), false);
   });
 
   it('does not map repeated 重要です / 大切です to the same template phrase', () => {
@@ -105,10 +106,12 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     assert.ok(handgrip <= 1);
   });
 
-  it('avoids ことがを when regex rewrites できるでしょう after ことが', () => {
-    const r = applyM55ConsultReplyQualityPasses('回復させることができるでしょう。');
+  it('keeps できるでしょう instead of mechanical 選び直しやすくなります rewrite', () => {
+    const input = '回復させることができるでしょう。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
     assert.equal(r.text.includes('ことがを'), false);
-    assert.ok(r.text.includes('選び直しやすくなります'));
+    assert.equal(r.text.includes('選び直しやすくなります'), false);
   });
 
   it('rewrites forbidden cold and self-help phrasing in paid reply output', () => {
@@ -154,14 +157,74 @@ describe('applyM55ConsultReplyQualityPasses', () => {
   });
 
   it('fixes かもしれません overflow: no なるなりやすい fusion', () => {
+    const input =
+      '選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
+    assert.equal(r.text.includes('なるなりやすい'), false);
+    assert.equal(r.text.includes('なる出やすいです'), false);
+    assert.equal(r.text.includes('なりやすいです'), false);
+  });
+
+  it('regression: excess かもしれません does not splice 出やすいです after なる', () => {
+    const input =
+      '整理できるかもしれません。この小さな試みが、あなたの言葉の選び方を整える一歩になるかもしれません。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
+    assert.equal(r.text.includes('なる出やすいです'), false);
+    assert.equal(r.text.includes('一歩になる出やすいです'), false);
+    assert.equal(r.text.includes('なりやすいです'), false);
+  });
+
+  it('regression: repeated できるかもしれません is not rewritten into できやすい', () => {
+    const input =
+      '整え直せるかもしれません。見直せるかもしれません。戻せるかもしれません。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
+    assert.equal(r.text.includes('見直せやすいです'), false);
+    assert.equal(r.text.includes('できやすいです'), false);
+    assert.equal(r.text.includes('れやすいです'), false);
+  });
+
+  it('regression: 可能性があります is not rewritten into 見えやすいです', () => {
+    const input =
+      '影響するかもしれません。進められる可能性があります。整えられる可能性があります。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
+    assert.equal(r.text.includes('られやすいです'), false);
+    assert.equal(r.text.includes('見えやすいです'), false);
+  });
+
+  it('regression: already-spliced 出やすいです is repaired without raising certainty', () => {
     const r = applyM55ConsultReplyQualityPasses(
-      '選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。'
+      'この小さな試みが、あなたの言葉の選び方を整える一歩になる出やすいです。見直せる出やすいです。'
     );
-    assert.equal(r.text.includes('なるなりやすい'), false, 'fusion artifact must not appear');
-    assert.equal(r.text.includes('なるなりやすいです'), false);
-    const count = (r.text.match(/かもしれません/g) ?? []).length;
-    assert.ok(count <= 1, `かもしれません should appear at most 1 time, got ${count}`);
-    assert.ok(r.text.includes('出やすいです'), 'overflow replacement should be 出やすいです');
+    assert.equal(r.text.includes('一歩になる出やすいです'), false);
+    assert.equal(r.text.includes('見直せやすいです'), false);
+    assert.ok(r.text.includes('一歩になることがあります'));
+    assert.ok(r.text.includes('見直せることがあります'));
+  });
+
+  it('regression: natural copy survives without spurious hedge rewrites', () => {
+    const self =
+      '仕事では、区切りを先に置くと次の作業へ戻りやすいです。今日は確認だけにします。';
+    const pair =
+      '距離の取り方は、あなた側のペースと相手側の反応の差として読めます。今日は短い接点だけ置きます。';
+    assert.equal(applyM55ConsultReplyQualityPasses(self).text, self);
+    assert.equal(applyM55ConsultReplyQualityPasses(pair).text, pair);
+  });
+
+  it('regression: につながります softens certainty without changing the claim', () => {
+    const r = applyM55ConsultReplyQualityPasses('言葉を選び直すことは、落ち着きにつながります。');
+    assert.equal(r.text, '言葉を選び直すことは、落ち着きにつながることがあります。');
+    assert.equal(r.text.includes('見えやすくする材料になります'), false);
+  });
+
+  it('regression: paragraph breaks stay intact', () => {
+    const input = '整理できるかもしれません。\n\n距離を置くことがあります。';
+    const r = applyM55ConsultReplyQualityPasses(input);
+    assert.equal(r.text, input);
+    assert.equal(r.text.split('\n').length, 3);
   });
 
   it('rewrites より良いコミュニケーション to living-language', () => {
@@ -222,9 +285,10 @@ describe('applyM55ConsultReplyQualityPasses', () => {
         '進められる可能性があります。良いことが多いです。手助けになることが多いです。' +
         'プレミアムレポートの傾向に沿って、区切りを置きにくい流れとして見えます。'
     );
-    assert.ok((r.text.match(/かもしれません/g) ?? []).length <= 1);
-    assert.ok((r.text.match(/可能性があります/g) ?? []).length <= 1);
-    assert.ok((r.text.match(/ことが多いです/g) ?? []).length <= 2);
+    assert.ok((r.text.match(/かもしれません/g) ?? []).length >= 1);
+    assert.ok((r.text.match(/可能性があります/g) ?? []).length >= 1);
+    assert.equal(r.text.includes('出やすいです'), false);
+    assert.equal(r.text.includes('見えやすいです'), false);
     assert.equal(r.text.includes('手助けになることが多いです'), false);
     assert.equal(r.text.includes('良いことが多いです'), false);
   });

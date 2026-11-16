@@ -12,6 +12,7 @@ import {
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import PairResultSignature from './PairResultSignature';
 import CompatibilityPaidShareBlock from '../narrative/CompatibilityPaidShareBlock';
+import CompatibilityIncludedReplyConsult from './CompatibilityIncludedReplyConsult';
 import styles from './PaidCompatibilityReportReader.module.css';
 import { legacyPairDisplayIdentity } from '../../lib/m55/compatibility/pairDisplayIdentity';
 
@@ -27,10 +28,13 @@ function chapterAnchor(chapter: PaidCompatibilityChapter): string {
 export default function PaidCompatibilityReportReader({
   snapshot,
   owned = false,
+  ownedReportId,
   analyticsEnabled = true,
 }: {
   snapshot: PaidCompatibilityReportSnapshot;
   owned?: boolean;
+  /** Required for purchaser-only included additional reading (#251). Omit on previews. */
+  ownedReportId?: string;
   analyticsEnabled?: boolean;
 }) {
   const [openChapterKeys, setOpenChapterKeys] = useState<readonly string[]>([]);
@@ -373,6 +377,10 @@ export default function PaidCompatibilityReportReader({
           );
         })}
       </div>
+
+      {owned && ownedReportId ? (
+        <CompatibilityIncludedReplyConsult reportId={ownedReportId} />
+      ) : null}
 
       <footer className={styles.safetyNote}>
         <h2>このレポートについて</h2>

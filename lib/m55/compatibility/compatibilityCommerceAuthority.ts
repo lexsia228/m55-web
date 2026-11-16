@@ -8,6 +8,7 @@ export const COMPATIBILITY_REPORT_PRICE_YEN = 1480 as const;
 export const COMPATIBILITY_REPORT_CURRENCY = 'jpy' as const;
 export const COMPATIBILITY_REPORT_QUANTITY = 1 as const;
 export const COMPATIBILITY_REPORT_COUNT = 1 as const;
+export const COMPATIBILITY_REPORT_INCLUDED_REPLY_COUNT = 1 as const;
 export const COMPATIBILITY_COMMERCE_ENABLED_ENV =
   'M55_COMPATIBILITY_COMMERCE_ENABLED' as const;
 export const COMPATIBILITY_STRIPE_PRICE_ENV =
@@ -33,10 +34,14 @@ export const COMPATIBILITY_REPORT_PRODUCT_AUTHORITY = Object.freeze({
   quantity: COMPATIBILITY_REPORT_QUANTITY,
   subscription: false,
   reportCount: COMPATIBILITY_REPORT_COUNT,
+  includedReplyCount: COMPATIBILITY_REPORT_INCLUDED_REPLY_COUNT,
   included: COMPATIBILITY_REPORT_INCLUDED,
-  additionalReading: false,
+  additionalReading: true,
   publicSharing: false,
 } as const);
+
+export const COMPATIBILITY_CHECKOUT_PAYMENT_DESCRIPTION_JA =
+  `${COMPATIBILITY_REPORT_PUBLIC_NAME}（6章・追加読み解き${COMPATIBILITY_REPORT_INCLUDED_REPLY_COUNT}件・買い切り）` as const;
 
 export function isCompatibilityCommerceEnabled(
   env: Readonly<Record<string, string | undefined>> = process.env,
