@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-09-10T23:09:14.352522+00:00",
-  "count": 713,
+  "generated_at_utc": "2026-09-12T23:02:50.402547+00:00",
+  "count": 723,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -100,17 +100,17 @@
     {
       "path": "docs/ssot/M55_CREATOR_AFFILIATE_STRIPE_TAX_LEGAL_SSOT.md",
       "category": "ssot",
-      "bytes": 35272
+      "bytes": 40481
     },
     {
       "path": "docs/ssot/M55_CREATOR_COMPLIANCE_AND_PAYOUT_AUTOMATION_SSOT.md",
       "category": "ssot",
-      "bytes": 50136
+      "bytes": 51987
     },
     {
       "path": "docs/ssot/M55_CREATOR_REVENUE_E2C2E_SSOT.md",
       "category": "ssot",
-      "bytes": 45734
+      "bytes": 49075
     },
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
@@ -125,7 +125,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 100097
+      "bytes": 103319
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -248,6 +248,46 @@
       "bytes": 5550
     },
     {
+      "path": "docs/ssot/M55_GIT_FIRST_ADOPTION_CLOSURE_SSOT.md",
+      "category": "ssot",
+      "bytes": 8008
+    },
+    {
+      "path": "docs/ssot/M55_GIT_FIRST_ENTRYPOINT.md",
+      "category": "ssot",
+      "bytes": 8455
+    },
+    {
+      "path": "docs/ssot/M55_GIT_FIRST_EXTERNAL_RED_TEAM_ACCEPTANCE_SSOT.md",
+      "category": "ssot",
+      "bytes": 15026
+    },
+    {
+      "path": "docs/ssot/M55_GIT_FIRST_HARDENING_SSOT.md",
+      "category": "ssot",
+      "bytes": 9860
+    },
+    {
+      "path": "docs/ssot/M55_GIT_FIRST_HOST_ENFORCEMENT_SSOT.md",
+      "category": "ssot",
+      "bytes": 7464
+    },
+    {
+      "path": "docs/ssot/M55_GIT_FIRST_MINDMAP.md",
+      "category": "ssot",
+      "bytes": 5864
+    },
+    {
+      "path": "docs/ssot/M55_GIT_FIRST_OPERATIONAL_FIXTURES.md",
+      "category": "ssot",
+      "bytes": 6668
+    },
+    {
+      "path": "docs/ssot/M55_GIT_PREFLIGHT_MANIFEST.json",
+      "category": "ssot",
+      "bytes": 7326
+    },
+    {
       "path": "docs/ssot/M55_GPT_COLD_START_ACCEPTANCE.md",
       "category": "ssot",
       "bytes": 14320
@@ -306,6 +346,11 @@
       "path": "docs/ssot/M55_MULTI_AGENT_PARALLEL_OPERATING_MODEL_SSOT.md",
       "category": "ssot",
       "bytes": 22076
+    },
+    {
+      "path": "docs/ssot/M55_OPERATOR_BUSINESS_STATUS_SSOT.md",
+      "category": "ssot",
+      "bytes": 15250
     },
     {
       "path": "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
@@ -3085,12 +3130,17 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 45831
+      "bytes": 46019
     },
     {
       "path": "docs/ssot/M55_SAFARI_MCP_AI_BROWSER_QUALITY_SSOT.md",
       "category": "ssot",
       "bytes": 9096
+    },
+    {
+      "path": "docs/ssot/M55_SCOPE_AWARE_REPO_PREFLIGHT_SSOT.md",
+      "category": "ssot",
+      "bytes": 12097
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3125,7 +3175,7 @@
     {
       "path": "docs/ssot/M55_UX_BENCHMARK_STACK.md",
       "category": "ssot",
-      "bytes": 13228
+      "bytes": 13256
     },
     {
       "path": "docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_2026-05-24.md",
@@ -3200,7 +3250,7 @@
     {
       "path": "docs/ssot/README.md",
       "category": "ssot",
-      "bytes": 4738
+      "bytes": 7749
     },
     {
       "path": "docs/ssot/SOURCES_USED__PROJECT_B_v8.md",
@@ -3385,12 +3435,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 112294
+      "bytes": 112425
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 75263
+      "bytes": 75342
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
