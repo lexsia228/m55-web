@@ -135,7 +135,17 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
       return null;
     }
     let parent = el.parentElement;
-    while (parent && parent !== document.documentElement) {
+    /**
+     * `body` / root scroll ownership is a separate contract (ShellLayout scrolls
+     * inside `main` while mobile body overflow stays hidden). Treating those as
+     * clipping ancestors false-positives registered surfaces that legitimately
+     * use page scroll.
+     */
+    while (
+      parent &&
+      parent !== document.body &&
+      parent !== document.documentElement
+    ) {
       const style = window.getComputedStyle(parent);
       const clipsY = style.overflowY === 'hidden' || style.overflowY === 'clip';
       const clipsX = style.overflowX === 'hidden' || style.overflowX === 'clip';
@@ -146,10 +156,18 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
         const cutTop = clipsY && visibleTop < box.top - tol && visibleBottom > box.top + tol;
         const cutRight = clipsX && visibleRight > box.right + tol && visibleLeft < box.right - tol;
         const cutLeft = clipsX && visibleLeft < box.left - tol && visibleRight > box.left + tol;
-        const fullBelow = clipsY && visibleTop >= box.bottom - tol;
-        const fullAbove = clipsY && visibleBottom <= box.top + tol;
-        const fullRight = clipsX && visibleLeft >= box.right - tol;
-        const fullLeft = clipsX && visibleRight <= box.left + tol;
+        // Full-axis clips require the element border box to protrude past the ancestor
+        // on that axis, then the viewport-visible band must sit entirely outside the
+        // ancestor edge. Viewport-band-only checks without protrusion false-positive
+        // registered surfaces inside intentional shell overflow (e.g. overflow-x clip).
+        const protrudesBelow = target.bottom > box.bottom + tol;
+        const protrudesAbove = target.top < box.top - tol;
+        const protrudesRight = target.right > box.right + tol;
+        const protrudesLeft = target.left < box.left - tol;
+        const fullBelow = clipsY && protrudesBelow && visibleTop >= box.bottom - tol;
+        const fullAbove = clipsY && protrudesAbove && visibleBottom <= box.top + tol;
+        const fullRight = clipsX && protrudesRight && visibleLeft >= box.right - tol;
+        const fullLeft = clipsX && protrudesLeft && visibleRight <= box.left + tol;
         if (
           cutBottom ||
           cutTop ||
