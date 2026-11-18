@@ -521,7 +521,7 @@
 
 .sectionEyebrow {
   margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -530,7 +530,7 @@
 
 .sectionHeadline {
   margin: 0 0 16px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(1.65rem, 3vw, 2.35rem);
   line-height: 1.45;
   font-weight: 600;
@@ -562,7 +562,7 @@
 
 .sectionSubheading {
   margin: 32px 0 12px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.5;
   font-weight: 600;
@@ -571,25 +571,27 @@
 
 .sectionLead {
   margin: 0 0 24px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   line-height: 1.8;
   color: #1b2b3a;
+  text-wrap: pretty;
   max-width: 46ch;
 }
 
 .sectionBody {
   margin: 0 0 16px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   line-height: 1.8;
   color: #1b2b3a;
+  text-wrap: pretty;
   max-width: 40ch;
 }
 
 .sectionSupporting {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.7;
   color: rgba(11, 26, 43, 0.68);
@@ -621,7 +623,7 @@
 
 .cardTitle {
   margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #0b1a2b;
@@ -629,7 +631,7 @@
 
 .cardBody {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.7;
   color: rgba(11, 26, 43, 0.68);
@@ -718,7 +720,7 @@
   margin: 0;
   flex: 0 0 auto;
   min-width: 1.75em;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   letter-spacing: 0.14em;
   font-weight: 600;
@@ -729,7 +731,7 @@
   margin: 0;
   flex: 1 1 auto;
   min-width: 0;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 0.98rem;
   font-weight: 600;
   line-height: 1.45;
@@ -744,7 +746,7 @@
 
 .pairFreeSupport p {
   margin: 0 0 2px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   line-height: 1.5;
   color: rgba(11, 26, 43, 0.58);
@@ -752,7 +754,7 @@
 
 .pairFreeStatus {
   margin: 0 0 4px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: #496f6d;
@@ -760,7 +762,7 @@
 
 .pairFreePreparingStatus {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: #496f6d;
@@ -774,7 +776,7 @@
   padding: 0;
   border: none;
   background: none;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: #496f6d;
@@ -1036,7 +1038,7 @@
 
 .outcomeIndex {
   margin: 0 0 10px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   letter-spacing: 0.14em;
   font-weight: 600;
@@ -1045,7 +1047,7 @@
 
 .outcomeEditorialTitle {
   margin: 0 0 8px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 1.05rem;
   font-weight: 600;
   line-height: 1.45;
@@ -1054,7 +1056,7 @@
 
 .outcomeEditorialBody {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.75;
   color: rgba(11, 26, 43, 0.68);
@@ -1089,11 +1091,12 @@
 }
 
 .productMapItem {
-  padding: 16px 0 18px;
+  padding: 18px 14px 20px;
   border-bottom: 1px solid rgba(11, 26, 43, 0.1);
   border-left: 3px solid transparent;
-  padding-left: 12px;
-  transition: border-color 120ms ease;
+  border-radius: 0 6px 6px 0;
+  background: rgba(255, 250, 241, 0.55);
+  transition: border-color 120ms ease, background-color 120ms ease;
 }
 
 .productMapItem:first-child {
@@ -1113,27 +1116,28 @@
 }
 
 .productMapTitle {
-  margin: 0 0 6px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: 1rem;
+  margin: 0 0 8px;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 1.05rem;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.42;
   color: #0b1a2b;
+  letter-spacing: 0.02em;
 }
 
 .productMapBody {
   margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.65;
   color: rgba(11, 26, 43, 0.68);
-  max-width: 34ch;
+  max-width: 30em;
 }
 
 .productMapStatus,
 .productMapPreparingStatus {
   margin: 0 0 4px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: #496f6d;
@@ -1151,7 +1155,7 @@
   padding: 0;
   border: none;
   background: none;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: #496f6d;
@@ -1183,10 +1187,10 @@
   }
 
   .productMapItem {
-    padding: 0;
+    padding: 14px 12px 16px;
     border-bottom: none;
     border-top: 1px solid rgba(11, 26, 43, 0.14);
-    padding-top: 12px;
+    background: rgba(255, 250, 241, 0.35);
   }
 }
 
@@ -1205,7 +1209,7 @@
 
 .premiumValueBridgeEyebrow {
   margin: 0 0 14px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -1214,7 +1218,7 @@
 
 .premiumValueBridgeLead {
   margin: 0 0 16px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 1.02rem;
   font-weight: 600;
   line-height: 1.62;
@@ -1230,7 +1234,7 @@
 
 .premiumValueBridgeColHeading {
   margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -1249,7 +1253,7 @@
   position: relative;
   margin: 0;
   padding: 0 0 6px 14px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.55;
   color: rgba(241, 232, 214, 0.88);
@@ -1298,7 +1302,7 @@
 }
 
 .outcomeGrid > .card {
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   line-height: 1.7;
   color: #1b2b3a;
@@ -1370,7 +1374,7 @@
 
 .planName {
   margin: 0;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 1.15rem;
   font-weight: 600;
   color: #0b1a2b;
@@ -1378,7 +1382,7 @@
 
 .planPrice {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #c46e5a;
@@ -1386,7 +1390,7 @@
 
 .planSpec {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.7;
   color: #1b2b3a;
@@ -1394,7 +1398,7 @@
 
 .planAudience {
   margin: 8px 0 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.7;
   color: rgba(11, 26, 43, 0.68);
@@ -1402,7 +1406,7 @@
 
 .purchaseNote {
   margin: 0 0 24px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.7;
   color: rgba(11, 26, 43, 0.68);
@@ -1445,13 +1449,27 @@
   border: 1px solid rgba(11, 26, 43, 0.14);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(11, 26, 43, 0.06);
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #0b1a2b;
   min-height: 44px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.mechanismSummary .sectionEyebrow {
+  margin-bottom: 4px;
+}
+
+.mechanismSummary .sectionHeadline {
+  margin: 0;
+}
+
+.mechanismSummary .mechanismSummaryHint {
+  margin-top: 8px;
 }
 
 .mechanismSummary::-webkit-details-marker {
@@ -1501,7 +1519,7 @@
   min-height: 44px;
   padding: 0 24px;
   border-radius: 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
@@ -1542,7 +1560,7 @@
   min-height: 44px;
   padding: 0 24px;
   border-radius: 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
@@ -1561,7 +1579,7 @@
   min-height: 44px;
   padding: 0 24px;
   border-radius: 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
@@ -1593,7 +1611,7 @@
 
 .ctaSupport {
   margin: 12px 0 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.7;
   color: rgba(11, 26, 43, 0.68);
@@ -1602,7 +1620,7 @@
 .textLink {
   color: #0b1a2b;
   text-decoration: underline;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   min-height: 44px;
   display: inline-flex;
@@ -1653,7 +1671,8 @@
   .ctaPaid,
   .ctaPaidSolid,
   .ctaOutline,
-  .textLink {
+  .textLink,
+  .productMapItem {
     transition: none;
   }
 }
@@ -1672,7 +1691,7 @@
 .previewAnnotation,
 .premiumPreviewAnnotation {
   margin: 0 0 10px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   letter-spacing: 0.08em;
   font-weight: 500;
@@ -1690,16 +1709,18 @@
 }
 
 .freePreviewSheet {
-  background: #fffaf1;
-  border-top: 2px solid rgba(196, 110, 90, 0.55);
-  border-bottom: 1px solid rgba(11, 26, 43, 0.14);
-  padding: 22px 20px 24px;
+  background: #fffcf5;
+  border: 1px solid rgba(11, 26, 43, 0.12);
+  border-top: 2px solid rgba(196, 110, 90, 0.58);
+  border-radius: 6px;
+  padding: 24px 22px 26px;
   box-sizing: border-box;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
 }
 
 .freePreviewPersona {
   margin: 0 0 4px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(1.2rem, 2.5vw, 1.45rem);
   font-weight: 600;
   line-height: 1.4;
@@ -1708,7 +1729,7 @@
 
 .freePreviewQuality {
   margin: 0 0 14px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   letter-spacing: 0.04em;
   color: #496f6d;
@@ -1716,23 +1737,25 @@
 
 .freePreviewSummary {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
-  line-height: 1.8;
-  color: #1b2b3a;
-  max-width: 48ch;
+  line-height: 1.85;
+  color: #152433;
+  max-width: 52ch;
 }
 
 /* Sample body — mirrors the /core conviction block so HOME shows the real shape. */
 
 .freePreviewHeadline {
-  margin: 0 0 16px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: clamp(0.98rem, 2.1vw, 1.1rem);
-  font-weight: 600;
-  line-height: 1.7;
+  margin: 0 0 18px;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(1rem, 2.1vw, 1.1rem);
+  font-weight: 500;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
   color: #0b1a2b;
-  max-width: 40ch;
+  max-width: 36em;
+  text-wrap: pretty;
 }
 
 .freePreviewScene {
@@ -1742,7 +1765,7 @@
 
 .freePreviewSceneLabel {
   margin: 0 0 6px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -1765,7 +1788,7 @@
 
 .freePreviewConditionTitle {
   margin: 0 0 6px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1776,7 +1799,7 @@
   margin: 0;
   padding-left: 1.1em;
   list-style: disc;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13.5px;
   line-height: 1.75;
   color: #1b2b3a;
@@ -1786,7 +1809,7 @@
   margin: 16px 0 0;
   padding-top: 14px;
   border-top: 1px solid rgba(11, 26, 43, 0.1);
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.85;
   color: #2b3b4a;
@@ -1811,7 +1834,7 @@
   margin: 22px 0 20px;
   padding: 0 0 0 14px;
   border-left: 2px solid rgba(196, 110, 90, 0.42);
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 14px;
   line-height: 1.65;
   color: rgba(11, 26, 43, 0.76);
@@ -1832,7 +1855,7 @@
 
 .mechanismDiagramLabel {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.5;
   color: rgba(11, 26, 43, 0.78);
@@ -1841,7 +1864,7 @@
 }
 
 .mechanismDiagramPlus {
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   color: rgba(11, 26, 43, 0.42);
   line-height: 1;
@@ -1857,7 +1880,7 @@
 .mechanismDiagramOutput {
   margin: 0;
   text-align: center;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.5;
@@ -1893,7 +1916,7 @@
 
 .premiumPreviewProduct {
   margin: 0 0 16px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -1910,7 +1933,7 @@
 }
 
 .premiumChapterTab {
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   padding: 6px 10px;
   border-radius: 2px;
@@ -1927,7 +1950,7 @@
 
 .premiumChapterHeading {
   margin: 0 0 12px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(1.05rem, 2vw, 1.2rem);
   font-weight: 600;
   line-height: 1.45;
@@ -1959,7 +1982,7 @@
 
 .premiumChapterBody {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.8;
   color: rgba(241, 232, 214, 0.9);
@@ -1969,13 +1992,15 @@
 
 .planComparisonSurface {
   margin: 0 0 28px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(241, 232, 214, 0.12);
+  padding: 18px 16px 8px;
+  border: 1px solid rgba(241, 232, 214, 0.14);
+  border-radius: 8px;
+  background: rgba(8, 18, 32, 0.22);
 }
 
 .planComparisonLead {
   margin: 0 0 20px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   line-height: 1.75;
   max-width: 46ch;
@@ -1988,19 +2013,19 @@
   margin: 0 0 20px;
 }
 
-  .planComparisonCol {
-    padding: 20px 0;
-  }
+.planComparisonCol {
+  padding: 20px 0;
+}
 
-  .planComparisonCol + .planComparisonDivider + .planComparisonCol {
-    padding-top: 0;
-  }
+.planComparisonCol + .planComparisonDivider + .planComparisonCol {
+  padding-top: 0;
+}
 
-  .planComparisonCol:first-child {
-    border-bottom: 1px solid rgba(241, 232, 214, 0.14);
-    padding-bottom: 20px;
-    margin-bottom: 4px;
-  }
+.planComparisonCol:first-child {
+  border-bottom: 1px solid rgba(241, 232, 214, 0.14);
+  padding-bottom: 20px;
+  margin-bottom: 4px;
+}
 
 .planComparisonDivider {
   display: none;
@@ -2008,14 +2033,14 @@
 
 .planComparisonName {
   margin: 0 0 6px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .planComparisonFit {
   margin: 0 0 10px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 13px;
   line-height: 1.62;
   color: rgba(241, 232, 214, 0.82);
@@ -2023,16 +2048,21 @@
 }
 
 .planComparisonPrice {
-  margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 15px;
+  margin: 0 0 12px;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: 1.12rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .planComparisonSpec {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  padding-top: 10px;
+  border-top: 1px solid rgba(241, 232, 214, 0.12);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   line-height: 1.65;
 }
 
@@ -2049,7 +2079,9 @@
     align-items: stretch;
   }
 
-  .planComparisonCol {
+  .planComparisonCol,
+  .planComparisonCol:first-child,
+  .planComparisonCol + .planComparisonDivider + .planComparisonCol {
     padding: 16px 0 12px;
     border-bottom: none;
     margin-bottom: 0;
@@ -2077,7 +2109,7 @@
 
 .tenAssetTeaserEyebrow {
   margin: 0 0 6px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -2086,7 +2118,7 @@
 
 .tenAssetTeaserHeadline {
   margin: 0 0 10px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(1.05rem, 2.2vw, 1.2rem);
   line-height: 1.45;
   font-weight: 600;
@@ -2096,7 +2128,7 @@
 
 .tenAssetTeaserBody {
   margin: 0 0 18px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.75;
   color: rgba(11, 26, 43, 0.68);
@@ -2123,7 +2155,7 @@
 
 .tenAssetIndexPersona {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.45;
@@ -2133,7 +2165,7 @@
 
 .tenAssetIndexQuality {
   margin: 4px 0 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 10px;
   font-weight: 400;
   line-height: 1.45;
@@ -2145,7 +2177,7 @@
   align-items: center;
   min-height: 44px;
   margin-top: 6px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: #496f6d;
@@ -2287,7 +2319,7 @@
   align-items: center;
   min-height: 44px;
   padding: 0 4px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: #496f6d;
@@ -2339,7 +2371,7 @@
 
 .mechanismPanelTitle {
   margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #0b1a2b;
@@ -2347,7 +2379,7 @@
 
 .mechanismPanelBody {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.7;
   color: rgba(11, 26, 43, 0.68);
@@ -2392,7 +2424,7 @@
 .previewMetaLabel,
 .previewMetaLabelDark {
   margin: 0 0 8px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(11, 26, 43, 0.55);
@@ -2453,7 +2485,7 @@
 .tenAssetTeaserPersona,
 .tenAssetTeaserQuality {
   margin: 0;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: 11px;
   line-height: 1.4;
   color: #0b1a2b;
@@ -2604,7 +2636,7 @@
 
 .existingUserTitle {
   margin: 0 0 16px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(1.15rem, 2.5vw, 1.35rem);
   font-weight: 600;
   color: #0b1a2b;
@@ -2631,7 +2663,7 @@
   font-size: 15px;
   color: #0b1a2b;
   text-decoration: underline;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
 }
 
 .existingUserLink:hover {
@@ -2852,55 +2884,18 @@
 }
 
 /*
- * Mobile keeps natural wrapping on the existing two copy lines.
- * From tablet/desktop, Human-approved ownership moves the break to after 「…」
- * via .posterHeroTitleMobileTail / .posterHeroTitleDesktopPrefix, and the
- * quoted phrase is nowrap so 「いつもこうなる」 never splits.
+ * The approved break (after 「…」) holds at every width. Each unit is
+ * unbreakable, so the only fallback wrap is before 「 — the phrase never
+ * splits and 「には、」 never stands alone. Mobile sizes the type to the
+ * 13-character first line instead of shrinking it to fit a 16-character one.
  */
 .posterHeroApprovedRoot .posterHeroTitleLine {
   display: block;
-  white-space: normal;
-  word-break: normal;
-  line-break: strict;
-  overflow-wrap: anywhere;
 }
 
-/*
- * The tail is a single particle unit. Without this it inherits the line's
- * `overflow-wrap: anywhere` and 「には、」 splits into a stranded 「は、」.
- */
-.posterHeroApprovedRoot .posterHeroTitleMobileTail {
-  overflow-wrap: normal;
-}
-
-.posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .posterHeroApprovedRoot .posterHeroTitleMobileTail {
-    display: none;
-  }
-
-  .posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
-    display: inline;
-  }
-
-  /*
-   * Phrase stays unbreakable for the approved desktop break. Own the line as
-   * a block so intrinsic max-content does not hang off an undersized inline
-   * box inside a percentage-width heading; the copy/title max-inline-size
-   * above is what keeps scrollWidth within clientWidth.
-   */
-  .posterHeroApprovedRoot .posterHeroTitlePhrase {
-    display: block;
-    white-space: nowrap;
-  }
-
-  .posterHeroApprovedRoot .posterHeroTitleLine {
-    overflow-wrap: normal;
-    word-break: keep-all;
-  }
+.posterHeroApprovedRoot .posterHeroTitleUnit {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .posterHeroApprovedRoot .posterHeroTitleLine:first-child {
@@ -3035,8 +3030,8 @@
 
   .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
     max-width: 100%;
-    font-size: clamp(21px, 5.9vw, 26px);
-    line-height: 1.55;
+    font-size: clamp(21px, calc((100vw - 40px) / 13.6), 28px);
+    line-height: 1.5;
   }
 
   .posterHeroApprovedRoot .posterHeroBottomStack {
@@ -3068,7 +3063,7 @@
 
 @media (max-width: 500px) {
   .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
-    font-size: clamp(21px, 5.5vw, 23px);
+    font-size: clamp(19px, calc((100vw - 40px) / 13.6), 26px);
   }
 }
 
@@ -3079,19 +3074,11 @@
   }
 
   .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
-    font-size: 19px;
+    font-size: clamp(19px, calc((100vw - 32px) / 13.6), 26px);
   }
 }
 
-/*
- * At 320 the 288px column holds ~15 characters at 19px, one short of
- * 「あなたの「いつもこうなる」には、」, which pushed the tail onto its own line.
- */
 @media (max-width: 340px) {
-  .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
-    font-size: 17.5px;
-  }
-
   /*
    * The 1.28rem floor fits ~11.7 characters in the 244px column, one short of
    * the longest protected unit, which stranded 「自分の」 on its own line and

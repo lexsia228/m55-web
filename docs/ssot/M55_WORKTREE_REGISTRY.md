@@ -1379,6 +1379,36 @@ Scope: WT-056 / R6 durable ownership registration only. This is **not** a global
 
 ---
 
+## SEO / HOME COMMERCIAL VISUAL — WORKTREE OWNERSHIP (2026-11-15) — AUTHORITATIVE FOR WT-060
+
+Scope: WT-060 durable ownership registration only. This is **not** a global worktree reconciliation. It does **not** supersede the **FINAL LIVE WORKTREES (2026-09-10 Worktree Cleanup Wave 2D closure)** global inventory snapshot or its count. Volatile Git facts (HEAD, divergence, dirty/staged, live worktree count) must be freshly observed via **`npm run m55:context`** — never inferred from this addendum.
+
+Executable CURRENT / NEXT remains owned by **`docs/ssot/M55_EXECUTION_STATE.json`** only (`PAYOUT_AND_SETTLEMENT` at registration time — unchanged by this addendum).
+
+### WT-060 — SEO / AI Discovery + HOME Commercial Visual Wave 1 (ACTIVE_PRODUCT)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-seo-ai-discovery-v1` |
+| branch | `feat/m55-seo-ai-discovery-v1` |
+| intended upstream | `origin/main` |
+| worktree creation baseline (historical observation) | merge-base observation `b71577dd3401539177c7d451e949d23205a44179` — **not** timeless live HEAD |
+| live Git runtime | **derive via `npm run m55:context`** — HEAD · divergence · dirty/staged |
+| lifecycle | **ACTIVE** |
+| macro lane | **M55_SEO_AI_DISCOVERY** (discoverability / metadata lane boundary) |
+| program identity | **HOME-COMMERCIAL-VISUAL-WAVE-1** |
+| mutation owner | Cursor on this worktree only (one lane / one mutation owner) |
+| Human-approved LOCAL product mutation (2026-11-15) | `components/home/HomePanel.tsx` · `components/home/HomePanel.module.css` — bounded HOME Wave 1 commercial visual only |
+| Human-approved SSOT mutation (2026-11-15) | Registry / Decision Log / Evidence Ledger durable handoff checkpoint — separate from product commit |
+| purpose | Delta-only HOME commercial visual maturity (typography / hierarchy / mobile composition / free→premium comprehension) without reopening CLOSED GREEN audits; SEO lane worktree retained for ownership isolation |
+| protected lanes | Other ACTIVE / HARD_PROTECT worktrees — no reset · stash · clean · remove · branch-delete without explicit Human scope |
+| hero poster / approved copy / routes / prices / product contracts | **protected** — see `M55_DECISION_LOG.md` § 2026-11-15 |
+| executable gate owner | `docs/ssot/M55_EXECUTION_STATE.json` — **not** advanced by WT-060 registration |
+| provider/DB/Stripe/Clerk/env/Production mutation | **prohibited** unless a separate Human-authorized gate explicitly requires it |
+| removal eligibility | retain until HOME Wave 1 merge closure or explicit Human disposition |
+
+---
+
 ### WT-048 — Pair lane entrance Wave 0 Live paid DTR readability (CLOSED / RETAINED)
 
 | Field | Value |

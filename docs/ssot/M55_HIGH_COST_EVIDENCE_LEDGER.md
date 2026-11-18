@@ -65,6 +65,21 @@ The dev-fixture default defect was **QA presentation only** and is now covered b
 
 ---
 
+## HOME Commercial Visual / SEO handoff — reuse registry (2026-11-15)
+
+**Purpose:** Record Human-attested completed evidence for HOME Wave 1 planning. This section is **handoff / no-replay authority only**. It does **not** grant `USER_VISIBLE_CLOSED_GREEN`, Production GREEN, Revenue Ready, or HOME implementation closure.
+
+| Evidence item | Status | Durable reference (repo or Human bundle) | Confirmed scope | Rerun policy | Resume / invalidation |
+|---|---|---|---|---|---|
+| Codex originality / Eastern-methods / AI-technology / commercial-moat audits | **CLOSED_GREEN / NO_REPLAY** | Human-attested audit completion (2026-11-15 handoff); supporting artifacts may live outside Git — **do not fabricate repo paths or SHAs** | Claim-boundary for public differentiation only — not product runtime proof | **NO RERUN** unless Product Truth, copy claims, or method authority materially changes | New unsupported moat copy in user-visible surfaces |
+| Cursor HOME commercial visual bounded mapping (READ-ONLY) | **COMPLETE / NO_REPLAY** | Session work unit `M55-WORKTREE-seo-ai-discovery-v1` · baseline observation `b71577dd3401539177c7d451e949d23205a44179` · mapping output 2026-11-15 | Delta-only HOME improvement candidates; Wave 1 path allowlist `HomePanel.tsx` / `HomePanel.module.css` | **NO RERUN** for gate convenience | Material change to frozen poster, product order, or prices |
+| Human actual-screen review (10 captures) | **HUMAN_ATTESTED / NOT_REPO_ENUMERATED** | Human confirmation 2026-11-15 — screenshot set **not** stored in this repository | Commercial visual direction approval for Wave 1 planning — **not** closure | **NO RERUN** as a substitute for post-implementation diff review | Post-Wave-1 material HOME diff |
+| Durable handoff bundle | **HUMAN_CANONICAL_HANDOFF** | `~/Downloads/M55_COMMERCIAL_VISUAL_SEO_HANDOFF_20261115.zip` (Human-named bundle; verify presence locally — absent file is **not** evidence failure for SSOT registration) | Cross-session continuity for SEO + HOME commercial lane | **NO_REPLAY** of bundle creation | Superseding Human handoff with conflicting scope |
+
+**Explicit non-promotion:** WT-060 Registry registration and this ledger section **record** Human GO (2026-11-15) and reuse/no-replay evidence. They **do not** grant new implementation authorization, new product scope, or closure status by themselves. **LOCAL HOME Wave 1 approval authority remains the Human GO** named in `M55_DECISION_LOG.md` § 2026-11-15 — not the Registry row or ledger table. This section does **not** supersede `M55_EXECUTION_STATE.json` CURRENT / NEXT (`PAYOUT_AND_SETTLEMENT` at handoff time).
+
+---
+
 ## Human-attested payment volume (non-repo-enumerated)
 
 Human authority (2026-08-22): **16 successful test payment transactions** across M55 commercial development history, including current/legacy paid price points.

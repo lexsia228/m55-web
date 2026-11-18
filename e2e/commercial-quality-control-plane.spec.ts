@@ -45,6 +45,7 @@ import { manifestDigest, validateSurfaceManifestEntry } from '../lib/commercialQ
 import type {
   CasePlan,
   ExecutionProfile,
+  MeasuredNode,
   SurfaceManifestEntry,
 } from '../lib/commercialQuality/types';
 import {
@@ -925,6 +926,50 @@ test.describe('commercial quality control plane', () => {
           f.code === 'LAYOUT_ROUTE_DRIFT',
       ) || measured.protectedNodes[0]?.textLength === 1,
     ).toBe(true);
+  });
+
+  test('5c. clipping collector — full below, partial straddle, overflow-x shell safe', async ({
+    page,
+  }) => {
+    const runtimeStateId = selfTestEntry().runtimeStateId;
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.setContent(`<!doctype html>
+      <html><body style="margin:0">
+        <main data-testid="m55-method-canonical" data-m55-cq-state-id="${runtimeStateId}">
+          <div id="shell" style="overflow-x:hidden;width:240px;padding:8px;box-sizing:border-box">
+            <p id="shell-safe" style="margin:0;width:200px">registered surface inside overflow-x shell</p>
+          </div>
+          <div id="poster" style="overflow:hidden;height:120px;width:300px;position:relative;margin-top:24px">
+            <h1 id="headline" style="margin:0">headline</h1>
+            <p id="support-below" style="position:absolute;top:130px;left:0;width:280px;margin:0">support fully below poster clip edge</p>
+          </div>
+          <div id="clip-partial" style="overflow:hidden;height:180px;width:300px;margin-top:24px">
+            <p id="partial-line" style="margin:0;padding-top:160px;line-height:40px">partial straddle clip</p>
+          </div>
+        </main>
+      </body></html>`);
+
+    const baseMeasure = (selector: string, role: MeasuredNode['role']) =>
+      measureCommercialSurface(
+        page,
+        selfTestEntry({
+          protectedElements: [{ selector, role, requireText: true }],
+          criticalCta: null,
+          fixedElements: [],
+          sectionBoundaries: [],
+        }),
+        planFor(selfTestEntry()),
+        { expectedOrigin: new URL(page.url()).origin, includeAccessibility: false },
+      );
+
+    const shellSafe = await baseMeasure('#shell-safe', 'copy');
+    expect(shellSafe.protectedNodes[0]?.clippingAncestor).toBeNull();
+
+    const supportBelow = await baseMeasure('#support-below', 'supporting');
+    expect(supportBelow.protectedNodes[0]?.clippingAncestor?.selector).toBe('#poster');
+
+    const partial = await baseMeasure('#partial-line', 'copy');
+    expect(partial.protectedNodes[0]?.clippingAncestor?.selector).toBe('#clip-partial');
   });
 
   test('5b. japanese comprehension baseline + home rendered copy evidence', async ({ page }) => {

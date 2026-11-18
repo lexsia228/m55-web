@@ -135,19 +135,49 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
       return null;
     }
     let parent = el.parentElement;
-    while (parent && parent !== document.documentElement) {
+    /**
+     * `body` / root scroll ownership is a separate contract (ShellLayout scrolls
+     * inside `main` while mobile body overflow stays hidden). Treating those as
+     * clipping ancestors false-positives registered surfaces that legitimately
+     * use page scroll.
+     */
+    while (
+      parent &&
+      parent !== document.body &&
+      parent !== document.documentElement
+    ) {
       const style = window.getComputedStyle(parent);
       const clipsY = style.overflowY === 'hidden' || style.overflowY === 'clip';
       const clipsX = style.overflowX === 'hidden' || style.overflowX === 'clip';
       if (clipsY || clipsX) {
         const box = parent.getBoundingClientRect();
-        const cutBottom =
-          clipsY && visibleBottom > box.bottom + 1.5 && visibleTop < box.bottom - 1.5;
-        const cutTop = clipsY && visibleTop < box.top - 1.5 && visibleBottom > box.top + 1.5;
-        const cutRight =
-          clipsX && visibleRight > box.right + 1.5 && visibleLeft < box.right - 1.5;
-        const cutLeft = clipsX && visibleLeft < box.left - 1.5 && visibleRight > box.left + 1.5;
-        if (cutBottom || cutTop || cutRight || cutLeft) {
+        const tol = 1.5;
+        const cutBottom = clipsY && visibleBottom > box.bottom + tol && visibleTop < box.bottom - tol;
+        const cutTop = clipsY && visibleTop < box.top - tol && visibleBottom > box.top + tol;
+        const cutRight = clipsX && visibleRight > box.right + tol && visibleLeft < box.right - tol;
+        const cutLeft = clipsX && visibleLeft < box.left - tol && visibleRight > box.left + tol;
+        // Full-axis clips require the element border box to protrude past the ancestor
+        // on that axis, then the viewport-visible band must sit entirely outside the
+        // ancestor edge. Viewport-band-only checks without protrusion false-positive
+        // registered surfaces inside intentional shell overflow (e.g. overflow-x clip).
+        const protrudesBelow = target.bottom > box.bottom + tol;
+        const protrudesAbove = target.top < box.top - tol;
+        const protrudesRight = target.right > box.right + tol;
+        const protrudesLeft = target.left < box.left - tol;
+        const fullBelow = clipsY && protrudesBelow && visibleTop >= box.bottom - tol;
+        const fullAbove = clipsY && protrudesAbove && visibleBottom <= box.top + tol;
+        const fullRight = clipsX && protrudesRight && visibleLeft >= box.right - tol;
+        const fullLeft = clipsX && protrudesLeft && visibleRight <= box.left + tol;
+        if (
+          cutBottom ||
+          cutTop ||
+          cutRight ||
+          cutLeft ||
+          fullBelow ||
+          fullAbove ||
+          fullRight ||
+          fullLeft
+        ) {
           return {
             selector: describeSelector(parent),
             rect: toRect(box),

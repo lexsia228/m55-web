@@ -1459,3 +1459,57 @@ Material conclusions:
 - seller/Stripe identity must remain sole-proprietor accurate.
 
 Re-review registry is frozen in the operator SSOT. Review is trigger-scoped; unrelated CLOSED GREEN gates remain closed.
+
+### 2026-11-15 — HOME Commercial Visual Wave 1 + SEO worktree durable handoff (Human-approved)
+
+**Status:** Human-approved · durable handoff checkpoint · **SSOT-only** persistence in this gate · **LOCAL product GO preserved** · no executable CURRENT / NEXT change
+
+**Gate identity:** `M55-HOME-COMMERCIAL-VISUAL-SEO-DURABLE-HANDOFF-2026-11-15`
+
+**Mutation owner worktree:** `/Users/lexsia/Documents/M55_WORKTREE-seo-ai-discovery-v1` · branch `feat/m55-seo-ai-discovery-v1` (WT-060)
+
+#### HOME Wave 1 — authorized LOCAL implementation (unchanged by this SSOT gate)
+
+| Field | Value |
+|---|---|
+| Allowed paths | `components/home/HomePanel.tsx` · `components/home/HomePanel.module.css` only |
+| Intent | Mature commercial visual on existing approved HOME structure — modern quiet premium, Japanese editorial rhythm, mobile typography / H1 composition, free-entry anticipation, product-map hierarchy, free sample readability, Premium value clarity |
+| Protected | Existing hero images · approved copy SSOT (`topFreeEntryPublicCopy` / related public copy owners) · **CTA文言・本数・遷移先** · routes · prices · product contracts · **既存商品順（HOME section order）** · reading engine · current Pair Premium **NOT_LIVE** presentation |
+| Benchmark / quality | `M55_UX_BENCHMARK_STACK.md` (HOME = with + Co–Star) · `M55_VISUAL_SYSTEM.md` · `M55_COMMERCIAL_QUALITY_CONTRACT.md` — Human visual approval still required for closure |
+| Poster hero freeze | R3 approved poster remains baseline — no hero image / composition swap without explicit `/home` reopen beyond Wave 1 scope |
+
+#### Commercial differentiation — claim boundary (mandatory)
+
+**Scope note:** This subsection records **claim boundary only**. It is **not** authorization to implement new public copy, new marketing paragraphs, or new moat wording. Any user-visible copy delta still requires existing copy authority + Human approval per active gate.
+
+| Allowed public framing | Prohibited public framing |
+|---|---|
+| M55-specific composition: governed questions + birth-date rhythm + multi-perspective reading structure + owned report lane | Unproven scientific accuracy · “world only” / exclusive technology superiority · generic AI replacement claims |
+| Separate **method lineage** (Eastern reference traditions) from **runtime calculation** and from **AI assist after purchase** | Claiming live fusion of multiple schools in current runtime without Product Truth support |
+| Reuse existing Method Authority copy surfaces | Invent proprietary moat language not grounded in approved copy / method SSOT |
+
+#### Deferred — not authorized by this decision
+
+- New brand copy wholesale
+- Root metadata two-string alignment (`app/layout.tsx` SEO delta)
+- New motion / infinite animation / dynamic hero media rewire
+- SEO / AI Discovery acquisition implementation beyond ownership registration
+- Hybrid-AI conditional personalization product decisions
+- Method narrative vs implementation gap closure
+- Commit · push · PR · merge · Production / provider mutation
+
+#### Operating decisions (durable)
+
+| Rule | Value |
+|---|---|
+| Anti-regression | No ancestor revert; CLOSED GREEN audits **not** replayed for convenience |
+| Work style | Delta-only · reuse existing implementation / SSOT / evidence maximally |
+| Gate discipline | No unnecessary sub-gates · no repeat inventory when WT-060 registration resolves known SEO worktree gap |
+| Validation bundling | Related implementation validation · affected checks · actual diff review may be batched per Human direction |
+| Default implementer | **Composer 2.5** (Cursor) for bounded LOCAL UI |
+| Artifact handoff | Copy **only required** artifacts to Mac `~/Downloads` · use fresh filenames so **newest sort to top** by added date · notify Human the **exact filename** · **no** duplicate resubmission · **no** deleting existing Downloads files without Human scope · **no** bulk report generation |
+| Independent / HIGH model review | Risk-weighted only — not default per keystroke |
+| Model / worktree change | Human-visible explicit decision |
+| Human approval boundary | Preserved — SSOT handoff ≠ USER_VISIBLE_CLOSED_GREEN · **LOCAL HOME Wave 1 GO origin = Human GO** (2026-11-15) |
+
+Executable CURRENT / NEXT: **`PAYOUT_AND_SETTLEMENT`** — **unchanged**.
