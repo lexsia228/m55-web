@@ -1,8 +1,13 @@
 import Stripe from 'stripe';
 import { isM55ProductionRuntime } from './runtimeEnvironment';
 import {
+  assertIsolatedSupabaseMutationPermittedLiveV1,
   evaluateIsolatedSupabaseAlignmentStructuralV1,
+  isIsolatedLocalStackSupabaseMutationCandidateV1,
   listIsolatedSupabaseAlignmentChecklistV1,
+  listIsolatedSupabaseMutationTargetChecklistV1,
+  type IsolatedSupabaseLocalStackVerificationDepsV1,
+  type IsolatedSupabaseMutationLivePermitResultV1,
 } from './r8IsolatedSupabaseAlignment';
 import type { NormalizedProviderCapabilityEventV1 } from './providerWebhookEventContract';
 
@@ -25,7 +30,7 @@ export function listProviderStripeWebhookIngressBlockersV1(
   if (resolveProviderStripeWebhookIngressModeV1(env) !== 'ISOLATED_TEST') {
     return ['Set M55_R8_ISOLATED_STRIPE_CONNECT_WEBHOOK_ENABLED=true (non-Production only)'];
   }
-  const alignment = listIsolatedSupabaseAlignmentChecklistV1(env);
+  const alignment = listIsolatedSupabaseMutationTargetChecklistV1(env);
   if (alignment.length > 0) return alignment;
   const secret =
     env.M55_R8_STRIPE_CONNECT_WEBHOOK_SECRET?.trim() || env.STRIPE_CONNECT_WEBHOOK_SECRET?.trim() || '';
@@ -181,6 +186,14 @@ export function verifyStripeConnectWebhookSignatureV1(input: {
   }
 }
 
+/** Fresh LOCAL_STACK_MUTATION_PROBE required after signature verify, before DB append. */
+export async function assertIsolatedConnectWebhookMutationPermittedLiveV1(
+  env: NodeJS.ProcessEnv = process.env,
+  deps: IsolatedSupabaseLocalStackVerificationDepsV1 = {},
+): Promise<IsolatedSupabaseMutationLivePermitResultV1> {
+  return assertIsolatedSupabaseMutationPermittedLiveV1(env, deps);
+}
+
 export function canAcceptIsolatedConnectWebhookRequestV1(
   env: NodeJS.ProcessEnv = process.env,
 ): { ok: true } | { ok: false; httpStatus: 503; checklist: string[] } {
@@ -188,9 +201,17 @@ export function canAcceptIsolatedConnectWebhookRequestV1(
   if (checklist.length > 0) {
     return { ok: false, httpStatus: 503, checklist };
   }
-  const alignment = evaluateIsolatedSupabaseAlignmentStructuralV1(env);
+  const alignment = evaluateIsolatedSupabaseAlignmentStructuralV1(env, {
+    ...(isIsolatedLocalStackSupabaseMutationCandidateV1(env)
+      ? { allowLocalStackUnconfirmedProjectRefV1: true }
+      : {}),
+  });
   if (!alignment.ok) {
-    return { ok: false, httpStatus: 503, checklist: listIsolatedSupabaseAlignmentChecklistV1(env) };
+    return {
+      ok: false,
+      httpStatus: 503,
+      checklist: listIsolatedSupabaseMutationTargetChecklistV1(env),
+    };
   }
   return { ok: true };
 }

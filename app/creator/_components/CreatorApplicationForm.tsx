@@ -84,7 +84,15 @@ export function CreatorApplicationForm({ inviteToken }: { inviteToken?: string }
         <h2 className={styles.formSectionTitle}>発信内容</h2>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="contentFocus">発信内容について</label>
-          <textarea id="contentFocus" name="contentFocus" required maxLength={1000} rows={4} className={styles.textarea} />
+          <textarea
+            id="contentFocus"
+            name="contentFocus"
+            required
+            maxLength={1000}
+            rows={4}
+            className={styles.textarea}
+            placeholder="例：日々の気づき、関係性、自己理解について発信しています"
+          />
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="promotionExperience">紹介・広告の経験（任意）</label>

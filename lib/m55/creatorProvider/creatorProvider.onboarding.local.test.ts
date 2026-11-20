@@ -93,13 +93,27 @@ describe('R8-A API routes — fail-closed markers', () => {
     assert.match(src, /verifyOnboardingSessionOwnedAndPendingV1/);
     assert.match(src, /markOnboardingSessionCompletedV1/);
     assert.match(src, /retrieveAccountSnapshot/);
+    assert.match(
+      src,
+      /requireIsolatedProviderMutationPermitV1\(\)[\s\S]*ensureProviderAccountCreationRowV1\(/,
+    );
+    assert.match(src, /requireIsolatedProviderMutationPermitV1\(\)[\s\S]*upsertTaxProfileV1/);
+    assert.match(
+      src,
+      /requireIsolatedProviderMutationPermitV1\(\)[\s\S]*syncProviderSnapshotV1/,
+    );
   });
 
   it('connect webhook route is isolated-gated and signature verified', () => {
     const src = readFileSync(join(process.cwd(), 'app/api/stripe/connect/webhook/route.ts'), 'utf8');
     assert.match(src, /canAcceptIsolatedConnectWebhookRequestV1/);
     assert.match(src, /verifyStripeConnectWebhookSignatureV1/);
+    assert.match(src, /assertIsolatedConnectWebhookMutationPermittedLiveV1/);
     assert.match(src, /mapConnectWebhookPersistResultToHttpV1/);
+    assert.match(
+      src,
+      /const verified = verifyStripeConnectWebhookSignatureV1[\s\S]*assertIsolatedConnectWebhookMutationPermittedLiveV1[\s\S]*handleVerifiedStripeConnectWebhookEventV1/,
+    );
   });
 });
 

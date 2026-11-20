@@ -102,6 +102,12 @@ export const R8_A_COMPATIBILITY_NOTE_JA =
   'R8-A では出金・精算は未実装のため、コミッションの受取は開始されません。' +
   '表示のプロバイダ受取準備は最後に同期したスナップショットに基づき、リアルタイム送金可否の検証（R8-C）は未完了です。';
 
+/** Creator-facing API text; internal audit detail remains in R8_A_COMPATIBILITY_NOTE_JA. */
+export const R8_PUBLIC_COMPATIBILITY_NOTE_JA =
+  '紹介URLの新規発行には、有効なCreatorプロフィールに加え、税務プロフィールとStripe上の受取準備が必要です。' +
+  '表示される受取準備は最後に同期した記録に基づき、リアルタイムの送金可否を保証しません。' +
+  'コミッションの銀行振込はまだ開始されていません。';
+
 export function normalizeInvoiceRegistrationNumber(value: string | null | undefined): string | null {
   if (value == null) return null;
   const trimmed = value.trim();

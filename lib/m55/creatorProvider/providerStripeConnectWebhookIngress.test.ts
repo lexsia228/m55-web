@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { describe, it } from 'node:test';
 import {
+  assertIsolatedConnectWebhookMutationPermittedLiveV1,
   mapConnectWebhookPersistResultToHttpV1,
   parseVerifiedStripeConnectWebhookEventV1,
   resolveProviderStripeWebhookIngressModeV1,
@@ -79,6 +80,29 @@ describe('R8 isolated Stripe Connect webhook ingress', () => {
     } as any);
     assert.equal(nestedOnly.ok, false);
     if (!nestedOnly.ok) assert.equal(nestedOnly.reason, 'ACCOUNT_UNRESOLVED');
+  });
+
+  it('assertIsolatedConnectWebhookMutationPermittedLiveV1 fails closed on local stack when Docker inspect is unavailable', async () => {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ role: 'service_role' })).toString('base64url');
+    const jwt = `${header}.${payload}.signature`;
+    const permit = await assertIsolatedConnectWebhookMutationPermittedLiveV1(
+      {
+        VERCEL_ENV: 'development',
+        NODE_ENV: 'development',
+        M55_R8_ISOLATED_STRIPE_CONNECT_WEBHOOK_ENABLED: 'true',
+        M55_STRIPE_CONNECT_TESTMODE_ENABLED: 'true',
+        M55_R8_STRIPE_CONNECT_WEBHOOK_SECRET: 'whsec_test',
+        NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+        SUPABASE_SERVICE_ROLE_KEY: jwt,
+        M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+        M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID: 'm55_r8_isolated_stack_20261105',
+        M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK: 'm55_r8_isolated_net_20261105',
+      },
+      { inspectLocalStackDockerBindingImpl: async () => null },
+    );
+    assert.equal(permit.ok, false);
+    if (!permit.ok) assert.equal(permit.httpStatus, 503);
   });
 
   it('does not return HTTP 200 when persistence did not succeed', () => {

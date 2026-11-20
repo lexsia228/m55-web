@@ -1,6 +1,6 @@
 import {
   evaluateIsolatedSupabaseAlignmentV1,
-  listIsolatedSupabaseAlignmentChecklistV1,
+  listIsolatedSupabaseMutationTargetChecklistV1,
 } from './r8IsolatedSupabaseAlignment';
 import { classifyStripeConnectRuntime } from './stripeConnectV2Semantics';
 
@@ -54,6 +54,6 @@ export function listIsolatedStripeConnectPreflightMissingV1(
   if (!resolveIsolatedDatabaseUrlV1(env)) {
     missing.push('Set M55_R8_ISOLATED_DATABASE_URL (non-Production Postgres) before hosted onboarding');
   }
-  missing.push(...listIsolatedSupabaseAlignmentChecklistV1(env));
+  missing.push(...listIsolatedSupabaseMutationTargetChecklistV1(env));
   return missing;
 }

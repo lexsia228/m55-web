@@ -1,6 +1,6 @@
 import type { CreatorProfileStatus } from '../creatorDashboard/creatorContext';
 import {
-  R8_A_COMPATIBILITY_NOTE_JA,
+  R8_PUBLIC_COMPATIBILITY_NOTE_JA,
   type R8PublicReadinessSnapshotV1,
   type R8ProviderAccountSnapshotV1,
   type R8ReadinessBlockReasonV1,
@@ -131,7 +131,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
   }
 
   blockReasons.push('PAYOUT_SETTLEMENT_NOT_IMPLEMENTED');
-  nextActions.push('コミッションの出金・精算は R8 完了までは開始されません（現金送金は無効）。');
+  nextActions.push('コミッションの振込はまだ開始されていません。受取準備の入力のみ進められます。');
 
   return {
     schemaVersion: '2026-10-29-v1',
@@ -145,7 +145,7 @@ export function buildPublicReadinessSnapshotV1(input: ReadinessInputsV1): R8Publ
     productionCashActivation: false,
     r7ReferralIssueEligible: input.r7ReferralIssueEligible,
     operatingModelReferralGateMet: providerGreen && input.profileStatus === 'ACTIVE',
-    compatibilityNote: R8_A_COMPATIBILITY_NOTE_JA,
+    compatibilityNote: R8_PUBLIC_COMPATIBILITY_NOTE_JA,
     providerSnapshot: input.providerSnapshot,
     nextActions: [...new Set(nextActions)],
   };

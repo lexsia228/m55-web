@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
+  assertIsolatedConnectWebhookMutationPermittedLiveV1,
   canAcceptIsolatedConnectWebhookRequestV1,
   mapConnectWebhookPersistResultToHttpV1,
   verifyStripeConnectWebhookSignatureV1,
@@ -37,6 +38,14 @@ export async function POST(req: NextRequest) {
   });
   if (!verified.ok) {
     return NextResponse.json({ error: 'SIGNATURE_INVALID' }, { status: 400 });
+  }
+
+  const mutationPermit = await assertIsolatedConnectWebhookMutationPermittedLiveV1();
+  if (!mutationPermit.ok) {
+    return NextResponse.json(
+      { error: 'CONNECT_WEBHOOK_RUNTIME_NOT_VERIFIED', checklist: mutationPermit.checklist, retryable: true },
+      { status: mutationPermit.httpStatus },
+    );
   }
 
   const handled = await handleVerifiedStripeConnectWebhookEventV1(verified.event);

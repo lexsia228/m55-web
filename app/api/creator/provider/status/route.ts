@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PRIVATE_RESPONSE_HEADERS } from '../../../../../lib/m55/creatorDistribution/security';
+import { PRIVATE_JSON_RESPONSE_HEADERS } from '../../../../../lib/m55/creatorDistribution/security';
 import { buildProviderStatusBundleV1 } from '../../../../../lib/m55/creatorProvider/onboardingService';
 
 export const dynamic = 'force-dynamic';
@@ -17,10 +17,10 @@ export async function GET(request: Request) {
     });
     if (!result.ok) {
       const status = result.error === 'UNAUTHORIZED' ? 401 : 403;
-      return NextResponse.json({ error: result.error }, { status, headers: PRIVATE_RESPONSE_HEADERS });
+      return NextResponse.json({ error: result.error }, { status, headers: PRIVATE_JSON_RESPONSE_HEADERS });
     }
-    return NextResponse.json(result.bundle, { headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json(result.bundle, { headers: PRIVATE_JSON_RESPONSE_HEADERS });
   } catch {
-    return NextResponse.json({ error: 'PROVIDER_STATUS_UNAVAILABLE' }, { status: 503, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: 'PROVIDER_STATUS_UNAVAILABLE' }, { status: 503, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 }

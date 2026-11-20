@@ -3,6 +3,8 @@
  * Stripe Connect Accounts v2 **API smoke** (test mode only). Not onboarding/webhook E2E GREEN.
  * Reuses one isolated test account; onboarding URL written to gitignored local file only.
  */
+import { existsSync, readFileSync } from 'node:fs';
+import { isAbsolute, join } from 'node:path';
 import {
   listIsolatedStripeConnectPreflightMissingV1,
   resolveIsolatedAppOriginV1,
@@ -11,9 +13,14 @@ import {
 } from '../lib/m55/creatorProvider/stripeConnectV2IsolatedSmokePreflight.ts';
 import {
   applyIsolatedStripeSmokeEnvToProcessV1,
+  assertIsolatedSupabaseMutationPermittedLiveV1,
+  createDefaultLocalStackDockerBindingInspectorV1,
+  isolatedEnvFileTargetsLocalStackV1,
   listIsolatedStripeSmokeCredentialsFileMissingV1,
   listIsolatedStripeSmokeShellBlockedChecklistV1,
   loadM55R8IsolatedAlignmentEnvV1,
+  M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1,
+  parseEnvFileLinesV1,
 } from '../lib/m55/creatorProvider/r8IsolatedSupabaseAlignment.ts';
 import {
   loadIsolatedSmokeStateV1,
@@ -34,10 +41,34 @@ function humanIsolatedEnvChecklist(lines) {
   process.exit(2);
 }
 
+function humanLocalStackMutationChecklist(lines) {
+  console.error('M55_R8_ISOLATED_SUPABASE_LOCAL_STACK_MUTATION_FAILED');
+  for (const line of lines) console.error(`- ${line}`);
+  process.exit(2);
+}
+
 const shellBlocked = listIsolatedStripeSmokeShellBlockedChecklistV1(process.env);
 if (shellBlocked.length > 0) humanIsolatedEnvChecklist(shellBlocked);
 
-const loaded = loadM55R8IsolatedAlignmentEnvV1();
+const envRel =
+  process.env.M55_R8_ISOLATED_ENV_FILE?.trim() || M55_R8_ISOLATED_ALIGNMENT_ENV_FILE_DEFAULT_V1;
+const envAbs = isAbsolute(envRel) ? envRel : join(process.cwd(), envRel);
+if (!existsSync(envAbs)) {
+  humanIsolatedEnvChecklist([
+    `Create ${envRel} with isolated Supabase credentials (gitignored via .env.*.local)`,
+  ]);
+}
+let envParsed;
+try {
+  envParsed = parseEnvFileLinesV1(readFileSync(envAbs, 'utf8'));
+} catch {
+  humanIsolatedEnvChecklist([`Cannot read isolated env file: ${envRel}`]);
+}
+const localStackTarget = isolatedEnvFileTargetsLocalStackV1(envParsed);
+
+const loaded = loadM55R8IsolatedAlignmentEnvV1(process.cwd(), process.env, {
+  projectRefOptionalV1: localStackTarget,
+});
 if (!loaded.ok) humanIsolatedEnvChecklist(loaded.checklist);
 
 console.error(`M55_R8_ISOLATED_ENV: ${loaded.envFile}`);
@@ -52,6 +83,32 @@ const isolatedOnly = { ...loaded.env };
 
 const missing = listIsolatedStripeConnectPreflightMissingV1(isolatedOnly);
 if (missing.length > 0) humanChecklist(missing);
+
+if (localStackTarget) {
+  const mutationPermit = await assertIsolatedSupabaseMutationPermittedLiveV1(isolatedOnly, {
+    inspectLocalStackDockerBindingImpl: createDefaultLocalStackDockerBindingInspectorV1(),
+  });
+  if (!mutationPermit.ok || mutationPermit.permitKind !== 'LOCAL_STACK_MUTATION_PROBE') {
+    humanLocalStackMutationChecklist(
+      mutationPermit.ok
+        ? ['Local stack Stripe smoke requires fresh LOCAL_STACK_MUTATION_PROBE success']
+        : mutationPermit.checklist,
+    );
+  }
+  const mutation = mutationPermit.localStackProbe;
+  console.error(
+    JSON.stringify({
+      localStackMutation: {
+        verificationKind: mutation.verificationKind,
+        projectRefIdentity: mutation.projectRefIdentity,
+        humanProjectRefConfirmed: mutation.humanProjectRefConfirmed,
+        localStackMutationPermitted: mutation.localStackMutationPermitted,
+        foundationSchemaVerified: mutation.foundationSchemaVerified,
+        supabaseProjectRefSuffix: mutation.supabaseProjectRefSuffix,
+      },
+    }),
+  );
+}
 
 applyIsolatedStripeSmokeEnvToProcessV1(isolatedOnly);
 

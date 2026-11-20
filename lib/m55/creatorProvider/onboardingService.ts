@@ -37,6 +37,17 @@ import {
   isTaxProfileEligibleForProviderPayoutReadinessV1,
   isTaxProfileRecordWellFormedV1,
 } from './providerPayoutReadinessPredicate';
+import { assertIsolatedSupabaseMutationPermittedLiveV1 } from './r8IsolatedSupabaseAlignment';
+
+async function requireIsolatedProviderMutationPermitV1(): Promise<
+  { ok: true } | { ok: false; error: 'ISOLATED_RUNTIME_NOT_VERIFIED' }
+> {
+  const mutationPermit = await assertIsolatedSupabaseMutationPermittedLiveV1();
+  if (!mutationPermit.ok) {
+    return { ok: false, error: 'ISOLATED_RUNTIME_NOT_VERIFIED' };
+  }
+  return { ok: true };
+}
 
 export type ProviderStatusBundleV1 = {
   readiness: R8PublicReadinessSnapshotV1;
@@ -116,27 +127,30 @@ export async function buildProviderStatusBundleV1(options?: {
         : false;
     const mayPollProvider = options?.refreshProvider === true || sessionPending;
     if (mayPollProvider) {
-      try {
-        const snapshot = await adapter.retrieveAccountSnapshot(providerRow.stripeAccountId);
-        providerRow = await syncProviderSnapshotV1({
-          creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
-          stripeAccountId: providerRow.stripeAccountId,
-          snapshot,
-        });
-        await appendProviderOnboardingEventV1({
-          creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
-          eventType: 'PROVIDER_SNAPSHOT_SYNCED',
-          idempotencyKey: `sync:${providerRow.lastSyncedAt ?? Date.now()}:${providerRow.stripeAccountId}`,
-          payloadRedacted: { linkState: providerRow.linkState },
-        });
-        if (sessionPending && sessionId) {
-          await markOnboardingSessionCompletedV1({
+      const mutationPermit = await requireIsolatedProviderMutationPermitV1();
+      if (mutationPermit.ok) {
+        try {
+          const snapshot = await adapter.retrieveAccountSnapshot(providerRow.stripeAccountId);
+          providerRow = await syncProviderSnapshotV1({
             creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
-            sessionId,
+            stripeAccountId: providerRow.stripeAccountId,
+            snapshot,
           });
+          await appendProviderOnboardingEventV1({
+            creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
+            eventType: 'PROVIDER_SNAPSHOT_SYNCED',
+            idempotencyKey: `sync:${providerRow.lastSyncedAt ?? Date.now()}:${providerRow.stripeAccountId}`,
+            payloadRedacted: { linkState: providerRow.linkState },
+          });
+          if (sessionPending && sessionId) {
+            await markOnboardingSessionCompletedV1({
+              creatorEconomicIdentityId: ctx.creatorEconomicIdentityId,
+              sessionId,
+            });
+          }
+        } catch {
+          // Fail-closed: redirect alone does not complete onboarding.
         }
-      } catch {
-        // Fail-closed: redirect alone does not complete onboarding.
       }
     }
   }
@@ -174,7 +188,16 @@ export async function buildProviderStatusBundleV1(options?: {
 export async function saveCreatorTaxProfileForSessionV1(
   input: R8TaxProfileInputV1,
 ): Promise<
-  | { ok: false; error: 'UNAUTHORIZED' | 'CREATOR_PROFILE_REQUIRED' | 'FORBIDDEN' | 'TAX_PROFILE_INVALID' | 'TAX_PROFILE_UNAVAILABLE' }
+  | {
+      ok: false;
+      error:
+        | 'UNAUTHORIZED'
+        | 'CREATOR_PROFILE_REQUIRED'
+        | 'FORBIDDEN'
+        | 'TAX_PROFILE_INVALID'
+        | 'TAX_PROFILE_UNAVAILABLE'
+        | 'ISOLATED_RUNTIME_NOT_VERIFIED';
+    }
   | { ok: true; taxProfile: Awaited<ReturnType<typeof upsertTaxProfileV1>> }
 > {
   const ctx = await resolveCreatorContextFromSession();
@@ -183,6 +206,10 @@ export async function saveCreatorTaxProfileForSessionV1(
   }
   if (!isR8AProviderPlaneEditableV1(ctx.profileStatus)) {
     return { ok: false, error: 'FORBIDDEN' };
+  }
+  const mutationPermit = await requireIsolatedProviderMutationPermitV1();
+  if (!mutationPermit.ok) {
+    return { ok: false, error: 'ISOLATED_RUNTIME_NOT_VERIFIED' };
   }
   try {
     const taxProfile = await upsertTaxProfileV1(ctx.creatorEconomicIdentityId, input);
@@ -229,6 +256,11 @@ export async function startCreatorProviderOnboardingV1(body: {
   const origin = resolveCreatorProviderPublicOrigin();
   const refreshUrl = assertSafeRedirectUrl(buildCreatorPortalProviderRefreshUrl(), origin);
   if (!refreshUrl) return { ok: false, error: 'ORIGIN_MISCONFIGURED' };
+
+  const mutationPermit = await requireIsolatedProviderMutationPermitV1();
+  if (!mutationPermit.ok) {
+    return { ok: false, error: 'ISOLATED_RUNTIME_NOT_VERIFIED' };
+  }
 
   const createKey = stableProviderCreateIdempotencyKeyV1(ctx.creatorEconomicIdentityId);
   let providerRow = await ensureProviderAccountCreationRowV1(ctx.creatorEconomicIdentityId);

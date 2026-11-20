@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { resolveCreatorContextFromSession } from '../../../../lib/m55/creatorDashboard/creatorContext';
 import { parseBoundedEpochRangeV1 } from '../../../../lib/m55/creatorDashboard/reconciliationExport';
-import { PRIVATE_RESPONSE_HEADERS } from '../../../../lib/m55/creatorDistribution/security';
+import { PRIVATE_JSON_RESPONSE_HEADERS } from '../../../../lib/m55/creatorDistribution/security';
 import { loadCreatorStatementBundleForSessionV1 } from '../../../../lib/m55/creatorStatement/creatorStatementService';
 import { SettlementPersistedReadError } from '../../../../lib/m55/creatorSettlement/settlementReadErrors';
 
@@ -14,23 +14,23 @@ export async function GET(request: Request) {
   const ctx = await resolveCreatorContextFromSession();
   if (!ctx.ok) {
     const status = ctx.error === 'UNAUTHORIZED' ? 401 : 403;
-    return NextResponse.json({ error: ctx.error }, { status, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: ctx.error }, { status, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
   if (!ctx.dashboardHistoryReadable) {
-    return NextResponse.json({ error: 'STATEMENT_NOT_AVAILABLE' }, { status: 403, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: 'STATEMENT_NOT_AVAILABLE' }, { status: 403, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 
   const url = new URL(request.url);
   const economicIdentityParam = url.searchParams.get('economicIdentityId');
   if (economicIdentityParam && economicIdentityParam !== ctx.creatorEconomicIdentityId) {
-    return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 
   const toMs = url.searchParams.has('toMs') ? Number(url.searchParams.get('toMs')) : Date.now();
   const fromMs = url.searchParams.has('fromMs') ? Number(url.searchParams.get('fromMs')) : toMs - DEFAULT_RANGE_MS;
   const parsed = parseBoundedEpochRangeV1(fromMs, toMs);
   if (!parsed.ok) {
-    return NextResponse.json({ error: parsed.error }, { status: 400, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: parsed.error }, { status: 400, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 
   try {
@@ -39,11 +39,11 @@ export async function GET(request: Request) {
       fromMs: parsed.fromMs,
       toMs: parsed.toMs,
     });
-    return NextResponse.json({ profileStatus: ctx.profileStatus, statement }, { headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ profileStatus: ctx.profileStatus, statement }, { headers: PRIVATE_JSON_RESPONSE_HEADERS });
   } catch (error) {
     if (error instanceof SettlementPersistedReadError) {
-      return NextResponse.json({ error: error.code }, { status: 503, headers: PRIVATE_RESPONSE_HEADERS });
+      return NextResponse.json({ error: error.code }, { status: 503, headers: PRIVATE_JSON_RESPONSE_HEADERS });
     }
-    return NextResponse.json({ error: 'STATEMENT_UNAVAILABLE' }, { status: 503, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: 'STATEMENT_UNAVAILABLE' }, { status: 503, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 }

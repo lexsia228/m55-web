@@ -1,6 +1,10 @@
+import { execFile } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
+import { promisify } from 'node:util';
 import { isM55ProductionRuntime } from './runtimeEnvironment';
+
+const execFileAsync = promisify(execFile);
 
 export type PostgresSupabaseConnectionKindV1 =
   | 'supabase_direct'
@@ -1054,6 +1058,359 @@ export function localStackVerificationFailureChecklistV1(
     default:
       return ['Local stack verification failed'];
   }
+}
+
+const R8_ISOLATED_CREATOR_PROFILE_TABLE = 'm55_creator_profiles';
+const R8_ISOLATED_CREATOR_TAX_TABLE = 'm55_r8_creator_tax_profiles_v1';
+
+export type IsolatedLocalStackMutationGateFailureV1 =
+  | IsolatedSupabaseLocalStackVerificationFailureV1
+  | 'LOCAL_STACK_MUTATION_NOT_APPLICABLE'
+  | 'PROVIDER_SCHEMA_NOT_VERIFIED'
+  | 'CREATOR_FOUNDATION_SCHEMA_NOT_VERIFIED';
+
+export type IsolatedLocalStackMutationGateResultV1 =
+  | {
+      ok: true;
+      verificationKind: 'LOCAL_STACK_MUTATION_PROBE';
+      projectRefIdentity: 'VERIFIED' | 'UNVERIFIED';
+      humanProjectRefConfirmed: boolean;
+      localStackMutationPermitted: true;
+      stackProjectId: string;
+      checks: LocalStackVerificationCheckV1;
+      foundationSchemaVerified: true;
+      supabaseProjectRefSuffix: string;
+      postgresConnectionKind: PostgresSupabaseConnectionKindV1;
+      serviceRoleKeyFormat: SupabaseServiceRoleKeyFormatV1;
+      serviceRoleJwtRefMatched: boolean;
+      localStackServiceRoleJwtRefAbsent?: boolean;
+    }
+  | { ok: false; reason: IsolatedLocalStackMutationGateFailureV1 };
+
+/** True when the declared Supabase app URL is the local full stack API (port 54321). */
+export function isolatedEnvFileTargetsLocalStackV1(parsed: Record<string, string>): boolean {
+  const app = parsed.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  return parseSupabaseAppHttpUrlV1(app).kind === 'local_stack';
+}
+
+/**
+ * Structural pre-check for LOCAL STACK mutation paths (Stripe, webhook, onboarding DB).
+ * Does not grant permission by itself — live `LOCAL_STACK_MUTATION_PROBE` is required before mutations.
+ */
+export function isIsolatedLocalStackSupabaseMutationCandidateV1(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  const appUrl = env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  const dbUrl = env.M55_R8_ISOLATED_DATABASE_URL?.trim() ?? '';
+  if (parseSupabaseAppHttpUrlV1(appUrl).kind !== 'local_stack') return false;
+  const pg = parsePostgresSupabaseConnectionV1(dbUrl);
+  return pg.connectionKind === 'supabase_local_stack';
+}
+
+/** Local API declared but Postgres/stack identity does not match the exact isolated local stack target. */
+export function isMisconfiguredLocalStackSupabaseMutationTargetV1(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  const appUrl = env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  if (parseSupabaseAppHttpUrlV1(appUrl).kind !== 'local_stack') return false;
+  return !isIsolatedLocalStackSupabaseMutationCandidateV1(env);
+}
+
+export function listIsolatedLocalStackMutationGateStructuralChecklistV1(
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  if (isM55ProductionRuntime(env)) {
+    return alignmentFailureChecklistV1('PRODUCTION_RUNTIME_BLOCKED');
+  }
+  if (!isIsolatedLocalStackSupabaseMutationCandidateV1(env)) {
+    return [
+      'Isolated local stack mutation requires NEXT_PUBLIC_SUPABASE_URL on http://127.0.0.1:54321 and M55_R8_ISOLATED_DATABASE_URL on 127.0.0.1:54322',
+    ];
+  }
+  const stackProjectId = env[M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID_ENV_V1]?.trim() ?? '';
+  if (!stackProjectId) {
+    return localStackVerificationFailureChecklistV1('LOCAL_STACK_STACK_PROJECT_ID_MISSING');
+  }
+  if (!M55_R8_LOCAL_STACK_PROJECT_ID_PATTERN_V1.test(stackProjectId)) {
+    return localStackVerificationFailureChecklistV1('LOCAL_STACK_STACK_PROJECT_ID_INVALID');
+  }
+  const expectedDockerNetwork =
+    env[M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK_ENV_V1]?.trim() ?? '';
+  if (!expectedDockerNetwork) {
+    return localStackVerificationFailureChecklistV1('LOCAL_STACK_STACK_DOCKER_NETWORK_MISSING');
+  }
+  if (!M55_R8_LOCAL_STACK_DOCKER_NETWORK_NAME_PATTERN_V1.test(expectedDockerNetwork)) {
+    return localStackVerificationFailureChecklistV1('LOCAL_STACK_STACK_DOCKER_NETWORK_INVALID');
+  }
+  return listIsolatedSupabaseAlignmentChecklistV1(env, {
+    allowLocalStackUnconfirmedProjectRefV1: true,
+  });
+}
+
+/** Hosted Supabase alignment vs local-stack mutation structural gate — never weakens Production/Preview. */
+export function listIsolatedSupabaseMutationTargetChecklistV1(
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  if (isIsolatedLocalStackSupabaseMutationCandidateV1(env)) {
+    return listIsolatedLocalStackMutationGateStructuralChecklistV1(env);
+  }
+  return listIsolatedSupabaseAlignmentChecklistV1(env);
+}
+
+export async function probeIsolatedLocalStackFoundationSchemaV1(input: {
+  connectionUrl: string;
+  postgresQueryImpl?: IsolatedSupabaseLiveProbeDepsV1['postgresQueryImpl'];
+}): Promise<
+  | { ok: true }
+  | { ok: false; reason: 'POSTGRES_PROBE_FAILED' | 'PROVIDER_SCHEMA_NOT_VERIFIED' | 'CREATOR_FOUNDATION_SCHEMA_NOT_VERIFIED' }
+> {
+  const queryImpl = input.postgresQueryImpl ?? defaultPostgresQueryImpl;
+  const requiredTables = [
+    R8_ISOLATED_PROVIDER_TABLE,
+    R8_ISOLATED_CREATOR_PROFILE_TABLE,
+    R8_ISOLATED_CREATOR_TAX_TABLE,
+  ] as const;
+  try {
+    for (const table of requiredTables) {
+      const identity = await queryImpl({
+        connectionUrl: input.connectionUrl,
+        sql: `SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = $1
+        ) AS present`,
+        values: [table],
+      });
+      if (identity.rows[0]?.present !== true) {
+        if (table === R8_ISOLATED_PROVIDER_TABLE) {
+          return { ok: false, reason: 'PROVIDER_SCHEMA_NOT_VERIFIED' };
+        }
+        return { ok: false, reason: 'CREATOR_FOUNDATION_SCHEMA_NOT_VERIFIED' };
+      }
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'POSTGRES_PROBE_FAILED' };
+  }
+}
+
+/**
+ * Live LOCAL STACK mutation permit — reuses Docker/topology/API/service-role probes plus R4/R8-A schema.
+ * Does not upgrade JWT-absent local stack to hosted PROJECT_REF VERIFIED identity.
+ */
+export async function evaluateIsolatedSupabaseLocalStackMutationLiveV1(
+  env: NodeJS.ProcessEnv = process.env,
+  deps: IsolatedSupabaseLocalStackVerificationDepsV1 = {},
+): Promise<IsolatedLocalStackMutationGateResultV1> {
+  if (!isIsolatedLocalStackSupabaseMutationCandidateV1(env)) {
+    return { ok: false, reason: 'LOCAL_STACK_MUTATION_NOT_APPLICABLE' };
+  }
+
+  const live = await evaluateIsolatedSupabaseLocalStackVerificationLiveV1(env, deps);
+  if (!live.ok) {
+    return { ok: false, reason: live.reason };
+  }
+
+  const foundation = await probeIsolatedLocalStackFoundationSchemaV1({
+    connectionUrl: env.M55_R8_ISOLATED_DATABASE_URL!.trim(),
+    postgresQueryImpl: deps.postgresQueryImpl,
+  });
+  if (!foundation.ok) {
+    return { ok: false, reason: foundation.reason };
+  }
+
+  return {
+    ok: true,
+    verificationKind: 'LOCAL_STACK_MUTATION_PROBE',
+    projectRefIdentity: live.projectRefIdentity,
+    humanProjectRefConfirmed: live.humanProjectRefConfirmed,
+    localStackMutationPermitted: true,
+    stackProjectId: live.stackProjectId,
+    checks: live.checks,
+    foundationSchemaVerified: true,
+    supabaseProjectRefSuffix: live.supabaseProjectRefSuffix,
+    postgresConnectionKind: live.postgresConnectionKind,
+    serviceRoleKeyFormat: live.serviceRoleKeyFormat,
+    serviceRoleJwtRefMatched: live.serviceRoleJwtRefMatched,
+    ...(live.localStackServiceRoleJwtRefAbsent ? { localStackServiceRoleJwtRefAbsent: true } : {}),
+  };
+}
+
+export function localStackMutationFailureChecklistV1(
+  reason: IsolatedLocalStackMutationGateFailureV1,
+): string[] {
+  switch (reason) {
+    case 'LOCAL_STACK_MUTATION_NOT_APPLICABLE':
+      return [
+        'Local stack mutation gate requires loopback Supabase API (:54321), local stack Postgres (:54322), and declared stack Docker identity env keys',
+      ];
+    case 'PROVIDER_SCHEMA_NOT_VERIFIED':
+      return [
+        `Postgres READ probe did not find public.${R8_ISOLATED_PROVIDER_TABLE} — apply R8 provider migration on the isolated local stack`,
+      ];
+    case 'CREATOR_FOUNDATION_SCHEMA_NOT_VERIFIED':
+      return [
+        `Postgres READ probe did not find public.${R8_ISOLATED_CREATOR_PROFILE_TABLE} or ${R8_ISOLATED_CREATOR_TAX_TABLE} — apply R4 creator foundation migration on the isolated local stack`,
+      ];
+    default:
+      return localStackVerificationFailureChecklistV1(reason);
+  }
+}
+
+function hostPortsFromDockerPortsJsonV1(portsJson: string): LocalStackDockerHostPortBindingV1[] {
+  const portsRaw = JSON.parse(portsJson || '{}') as Record<
+    string,
+    Array<{ HostIp?: string; HostPort?: string }>
+  >;
+  const hostPorts: LocalStackDockerHostPortBindingV1[] = [];
+  for (const [key, bindings] of Object.entries(portsRaw)) {
+    const segments = String(key).split('/');
+    const containerPort = Number(segments[0]);
+    const protocol = (segments[1] ?? '').toLowerCase();
+    if (!Number.isFinite(containerPort)) continue;
+    if (protocol !== 'tcp' && protocol !== 'udp') continue;
+    for (const binding of bindings ?? []) {
+      if (!binding?.HostPort) continue;
+      hostPorts.push({
+        hostIp: binding.HostIp ?? '0.0.0.0',
+        hostPort: Number(binding.HostPort),
+        containerPort,
+        protocol: protocol as LocalStackDockerPortProtocolV1,
+      });
+    }
+  }
+  return hostPorts;
+}
+
+function networksFromDockerNetworksJsonV1(networksJson: string): LocalStackDockerNetworkAttachmentV1[] {
+  const networksRaw = JSON.parse(networksJson || '{}') as Record<string, { NetworkID?: string }>;
+  return Object.entries(networksRaw).map(([networkName, meta]) => ({
+    networkName,
+    networkId: meta?.NetworkID ?? '',
+  }));
+}
+
+async function inspectLocalStackRoleBindingViaDockerV1(
+  stackProjectId: string,
+  role: 'db' | 'kong' | 'auth',
+): Promise<LocalStackDockerContainerBindingV1> {
+  const name = expectedLocalStackSupabaseContainerNameV1(role, stackProjectId);
+  const [runningOut, portsOut, networksOut] = await Promise.all([
+    execFileAsync('docker', ['inspect', name, '--format', '{{.State.Running}}'], { timeout: 15_000 }),
+    execFileAsync('docker', ['inspect', name, '--format', '{{json .NetworkSettings.Ports}}'], {
+      timeout: 15_000,
+    }),
+    execFileAsync('docker', ['inspect', name, '--format', '{{json .NetworkSettings.Networks}}'], {
+      timeout: 15_000,
+    }),
+  ]);
+  return {
+    name,
+    stateRunning: runningOut.stdout.trim() === 'true',
+    hostPorts: hostPortsFromDockerPortsJsonV1(portsOut.stdout.trim()),
+    networks: networksFromDockerNetworksJsonV1(networksOut.stdout.trim()),
+  };
+}
+
+/** Server-side Docker inspect for isolated local stack mutation probes (Node.js only). */
+export function createDefaultLocalStackDockerBindingInspectorV1(): NonNullable<
+  IsolatedSupabaseLocalStackVerificationDepsV1['inspectLocalStackDockerBindingImpl']
+> {
+  return async (stackProjectId: string) => {
+    try {
+      const [kong, db, auth] = await Promise.all([
+        inspectLocalStackRoleBindingViaDockerV1(stackProjectId, 'kong'),
+        inspectLocalStackRoleBindingViaDockerV1(stackProjectId, 'db'),
+        inspectLocalStackRoleBindingViaDockerV1(stackProjectId, 'auth'),
+      ]);
+      return { stackProjectId, kong, db, auth };
+    } catch {
+      return null;
+    }
+  };
+}
+
+export type IsolatedSupabaseMutationLivePermitResultV1 =
+  | {
+      ok: true;
+      permitKind: 'LOCAL_STACK_MUTATION_PROBE';
+      localStackProbe: Extract<IsolatedLocalStackMutationGateResultV1, { ok: true }>;
+    }
+  | {
+      ok: true;
+      permitKind: 'HOSTED_LIVE_READ_PROBE';
+      supabaseProjectRefSuffix: string;
+      humanProjectRefConfirmed: boolean;
+    }
+  | { ok: false; httpStatus: 503; checklist: string[] };
+
+/**
+ * Fresh live permit immediately before Stripe/DB mutations.
+ * LOCAL_STACK_MUTATION_PROBE succeeds only on exact loopback stack targets with live Docker/API/Postgres/schema proof.
+ * Hosted isolated targets require existing hosted LIVE alignment — never implied by local permit.
+ */
+export async function assertIsolatedSupabaseMutationPermittedLiveV1(
+  env: NodeJS.ProcessEnv = process.env,
+  deps: IsolatedSupabaseLocalStackVerificationDepsV1 = {},
+): Promise<IsolatedSupabaseMutationLivePermitResultV1> {
+  if (isM55ProductionRuntime(env)) {
+    return {
+      ok: false,
+      httpStatus: 503,
+      checklist: alignmentFailureChecklistV1('PRODUCTION_RUNTIME_BLOCKED'),
+    };
+  }
+
+  if (isMisconfiguredLocalStackSupabaseMutationTargetV1(env)) {
+    return {
+      ok: false,
+      httpStatus: 503,
+      checklist: [
+        'Isolated local stack mutation requires matching loopback API (http://127.0.0.1:54321), local stack Postgres (127.0.0.1:54322), and declared stack Docker identity env keys',
+      ],
+    };
+  }
+
+  if (isIsolatedLocalStackSupabaseMutationCandidateV1(env)) {
+    const structural = listIsolatedLocalStackMutationGateStructuralChecklistV1(env);
+    if (structural.length > 0) {
+      return { ok: false, httpStatus: 503, checklist: structural };
+    }
+    const inspect =
+      deps.inspectLocalStackDockerBindingImpl ?? createDefaultLocalStackDockerBindingInspectorV1();
+    const mutation = await evaluateIsolatedSupabaseLocalStackMutationLiveV1(env, {
+      ...deps,
+      inspectLocalStackDockerBindingImpl: inspect,
+    });
+    if (!mutation.ok) {
+      return {
+        ok: false,
+        httpStatus: 503,
+        checklist: localStackMutationFailureChecklistV1(mutation.reason),
+      };
+    }
+    return { ok: true, permitKind: 'LOCAL_STACK_MUTATION_PROBE', localStackProbe: mutation };
+  }
+
+  const hostedStructural = listIsolatedSupabaseAlignmentChecklistV1(env);
+  if (hostedStructural.length > 0) {
+    return { ok: false, httpStatus: 503, checklist: hostedStructural };
+  }
+
+  const hostedLive = await evaluateIsolatedSupabaseAlignmentLiveV1(env, deps);
+  if (!hostedLive.ok) {
+    return {
+      ok: false,
+      httpStatus: 503,
+      checklist: alignmentFailureChecklistV1(hostedLive.reason),
+    };
+  }
+
+  return {
+    ok: true,
+    permitKind: 'HOSTED_LIVE_READ_PROBE',
+    supabaseProjectRefSuffix: hostedLive.supabaseProjectRefSuffix,
+    humanProjectRefConfirmed: hostedLive.humanProjectRefConfirmed,
+  };
 }
 
 export function parseEnvFileLinesV1(raw: string): Record<string, string> {

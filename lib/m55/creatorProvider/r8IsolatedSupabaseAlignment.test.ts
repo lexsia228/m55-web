@@ -17,6 +17,9 @@ import {
   probeSupabaseServiceRoleReadOnlyV1,
   probeIsolatedPostgresReadOnlyV1,
   evaluateIsolatedSupabaseLocalStackVerificationLiveV1,
+  evaluateIsolatedSupabaseLocalStackMutationLiveV1,
+  assertIsolatedSupabaseMutationPermittedLiveV1,
+  listIsolatedSupabaseMutationTargetChecklistV1,
   probeLocalSupabaseStackTopologyV1,
   probeLocalStackServiceRoleAuthorizationV1,
   probeLocalStackApiReachabilityV1,
@@ -1072,6 +1075,117 @@ describe('R8 isolated Supabase alignment', () => {
     );
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.reason, 'LOCAL_STACK_STACK_PROJECT_ID_MISSING');
+  });
+
+  it('local stack mutation structural gate passes without Human project ref when stack identity env is set', () => {
+    const checklist = listIsolatedSupabaseMutationTargetChecklistV1(localStackVerificationEnv());
+    assert.deepEqual(checklist, []);
+  });
+
+  it('hosted mutation target still requires Human-confirmed project ref', () => {
+    const ref = 'abcdefghijklmnop';
+    const checklist = listIsolatedSupabaseMutationTargetChecklistV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwt(ref),
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+    });
+    assert.ok(checklist.some((line) => line.includes('Human-confirmed')));
+  });
+
+  it('assertIsolatedSupabaseMutationPermittedLiveV1 requires hosted LIVE alignment — not LOCAL permit success', async () => {
+    const ref = 'abcdefghijklmnop';
+    const permit = await assertIsolatedSupabaseMutationPermittedLiveV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwt(ref),
+      M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+      M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+    });
+    assert.equal(permit.ok, false);
+    if (!permit.ok) {
+      assert.ok(permit.checklist.some((line) => line.includes('Service role') || line.includes('Postgres')));
+    }
+  });
+
+  it('assertIsolatedSupabaseMutationPermittedLiveV1 succeeds on hosted target only after LIVE alignment probes', async () => {
+    const ref = 'abcdefghijklmnop';
+    const permit = await assertIsolatedSupabaseMutationPermittedLiveV1(
+      {
+        VERCEL_ENV: 'development',
+        NODE_ENV: 'development',
+        NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co`,
+        SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwt(ref),
+        M55_R8_ISOLATED_DATABASE_URL: `postgresql://postgres:x@db.${ref}.supabase.co:5432/postgres`,
+        M55_R8_ISOLATED_SUPABASE_PROJECT_REF: ref,
+      },
+      {
+        fetchImpl: async () =>
+          new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } }),
+        postgresQueryImpl: async () => ({ rows: [{ present: true }] }),
+      },
+    );
+    assert.equal(permit.ok, true);
+    if (permit.ok) {
+      assert.equal(permit.permitKind, 'HOSTED_LIVE_READ_PROBE');
+      assert.equal(permit.supabaseProjectRefSuffix, ref.slice(-6));
+    }
+  });
+
+  it('assertIsolatedSupabaseMutationPermittedLiveV1 rejects misconfigured local API without local Postgres', async () => {
+    const permit = await assertIsolatedSupabaseMutationPermittedLiveV1({
+      VERCEL_ENV: 'development',
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: fakeServiceRoleJwtWithoutRef('service_role'),
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:x@db.abcdefghijklmnop.supabase.co:5432/postgres',
+    });
+    assert.equal(permit.ok, false);
+    if (!permit.ok) {
+      assert.ok(permit.checklist.some((line) => line.includes('matching loopback API')));
+    }
+  });
+
+  it('assertIsolatedSupabaseMutationPermittedLiveV1 rejects Production runtime', async () => {
+    const permit = await assertIsolatedSupabaseMutationPermittedLiveV1({
+      VERCEL_ENV: 'production',
+      NODE_ENV: 'production',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.test',
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+    });
+    assert.equal(permit.ok, false);
+  });
+
+  it('assertIsolatedSupabaseMutationPermittedLiveV1 fails closed when Docker evidence is missing', async () => {
+    const permit = await assertIsolatedSupabaseMutationPermittedLiveV1(localStackVerificationEnv(), {
+      inspectLocalStackDockerBindingImpl: async () => null,
+      fetchImpl: authAwareFetch(401, 200),
+      postgresQueryImpl: async () => ({ rows: [{ present: true }, { local_stack_reachability: 1 }] }),
+    });
+    assert.equal(permit.ok, false);
+    if (!permit.ok) {
+      assert.ok(permit.checklist.some((line) => line.includes('Docker inspect')));
+    }
+  });
+
+  it('local stack mutation live fails when creator foundation tables are absent', async () => {
+    const result = await evaluateIsolatedSupabaseLocalStackMutationLiveV1(localStackVerificationEnv(), {
+      inspectLocalStackDockerBindingImpl: inspectDockerBindingFactory(isolatedStackDockerEvidence()),
+      fetchImpl: authAwareFetch(401, 200),
+      postgresQueryImpl: async (input) => {
+        if (input.sql.includes('local_stack_reachability')) {
+          return { rows: [{ local_stack_reachability: 1 }] };
+        }
+        const table = String(input.values?.[0] ?? '');
+        if (table === 'm55_creator_profiles') return { rows: [{ present: false }] };
+        return { rows: [{ present: true }] };
+      },
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.reason, 'CREATOR_FOUNDATION_SCHEMA_NOT_VERIFIED');
   });
 
   it('identity LIVE probe still fails closed for ref-absent local JWT after REST and Postgres success', async () => {

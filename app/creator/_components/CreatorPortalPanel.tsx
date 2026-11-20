@@ -93,6 +93,14 @@ export function CreatorPortalPanel() {
   if (!portal) return <p role="status" className={styles.loading}>読み込み中…</p>;
   const app = portal.application;
   const profile = portal.profile;
+  const profileActive = profile?.status === 'ACTIVE';
+  const applicationPhaseLabel =
+    profile && profileActive
+      ? '参加中（Creator有効）'
+      : app
+        ? publicStatusLabel(app.status, APPLICATION_PUBLIC_LABELS)
+        : null;
+
   return (
     <section className={styles.portalSection}>
       {!app && !profile && (
@@ -102,8 +110,13 @@ export function CreatorPortalPanel() {
       )}
       {app && (
         <div className={styles.statusPanel}>
-          <p className={styles.statusHeading}>現在の状況</p>
-          <span className={styles.statusBadge}>{publicStatusLabel(app.status, APPLICATION_PUBLIC_LABELS)}</span>
+          <p className={styles.statusHeading}>参加審査</p>
+          <span className={styles.statusBadge}>{applicationPhaseLabel}</span>
+          {profileActive && app.status === 'APPROVED_PENDING_ACTIVATION' ? (
+            <p className={styles.statusMeta}>
+              申請記録は承認済みです。現在はCreatorプロフィールが有効です（下記参照）。
+            </p>
+          ) : null}
           <p className={styles.statusMeta}>申請日：{new Date(app.submitted_at).toLocaleDateString('ja-JP')}</p>
           {app.status === 'SUBMITTED' && (
             mediaVerificationNextAction(app.primary_media_verification) ?? (
@@ -171,9 +184,15 @@ export function CreatorPortalPanel() {
           紹介の記録とコミッション状況は
           <Link href="/creator/dashboard" className={styles.tertiaryLink}>Creatorダッシュボード</Link>
           で確認できます。
-          {profile.status === 'ACTIVE'
-            ? '支払い・出金は別途のご案内前は行われません。'
-            : '紹介URLの新規発行は有効なプロフィールのみ可能です。'}
+          {profile.status === 'ACTIVE' ? (
+            <>
+              {' '}
+              紹介URLの<strong>新規発行</strong>は税務プロフィールとStripe受取準備（直近の同期が有効な状態）が揃うまでできません。
+              既存URLの閲覧はダッシュボードから可能な場合があります。銀行振込は未開始です。
+            </>
+          ) : (
+            ' 紹介URLの新規発行は有効なプロフィールのみ可能です。'
+          )}
         </p>
       )}
       {!profile && (

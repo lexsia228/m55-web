@@ -16,6 +16,23 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 describe('R8 isolated Stripe smoke preflight', () => {
+  it('accepts local stack mutation structural gate without Human project ref', () => {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ role: 'service_role' })).toString('base64url');
+    const jwt = `${header}.${payload}.signature`;
+    const missing = listIsolatedStripeConnectPreflightMissingV1({
+      STRIPE_SECRET_KEY: 'sk_test_placeholder',
+      M55_STRIPE_CONNECT_TESTMODE_ENABLED: 'true',
+      M55_PUBLIC_ORIGIN: 'http://localhost:3000',
+      M55_R8_ISOLATED_DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      SUPABASE_SERVICE_ROLE_KEY: jwt,
+      M55_R8_ISOLATED_SUPABASE_STACK_PROJECT_ID: 'm55_r8_isolated_stack_20261105',
+      M55_R8_ISOLATED_SUPABASE_STACK_DOCKER_NETWORK: 'm55_r8_isolated_net_20261105',
+    });
+    assert.ok(!missing.some((line) => line.includes('Human-confirmed')));
+  });
+
   it('requires origin, isolated DB, and Supabase alignment before Stripe calls', () => {
     const missing = listIsolatedStripeConnectPreflightMissingV1({
       STRIPE_SECRET_KEY: 'sk_test_placeholder',
