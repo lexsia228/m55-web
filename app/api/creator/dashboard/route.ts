@@ -55,6 +55,8 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         profileStatus: ctx.profileStatus,
+        referralIssuePermitted: ctx.referralIssuePermitted,
+        r7ReferralIssueEligible: ctx.r7ReferralIssueEligible,
         range: { fromMs: parsed.fromMs, toMs: parsed.toMs },
         summary,
         commissionActivity: activity,

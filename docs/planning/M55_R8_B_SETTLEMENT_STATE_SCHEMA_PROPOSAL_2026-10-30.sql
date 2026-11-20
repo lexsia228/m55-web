@@ -1,0 +1,3 @@
+-- SUPERSEDED — canonical authority:
+-- docs/planning/M55_R8_SETTLEMENT_EXECUTION_SCHEMA_PROPOSAL_2026-10-30.sql
+-- Do not apply this legacy filename.

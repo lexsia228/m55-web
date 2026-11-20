@@ -49,11 +49,10 @@ describe('creator dashboard surface contracts', () => {
     assert.match(issueRoute, /resolveCreatorReferralShareOriginV1/);
   });
 
-  it('uses existence semantics for referral capability compliance gate', () => {
+  it('routes referral capability compliance gate through R5 clearance RPC', () => {
     const ctxSrc = readFileSync(join(root, 'lib/m55/creatorDashboard/creatorContext.ts'), 'utf8');
-    assert.match(ctxSrc, /\.limit\(1\)/);
-    assert.doesNotMatch(ctxSrc, /\.limit\(50\)/);
-    assert.match(ctxSrc, /decision\.is\.null/);
+    assert.match(ctxSrc, /m55_r5_creator_referral_clearance_v1/);
+    assert.doesNotMatch(ctxSrc, /\.from\('m55_r5_compliance_cases'\)/);
   });
 
   it('paginates commission activity and compliance history with cursor propagation', () => {
@@ -132,6 +131,34 @@ describe('creator dashboard surface contracts', () => {
     assert.match(exportRoute, /参照ID/);
     assert.match(exportRoute, /活動額（円）/);
     assert.match(exportRoute, /EXPORT_HEADERS_JA/);
+  });
+
+  it('loads owned compliance history via security-definer RPC', () => {
+    const readModel = readFileSync(join(root, 'lib/m55/creatorDashboard/dashboardReadModel.ts'), 'utf8');
+    assert.match(readModel, /m55_r7_list_owned_compliance_cases_v1/);
+    assert.match(readModel, /parseOwnedComplianceCasesRpcPageV1/);
+    assert.doesNotMatch(readModel, /\.from\('m55_r5_compliance_cases'\)/);
+    const sql = readFileSync(
+      join(root,
+        'supabase/migrations/20261119170000_m55_r7_creator_compliance_cases_owned_read_fix_v1.sql'),
+      'utf8',
+    );
+    assert.match(sql, /grant execute on function public\.m55_r7_list_owned_compliance_cases_v1/);
+    assert.doesNotMatch(sql, /grant .* on public\.m55_r5_compliance_cases/i);
+  });
+
+  it('separates private cache headers from JSON charset headers', () => {
+    const security = readFileSync(join(root, 'lib/m55/creatorDistribution/security.ts'), 'utf8');
+    assert.match(security, /PRIVATE_RESPONSE_HEADERS/);
+    assert.match(security, /PRIVATE_JSON_RESPONSE_HEADERS/);
+    assert.doesNotMatch(
+      security,
+      /PRIVATE_RESPONSE_HEADERS\s*=\s*\{[^}]*Content-Type[^}]*application\/json/s,
+    );
+    const exportRoute = readFileSync(join(root, 'app/api/creator/dashboard/export/route.ts'), 'utf8');
+    assert.match(exportRoute, /text\/csv; charset=utf-8/);
+    const statementRoute = readFileSync(join(root, 'app/api/creator/statement/route.ts'), 'utf8');
+    assert.match(statementRoute, /PRIVATE_JSON_RESPONSE_HEADERS/);
   });
 
   it('migration enforces service-role-only RPC grants', () => {

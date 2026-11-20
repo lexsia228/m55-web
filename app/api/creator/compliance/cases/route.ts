@@ -9,7 +9,7 @@ import {
   parseBoundedEpochRangeV1,
   parseUtcRangeV1,
 } from '../../../../../lib/m55/creatorDashboard/reconciliationExport';
-import { PRIVATE_RESPONSE_HEADERS } from '../../../../../lib/m55/creatorDistribution/security';
+import { PRIVATE_JSON_RESPONSE_HEADERS } from '../../../../../lib/m55/creatorDistribution/security';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -20,10 +20,10 @@ export async function GET(request: Request) {
   const ctx = await resolveCreatorContextFromSession();
   if (!ctx.ok) {
     const status = ctx.error === 'UNAUTHORIZED' ? 401 : 403;
-    return NextResponse.json({ error: ctx.error }, { status, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: ctx.error }, { status, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
   if (!ctx.dashboardHistoryReadable) {
-    return NextResponse.json({ error: 'COMPLIANCE_NOT_AVAILABLE' }, { status: 403, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: 'COMPLIANCE_NOT_AVAILABLE' }, { status: 403, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 
   const url = new URL(request.url);
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   if (fromParam && toParam) {
     const parsedUtc = parseUtcRangeV1(fromParam, toParam);
     if (!parsedUtc.ok) {
-      return NextResponse.json({ error: parsedUtc.error }, { status: 400, headers: PRIVATE_RESPONSE_HEADERS });
+      return NextResponse.json({ error: parsedUtc.error }, { status: 400, headers: PRIVATE_JSON_RESPONSE_HEADERS });
     }
     fromMs = parsedUtc.fromMs;
     toMs = parsedUtc.toMs;
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       : toMs - DEFAULT_RANGE_MS;
     const parsed = parseBoundedEpochRangeV1(fromMs, toMs);
     if (!parsed.ok) {
-      return NextResponse.json({ error: parsed.error }, { status: 400, headers: PRIVATE_RESPONSE_HEADERS });
+      return NextResponse.json({ error: parsed.error }, { status: 400, headers: PRIVATE_JSON_RESPONSE_HEADERS });
     }
     fromMs = parsed.fromMs;
     toMs = parsed.toMs;
@@ -64,9 +64,9 @@ export async function GET(request: Request) {
     });
     return NextResponse.json(
       { range: { fromMs, toMs }, cases: page.rows, nextCursor: page.nextCursor },
-      { headers: PRIVATE_RESPONSE_HEADERS },
+      { headers: PRIVATE_JSON_RESPONSE_HEADERS },
     );
   } catch {
-    return NextResponse.json({ error: 'COMPLIANCE_UNAVAILABLE' }, { status: 503, headers: PRIVATE_RESPONSE_HEADERS });
+    return NextResponse.json({ error: 'COMPLIANCE_UNAVAILABLE' }, { status: 503, headers: PRIVATE_JSON_RESPONSE_HEADERS });
   }
 }

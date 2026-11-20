@@ -39,6 +39,7 @@ const isPublicRoute = createRouteMatcher([
   '/dev/my-owned-preview',
   '/dev/pair-share-preview',
   '/api/stripe/webhook',
+  '/api/stripe/connect/webhook',
   '/api/clerk/webhook',
   '/api/compatibility/checkout',
   '/api/purchase/checkout',

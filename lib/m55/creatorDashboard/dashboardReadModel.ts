@@ -1,5 +1,6 @@
 import 'server-only';
 import { getSupabaseAdmin } from '../../supabaseAdmin';
+import { parseOwnedComplianceCasesRpcPageV1 } from './ownedComplianceCasesRpcPage';
 import { mapPublicReasonLabelV1 } from './publicReasonMap';
 import {
   M55_R7_EXPORT_KEYSET_PAGE_SIZE,
@@ -434,39 +435,27 @@ export async function loadOwnedComplianceCasesPageV1(input: {
   const fromIso = new Date(input.fromMs).toISOString();
   const toIso = new Date(input.toMs).toISOString();
   const db = getSupabaseAdmin() as any;
-  let query = db
-    .from('m55_r5_compliance_cases')
-    .select('case_id, case_kind, status, opened_at, resolved_at, decision, decision_reason')
-    .eq('creator_economic_identity_id', input.creatorEconomicIdentityId)
-    .gte('opened_at', fromIso)
-    .lte('opened_at', toIso)
-    .order('opened_at', { ascending: false })
-    .order('case_id', { ascending: false })
-    .limit(pageSize + 1);
-
-  if (input.cursor) {
-    const orFilter = `opened_at.lt.${input.cursor.openedAt},and(opened_at.eq.${input.cursor.openedAt},case_id.lt.${input.cursor.caseId})`;
-    query = query.or(orFilter);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await db.rpc('m55_r7_list_owned_compliance_cases_v1', {
+    p_creator_economic_identity_id: input.creatorEconomicIdentityId,
+    p_opened_from: fromIso,
+    p_opened_to: toIso,
+    p_cursor_opened_at: input.cursor?.openedAt ?? null,
+    p_cursor_case_id: input.cursor?.caseId ?? null,
+    p_limit: pageSize,
+  });
   if (error) throw new Error('COMPLIANCE_READ_FAILED');
 
-  const raw = data ?? [];
-  const hasMore = raw.length > pageSize;
-  const slice = hasMore ? raw.slice(0, pageSize) : raw;
-  const rows = slice.map((row: Record<string, unknown>) => ({
-    displayReference: input.displayReferenceFor(row.case_id as string),
-    caseKind: row.case_kind as string,
-    status: row.status as string,
-    openedAt: row.opened_at as string,
-    resolvedAt: (row.resolved_at as string | null) ?? null,
-    publicDecisionLabel: mapPublicReasonLabelV1(
-      (row.decision_reason as string | null) ?? (row.decision as string | null),
-    ),
+  const { rows: raw, hasMore } = parseOwnedComplianceCasesRpcPageV1(data, pageSize);
+  const rows = raw.map((row) => ({
+    displayReference: input.displayReferenceFor(row.case_id),
+    caseKind: row.case_kind,
+    status: row.status,
+    openedAt: row.opened_at,
+    resolvedAt: row.resolved_at,
+    publicDecisionLabel: mapPublicReasonLabelV1(row.decision_reason ?? row.decision),
   }));
 
-  const last = slice[slice.length - 1] as { opened_at: string; case_id: string } | undefined;
+  const last = raw[raw.length - 1];
   return {
     rows,
     nextCursor:

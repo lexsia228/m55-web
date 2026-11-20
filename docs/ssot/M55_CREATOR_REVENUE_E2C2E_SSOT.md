@@ -1411,6 +1411,26 @@ Owns Creator trust/control UX: performance, earnings, per-commission explainabil
 
 Owns Stripe/provider integration, hosted onboarding, KYC readiness, payout batching/threshold/cadence, idempotency, provider lifecycle, destination-change security hold, account-takeover controls, webhook/dead-letter/replay, negative-balance handling, post-payout reconciliation, payout statements. **No full bank details stored by M55 unless later unavoidable and explicitly approved.**
 
+### R8-A isolated LOCAL provider readiness checkpoint (2026-11-15)
+
+**Scope:** isolated LOCAL only (`m55_r8_isolated_stack_20261105`). **Does not** assert Production provider runtime, merged PR state, or `PRODUCTION_CASH_ACTIVATION`.
+
+| Evidence | SHA-256 (Downloads) |
+|---|---|
+| Successful authenticated `refreshProvider=1` sync | `e8dbf87a14bffecbfaa7de865708f70259485bdef264c7d690cb4781f8416a2a` |
+| Remaining delta mapping | `f5fb66ab5d2c0c860f2050cbe96e2f2e3bef75281fe02cb1d18c1e47588bbf00` |
+
+**LOCAL outcomes (Human + DB, 2026-11-15):** `PAYOUTS_CAPABILITY_ACTIVE` · persisted snapshot `detailsSubmitted=true` · `providerPayoutReadinessGreen=true` · `operatingModelReferralGateMet=true` · `PROVIDER_SNAPSHOT_SYNCED` 2→3 · `last_synced_at=2026-11-15T12:58:46.14Z` · same bound TEST account · EXPIRED onboarding session retained (not force-COMPLETED).
+
+**HTTP sync attempts (3 total, each GO consumed):** (1) headless 404 Clerk dev-browser-missing — **no provider DB mutation** · (2) wrong identity 403 `CREATOR_PROFILE_REQUIRED` — **no provider DB mutation** · (3) correct Creator **HTTP 200** — **provider DB persistence GREEN**. **Further refresh prohibited** without new Human GO (success attempt consumed).
+
+**Evidence levels:** Human browser outcome · Cursor runtime · Downloads JSON artifacts — distinct; LOCAL readiness GREEN here is **not** durable Production provider readiness.
+
+**Quality follow-up (deferred):** `compatibilityNote` / `nextActions` mojibake observed by Human on **API JSON display**; Creator portal UI rendering impact **unconfirmed**.
+
+**CLOSED GREEN (no replay):** recipient mapper 15/15 (patch `80293372…`) · webhook route 34/34 + LOCAL signed replay/idempotency (patch `632e9388…`) · clearance RPC isolated migration · Hosted onboarding (Human). **Not proven:** Stripe **TEST** environment direct webhook forward delivery (distinct from Production live) · webhook-driven snapshot auto-sync · settlement schema on isolated DB · formal full Creator E2E · cash payout. Residual delta artifact `f5fb66ab…` remains authoritative for open settlement/sync gaps.
+
+
 ### Stage exit criteria (frozen 2026-09-06)
 
 | Stage | Exits only when |

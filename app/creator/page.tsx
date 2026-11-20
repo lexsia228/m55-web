@@ -78,6 +78,10 @@ export default function CreatorRecruitmentPage() {
         <p className={styles.lead}>
           Creator Affiliateの対象は、Web上で提供する「M55 プレミアムレポート ライト」と「M55 プレミアムレポート フル」です。
         </p>
+        <div className={styles.ctaStack}>
+          <Link href="/creator/apply" className={styles.primaryCta}>Creatorとして申請する</Link>
+          <Link href="/creator/portal" className={styles.secondaryCta}>申請状況・参加後の準備を見る</Link>
+        </div>
       </section>
 
       <section className={styles.section}>
@@ -133,6 +137,23 @@ export default function CreatorRecruitmentPage() {
         <p className={styles.termsNote}>
           詳細な算定条件、保留・取消・調整、支払処理手数料等は
           ページ下部のCreator Affiliate規約をご確認ください。
+        </p>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>承認後の準備（概要）</h2>
+        <p className={styles.lead}>
+          参加が承認されたあと、紹介・報酬の受取に向けて次のような準備が必要になる場合があります（時期・要否は個別に案内します）。
+        </p>
+        <ul className={styles.lead}>
+          <li>Stripe上での本人情報登録（氏名・フリガナ、連絡先、生年月日、住所など）</li>
+          <li>活動内容・公開サイト等の確認</li>
+          <li>振込先口座の登録</li>
+          <li>必要に応じた本人確認（Stripe側の手続き。M55が不要な書類を一律収集する設計ではありません）</li>
+          <li>個人/法人の区分、税務関連情報、該当する場合の適格請求書発行事業者登録情報</li>
+        </ul>
+        <p className={styles.lead}>
+          応募・審査・承認・報酬の発生・確定・振込開始は別段階です。Stripeの登録完了だけでM55での振込が直ちに始まるとは限りません。
         </p>
       </section>
 

@@ -139,6 +139,12 @@ const R7_APPLICATION_ROUTE_TEMPLATES = [
   '/api/creator/referrals/current',
   '/api/creator/referrals/issue',
   '/api/creator/referrals/rotate',
+  '/api/creator/provider/status',
+  '/api/creator/provider/tax-profile',
+  '/api/creator/provider/onboarding',
+  '/api/stripe/connect/webhook',
+  '/api/creator/statement',
+  '/api/internal/creator-payout-exceptions',
 ] as const;
 
 const R7_PROTECTED_CREATOR_API_SAMPLES = [
@@ -148,6 +154,10 @@ const R7_PROTECTED_CREATOR_API_SAMPLES = [
   '/api/creator/referrals/issue',
   '/api/creator/referrals/rotate',
   '/api/creator/compliance/cases',
+  '/api/creator/provider/status',
+  '/api/creator/provider/tax-profile',
+  '/api/creator/provider/onboarding',
+  '/api/creator/statement',
 ] as const;
 
 function assertMiddlewareAllowsOnlyReferralEntryNextResponse(src: string): void {
@@ -167,6 +177,7 @@ function assertMiddlewareAllowsOnlyReferralEntryNextResponse(src: string): void 
 
 const PUBLIC_API_SAMPLES = [
   '/api/stripe/webhook',
+  '/api/stripe/connect/webhook',
   '/api/clerk/webhook',
   '/api/compatibility/checkout',
   '/api/purchase/checkout',
@@ -193,9 +204,10 @@ describe('routeAccessContract — exhaustive inventory', () => {
     assert.doesNotThrow(() => assertApplicationRouteInventoryClassified(ROOT));
   });
 
-  it('discovers the current application route count (R7: 84 + 8 templates + main SEO)', () => {
+  it('discovers the current application route count (R7 + R8-A provider APIs)', () => {
     const templates = discoverApplicationRouteTemplates(ROOT);
-    assert.equal(templates.length, 93);
+    // 96 baseline + /api/stripe/connect/webhook + /api/creator/statement + /api/internal/creator-payout-exceptions
+    assert.equal(templates.length, 99);
     for (const template of R7_APPLICATION_ROUTE_TEMPLATES) {
       assert.equal(templates.includes(template), true, `missing R7 template ${template}`);
     }
@@ -211,8 +223,8 @@ describe('routeAccessContract — protected regression', () => {
     }
   });
 
-  it('keeps all 22 protected static Route Handlers protected', () => {
-    assert.equal(PROTECTED_API_PATHS.length, 22);
+  it('keeps all 27 protected static Route Handlers protected', () => {
+    assert.equal(PROTECTED_API_PATHS.length, 27);
     for (const path of PROTECTED_API_PATHS) {
       assert.equal(classifyRouteAccess(path), 'protected', path);
       assert.equal(matchesProtectedRoutePath(path), true, path);
@@ -235,6 +247,20 @@ describe('routeAccessContract — public regression', () => {
       assert.equal(matchesPublicRoutePath(path), true, path);
       assert.equal(matchesProtectedRoutePath(path), false, path);
     }
+  });
+
+  it('keeps isolated Stripe Connect webhook public while Creator provider APIs stay protected', () => {
+    assert.equal(classifyRouteAccess('/api/stripe/connect/webhook'), 'public');
+    assert.equal(matchesPublicRoutePath('/api/stripe/connect/webhook'), true);
+    assert.equal(classifyRouteAccess('/api/creator/provider/status'), 'protected');
+    assert.equal(classifyRouteAccess('/api/creator/provider/onboarding'), 'protected');
+    const unknown = resolveAuthRoutingOutcome({
+      pathname: '/api/stripe/connect/not-a-route',
+      isPublicRoute: false,
+      nonProdReplyBypass: false,
+      cleanCaptureBypass: false,
+    });
+    assert.equal(unknown.action, 'unknown_api');
   });
 });
 

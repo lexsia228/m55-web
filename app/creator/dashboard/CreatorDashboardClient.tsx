@@ -2,12 +2,21 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import {
+  formatComplianceStatusLabelJa,
+  formatInstantJstFromMs,
+  formatLifecycleEntitlementLabelJa,
+} from '../../../lib/m55/creatorDashboard/creatorDisplayFormat';
+import { describeReferralIssueGateJa } from '../../../lib/m55/creatorDashboard/creatorReferralUi';
+import { CreatorStatementPanel } from '../_components/CreatorStatementPanel';
 import styles from './dashboard.module.css';
 
 type Metric = { kind: 'COUNT'; value: number } | { kind: 'UNAVAILABLE'; explanation: string };
 
 type DashboardPayload = {
   profileStatus: string;
+  referralIssuePermitted?: boolean;
+  r7ReferralIssueEligible?: boolean;
   range: { fromMs: number; toMs: number };
   summary: {
     qualifiedTouches: Metric;
@@ -71,14 +80,6 @@ const REFERRAL_ROTATE_UNCERTAIN_MESSAGE =
 const REFERRAL_ISSUE_UNCERTAIN_MESSAGE =
   '発行の成否を確認できません。ページを再読み込みして現在のURLを確認してください。';
 
-const LIFECYCLE_ENTITLEMENT_LABELS: Readonly<Record<string, string>> = {
-  COMMISSION_PENDING_COMPLIANCE_REVIEW: 'コンプライアンス確認中',
-  COMMISSION_HOLD: '保留',
-  COMMISSION_PAYABLE: '支払可能',
-  COMMISSION_REVERSED: '取消・返金反映',
-  COMMISSION_ADJUSTED: '調整済み',
-};
-
 function formatCountMetric(metric: Metric): string {
   if (metric.kind === 'UNAVAILABLE') return '—';
   return `${metric.value.toLocaleString('ja-JP')} 件`;
@@ -89,13 +90,13 @@ function formatJpyMetric(metric: Metric): string {
   return `${metric.value.toLocaleString('ja-JP')} 円`;
 }
 
+function sumEntitlementJpy(entitlements: Record<string, number>): number {
+  return Object.values(entitlements).reduce((sum, value) => sum + value, 0);
+}
+
 function formatMetricExplanation(metric: Metric): string | null {
   if (metric.kind === 'UNAVAILABLE') return metric.explanation;
   return null;
-}
-
-function formatLifecycleEntitlementLabel(lifecycle: string): string {
-  return LIFECYCLE_ENTITLEMENT_LABELS[lifecycle] ?? lifecycle;
 }
 
 function profileBlocksReferralActions(profileStatus: string): boolean {
@@ -118,7 +119,7 @@ function profileReferralBlockedMessage(profileStatus: string): string | null {
 function mapExportErrorCode(code: string | undefined): string {
   switch (code) {
     case 'INVALID_RANGE':
-      return '期間の指定が正しくありません（UTCの開始・終了を確認してください）。';
+      return '期間の指定が正しくありません（開始・終了日時を確認してください）。';
     case 'RANGE_TOO_WIDE':
       return '期間は最大366日までです。';
     case 'EXPORT_ROW_LIMIT_EXCEEDED':
@@ -391,7 +392,7 @@ export function CreatorDashboardClient() {
       const from = tryInputToUtcZ(exportFrom);
       const to = tryInputToUtcZ(exportTo);
       if (!from || !to) {
-        setExportError('期間の指定が正しくありません（UTCの開始・終了を確認してください）。');
+        setExportError('期間の指定が正しくありません（開始・終了日時を確認してください）。');
         return;
       }
       const url = `/api/creator/dashboard/export?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
@@ -431,14 +432,59 @@ export function CreatorDashboardClient() {
 
   const unavailable = dashboard.summary.unavailableMetrics;
   const entitlements = dashboard.summary.currentEntitlementsByLifecycle;
-  const policy = dashboard.summary.policyVersions;
   const referralBlockedMessage = profileReferralBlockedMessage(dashboard.profileStatus);
   const referralActionsDisabled = busy || profileBlocksReferralActions(dashboard.profileStatus);
+  const canIssueNewReferral = dashboard.referralIssuePermitted === true;
+  const canMutateReferral = canIssueNewReferral && !referralActionsDisabled;
+  const referralGateMessage = describeReferralIssueGateJa({
+    profileStatus: dashboard.profileStatus,
+    referralIssuePermitted: canIssueNewReferral,
+    r7ReferralIssueEligible: dashboard.r7ReferralIssueEligible === true,
+    hasExistingLink: Boolean(referral?.activeLinkId),
+  });
+  const balanceJpy = sumEntitlementJpy(entitlements);
 
   return (
     <div className={styles.stack}>
       <section className={styles.panel}>
+        <h2 className={styles.sectionTitle}>この期間のサマリー</h2>
+        <dl className={styles.metrics}>
+          <div>
+            <dt>現在の報酬残高（全区分）</dt>
+            <dd>
+              {Object.keys(entitlements).length === 0
+                ? '0 円（記録なし）'
+                : `${balanceJpy.toLocaleString('ja-JP')} 円`}
+            </dd>
+          </div>
+          <div>
+            <dt>有効な紹介</dt>
+            <dd>{formatCountMetric(dashboard.summary.qualifiedTouches)}</dd>
+            {formatMetricExplanation(dashboard.summary.qualifiedTouches) ? (
+              <dd className={styles.metricNote}>
+                {formatMetricExplanation(dashboard.summary.qualifiedTouches)}
+              </dd>
+            ) : null}
+          </div>
+          <div>
+            <dt>紹介経由の購入</dt>
+            <dd>{formatCountMetric(dashboard.summary.attributedConversions)}</dd>
+          </div>
+          <div>
+            <dt>報酬算定の対象売上</dt>
+            <dd>{formatJpyMetric(dashboard.summary.attributedSales)}</dd>
+          </div>
+        </dl>
+        <p className={styles.note}>
+          残高は審査・確定後の記録です。振込予定・振込完了とは別です。銀行振込はまだ開始されていません。
+        </p>
+      </section>
+
+      <section className={styles.panel}>
         <h2 className={styles.sectionTitle}>紹介リンク</h2>
+        {referralGateMessage ? (
+          <p className={styles.note} role="status">{referralGateMessage}</p>
+        ) : null}
         {referralBlockedMessage ? (
           <p className={styles.note} role="status">{referralBlockedMessage}</p>
         ) : null}
@@ -466,7 +512,7 @@ export function CreatorDashboardClient() {
               <button
                 type="button"
                 className={styles.button}
-                disabled={referralActionsDisabled}
+                disabled={!canMutateReferral}
                 onClick={rotateReferral}
               >
                 リンクを再発行
@@ -484,7 +530,7 @@ export function CreatorDashboardClient() {
               <button
                 type="button"
                 className={styles.button}
-                disabled={referralActionsDisabled}
+                disabled={!canMutateReferral}
                 onClick={rotateReferral}
               >
                 互換リンクを再発行
@@ -492,33 +538,39 @@ export function CreatorDashboardClient() {
             </div>
           </>
         ) : referralLoadStatus === 'not_issued' && !referralBlockedMessage ? (
-          <>
+          canIssueNewReferral ? (
+            <>
+              <p className={styles.meta} role="status">
+                紹介URLはまだ発行されていません。下のボタンから新規発行できます。
+              </p>
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.button}
+                  disabled={!canMutateReferral}
+                  onClick={issueReferral}
+                >
+                  紹介URLを発行
+                </button>
+              </div>
+            </>
+          ) : (
             <p className={styles.meta} role="status">
-              紹介URLはまだ発行されていません。下のボタンから表示できます。
+              紹介URLはまだ発行されていません。受取準備が揃うと新規発行できます。
             </p>
-            <div className={styles.actions}>
-              <button
-                type="button"
-                className={styles.button}
-                disabled={referralActionsDisabled}
-                onClick={issueReferral}
-              >
-                紹介URLを表示
-              </button>
-            </div>
-          </>
-        ) : referralLoadStatus === 'fetch_failed' ? null : (
+          )
+        ) : referralLoadStatus === 'fetch_failed' ? null : canMutateReferral ? (
           <div className={styles.actions}>
             <button
               type="button"
               className={styles.button}
-              disabled={referralActionsDisabled}
+              disabled={!canMutateReferral}
               onClick={issueReferral}
             >
-              紹介URLを表示
+              紹介URLを発行
             </button>
           </div>
-        )}
+        ) : null}
         {referralActionError ? (
           <p role="alert" className={styles.error}>{referralActionError}</p>
         ) : null}
@@ -532,7 +584,7 @@ export function CreatorDashboardClient() {
         <h2 className={styles.sectionTitle}>期間内の記録</h2>
         <dl className={styles.metrics}>
           <div>
-            <dt>有効な紹介タッチ</dt>
+            <dt>有効な紹介</dt>
             <dd>{formatCountMetric(dashboard.summary.qualifiedTouches)}</dd>
             {formatMetricExplanation(dashboard.summary.qualifiedTouches) ? (
               <dd className={styles.metricNote}>
@@ -541,19 +593,19 @@ export function CreatorDashboardClient() {
             ) : null}
           </div>
           <div>
-            <dt>帰属した購入（件数）</dt>
+            <dt>紹介経由の購入（件数）</dt>
             <dd>{formatCountMetric(dashboard.summary.attributedConversions)}</dd>
           </div>
           <div>
-            <dt>対象となる初回購入（件数）</dt>
+            <dt>報酬対象の初回購入（件数）</dt>
             <dd>{formatCountMetric(dashboard.summary.eligiblePaidConversions)}</dd>
           </div>
           <div>
-            <dt>帰属売上（コミッション対象ベース）</dt>
+            <dt>報酬算定の対象売上</dt>
             <dd>{formatJpyMetric(dashboard.summary.attributedSales)}</dd>
           </div>
           <div>
-            <dt>コミッション活動額</dt>
+            <dt>コミッションの増減合計</dt>
             <dd>{formatJpyMetric(dashboard.summary.commissionActivityJpy)}</dd>
           </div>
         </dl>
@@ -572,16 +624,14 @@ export function CreatorDashboardClient() {
           <ul className={styles.activityList}>
             {Object.entries(entitlements).map(([lifecycle, amount]) => (
               <li key={lifecycle}>
-                <span>{formatLifecycleEntitlementLabel(lifecycle)}</span>
+                <span>{formatLifecycleEntitlementLabelJa(lifecycle)}</span>
                 <span>{amount.toLocaleString('ja-JP')} 円</span>
               </li>
             ))}
           </ul>
         )}
-        <p className={styles.meta}>
-          適用ポリシー：
-          {policy.attributionPolicyVersion ?? '—'} / {policy.financialPolicyVersion ?? '—'} /{' '}
-          {policy.rateScheduleVersion ?? '—'}
+        <p className={styles.note}>
+          区分ごとの金額は、審査・返金・調整後の現在の記録です。振込予定日や振込完了を意味しません。
         </p>
       </section>
 
@@ -596,8 +646,11 @@ export function CreatorDashboardClient() {
                 <span className={styles.meta}>{row.displayReference}</span>
                 <span>{row.publicReasonLabel}</span>
                 <span>
-                  活動額 {row.commissionDeltaJpy.toLocaleString('ja-JP')} 円 / 残高{' '}
+                  増減 {row.commissionDeltaJpy.toLocaleString('ja-JP')} 円 / 記録時点残高{' '}
                   {row.entitlementAfterEventJpy.toLocaleString('ja-JP')} 円
+                  {Number.isFinite(row.releaseAtMs) ? (
+                    <> / 確認目安 {formatInstantJstFromMs(row.releaseAtMs)}（日本時間）</>
+                  ) : null}
                 </span>
               </li>
             ))}
@@ -618,8 +671,12 @@ export function CreatorDashboardClient() {
         {commissionMoreError ? (
           <p role="alert" className={styles.error}>{commissionMoreError}</p>
         ) : null}
-        <p className={styles.note}>release 時刻は審査・解放の目安であり、支払日ではありません。</p>
+        <p className={styles.note}>
+          「確認目安」は審査・保留解除の参考時刻であり、振込予定日や振込完了を意味しません。
+        </p>
       </section>
+
+      <CreatorStatementPanel />
 
       <section className={styles.panel}>
         <h2 className={styles.sectionTitle}>コンプライアンス記録</h2>
@@ -648,7 +705,7 @@ export function CreatorDashboardClient() {
               <li key={row.displayReference}>
                 <span className={styles.meta}>{row.displayReference}</span>
                 <span>{row.publicDecisionLabel}</span>
-                <span>{row.status}</span>
+                <span>{formatComplianceStatusLabelJa(row.status)}</span>
               </li>
             ))}
           </ul>
@@ -674,7 +731,7 @@ export function CreatorDashboardClient() {
         <h2 className={styles.sectionTitle}>照合エクスポート（CSV）</h2>
         <div className={styles.exportRow}>
           <label>
-            開始（UTC）
+            開始（UTC・照合用）
             <input
               type="datetime-local"
               value={exportFrom}
@@ -682,7 +739,7 @@ export function CreatorDashboardClient() {
             />
           </label>
           <label>
-            終了（UTC）
+            終了（UTC・照合用）
             <input
               type="datetime-local"
               value={exportTo}
@@ -697,7 +754,7 @@ export function CreatorDashboardClient() {
         </div>
         {exportError ? <p role="alert" className={styles.error}>{exportError}</p> : null}
         <p className={styles.note}>
-          列見出しは日本語です。最大366日・10,000行まで。超過時は画面にエラーを表示します。
+          期間入力はUTC基準です（API・CSVの契約は変更していません）。活動一覧の「確認目安」表示のみ日本時間です。最大366日・10,000行まで。
         </p>
       </section>
     </div>

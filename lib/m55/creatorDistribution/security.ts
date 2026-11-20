@@ -28,4 +28,11 @@ export function canonicalPublicMediaUrl(value: string): string | null {
   } catch { return null; }
 }
 
-export const PRIVATE_RESPONSE_HEADERS = { 'Cache-Control': 'private, no-store, max-age=0' };
+export const PRIVATE_RESPONSE_HEADERS = {
+  'Cache-Control': 'private, no-store, max-age=0',
+};
+
+export const PRIVATE_JSON_RESPONSE_HEADERS = {
+  ...PRIVATE_RESPONSE_HEADERS,
+  'Content-Type': 'application/json; charset=utf-8',
+};

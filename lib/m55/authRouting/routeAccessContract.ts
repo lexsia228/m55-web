@@ -39,6 +39,7 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   '/dev/my-owned-preview',
   '/dev/pair-share-preview',
   '/api/stripe/webhook',
+  '/api/stripe/connect/webhook',
   '/api/clerk/webhook',
   '/api/compatibility/checkout',
   '/api/purchase/checkout',
@@ -104,8 +105,13 @@ export const PROTECTED_API_PATHS = [
   '/api/creator/referrals/rotate',
   '/api/creator/dashboard',
   '/api/creator/dashboard/export',
+  '/api/creator/provider/status',
+  '/api/creator/provider/tax-profile',
+  '/api/creator/provider/onboarding',
+  '/api/creator/statement',
   '/api/internal/creator-review',
   '/api/internal/creator-compliance',
+  '/api/internal/creator-payout-exceptions',
   '/api/m55/attribution/creator-touch/continue',
 ] as const;
 

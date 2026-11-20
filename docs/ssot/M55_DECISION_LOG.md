@@ -35,6 +35,13 @@ Status: **Decisions authority (Tier E)**
 | m55.jp を canonical Production として扱う | Human-frozen authority は m-55.jp |
 | 記憶・会話履歴を Production/worktree 真実として採用 | Product Authority Pack で機械検証可能な durable authority を導入 |
 
+## Human product decisions (R8 — recorded 2026-11-15, implementation deferred)
+
+| Decision | Reason |
+|---|---|
+| Creator apply/portal pre-disclosure of post-approval KYC, bank/payout, and required identity information | Human-approved product UX on `/creator`, `/creator/apply`, `/creator/portal`; reuse existing pages/contracts; no new “保存版” public naming |
+| compatibilityNote / nextActions Japanese mojibake follow-up | Human confirmed garbled text in **API JSON response display**; impact on `/creator` portal rendered UI **not confirmed** — separate quality lane; **no copy/encoding fix in provider sync checkpoint** |
+
 ## Recorded deferrals (P2)
 
 Recorded under `M55_COMMERCIAL_QUALITY_CONTRACT.md`「P2 は明示的な Human 受容または本ログへの記録がある場合のみ close 可」.

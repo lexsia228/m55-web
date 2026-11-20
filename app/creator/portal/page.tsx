@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { auth } from '@clerk/nextjs/server';
 import { SignInButton } from '@clerk/nextjs';
 import { CreatorPortalPanel } from '../_components/CreatorPortalPanel';
@@ -19,7 +20,9 @@ export default async function CreatorPortalPage() {
         申請状況と、対応が必要な場合の次のアクションを確認できます。
       </p>
       {userId ? (
-        <CreatorPortalPanel />
+        <Suspense fallback={<p className={styles.loading}>読み込み中…</p>}>
+          <CreatorPortalPanel />
+        </Suspense>
       ) : (
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Creator申請状況を確認する</h2>
